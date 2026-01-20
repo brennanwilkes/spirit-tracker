@@ -46,13 +46,13 @@ function makeUnknownSku(r) {
   const h = url ? btoa(unescape(encodeURIComponent(url))).replace(/=+$/g, "").slice(0, 16) : "no-url";
   return `unknown:${store}:${h}`;
 }
+
 function fnv1a32(str) {
   let h = 0x811c9dc5; // offset basis
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
     h = Math.imul(h, 0x01000193); // FNV prime
   }
-  // unsigned -> 8 hex chars
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
@@ -486,7 +486,8 @@ function isLocalWriteMode() {
 function levenshtein(a, b) {
   a = String(a || "");
   b = String(b || "");
-  const n = a.length, m = b.length;
+  const n = a.length,
+    m = b.length;
   if (!n) return m;
   if (!m) return n;
   const dp = new Array(m + 1);
@@ -540,11 +541,111 @@ function skuIsBC(allRows, skuKey) {
   return false;
 }
 
-function topSuggestions(allAgg, limit, otherPinnedSku) {
+async function loadSkuLinksBestEffort() {
+  // Works on local server (viz/serve.js). On GH pages this will fail -> empty.
+  try {
+    const r = await fetch("/__stviz/sku-links", { cache: "no-store" });
+    if (!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j?.links) ? j.links : [];
+  } catch {
+    return [];
+  }
+}
+
+function buildMappedSkuSet(links) {
+  const s = new Set();
+  for (const x of Array.isArray(links) ? links : []) {
+    const a = String(x?.fromSku || "").trim();
+    const b = String(x?.toSku || "").trim();
+    if (a) s.add(a);
+    if (b) s.add(b);
+  }
+  return s;
+}
+
+function computeInitialPairs(allAgg, mappedSkus, limitPairs) {
+  // Pair suggestions: (A,B) where names are similar, SKUs differ, and neither SKU is mapped.
+  const items = allAgg.filter((it) => {
+    if (!it) return false;
+    if (isUnknownSkuKey(it.sku)) return false;
+    if (mappedSkus && mappedSkus.has(String(it.sku))) return false;
+    return true;
+  });
+
+  // Build token -> items index
+  const tokMap = new Map();
+  const itemTokens = new Map();
+  for (const it of items) {
+    const toks = Array.from(new Set(tokenizeQuery(it.name || ""))).filter(Boolean);
+    itemTokens.set(it.sku, toks);
+    for (const t of toks) {
+      let arr = tokMap.get(t);
+      if (!arr) tokMap.set(t, (arr = []));
+      arr.push(it);
+    }
+  }
+
+  // Best match per item from shared-token candidates
+  const bestByPairKey = new Map(); // "a|b" canonical -> {a,b,score}
+  for (const a of items) {
+    const toks = itemTokens.get(a.sku) || [];
+    const cand = new Set();
+    for (const t of toks) {
+      const arr = tokMap.get(t);
+      if (!arr) continue;
+      for (const b of arr) {
+        if (!b) continue;
+        if (b.sku === a.sku) continue; // identical SKU never
+        cand.add(b);
+      }
+    }
+
+    let bestB = null;
+    let bestS = 0;
+    for (const b of cand) {
+      const s = similarityScore(a.name || "", b.name || "");
+      if (s > bestS) {
+        bestS = s;
+        bestB = b;
+      }
+    }
+
+    // require some similarity
+    if (!bestB || bestS < 0.55) continue;
+
+    const aSku = String(a.sku);
+    const bSku = String(bestB.sku);
+    const key = aSku < bSku ? `${aSku}|${bSku}` : `${bSku}|${aSku}`;
+
+    const prev = bestByPairKey.get(key);
+    if (!prev || bestS > prev.score) bestByPairKey.set(key, { a, b: bestB, score: bestS });
+  }
+
+  const pairs = Array.from(bestByPairKey.values());
+  pairs.sort((x, y) => y.score - x.score);
+
+  // ensure we don't reuse a SKU across multiple initial pairs
+  const used = new Set();
+  const out = [];
+  for (const p of pairs) {
+    const aSku = String(p.a.sku),
+      bSku = String(p.b.sku);
+    if (used.has(aSku) || used.has(bSku)) continue;
+    used.add(aSku);
+    used.add(bSku);
+    out.push({ a: p.a, b: p.b, score: p.score });
+    if (out.length >= limitPairs) break;
+  }
+  return out;
+}
+
+function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   const scored = [];
   for (const it of allAgg) {
     if (!it) continue;
     if (isUnknownSkuKey(it.sku)) continue;
+    if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
 
     const stores = it.stores ? it.stores.size : 0;
@@ -556,14 +657,15 @@ function topSuggestions(allAgg, limit, otherPinnedSku) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(allAgg, pinned, limit, otherPinnedSku) {
-  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku);
+function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus) {
+  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const base = String(pinned.name || "");
   const scored = [];
   for (const it of allAgg) {
     if (!it) continue;
     if (isUnknownSkuKey(it.sku)) continue;
+    if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (it.sku === pinned.sku) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
 
@@ -600,7 +702,7 @@ async function renderSkuLinker() {
 
       <div class="card" style="padding:14px;">
         <div class="small" style="margin-bottom:10px;">
-          Unknown SKUs are hidden. With both pinned, LINK SKU writes to data/sku_links.json (local only).
+          Unknown SKUs are hidden. Existing mapped SKUs are excluded. With both pinned, LINK SKU writes to data/sku_links.json (local only).
         </div>
 
         <div style="display:flex; gap:16px;">
@@ -643,6 +745,13 @@ async function renderSkuLinker() {
   // Build candidates; hide unknown (u:...) entirely for this page
   const allAgg = aggregateBySku(allRows).filter((it) => !isUnknownSkuKey(it.sku));
 
+  // Load existing links (local best-effort) and exclude mapped SKUs from recommendations
+  const existingLinks = await loadSkuLinksBestEffort();
+  const mappedSkus = buildMappedSkuSet(existingLinks);
+
+  // Paired initial suggestions (no search, no pinned)
+  const initialPairs = computeInitialPairs(allAgg, mappedSkus, 30);
+
   let pinnedL = null;
   let pinnedR = null;
 
@@ -680,20 +789,30 @@ async function renderSkuLinker() {
     `;
   }
 
-  function sideItems(query, otherPinned) {
+  function sideItems(side, query, otherPinned) {
     const tokens = tokenizeQuery(query);
-
-    // Never show same sku as other pinned
     const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
 
+    // Search mode (still independent lists)
     if (tokens.length) {
       return allAgg
-        .filter((it) => it && it.sku !== otherSku && matchesAllTokens(it.searchText, tokens))
+        .filter(
+          (it) => it && it.sku !== otherSku && !mappedSkus.has(String(it.sku)) && matchesAllTokens(it.searchText, tokens)
+        )
         .slice(0, 80);
     }
 
-    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku);
-    return topSuggestions(allAgg, 60, "");
+    // If other side pinned: recommend similar to pinned
+    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus);
+
+    // Neither pinned + no search: paired initial suggestions
+    if (initialPairs && initialPairs.length) {
+      const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
+      return list.filter((it) => it && it.sku !== otherSku);
+    }
+
+    // Fallback
+    return topSuggestions(allAgg, 60, otherSku, mappedSkus);
   }
 
   function attachHandlers($root, side) {
@@ -704,6 +823,12 @@ async function renderSkuLinker() {
         if (!it) return;
 
         if (isUnknownSkuKey(it.sku)) return;
+
+        // exclude already mapped from being pinned/linked
+        if (mappedSkus.has(String(it.sku))) {
+          $status.textContent = "This SKU is already mapped; choose an unmapped SKU.";
+          return;
+        }
 
         const other = side === "L" ? pinnedR : pinnedL;
         if (other && String(other.sku || "") === String(it.sku || "")) {
@@ -731,7 +856,7 @@ async function renderSkuLinker() {
       return;
     }
 
-    const items = sideItems(query, other);
+    const items = sideItems(side, query, other);
     $list.innerHTML = items.length ? items.map((it) => renderCard(it, false)).join("") : `<div class="small">No matches.</div>`;
     attachHandlers($list, side);
   }
@@ -752,6 +877,11 @@ async function renderSkuLinker() {
       $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
+    if (mappedSkus.has(String(pinnedL.sku)) || mappedSkus.has(String(pinnedR.sku))) {
+      $linkBtn.disabled = true;
+      $status.textContent = "Not allowed: one of these SKUs is already mapped.";
+      return;
+    }
     $linkBtn.disabled = false;
     if ($status.textContent === "Pin one item on each side to enable linking.") $status.textContent = "";
   }
@@ -762,7 +892,8 @@ async function renderSkuLinker() {
     updateButton();
   }
 
-  let tL = null, tR = null;
+  let tL = null,
+    tR = null;
   $qL.addEventListener("input", () => {
     if (tL) clearTimeout(tL);
     tL = setTimeout(() => {
@@ -792,20 +923,37 @@ async function renderSkuLinker() {
       $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
+    if (mappedSkus.has(a) || mappedSkus.has(b)) {
+      $status.textContent = "Not allowed: one of these SKUs is already mapped.";
+      return;
+    }
 
     // Direction: if either is BC-based (BCL/Strath appears), FROM is BC sku.
     const aBC = skuIsBC(allRows, a);
     const bBC = skuIsBC(allRows, b);
 
-    let fromSku = a, toSku = b;
-    if (aBC && !bBC) { fromSku = a; toSku = b; }
-    else if (bBC && !aBC) { fromSku = b; toSku = a; }
+    let fromSku = a,
+      toSku = b;
+    if (aBC && !bBC) {
+      fromSku = a;
+      toSku = b;
+    } else if (bBC && !aBC) {
+      fromSku = b;
+      toSku = a;
+    }
 
     $status.textContent = `Writing: ${displaySku(fromSku)} → ${displaySku(toSku)} …`;
 
     try {
       const out = await apiWriteSkuLink(fromSku, toSku);
+      // update in-memory mapped set so UI updates immediately
+      mappedSkus.add(fromSku);
+      mappedSkus.add(toSku);
       $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}) to data/sku_links.json.`;
+      // Unpin after save so you can keep going quickly
+      pinnedL = null;
+      pinnedR = null;
+      updateAll();
     } catch (e) {
       $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
     }
@@ -978,6 +1126,7 @@ async function renderItem(sku) {
   let cur = all.filter((x) => keySkuForRow(x) === want);
 
   if (!cur.length) {
+    // debug: show some Keg N Cork synthetic keys to see what we're actually generating
     const knc = all.filter(
       (x) => String(x.storeLabel || x.store || "").toLowerCase().includes("keg") && !String(x.sku || "").trim()
     );
