@@ -74,6 +74,7 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   padding: 12px;
   background: #0f1318;
   cursor: pointer;
+  min-height: 92px; /* keep results uniform */
 }
 
 .item:hover { border-color: #2f3a46; }
@@ -81,20 +82,21 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 .itemRow {
   display: flex;
   gap: 12px;
-  align-items: stretch; /* let thumb fill card height */
+  align-items: center; /* keep thumb centered; don't stretch */
+  min-height: 68px;
 }
 
 .thumbBox {
   width: 64px;
+  height: 64px;          /* fixed thumb height */
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border);
   background: #0b0d10;
   flex: 0 0 64px;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
-  min-height: 64px;
 }
 
 .thumb {
@@ -113,6 +115,9 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 .itemBody {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .itemTop {
@@ -126,6 +131,9 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   font-weight: 700;
   font-size: 14px;
   min-width: 0;
+  white-space: nowrap;      /* lock to one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .badge {
@@ -144,8 +152,9 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   margin-top: 8px;
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;      /* keep single row (desktop) */
   align-items: center;
+  overflow: hidden;
   color: var(--muted);
   font-size: 13px;
 }
@@ -238,7 +247,10 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 
 @media (max-width: 640px) {
   .container { padding: 14px; }
-  .thumbBox { width: 56px; flex: 0 0 56px; min-height: 56px; }
+  .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
+  .item { min-height: 0; }        /* allow natural height on small screens */
+  .metaRow { flex-wrap: wrap; }   /* wrapping is fine on mobile */
+
   .detailThumbBox { width: 84px; height: 84px; flex: 0 0 84px; }
 
   .chartBox {

@@ -1,4 +1,3 @@
-/* viz/app/linker_page.js */
 import { esc, renderThumbHtml } from "./dom.js";
 import {
   tokenizeQuery,
@@ -91,6 +90,7 @@ function storesOverlap(aItem, bItem) {
   const b = bItem?.stores;
   if (!a || !b) return false;
 
+  // stores are Set(storeLabel). Exact-label overlap is the intended rule.
   for (const s of a) {
     if (b.has(s)) return true;
   }
@@ -115,6 +115,7 @@ function isBCStoreLabel(label) {
   return s.includes("bcl") || s.includes("strath");
 }
 
+// infer BC-ness by checking any row for that skuKey in current index
 function skuIsBC(allRows, skuKey) {
   for (const r of allRows) {
     if (keySkuForRow(r) !== skuKey) continue;
@@ -143,8 +144,16 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn) {
-  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
+function recommendSimilar(
+  allAgg,
+  pinned,
+  limit,
+  otherPinnedSku,
+  mappedSkus,
+  isIgnoredPairFn
+) {
+  if (!pinned || !pinned.name)
+    return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const base = String(pinned.name || "");
   const pinnedSku = String(pinned.sku || "");
@@ -157,8 +166,14 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
     if (it.sku === pinned.sku) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
 
+    // never suggest same-store pairs
     if (storesOverlap(pinned, it)) continue;
-    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, String(it.sku || ""))) continue;
+
+    if (
+      typeof isIgnoredPairFn === "function" &&
+      isIgnoredPairFn(pinnedSku, String(it.sku || ""))
+    )
+      continue;
 
     const s = similarityScore(base, it.name || "");
     if (s > 0) scored.push({ it, s });
@@ -167,6 +182,7 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
   return scored.slice(0, limit).map((x) => x.it);
 }
 
+// FAST initial pairing (approx) with ignore-pair exclusion + same-store exclusion
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const items = allAgg.filter((it) => {
     if (!it) return false;
@@ -183,7 +199,9 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const itemNormName = new Map();
 
   for (const it of items) {
-    const toks = Array.from(new Set(tokenizeQuery(it.name || ""))).filter(Boolean).slice(0, 10);
+    const toks = Array.from(new Set(tokenizeQuery(it.name || "")))
+      .filter(Boolean)
+      .slice(0, 10);
     itemTokens.set(it.sku, toks);
     itemNormName.set(it.sku, normSearchText(it.name || ""));
     for (const t of toks) {
@@ -215,7 +233,13 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
         if (mappedSkus && mappedSkus.has(bSku)) continue;
         if (isUnknownSkuKey(bSku)) continue;
 
-        if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
+        if (
+          typeof isIgnoredPairFn === "function" &&
+          isIgnoredPairFn(aSku, bSku)
+        )
+          continue;
+
+        // never suggest same-store pairs
         if (storesOverlap(a, b)) continue;
 
         cand.set(bSku, b);
@@ -251,7 +275,8 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     const bSku = String(bestB.sku || "");
     const key = aSku < bSku ? `${aSku}|${bSku}` : `${bSku}|${aSku}`;
     const prev = bestByPair.get(key);
-    if (!prev || bestS > prev.score) bestByPair.set(key, { a, b: bestB, score: bestS });
+    if (!prev || bestS > prev.score)
+      bestByPair.set(key, { a, b: bestB, score: bestS });
   }
 
   const pairs = Array.from(bestByPair.values());
@@ -264,6 +289,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     const bSku = String(p.b.sku || "");
     if (!aSku || !bSku || aSku === bSku) continue;
     if (used.has(aSku) || used.has(bSku)) continue;
+
     if (storesOverlap(p.a, p.b)) continue;
 
     used.add(aSku);
@@ -333,7 +359,7 @@ export async function renderSkuLinker($app) {
   const idx = await loadIndex();
   const allRows = Array.isArray(idx.items) ? idx.items : [];
 
-  // skuKey -> storeLabel -> url
+  // skuKey -> storeLabel -> url  (used to ensure store badge uses matching URL)
   const URL_BY_SKU_STORE = new Map();
   for (const r of allRows) {
     if (!r || r.removed) continue;
@@ -349,11 +375,12 @@ export async function renderSkuLinker($app) {
     if (!m.has(storeLabel)) m.set(storeLabel, url);
   }
 
+  // candidates for this page (hide unknown u: entirely)
   const allAgg = aggregateBySku(allRows, (x) => x).filter((it) => !isUnknownSkuKey(it.sku));
 
   const meta = await loadSkuMetaBestEffort();
   const mappedSkus = buildMappedSkuSet(meta.links || []);
-  const ignoreSet = rules.ignoreSet;
+  const ignoreSet = rules.ignoreSet; // already canonicalized as "a|b"
 
   function isIgnoredPair(a, b) {
     return rules.isIgnoredPair(String(a || ""), String(b || ""));
@@ -370,6 +397,7 @@ export async function renderSkuLinker($app) {
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
+    // IMPORTANT: link must match displayed store label
     const href =
       URL_BY_SKU_STORE.get(String(it.sku || ""))?.get(String(store || "")) ||
       String(it.sampleUrl || "").trim() ||
@@ -383,21 +411,21 @@ export async function renderSkuLinker($app) {
         )}${esc(plus)}</a>`
       : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
+    const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
+
     return `
       <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemRow">
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
-
           <div class="itemBody">
-            <div class="itemMain">
+            <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
-              ${pinned ? `<div class="small">Pinned (click again to unpin)</div>` : ``}
-            </div>
-
-            <div class="itemFacts">
-              <div class="mono priceBig">${esc(price)}</div>
-              ${storeBadge}
               <span class="badge mono">${esc(displaySku(it.sku))}</span>
+            </div>
+            <div class="metaRow">
+              ${pinnedBadge}
+              <span class="mono price">${esc(price)}</span>
+              ${storeBadge}
             </div>
           </div>
         </div>
@@ -531,8 +559,11 @@ export async function renderSkuLinker($app) {
       $ignoreBtn.disabled = false;
     }
 
-    if (isIgnoredPair(a, b)) $status.textContent = "This pair is already ignored.";
-    else if ($status.textContent === "Pin one item on each side to enable linking / ignoring.") $status.textContent = "";
+    if (isIgnoredPair(a, b)) {
+      $status.textContent = "This pair is already ignored.";
+    } else if ($status.textContent === "Pin one item on each side to enable linking / ignoring.") {
+      $status.textContent = "";
+    }
   }
 
   function updateAll() {
@@ -584,12 +615,18 @@ export async function renderSkuLinker($app) {
       return;
     }
 
+    // Direction: if either is BC-based, FROM is BC sku.
     const aBC = skuIsBC(allRows, a);
     const bBC = skuIsBC(allRows, b);
 
     let fromSku = a, toSku = b;
-    if (aBC && !bBC) { fromSku = a; toSku = b; }
-    else if (bBC && !aBC) { fromSku = b; toSku = a; }
+    if (aBC && !bBC) {
+      fromSku = a;
+      toSku = b;
+    } else if (bBC && !aBC) {
+      fromSku = b;
+      toSku = a;
+    }
 
     $status.textContent = `Writing: ${displaySku(fromSku)} → ${displaySku(toSku)} …`;
 
