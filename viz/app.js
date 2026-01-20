@@ -115,7 +115,7 @@ function route() {
   const h = location.hash || "#/";
   const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (parts.length === 0) return renderSearch();
-  if (parts[0] === "item" && parts[1]) return renderItem(parts[1]);
+  if (parts[0] === "item" && parts[1]) return renderItem(decodeURIComponent(parts[1]));
   return renderSearch();
 }
 
@@ -391,7 +391,7 @@ function renderSearch() {
                 <div class="itemBody">
                   <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <span class="badge mono">${esc(displaySku(it.sku))}</span>
+                    <span class="badge mono">${esc(displaySku(sku))}</span>
                     </div>
                   <div class="meta">
                     <span class="badge">${esc(kind)}</span>
@@ -502,15 +502,29 @@ async function githubFetchFileAtSha({ owner, repo, sha, path }) {
   return JSON.parse(txt);
 }
 
-function findItemBySkuInDb(obj, sku) {
+function findItemBySkuInDb(obj, skuKey, dbFile, storeLabel) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
   for (const it of items) {
     if (!it || it.removed) continue;
-    const s = String(it.sku || "");
-    if (s === sku) return it;
+
+    const real = String(it.sku || "").trim();
+    if (real && real === skuKey) return it;
+
+    // synthetic match for blank sku items: hash storeLabel|url
+    if (!real && String(skuKey || "").startsWith("u:")) {
+      const row = {
+        sku: "",
+        url: String(it.url || ""),
+        storeLabel: storeLabel || "",
+        store: "",
+      };
+      const k = keySkuForRow(row);
+      if (k === skuKey) return it;
+    }
   }
   return null;
 }
+
 
 function computeSuggestedY(values) {
   const nums = values.filter((v) => Number.isFinite(v));
@@ -583,7 +597,7 @@ async function renderItem(sku) {
     <div class="container">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
-        <span class="badge mono">${esc(displaySku(it.sku))}</span>
+        <span class="badge mono">${esc(displaySku(sku))}</span>
         </div>
 
       <div class="card detailCard">
@@ -757,7 +771,7 @@ async function renderItem(sku) {
         }
       }
 
-      const it = findItemBySkuInDb(obj, sku);
+      const it = findItemBySkuInDb(obj, sku, dbFile, storeLabel);
       const pNum = it ? parsePriceToNumber(it.price) : null;
 
       points.set(d, pNum);
