@@ -1,0 +1,240 @@
+:root {
+  --bg: #0b0d10;
+  --panel: #12161b;
+  --text: #e7edf3;
+  --muted: #9aa6b2;
+  --border: #242c35;
+  --accent: #7dd3fc;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0f1318;
+  color: var(--text);
+  outline: none;
+}
+
+.input:focus { border-color: #37566b; }
+
+.list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #0f1318;
+  cursor: pointer;
+}
+
+.item:hover { border-color: #2f3a46; }
+
+.itemRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.thumbBox {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0b0d10;
+  flex: 0 0 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #0b0d10;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.itemName {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.badge {
+  font-size: 12px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: #0f1318;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 10px;
+  cursor: pointer;
+}
+
+.btn:hover { border-color: #2f3a46; }
+
+.links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 14px;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Detail view sizing */
+.detailCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.detailThumbBox {
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0b0d10;
+  flex: 0 0 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.detailHeaderText {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Chart fills most of viewport, but stays usable on mobile */
+.chartBox {
+  width: 100%;
+  height: min(72vh, 720px);
+  min-height: 320px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0f1318;
+  padding: 10px;
+}
+
+@media (max-width: 640px) {
+  .container { padding: 14px; }
+  .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
+  .detailThumbBox { width: 84px; height: 84px; flex: 0 0 84px; }
+
+  .chartBox {
+    height: 58vh;
+    min-height: 260px;
+    padding: 8px;
+  }
+}
+
+.chartBox canvas {
+  width: 100% !important;
+  height: 100% !important;
+}

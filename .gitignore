@@ -1,0 +1,14 @@
+node_modules/
+*.log
+
+# Data & reports live on the data branch
+/data/
+/reports/
+
+.worktrees/
+
+# Generated viz artifacts live on the data branch
+viz/data/
+
+# Keep cron log out of git even on data branch
+reports/cron.log
