@@ -19,7 +19,7 @@ body {
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* Make badge-links look like badges (not accent-blue) + clearly clickable */
+/* badge links should look like badges, but clearly clickable */
 a.badge { color: var(--muted); }
 a.badge:hover { text-decoration: underline; cursor: pointer; }
 
@@ -82,20 +82,21 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 .itemRow {
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  align-items: stretch; /* key: let thumb fill height */
 }
 
 .thumbBox {
   width: 64px;
-  height: 64px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border);
   background: #0b0d10;
   flex: 0 0 64px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
+  height: auto;
+  min-height: 64px;
 }
 
 .thumb {
@@ -114,6 +115,26 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 .itemBody {
   flex: 1;
   min-width: 0;
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.itemMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.itemFacts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
 }
 
 .itemTop {
@@ -141,7 +162,6 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 }
 
 .meta {
-  margin-top: 8px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -150,6 +170,12 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 }
 
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+.priceBig {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
 
 .topbar {
   display: flex;
@@ -232,8 +258,18 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 
 @media (max-width: 640px) {
   .container { padding: 14px; }
-  .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
+  .thumbBox { width: 56px; flex: 0 0 56px; min-height: 56px; }
   .detailThumbBox { width: 84px; height: 84px; flex: 0 0 84px; }
+
+  /* on mobile, keep the "facts" inline so cards don't get super tall */
+  .itemBody { flex-direction: column; gap: 10px; }
+  .itemFacts {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+  }
 
   .chartBox {
     height: 58vh;

@@ -39,6 +39,7 @@ export function renderSearch($app) {
     const out = new Map();
     for (const r of Array.isArray(listings) ? listings : []) {
       if (!r || r.removed) continue;
+
       const skuKey = String(keySkuForRow(r) || "").trim();
       if (!skuKey) continue;
 
@@ -80,7 +81,7 @@ export function renderSearch($app) {
         const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
         const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
-        // IMPORTANT: link must match the displayed store label
+        // link must match displayed store label
         const href = urlForAgg(it, store);
         const storeBadge = href
           ? `<a class="badge" href="${esc(
@@ -93,21 +94,17 @@ export function renderSearch($app) {
         return `
           <div class="item" data-sku="${esc(it.sku)}">
             <div class="itemRow">
-              <div class="thumbBox">
-                ${renderThumbHtml(it.img)}
-              </div>
+              <div class="thumbBox">${renderThumbHtml(it.img)}</div>
+
               <div class="itemBody">
-                <div class="itemTop">
+                <div class="itemMain">
                   <div class="itemName">${esc(it.name || "(no name)")}</div>
-                  <span class="badge mono">${esc(displaySku(it.sku))}</span>
                 </div>
 
-                <!-- spacing: price row then store row -->
-                <div class="meta">
-                  <span class="mono">${esc(price)}</span>
-                </div>
-                <div class="meta">
+                <div class="itemFacts">
+                  <div class="mono priceBig">${esc(price)}</div>
                   ${storeBadge}
+                  <span class="badge mono">${esc(displaySku(it.sku))}</span>
                 </div>
               </div>
             </div>
@@ -181,25 +178,21 @@ export function renderSearch($app) {
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
-                <div class="thumbBox">
-                  ${renderThumbHtml(img)}
-                </div>
+                <div class="thumbBox">${renderThumbHtml(img)}</div>
+
                 <div class="itemBody">
-                  <div class="itemTop">
+                  <div class="itemMain">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <span class="badge mono">${esc(displaySku(sku))}</span>
+                    <div class="meta">
+                      <span class="badge">${esc(kind)}</span>
+                    </div>
                   </div>
 
-                  <!-- spacing: kind/store row then price row -->
-                  <div class="meta">
-                    <span class="badge">${esc(kind)}</span>
+                  <div class="itemFacts">
+                    <div class="mono priceBig">${esc(priceLine)}</div>
                     ${storeBadge}
-                  </div>
-                  <div class="meta">
-                    <span class="mono">${esc(priceLine)}</span>
-                  </div>
-                  <div class="meta">
-                    <span class="mono">${esc(when)}</span>
+                    <div class="small mono">${esc(when)}</div>
+                    <span class="badge mono">${esc(displaySku(sku))}</span>
                   </div>
                 </div>
               </div>
@@ -222,10 +215,7 @@ export function renderSearch($app) {
     if (!indexReady) return;
 
     const tokens = tokenizeQuery($q.value);
-    if (!tokens.length) {
-      // recent gets rendered later after rules load
-      return;
-    }
+    if (!tokens.length) return;
 
     const matches = allAgg.filter((it) => matchesAllTokens(it.searchText, tokens));
     renderAggregates(matches);
