@@ -19,8 +19,9 @@ body {
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* NEW: don't underline badge-links on hover */
-a.badge:hover { text-decoration: none; }
+/* Make badge-links look like badges (not accent-blue) + clearly clickable */
+a.badge { color: var(--muted); }
+a.badge:hover { text-decoration: underline; cursor: pointer; }
 
 .container {
   max-width: 980px;
@@ -128,16 +129,19 @@ a.badge:hover { text-decoration: none; }
 }
 
 .badge {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   border: 1px solid var(--border);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 999px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .meta {
-  margin-top: 6px;
+  margin-top: 8px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;

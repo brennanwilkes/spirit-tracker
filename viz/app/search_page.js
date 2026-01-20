@@ -1,6 +1,6 @@
 /* viz/app/search_page.js */
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku } from "./sku.js";
+import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow } from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
@@ -32,6 +32,40 @@ export function renderSearch($app) {
   let allAgg = [];
   let indexReady = false;
 
+  // sku(canonical) -> storeLabel -> url
+  let URL_BY_SKU_STORE = new Map();
+
+  function buildUrlMap(listings, canonicalSkuFn) {
+    const out = new Map();
+    for (const r of Array.isArray(listings) ? listings : []) {
+      if (!r || r.removed) continue;
+      const skuKey = String(keySkuForRow(r) || "").trim();
+      if (!skuKey) continue;
+
+      const sku = String(canonicalSkuFn ? canonicalSkuFn(skuKey) : skuKey);
+      if (!sku) continue;
+
+      const storeLabel = String(r.storeLabel || r.store || "").trim();
+      const url = String(r.url || "").trim();
+      if (!storeLabel || !url) continue;
+
+      let m = out.get(sku);
+      if (!m) out.set(sku, (m = new Map()));
+      if (!m.has(storeLabel)) m.set(storeLabel, url);
+    }
+    return out;
+  }
+
+  function urlForAgg(it, storeLabel) {
+    const sku = String(it?.sku || "");
+    const s = String(storeLabel || "");
+    return (
+      URL_BY_SKU_STORE.get(sku)?.get(s) ||
+      String(it?.sampleUrl || "").trim() ||
+      ""
+    );
+  }
+
   function renderAggregates(items) {
     if (!items.length) {
       $results.innerHTML = `<div class="small">No matches.</div>`;
@@ -46,8 +80,8 @@ export function renderSearch($app) {
         const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
         const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
-        // NEW: store badge is the link (use first store url)
-        const href = String(it.sampleUrl || "").trim();
+        // IMPORTANT: link must match the displayed store label
+        const href = urlForAgg(it, store);
         const storeBadge = href
           ? `<a class="badge" href="${esc(
               href
@@ -66,9 +100,13 @@ export function renderSearch($app) {
                 <div class="itemTop">
                   <div class="itemName">${esc(it.name || "(no name)")}</div>
                   <span class="badge mono">${esc(displaySku(it.sku))}</span>
-                  </div>
+                </div>
+
+                <!-- spacing: price row then store row -->
                 <div class="meta">
                   <span class="mono">${esc(price)}</span>
+                </div>
+                <div class="meta">
                   ${storeBadge}
                 </div>
               </div>
@@ -131,7 +169,6 @@ export function renderSearch($app) {
 
           const img = aggBySku.get(sku)?.img || "";
 
-          // NEW: store badge links to this row's url
           const href = String(r.url || "").trim();
           const storeBadge = href
             ? `<a class="badge" href="${esc(
@@ -151,10 +188,14 @@ export function renderSearch($app) {
                   <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
                     <span class="badge mono">${esc(displaySku(sku))}</span>
-                    </div>
+                  </div>
+
+                  <!-- spacing: kind/store row then price row -->
                   <div class="meta">
                     <span class="badge">${esc(kind)}</span>
                     ${storeBadge}
+                  </div>
+                  <div class="meta">
                     <span class="mono">${esc(priceLine)}</span>
                   </div>
                   <div class="meta">
@@ -197,6 +238,8 @@ export function renderSearch($app) {
       const listings = Array.isArray(idx.items) ? idx.items : [];
       allAgg = aggregateBySku(listings, rules.canonicalSku);
       aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
+      URL_BY_SKU_STORE = buildUrlMap(listings, rules.canonicalSku);
+
       indexReady = true;
       $q.focus();
 

@@ -353,6 +353,20 @@ export async function renderSkuLinker($app) {
   const idx = await loadIndex();
   const allRows = Array.isArray(idx.items) ? idx.items : [];
 
+  // skuKey -> storeLabel -> url
+  const URL_BY_SKU_STORE = new Map();
+  for (const r of allRows) {
+    if (!r || r.removed) continue;
+    const skuKey = String(keySkuForRow(r) || "").trim();
+    if (!skuKey) continue;
+    const storeLabel = String(r.storeLabel || r.store || "").trim();
+    const url = String(r.url || "").trim();
+    if (!storeLabel || !url) continue;
+    let m = URL_BY_SKU_STORE.get(skuKey);
+    if (!m) URL_BY_SKU_STORE.set(skuKey, (m = new Map()));
+    if (!m.has(storeLabel)) m.set(storeLabel, url);
+  }
+
   // candidates for this page (hide unknown u: entirely)
   const allAgg = aggregateBySku(allRows, (x) => x).filter((it) => !isUnknownSkuKey(it.sku));
 
@@ -375,8 +389,12 @@ export async function renderSkuLinker($app) {
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
-    // NEW: store badge is the link (use first store url)
-    const href = String(it.sampleUrl || "").trim();
+    // IMPORTANT: link must match displayed store label
+    const href =
+      URL_BY_SKU_STORE.get(String(it.sku || ""))?.get(String(store || "")) ||
+      String(it.sampleUrl || "").trim() ||
+      "";
+
     const storeBadge = href
       ? `<a class="badge" href="${esc(
           href
@@ -394,10 +412,15 @@ export async function renderSkuLinker($app) {
               <div class="itemName">${esc(it.name || "(no name)")}</div>
               <span class="badge mono">${esc(displaySku(it.sku))}</span>
             </div>
+
+            <!-- spacing: price row then store row -->
             <div class="meta">
               <span class="mono">${esc(price)}</span>
+            </div>
+            <div class="meta">
               ${storeBadge}
             </div>
+
             ${pinned ? `<div class="small">Pinned (click again to unpin)</div>` : ``}
           </div>
         </div>
@@ -640,7 +663,7 @@ export async function renderSkuLinker($app) {
       return;
     }
     if (isIgnoredPair(a, b)) {
-      $status.textContent = "Not allowed: unknown SKUs cannot be ignored.";
+      $status.textContent = "This pair is already ignored.";
       return;
     }
 
