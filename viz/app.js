@@ -4,6 +4,7 @@
  * Hash routes:
  *   #/                search
  *   #/item/<sku>      detail
+ *   #/link            sku linker (local-write only)
  */
 
 const $app = document.getElementById("app");
@@ -71,8 +72,6 @@ function displaySku(key) {
   return String(key || "").startsWith("u:") ? "unknown" : String(key || "");
 }
 
-
-
 // Normalize for search: lowercase, punctuation -> space, collapse spaces
 function normSearchText(s) {
   return String(s ?? "")
@@ -116,6 +115,7 @@ function route() {
   const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (parts.length === 0) return renderSearch();
   if (parts[0] === "item" && parts[1]) return renderItem(decodeURIComponent(parts[1]));
+  if (parts[0] === "link") return renderSkuLinker();
   return renderSearch();
 }
 
@@ -167,7 +167,6 @@ function aggregateBySku(listings) {
   const bySku = new Map();
 
   for (const r of listings) {
-
     const sku = keySkuForRow(r);
 
     const name = String(r?.name || "");
@@ -276,8 +275,11 @@ function renderSearch() {
   $app.innerHTML = `
     <div class="container">
       <div class="header">
-        <h1 class="h1">Spirit Tracker Viz</h1>
-        <div class="small">Search name / url / sku (word AND)</div>
+        <div>
+          <h1 class="h1">Spirit Tracker Viz</h1>
+          <div class="small">Search name / url / sku (word AND)</div>
+        </div>
+        <a class="btn" href="#/link" style="text-decoration:none;">Link SKUs</a>
       </div>
 
       <div class="card">
@@ -470,6 +472,287 @@ function renderSearch() {
   });
 }
 
+/* ---------------- SKU Linker ---------------- */
+
+function isLocalWriteMode() {
+  const h = String(location.hostname || "").toLowerCase();
+  return (location.protocol === "http:" || location.protocol === "https:") && (h === "127.0.0.1" || h === "localhost");
+}
+
+function levenshtein(a, b) {
+  a = String(a || "");
+  b = String(b || "");
+  const n = a.length, m = b.length;
+  if (!n) return m;
+  if (!m) return n;
+  const dp = new Array(m + 1);
+  for (let j = 0; j <= m; j++) dp[j] = j;
+
+  for (let i = 1; i <= n; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    const ca = a.charCodeAt(i - 1);
+    for (let j = 1; j <= m; j++) {
+      const tmp = dp[j];
+      const cost = ca === b.charCodeAt(j - 1) ? 0 : 1;
+      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + cost);
+      prev = tmp;
+    }
+  }
+  return dp[m];
+}
+
+function similarityScore(aName, bName) {
+  const a = normSearchText(aName);
+  const b = normSearchText(bName);
+  if (!a || !b) return 0;
+
+  const A = new Set(tokenizeQuery(a));
+  const B = new Set(tokenizeQuery(b));
+  let inter = 0;
+  for (const w of A) if (B.has(w)) inter++;
+  const denom = Math.max(1, Math.max(A.size, B.size));
+  const overlap = inter / denom; // 0..1
+
+  const d = levenshtein(a, b);
+  const maxLen = Math.max(1, Math.max(a.length, b.length));
+  const levSim = 1 - d / maxLen; // ~0..1
+
+  return overlap * 2.2 + levSim * 1.0;
+}
+
+function isBCStoreLabel(label) {
+  const s = String(label || "").toLowerCase();
+  return s.includes("bcl") || s.includes("strath");
+}
+
+// infer BC-ness by checking any row for that skuKey in current index
+function skuIsBC(allRows, skuKey) {
+  for (const r of allRows) {
+    if (keySkuForRow(r) !== skuKey) continue;
+    const lab = String(r.storeLabel || r.store || "");
+    if (isBCStoreLabel(lab)) return true;
+  }
+  return false;
+}
+
+function topSuggestions(allAgg, limit) {
+  const scored = allAgg.map((it) => {
+    const stores = it.stores ? it.stores.size : 0;
+    const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
+    const hasName = it.name ? 1 : 0;
+    return { it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 };
+  });
+  scored.sort((a, b) => b.s - a.s);
+  return scored.slice(0, limit).map((x) => x.it);
+}
+
+function recommendSimilar(allAgg, pinned, limit) {
+  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit);
+  const base = String(pinned.name || "");
+  const scored = [];
+  for (const it of allAgg) {
+    if (!it || it.sku === pinned.sku) continue;
+    const s = similarityScore(base, it.name || "");
+    if (s > 0) scored.push({ it, s });
+  }
+  scored.sort((a, b) => b.s - a.s);
+  return scored.slice(0, limit).map((x) => x.it);
+}
+
+async function apiWriteSkuLink(fromSku, toSku) {
+  const res = await fetch("/__stviz/sku-links", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ fromSku, toSku }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+async function renderSkuLinker() {
+  destroyChart();
+
+  const localWrite = isLocalWriteMode();
+
+  $app.innerHTML = `
+    <div class="container" style="max-width:1200px;">
+      <div class="topbar">
+        <button id="back" class="btn">← Back</button>
+        <div style="flex:1"></div>
+        <span class="badge">SKU Linker</span>
+        <span class="badge mono">${esc(localWrite ? "LOCAL WRITE" : "READ-ONLY")}</span>
+      </div>
+
+      <div class="card" style="padding:14px;">
+        <div class="small" style="margin-bottom:10px;">
+          Search or pin items in each column. With both pinned, LINK SKU writes to viz/data/sku_links.json (local only).
+        </div>
+
+        <div style="display:flex; gap:16px;">
+          <div style="flex:1; min-width:0;">
+            <div class="small" style="margin-bottom:6px;">Left</div>
+            <input id="qL" class="input" placeholder="Search (name / url / sku)..." autocomplete="off" />
+            <div id="listL" class="list" style="margin-top:10px;"></div>
+          </div>
+
+          <div style="flex:1; min-width:0;">
+            <div class="small" style="margin-bottom:6px;">Right</div>
+            <input id="qR" class="input" placeholder="Search (name / url / sku)..." autocomplete="off" />
+            <div id="listR" class="list" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card linkBar" style="padding:10px;">
+        <button id="linkBtn" class="btn" style="width:100%;" disabled>LINK SKU</button>
+        <div id="status" class="small" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("back").addEventListener("click", () => (location.hash = "#/"));
+
+  const $qL = document.getElementById("qL");
+  const $qR = document.getElementById("qR");
+  const $listL = document.getElementById("listL");
+  const $listR = document.getElementById("listR");
+  const $linkBtn = document.getElementById("linkBtn");
+  const $status = document.getElementById("status");
+
+  $listL.innerHTML = `<div class="small">Loading index…</div>`;
+  $listR.innerHTML = `<div class="small">Loading index…</div>`;
+
+  const idx = await loadIndex();
+  const allRows = Array.isArray(idx.items) ? idx.items : [];
+  const allAgg = aggregateBySku(allRows);
+
+  let pinnedL = null;
+  let pinnedR = null;
+
+  function renderCard(it, pinned) {
+    const storeCount = it.stores.size || 0;
+    const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
+    const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
+    const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
+    return `
+      <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
+        <div class="itemRow">
+          <div class="thumbBox">${renderThumbHtml(it.img)}</div>
+          <div class="itemBody">
+            <div class="itemTop">
+              <div class="itemName">${esc(it.name || "(no name)")}</div>
+              <span class="badge mono">${esc(displaySku(it.sku))}</span>
+            </div>
+            <div class="meta">
+              <span class="mono">${esc(price)}</span>
+              <span class="badge">${esc(store)}${esc(plus)}</span>
+            </div>
+            <div class="meta"><span class="mono">${esc(it.sampleUrl || "")}</span></div>
+            ${pinned ? `<div class="small">Pinned (click again to unpin)</div>` : ``}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function sideItems(query, otherPinned) {
+    const tokens = tokenizeQuery(query);
+    if (tokens.length) return allAgg.filter((it) => matchesAllTokens(it.searchText, tokens)).slice(0, 80);
+    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60);
+    return topSuggestions(allAgg, 60);
+  }
+
+  function attachHandlers($root, side) {
+    for (const el of Array.from($root.querySelectorAll(".item"))) {
+      el.addEventListener("click", () => {
+        const skuKey = el.getAttribute("data-sku") || "";
+        const it = allAgg.find((x) => String(x.sku || "") === skuKey);
+        if (!it) return;
+
+        if (side === "L") pinnedL = pinnedL && pinnedL.sku === it.sku ? null : it;
+        else pinnedR = pinnedR && pinnedR.sku === it.sku ? null : it;
+
+        updateAll();
+      });
+    }
+  }
+
+  function renderSide(side) {
+    const pinned = side === "L" ? pinnedL : pinnedR;
+    const other = side === "L" ? pinnedR : pinnedL;
+    const query = side === "L" ? $qL.value : $qR.value;
+    const $list = side === "L" ? $listL : $listR;
+
+    if (pinned) {
+      $list.innerHTML = renderCard(pinned, true);
+      attachHandlers($list, side);
+      return;
+    }
+
+    const items = sideItems(query, other);
+    $list.innerHTML = items.length ? items.map((it) => renderCard(it, false)).join("") : `<div class="small">No matches.</div>`;
+    attachHandlers($list, side);
+  }
+
+  function updateButton() {
+    if (!localWrite) {
+      $linkBtn.disabled = true;
+      $status.textContent = "Write disabled on GitHub Pages. Use: node viz/serve.js and open 127.0.0.1.";
+      return;
+    }
+    if (!(pinnedL && pinnedR)) {
+      $linkBtn.disabled = true;
+      $status.textContent = "Pin one item on each side to enable linking.";
+      return;
+    }
+    $linkBtn.disabled = false;
+    $status.textContent = "";
+  }
+
+  function updateAll() {
+    renderSide("L");
+    renderSide("R");
+    updateButton();
+  }
+
+  let tL = null, tR = null;
+  $qL.addEventListener("input", () => {
+    if (tL) clearTimeout(tL);
+    tL = setTimeout(updateAll, 50);
+  });
+  $qR.addEventListener("input", () => {
+    if (tR) clearTimeout(tR);
+    tR = setTimeout(updateAll, 50);
+  });
+
+  $linkBtn.addEventListener("click", async () => {
+    if (!(pinnedL && pinnedR) || !localWrite) return;
+
+    const a = String(pinnedL.sku || "");
+    const b = String(pinnedR.sku || "");
+
+    // Direction: if either is BC-based (BCL/Strath appears), FROM is BC sku.
+    const aBC = skuIsBC(allRows, a);
+    const bBC = skuIsBC(allRows, b);
+
+    let fromSku = a, toSku = b;
+    if (aBC && !bBC) { fromSku = a; toSku = b; }
+    else if (bBC && !aBC) { fromSku = b; toSku = a; }
+
+    $status.textContent = `Writing: ${displaySku(fromSku)} → ${displaySku(toSku)} …`;
+
+    try {
+      const out = await apiWriteSkuLink(fromSku, toSku);
+      $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}).`;
+    } catch (e) {
+      $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
+    }
+  });
+
+  updateAll();
+}
+
 /* ---------------- Detail (chart) ---------------- */
 
 let CHART = null;
@@ -525,7 +808,6 @@ function findItemBySkuInDb(obj, skuKey, dbFile, storeLabel) {
   }
   return null;
 }
-
 
 function computeSuggestedY(values) {
   const nums = values.filter((v) => Number.isFinite(v));
