@@ -115,7 +115,7 @@ function route() {
   const h = location.hash || "#/";
   const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (parts.length === 0) return renderSearch();
-  if (parts[0] === "item" && parts[1]) return renderItem(parts[1]);
+  if (parts[0] === "item" && parts[1]) return renderItem(decodeURIComponent(parts[1]));
   return renderSearch();
 }
 
@@ -337,6 +337,7 @@ function renderSearch() {
       el.addEventListener("click", () => {
         const sku = el.getAttribute("data-sku") || "";
         if (!sku) return;
+        console.log("[nav] skuKey=", sku, "hash=", `#/item/${encodeURIComponent(sku)}`);
         saveQuery($q.value);
         location.hash = `#/item/${encodeURIComponent(sku)}`;
       });
@@ -391,7 +392,7 @@ function renderSearch() {
                 <div class="itemBody">
                   <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <span class="badge mono">${esc(displaySku(it.sku))}</span>
+                    <span class="badge mono">${esc(displaySku(sku))}</span>
                     </div>
                   <div class="meta">
                     <span class="badge">${esc(kind)}</span>
@@ -502,15 +503,29 @@ async function githubFetchFileAtSha({ owner, repo, sha, path }) {
   return JSON.parse(txt);
 }
 
-function findItemBySkuInDb(obj, sku) {
+function findItemBySkuInDb(obj, skuKey, dbFile, storeLabel) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
   for (const it of items) {
     if (!it || it.removed) continue;
-    const s = String(it.sku || "");
-    if (s === sku) return it;
+
+    const real = String(it.sku || "").trim();
+    if (real && real === skuKey) return it;
+
+    // synthetic match for blank sku items: hash storeLabel|url
+    if (!real && String(skuKey || "").startsWith("u:")) {
+      const row = {
+        sku: "",
+        url: String(it.url || ""),
+        storeLabel: storeLabel || "",
+        store: "",
+      };
+      const k = keySkuForRow(row);
+      if (k === skuKey) return it;
+    }
   }
   return null;
 }
+
 
 function computeSuggestedY(values) {
   const nums = values.filter((v) => Number.isFinite(v));
@@ -578,12 +593,13 @@ async function loadDbCommitsManifest() {
 
 async function renderItem(sku) {
   destroyChart();
+  console.log("[renderItem] skuKey=", sku);
 
   $app.innerHTML = `
     <div class="container">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
-        <span class="badge mono">${esc(displaySku(it.sku))}</span>
+        <span class="badge mono">${esc(displaySku(sku))}</span>
         </div>
 
       <div class="card detailCard">
@@ -615,7 +631,27 @@ async function renderItem(sku) {
 
   const idx = await loadIndex();
   const all = Array.isArray(idx.items) ? idx.items : [];
-  const cur = all.filter((x) => (String(x.sku || "").trim() || makeUnknownSku(x)) === String(sku || ""));
+  const want = String(sku || "");
+  let cur = all.filter((x) => keySkuForRow(x) === want);
+
+  if (!cur.length) {
+    // debug: show some Keg N Cork synthetic keys to see what we're actually generating
+    const knc = all.filter(
+      (x) => String(x.storeLabel || x.store || "").toLowerCase().includes("keg") && !String(x.sku || "").trim()
+    );
+
+    console.log("[renderItem] NOT FOUND. want=", want, "totalRows=", all.length, "kncBlankSkuRows=", knc.length);
+
+    console.log(
+      "[renderItem] sample KNC computed keys:",
+      knc.slice(0, 20).map((x) => ({
+        key: keySkuForRow(x),
+        storeLabel: x.storeLabel,
+        url: x.url,
+        name: x.name,
+      }))
+    );
+  }
   if (!cur.length) {
     $title.textContent = "Item not found in current index";
     $status.textContent = "Tip: index.json only includes current (non-removed) items.";
@@ -757,7 +793,7 @@ async function renderItem(sku) {
         }
       }
 
-      const it = findItemBySkuInDb(obj, sku);
+      const it = findItemBySkuInDb(obj, sku, dbFile, storeLabel);
       const pNum = it ? parsePriceToNumber(it.price) : null;
 
       points.set(d, pNum);
