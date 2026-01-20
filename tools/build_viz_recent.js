@@ -59,15 +59,43 @@ function dateOnly(iso) {
   return m ? m[1] : "";
 }
 
+function fnv1a32(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+function makeSyntheticSku(storeLabel, url) {
+  const store = String(storeLabel || "store");
+  const u = String(url || "");
+  if (!u) return "";
+  return `u:${fnv1a32(`${store}|${u}`)}`;
+}
+
+function keySkuForItem(it, storeLabel) {
+  const real = normalizeCspc(it?.sku);
+  if (real) return real;
+  return makeSyntheticSku(storeLabel, it?.url);
+}
+
 function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
   const m = new Map();
   const items = Array.isArray(obj?.items) ? obj.items : [];
+
+  const storeLabel = String(obj?.storeLabel || obj?.store || "");
+
   for (const it of items) {
     if (!it) continue;
-    const sku = normalizeCspc(it.sku);
-    if (!sku) continue;
+
+    const sku = keySkuForItem(it, storeLabel);
+    if (!sku) continue; // still skip truly keyless rows (no sku + no url)
+
     const removed = Boolean(it.removed);
     if (!includeRemoved && removed) continue;
+
     m.set(sku, {
       sku,
       name: String(it.name || ""),
