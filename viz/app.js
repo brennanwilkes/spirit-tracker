@@ -391,7 +391,7 @@ function renderSearch() {
                 <div class="itemBody">
                   <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <span class="badge mono">${esc(displaySku(it.sku))}</span>
+                    <span class="badge mono">${esc(displaySku(sku))}</span>
                     </div>
                   <div class="meta">
                     <span class="badge">${esc(kind)}</span>
@@ -597,7 +597,7 @@ async function renderItem(sku) {
     <div class="container">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
-        <span class="badge mono">${esc(displaySku(it.sku))}</span>
+        <span class="badge mono">${esc(displaySku(sku))}</span>
         </div>
 
       <div class="card detailCard">
