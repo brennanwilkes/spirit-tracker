@@ -1,3 +1,4 @@
+/* viz/app/linker_page.js */
 import { esc, renderThumbHtml } from "./dom.js";
 import {
   tokenizeQuery,
@@ -108,14 +109,6 @@ function buildMappedSkuSet(links) {
     if (b) s.add(b);
   }
   return s;
-}
-
-function openLinkHtml(url) {
-  const u = String(url || "").trim();
-  if (!u) return "";
-  return `<a class="badge" href="${esc(
-    u
-  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">open</a>`;
 }
 
 function isBCStoreLabel(label) {
@@ -381,7 +374,17 @@ export async function renderSkuLinker($app) {
     const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
-    const open = openLinkHtml(it.sampleUrl || "");
+
+    // NEW: store badge is the link (use first store url)
+    const href = String(it.sampleUrl || "").trim();
+    const storeBadge = href
+      ? `<a class="badge" href="${esc(
+          href
+        )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+          store
+        )}${esc(plus)}</a>`
+      : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
+
     return `
       <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemRow">
@@ -393,10 +396,8 @@ export async function renderSkuLinker($app) {
             </div>
             <div class="meta">
               <span class="mono">${esc(price)}</span>
-              <span class="badge">${esc(store)}${esc(plus)}</span>
-              ${open}
+              ${storeBadge}
             </div>
-            <div class="meta"><span class="mono">${esc(it.sampleUrl || "")}</span></div>
             ${pinned ? `<div class="small">Pinned (click again to unpin)</div>` : ``}
           </div>
         </div>
@@ -639,7 +640,7 @@ export async function renderSkuLinker($app) {
       return;
     }
     if (isIgnoredPair(a, b)) {
-      $status.textContent = "This pair is already ignored.";
+      $status.textContent = "Not allowed: unknown SKUs cannot be ignored.";
       return;
     }
 

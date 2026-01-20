@@ -1,3 +1,4 @@
+/* viz/app/search_page.js */
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
 import { tokenizeQuery, matchesAllTokens, displaySku } from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
@@ -45,6 +46,16 @@ export function renderSearch($app) {
         const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
         const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
+        // NEW: store badge is the link (use first store url)
+        const href = String(it.sampleUrl || "").trim();
+        const storeBadge = href
+          ? `<a class="badge" href="${esc(
+              href
+            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+              store
+            )}${esc(plus)}</a>`
+          : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
+
         return `
           <div class="item" data-sku="${esc(it.sku)}">
             <div class="itemRow">
@@ -58,10 +69,7 @@ export function renderSearch($app) {
                   </div>
                 <div class="meta">
                   <span class="mono">${esc(price)}</span>
-                  <span class="badge">${esc(store)}${esc(plus)}</span>
-                </div>
-                <div class="meta">
-                  <span class="mono">${esc(it.sampleUrl || "")}</span>
+                  ${storeBadge}
                 </div>
               </div>
             </div>
@@ -123,6 +131,16 @@ export function renderSearch($app) {
 
           const img = aggBySku.get(sku)?.img || "";
 
+          // NEW: store badge links to this row's url
+          const href = String(r.url || "").trim();
+          const storeBadge = href
+            ? `<a class="badge" href="${esc(
+                href
+              )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+                r.storeLabel || ""
+              )}</a>`
+            : `<span class="badge">${esc(r.storeLabel || "")}</span>`;
+
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
@@ -136,14 +154,11 @@ export function renderSearch($app) {
                     </div>
                   <div class="meta">
                     <span class="badge">${esc(kind)}</span>
-                    <span class="badge">${esc(r.storeLabel || "")}</span>
+                    ${storeBadge}
                     <span class="mono">${esc(priceLine)}</span>
                   </div>
                   <div class="meta">
                     <span class="mono">${esc(when)}</span>
-                  </div>
-                  <div class="meta">
-                    <span class="mono">${esc(r.url || "")}</span>
                   </div>
                 </div>
               </div>
