@@ -57,7 +57,6 @@ function similarityScore(aName, bName) {
   const bFirst = bToks[0] || "";
   const firstMatch = aFirst && bFirst && aFirst === bFirst ? 1 : 0;
 
-  // Compare tails (everything after first token)
   const A = new Set(aToks.slice(1));
   const B = new Set(bToks.slice(1));
   let inter = 0;
@@ -69,13 +68,12 @@ function similarityScore(aName, bName) {
   const maxLen = Math.max(1, Math.max(a.length, b.length));
   const levSim = 1 - d / maxLen;
 
-  // Gate tail similarity hard unless first word matches
   const gate = firstMatch ? 1.0 : 0.12;
 
   return (
-    firstMatch * 3.0 + // first word dominates
-    overlapTail * 2.2 * gate + // tail matters mostly after first word match
-    levSim * (firstMatch ? 1.0 : 0.15) // edit-sim also mostly after first word match
+    firstMatch * 3.0 +
+    overlapTail * 2.2 * gate +
+    levSim * (firstMatch ? 1.0 : 0.15)
   );
 }
 
@@ -86,7 +84,6 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   const bFirst = bTokens[0] || "";
   const firstMatch = aFirst && bFirst && aFirst === bFirst ? 1 : 0;
 
-  // Tail overlap only
   const aTail = aTokens.slice(1);
   const bTail = bTokens.slice(1);
 
@@ -97,7 +94,6 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   const denom = Math.max(1, Math.max(aTail.length, bTail.length));
   const overlapTail = inter / denom;
 
-  // Existing prefix bonus, but only when first word matches
   const a = String(aNormName || "");
   const b = String(bNormName || "");
   const pref =
@@ -116,11 +112,7 @@ function storesOverlap(aItem, bItem) {
   const a = aItem?.stores;
   const b = bItem?.stores;
   if (!a || !b) return false;
-
-  // stores are Set(storeLabel). Exact-label overlap is the intended rule.
-  for (const s of a) {
-    if (b.has(s)) return true;
-  }
+  for (const s of a) if (b.has(s)) return true;
   return false;
 }
 
@@ -142,7 +134,6 @@ function isBCStoreLabel(label) {
   return s.includes("bcl") || s.includes("strath");
 }
 
-// infer BC-ness by checking any row for that skuKey in current index
 function skuIsBC(allRows, skuKey) {
   for (const r of allRows) {
     if (keySkuForRow(r) !== skuKey) continue;
@@ -160,7 +151,6 @@ function isRealSkuKey(skuKey) {
 
 function isABStoreLabel(label) {
   const s = String(label || "").toLowerCase();
-  // heuristic: tune as needed for your dataset
   return (
     s.includes("alberta") ||
     s.includes("calgary") ||
@@ -183,15 +173,12 @@ function scoreCanonical(allRows, skuKey) {
   const real = isRealSkuKey(s) ? 1 : 0;
   const ab = skuIsAB(allRows, s) ? 1 : 0;
   const bc = skuIsBC(allRows, s) ? 1 : 0;
-
-  // Prefer: real AB > real non-BC > real BC > u:
   return real * 100 + ab * 25 - bc * 10 + (real ? 0 : -1000);
 }
 
 function pickPreferredCanonical(allRows, skuKeys) {
   let best = "";
   let bestScore = -Infinity;
-
   for (const k of skuKeys) {
     const s = String(k || "").trim();
     if (!s) continue;
@@ -200,14 +187,13 @@ function pickPreferredCanonical(allRows, skuKeys) {
       bestScore = sc;
       best = s;
     } else if (sc === bestScore && s && best && s < best) {
-      best = s; // stable tie-break
+      best = s;
     }
   }
-
   return best;
 }
 
-/* ---------------- Randomization helpers (avoid same suggestion subset) ---------------- */
+/* ---------------- Randomization helpers ---------------- */
 
 function mulberry32(seed) {
   let t = seed >>> 0;
@@ -247,16 +233,8 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(
-  allAgg,
-  pinned,
-  limit,
-  otherPinnedSku,
-  mappedSkus,
-  isIgnoredPairFn
-) {
-  if (!pinned || !pinned.name)
-    return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
+function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn) {
+  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const base = String(pinned.name || "");
   const pinnedSku = String(pinned.sku || "");
@@ -267,14 +245,9 @@ function recommendSimilar(
     if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (it.sku === pinned.sku) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
-
-    // never suggest same-store pairs
     if (storesOverlap(pinned, it)) continue;
 
-    if (
-      typeof isIgnoredPairFn === "function" &&
-      isIgnoredPairFn(pinnedSku, String(it.sku || ""))
-    )
+    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, String(it.sku || "")))
       continue;
 
     const s = similarityScore(base, it.name || "");
@@ -284,23 +257,18 @@ function recommendSimilar(
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-// FAST initial pairing (approx) with ignore-pair exclusion + same-store exclusion
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
-  // Only exclude already-linked SKUs from auto-suggestions
   const items = allAgg.filter((it) => {
     if (!it) return false;
     if (mappedSkus && mappedSkus.has(String(it.sku))) return false;
     return true;
   });
 
-  // randomize the "subset" each load so we don't get stuck in the same chunk
   const seed = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
   const rnd = mulberry32(seed);
-
   const itemsShuf = items.slice();
   shuffleInPlace(itemsShuf, rnd);
 
-  // sample a bounded working set for speed
   const WORK_CAP = 1400;
   const work = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 
@@ -312,9 +280,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const itemNormName = new Map();
 
   for (const it of work) {
-    const toks = Array.from(new Set(tokenizeQuery(it.name || "")))
-      .filter(Boolean)
-      .slice(0, 10);
+    const toks = Array.from(new Set(tokenizeQuery(it.name || ""))).filter(Boolean).slice(0, 10);
     itemTokens.set(it.sku, toks);
     itemNormName.set(it.sku, normSearchText(it.name || ""));
     for (const t of toks) {
@@ -345,13 +311,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
         if (!bSku || bSku === aSku) continue;
         if (mappedSkus && mappedSkus.has(bSku)) continue;
 
-        if (
-          typeof isIgnoredPairFn === "function" &&
-          isIgnoredPairFn(aSku, bSku)
-        )
-          continue;
-
-        // never suggest same-store pairs
+        if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
         if (storesOverlap(a, b)) continue;
 
         cand.set(bSku, b);
@@ -387,8 +347,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     const bSku = String(bestB.sku || "");
     const key = aSku < bSku ? `${aSku}|${bSku}` : `${bSku}|${aSku}`;
     const prev = bestByPair.get(key);
-    if (!prev || bestS > prev.score)
-      bestByPair.set(key, { a, b: bestB, score: bestS });
+    if (!prev || bestS > prev.score) bestByPair.set(key, { a, b: bestB, score: bestS });
   }
 
   const pairs = Array.from(bestByPair.values());
@@ -401,7 +360,6 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     const bSku = String(p.b.sku || "");
     if (!aSku || !bSku || aSku === bSku) continue;
     if (used.has(aSku) || used.has(bSku)) continue;
-
     if (storesOverlap(p.a, p.b)) continue;
 
     used.add(aSku);
@@ -471,7 +429,6 @@ export async function renderSkuLinker($app) {
   const idx = await loadIndex();
   const allRows = Array.isArray(idx.items) ? idx.items : [];
 
-  // skuKey -> storeLabel -> url  (used to ensure store badge uses matching URL)
   const URL_BY_SKU_STORE = new Map();
   for (const r of allRows) {
     if (!r || r.removed) continue;
@@ -487,15 +444,19 @@ export async function renderSkuLinker($app) {
     if (!m.has(storeLabel)) m.set(storeLabel, url);
   }
 
-  // candidates for this page (allow u: so KegNCork can be linked)
   const allAgg = aggregateBySku(allRows, (x) => x);
 
   const meta = await loadSkuMetaBestEffort();
   const mappedSkus = buildMappedSkuSet(meta.links || []);
-  let ignoreSet = rules.ignoreSet; // already canonicalized as "a|b"
+  let ignoreSet = rules.ignoreSet;
 
   function isIgnoredPair(a, b) {
     return rules.isIgnoredPair(String(a || ""), String(b || ""));
+  }
+
+  function sameGroup(aSku, bSku) {
+    if (!aSku || !bSku) return false;
+    return String(rules.canonicalSku(aSku)) === String(rules.canonicalSku(bSku));
   }
 
   const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28, isIgnoredPair);
@@ -509,18 +470,13 @@ export async function renderSkuLinker($app) {
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
-    // IMPORTANT: link must match displayed store label
     const href =
       URL_BY_SKU_STORE.get(String(it.sku || ""))?.get(String(store || "")) ||
       String(it.sampleUrl || "").trim() ||
       "";
 
     const storeBadge = href
-      ? `<a class="badge" href="${esc(
-          href
-        )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-          store
-        )}${esc(plus)}</a>`
+      ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
       : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
     const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
@@ -549,23 +505,21 @@ export async function renderSkuLinker($app) {
     const tokens = tokenizeQuery(query);
     const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
 
-    // manual search: allow mapped SKUs so you can merge groups
+    // manual search: allow mapped SKUs so you can merge groups,
+    // BUT if the other side is pinned, hide anything already in that pinned's group
     if (tokens.length) {
       let out = allAgg
-        .filter(
-          (it) =>
-            it &&
-            it.sku !== otherSku &&
-            matchesAllTokens(it.searchText, tokens)
-        )
-        .slice(0, 80);
+        .filter((it) => it && it.sku !== otherSku && matchesAllTokens(it.searchText, tokens))
+        .slice(0, 120);
 
       if (otherPinned) {
         const oSku = String(otherPinned.sku || "");
         out = out.filter((it) => !isIgnoredPair(oSku, String(it.sku || "")));
         out = out.filter((it) => !storesOverlap(otherPinned, it));
+        out = out.filter((it) => !sameGroup(oSku, String(it.sku || ""))); // <-- KEY FIX
       }
-      return out;
+
+      return out.slice(0, 80);
     }
 
     // auto-suggestions: never include mapped skus
@@ -595,6 +549,12 @@ export async function renderSkuLinker($app) {
 
         if (other && storesOverlap(other, it)) {
           $status.textContent = "Not allowed: both items belong to the same store.";
+          return;
+        }
+
+        // NEW: prevent pinning something in the same already-linked group as the other pinned item
+        if (other && sameGroup(String(other.sku || ""), String(it.sku || ""))) {
+          $status.textContent = "Already linked: both SKUs are in the same group.";
           return;
         }
 
@@ -657,7 +617,13 @@ export async function renderSkuLinker($app) {
       return;
     }
 
-    // link is allowed even if either sku is already in a link (merges groups)
+    if (sameGroup(a, b)) {
+      $linkBtn.disabled = true;
+      $ignoreBtn.disabled = true;
+      $status.textContent = "Already linked: both SKUs are in the same group.";
+      return;
+    }
+
     $linkBtn.disabled = false;
     $ignoreBtn.disabled = false;
 
@@ -708,42 +674,38 @@ export async function renderSkuLinker($app) {
       $status.textContent = "Not allowed: both items belong to the same store.";
       return;
     }
+    if (sameGroup(a, b)) {
+      $status.textContent = "Already linked: both SKUs are in the same group.";
+      return;
+    }
     if (isIgnoredPair(a, b)) {
       $status.textContent = "This pair is already ignored.";
       return;
     }
 
-    // Determine current group canonicals (if already linked)
     const aCanon = rules.canonicalSku(a);
     const bCanon = rules.canonicalSku(b);
 
-    // Choose canonical to render/group by: prefer Alberta real, never BC if avoidable, never u: if any real exists
     const preferred = pickPreferredCanonical(allRows, [a, b, aCanon, bCanon]);
-
     if (!preferred) {
       $status.textContent = "Write failed: could not choose a canonical SKU.";
       return;
     }
 
-    // Build minimal writes to merge everything under `preferred`
     const writes = [];
     function addWrite(fromSku, toSku) {
       const f = String(fromSku || "").trim();
       const t = String(toSku || "").trim();
       if (!f || !t || f === t) return;
-      if (rules.canonicalSku(f) === t) return; // already resolves to target
+      if (rules.canonicalSku(f) === t) return;
       writes.push({ fromSku: f, toSku: t });
     }
 
-    // Merge existing groups (if their canonicals differ)
     addWrite(aCanon, preferred);
     addWrite(bCanon, preferred);
-
-    // Ensure the pinned SKUs end up in the preferred group too
     addWrite(a, preferred);
     addWrite(b, preferred);
 
-    // de-dupe
     const seenW = new Set();
     const uniq = [];
     for (const w of writes) {
@@ -762,12 +724,10 @@ export async function renderSkuLinker($app) {
         await apiWriteSkuLink(w.fromSku, w.toSku);
       }
 
-      // refresh rules/meta in-memory
       clearSkuRulesCache();
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
-      // rebuild mapped set from updated links
       const meta2 = await loadSkuMetaBestEffort();
       const rebuilt = buildMappedSkuSet(meta2?.links || []);
       mappedSkus.clear();
@@ -798,6 +758,10 @@ export async function renderSkuLinker($app) {
     }
     if (storesOverlap(pinnedL, pinnedR)) {
       $status.textContent = "Not allowed: both items belong to the same store.";
+      return;
+    }
+    if (sameGroup(a, b)) {
+      $status.textContent = "Already linked: both SKUs are in the same group.";
       return;
     }
     if (isIgnoredPair(a, b)) {
