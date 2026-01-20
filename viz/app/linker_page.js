@@ -49,39 +49,67 @@ function similarityScore(aName, bName) {
   const b = normSearchText(bName);
   if (!a || !b) return 0;
 
-  const A = new Set(tokenizeQuery(a));
-  const B = new Set(tokenizeQuery(b));
+  const aToks = tokenizeQuery(a);
+  const bToks = tokenizeQuery(b);
+  if (!aToks.length || !bToks.length) return 0;
+
+  const aFirst = aToks[0] || "";
+  const bFirst = bToks[0] || "";
+  const firstMatch = aFirst && bFirst && aFirst === bFirst ? 1 : 0;
+
+  // Compare tails (everything after first token)
+  const A = new Set(aToks.slice(1));
+  const B = new Set(bToks.slice(1));
   let inter = 0;
   for (const w of A) if (B.has(w)) inter++;
   const denom = Math.max(1, Math.max(A.size, B.size));
-  const overlap = inter / denom;
+  const overlapTail = inter / denom;
 
   const d = levenshtein(a, b);
   const maxLen = Math.max(1, Math.max(a.length, b.length));
   const levSim = 1 - d / maxLen;
 
-  return overlap * 2.2 + levSim * 1.0;
+  // Gate tail similarity hard unless first word matches
+  const gate = firstMatch ? 1.0 : 0.12;
+
+  return (
+    firstMatch * 3.0 +                 // first word dominates
+    overlapTail * 2.2 * gate +         // tail matters mostly after first word match
+    levSim * (firstMatch ? 1.0 : 0.15) // edit-sim also mostly after first word match
+  );
 }
 
 function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   if (!aTokens.length || !bTokens.length) return 0;
 
+  const aFirst = aTokens[0] || "";
+  const bFirst = bTokens[0] || "";
+  const firstMatch = aFirst && bFirst && aFirst === bFirst ? 1 : 0;
+
+  // Tail overlap only
+  const aTail = aTokens.slice(1);
+  const bTail = bTokens.slice(1);
+
   let inter = 0;
-  const bSet = new Set(bTokens);
-  for (const t of aTokens) if (bSet.has(t)) inter++;
+  const bSet = new Set(bTail);
+  for (const t of aTail) if (bSet.has(t)) inter++;
 
-  const denom = Math.max(1, Math.max(aTokens.length, bTokens.length));
-  const overlap = inter / denom;
+  const denom = Math.max(1, Math.max(aTail.length, bTail.length));
+  const overlapTail = inter / denom;
 
+  // Existing prefix bonus, but only when first word matches
   const a = String(aNormName || "");
   const b = String(bNormName || "");
   const pref =
-    a.slice(0, 10) && b.slice(0, 10) && a.slice(0, 10) === b.slice(0, 10)
+    firstMatch && a.slice(0, 10) && b.slice(0, 10) && a.slice(0, 10) === b.slice(0, 10)
       ? 0.2
       : 0;
 
-  return overlap * 2.0 + pref;
+  const gate = firstMatch ? 1.0 : 0.12;
+
+  return firstMatch * 2.4 + overlapTail * 2.0 * gate + pref;
 }
+
 
 /* ---------------- Store-overlap rule ---------------- */
 
