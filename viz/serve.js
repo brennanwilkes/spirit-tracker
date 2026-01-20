@@ -5,7 +5,8 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const root = path.resolve(__dirname);
+const root = path.resolve(__dirname); // viz/
+const projectRoot = path.resolve(__dirname, ".."); // repo root
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -26,7 +27,8 @@ function safePath(urlPath) {
   return norm;
 }
 
-const LINKS_FILE = path.join(root, "data", "sku_links.json");
+// Project-level file (shared by viz + report tooling)
+const LINKS_FILE = path.join(projectRoot, "data", "sku_links.json");
 
 function readLinks() {
   try {
@@ -57,7 +59,7 @@ const server = http.createServer((req, res) => {
   const u = req.url || "/";
   const url = new URL(u, "http://127.0.0.1");
 
-  // Local-only API: append / read links file (this server only runs locally)
+  // Local API: append / read sku links file on disk (only exists when using this local server)
   if (url.pathname === "/__stviz/sku-links") {
     if (req.method === "GET") {
       const obj = readLinks();
@@ -78,7 +80,7 @@ const server = http.createServer((req, res) => {
           obj.links.push({ fromSku, toSku, createdAt: new Date().toISOString() });
           writeLinks(obj);
 
-          return sendJson(res, 200, { ok: true, count: obj.links.length, file: "viz/data/sku_links.json" });
+          return sendJson(res, 200, { ok: true, count: obj.links.length, file: "data/sku_links.json" });
         } catch (e) {
           return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
         }
