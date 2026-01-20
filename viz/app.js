@@ -519,11 +519,34 @@ function similarityScore(aName, bName) {
   const denom = Math.max(1, Math.max(A.size, B.size));
   const overlap = inter / denom; // 0..1
 
+  // expensive; used sparingly
   const d = levenshtein(a, b);
   const maxLen = Math.max(1, Math.max(a.length, b.length));
   const levSim = 1 - d / maxLen; // ~0..1
 
   return overlap * 2.2 + levSim * 1.0;
+}
+
+// fast & cheap score: shared token ratio + prefix hint. used for initial pairing only.
+function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
+  if (!aTokens.length || !bTokens.length) return 0;
+
+  // count intersection (tokens are small)
+  let inter = 0;
+  const bSet = new Set(bTokens);
+  for (const t of aTokens) if (bSet.has(t)) inter++;
+
+  const denom = Math.max(1, Math.max(aTokens.length, bTokens.length));
+  const overlap = inter / denom;
+
+  // small prefix bonus if starts similarly (cheap)
+  const a = String(aNormName || "");
+  const b = String(bNormName || "");
+  const aPref = a.slice(0, 10);
+  const bPref = b.slice(0, 10);
+  const pref = aPref && bPref && aPref === bPref ? 0.2 : 0;
+
+  return overlap * 2.0 + pref;
 }
 
 function isBCStoreLabel(label) {
@@ -564,82 +587,6 @@ function buildMappedSkuSet(links) {
   return s;
 }
 
-function computeInitialPairs(allAgg, mappedSkus, limitPairs) {
-  // Pair suggestions: (A,B) where names are similar, SKUs differ, and neither SKU is mapped.
-  const items = allAgg.filter((it) => {
-    if (!it) return false;
-    if (isUnknownSkuKey(it.sku)) return false;
-    if (mappedSkus && mappedSkus.has(String(it.sku))) return false;
-    return true;
-  });
-
-  // Build token -> items index
-  const tokMap = new Map();
-  const itemTokens = new Map();
-  for (const it of items) {
-    const toks = Array.from(new Set(tokenizeQuery(it.name || ""))).filter(Boolean);
-    itemTokens.set(it.sku, toks);
-    for (const t of toks) {
-      let arr = tokMap.get(t);
-      if (!arr) tokMap.set(t, (arr = []));
-      arr.push(it);
-    }
-  }
-
-  // Best match per item from shared-token candidates
-  const bestByPairKey = new Map(); // "a|b" canonical -> {a,b,score}
-  for (const a of items) {
-    const toks = itemTokens.get(a.sku) || [];
-    const cand = new Set();
-    for (const t of toks) {
-      const arr = tokMap.get(t);
-      if (!arr) continue;
-      for (const b of arr) {
-        if (!b) continue;
-        if (b.sku === a.sku) continue; // identical SKU never
-        cand.add(b);
-      }
-    }
-
-    let bestB = null;
-    let bestS = 0;
-    for (const b of cand) {
-      const s = similarityScore(a.name || "", b.name || "");
-      if (s > bestS) {
-        bestS = s;
-        bestB = b;
-      }
-    }
-
-    // require some similarity
-    if (!bestB || bestS < 0.55) continue;
-
-    const aSku = String(a.sku);
-    const bSku = String(bestB.sku);
-    const key = aSku < bSku ? `${aSku}|${bSku}` : `${bSku}|${aSku}`;
-
-    const prev = bestByPairKey.get(key);
-    if (!prev || bestS > prev.score) bestByPairKey.set(key, { a, b: bestB, score: bestS });
-  }
-
-  const pairs = Array.from(bestByPairKey.values());
-  pairs.sort((x, y) => y.score - x.score);
-
-  // ensure we don't reuse a SKU across multiple initial pairs
-  const used = new Set();
-  const out = [];
-  for (const p of pairs) {
-    const aSku = String(p.a.sku),
-      bSku = String(p.b.sku);
-    if (used.has(aSku) || used.has(bSku)) continue;
-    used.add(aSku);
-    used.add(bSku);
-    out.push({ a: p.a, b: p.b, score: p.score });
-    if (out.length >= limitPairs) break;
-  }
-  return out;
-}
-
 function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   const scored = [];
   for (const it of allAgg) {
@@ -669,11 +616,123 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus) {
     if (it.sku === pinned.sku) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
 
+    // keep this reasonably cheap (recommend list sizes are capped)
     const s = similarityScore(base, it.name || "");
     if (s > 0) scored.push({ it, s });
   }
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
+}
+
+// FAST initial pairing: avoids global O(n^2). Token index with caps + small candidate set + cheap scoring.
+function computeInitialPairsFast(allAgg, mappedSkus, limitPairs) {
+  const items = allAgg.filter((it) => {
+    if (!it) return false;
+    if (isUnknownSkuKey(it.sku)) return false;
+    if (mappedSkus && mappedSkus.has(String(it.sku))) return false;
+    return true;
+  });
+
+  // pick a small seed set (fast + good enough)
+  const seeds = topSuggestions(items, Math.min(220, items.length), "", mappedSkus);
+
+  // token index with per-token cap to prevent huge buckets
+  const TOKEN_BUCKET_CAP = 180;
+  const tokMap = new Map(); // token -> item[]
+  const itemTokens = new Map(); // sku -> tokens[]
+  const itemNormName = new Map(); // sku -> norm name
+
+  for (const it of items) {
+    const toks = Array.from(new Set(tokenizeQuery(it.name || ""))).filter(Boolean).slice(0, 10);
+    itemTokens.set(it.sku, toks);
+    itemNormName.set(it.sku, normSearchText(it.name || ""));
+    for (const t of toks) {
+      let arr = tokMap.get(t);
+      if (!arr) tokMap.set(t, (arr = []));
+      if (arr.length < TOKEN_BUCKET_CAP) arr.push(it);
+    }
+  }
+
+  const bestByPair = new Map(); // canonical "a|b" -> {a,b,score}
+  const MAX_CAND_TOTAL = 90;
+  const MAX_FINE = 6; // only run expensive score on top few
+
+  for (const a of seeds) {
+    const aSku = String(a.sku || "");
+    const aToks = itemTokens.get(aSku) || [];
+    if (!aSku || !aToks.length) continue;
+
+    const cand = new Map(); // sku -> item
+    for (const t of aToks) {
+      const arr = tokMap.get(t);
+      if (!arr) continue;
+
+      // grab only a slice from each bucket
+      for (let i = 0; i < arr.length && cand.size < MAX_CAND_TOTAL; i++) {
+        const b = arr[i];
+        if (!b) continue;
+        const bSku = String(b.sku || "");
+        if (!bSku || bSku === aSku) continue;
+        if (mappedSkus && mappedSkus.has(bSku)) continue;
+        if (isUnknownSkuKey(bSku)) continue;
+        cand.set(bSku, b);
+      }
+      if (cand.size >= MAX_CAND_TOTAL) break;
+    }
+
+    if (!cand.size) continue;
+
+    // cheap rank by token overlap
+    const aNameN = itemNormName.get(aSku) || "";
+    const cheap = [];
+    for (const b of cand.values()) {
+      const bSku = String(b.sku || "");
+      const bToks = itemTokens.get(bSku) || [];
+      const bNameN = itemNormName.get(bSku) || "";
+      const s = fastSimilarityScore(aToks, bToks, aNameN, bNameN);
+      if (s > 0) cheap.push({ b, s });
+    }
+    if (!cheap.length) continue;
+    cheap.sort((x, y) => y.s - x.s);
+
+    // refine top few with full score (levenshtein)
+    let bestB = null;
+    let bestS = 0;
+    const top = cheap.slice(0, MAX_FINE);
+    for (const x of top) {
+      const s = similarityScore(a.name || "", x.b.name || "");
+      if (s > bestS) {
+        bestS = s;
+        bestB = x.b;
+      }
+    }
+
+    // threshold to avoid garbage; keep moderate
+    if (!bestB || bestS < 0.6) continue;
+
+    const bSku = String(bestB.sku || "");
+    const key = aSku < bSku ? `${aSku}|${bSku}` : `${bSku}|${aSku}`;
+    const prev = bestByPair.get(key);
+    if (!prev || bestS > prev.score) bestByPair.set(key, { a, b: bestB, score: bestS });
+  }
+
+  const pairs = Array.from(bestByPair.values());
+  pairs.sort((x, y) => y.score - x.score);
+
+  // avoid reusing skus across initial pairs
+  const used = new Set();
+  const out = [];
+  for (const p of pairs) {
+    const aSku = String(p.a.sku || "");
+    const bSku = String(p.b.sku || "");
+    if (!aSku || !bSku || aSku === bSku) continue;
+    if (used.has(aSku) || used.has(bSku)) continue;
+    used.add(aSku);
+    used.add(bSku);
+    out.push({ a: p.a, b: p.b, score: p.score });
+    if (out.length >= limitPairs) break;
+  }
+  return out;
 }
 
 async function apiWriteSkuLink(fromSku, toSku) {
@@ -702,7 +761,7 @@ async function renderSkuLinker() {
 
       <div class="card" style="padding:14px;">
         <div class="small" style="margin-bottom:10px;">
-          Unknown SKUs are hidden. Existing mapped SKUs are excluded. With both pinned, LINK SKU writes to data/sku_links.json (local only).
+          Unknown SKUs are hidden. Existing mapped SKUs are excluded. With both pinned, LINK SKU writes to sku_links.json (local only).
         </div>
 
         <div style="display:flex; gap:16px;">
@@ -742,15 +801,16 @@ async function renderSkuLinker() {
   const idx = await loadIndex();
   const allRows = Array.isArray(idx.items) ? idx.items : [];
 
-  // Build candidates; hide unknown (u:...) entirely for this page
+  // candidates for this page (hide unknown u: entirely)
   const allAgg = aggregateBySku(allRows).filter((it) => !isUnknownSkuKey(it.sku));
 
-  // Load existing links (local best-effort) and exclude mapped SKUs from recommendations
+  // mapped skus (local best-effort)
   const existingLinks = await loadSkuLinksBestEffort();
   const mappedSkus = buildMappedSkuSet(existingLinks);
 
-  // Paired initial suggestions (no search, no pinned)
-  const initialPairs = computeInitialPairs(allAgg, mappedSkus, 30);
+  // FAST initial suggestions: pair similar names into left/right lists (unmapped, different sku)
+  // This is intentionally approximate to keep page snappy.
+  const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28);
 
   let pinnedL = null;
   let pinnedR = null;
@@ -808,7 +868,7 @@ async function renderSkuLinker() {
     // Neither pinned + no search: paired initial suggestions
     if (initialPairs && initialPairs.length) {
       const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
-      return list.filter((it) => it && it.sku !== otherSku);
+      return list.filter((it) => it && it.sku !== otherSku && !mappedSkus.has(String(it.sku)));
     }
 
     // Fallback
@@ -899,14 +959,14 @@ async function renderSkuLinker() {
     tL = setTimeout(() => {
       $status.textContent = "";
       updateAll();
-    }, 50);
+    }, 60);
   });
   $qR.addEventListener("input", () => {
     if (tR) clearTimeout(tR);
     tR = setTimeout(() => {
       $status.textContent = "";
       updateAll();
-    }, 50);
+    }, 60);
   });
 
   $linkBtn.addEventListener("click", async () => {
@@ -946,11 +1006,9 @@ async function renderSkuLinker() {
 
     try {
       const out = await apiWriteSkuLink(fromSku, toSku);
-      // update in-memory mapped set so UI updates immediately
       mappedSkus.add(fromSku);
       mappedSkus.add(toSku);
-      $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}) to data/sku_links.json.`;
-      // Unpin after save so you can keep going quickly
+      $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}).`;
       pinnedL = null;
       pinnedR = null;
       updateAll();
