@@ -54,8 +54,8 @@ function bclTotalHits(json) {
 }
 
 function bclIsInStock(src) {
-  // Prefer explicit text if present (matches site UI)
   const candidates = [
+    src?.availability_override,     // <-- add this
     src?.availability,
     src?.availabilityText,
     src?.availabilityStatus,
@@ -71,15 +71,15 @@ function bclIsInStock(src) {
   for (const s of candidates) {
     if (/out of stock/i.test(s)) return false;
     if (/\bin stock\b/i.test(s)) return true;
+    if (/\bavailable\b/i.test(s)) return true; // "Available Feb 07"
   }
 
-  // Fallback only: units
   const units = Number(src?.availableUnits);
   if (Number.isFinite(units)) return units > 0;
 
-  // If we can't tell, keep it (better than dropping 90% of a category)
   return true;
 }
+
 
 function bclNormalizeAbsUrl(raw) {
   const s = String(raw || "").trim();
