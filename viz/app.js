@@ -115,7 +115,7 @@ function route() {
   const h = location.hash || "#/";
   const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (parts.length === 0) return renderSearch();
-  if (parts[0] === "item" && parts[1]) return renderItem(parts[1]);
+  if (parts[0] === "item" && parts[1]) return renderItem(decodeURIComponent(parts[1]));
   return renderSearch();
 }
 
