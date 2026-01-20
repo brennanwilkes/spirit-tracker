@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeSkuKey } = require("../utils/sku");
 const { priceToNumber } = require("../utils/price");
 
 function ensureDir(dir) {
@@ -51,6 +51,8 @@ function writeJsonAtomic(file, obj) {
 }
 
 function buildDbObject(ctx, merged) {
+  const storeLabel = ctx?.store?.name || ctx?.store?.host || "";
+
   return {
     version: 6,
     store: ctx.store.host,
@@ -65,7 +67,8 @@ function buildDbObject(ctx, merged) {
       .map((it) => ({
         name: it.name,
         price: it.price || "",
-        sku: normalizeCspc(it.sku) || "",
+        // IMPORTANT: keep real 6-digit when present; otherwise store stable u:hash(store|url)
+        sku: normalizeSkuKey(it.sku, { storeLabel, url: it.url }) || "",
         url: it.url,
         img: String(it.img || "").trim(),
         removed: Boolean(it.removed),
@@ -88,8 +91,12 @@ function listDbFiles(dbDir) {
   return out;
 }
 
-function buildCheapestSkuIndexFromAllDbs(dbDir) {
-  const cheapest = new Map(); // sku -> { storeLabel, priceNum }
+/**
+ * cheapest map is keyed by CANONICAL sku (for report comparisons),
+ * but DB rows remain raw/mined skuKey.
+ */
+function buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap } = {}) {
+  const cheapest = new Map(); // canonSku -> { storeLabel, priceNum }
 
   for (const file of listDbFiles(dbDir)) {
     try {
@@ -100,14 +107,16 @@ function buildCheapestSkuIndexFromAllDbs(dbDir) {
       for (const it of items) {
         if (it?.removed) continue;
 
-        const sku = normalizeCspc(it?.sku || "");
-        if (!sku) continue;
+        const skuKey = normalizeSkuKey(it?.sku || "", { storeLabel, url: it?.url || "" });
+        if (!skuKey) continue;
+
+        const canon = skuMap && typeof skuMap.canonicalSku === "function" ? skuMap.canonicalSku(skuKey) : skuKey;
 
         const p = priceToNumber(it?.price || "");
         if (!Number.isFinite(p) || p <= 0) continue;
 
-        const prev = cheapest.get(sku);
-        if (!prev || p < prev.priceNum) cheapest.set(sku, { storeLabel, priceNum: p });
+        const prev = cheapest.get(canon);
+        if (!prev || p < prev.priceNum) cheapest.set(canon, { storeLabel, priceNum: p });
       }
     } catch {
       // ignore parse errors

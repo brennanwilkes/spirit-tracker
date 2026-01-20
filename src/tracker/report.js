@@ -2,9 +2,10 @@
 
 const { C, color } = require("../utils/ansi");
 const { padLeft, padRight } = require("../utils/string");
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeCspc, normalizeSkuKey } = require("../utils/sku");
 const { priceToNumber, salePctOff } = require("../utils/price");
 const { buildCheapestSkuIndexFromAllDbs } = require("./db");
+const { loadSkuMap } = require("../utils/sku_map");
 
 function secStr(ms) {
   const s = Number.isFinite(ms) ? ms / 1000 : 0;
@@ -52,7 +53,12 @@ function addCategoryResultToReport(report, storeName, catLabel, newItems, update
 
 function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout && process.stdout.isTTY) } = {}) {
   const paint = (s, code) => color(s, code, colorize);
-  const cheapestSku = buildCheapestSkuIndexFromAllDbs(dbDir);
+
+  // Load mapping for comparisons only
+  const skuMap = loadSkuMap({ dbDir });
+
+  // Cheapest index is keyed by canonical sku (mapped)
+  const cheapestSku = buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap });
 
   const endedAt = new Date();
   const durMs = endedAt - report.startedAt;
@@ -114,26 +120,40 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
     return s ? paint(` ${s}`, C.gray) : "";
   }
 
-  function cheaperAtInline(catLabel, sku, currentPriceStr) {
-    const s = normalizeCspc(sku);
-    if (!s) return "";
-    const best = cheapestSku.get(s);
+  function canonicalKeyForReportItem(catLabel, skuRaw, url) {
+    const storeLabel = storeFromCatLabel(catLabel);
+    const skuKey = normalizeSkuKey(skuRaw, { storeLabel, url });
+    if (!skuKey) return "";
+    return skuMap && typeof skuMap.canonicalSku === "function" ? skuMap.canonicalSku(skuKey) : skuKey;
+  }
+
+  function cheaperAtInline(catLabel, skuRaw, url, currentPriceStr) {
+    const canon = canonicalKeyForReportItem(catLabel, skuRaw, url);
+    if (!canon) return "";
+
+    const best = cheapestSku.get(canon);
     if (!best || !best.storeLabel) return "";
+
     const curStore = storeFromCatLabel(catLabel);
     if (!curStore || best.storeLabel === curStore) return "";
+
     const curP = priceToNumber(currentPriceStr);
     if (!Number.isFinite(curP)) return "";
     if (best.priceNum >= curP) return "";
+
     return paint(` (Cheaper at ${best.storeLabel})`, C.gray);
   }
 
-  function availableAtInline(catLabel, sku) {
-    const s = normalizeCspc(sku);
-    if (!s) return "";
-    const best = cheapestSku.get(s);
+  function availableAtInline(catLabel, skuRaw, url) {
+    const canon = canonicalKeyForReportItem(catLabel, skuRaw, url);
+    if (!canon) return "";
+
+    const best = cheapestSku.get(canon);
     if (!best || !best.storeLabel) return "";
+
     const curStore = storeFromCatLabel(catLabel);
     if (curStore && best.storeLabel === curStore) return "";
+
     return paint(` (Available at ${best.storeLabel})`, C.gray);
   }
 
@@ -141,11 +161,9 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
     ln(paint(`NEW LISTINGS (${report.newItems.length})`, C.bold + C.green));
     for (const it of report.newItems.sort((a, b) => (a.catLabel + a.name).localeCompare(b.catLabel + b.name))) {
       const price = it.price ? paint(it.price, C.cyan) : paint("(no price)", C.gray);
-      const sku = normalizeCspc(it.sku || "");
-      const cheapTag = cheaperAtInline(it.catLabel, sku, it.price || "");
-      ln(
-        `${paint("+", C.green)} ${padRight(it.catLabel, reportLabelW)} | ${paint(it.name, C.bold)}${skuInline(sku)}  ${price}${cheapTag}`
-      );
+      const sku = String(it.sku || "");
+      const cheapTag = cheaperAtInline(it.catLabel, sku, it.url, it.price || "");
+      ln(`${paint("+", C.green)} ${padRight(it.catLabel, reportLabelW)} | ${paint(it.name, C.bold)}${skuInline(sku)}  ${price}${cheapTag}`);
       ln(`  ${paint(it.url, C.dim)}`);
     }
     ln("");
@@ -158,11 +176,9 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
     ln(paint(`RESTORED (${report.restoredItems.length})`, C.bold + C.green));
     for (const it of report.restoredItems.sort((a, b) => (a.catLabel + a.name).localeCompare(b.catLabel + b.name))) {
       const price = it.price ? paint(it.price, C.cyan) : paint("(no price)", C.gray);
-      const sku = normalizeCspc(it.sku || "");
-      const cheapTag = cheaperAtInline(it.catLabel, sku, it.price || "");
-      ln(
-        `${paint("R", C.green)} ${padRight(it.catLabel, reportLabelW)} | ${paint(it.name, C.bold)}${skuInline(sku)}  ${price}${cheapTag}`
-      );
+      const sku = String(it.sku || "");
+      const cheapTag = cheaperAtInline(it.catLabel, sku, it.url, it.price || "");
+      ln(`${paint("R", C.green)} ${padRight(it.catLabel, reportLabelW)} | ${paint(it.name, C.bold)}${skuInline(sku)}  ${price}${cheapTag}`);
       ln(`  ${paint(it.url, C.dim)}`);
     }
     ln("");
@@ -175,11 +191,9 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
     ln(paint(`REMOVED (${report.removedItems.length})`, C.bold + C.yellow));
     for (const it of report.removedItems.sort((a, b) => (a.catLabel + a.name).localeCompare(b.catLabel + b.name))) {
       const price = it.price ? paint(it.price, C.cyan) : paint("(no price)", C.gray);
-      const sku = normalizeCspc(it.sku || "");
-      const availTag = availableAtInline(it.catLabel, sku);
-      ln(
-        `${paint("-", C.yellow)} ${padRight(it.catLabel, reportLabelW)} | ${paint(it.name, C.bold)}${skuInline(sku)}  ${price}${availTag}`
-      );
+      const sku = String(it.sku || "");
+      const availTag = availableAtInline(it.catLabel, sku, it.url);
+      ln(`${paint("-", C.yellow)} ${padRight(it.catLabel, reportLabelW)} | ${paint(it.name, C.bold)}${skuInline(sku)}  ${price}${availTag}`);
       ln(`  ${paint(it.url, C.dim)}`);
     }
     ln("");
@@ -217,8 +231,8 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
         newP = paint(newP, C.cyan);
       }
 
-      const sku = normalizeCspc(u.sku || "");
-      const cheapTag = cheaperAtInline(u.catLabel, sku, newRaw || "");
+      const sku = String(u.sku || "");
+      const cheapTag = cheaperAtInline(u.catLabel, sku, u.url, newRaw || "");
 
       ln(
         `${paint("~", C.cyan)} ${padRight(u.catLabel, reportLabelW)} | ${paint(u.name, C.bold)}${skuInline(sku)}  ${oldP} ${paint("->", C.gray)} ${newP}${offTag}${cheapTag}`
