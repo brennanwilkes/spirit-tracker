@@ -1,3 +1,4 @@
+/* viz/style.css */
 :root {
   --bg: #0b0d10;
   --panel: #12161b;
@@ -17,6 +18,9 @@ body {
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
+
+/* NEW: don't underline badge-links on hover */
+a.badge:hover { text-decoration: none; }
 
 .container {
   max-width: 980px;
