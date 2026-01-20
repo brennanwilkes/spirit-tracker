@@ -502,15 +502,29 @@ async function githubFetchFileAtSha({ owner, repo, sha, path }) {
   return JSON.parse(txt);
 }
 
-function findItemBySkuInDb(obj, sku) {
+function findItemBySkuInDb(obj, skuKey, dbFile, storeLabel) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
   for (const it of items) {
     if (!it || it.removed) continue;
-    const s = String(it.sku || "");
-    if (s === sku) return it;
+
+    const real = String(it.sku || "").trim();
+    if (real && real === skuKey) return it;
+
+    // synthetic match for blank sku items: hash storeLabel|url
+    if (!real && String(skuKey || "").startsWith("u:")) {
+      const row = {
+        sku: "",
+        url: String(it.url || ""),
+        storeLabel: storeLabel || "",
+        store: "",
+      };
+      const k = keySkuForRow(row);
+      if (k === skuKey) return it;
+    }
   }
   return null;
 }
+
 
 function computeSuggestedY(values) {
   const nums = values.filter((v) => Number.isFinite(v));
@@ -757,7 +771,7 @@ async function renderItem(sku) {
         }
       }
 
-      const it = findItemBySkuInDb(obj, sku);
+      const it = findItemBySkuInDb(obj, sku, dbFile, storeLabel);
       const pNum = it ? parsePriceToNumber(it.price) : null;
 
       points.set(d, pNum);
