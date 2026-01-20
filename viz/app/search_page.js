@@ -1,4 +1,3 @@
-/* viz/app/search_page.js */
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
 import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow } from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
@@ -32,7 +31,7 @@ export function renderSearch($app) {
   let allAgg = [];
   let indexReady = false;
 
-  // sku(canonical) -> storeLabel -> url
+  // canonicalSku -> storeLabel -> url
   let URL_BY_SKU_STORE = new Map();
 
   function buildUrlMap(listings, canonicalSkuFn) {
@@ -60,11 +59,7 @@ export function renderSearch($app) {
   function urlForAgg(it, storeLabel) {
     const sku = String(it?.sku || "");
     const s = String(storeLabel || "");
-    return (
-      URL_BY_SKU_STORE.get(sku)?.get(s) ||
-      String(it?.sampleUrl || "").trim() ||
-      ""
-    );
+    return URL_BY_SKU_STORE.get(sku)?.get(s) || "";
   }
 
   function renderAggregates(items) {
@@ -81,8 +76,8 @@ export function renderSearch($app) {
         const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
         const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
 
-        // link must match displayed store label
-        const href = urlForAgg(it, store);
+        // link must match the displayed store label
+        const href = urlForAgg(it, store) || String(it.sampleUrl || "").trim();
         const storeBadge = href
           ? `<a class="badge" href="${esc(
               href
@@ -94,17 +89,17 @@ export function renderSearch($app) {
         return `
           <div class="item" data-sku="${esc(it.sku)}">
             <div class="itemRow">
-              <div class="thumbBox">${renderThumbHtml(it.img)}</div>
-
+              <div class="thumbBox">
+                ${renderThumbHtml(it.img)}
+              </div>
               <div class="itemBody">
-                <div class="itemMain">
+                <div class="itemTop">
                   <div class="itemName">${esc(it.name || "(no name)")}</div>
-                </div>
-
-                <div class="itemFacts">
-                  <div class="mono priceBig">${esc(price)}</div>
-                  ${storeBadge}
                   <span class="badge mono">${esc(displaySku(it.sku))}</span>
+                </div>
+                <div class="metaRow">
+                  <span class="mono price">${esc(price)}</span>
+                  ${storeBadge}
                 </div>
               </div>
             </div>
@@ -160,10 +155,8 @@ export function renderSearch($app) {
               : `${esc(r.oldPrice || "")} → ${esc(r.newPrice || "")}`;
 
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
-
           const rawSku = String(r.sku || "");
           const sku = canon(rawSku);
-
           const img = aggBySku.get(sku)?.img || "";
 
           const href = String(r.url || "").trim();
@@ -175,24 +168,25 @@ export function renderSearch($app) {
               )}</a>`
             : `<span class="badge">${esc(r.storeLabel || "")}</span>`;
 
+          // date as a badge so it sits nicely in the single meta row
+          const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
+
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
-                <div class="thumbBox">${renderThumbHtml(img)}</div>
-
+                <div class="thumbBox">
+                  ${renderThumbHtml(img)}
+                </div>
                 <div class="itemBody">
-                  <div class="itemMain">
+                  <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <div class="meta">
-                      <span class="badge">${esc(kind)}</span>
-                    </div>
-                  </div>
-
-                  <div class="itemFacts">
-                    <div class="mono priceBig">${esc(priceLine)}</div>
-                    ${storeBadge}
-                    <div class="small mono">${esc(when)}</div>
                     <span class="badge mono">${esc(displaySku(sku))}</span>
+                  </div>
+                  <div class="metaRow">
+                    <span class="badge">${esc(kind)}</span>
+                    <span class="mono price">${esc(priceLine)}</span>
+                    ${storeBadge}
+                    ${dateBadge}
                   </div>
                 </div>
               </div>
