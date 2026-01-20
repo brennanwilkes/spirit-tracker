@@ -2,7 +2,8 @@ import { esc, renderThumbHtml } from "./dom.js";
 import { tokenizeQuery, matchesAllTokens, isUnknownSkuKey, displaySku, keySkuForRow, normSearchText } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
-import { isLocalWriteMode, loadSkuLinksBestEffort, apiWriteSkuLink } from "./api.js";
+import { isLocalWriteMode, loadSkuMetaBestEffort, apiWriteSkuLink, apiWriteSkuIgnore } from "./api.js";
+import { loadSkuRules } from "./mapping.js";
 
 /* ---------------- Similarity helpers ---------------- */
 
@@ -79,6 +80,29 @@ function buildMappedSkuSet(links) {
   return s;
 }
 
+function openLinkHtml(url) {
+  const u = String(url || "").trim();
+  if (!u) return "";
+  return `<a class="badge" href="${esc(u)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">open</a>`;
+}
+
+function isBCStoreLabel(label) {
+  const s = String(label || "").toLowerCase();
+  return s.includes("bcl") || s.includes("strath");
+}
+
+// infer BC-ness by checking any row for that skuKey in current index
+function skuIsBC(allRows, skuKey) {
+  for (const r of allRows) {
+    if (keySkuForRow(r) !== skuKey) continue;
+    const lab = String(r.storeLabel || r.store || "");
+    if (isBCStoreLabel(lab)) return true;
+  }
+  return false;
+}
+
+/* ---------------- Suggestion helpers ---------------- */
+
 function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   const scored = [];
   for (const it of allAgg) {
@@ -96,17 +120,21 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus) {
+function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn) {
   if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const base = String(pinned.name || "");
+  const pinnedSku = String(pinned.sku || "");
   const scored = [];
+
   for (const it of allAgg) {
     if (!it) continue;
     if (isUnknownSkuKey(it.sku)) continue;
     if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (it.sku === pinned.sku) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
+
+    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, String(it.sku || ""))) continue;
 
     const s = similarityScore(base, it.name || "");
     if (s > 0) scored.push({ it, s });
@@ -115,8 +143,8 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-// FAST initial pairing (approx)
-function computeInitialPairsFast(allAgg, mappedSkus, limitPairs) {
+// FAST initial pairing (approx) with ignore-pair exclusion
+function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const items = allAgg.filter((it) => {
     if (!it) return false;
     if (isUnknownSkuKey(it.sku)) return false;
@@ -162,6 +190,9 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs) {
         if (!bSku || bSku === aSku) continue;
         if (mappedSkus && mappedSkus.has(bSku)) continue;
         if (isUnknownSkuKey(bSku)) continue;
+
+        if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
+
         cand.set(bSku, b);
       }
       if (cand.size >= MAX_CAND_TOTAL) break;
@@ -216,31 +247,11 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs) {
   return out;
 }
 
-function openLinkHtml(url) {
-  const u = String(url || "").trim();
-  if (!u) return "";
-  return `<a class="badge" href="${esc(u)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">open</a>`;
-}
-
-function isBCStoreLabel(label) {
-  const s = String(label || "").toLowerCase();
-  return s.includes("bcl") || s.includes("strath");
-}
-
-// infer BC-ness by checking any row for that skuKey in current index
-function skuIsBC(allRows, skuKey) {
-  for (const r of allRows) {
-    if (keySkuForRow(r) !== skuKey) continue;
-    const lab = String(r.storeLabel || r.store || "");
-    if (isBCStoreLabel(lab)) return true;
-  }
-  return false;
-}
-
 /* ---------------- Page ---------------- */
 
 export async function renderSkuLinker($app) {
   const localWrite = isLocalWriteMode();
+  const rules = await loadSkuRules();
 
   $app.innerHTML = `
     <div class="container" style="max-width:1200px;">
@@ -253,7 +264,7 @@ export async function renderSkuLinker($app) {
 
       <div class="card" style="padding:14px;">
         <div class="small" style="margin-bottom:10px;">
-          Unknown SKUs are hidden. Existing mapped SKUs are excluded. With both pinned, LINK SKU writes to sku_links.json (local only).
+          Unknown SKUs are hidden. Existing mapped SKUs are excluded. LINK SKU writes map; IGNORE PAIR writes a "do-not-suggest" pair (local only).
         </div>
 
         <div style="display:flex; gap:16px;">
@@ -273,6 +284,7 @@ export async function renderSkuLinker($app) {
 
       <div class="card linkBar" style="padding:10px;">
         <button id="linkBtn" class="btn" style="width:100%;" disabled>LINK SKU</button>
+        <button id="ignoreBtn" class="btn" style="width:100%; margin-top:8px;" disabled>IGNORE PAIR</button>
         <div id="status" class="small" style="margin-top:8px;"></div>
       </div>
     </div>
@@ -285,6 +297,7 @@ export async function renderSkuLinker($app) {
   const $listL = document.getElementById("listL");
   const $listR = document.getElementById("listR");
   const $linkBtn = document.getElementById("linkBtn");
+  const $ignoreBtn = document.getElementById("ignoreBtn");
   const $status = document.getElementById("status");
 
   $listL.innerHTML = `<div class="small">Loading index…</div>`;
@@ -293,12 +306,18 @@ export async function renderSkuLinker($app) {
   const idx = await loadIndex();
   const allRows = Array.isArray(idx.items) ? idx.items : [];
 
-  const allAgg = aggregateBySku(allRows).filter((it) => !isUnknownSkuKey(it.sku));
+  // candidates for this page (hide unknown u: entirely)
+  const allAgg = aggregateBySku(allRows, (x) => x).filter((it) => !isUnknownSkuKey(it.sku));
 
-  const existingLinks = await loadSkuLinksBestEffort();
-  const mappedSkus = buildMappedSkuSet(existingLinks);
+  const meta = await loadSkuMetaBestEffort();
+  const mappedSkus = buildMappedSkuSet(meta.links || []);
+  const ignoreSet = rules.ignoreSet; // already canonicalized as "a|b"
 
-  const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28);
+  function isIgnoredPair(a, b) {
+    return rules.isIgnoredPair(String(a || ""), String(b || ""));
+  }
+
+  const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28, isIgnoredPair);
 
   let pinnedL = null;
   let pinnedR = null;
@@ -336,12 +355,19 @@ export async function renderSkuLinker($app) {
     const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
 
     if (tokens.length) {
-      return allAgg
+      const out = allAgg
         .filter((it) => it && it.sku !== otherSku && !mappedSkus.has(String(it.sku)) && matchesAllTokens(it.searchText, tokens))
         .slice(0, 80);
+
+      // if the other side is pinned, also exclude ignored pairs
+      if (otherPinned) {
+        const oSku = String(otherPinned.sku || "");
+        return out.filter((it) => !isIgnoredPair(oSku, String(it.sku || "")));
+      }
+      return out;
     }
 
-    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus);
+    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair);
 
     if (initialPairs && initialPairs.length) {
       const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
@@ -396,35 +422,50 @@ export async function renderSkuLinker($app) {
     attachHandlers($list, side);
   }
 
-  function updateButton() {
+  function updateButtons() {
     if (!localWrite) {
       $linkBtn.disabled = true;
+      $ignoreBtn.disabled = true;
       $status.textContent = "Write disabled on GitHub Pages. Use: node viz/serve.js and open 127.0.0.1.";
       return;
     }
+
     if (!(pinnedL && pinnedR)) {
       $linkBtn.disabled = true;
-      if (!$status.textContent) $status.textContent = "Pin one item on each side to enable linking.";
+      $ignoreBtn.disabled = true;
+      if (!$status.textContent) $status.textContent = "Pin one item on each side to enable linking / ignoring.";
       return;
     }
-    if (String(pinnedL.sku || "") === String(pinnedR.sku || "")) {
+
+    const a = String(pinnedL.sku || "");
+    const b = String(pinnedR.sku || "");
+
+    if (a === b) {
       $linkBtn.disabled = true;
+      $ignoreBtn.disabled = true;
       $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
-    if (mappedSkus.has(String(pinnedL.sku)) || mappedSkus.has(String(pinnedR.sku))) {
+
+    if (mappedSkus.has(a) || mappedSkus.has(b)) {
       $linkBtn.disabled = true;
-      $status.textContent = "Not allowed: one of these SKUs is already mapped.";
-      return;
+      $ignoreBtn.disabled = false; // still allow ignoring even if mapped? you can decide; default allow
+    } else {
+      $linkBtn.disabled = false;
+      $ignoreBtn.disabled = false;
     }
-    $linkBtn.disabled = false;
-    if ($status.textContent === "Pin one item on each side to enable linking.") $status.textContent = "";
+
+    if (isIgnoredPair(a, b)) {
+      $status.textContent = "This pair is already ignored.";
+    } else if ($status.textContent === "Pin one item on each side to enable linking / ignoring.") {
+      $status.textContent = "";
+    }
   }
 
   function updateAll() {
     renderSide("L");
     renderSide("R");
-    updateButton();
+    updateButtons();
   }
 
   let tL = null, tR = null;
@@ -461,8 +502,12 @@ export async function renderSkuLinker($app) {
       $status.textContent = "Not allowed: one of these SKUs is already mapped.";
       return;
     }
+    if (isIgnoredPair(a, b)) {
+      $status.textContent = "This pair is already ignored.";
+      return;
+    }
 
-    // Direction: if either is BC-based, FROM is BC sku.
+    // Direction: if either is BC-based (BCL/Strath appears), FROM is BC sku.
     const aBC = skuIsBC(allRows, a);
     const bBC = skuIsBC(allRows, b);
 
@@ -487,6 +532,40 @@ export async function renderSkuLinker($app) {
       updateAll();
     } catch (e) {
       $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
+    }
+  });
+
+  $ignoreBtn.addEventListener("click", async () => {
+    if (!(pinnedL && pinnedR) || !localWrite) return;
+
+    const a = String(pinnedL.sku || "");
+    const b = String(pinnedR.sku || "");
+
+    if (!a || !b || isUnknownSkuKey(a) || isUnknownSkuKey(b)) {
+      $status.textContent = "Not allowed: unknown SKUs cannot be ignored.";
+      return;
+    }
+    if (a === b) {
+      $status.textContent = "Not allowed: both sides cannot be the same SKU.";
+      return;
+    }
+    if (isIgnoredPair(a, b)) {
+      $status.textContent = "This pair is already ignored.";
+      return;
+    }
+
+    $status.textContent = `Ignoring: ${displaySku(a)} × ${displaySku(b)} …`;
+
+    try {
+      const out = await apiWriteSkuIgnore(a, b);
+      // update in-memory ignore set
+      ignoreSet.add(rules.canonicalPairKey(a, b));
+      $status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
+      pinnedL = null;
+      pinnedR = null;
+      updateAll();
+    } catch (e) {
+      $status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
     }
   });
 

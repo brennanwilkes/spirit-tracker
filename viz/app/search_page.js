@@ -2,6 +2,7 @@ import { esc, renderThumbHtml, prettyTs } from "./dom.js";
 import { tokenizeQuery, matchesAllTokens, displaySku } from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
+import { loadSkuRules } from "./mapping.js";
 
 export function renderSearch($app) {
   $app.innerHTML = `
@@ -79,12 +80,14 @@ export function renderSearch($app) {
     }
   }
 
-  function renderRecent(recent) {
+  function renderRecent(recent, canonicalSkuFn) {
     const items = Array.isArray(recent?.items) ? recent.items : [];
     if (!items.length) {
       $results.innerHTML = `<div class="small">Type to search…</div>`;
       return;
     }
+
+    const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
 
     const days = Number.isFinite(Number(recent?.windowDays)) ? Number(recent.windowDays) : 3;
     const limited = items.slice(0, 140);
@@ -115,7 +118,9 @@ export function renderSearch($app) {
 
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
 
-          const sku = String(r.sku || "");
+          const rawSku = String(r.sku || "");
+          const sku = canon(rawSku);
+
           const img = aggBySku.get(sku)?.img || "";
 
           return `
@@ -162,11 +167,7 @@ export function renderSearch($app) {
 
     const tokens = tokenizeQuery($q.value);
     if (!tokens.length) {
-      loadRecent()
-        .then(renderRecent)
-        .catch(() => {
-          $results.innerHTML = `<div class="small">Type to search…</div>`;
-        });
+      // recent gets rendered later after rules load
       return;
     }
 
@@ -176,18 +177,20 @@ export function renderSearch($app) {
 
   $results.innerHTML = `<div class="small">Loading index…</div>`;
 
-  loadIndex()
-    .then((idx) => {
+  Promise.all([loadIndex(), loadSkuRules()])
+    .then(([idx, rules]) => {
       const listings = Array.isArray(idx.items) ? idx.items : [];
-      allAgg = aggregateBySku(listings);
+      allAgg = aggregateBySku(listings, rules.canonicalSku);
       aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
       indexReady = true;
       $q.focus();
-      applySearch();
-      return loadRecent();
-    })
-    .then((recent) => {
-      if (!tokenizeQuery($q.value).length) renderRecent(recent);
+
+      const tokens = tokenizeQuery($q.value);
+      if (tokens.length) {
+        applySearch();
+      } else {
+        return loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku));
+      }
     })
     .catch((e) => {
       $results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
@@ -197,6 +200,17 @@ export function renderSearch($app) {
   $q.addEventListener("input", () => {
     saveQuery($q.value);
     if (t) clearTimeout(t);
-    t = setTimeout(applySearch, 50);
+    t = setTimeout(() => {
+      const tokens = tokenizeQuery($q.value);
+      if (!tokens.length) {
+        loadSkuRules()
+          .then((rules) => loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku)))
+          .catch(() => {
+            $results.innerHTML = `<div class="small">Type to search…</div>`;
+          });
+        return;
+      }
+      applySearch();
+    }, 50);
   });
 }

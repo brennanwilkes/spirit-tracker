@@ -2,6 +2,7 @@ import { esc, renderThumbHtml, dateOnly } from "./dom.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
+import { loadSkuRules } from "./mapping.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
@@ -16,22 +17,44 @@ export function destroyChart() {
 
 /* ---------------- History helpers ---------------- */
 
-function findItemBySkuInDb(obj, skuKey, storeLabel) {
+function findMinPriceForSkuGroupInDb(obj, skuKeys, storeLabel) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
+  let best = null;
+
+  // Build quick lookup for real sku entries (cheap)
+  const want = new Set();
+  for (const s of skuKeys) {
+    const x = String(s || "").trim();
+    if (x) want.add(x);
+  }
+
   for (const it of items) {
     if (!it || it.removed) continue;
 
     const real = String(it.sku || "").trim();
-    if (real && real === skuKey) return it;
+    if (real && want.has(real)) {
+      const p = parsePriceToNumber(it.price);
+      if (p !== null) best = best === null ? p : Math.min(best, p);
+      continue;
+    }
 
-    // synthetic match for blank sku items: hash storeLabel|url
-    if (!real && String(skuKey || "").startsWith("u:")) {
-      const row = { sku: "", url: String(it.url || ""), storeLabel: storeLabel || "", store: "" };
-      const k = keySkuForRow(row);
-      if (k === skuKey) return it;
+    // synthetic match (only relevant if a caller passes u: keys)
+    if (!real) {
+      // if any skuKey is synthetic, match by hashing storeLabel|url
+      for (const skuKey of skuKeys) {
+        const k = String(skuKey || "");
+        if (!k.startsWith("u:")) continue;
+        const row = { sku: "", url: String(it.url || ""), storeLabel: storeLabel || "", store: "" };
+        const kk = keySkuForRow(row);
+        if (kk === k) {
+          const p = parsePriceToNumber(it.price);
+          if (p !== null) best = best === null ? p : Math.min(best, p);
+        }
+      }
     }
   }
-  return null;
+
+  return best;
 }
 
 function computeSuggestedY(values) {
@@ -62,7 +85,7 @@ function collapseCommitsToDaily(commits) {
 }
 
 function cacheKeySeries(sku, dbFile, cacheBust) {
-  return `stviz:v2:series:${cacheBust}:${sku}:${dbFile}`;
+  return `stviz:v3:series:${cacheBust}:${sku}:${dbFile}`;
 }
 
 function loadSeriesCache(sku, dbFile, cacheBust) {
@@ -100,9 +123,11 @@ async function loadDbCommitsManifest() {
 
 /* ---------------- Page ---------------- */
 
-export async function renderItem($app, sku) {
+export async function renderItem($app, skuInput) {
   destroyChart();
-  console.log("[renderItem] skuKey=", sku);
+
+  const rules = await loadSkuRules();
+  const sku = rules.canonicalSku(String(skuInput || ""));
 
   $app.innerHTML = `
     <div class="container">
@@ -140,8 +165,11 @@ export async function renderItem($app, sku) {
 
   const idx = await loadIndex();
   const all = Array.isArray(idx.items) ? idx.items : [];
-  const want = String(sku || "");
-  const cur = all.filter((x) => keySkuForRow(x) === want);
+
+  // include toSku + all fromSkus mapped to it
+  const skuGroup = rules.groupForCanonical(sku);
+
+  const cur = all.filter((x) => skuGroup.has(String(keySkuForRow(x) || "")));
 
   if (!cur.length) {
     $title.textContent = "Item not found in current index";
@@ -150,6 +178,7 @@ export async function renderItem($app, sku) {
     return;
   }
 
+  // pick bestName by most common across merged rows
   const nameCounts = new Map();
   for (const r of cur) {
     const n = String(r.name || "");
@@ -167,12 +196,26 @@ export async function renderItem($app, sku) {
   }
   $title.textContent = bestName;
 
-  // pick image that matches bestName (fallback any)
+  // choose thumbnail from cheapest listing across merged rows (fallback: first that matches name)
   let bestImg = "";
+  let bestPrice = null;
+
   for (const r of cur) {
-    if (String(r?.name || "") === String(bestName || "") && String(r?.img || "").trim()) {
-      bestImg = String(r.img).trim();
-      break;
+    const p = parsePriceToNumber(r.price);
+    const img = String(r?.img || "").trim();
+    if (p !== null && img) {
+      if (bestPrice === null || p < bestPrice) {
+        bestPrice = p;
+        bestImg = img;
+      }
+    }
+  }
+  if (!bestImg) {
+    for (const r of cur) {
+      if (String(r?.name || "") === String(bestName || "") && String(r?.img || "").trim()) {
+        bestImg = String(r.img).trim();
+        break;
+      }
     }
   }
   if (!bestImg) {
@@ -183,8 +226,10 @@ export async function renderItem($app, sku) {
       }
     }
   }
+
   $thumbBox.innerHTML = bestImg ? renderThumbHtml(bestImg, "detailThumb") : `<div class="thumbPlaceholder"></div>`;
 
+  // show store links from merged rows (may include multiple per store; OK)
   $links.innerHTML = cur
     .slice()
     .sort((a, b) => String(a.storeLabel || "").localeCompare(String(b.storeLabel || "")))
@@ -196,8 +241,14 @@ export async function renderItem($app, sku) {
   const repo = gh.repo;
   const branch = "data";
 
+  // dbFile -> rows (because merged skus can exist in same dbFile)
   const byDbFile = new Map();
-  for (const r of cur) if (r.dbFile && !byDbFile.has(r.dbFile)) byDbFile.set(r.dbFile, r);
+  for (const r of cur) {
+    if (!r.dbFile) continue;
+    const k = String(r.dbFile);
+    if (!byDbFile.has(k)) byDbFile.set(k, []);
+    byDbFile.get(k).push(r);
+  }
   const dbFiles = [...byDbFile.keys()].sort();
 
   $status.textContent = `Loading history for ${dbFiles.length} store file(s)…`;
@@ -210,9 +261,11 @@ export async function renderItem($app, sku) {
   const cacheBust = String(idx.generatedAt || new Date().toISOString());
   const today = dateOnly(idx.generatedAt || new Date().toISOString());
 
+  const skuKeys = [...skuGroup];
+
   for (const dbFile of dbFiles) {
-    const row = byDbFile.get(dbFile);
-    const storeLabel = String(row.storeLabel || row.store || dbFile);
+    const rows = byDbFile.get(dbFile) || [];
+    const storeLabel = String(rows[0]?.storeLabel || rows[0]?.store || dbFile);
 
     const cached = loadSeriesCache(sku, dbFile, cacheBust);
     if (cached && Array.isArray(cached.points) && cached.points.length) {
@@ -275,23 +328,25 @@ export async function renderItem($app, sku) {
         }
       }
 
-      const it = findItemBySkuInDb(obj, sku, storeLabel);
-      const pNum = it ? parsePriceToNumber(it.price) : null;
+      const pNum = findMinPriceForSkuGroupInDb(obj, skuKeys, storeLabel);
 
       points.set(d, pNum);
       if (pNum !== null) values.push(pNum);
       allDatesSet.add(d);
-
       compactPoints.push({ date: d, price: pNum });
     }
 
-    // Always add "today" from current index row
-    const curP = parsePriceToNumber(row.price);
-    if (curP !== null) {
-      points.set(today, curP);
-      values.push(curP);
+    // Always add "today" from current index (min across merged rows in this store/dbFile)
+    let curMin = null;
+    for (const r of rows) {
+      const p = parsePriceToNumber(r.price);
+      if (p !== null) curMin = curMin === null ? p : Math.min(curMin, p);
+    }
+    if (curMin !== null) {
+      points.set(today, curMin);
+      values.push(curMin);
       allDatesSet.add(today);
-      compactPoints.push({ date: today, price: curP });
+      compactPoints.push({ date: today, price: curMin });
     }
 
     saveSeriesCache(sku, dbFile, cacheBust, compactPoints);
@@ -316,7 +371,6 @@ export async function renderItem($app, sku) {
   }));
 
   const ctx = $canvas.getContext("2d");
-  // Chart is global from the UMD script include
   CHART = new Chart(ctx, {
     type: "line",
     data: { labels, datasets },

@@ -1,25 +1,29 @@
 import { normImg } from "./dom.js";
 import { parsePriceToNumber, keySkuForRow, normSearchText } from "./sku.js";
 
-// Build one row per SKU + combined searchable text across all listings of that SKU
-export function aggregateBySku(listings) {
+// Build one row per *canonical* SKU (after applying sku map) + combined searchable text
+export function aggregateBySku(listings, canonicalizeSkuFn) {
+  const canon = typeof canonicalizeSkuFn === "function" ? canonicalizeSkuFn : (x) => x;
+
   const bySku = new Map();
 
   for (const r of listings) {
-    const sku = keySkuForRow(r);
+    const rawSku = keySkuForRow(r);
+    const sku = canon(rawSku);
 
     const name = String(r?.name || "");
     const url = String(r?.url || "");
     const storeLabel = String(r?.storeLabel || r?.store || "");
 
     const img = normImg(r?.img || r?.image || r?.thumb || "");
+
     const pNum = parsePriceToNumber(r?.price);
     const pStr = String(r?.price || "");
 
     let agg = bySku.get(sku);
     if (!agg) {
       agg = {
-        sku,
+        sku, // canonical sku
         name: name || "",
         img: "",
         cheapestPriceStr: pStr || "",
@@ -52,7 +56,7 @@ export function aggregateBySku(listings) {
       if (name) agg._imgByName.set(name, img);
     }
 
-    // cheapest
+    // cheapest (across all merged rows)
     if (pNum !== null) {
       if (agg.cheapestPriceNum === null || pNum < agg.cheapestPriceNum) {
         agg.cheapestPriceNum = pNum;
@@ -61,8 +65,9 @@ export function aggregateBySku(listings) {
       }
     }
 
-    // search parts
+    // search parts: include canonical + raw sku so searching either works
     agg._searchParts.push(sku);
+    if (rawSku && rawSku !== sku) agg._searchParts.push(rawSku);
     if (name) agg._searchParts.push(name);
     if (url) agg._searchParts.push(url);
     if (storeLabel) agg._searchParts.push(storeLabel);
