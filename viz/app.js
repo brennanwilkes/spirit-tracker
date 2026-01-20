@@ -72,6 +72,10 @@ function displaySku(key) {
   return String(key || "").startsWith("u:") ? "unknown" : String(key || "");
 }
 
+function isUnknownSkuKey(key) {
+  return String(key || "").startsWith("u:");
+}
+
 // Normalize for search: lowercase, punctuation -> space, collapse spaces
 function normSearchText(s) {
   return String(s ?? "")
@@ -536,23 +540,33 @@ function skuIsBC(allRows, skuKey) {
   return false;
 }
 
-function topSuggestions(allAgg, limit) {
-  const scored = allAgg.map((it) => {
+function topSuggestions(allAgg, limit, otherPinnedSku) {
+  const scored = [];
+  for (const it of allAgg) {
+    if (!it) continue;
+    if (isUnknownSkuKey(it.sku)) continue;
+    if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
+
     const stores = it.stores ? it.stores.size : 0;
     const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
     const hasName = it.name ? 1 : 0;
-    return { it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 };
-  });
+    scored.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 });
+  }
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(allAgg, pinned, limit) {
-  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit);
+function recommendSimilar(allAgg, pinned, limit, otherPinnedSku) {
+  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku);
+
   const base = String(pinned.name || "");
   const scored = [];
   for (const it of allAgg) {
-    if (!it || it.sku === pinned.sku) continue;
+    if (!it) continue;
+    if (isUnknownSkuKey(it.sku)) continue;
+    if (it.sku === pinned.sku) continue;
+    if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
+
     const s = similarityScore(base, it.name || "");
     if (s > 0) scored.push({ it, s });
   }
@@ -586,7 +600,7 @@ async function renderSkuLinker() {
 
       <div class="card" style="padding:14px;">
         <div class="small" style="margin-bottom:10px;">
-          Search or pin items in each column. With both pinned, LINK SKU writes to viz/data/sku_links.json (local only).
+          Unknown SKUs are hidden. With both pinned, LINK SKU writes to data/sku_links.json (local only).
         </div>
 
         <div style="display:flex; gap:16px;">
@@ -625,16 +639,25 @@ async function renderSkuLinker() {
 
   const idx = await loadIndex();
   const allRows = Array.isArray(idx.items) ? idx.items : [];
-  const allAgg = aggregateBySku(allRows);
+
+  // Build candidates; hide unknown (u:...) entirely for this page
+  const allAgg = aggregateBySku(allRows).filter((it) => !isUnknownSkuKey(it.sku));
 
   let pinnedL = null;
   let pinnedR = null;
+
+  function openLinkHtml(url) {
+    const u = String(url || "").trim();
+    if (!u) return "";
+    return `<a class="badge" href="${esc(u)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">open</a>`;
+  }
 
   function renderCard(it, pinned) {
     const storeCount = it.stores.size || 0;
     const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
+    const open = openLinkHtml(it.sampleUrl || "");
     return `
       <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemRow">
@@ -647,6 +670,7 @@ async function renderSkuLinker() {
             <div class="meta">
               <span class="mono">${esc(price)}</span>
               <span class="badge">${esc(store)}${esc(plus)}</span>
+              ${open}
             </div>
             <div class="meta"><span class="mono">${esc(it.sampleUrl || "")}</span></div>
             ${pinned ? `<div class="small">Pinned (click again to unpin)</div>` : ``}
@@ -658,9 +682,18 @@ async function renderSkuLinker() {
 
   function sideItems(query, otherPinned) {
     const tokens = tokenizeQuery(query);
-    if (tokens.length) return allAgg.filter((it) => matchesAllTokens(it.searchText, tokens)).slice(0, 80);
-    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60);
-    return topSuggestions(allAgg, 60);
+
+    // Never show same sku as other pinned
+    const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
+
+    if (tokens.length) {
+      return allAgg
+        .filter((it) => it && it.sku !== otherSku && matchesAllTokens(it.searchText, tokens))
+        .slice(0, 80);
+    }
+
+    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku);
+    return topSuggestions(allAgg, 60, "");
   }
 
   function attachHandlers($root, side) {
@@ -669,6 +702,14 @@ async function renderSkuLinker() {
         const skuKey = el.getAttribute("data-sku") || "";
         const it = allAgg.find((x) => String(x.sku || "") === skuKey);
         if (!it) return;
+
+        if (isUnknownSkuKey(it.sku)) return;
+
+        const other = side === "L" ? pinnedR : pinnedL;
+        if (other && String(other.sku || "") === String(it.sku || "")) {
+          $status.textContent = "Not allowed: both sides cannot be the same SKU.";
+          return;
+        }
 
         if (side === "L") pinnedL = pinnedL && pinnedL.sku === it.sku ? null : it;
         else pinnedR = pinnedR && pinnedR.sku === it.sku ? null : it;
@@ -703,11 +744,16 @@ async function renderSkuLinker() {
     }
     if (!(pinnedL && pinnedR)) {
       $linkBtn.disabled = true;
-      $status.textContent = "Pin one item on each side to enable linking.";
+      if (!$status.textContent) $status.textContent = "Pin one item on each side to enable linking.";
+      return;
+    }
+    if (String(pinnedL.sku || "") === String(pinnedR.sku || "")) {
+      $linkBtn.disabled = true;
+      $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
     $linkBtn.disabled = false;
-    $status.textContent = "";
+    if ($status.textContent === "Pin one item on each side to enable linking.") $status.textContent = "";
   }
 
   function updateAll() {
@@ -719,11 +765,17 @@ async function renderSkuLinker() {
   let tL = null, tR = null;
   $qL.addEventListener("input", () => {
     if (tL) clearTimeout(tL);
-    tL = setTimeout(updateAll, 50);
+    tL = setTimeout(() => {
+      $status.textContent = "";
+      updateAll();
+    }, 50);
   });
   $qR.addEventListener("input", () => {
     if (tR) clearTimeout(tR);
-    tR = setTimeout(updateAll, 50);
+    tR = setTimeout(() => {
+      $status.textContent = "";
+      updateAll();
+    }, 50);
   });
 
   $linkBtn.addEventListener("click", async () => {
@@ -731,6 +783,15 @@ async function renderSkuLinker() {
 
     const a = String(pinnedL.sku || "");
     const b = String(pinnedR.sku || "");
+
+    if (!a || !b || isUnknownSkuKey(a) || isUnknownSkuKey(b)) {
+      $status.textContent = "Not allowed: unknown SKUs cannot be linked.";
+      return;
+    }
+    if (a === b) {
+      $status.textContent = "Not allowed: both sides cannot be the same SKU.";
+      return;
+    }
 
     // Direction: if either is BC-based (BCL/Strath appears), FROM is BC sku.
     const aBC = skuIsBC(allRows, a);
@@ -744,7 +805,7 @@ async function renderSkuLinker() {
 
     try {
       const out = await apiWriteSkuLink(fromSku, toSku);
-      $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}).`;
+      $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}) to data/sku_links.json.`;
     } catch (e) {
       $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
     }
@@ -917,7 +978,6 @@ async function renderItem(sku) {
   let cur = all.filter((x) => keySkuForRow(x) === want);
 
   if (!cur.length) {
-    // debug: show some Keg N Cork synthetic keys to see what we're actually generating
     const knc = all.filter(
       (x) => String(x.storeLabel || x.store || "").toLowerCase().includes("keg") && !String(x.sku || "").trim()
     );
