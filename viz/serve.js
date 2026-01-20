@@ -30,16 +30,20 @@ function safePath(urlPath) {
 // Project-level file (shared by viz + report tooling)
 const LINKS_FILE = path.join(projectRoot, "data", "sku_links.json");
 
-function readLinks() {
+function readMeta() {
   try {
     const raw = fs.readFileSync(LINKS_FILE, "utf8");
     const obj = JSON.parse(raw);
-    if (obj && Array.isArray(obj.links)) return obj;
+
+    const links = obj && Array.isArray(obj.links) ? obj.links : [];
+    const ignores = obj && Array.isArray(obj.ignores) ? obj.ignores : [];
+
+    return { generatedAt: obj?.generatedAt || new Date().toISOString(), links, ignores };
   } catch {}
-  return { generatedAt: new Date().toISOString(), links: [] };
+  return { generatedAt: new Date().toISOString(), links: [], ignores: [] };
 }
 
-function writeLinks(obj) {
+function writeMeta(obj) {
   obj.generatedAt = new Date().toISOString();
   fs.mkdirSync(path.dirname(LINKS_FILE), { recursive: true });
   fs.writeFileSync(LINKS_FILE, JSON.stringify(obj, null, 2) + "\n", "utf8");
@@ -59,11 +63,12 @@ const server = http.createServer((req, res) => {
   const u = req.url || "/";
   const url = new URL(u, "http://127.0.0.1");
 
-  // Local API: append / read sku links file on disk (only exists when using this local server)
+  // Local API: read/write sku links + ignore pairs on disk (only exists when using this local server)
+
   if (url.pathname === "/__stviz/sku-links") {
     if (req.method === "GET") {
-      const obj = readLinks();
-      return sendJson(res, 200, { ok: true, count: obj.links.length, links: obj.links });
+      const obj = readMeta();
+      return sendJson(res, 200, { ok: true, count: obj.links.length, links: obj.links, ignores: obj.ignores });
     }
 
     if (req.method === "POST") {
@@ -76,11 +81,43 @@ const server = http.createServer((req, res) => {
           const toSku = String(inp.toSku || "").trim();
           if (!fromSku || !toSku) return sendJson(res, 400, { ok: false, error: "fromSku/toSku required" });
 
-          const obj = readLinks();
+          const obj = readMeta();
           obj.links.push({ fromSku, toSku, createdAt: new Date().toISOString() });
-          writeLinks(obj);
+          writeMeta(obj);
 
           return sendJson(res, 200, { ok: true, count: obj.links.length, file: "data/sku_links.json" });
+        } catch (e) {
+          return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
+        }
+      });
+      return;
+    }
+
+    return send(res, 405, "Method Not Allowed");
+  }
+
+  if (url.pathname === "/__stviz/sku-ignores") {
+    if (req.method === "GET") {
+      const obj = readMeta();
+      return sendJson(res, 200, { ok: true, count: obj.ignores.length, ignores: obj.ignores });
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (c) => (body += c));
+      req.on("end", () => {
+        try {
+          const inp = JSON.parse(body || "{}");
+          const skuA = String(inp.skuA || "").trim();
+          const skuB = String(inp.skuB || "").trim();
+          if (!skuA || !skuB) return sendJson(res, 400, { ok: false, error: "skuA/skuB required" });
+          if (skuA === skuB) return sendJson(res, 400, { ok: false, error: "skuA and skuB must differ" });
+
+          const obj = readMeta();
+          obj.ignores.push({ skuA, skuB, createdAt: new Date().toISOString() });
+          writeMeta(obj);
+
+          return sendJson(res, 200, { ok: true, count: obj.ignores.length, file: "data/sku_links.json" });
         } catch (e) {
           return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
         }

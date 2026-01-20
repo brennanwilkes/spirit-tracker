@@ -30,6 +30,25 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v4
 
+      # Make sku_links.json available to the static site without committing a second copy.
+      - name: Stage sku_links.json into site artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p viz/data
+          if [[ -f data/sku_links.json ]]; then
+            cp -f data/sku_links.json viz/data/sku_links.json
+          else
+            # keep site functional even if file is missing
+            cat > viz/data/sku_links.json <<'EOF'
+          {
+            "generatedAt": "",
+            "links": [],
+            "ignores": []
+          }
+          EOF
+          fi
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
