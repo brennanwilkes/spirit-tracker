@@ -337,6 +337,7 @@ function renderSearch() {
       el.addEventListener("click", () => {
         const sku = el.getAttribute("data-sku") || "";
         if (!sku) return;
+        console.log("[nav] skuKey=", sku, "hash=", `#/item/${encodeURIComponent(sku)}`);
         saveQuery($q.value);
         location.hash = `#/item/${encodeURIComponent(sku)}`;
       });
@@ -592,6 +593,7 @@ async function loadDbCommitsManifest() {
 
 async function renderItem(sku) {
   destroyChart();
+  console.log("[renderItem] skuKey=", sku);
 
   $app.innerHTML = `
     <div class="container">
@@ -629,7 +631,27 @@ async function renderItem(sku) {
 
   const idx = await loadIndex();
   const all = Array.isArray(idx.items) ? idx.items : [];
-  const cur = all.filter((x) => (String(x.sku || "").trim() || makeUnknownSku(x)) === String(sku || ""));
+  const want = String(sku || "");
+  let cur = all.filter((x) => keySkuForRow(x) === want);
+
+  if (!cur.length) {
+    // debug: show some Keg N Cork synthetic keys to see what we're actually generating
+    const knc = all.filter(
+      (x) => String(x.storeLabel || x.store || "").toLowerCase().includes("keg") && !String(x.sku || "").trim()
+    );
+
+    console.log("[renderItem] NOT FOUND. want=", want, "totalRows=", all.length, "kncBlankSkuRows=", knc.length);
+
+    console.log(
+      "[renderItem] sample KNC computed keys:",
+      knc.slice(0, 20).map((x) => ({
+        key: keySkuForRow(x),
+        storeLabel: x.storeLabel,
+        url: x.url,
+        name: x.name,
+      }))
+    );
+  }
   if (!cur.length) {
     $title.textContent = "Item not found in current index";
     $status.textContent = "Tip: index.json only includes current (non-removed) items.";
