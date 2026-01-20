@@ -1,6 +1,11 @@
+// viz/app/mapping.js
 import { loadSkuMetaBestEffort } from "./api.js";
 
 let CACHED = null;
+
+export function clearSkuRulesCache() {
+  CACHED = null;
+}
 
 function canonicalPairKey(a, b) {
   const x = String(a || "");
@@ -23,8 +28,7 @@ function resolveSkuWithMap(sku, forwardMap) {
   const s0 = String(sku || "").trim();
   if (!s0) return s0;
 
-  // Only resolve real SKUs; leave synthetic u: alone
-  if (s0.startsWith("u:")) return s0;
+  // NOTE: u: keys are allowed to resolve through the map (so unknowns can be grouped)
 
   const seen = new Set();
   let cur = s0;
@@ -53,7 +57,6 @@ function buildToGroups(links, forwardMap) {
   }
 
   // close transitively: any sku that resolves to canonTo belongs in its group
-  // (cheap pass: expand by resolving all known skus in current link set)
   const allSkus = new Set();
   for (const x of Array.isArray(links) ? links : []) {
     const a = String(x?.fromSku || "").trim();

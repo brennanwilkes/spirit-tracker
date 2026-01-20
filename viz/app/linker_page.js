@@ -1,8 +1,8 @@
+// viz/app/linker_page.js
 import { esc, renderThumbHtml } from "./dom.js";
 import {
   tokenizeQuery,
   matchesAllTokens,
-  isUnknownSkuKey,
   displaySku,
   keySkuForRow,
   normSearchText,
@@ -15,7 +15,7 @@ import {
   apiWriteSkuLink,
   apiWriteSkuIgnore,
 } from "./api.js";
-import { loadSkuRules } from "./mapping.js";
+import { loadSkuRules, clearSkuRulesCache } from "./mapping.js";
 
 /* ---------------- Similarity helpers ---------------- */
 
@@ -73,8 +73,8 @@ function similarityScore(aName, bName) {
   const gate = firstMatch ? 1.0 : 0.12;
 
   return (
-    firstMatch * 3.0 +                 // first word dominates
-    overlapTail * 2.2 * gate +         // tail matters mostly after first word match
+    firstMatch * 3.0 + // first word dominates
+    overlapTail * 2.2 * gate + // tail matters mostly after first word match
     levSim * (firstMatch ? 1.0 : 0.15) // edit-sim also mostly after first word match
   );
 }
@@ -109,7 +109,6 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
 
   return firstMatch * 2.4 + overlapTail * 2.0 * gate + pref;
 }
-
 
 /* ---------------- Store-overlap rule ---------------- */
 
@@ -153,13 +152,89 @@ function skuIsBC(allRows, skuKey) {
   return false;
 }
 
+/* ---------------- Canonical preference (AB real > other real > BC real > u:) ---------------- */
+
+function isRealSkuKey(skuKey) {
+  return !String(skuKey || "").startsWith("u:");
+}
+
+function isABStoreLabel(label) {
+  const s = String(label || "").toLowerCase();
+  // heuristic: tune as needed for your dataset
+  return (
+    s.includes("alberta") ||
+    s.includes("calgary") ||
+    s.includes("edmonton") ||
+    /\bab\b/.test(s)
+  );
+}
+
+function skuIsAB(allRows, skuKey) {
+  for (const r of allRows) {
+    if (keySkuForRow(r) !== skuKey) continue;
+    const lab = String(r.storeLabel || r.store || "");
+    if (isABStoreLabel(lab)) return true;
+  }
+  return false;
+}
+
+function scoreCanonical(allRows, skuKey) {
+  const s = String(skuKey || "");
+  const real = isRealSkuKey(s) ? 1 : 0;
+  const ab = skuIsAB(allRows, s) ? 1 : 0;
+  const bc = skuIsBC(allRows, s) ? 1 : 0;
+
+  // Prefer: real AB > real non-BC > real BC > u:
+  return real * 100 + ab * 25 - bc * 10 + (real ? 0 : -1000);
+}
+
+function pickPreferredCanonical(allRows, skuKeys) {
+  let best = "";
+  let bestScore = -Infinity;
+
+  for (const k of skuKeys) {
+    const s = String(k || "").trim();
+    if (!s) continue;
+    const sc = scoreCanonical(allRows, s);
+    if (sc > bestScore) {
+      bestScore = sc;
+      best = s;
+    } else if (sc === bestScore && s && best && s < best) {
+      best = s; // stable tie-break
+    }
+  }
+
+  return best;
+}
+
+/* ---------------- Randomization helpers (avoid same suggestion subset) ---------------- */
+
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function () {
+    t += 0x6d2b79f5;
+    let x = Math.imul(t ^ (t >>> 15), 1 | t);
+    x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffleInPlace(arr, rnd) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = (rnd() * (i + 1)) | 0;
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
+}
+
 /* ---------------- Suggestion helpers ---------------- */
 
 function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   const scored = [];
   for (const it of allAgg) {
     if (!it) continue;
-    if (isUnknownSkuKey(it.sku)) continue;
     if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
 
@@ -189,7 +264,6 @@ function recommendSimilar(
 
   for (const it of allAgg) {
     if (!it) continue;
-    if (isUnknownSkuKey(it.sku)) continue;
     if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (it.sku === pinned.sku) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
@@ -212,21 +286,32 @@ function recommendSimilar(
 
 // FAST initial pairing (approx) with ignore-pair exclusion + same-store exclusion
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
+  // Only exclude already-linked SKUs from auto-suggestions
   const items = allAgg.filter((it) => {
     if (!it) return false;
-    if (isUnknownSkuKey(it.sku)) return false;
     if (mappedSkus && mappedSkus.has(String(it.sku))) return false;
     return true;
   });
 
-  const seeds = topSuggestions(items, Math.min(220, items.length), "", mappedSkus);
+  // randomize the "subset" each load so we don't get stuck in the same chunk
+  const seed = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
+  const rnd = mulberry32(seed);
+
+  const itemsShuf = items.slice();
+  shuffleInPlace(itemsShuf, rnd);
+
+  // sample a bounded working set for speed
+  const WORK_CAP = 1400;
+  const work = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
+
+  const seeds = topSuggestions(work, Math.min(220, work.length), "", mappedSkus);
 
   const TOKEN_BUCKET_CAP = 180;
   const tokMap = new Map();
   const itemTokens = new Map();
   const itemNormName = new Map();
 
-  for (const it of items) {
+  for (const it of work) {
     const toks = Array.from(new Set(tokenizeQuery(it.name || "")))
       .filter(Boolean)
       .slice(0, 10);
@@ -259,7 +344,6 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
         const bSku = String(b.sku || "");
         if (!bSku || bSku === aSku) continue;
         if (mappedSkus && mappedSkus.has(bSku)) continue;
-        if (isUnknownSkuKey(bSku)) continue;
 
         if (
           typeof isIgnoredPairFn === "function" &&
@@ -332,7 +416,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
 
 export async function renderSkuLinker($app) {
   const localWrite = isLocalWriteMode();
-  const rules = await loadSkuRules();
+  let rules = await loadSkuRules();
 
   $app.innerHTML = `
     <div class="container" style="max-width:1200px;">
@@ -345,7 +429,7 @@ export async function renderSkuLinker($app) {
 
       <div class="card" style="padding:14px;">
         <div class="small" style="margin-bottom:10px;">
-          Unknown SKUs are hidden. Existing mapped SKUs are excluded. Same-store pairs are never suggested. LINK SKU writes map; IGNORE PAIR writes a "do-not-suggest" pair (local only).
+          Existing mapped SKUs are excluded from auto-suggestions. Same-store pairs are never suggested. LINK SKU writes map (can merge groups); IGNORE PAIR writes a "do-not-suggest" pair (local only).
         </div>
 
         <div style="display:flex; gap:16px;">
@@ -403,12 +487,12 @@ export async function renderSkuLinker($app) {
     if (!m.has(storeLabel)) m.set(storeLabel, url);
   }
 
-  // candidates for this page (hide unknown u: entirely)
-  const allAgg = aggregateBySku(allRows, (x) => x).filter((it) => !isUnknownSkuKey(it.sku));
+  // candidates for this page (allow u: so KegNCork can be linked)
+  const allAgg = aggregateBySku(allRows, (x) => x);
 
   const meta = await loadSkuMetaBestEffort();
   const mappedSkus = buildMappedSkuSet(meta.links || []);
-  const ignoreSet = rules.ignoreSet; // already canonicalized as "a|b"
+  let ignoreSet = rules.ignoreSet; // already canonicalized as "a|b"
 
   function isIgnoredPair(a, b) {
     return rules.isIgnoredPair(String(a || ""), String(b || ""));
@@ -465,13 +549,13 @@ export async function renderSkuLinker($app) {
     const tokens = tokenizeQuery(query);
     const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
 
+    // manual search: allow mapped SKUs so you can merge groups
     if (tokens.length) {
       let out = allAgg
         .filter(
           (it) =>
             it &&
             it.sku !== otherSku &&
-            !mappedSkus.has(String(it.sku)) &&
             matchesAllTokens(it.searchText, tokens)
         )
         .slice(0, 80);
@@ -484,6 +568,7 @@ export async function renderSkuLinker($app) {
       return out;
     }
 
+    // auto-suggestions: never include mapped skus
     if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair);
 
     if (initialPairs && initialPairs.length) {
@@ -500,13 +585,6 @@ export async function renderSkuLinker($app) {
         const skuKey = el.getAttribute("data-sku") || "";
         const it = allAgg.find((x) => String(x.sku || "") === skuKey);
         if (!it) return;
-
-        if (isUnknownSkuKey(it.sku)) return;
-
-        if (mappedSkus.has(String(it.sku))) {
-          $status.textContent = "This SKU is already mapped; choose an unmapped SKU.";
-          return;
-        }
 
         const other = side === "L" ? pinnedR : pinnedL;
 
@@ -579,13 +657,9 @@ export async function renderSkuLinker($app) {
       return;
     }
 
-    if (mappedSkus.has(a) || mappedSkus.has(b)) {
-      $linkBtn.disabled = true;
-      $ignoreBtn.disabled = false;
-    } else {
-      $linkBtn.disabled = false;
-      $ignoreBtn.disabled = false;
-    }
+    // link is allowed even if either sku is already in a link (merges groups)
+    $linkBtn.disabled = false;
+    $ignoreBtn.disabled = false;
 
     if (isIgnoredPair(a, b)) {
       $status.textContent = "This pair is already ignored.";
@@ -622,8 +696,8 @@ export async function renderSkuLinker($app) {
     const a = String(pinnedL.sku || "");
     const b = String(pinnedR.sku || "");
 
-    if (!a || !b || isUnknownSkuKey(a) || isUnknownSkuKey(b)) {
-      $status.textContent = "Not allowed: unknown SKUs cannot be linked.";
+    if (!a || !b) {
+      $status.textContent = "Not allowed: missing SKU.";
       return;
     }
     if (a === b) {
@@ -634,35 +708,72 @@ export async function renderSkuLinker($app) {
       $status.textContent = "Not allowed: both items belong to the same store.";
       return;
     }
-    if (mappedSkus.has(a) || mappedSkus.has(b)) {
-      $status.textContent = "Not allowed: one of these SKUs is already mapped.";
-      return;
-    }
     if (isIgnoredPair(a, b)) {
       $status.textContent = "This pair is already ignored.";
       return;
     }
 
-    // Direction: if either is BC-based, FROM is BC sku.
-    const aBC = skuIsBC(allRows, a);
-    const bBC = skuIsBC(allRows, b);
+    // Determine current group canonicals (if already linked)
+    const aCanon = rules.canonicalSku(a);
+    const bCanon = rules.canonicalSku(b);
 
-    let fromSku = a, toSku = b;
-    if (aBC && !bBC) {
-      fromSku = a;
-      toSku = b;
-    } else if (bBC && !aBC) {
-      fromSku = b;
-      toSku = a;
+    // Choose canonical to render/group by: prefer Alberta real, never BC if avoidable, never u: if any real exists
+    const preferred = pickPreferredCanonical(allRows, [a, b, aCanon, bCanon]);
+
+    if (!preferred) {
+      $status.textContent = "Write failed: could not choose a canonical SKU.";
+      return;
     }
 
-    $status.textContent = `Writing: ${displaySku(fromSku)} → ${displaySku(toSku)} …`;
+    // Build minimal writes to merge everything under `preferred`
+    const writes = [];
+    function addWrite(fromSku, toSku) {
+      const f = String(fromSku || "").trim();
+      const t = String(toSku || "").trim();
+      if (!f || !t || f === t) return;
+      if (rules.canonicalSku(f) === t) return; // already resolves to target
+      writes.push({ fromSku: f, toSku: t });
+    }
+
+    // Merge existing groups (if their canonicals differ)
+    addWrite(aCanon, preferred);
+    addWrite(bCanon, preferred);
+
+    // Ensure the pinned SKUs end up in the preferred group too
+    addWrite(a, preferred);
+    addWrite(b, preferred);
+
+    // de-dupe
+    const seenW = new Set();
+    const uniq = [];
+    for (const w of writes) {
+      const k = `${w.fromSku}→${w.toSku}`;
+      if (seenW.has(k)) continue;
+      seenW.add(k);
+      uniq.push(w);
+    }
+
+    $status.textContent = `Writing ${uniq.length} link(s) to canonical ${displaySku(preferred)} …`;
 
     try {
-      const out = await apiWriteSkuLink(fromSku, toSku);
-      mappedSkus.add(fromSku);
-      mappedSkus.add(toSku);
-      $status.textContent = `Saved: ${displaySku(fromSku)} → ${displaySku(toSku)} (links=${out.count}).`;
+      for (let i = 0; i < uniq.length; i++) {
+        const w = uniq[i];
+        $status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(w.fromSku)} → ${displaySku(w.toSku)} …`;
+        await apiWriteSkuLink(w.fromSku, w.toSku);
+      }
+
+      // refresh rules/meta in-memory
+      clearSkuRulesCache();
+      rules = await loadSkuRules();
+      ignoreSet = rules.ignoreSet;
+
+      // rebuild mapped set from updated links
+      const meta2 = await loadSkuMetaBestEffort();
+      const rebuilt = buildMappedSkuSet(meta2?.links || []);
+      mappedSkus.clear();
+      for (const x of rebuilt) mappedSkus.add(x);
+
+      $status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
       pinnedL = null;
       pinnedR = null;
       updateAll();
@@ -677,8 +788,8 @@ export async function renderSkuLinker($app) {
     const a = String(pinnedL.sku || "");
     const b = String(pinnedR.sku || "");
 
-    if (!a || !b || isUnknownSkuKey(a) || isUnknownSkuKey(b)) {
-      $status.textContent = "Not allowed: unknown SKUs cannot be ignored.";
+    if (!a || !b) {
+      $status.textContent = "Not allowed: missing SKU.";
       return;
     }
     if (a === b) {
