@@ -157,16 +157,22 @@ export function renderSearch($app) {
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
           const rawSku = String(r.sku || "");
           const sku = canon(rawSku);
-          const img = aggBySku.get(sku)?.img || "";
+
+          const agg = aggBySku.get(sku) || null;
+          const img = agg?.img || "";
+
+          // show "+N" if the canonical SKU exists in other stores (via SKU mapping)
+          const storeCount = agg?.stores?.size || 0;
+          const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 
           const href = String(r.url || "").trim();
           const storeBadge = href
             ? `<a class="badge" href="${esc(
                 href
               )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-                r.storeLabel || ""
+                (r.storeLabel || "") + plus
               )}</a>`
-            : `<span class="badge">${esc(r.storeLabel || "")}</span>`;
+            : `<span class="badge">${esc((r.storeLabel || "") + plus)}</span>`;
 
           // date as a badge so it sits nicely in the single meta row
           const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
