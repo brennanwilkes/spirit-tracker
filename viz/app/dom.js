@@ -18,8 +18,12 @@ export function esc(s) {
     const s = String(iso || "");
     if (!s) return "";
   
-    const d = new Date(s);
-    if (!Number.isFinite(d.getTime())) return "";
+    const d0 = new Date(s);
+    const t0 = d0.getTime();
+    if (!Number.isFinite(t0)) return "";
+  
+    // Round to nearest hour
+    const d = new Date(Math.round(t0 / 3600000) * 3600000);
   
     const parts = new Intl.DateTimeFormat("en-US", {
       timeZone: "America/Vancouver",
@@ -44,11 +48,9 @@ export function esc(s) {
       else if (p.type === "dayPeriod") dayPeriod = p.value;
     }
   
-    const ampm = String(dayPeriod || "").toLowerCase(); // "am"/"pm"
-    return `${month} ${day} ${hour}:${minute}${ampm}`;
+    return `${month} ${day} ${hour}:${minute}${String(dayPeriod || "").toLowerCase()}`;
   }
-  
-  
+    
   export function renderThumbHtml(imgUrl, cls = "thumb") {
     const img = normImg(imgUrl);
     if (!img) return `<div class="thumbPlaceholder"></div>`;
