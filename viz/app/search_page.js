@@ -9,7 +9,7 @@ export function renderSearch($app) {
     <div class="container">
       <div class="header">
         <div>
-          <h1 class="h1">Spirit Tracker Viz</h1>
+          <h1 class="h1">Spirit Tracker</h1>
           <div class="small">Search name / url / sku (word AND)</div>
         </div>
         <a class="btn" href="#/link" style="text-decoration:none;">Link SKUs</a>
