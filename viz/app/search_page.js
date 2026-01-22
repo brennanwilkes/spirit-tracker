@@ -213,25 +213,46 @@ export function renderSearch($app) {
       $results.innerHTML = `<div class="small">Type to search…</div>`;
       return;
     }
-
+  
     const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
-
-    const days = Number.isFinite(Number(recent?.windowDays)) ? Number(recent.windowDays) : 3;
-
+  
+    const nowMs = Date.now();
+    const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
+  
+    function eventMs(r) {
+      const t = String(r?.ts || "");
+      const ms = t ? Date.parse(t) : NaN;
+      if (Number.isFinite(ms)) return ms;
+  
+      // fallback: date-only => treat as start of day UTC-ish
+      const d = String(r?.date || "");
+      const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
+      return Number.isFinite(ms2) ? ms2 : 0;
+    }
+  
+    const inWindow = items.filter((r) => {
+      const ms = eventMs(r);
+      return ms >= cutoffMs && ms <= nowMs;
+    });
+  
+    if (!inWindow.length) {
+      $results.innerHTML = `<div class="small">No changes in the last 24 hours.</div>`;
+      return;
+    }
+  
     // rank + sort (custom)
-    const ranked = items
+    const ranked = inWindow
       .map((r) => ({ r, meta: rankRecent(r, canon) }))
       .sort((a, b) => {
         if (b.meta.score !== a.meta.score) return b.meta.score - a.meta.score;
         if (b.meta.tie !== a.meta.tie) return b.meta.tie - a.meta.tie;
-        // stable-ish fallback
         return String(a.meta.sku || "").localeCompare(String(b.meta.sku || ""));
       });
-
+  
     const limited = ranked.slice(0, 140);
-
+  
     $results.innerHTML =
-      `<div class="small">Recently changed (last ${esc(days)} day(s)):</div>` +
+      `<div class="small">Recently changed (last 24 hours):</div>` +
       limited
         .map(({ r, meta }) => {
           const kindLabel =
@@ -248,22 +269,22 @@ export function renderSearch($app) {
               : meta.kind === "price_change"
               ? "PRICE"
               : "CHANGE";
-
+  
           const priceLine =
             meta.kind === "new" || meta.kind === "restored" || meta.kind === "removed"
               ? `${esc(r.price || "")}`
               : `${esc(r.oldPrice || "")} → ${esc(r.newPrice || "")}`;
-
+  
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
-
+  
           const sku = meta.sku;
           const agg = aggBySku.get(sku) || null;
           const img = agg?.img || "";
-
+  
           // show "+N" if the canonical SKU exists in other stores (via SKU mapping)
           const storeCount = agg?.stores?.size || 0;
           const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
-
+  
           const href = String(r.url || "").trim();
           const storeBadge = href
             ? `<a class="badge" href="${esc(
@@ -272,10 +293,10 @@ export function renderSearch($app) {
                 (r.storeLabel || "") + plus
               )}</a>`
             : `<span class="badge">${esc((r.storeLabel || "") + plus)}</span>`;
-
+  
           // date as a badge so it sits nicely in the single meta row
           const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
-
+  
           // subtle styles (inline so you don’t need to touch CSS)
           const offBadge =
             meta.kind === "price_down" && meta.pctOff !== null
@@ -283,12 +304,12 @@ export function renderSearch($app) {
                   meta.pctOff
                 )}% Off]</span>`
               : "";
-
+  
           const kindBadgeStyle =
             meta.kind === "new" && meta.isNewUnique
               ? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
               : "";
-
+  
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
@@ -313,7 +334,7 @@ export function renderSearch($app) {
           `;
         })
         .join("");
-
+  
     for (const el of Array.from($results.querySelectorAll(".item"))) {
       el.addEventListener("click", () => {
         const sku = el.getAttribute("data-sku") || "";
