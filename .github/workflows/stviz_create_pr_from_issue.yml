@@ -26,6 +26,13 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Configure git author
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Apply edits, push branch, open PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,10 +45,17 @@ jobs:
           node tools/stviz_apply_issue_edits.js
 
       - name: Close issue
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPO: ${{ github.repository }}
+        shell: bash
         run: |
           set -euo pipefail
-          gh -R "$REPO" issue close "$ISSUE_NUMBER" -c "Processed by STVIZ automation. A PR has been opened."
+          # Close only if a PR exists for this issue number; otherwise leave it open.
+          if gh -R "$REPO" pr list --state open --search "issue #$ISSUE_NUMBER" --json number --jq 'length' | grep -qv '^0$'; then
+            gh -R "$REPO" issue close "$ISSUE_NUMBER" -c "Processed by STVIZ automation and a PR was opened."
+          else
+            echo "No PR detected for issue #$ISSUE_NUMBER; leaving issue open."
+          fi
