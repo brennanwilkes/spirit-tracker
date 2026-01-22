@@ -404,10 +404,20 @@ sh(`git push -u origin "${branch}"`);
 const prTitle = `STVIZ: SKU link updates (issue #${ISSUE_NUMBER})`;
 const prBody = `Automated PR created from issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}`;
 
-// Create PR and capture URL/number deterministically (no search/index lag)
-const prUrl = sh(
-  `gh -R "${REPO}" pr create --base data --head "${branch}" --title "${prTitle}" --body "${prBody}" --json url --jq .url`
-);
+function extractPrUrl(out) {
+  // gh pr create usually prints the PR URL to stdout; be robust in case extra text appears.
+  const m = String(out || "").match(/https?:\/\/\S+\/pull\/\d+\S*/);
+  if (!m) die(`Could not find PR URL in gh output:\n${out}`);
+  return m[0];
+}
+
+ // Create PR and capture URL/number without relying on unsupported flags
+ const prCreateOut = sh(
+   `gh -R "${REPO}" pr create --base data --head "${branch}" --title "${prTitle}" --body "${prBody}"`
+ );
+ const prUrl = extractPrUrl(prCreateOut);
+    
+
 const prNumber = sh(`gh -R "${REPO}" pr view "${prUrl}" --json number --jq .number`);
 
 sh(
