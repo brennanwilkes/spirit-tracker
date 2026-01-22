@@ -1,5 +1,6 @@
 // viz/app/pending.js
 const LS_KEY = "stviz:v1:pendingSkuEdits";
+const LS_SUBMITTED_KEY = "stviz:v1:submittedSkuEdits";
 
 function safeParseJson(s) {
   try {
@@ -9,10 +10,28 @@ function safeParseJson(s) {
   }
 }
 
-export function loadPendingEdits() {
+function normSku(s) {
+  return String(s || "").trim();
+}
+
+function linkKey(fromSku, toSku) {
+  const f = normSku(fromSku);
+  const t = normSku(toSku);
+  if (!f || !t || f === t) return "";
+  return `${f}→${t}`;
+}
+
+function pairKey(a, b) {
+  const x = normSku(a);
+  const y = normSku(b);
+  if (!x || !y || x === y) return "";
+  return x < y ? `${x}|${y}` : `${y}|${x}`;
+}
+
+function loadEditsFromKey(key) {
   const raw = (() => {
     try {
-      return localStorage.getItem(LS_KEY) || "";
+      return localStorage.getItem(key) || "";
     } catch {
       return "";
     }
@@ -23,32 +42,34 @@ export function loadPendingEdits() {
   const ignores = Array.isArray(j?.ignores) ? j.ignores : [];
 
   return {
-    links: links
-      .map((x) => ({
-        fromSku: String(x?.fromSku || "").trim(),
-        toSku: String(x?.toSku || "").trim(),
-      }))
-      .filter((x) => x.fromSku && x.toSku && x.fromSku !== x.toSku),
-    ignores: ignores
-      .map((x) => ({
-        skuA: String(x?.skuA || x?.a || "").trim(),
-        skuB: String(x?.skuB || x?.b || "").trim(),
-      }))
-      .filter((x) => x.skuA && x.skuB && x.skuA !== x.skuB),
     createdAt: String(j?.createdAt || ""),
+    links: links
+      .map((x) => ({ fromSku: normSku(x?.fromSku), toSku: normSku(x?.toSku) }))
+      .filter((x) => linkKey(x.fromSku, x.toSku)),
+    ignores: ignores
+      .map((x) => ({ skuA: normSku(x?.skuA || x?.a), skuB: normSku(x?.skuB || x?.b) }))
+      .filter((x) => pairKey(x.skuA, x.skuB)),
   };
 }
 
-export function savePendingEdits(edits) {
+function saveEditsToKey(key, edits) {
   const out = {
     createdAt: edits?.createdAt || new Date().toISOString(),
     links: Array.isArray(edits?.links) ? edits.links : [],
     ignores: Array.isArray(edits?.ignores) ? edits.ignores : [],
   };
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(out));
+    localStorage.setItem(key, JSON.stringify(out));
   } catch {}
   return out;
+}
+
+export function loadPendingEdits() {
+  return loadEditsFromKey(LS_KEY);
+}
+
+export function savePendingEdits(edits) {
+  return saveEditsToKey(LS_KEY, edits);
 }
 
 export function clearPendingEdits() {
@@ -57,48 +78,76 @@ export function clearPendingEdits() {
   } catch {}
 }
 
-function canonicalPairKey(a, b) {
-  const x = String(a || "").trim();
-  const y = String(b || "").trim();
-  if (!x || !y) return "";
-  return x < y ? `${x}|${y}` : `${y}|${x}`;
+export function loadSubmittedEdits() {
+  return loadEditsFromKey(LS_SUBMITTED_KEY);
 }
 
-export function addPendingLink(fromSku, toSku) {
-  const f = String(fromSku || "").trim();
-  const t = String(toSku || "").trim();
-  if (!f || !t || f === t) return false;
-
-  const edits = loadPendingEdits();
-  const k = `${f}→${t}`;
-  const seen = new Set(edits.links.map((x) => `${x.fromSku}→${x.toSku}`));
-  if (seen.has(k)) return false;
-
-  edits.links.push({ fromSku: f, toSku: t });
-  savePendingEdits(edits);
-  return true;
+export function saveSubmittedEdits(edits) {
+  return saveEditsToKey(LS_SUBMITTED_KEY, edits);
 }
 
-export function addPendingIgnore(skuA, skuB) {
-  const a = String(skuA || "").trim();
-  const b = String(skuB || "").trim();
-  if (!a || !b || a === b) return false;
-
-  const edits = loadPendingEdits();
-  const k = canonicalPairKey(a, b);
-  const seen = new Set(edits.ignores.map((x) => canonicalPairKey(x.skuA, x.skuB)));
-  if (seen.has(k)) return false;
-
-  edits.ignores.push({ skuA: a, skuB: b });
-  savePendingEdits(edits);
-  return true;
+export function clearSubmittedEdits() {
+  try {
+    localStorage.removeItem(LS_SUBMITTED_KEY);
+  } catch {}
 }
 
 export function pendingCounts() {
   const e = loadPendingEdits();
-  return { links: e.links.length, ignores: e.ignores.length, total: e.links.length + e.ignores.length };
+  return {
+    links: e.links.length,
+    ignores: e.ignores.length,
+    total: e.links.length + e.ignores.length,
+  };
 }
 
+export function addPendingLink(fromSku, toSku) {
+  const f = normSku(fromSku);
+  const t = normSku(toSku);
+  const k = linkKey(f, t);
+  if (!k) return false;
+
+  const pending = loadPendingEdits();
+  const submitted = loadSubmittedEdits();
+
+  const seen = new Set(
+    [
+      ...pending.links.map((x) => linkKey(x.fromSku, x.toSku)),
+      ...submitted.links.map((x) => linkKey(x.fromSku, x.toSku)),
+    ].filter(Boolean)
+  );
+
+  if (seen.has(k)) return false;
+
+  pending.links.push({ fromSku: f, toSku: t });
+  savePendingEdits(pending);
+  return true;
+}
+
+export function addPendingIgnore(skuA, skuB) {
+  const a = normSku(skuA);
+  const b = normSku(skuB);
+  const k = pairKey(a, b);
+  if (!k) return false;
+
+  const pending = loadPendingEdits();
+  const submitted = loadSubmittedEdits();
+
+  const seen = new Set(
+    [
+      ...pending.ignores.map((x) => pairKey(x.skuA, x.skuB)),
+      ...submitted.ignores.map((x) => pairKey(x.skuA, x.skuB)),
+    ].filter(Boolean)
+  );
+
+  if (seen.has(k)) return false;
+
+  pending.ignores.push({ skuA: a, skuB: b });
+  savePendingEdits(pending);
+  return true;
+}
+
+// Merge PENDING + SUBMITTED into a meta object {links, ignores}
 export function applyPendingToMeta(meta) {
   const base = {
     generatedAt: String(meta?.generatedAt || ""),
@@ -106,33 +155,65 @@ export function applyPendingToMeta(meta) {
     ignores: Array.isArray(meta?.ignores) ? meta.ignores.slice() : [],
   };
 
-  const p = loadPendingEdits();
+  const p0 = loadPendingEdits();
+  const p1 = loadSubmittedEdits();
+  const overlay = {
+    links: [...(p0.links || []), ...(p1.links || [])],
+    ignores: [...(p0.ignores || []), ...(p1.ignores || [])],
+  };
 
   // merge links (dedupe by from→to)
   const seenL = new Set(
-    base.links.map((x) => `${String(x?.fromSku || "").trim()}→${String(x?.toSku || "").trim()}`)
+    base.links.map((x) => linkKey(String(x?.fromSku || "").trim(), String(x?.toSku || "").trim())).filter(Boolean)
   );
-  for (const x of p.links) {
-    const k = `${x.fromSku}→${x.toSku}`;
-    if (!seenL.has(k)) {
-      seenL.add(k);
-      base.links.push({ fromSku: x.fromSku, toSku: x.toSku });
-    }
+  for (const x of overlay.links) {
+    const k = linkKey(x.fromSku, x.toSku);
+    if (!k || seenL.has(k)) continue;
+    seenL.add(k);
+    base.links.push({ fromSku: x.fromSku, toSku: x.toSku });
   }
 
   // merge ignores (dedupe by canonical pair key)
   const seenI = new Set(
-    base.ignores.map((x) =>
-      canonicalPairKey(String(x?.skuA || x?.a || "").trim(), String(x?.skuB || x?.b || "").trim())
-    )
+    base.ignores
+      .map((x) => pairKey(String(x?.skuA || x?.a || "").trim(), String(x?.skuB || x?.b || "").trim()))
+      .filter(Boolean)
   );
-  for (const x of p.ignores) {
-    const k = canonicalPairKey(x.skuA, x.skuB);
-    if (!seenI.has(k)) {
-      seenI.add(k);
-      base.ignores.push({ skuA: x.skuA, skuB: x.skuB });
-    }
+  for (const x of overlay.ignores) {
+    const k = pairKey(x.skuA, x.skuB);
+    if (!k || seenI.has(k)) continue;
+    seenI.add(k);
+    base.ignores.push({ skuA: x.skuA, skuB: x.skuB });
   }
 
   return base;
+}
+
+// Move everything from pending -> submitted, then clear pending.
+// Returns the moved payload (what should be sent in PR/issue).
+export function movePendingToSubmitted() {
+  const pending = loadPendingEdits();
+  if (!pending.links.length && !pending.ignores.length) return pending;
+
+  const sub = loadSubmittedEdits();
+
+  const seenL = new Set(sub.links.map((x) => linkKey(x.fromSku, x.toSku)).filter(Boolean));
+  for (const x of pending.links) {
+    const k = linkKey(x.fromSku, x.toSku);
+    if (!k || seenL.has(k)) continue;
+    seenL.add(k);
+    sub.links.push({ fromSku: x.fromSku, toSku: x.toSku });
+  }
+
+  const seenI = new Set(sub.ignores.map((x) => pairKey(x.skuA, x.skuB)).filter(Boolean));
+  for (const x of pending.ignores) {
+    const k = pairKey(x.skuA, x.skuB);
+    if (!k || seenI.has(k)) continue;
+    seenI.add(k);
+    sub.ignores.push({ skuA: x.skuA, skuB: x.skuB });
+  }
+
+  saveSubmittedEdits(sub);
+  clearPendingEdits();
+  return pending;
 }

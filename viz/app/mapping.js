@@ -171,9 +171,12 @@ export async function loadSkuRules() {
   if (CACHED) return CACHED;
 
   let meta = await loadSkuMetaBestEffort();
+
+  // On GitHub Pages (read-only), overlay local pending+submitted edits from localStorage
   if (!isLocalWriteMode()) {
     meta = applyPendingToMeta(meta);
   }
+
   const links = Array.isArray(meta?.links) ? meta.links : [];
   const ignores = Array.isArray(meta?.ignores) ? meta.ignores : [];
 
