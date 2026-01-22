@@ -53,9 +53,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Close only if a PR exists for this issue number; otherwise leave it open.
-          if gh -R "$REPO" pr list --state open --search "issue #$ISSUE_NUMBER" --json number --jq 'length' | grep -qv '^0$'; then
-            gh -R "$REPO" issue close "$ISSUE_NUMBER" -c "Processed by STVIZ automation and a PR was opened."
-          else
-            echo "No PR detected for issue #$ISSUE_NUMBER; leaving issue open."
-          fi
+          gh -R "$REPO" issue close "$ISSUE_NUMBER" -c "Processed by STVIZ automation and a PR was opened."
