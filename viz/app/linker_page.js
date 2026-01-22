@@ -290,12 +290,12 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const itemsShuf = items.slice();
   shuffleInPlace(itemsShuf, rnd);
 
-  const WORK_CAP = 2500;
+  const WORK_CAP = 5000;
   const work = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 
   const seeds = topSuggestions(work, Math.min(400, work.length), "", mappedSkus);
 
-  const TOKEN_BUCKET_CAP = 250;
+  const TOKEN_BUCKET_CAP = 500;
   const tokMap = new Map();
   const itemTokens = new Map();
   const itemNormName = new Map();
@@ -314,8 +314,8 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   }
 
   const bestByPair = new Map();
-  const MAX_CAND_TOTAL = 150;
-  const MAX_FINE = 6;
+  const MAX_CAND_TOTAL = 250;
+  const MAX_FINE = 10;
 
   for (const a of seeds) {
     const aSku = String(a.sku || "");
