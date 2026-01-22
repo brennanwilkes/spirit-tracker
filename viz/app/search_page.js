@@ -156,15 +156,15 @@ export function renderSearch($app) {
   function rankRecent(r, canonSkuFn) {
     const rawSku = String(r?.sku || "");
     const sku = String(canonSkuFn ? canonSkuFn(rawSku) : rawSku);
-
+  
     const agg = aggBySku.get(sku) || null;
-
+  
     const storeLabelRaw = String(r?.storeLabel || r?.store || "").trim();
     const bestStoreRaw = String(agg?.cheapestStoreLabel || "").trim();
-
+  
     const normStore = (s) => String(s || "").trim().toLowerCase();
-
-    // Treat "price_change" as down/up if we can infer direction
+  
+    // Normalize kind
     let kind = String(r?.kind || "");
     if (kind === "price_change") {
       const o = parsePriceToNumber(r?.oldPrice || "");
@@ -174,58 +174,75 @@ export function renderSearch($app) {
         else if (n > o) kind = "price_up";
       }
     }
-
+  
     const pctOff = kind === "price_down" ? salePctOff(r?.oldPrice || "", r?.newPrice || "") : null;
     const pctUp = kind === "price_up" ? pctChange(r?.oldPrice || "", r?.newPrice || "") : null;
-
+  
     const isNew = kind === "new";
     const storeCount = agg?.stores?.size || 0;
     const isNewUnique = isNew && storeCount <= 1;
-
-    // For sales: demote if this store is NOT the cheapest available now (per aggregate index)
+  
+    // Cheapest checks (use aggregate index)
     const newPriceNum = kind === "price_down" || kind === "price_up" ? parsePriceToNumber(r?.newPrice || "") : null;
     const bestPriceNum = Number.isFinite(agg?.cheapestPriceNum) ? agg.cheapestPriceNum : null;
-
+  
     const EPS = 0.01;
     const priceMatchesBest =
       Number.isFinite(newPriceNum) && Number.isFinite(bestPriceNum) ? Math.abs(newPriceNum - bestPriceNum) <= EPS : false;
-
-    const storeIsBest = normStore(storeLabelRaw) && normStore(bestStoreRaw) && normStore(storeLabelRaw) === normStore(bestStoreRaw);
-
+  
+    const storeIsBest =
+      normStore(storeLabelRaw) && normStore(bestStoreRaw) && normStore(storeLabelRaw) === normStore(bestStoreRaw);
+  
     const saleIsCheapestHere = kind === "price_down" && storeIsBest && priceMatchesBest;
     const saleIsTiedCheapest = kind === "price_down" && !storeIsBest && priceMatchesBest;
-
+    const saleIsCheapest = saleIsCheapestHere || saleIsTiedCheapest;
+  
+    // Bucketed scoring (higher = earlier)
     let score = 0;
-
-    if (kind === "price_down") {
-      if (saleIsCheapestHere) {
-        score = 6500 + (pctOff || 0);
-      } else if (saleIsTiedCheapest) {
-        score = 5900 + Math.floor((pctOff || 0) * 0.5);
+  
+    // Helper for sales buckets
+    function saleBucketScore(isCheapest, pct) {
+      const p = Number.isFinite(pct) ? pct : 0;
+  
+      if (isCheapest) {
+        if (p >= 20) return 9000 + p;      // Bucket #1
+        if (p >= 10) return 7000 + p;      // Bucket #3
+        if (p > 0) return 6000 + p;        // Bucket #4
+        return 5900;                       // weird but keep below real pct
       } else {
-        score = 2400 + Math.min(25, Math.max(0, pctOff || 0));
+        if (p >= 20) return 4500 + p;      // Bucket #5 (below NEW unique)
+        if (p >= 10) return 1500 + p;      // Bucket #8
+        if (p > 0) return 1200 + p;        // Bucket #9
+        return 1000;                       // bottom-ish
       }
+    }
+  
+    if (kind === "price_down") {
+      score = saleBucketScore(saleIsCheapest, pctOff);
     } else if (isNewUnique) {
-      score = 6000;
-    } else if (kind === "restored") {
-      score = 5200;
+      score = 8000;                        // Bucket #2
     } else if (kind === "removed") {
-      score = 3000;
+      score = 3000;                        // Bucket #6
     } else if (kind === "price_up") {
-      score = 2000 + Math.min(99, Math.max(0, pctUp || 0));
+      score = 2000 + Math.min(99, Math.max(0, pctUp || 0)); // Bucket #7
     } else if (kind === "new") {
-      score = 1000;
+      score = 1100;                        // Bucket #10
+    } else if (kind === "restored") {
+      // not in your bucket list, but keep it reasonably high (below NEW unique, above removals)
+      score = 5000;
     } else {
       score = 0;
     }
-
+  
+    // Tie-breaks: within bucket prefer bigger % for sales, then recency
     let tie = 0;
     if (kind === "price_down") tie = (pctOff || 0) * 100000 + tsValue(r);
     else if (kind === "price_up") tie = (pctUp || 0) * 100000 + tsValue(r);
     else tie = tsValue(r);
-
+  
     return { sku, kind, pctOff, storeCount, isNewUnique, score, tie };
   }
+  
 
   function renderRecent(recent, canonicalSkuFn) {
     const items = Array.isArray(recent?.items) ? recent.items : [];
