@@ -283,7 +283,10 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
     const stores = it.stores ? it.stores.size : 0;
     const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
     const hasName = it.name ? 1 : 0;
-    scored.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 });
+
+    const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
+
+    scored.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 + unknown * 0.6 });
   }
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
@@ -317,12 +320,19 @@ function recommendSimilar(
     )
       continue;
 
-    const s = similarityScore(base, it.name || "");
+    let s = similarityScore(base, it.name || "");
+
+    // Small boost if either side is an unknown sku (u:...)
+    const aUnknown = String(pinnedSku || "").startsWith("u:");
+    const bUnknown = String(it.sku || "").startsWith("u:");
+    if (aUnknown || bUnknown) s *= 1.12;
+
     if (s > 0) scored.push({ it, s });
   }
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
 }
+
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const items = allAgg.filter((it) => {
