@@ -41,12 +41,19 @@ fi
 
 cd "$WORKTREE_DIR"
 
-# Keep data branch up-to-date with main (merge only when main moved).
-if git show-ref --verify --quiet "refs/heads/$MAIN_BRANCH"; then
-  if ! git merge -q --no-edit "$MAIN_BRANCH"; then
-    echo "ERROR: failed to merge $MAIN_BRANCH into $DATA_BRANCH" >&2
-    exit 1
-  fi
+REMOTE="${REMOTE:-origin}"
+
+# Update remote refs
+git fetch -q "$REMOTE"
+
+# Pull latest data branch from remote (merge commits allowed)
+if git show-ref --verify --quiet "refs/remotes/$REMOTE/$DATA_BRANCH"; then
+  git pull -q --no-edit "$REMOTE" "$DATA_BRANCH"
+fi
+
+# Merge latest main from remote into data
+if git show-ref --verify --quiet "refs/remotes/$REMOTE/$MAIN_BRANCH"; then
+  git merge -q --no-edit "$REMOTE/$MAIN_BRANCH"
 fi
 
 # Run tracker (writes data/db + a plain report file in reports/)
