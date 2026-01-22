@@ -57,3 +57,25 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Build email alert (HTML)
+        id: alert
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/build_email_alert.js
+          echo "should_send=$(cat reports/alert_should_send.txt | tr -d '\r\n')" >> "$GITHUB_OUTPUT"
+
+      - name: Send email alert
+        if: steps.alert.outputs.should_send == '1'
+        uses: dawidd6/action-send-mail@v7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: file://reports/alert_subject.txt
+          to: brennan@codexwilkes.com
+          from: Spirit Tracker <${{ secrets.MAIL_USERNAME }}>
+          html_body: file://reports/alert.html
