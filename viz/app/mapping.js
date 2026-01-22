@@ -1,5 +1,6 @@
 // viz/app/mapping.js
-import { loadSkuMetaBestEffort } from "./api.js";
+import { loadSkuMetaBestEffort, isLocalWriteMode } from "./api.js";
+import { applyPendingToMeta } from "./pending.js";
 
 let CACHED = null;
 
@@ -169,7 +170,10 @@ function buildGroupsAndCanonicalMap(links) {
 export async function loadSkuRules() {
   if (CACHED) return CACHED;
 
-  const meta = await loadSkuMetaBestEffort();
+  let meta = await loadSkuMetaBestEffort();
+  if (!isLocalWriteMode()) {
+    meta = applyPendingToMeta(meta);
+  }
   const links = Array.isArray(meta?.links) ? meta.links : [];
   const ignores = Array.isArray(meta?.ignores) ? meta.ignores : [];
 
