@@ -57,7 +57,11 @@ if git show-ref --verify --quiet "refs/remotes/$REMOTE/$MAIN_BRANCH"; then
 fi
 
 # Run tracker (writes data/db + a plain report file in reports/)
-"$NODE_BIN" bin/tracker.js
+TRACKER_ARGS=()
+if [[ -n "${STORES:-}" ]]; then
+  TRACKER_ARGS+=(--stores "${STORES}")
+fi
+"$NODE_BIN" bin/tracker.js "${TRACKER_ARGS[@]}"
 
 # Build viz artifacts on the data branch
 "$NODE_BIN" tools/build_viz_index.js
