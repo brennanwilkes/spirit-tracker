@@ -9,13 +9,9 @@ import {
 } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
-import {
-  isLocalWriteMode,
-  loadSkuMetaBestEffort,
-  apiWriteSkuLink,
-  apiWriteSkuIgnore,
-} from "./api.js";
 import { loadSkuRules, clearSkuRulesCache } from "./mapping.js";
+import { inferGithubOwnerRepo, isLocalWriteMode, loadSkuMetaBestEffort, apiWriteSkuLink, apiWriteSkuIgnore } from "./api.js";
+import { addPendingLink, addPendingIgnore, pendingCounts, loadPendingEdits } from "./pending.js";
 
 /* ---------------- Similarity helpers ---------------- */
 
@@ -382,7 +378,7 @@ export async function renderSkuLinker($app) {
         <button id="back" class="btn">← Back</button>
         <div style="flex:1"></div>
         <span class="badge">SKU Linker</span>
-        <span class="badge mono">${esc(localWrite ? "LOCAL WRITE" : "READ-ONLY")}</span>
+        ${localWrite ? `<span class="badge mono">LOCAL WRITE</span>` : `<button id="createPrBtn" class="btn" disabled>Create PR</button>`}
       </div>
 
       <div class="card" style="padding:14px;">
@@ -586,53 +582,102 @@ export async function renderSkuLinker($app) {
   }
 
   function updateButtons() {
-    if (!localWrite) {
-      $linkBtn.disabled = true;
-      $ignoreBtn.disabled = true;
-      $status.textContent = "Write disabled on GitHub Pages. Use: node viz/serve.js and open 127.0.0.1.";
-      return;
+    const isPages = !localWrite;
+  
+    // Pages: keep Create PR button state in sync with pending edits
+    const $pr = isPages ? document.getElementById("createPrBtn") : null;
+    if ($pr) {
+      const c0 = pendingCounts();
+      $pr.disabled = c0.total === 0;
     }
-
+  
     if (!(pinnedL && pinnedR)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
-      if (!$status.textContent) $status.textContent = "Pin one item on each side to enable linking / ignoring.";
+  
+      if (isPages) {
+        const c = pendingCounts();
+        $status.textContent = c.total
+          ? `Pending changes: ${c.links} link(s), ${c.ignores} ignore(s). Create PR when ready.`
+          : "Pin one item on each side to enable linking / ignoring.";
+      } else {
+        if (!$status.textContent) $status.textContent = "Pin one item on each side to enable linking / ignoring.";
+      }
       return;
     }
-
+  
     const a = String(pinnedL.sku || "");
     const b = String(pinnedR.sku || "");
-
+  
     if (a === b) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
       $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
-
+  
     if (storesOverlap(pinnedL, pinnedR)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
       $status.textContent = "Not allowed: both items belong to the same store.";
       return;
     }
-
+  
     if (sameGroup(a, b)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
       $status.textContent = "Already linked: both SKUs are in the same group.";
       return;
     }
-
+  
     $linkBtn.disabled = false;
     $ignoreBtn.disabled = false;
-
+  
     if (isIgnoredPair(a, b)) {
       $status.textContent = "This pair is already ignored.";
     } else if ($status.textContent === "Pin one item on each side to enable linking / ignoring.") {
       $status.textContent = "";
     }
+  
+    // Refresh PR button state after any status changes
+    if ($pr) {
+      const c = pendingCounts();
+      $pr.disabled = c.total === 0;
+    }
   }
+  
+
+  const $createPrBtn = document.getElementById("createPrBtn");
+  if ($createPrBtn) {
+    $createPrBtn.addEventListener("click", () => {
+      const c = pendingCounts();
+      if (c.total === 0) return;
+
+      const { owner, repo } = inferGithubOwnerRepo();
+      const edits = loadPendingEdits();
+
+      // Payload is small (ops list), action will merge into data/sku_links.json
+      const payload = JSON.stringify(
+        { schema: "stviz-sku-edits-v1", createdAt: edits.createdAt || new Date().toISOString(), links: edits.links, ignores: edits.ignores },
+        null,
+        2
+      );
+
+      const title = `[stviz] sku link updates (${c.links} link, ${c.ignores} ignore)`;
+      const body =
+        `Automated request from GitHub Pages SKU Linker.\n\n` +
+        `<!-- stviz-sku-edits:BEGIN -->\n` +
+        payload +
+        `\n<!-- stviz-sku-edits:END -->\n`;
+
+      const u =
+        `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}` +
+        `/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+
+      window.open(u, "_blank", "noopener,noreferrer");
+    });
+  }
+
 
   function updateAll() {
     renderSide("L");
@@ -657,11 +702,11 @@ export async function renderSkuLinker($app) {
   });
 
   $linkBtn.addEventListener("click", async () => {
-    if (!(pinnedL && pinnedR) || !localWrite) return;
-
+    if (!(pinnedL && pinnedR)) return;
+  
     const a = String(pinnedL.sku || "");
     const b = String(pinnedR.sku || "");
-
+  
     if (!a || !b) {
       $status.textContent = "Not allowed: missing SKU.";
       return;
@@ -682,16 +727,16 @@ export async function renderSkuLinker($app) {
       $status.textContent = "This pair is already ignored.";
       return;
     }
-
+  
     const aCanon = rules.canonicalSku(a);
     const bCanon = rules.canonicalSku(b);
-
+  
     const preferred = pickPreferredCanonical(allRows, [a, b, aCanon, bCanon]);
     if (!preferred) {
       $status.textContent = "Write failed: could not choose a canonical SKU.";
       return;
     }
-
+  
     const writes = [];
     function addWrite(fromSku, toSku) {
       const f = String(fromSku || "").trim();
@@ -700,12 +745,12 @@ export async function renderSkuLinker($app) {
       if (rules.canonicalSku(f) === t) return;
       writes.push({ fromSku: f, toSku: t });
     }
-
+  
     addWrite(aCanon, preferred);
     addWrite(bCanon, preferred);
     addWrite(a, preferred);
     addWrite(b, preferred);
-
+  
     const seenW = new Set();
     const uniq = [];
     for (const w of writes) {
@@ -714,25 +759,51 @@ export async function renderSkuLinker($app) {
       seenW.add(k);
       uniq.push(w);
     }
-
+  
+    // ---------------- GitHub Pages mode: stage edits locally ----------------
+    if (!localWrite) {
+      for (const w of uniq) addPendingLink(w.fromSku, w.toSku);
+  
+      clearSkuRulesCache();
+      rules = await loadSkuRules();
+      ignoreSet = rules.ignoreSet;
+  
+      // rebuild mappedSkus based on merged rules (includes pending)
+      const rebuilt = buildMappedSkuSet(rules.links || []);
+      mappedSkus.clear();
+      for (const x of rebuilt) mappedSkus.add(x);
+  
+      const c = pendingCounts();
+      $status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
+  
+      const $pr = document.getElementById("createPrBtn");
+      if ($pr) $pr.disabled = c.total === 0;
+  
+      pinnedL = null;
+      pinnedR = null;
+      updateAll();
+      return;
+    }
+  
+    // ---------------- Local mode: write via disk-backed API ----------------
     $status.textContent = `Writing ${uniq.length} link(s) to canonical ${displaySku(preferred)} …`;
-
+  
     try {
       for (let i = 0; i < uniq.length; i++) {
         const w = uniq[i];
         $status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(w.fromSku)} → ${displaySku(w.toSku)} …`;
         await apiWriteSkuLink(w.fromSku, w.toSku);
       }
-
+  
       clearSkuRulesCache();
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
-
+  
       const meta2 = await loadSkuMetaBestEffort();
       const rebuilt = buildMappedSkuSet(meta2?.links || []);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
-
+  
       $status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
       pinnedL = null;
       pinnedR = null;
@@ -741,13 +812,14 @@ export async function renderSkuLinker($app) {
       $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
     }
   });
+  
 
   $ignoreBtn.addEventListener("click", async () => {
-    if (!(pinnedL && pinnedR) || !localWrite) return;
-
+    if (!(pinnedL && pinnedR)) return;
+  
     const a = String(pinnedL.sku || "");
     const b = String(pinnedR.sku || "");
-
+  
     if (!a || !b) {
       $status.textContent = "Not allowed: missing SKU.";
       return;
@@ -768,9 +840,32 @@ export async function renderSkuLinker($app) {
       $status.textContent = "This pair is already ignored.";
       return;
     }
-
+  
+    // ---------------- GitHub Pages mode: stage ignore locally ----------------
+    if (!localWrite) {
+      $status.textContent = `Staging ignore: ${displaySku(a)} × ${displaySku(b)} …`;
+  
+      addPendingIgnore(a, b);
+  
+      clearSkuRulesCache();
+      rules = await loadSkuRules();
+      ignoreSet = rules.ignoreSet;
+  
+      const c = pendingCounts();
+      $status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
+  
+      const $pr = document.getElementById("createPrBtn");
+      if ($pr) $pr.disabled = c.total === 0;
+  
+      pinnedL = null;
+      pinnedR = null;
+      updateAll();
+      return;
+    }
+  
+    // ---------------- Local mode: write via disk-backed API ----------------
     $status.textContent = `Ignoring: ${displaySku(a)} × ${displaySku(b)} …`;
-
+  
     try {
       const out = await apiWriteSkuIgnore(a, b);
       ignoreSet.add(rules.canonicalPairKey(a, b));
@@ -782,6 +877,7 @@ export async function renderSkuLinker($app) {
       $status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
     }
   });
+  
 
   updateAll();
 }
