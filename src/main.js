@@ -156,11 +156,24 @@ async function main() {
 
   const report = await runAllStores(storesToRun, { config, logger, http });
 
+  const meaningful =
+    (report?.totals?.newCount || 0) +
+      (report?.totals?.updatedCount || 0) +
+      (report?.totals?.removedCount || 0) +
+      (report?.totals?.restoredCount || 0) >
+    0;
+
   const reportTextColor = renderFinalReport(report, {
     dbDir: config.dbDir,
     colorize: logger.colorize,
   });
   process.stdout.write(reportTextColor);
+
+  if (!meaningful) {
+    logger.ok("No meaningful changes; skipping report write.");
+    process.exitCode = 3; // special "no-op" code
+    return;
+  }
 
   const reportTextPlain = renderFinalReport(report, {
     dbDir: config.dbDir,

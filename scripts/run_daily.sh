@@ -61,7 +61,20 @@ TRACKER_ARGS=()
 if [[ -n "${STORES:-}" ]]; then
   TRACKER_ARGS+=(--stores "${STORES}")
 fi
+set +e
 "$NODE_BIN" bin/tracker.js "${TRACKER_ARGS[@]}"
+rc=$?
+set -e
+
+if [[ $rc -eq 3 ]]; then
+  echo "No meaningful changes; resetting worktree and skipping commit." >&2
+  git reset --hard -q
+  git clean -fdq -- reports data/db viz/data
+  exit 0
+fi
+if [[ $rc -ne 0 ]]; then
+  exit $rc
+fi
 
 # Build viz artifacts on the data branch
 "$NODE_BIN" tools/build_viz_index.js
