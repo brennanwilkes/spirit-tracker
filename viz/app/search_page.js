@@ -1,5 +1,5 @@
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow } from "./sku.js";
+import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
@@ -118,6 +118,95 @@ export function renderSearch($app) {
     }
   }
 
+  function salePctOff(oldRaw, newRaw) {
+    const oldN = parsePriceToNumber(oldRaw);
+    const newN = parsePriceToNumber(newRaw);
+    if (!Number.isFinite(oldN) || !Number.isFinite(newN)) return null;
+    if (!(oldN > 0)) return null;
+    if (!(newN < oldN)) return null;
+    const pct = Math.round(((oldN - newN) / oldN) * 100);
+    return Number.isFinite(pct) && pct > 0 ? pct : null;
+  }
+
+  function pctChange(oldRaw, newRaw) {
+    const oldN = parsePriceToNumber(oldRaw);
+    const newN = parsePriceToNumber(newRaw);
+    if (!Number.isFinite(oldN) || !Number.isFinite(newN)) return null;
+    if (!(oldN > 0)) return null;
+    const pct = Math.round(((newN - oldN) / oldN) * 100);
+    return Number.isFinite(pct) ? pct : null;
+  }
+
+  function tsValue(r) {
+    const t = String(r?.ts || "");
+    const ms = t ? Date.parse(t) : NaN;
+    if (Number.isFinite(ms)) return ms;
+    const d = String(r?.date || "");
+    const ms2 = d ? Date.parse(d) : NaN;
+    return Number.isFinite(ms2) ? ms2 : 0;
+  }
+
+  // Custom priority:
+  // big % discounts > new unique > small discounts > removals > price increases > new (available elsewhere)
+  function rankRecent(r, canonSkuFn) {
+    const rawSku = String(r?.sku || "");
+    const sku = String(canonSkuFn ? canonSkuFn(rawSku) : rawSku);
+
+    const agg = aggBySku.get(sku) || null;
+    const storeCount = agg?.stores?.size || 0;
+
+    // Treat "price_change" as down/up if we can infer direction
+    let kind = String(r?.kind || "");
+    if (kind === "price_change") {
+      const o = parsePriceToNumber(r?.oldPrice || "");
+      const n = parsePriceToNumber(r?.newPrice || "");
+      if (Number.isFinite(o) && Number.isFinite(n)) {
+        if (n < o) kind = "price_down";
+        else if (n > o) kind = "price_up";
+      }
+    }
+
+    const pctOff = kind === "price_down" ? salePctOff(r?.oldPrice || "", r?.newPrice || "") : null;
+    const pctUp = kind === "price_up" ? pctChange(r?.oldPrice || "", r?.newPrice || "") : null;
+
+    const isNew = kind === "new";
+    const isNewUnique = isNew && storeCount <= 1; // "across the board" (no other stores for canonical SKU)
+    const isNewOther = isNew && storeCount > 1;
+
+    const BIG_OFF = 15;
+
+    // Higher score => earlier
+    let score = 0;
+
+    if (kind === "price_down") {
+      if (pctOff !== null && pctOff >= BIG_OFF) score = 6000 + pctOff;
+      else score = 4000 + (pctOff || 0);
+    } else if (isNewUnique) {
+      score = 5000;
+    } else if (kind === "restored") {
+      // not specified, but generally interesting; keep near "new unique"
+      score = 4500;
+    } else if (kind === "removed") {
+      score = 3000;
+    } else if (kind === "price_up") {
+      score = 2000 + Math.min(99, Math.max(0, pctUp || 0));
+    } else if (isNewOther) {
+      score = 1000;
+    } else {
+      score = 0;
+    }
+
+    // Within same score bucket:
+    // - discounts: larger pctOff first
+    // - else: more recent first
+    let tie = 0;
+    if (kind === "price_down") tie = (pctOff || 0) * 100000 + tsValue(r);
+    else if (kind === "price_up") tie = (pctUp || 0) * 100000 + tsValue(r);
+    else tie = tsValue(r);
+
+    return { sku, kind, pctOff, storeCount, isNewUnique, isNewOther, score, tie };
+  }
+
   function renderRecent(recent, canonicalSkuFn) {
     const items = Array.isArray(recent?.items) ? recent.items : [];
     if (!items.length) {
@@ -128,36 +217,46 @@ export function renderSearch($app) {
     const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
 
     const days = Number.isFinite(Number(recent?.windowDays)) ? Number(recent.windowDays) : 3;
-    const limited = items.slice(0, 140);
+
+    // rank + sort (custom)
+    const ranked = items
+      .map((r) => ({ r, meta: rankRecent(r, canon) }))
+      .sort((a, b) => {
+        if (b.meta.score !== a.meta.score) return b.meta.score - a.meta.score;
+        if (b.meta.tie !== a.meta.tie) return b.meta.tie - a.meta.tie;
+        // stable-ish fallback
+        return String(a.meta.sku || "").localeCompare(String(b.meta.sku || ""));
+      });
+
+    const limited = ranked.slice(0, 140);
 
     $results.innerHTML =
       `<div class="small">Recently changed (last ${esc(days)} day(s)):</div>` +
       limited
-        .map((r) => {
-          const kind =
-            r.kind === "new"
+        .map(({ r, meta }) => {
+          const kindLabel =
+            meta.kind === "new"
               ? "NEW"
-              : r.kind === "restored"
+              : meta.kind === "restored"
               ? "RESTORED"
-              : r.kind === "removed"
+              : meta.kind === "removed"
               ? "REMOVED"
-              : r.kind === "price_down"
+              : meta.kind === "price_down"
               ? "PRICE ↓"
-              : r.kind === "price_up"
+              : meta.kind === "price_up"
               ? "PRICE ↑"
-              : r.kind === "price_change"
+              : meta.kind === "price_change"
               ? "PRICE"
               : "CHANGE";
 
           const priceLine =
-            r.kind === "new" || r.kind === "restored" || r.kind === "removed"
+            meta.kind === "new" || meta.kind === "restored" || meta.kind === "removed"
               ? `${esc(r.price || "")}`
               : `${esc(r.oldPrice || "")} → ${esc(r.newPrice || "")}`;
 
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
-          const rawSku = String(r.sku || "");
-          const sku = canon(rawSku);
 
+          const sku = meta.sku;
           const agg = aggBySku.get(sku) || null;
           const img = agg?.img || "";
 
@@ -177,6 +276,19 @@ export function renderSearch($app) {
           // date as a badge so it sits nicely in the single meta row
           const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
 
+          // subtle styles (inline so you don’t need to touch CSS)
+          const offBadge =
+            meta.kind === "price_down" && meta.pctOff !== null
+              ? `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
+                  meta.pctOff
+                )}% Off]</span>`
+              : "";
+
+          const kindBadgeStyle =
+            meta.kind === "new" && meta.isNewUnique
+              ? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
+              : "";
+
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
@@ -189,8 +301,9 @@ export function renderSearch($app) {
                     <span class="badge mono">${esc(displaySku(sku))}</span>
                   </div>
                   <div class="metaRow">
-                    <span class="badge">${esc(kind)}</span>
+                    <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
                     <span class="mono price">${esc(priceLine)}</span>
+                    ${offBadge}
                     ${storeBadge}
                     ${dateBadge}
                   </div>
