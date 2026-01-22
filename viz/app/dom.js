@@ -17,8 +17,37 @@ export function esc(s) {
   export function prettyTs(iso) {
     const s = String(iso || "");
     if (!s) return "";
-    return s.replace("T", " ");
+  
+    const d = new Date(s);
+    if (!Number.isFinite(d.getTime())) return "";
+  
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Vancouver",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).formatToParts(d);
+  
+    let month = "";
+    let day = "";
+    let hour = "";
+    let minute = "";
+    let dayPeriod = "";
+  
+    for (const p of parts) {
+      if (p.type === "month") month = p.value;
+      else if (p.type === "day") day = p.value;
+      else if (p.type === "hour") hour = p.value;
+      else if (p.type === "minute") minute = p.value;
+      else if (p.type === "dayPeriod") dayPeriod = p.value;
+    }
+  
+    const ampm = String(dayPeriod || "").toLowerCase(); // "am"/"pm"
+    return `${month} ${day} ${hour}:${minute}${ampm}`;
   }
+  
   
   export function renderThumbHtml(imgUrl, cls = "thumb") {
     const img = normImg(imgUrl);
