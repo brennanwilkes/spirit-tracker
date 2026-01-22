@@ -216,104 +216,70 @@ function makePrettyObjBlock(objIndent, obj) {
 }
 
 function applyInsertionsToArrayText({
-  src,
-  propName,
-  incoming,
-  keyFn,
-  normalizeFn,
-}) {
-  const span = findJsonArraySpan(src, propName);
-  if (!span) die(`Could not find "${propName}" array in ${filePath}`);
-
-  const before = src.slice(0, span.open + 1); // includes '['
-  const inner = src.slice(span.open + 1, span.close); // between [ and ]
-  const after = src.slice(span.close); // starts with ']'
-
-  const itemIndent = detectItemIndent(inner, span.fieldIndent);
-
-  const rawBlocks = splitArrayObjectBlocks(inner);
-
-  const existing = [];
-  const seen = new Set();
-
-  for (const raw of rawBlocks) {
-    try {
-      const obj = JSON.parse(raw);
-      const k = keyFn(obj);
-      existing.push({ raw, obj, key: k });
-      if (k) seen.add(k);
-    } catch {
-      // If parsing fails, keep the raw block as-is, but don't use it for keying
-      existing.push({ raw, obj: null, key: "" });
+    src,
+    propName,
+    incoming,
+    keyFn,
+    normalizeFn,
+  }) {
+    const span = findJsonArraySpan(src, propName);
+    if (!span) die(`Could not find "${propName}" array in ${filePath}`);
+  
+    const before = src.slice(0, span.open + 1); // includes '['
+    const inner = src.slice(span.open + 1, span.close); // between [ and ]
+    const after = src.slice(span.close); // starts with ']'
+  
+    const itemIndent = detectItemIndent(inner, span.fieldIndent);
+  
+    // Parse existing objects to build a dedupe set (does NOT modify inner text)
+    const rawBlocks = splitArrayObjectBlocks(inner);
+    const seen = new Set();
+    for (const raw of rawBlocks) {
+      try {
+        const obj = JSON.parse(raw);
+        const k = keyFn(obj);
+        if (k) seen.add(k);
+      } catch {
+        // ignore unparsable blocks for dedupe purposes
+      }
     }
-  }
-
-  const toAdd = [];
-  for (const x of incoming) {
-    const nx = normalizeFn(x);
-    const k = keyFn(nx);
-    if (!k || seen.has(k)) continue;
-    seen.add(k);
-    toAdd.push({ obj: nx, key: k });
-  }
-
-  if (!toAdd.length) return src; // nothing to do
-
-  // Insert each new item into sorted position by key (lex)
-  // We rebuild the list of raw blocks but preserve existing raw blocks untouched.
-  const outBlocks = existing.slice(); // keep {raw,obj,key}
-
-  function findInsertIndex(k) {
-    for (let i = 0; i < outBlocks.length; i++) {
-      const kk = outBlocks[i]?.key || "";
-      if (!kk) continue; // unknown blocks: keep them where they are
-      if (kk > k) return i;
+  
+    const toAdd = [];
+    for (const x of incoming) {
+      const nx = normalizeFn(x);
+      const k = keyFn(nx);
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      toAdd.push(nx);
     }
-    return outBlocks.length;
-  }
-
-  // Sort additions so results are deterministic
-  toAdd.sort((a, b) => a.key.localeCompare(b.key));
-
-  for (const add of toAdd) {
-    const idx = findInsertIndex(add.key);
-    const raw = makePrettyObjBlock(itemIndent, add.obj);
-    outBlocks.splice(idx, 0, { raw, obj: add.obj, key: add.key });
-  }
-
-  // Rebuild inner text, preserving inline-empty formatting if it was empty
-  let newInner = "";
-  if (outBlocks.length === 0) {
-    newInner = inner; // shouldn't happen, but keep original
-  } else {
-    // Determine if original was inline empty: "links": []
+  
+    if (!toAdd.length) return src;
+  
+    // Deterministic order for new items only (doesn't reorder existing)
+    const addBlocks = toAdd
+      .map((obj) => ({ obj, key: keyFn(obj) }))
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)))
+      .map((x) => makePrettyObjBlock(itemIndent, x.obj));
+  
     const wasInlineEmpty = /^\s*$/.test(inner);
+  
+    let newInner;
     if (wasInlineEmpty) {
-      // Convert to pretty multi-line on first insert (minimal and stable)
+      // "links": []  -> pretty multiline
       newInner =
-        "\n" +
-        outBlocks.map((x) => x.raw).join(",\n") +
-        "\n" +
-        span.fieldIndent;
+        "\n" + addBlocks.join(",\n") + "\n" + span.fieldIndent;
     } else {
-      // Keep pretty multi-line (same join style as JSON.stringify)
-      // Ensure leading/trailing newlines similar to original
-      const trimmed = inner.replace(/^\s+|\s+$/g, "");
-      const hadLeadingNL = /^\s*\n/.test(inner);
-      const hadTrailingNL = /\n\s*$/.test(inner);
-
-      const body = outBlocks.map((x) => x.raw).join(",\n");
-      newInner =
-        (hadLeadingNL ? "\n" : "") +
-        body +
-        (hadTrailingNL ? "\n" + span.fieldIndent : "");
-      // If original didn't have trailing newline before ']', keep it tight
-      if (!hadTrailingNL) newInner = "\n" + body + "\n" + span.fieldIndent;
+      // Keep existing whitespace EXACTLY; append before trailing whitespace
+      const m = inner.match(/\s*$/);
+      const tail = m ? m[0] : "";
+      const body = inner.slice(0, inner.length - tail.length).replace(/\s*$/, ""); // end at last non-ws
+  
+      newInner = body + ",\n" + addBlocks.join(",\n") + tail;
     }
+  
+    return before + newInner + after;
   }
-
-  return before + newInner + after;
-}
+  
 
 /* ---------------- Apply edits ---------------- */
 
