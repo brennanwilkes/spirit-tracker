@@ -9,7 +9,7 @@ export function renderSearch($app) {
     <div class="container">
       <div class="header">
         <div>
-          <h1 class="h1">Spirit Tracker</h1>
+          <h1 class="h1">Spirit Tracker Viz</h1>
           <div class="small">Search name / url / sku (word AND)</div>
         </div>
         <a class="btn" href="#/link" style="text-decoration:none;">Link SKUs</a>
@@ -81,9 +81,9 @@ export function renderSearch($app) {
         const storeBadge = href
           ? `<a class="badge" href="${esc(
               href
-            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-              store
-            )}${esc(plus)}</a>`
+            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(
+              plus
+            )}</a>`
           : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
         return `
@@ -147,13 +147,22 @@ export function renderSearch($app) {
   }
 
   // Custom priority:
-  // big % discounts > new unique > small discounts > removals > price increases > new (available elsewhere)
+  // - Sales that make this store cheapest (or tied cheapest) are most interesting
+  // - New unique (no other stores have canonical SKU)
+  // - Other sales (not cheapest) are demoted
+  // - Removed
+  // - Price increases
+  // - New (available elsewhere)
   function rankRecent(r, canonSkuFn) {
     const rawSku = String(r?.sku || "");
     const sku = String(canonSkuFn ? canonSkuFn(rawSku) : rawSku);
 
     const agg = aggBySku.get(sku) || null;
-    const storeCount = agg?.stores?.size || 0;
+
+    const storeLabelRaw = String(r?.storeLabel || r?.store || "").trim();
+    const bestStoreRaw = String(agg?.cheapestStoreLabel || "").trim();
+
+    const normStore = (s) => String(s || "").trim().toLowerCase();
 
     // Treat "price_change" as down/up if we can infer direction
     let kind = String(r?.kind || "");
@@ -170,41 +179,52 @@ export function renderSearch($app) {
     const pctUp = kind === "price_up" ? pctChange(r?.oldPrice || "", r?.newPrice || "") : null;
 
     const isNew = kind === "new";
-    const isNewUnique = isNew && storeCount <= 1; // "across the board" (no other stores for canonical SKU)
-    const isNewOther = isNew && storeCount > 1;
+    const storeCount = agg?.stores?.size || 0;
+    const isNewUnique = isNew && storeCount <= 1;
 
-    const BIG_OFF = 15;
+    // For sales: demote if this store is NOT the cheapest available now (per aggregate index)
+    const newPriceNum = kind === "price_down" || kind === "price_up" ? parsePriceToNumber(r?.newPrice || "") : null;
+    const bestPriceNum = Number.isFinite(agg?.cheapestPriceNum) ? agg.cheapestPriceNum : null;
 
-    // Higher score => earlier
+    const EPS = 0.01;
+    const priceMatchesBest =
+      Number.isFinite(newPriceNum) && Number.isFinite(bestPriceNum) ? Math.abs(newPriceNum - bestPriceNum) <= EPS : false;
+
+    const storeIsBest = normStore(storeLabelRaw) && normStore(bestStoreRaw) && normStore(storeLabelRaw) === normStore(bestStoreRaw);
+
+    const saleIsCheapestHere = kind === "price_down" && storeIsBest && priceMatchesBest;
+    const saleIsTiedCheapest = kind === "price_down" && !storeIsBest && priceMatchesBest;
+
     let score = 0;
 
     if (kind === "price_down") {
-      if (pctOff !== null && pctOff >= BIG_OFF) score = 6000 + pctOff;
-      else score = 4000 + (pctOff || 0);
+      if (saleIsCheapestHere) {
+        score = 6500 + (pctOff || 0);
+      } else if (saleIsTiedCheapest) {
+        score = 5900 + Math.floor((pctOff || 0) * 0.5);
+      } else {
+        score = 2400 + Math.min(25, Math.max(0, pctOff || 0));
+      }
     } else if (isNewUnique) {
-      score = 5000;
+      score = 6000;
     } else if (kind === "restored") {
-      // not specified, but generally interesting; keep near "new unique"
-      score = 4500;
+      score = 5200;
     } else if (kind === "removed") {
       score = 3000;
     } else if (kind === "price_up") {
       score = 2000 + Math.min(99, Math.max(0, pctUp || 0));
-    } else if (isNewOther) {
+    } else if (kind === "new") {
       score = 1000;
     } else {
       score = 0;
     }
 
-    // Within same score bucket:
-    // - discounts: larger pctOff first
-    // - else: more recent first
     let tie = 0;
     if (kind === "price_down") tie = (pctOff || 0) * 100000 + tsValue(r);
     else if (kind === "price_up") tie = (pctUp || 0) * 100000 + tsValue(r);
     else tie = tsValue(r);
 
-    return { sku, kind, pctOff, storeCount, isNewUnique, isNewOther, score, tie };
+    return { sku, kind, pctOff, storeCount, isNewUnique, score, tie };
   }
 
   function renderRecent(recent, canonicalSkuFn) {
@@ -213,34 +233,34 @@ export function renderSearch($app) {
       $results.innerHTML = `<div class="small">Type to search…</div>`;
       return;
     }
-  
+
     const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
-  
+
+    // Filter to last 24 hours
     const nowMs = Date.now();
     const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
-  
+
     function eventMs(r) {
       const t = String(r?.ts || "");
       const ms = t ? Date.parse(t) : NaN;
       if (Number.isFinite(ms)) return ms;
-  
+
       // fallback: date-only => treat as start of day UTC-ish
       const d = String(r?.date || "");
       const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
       return Number.isFinite(ms2) ? ms2 : 0;
     }
-  
+
     const inWindow = items.filter((r) => {
       const ms = eventMs(r);
       return ms >= cutoffMs && ms <= nowMs;
     });
-  
+
     if (!inWindow.length) {
       $results.innerHTML = `<div class="small">No changes in the last 24 hours.</div>`;
       return;
     }
-  
-    // rank + sort (custom)
+
     const ranked = inWindow
       .map((r) => ({ r, meta: rankRecent(r, canon) }))
       .sort((a, b) => {
@@ -248,9 +268,9 @@ export function renderSearch($app) {
         if (b.meta.tie !== a.meta.tie) return b.meta.tie - a.meta.tie;
         return String(a.meta.sku || "").localeCompare(String(b.meta.sku || ""));
       });
-  
+
     const limited = ranked.slice(0, 140);
-  
+
     $results.innerHTML =
       `<div class="small">Recently changed (last 24 hours):</div>` +
       limited
@@ -269,22 +289,22 @@ export function renderSearch($app) {
               : meta.kind === "price_change"
               ? "PRICE"
               : "CHANGE";
-  
+
           const priceLine =
             meta.kind === "new" || meta.kind === "restored" || meta.kind === "removed"
               ? `${esc(r.price || "")}`
               : `${esc(r.oldPrice || "")} → ${esc(r.newPrice || "")}`;
-  
+
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
-  
+
           const sku = meta.sku;
           const agg = aggBySku.get(sku) || null;
           const img = agg?.img || "";
-  
+
           // show "+N" if the canonical SKU exists in other stores (via SKU mapping)
           const storeCount = agg?.stores?.size || 0;
           const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
-  
+
           const href = String(r.url || "").trim();
           const storeBadge = href
             ? `<a class="badge" href="${esc(
@@ -293,23 +313,21 @@ export function renderSearch($app) {
                 (r.storeLabel || "") + plus
               )}</a>`
             : `<span class="badge">${esc((r.storeLabel || "") + plus)}</span>`;
-  
-          // date as a badge so it sits nicely in the single meta row
+
           const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
-  
-          // subtle styles (inline so you don’t need to touch CSS)
+
           const offBadge =
             meta.kind === "price_down" && meta.pctOff !== null
               ? `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
                   meta.pctOff
                 )}% Off]</span>`
               : "";
-  
+
           const kindBadgeStyle =
             meta.kind === "new" && meta.isNewUnique
               ? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
               : "";
-  
+
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
@@ -334,7 +352,7 @@ export function renderSearch($app) {
           `;
         })
         .join("");
-  
+
     for (const el of Array.from($results.querySelectorAll(".item"))) {
       el.addEventListener("click", () => {
         const sku = el.getAttribute("data-sku") || "";
