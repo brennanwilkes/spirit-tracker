@@ -25,6 +25,48 @@ import {
 } from "./pending.js";
 
 /* ---------------- Similarity helpers ---------------- */
+// Ignore ultra-common / low-signal tokens in bottle names.
+const SIM_STOP_TOKENS = new Set([
+  "the",
+  "a",
+  "an",
+  "and",
+  "of",
+  "to",
+  "in",
+  "for",
+  "with",
+  "year",
+  "years",
+  "old",
+]);
+
+function isNumberToken(t) {
+  return /^\d+$/.test(String(t || ""));
+}
+
+function filterSimTokens(tokens) {
+  const out = [];
+  const seen = new Set();
+  for (const raw of Array.isArray(tokens) ? tokens : []) {
+    const t = String(raw || "").trim().toLowerCase();
+    if (!t) continue;
+    // keep numbers (we handle mismatch separately)
+    if (!isNumberToken(t) && SIM_STOP_TOKENS.has(t)) continue;
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+}
+
+function numberMismatchPenalty(aTokens, bTokens) {
+  const aNums = new Set(aTokens.filter(isNumberToken));
+  const bNums = new Set(bTokens.filter(isNumberToken));
+  if (!aNums.size || !bNums.size) return 1.0; // no penalty if either has no numbers
+  for (const n of aNums) if (bNums.has(n)) return 1.0; // at least one number matches
+  return 0.55; // mismatch (e.g. "18" vs "12") => penalize
+}
 
 function levenshtein(a, b) {
   a = String(a || "");
@@ -56,8 +98,8 @@ function similarityScore(aName, bName) {
   const b = normSearchText(bName);
   if (!a || !b) return 0;
 
-  const aToks = tokenizeQuery(a);
-  const bToks = tokenizeQuery(b);
+  const aToks = filterSimTokens(tokenizeQuery(a));
+  const bToks = filterSimTokens(tokenizeQuery(b));
   if (!aToks.length || !bToks.length) return 0;
 
   const aFirst = aToks[0] || "";
@@ -76,8 +118,9 @@ function similarityScore(aName, bName) {
   const levSim = 1 - d / maxLen;
 
   const gate = firstMatch ? 1.0 : 0.12;
+  const numGate = numberMismatchPenalty(aToks, bToks);
 
-  return (
+  return numGate * (
     firstMatch * 3.0 +
     overlapTail * 2.2 * gate +
     levSim * (firstMatch ? 1.0 : 0.15)
@@ -85,6 +128,8 @@ function similarityScore(aName, bName) {
 }
 
 function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
+  aTokens = filterSimTokens(aTokens);
+  bTokens = filterSimTokens(bTokens);
   if (!aTokens.length || !bTokens.length) return 0;
 
   const aFirst = aTokens[0] || "";
@@ -112,8 +157,9 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
       : 0;
 
   const gate = firstMatch ? 1.0 : 0.12;
+  const numGate = numberMismatchPenalty(aTokens, bTokens);
 
-  return firstMatch * 2.4 + overlapTail * 2.0 * gate + pref;
+  return numGate * (firstMatch * 2.4 + overlapTail * 2.0 * gate + pref);
 }
 
 /* ---------------- Store-overlap rule ---------------- */
