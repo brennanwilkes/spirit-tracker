@@ -41,6 +41,17 @@ const SIM_STOP_TOKENS = new Set([
   "old",
 ]);
 
+const SMWS_WORD_RE = /\bsmws\b/i;
+const SMWS_CODE_RE = /\b(\d{1,3}\.\d{1,4})\b/;
+
+function smwsKeyFromName(name) {
+  const s = String(name || "");
+  if (!SMWS_WORD_RE.test(s)) return "";
+  const m = s.match(SMWS_CODE_RE);
+  return m ? m[1] : "";
+}
+
+
 function isNumberToken(t) {
   return /^\d+$/.test(String(t || ""));
 }
@@ -292,19 +303,13 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(
-  allAgg,
-  pinned,
-  limit,
-  otherPinnedSku,
-  mappedSkus,
-  isIgnoredPairFn
-) {
+function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn) {
   if (!pinned || !pinned.name)
     return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const base = String(pinned.name || "");
   const pinnedSku = String(pinned.sku || "");
+  const pinnedSmws = smwsKeyFromName(pinned.name || "");
   const scored = [];
 
   for (const it of allAgg) {
@@ -314,11 +319,20 @@ function recommendSimilar(
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
     if (storesOverlap(pinned, it)) continue;
 
-    if (
-      typeof isIgnoredPairFn === "function" &&
-      isIgnoredPairFn(pinnedSku, String(it.sku || ""))
-    )
+    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, String(it.sku || "")))
       continue;
+
+    // SMWS exact NUM.NUM match => force to top (requires SMWS + code match)
+    if (pinnedSmws) {
+      const k = smwsKeyFromName(it.name || "");
+      if (k && k === pinnedSmws) {
+        const stores = it.stores ? it.stores.size : 0;
+        const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
+        const s = 1e9 + stores * 10 + hasPrice; // tie-break within exact matches
+        scored.push({ it, s });
+        continue;
+      }
+    }
 
     let s = similarityScore(base, it.name || "");
 
@@ -329,6 +343,7 @@ function recommendSimilar(
 
     if (s > 0) scored.push({ it, s });
   }
+
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
 }
