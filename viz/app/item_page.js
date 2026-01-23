@@ -230,10 +230,28 @@ export async function renderItem($app, skuInput) {
   $thumbBox.innerHTML = bestImg ? renderThumbHtml(bestImg, "detailThumb") : `<div class="thumbPlaceholder"></div>`;
 
   // show store links from merged rows (may include multiple per store; OK)
+  // show store links from merged rows (may include multiple per store; OK)
+  // If two identical links exist, only render one.
+  const seenLinks = new Set();
   $links.innerHTML = cur
     .slice()
     .sort((a, b) => String(a.storeLabel || "").localeCompare(String(b.storeLabel || "")))
-    .map((r) => `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.storeLabel || r.store || "Store")}</a>`)
+    .filter((r) => {
+      const href = String(r?.url || "").trim();
+      const text = String(r?.storeLabel || r?.store || "Store").trim();
+      if (!href) return false;
+
+      // "identical" = same href + same rendered text
+      const key = `${href}|${text}`;
+      if (seenLinks.has(key)) return false;
+      seenLinks.add(key);
+      return true;
+    })
+    .map((r) => {
+      const href = String(r.url || "").trim();
+      const text = String(r.storeLabel || r.store || "Store").trim();
+      return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`;
+    })
     .join("");
 
   const gh = inferGithubOwnerRepo();
