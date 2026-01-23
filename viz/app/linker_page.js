@@ -348,96 +348,25 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function computeSmwsPairsFirst(work, mappedSkus, limitPairs, isIgnoredPairFn) {
-  const buckets = new Map(); // code -> items[]
-  for (const it of work) {
-    if (!it) continue;
-    const sku = String(it.sku || "");
-    if (!sku) continue;
-    if (mappedSkus && mappedSkus.has(sku)) continue;
-
-    const code = smwsKeyFromName(it.name || "");
-    if (!code) continue;
-
-    let arr = buckets.get(code);
-    if (!arr) buckets.set(code, (arr = []));
-    arr.push(it);
-  }
-
-  // score within a code bucket: prefer “better”/more complete listings
-  function itemRank(it) {
-    const stores = it.stores ? it.stores.size : 0;
-    const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-    const hasName = it.name ? 1 : 0;
-    const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
-    return stores * 3 + hasPrice * 2 + hasName * 0.5 + unknown * 0.25;
-  }
-
-  const candPairs = [];
-  for (const arr of buckets.values()) {
-    if (!arr || arr.length < 2) continue;
-
-    // keep buckets bounded
-    arr.sort((a, b) => itemRank(b) - itemRank(a));
-    const top = arr.slice(0, 60);
-
-    // generate pair candidates (bounded)
-    const MAX_PAIR_TRIES = 800;
-    let tries = 0;
-    for (let i = 0; i < top.length && tries < MAX_PAIR_TRIES; i++) {
-      const a = top[i];
-      const aSku = String(a.sku || "");
-      for (let j = i + 1; j < top.length && tries < MAX_PAIR_TRIES; j++) {
-        tries++;
-        const b = top[j];
-        const bSku = String(b.sku || "");
-        if (!aSku || !bSku || aSku === bSku) continue;
-        if (storesOverlap(a, b)) continue;
-        if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
-
-        // big base so these sort above non-SMWS
-        const s = 1e9 + itemRank(a) + itemRank(b);
-        candPairs.push({ a, b, score: s });
-      }
-    }
-  }
-
-  candPairs.sort((x, y) => y.score - x.score);
-
-  const used = new Set();
-  const out = [];
-  for (const p of candPairs) {
-    const aSku = String(p.a.sku || "");
-    const bSku = String(p.b.sku || "");
-    if (!aSku || !bSku) continue;
-    if (used.has(aSku) || used.has(bSku)) continue;
-    if (storesOverlap(p.a, p.b)) continue;
-
-    used.add(aSku);
-    used.add(bSku);
-    out.push(p);
-    if (out.length >= limitPairs) break;
-  }
-
-  return { pairs: out, used };
-}
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
-  const items = allAgg.filter((it) => {
-    if (!it) return false;
-    if (mappedSkus && mappedSkus.has(String(it.sku))) return false;
-    return true;
-  });
+  const itemsAll = allAgg.filter((it) => !!it);
 
   const seed = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
   const rnd = mulberry32(seed);
-  const itemsShuf = items.slice();
+  const itemsShuf = itemsAll.slice();
   shuffleInPlace(itemsShuf, rnd);
 
   const WORK_CAP = 5000;
-  const work = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
+  const workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 
-  // --- NEW: SMWS exact-code pairs first (guaranteed matches) ---
+  // Unmapped-only view for the normal similarity stage
+  const work = workAll.filter((it) => {
+    if (!it) return false;
+    return !(mappedSkus && mappedSkus.has(String(it.sku)));
+  });
+
+  // --- NEW: SMWS exact-code pairs first (including mapped anchors) ---
   function itemRank(it) {
     const stores = it.stores ? it.stores.size : 0;
     const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
@@ -452,7 +381,6 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
       if (!it) continue;
       const sku = String(it.sku || "");
       if (!sku) continue;
-      if (mappedSkus && mappedSkus.has(sku)) continue;
 
       const code = smwsKeyFromName(it.name || "");
       if (!code) continue;
@@ -463,60 +391,84 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     }
 
     const candPairs = [];
-    for (const arr of buckets.values()) {
-      if (!arr || arr.length < 2) continue;
 
-      // Keep bucket bounded (avoid O(n^2) explosions)
-      arr.sort((a, b) => itemRank(b) - itemRank(a));
-      const top = arr.slice(0, 60);
+    for (const arr0 of buckets.values()) {
+      if (!arr0 || arr0.length < 2) continue;
 
-      const MAX_PAIR_TRIES = 800;
-      let tries = 0;
-      for (let i = 0; i < top.length && tries < MAX_PAIR_TRIES; i++) {
-        const a = top[i];
-        const aSku = String(a.sku || "");
-        for (let j = i + 1; j < top.length && tries < MAX_PAIR_TRIES; j++) {
-          tries++;
-          const b = top[j];
+      // Bound bucket size
+      const arr = arr0.slice().sort((a, b) => itemRank(b) - itemRank(a)).slice(0, 80);
+
+      const mapped = [];
+      const unmapped = [];
+      for (const it of arr) {
+        const sku = String(it.sku || "");
+        if (mappedSkus && mappedSkus.has(sku)) mapped.push(it);
+        else unmapped.push(it);
+      }
+
+      // Pick best anchor (prefer mapped if available)
+      const anchor =
+        (mapped.length ? mapped : unmapped).slice().sort((a, b) => itemRank(b) - itemRank(a))[0];
+
+      if (!anchor) continue;
+
+      // If we have an anchor + at least 1 unmapped, pair each unmapped to the anchor
+      if (unmapped.length) {
+        for (const u of unmapped) {
+          const a = anchor;
+          const b = u;
+          const aSku = String(a.sku || "");
           const bSku = String(b.sku || "");
           if (!aSku || !bSku || aSku === bSku) continue;
           if (storesOverlap(a, b)) continue;
-          if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku))
-            continue;
+          if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
 
-          // Big base so these float above non-SMWS pairs
           const s = 1e9 + itemRank(a) + itemRank(b);
-          candPairs.push({ a, b, score: s });
+          candPairs.push({ a, b, score: s, aIsMapped: mappedSkus && mappedSkus.has(aSku) });
         }
+      } else {
+        // No unmapped left (all mapped) => skip; nothing to link
+        continue;
       }
     }
 
     candPairs.sort((x, y) => y.score - x.score);
 
-    const used0 = new Set();
+    const usedUnmapped = new Set();
+    const anchorUse = new Map();
+    const ANCHOR_REUSE_CAP = 6;
+
     const out0 = [];
     for (const p of candPairs) {
       const aSku = String(p.a.sku || "");
       const bSku = String(p.b.sku || "");
       if (!aSku || !bSku) continue;
-      if (used0.has(aSku) || used0.has(bSku)) continue;
-      if (storesOverlap(p.a, p.b)) continue;
 
-      used0.add(aSku);
-      used0.add(bSku);
+      // b is intended to be the unmapped side in this construction
+      if (usedUnmapped.has(bSku)) continue;
+
+      // allow anchor reuse (especially if anchor is mapped)
+      const k = aSku;
+      const n = anchorUse.get(k) || 0;
+      if (n >= ANCHOR_REUSE_CAP) continue;
+
+      usedUnmapped.add(bSku);
+      anchorUse.set(k, n + 1);
       out0.push(p);
+
       if (out0.length >= limit) break;
     }
-    return { pairs: out0, used: used0 };
+
+    return { pairs: out0, usedUnmapped };
   }
 
-  const smwsFirst = smwsPairsFirst(work, limitPairs);
-  const used = new Set(smwsFirst.used);
+  const smwsFirst = smwsPairsFirst(workAll, limitPairs);
+  const used = new Set(smwsFirst.usedUnmapped);
   const out = smwsFirst.pairs.slice();
 
   if (out.length >= limitPairs) return out.slice(0, limitPairs);
 
-  // --- Existing logic continues (fills remaining slots), but avoid reusing SMWS-picked SKUs ---
+  // --- Existing logic continues (fills remaining slots), but avoid reusing SMWS-picked *unmapped* SKUs ---
   const seeds = topSuggestions(work, Math.min(400, work.length), "", mappedSkus).filter(
     (it) => !used.has(String(it?.sku || ""))
   );
@@ -561,8 +513,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
         if (used.has(bSku)) continue;
         if (mappedSkus && mappedSkus.has(bSku)) continue;
 
-        if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku))
-          continue;
+        if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
         if (storesOverlap(a, b)) continue;
 
         cand.set(bSku, b);
@@ -621,6 +572,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
 
   return out.slice(0, limitPairs);
 }
+
 
 /* ---------------- Page ---------------- */
 
@@ -784,7 +736,12 @@ export async function renderSkuLinker($app) {
 
     if (initialPairs && initialPairs.length) {
       const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
-      return list.filter((it) => it && it.sku !== otherSku && !mappedSkus.has(String(it.sku)));
+      return list.filter(
+        (it) =>
+          it &&
+          it.sku !== otherSku &&
+          (!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || ""))
+      );
     }
 
     return topSuggestions(allAgg, 60, otherSku, mappedSkus);
