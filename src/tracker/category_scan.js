@@ -1,5 +1,7 @@
 "use strict";
 
+const { setTimeout: sleep } = require("timers/promises");
+
 const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight, padLeftV, padRightV } = require("../utils/string");
 const { normalizeBaseUrl, makePageUrlForCtx } = require("../utils/url");
@@ -94,8 +96,38 @@ function shouldTrackItem(ctx, finalUrl, item) {
   return allow(item, ctx, finalUrl);
 }
 
+/**
+ * Best-effort extraction of total pages from Woo pagination markup on page 1.
+ * Looks for:
+ *  - /page/N/
+ *  - ?paged=N
+ * inside links that often have "page-numbers" class, but works even without it.
+ */
+function extractTotalPagesFromPaginationHtml(html) {
+  const s = String(html || "");
+  let max = 0;
+
+  // /page/23/
+  for (const m of s.matchAll(/href=["'][^"']*\/page\/(\d+)\/[^"']*["']/gi)) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n > max) max = n;
+  }
+
+  // ?paged=23
+  for (const m of s.matchAll(/href=["'][^"']*[?&]paged=(\d+)[^"']*["']/gi)) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n > max) max = n;
+  }
+
+  // Sometimes themes render plain numbers without /page/ in href; keep it conservative:
+  // Only trust these if we already found at least one pagination-ish token.
+  if (max > 1) return max;
+
+  return 0;
+}
+
 async function pageHasProducts(ctx, url) {
-  const { http, config, logger } = ctx;
+  const { http, config } = ctx;
   try {
     const { text } = await http.fetchTextWithRetry(url, "discover", ctx.store.ua);
 
@@ -113,6 +145,10 @@ async function pageHasProducts(ctx, url) {
 
 async function probePage(ctx, baseUrl, pageNum, state) {
   const url = makePageUrlForCtx(ctx, baseUrl, pageNum);
+
+  const delay = Number.isFinite(ctx?.cat?.discoveryDelayMs) ? ctx.cat.discoveryDelayMs : 0;
+  if (delay > 0) await sleep(delay);
+
   const t0 = Date.now();
   const r = await pageHasProducts(ctx, url);
   const ms = Date.now() - t0;
@@ -168,12 +204,44 @@ async function binaryFindLastOk(ctx, baseUrl, loOk, hiMiss, state) {
 async function discoverTotalPagesFast(ctx, baseUrl, guess, step) {
   const state = { phase: "pre", loOk: 1, hiMiss: 2, binInitialSpan: 0 };
 
-  const p1 = await probePage(ctx, baseUrl, 1, state);
-  if (!p1.ok) {
+  // Fetch page 1 ONCE and try to extract total pages from pagination.
+  const url1 = makePageUrlForCtx(ctx, baseUrl, 1);
+  const t0 = Date.now();
+  const { text: html1, ms, status, bytes, finalUrl } = await ctx.http.fetchTextWithRetry(url1, "discover", ctx.store.ua);
+  const pMs = Date.now() - t0;
+
+  if (typeof ctx.store.isEmptyListingPage === "function") {
+    if (ctx.store.isEmptyListingPage(html1, ctx, url1)) {
+      ctx.logger.warn(`${ctx.store.name} | ${ctx.cat.label} | Page 1 did not look like a listing. Defaulting to 1.`);
+      return 1;
+    }
+  }
+
+  const parser = ctx.store.parseProducts || ctx.config.defaultParseProducts;
+  const items1 = parser(html1, ctx, finalUrl).length;
+
+  logProgressLine(
+    ctx.logger,
+    ctx,
+    `Discover probe page=${padLeftV(1, 4)}`,
+    items1 > 0 ? "OK" : "MISS",
+    items1 > 0,
+    discoverProg(state),
+    `items=${padLeftV(items1, 3)} | bytes=${padLeftV("", 8)} | ${padRightV(ctx.http.inflightStr(), 11)} | ${secStr(ms || pMs)}`
+  );
+
+  if (items1 <= 0) {
     ctx.logger.warn(`${ctx.store.name} | ${ctx.cat.label} | Page 1 did not look like a listing. Defaulting to 1.`);
     return 1;
   }
 
+  const extracted = extractTotalPagesFromPaginationHtml(html1);
+  if (extracted && extracted >= 1) {
+    ctx.logger.ok(`${ctx.catPrefixOut} | Total pages (from pagination): ${extracted}`);
+    return extracted;
+  }
+
+  // Fallback to probing if pagination parse fails
   const g = Math.max(2, guess);
   const pg = await probePage(ctx, baseUrl, g, state);
   if (!pg.ok) return await binaryFindLastOk(ctx, baseUrl, 1, g, state);
@@ -202,7 +270,7 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
   const t0 = Date.now();
 
   const guess = Number.isFinite(ctx.cat.discoveryStartPage) ? ctx.cat.discoveryStartPage : config.discoveryGuess;
-  const step = config.discoveryStep;
+  const step = Number.isFinite(ctx.cat.discoveryStep) ? ctx.cat.discoveryStep : config.discoveryStep;
 
   const totalPages = await discoverTotalPagesFast(ctx, ctx.baseUrl, guess, step);
   const scanPages = config.maxPages === null ? totalPages : Math.min(config.maxPages, totalPages);
@@ -214,7 +282,10 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
 
   let donePages = 0;
 
-  const perPageItems = await parallelMapStaggered(pages, config.concurrency, config.staggerMs, async (pageUrl, idx) => {
+  const pageConc = Number.isFinite(ctx.cat.pageConcurrency) ? ctx.cat.pageConcurrency : config.concurrency;
+  const pageStagger = Number.isFinite(ctx.cat.pageStaggerMs) ? ctx.cat.pageStaggerMs : config.staggerMs;
+
+  const perPageItems = await parallelMapStaggered(pages, pageConc, pageStagger, async (pageUrl, idx) => {
     const pnum = idx + 1;
 
     const { text: html, ms, bytes, status, finalUrl } = await ctx.http.fetchTextWithRetry(

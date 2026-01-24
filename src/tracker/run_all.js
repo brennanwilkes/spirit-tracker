@@ -1,7 +1,7 @@
 "use strict";
 
 const { createReport } = require("./report");
-const { parallelMapStaggered } = require("../utils/async");
+const { setTimeout: sleep } = require("timers/promises");
 
 const {
   makeCatPrefixers,
@@ -43,28 +43,54 @@ async function runAllStores(stores, { config, logger, http }) {
     }
   }
 
-  await parallelMapStaggered(
-    workItems,
-    Math.min(config.categoryConcurrency, workItems.length),
-    0,
-    async (w) => {
-      try {
-        await discoverAndScanCategory(w.ctx, w.prevDb, report);
-      } catch (e) {
-        const storeName = w?.ctx?.store?.name || w?.ctx?.store?.host || "unknown-store";
-        const catLabel = w?.ctx?.cat?.label || w?.ctx?.cat?.key || "unknown-category";
+  // Host-level serialization: never run two categories from the same host concurrently.
+  const maxWorkers = Math.min(config.categoryConcurrency, workItems.length);
+  const queue = workItems.slice();
+  const inflightHosts = new Set();
 
-        // Keep it loud in logs, but do not fail the entire run.
-        logger.warn(
-          `Category failed (continuing): ${storeName} | ${catLabel}\n${formatErr(e)}`
-        );
+  async function runOne(w) {
+    try {
+      await discoverAndScanCategory(w.ctx, w.prevDb, report);
+    } catch (e) {
+      const storeName = w?.ctx?.store?.name || w?.ctx?.store?.host || "unknown-store";
+      const catLabel = w?.ctx?.cat?.label || w?.ctx?.cat?.key || "unknown-category";
 
-        // If you want failures surfaced in the final report later, you could also
-        // push a "failed category" record onto report.categories here.
-      }
-      return null;
+      // Keep it loud in logs, but do not fail the entire run.
+      logger.warn(`Category failed (continuing): ${storeName} | ${catLabel}\n${formatErr(e)}`);
     }
-  );
+  }
+
+  async function worker() {
+    while (true) {
+      if (queue.length === 0) return;
+
+      // Pick next item whose host isn't currently running.
+      const idx = queue.findIndex((w) => {
+        const host = String(w?.ctx?.store?.host || w?.ctx?.store?.key || "");
+        return host && !inflightHosts.has(host);
+      });
+
+      if (idx === -1) {
+        // Nothing available right now; wait a bit.
+        await sleep(50);
+        continue;
+      }
+
+      const w = queue.splice(idx, 1)[0];
+      const host = String(w?.ctx?.store?.host || w?.ctx?.store?.key || "");
+
+      inflightHosts.add(host);
+      try {
+        await runOne(w);
+      } finally {
+        inflightHosts.delete(host);
+      }
+    }
+  }
+
+  const workers = [];
+  for (let i = 0; i < maxWorkers; i++) workers.push(worker());
+  await Promise.all(workers);
 
   return report;
 }
