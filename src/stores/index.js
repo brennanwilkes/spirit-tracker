@@ -9,17 +9,19 @@ const { createStore: createCraftCellars } = require("./craftcellars");
 const { createStore: createBCL } = require("./bcl");
 const { createStore: createStrath } = require("./strath");
 const { createStore: createLegacy } = require("./legacyliquor");
+const { createStore: createGull } = require("./gull");
 
 function createStores({ defaultUa } = {}) {
   return [
+    createGull(defaultUa),
     createSierra(defaultUa),
-    createBSW(defaultUa),
     createKWM(defaultUa),
+    createCraftCellars(defaultUa),
+    createStrath(defaultUa),
+    createBSW(defaultUa),
     createKegNCork(defaultUa),
     createMaltsAndGrains(defaultUa),
-    createCraftCellars(defaultUa),
     createBCL(defaultUa),
-    createStrath(defaultUa),
     createLegacy(defaultUa),
   ];
 }
