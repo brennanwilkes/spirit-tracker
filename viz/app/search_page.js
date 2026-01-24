@@ -3,6 +3,7 @@ import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceTo
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
+import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
 
 export function renderSearch($app) {
   $app.innerHTML = `
@@ -387,7 +388,28 @@ export function renderSearch($app) {
     if (!tokens.length) return;
 
     const matches = allAgg.filter((it) => matchesAllTokens(it.searchText, tokens));
-    renderAggregates(matches);
+
+    // If query prefixes an SMWS distillery name, also surface SMWS bottles by code XXX.YYY where XXX matches.
+    const wantCodes = new Set(smwsDistilleryCodesForQueryPrefix($q.value));
+    if (!wantCodes.size) {
+      renderAggregates(matches);
+      return;
+    }
+
+    const seen = new Set(matches.map((it) => String(it?.sku || "")));
+    const extra = [];
+    for (const it of allAgg) {
+      const sku = String(it?.sku || "");
+      if (!sku || seen.has(sku)) continue;
+      const dCode = smwsDistilleryCodeFromName(it?.name || "");
+      if (dCode && wantCodes.has(String(dCode))) {
+        extra.push(it);
+        seen.add(sku);
+      }
+    }
+
+    // Put SMWS distillery matches first, then normal search matches.
+    renderAggregates([...extra, ...matches]);
   }
 
   $results.innerHTML = `<div class="small">Loading index…</div>`;
