@@ -8,6 +8,7 @@ const { createStore: createMaltsAndGrains } = require("./maltsandgrains");
 const { createStore: createCraftCellars } = require("./craftcellars");
 const { createStore: createBCL } = require("./bcl");
 const { createStore: createStrath } = require("./strath");
+const { createStore: createLegacy } = require("./legacyliquor");
 
 function createStores({ defaultUa } = {}) {
   return [
@@ -19,6 +20,7 @@ function createStores({ defaultUa } = {}) {
     createCraftCellars(defaultUa),
     createBCL(defaultUa),
     createStrath(defaultUa),
+    createLegacy(defaultUa),
   ];
 }
 
