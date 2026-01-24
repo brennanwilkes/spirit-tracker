@@ -244,7 +244,6 @@ export function renderSearch($app) {
     return { sku, kind, pctOff, storeCount, isNewUnique, score, tie };
   }
   
-
   function renderRecent(recent, canonicalSkuFn) {
     const items = Array.isArray(recent?.items) ? recent.items : [];
     if (!items.length) {
@@ -254,9 +253,9 @@ export function renderSearch($app) {
 
     const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
 
-    // Filter to last 24 hours
+    // Filter to last 3 days (was 24 hours)
     const nowMs = Date.now();
-    const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
+    const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
 
     function eventMs(r) {
       const t = String(r?.ts || "");
@@ -275,22 +274,62 @@ export function renderSearch($app) {
     });
 
     if (!inWindow.length) {
-      $results.innerHTML = `<div class="small">No changes in the last 24 hours.</div>`;
+      $results.innerHTML = `<div class="small">No changes in the last 3 days.</div>`;
       return;
     }
 
-    const ranked = inWindow
-      .map((r) => ({ r, meta: rankRecent(r, canon) }))
-      .sort((a, b) => {
-        if (b.meta.score !== a.meta.score) return b.meta.score - a.meta.score;
-        if (b.meta.tie !== a.meta.tie) return b.meta.tie - a.meta.tie;
-        return String(a.meta.sku || "").localeCompare(String(b.meta.sku || ""));
-      });
+    // --- DEDUPE: canonical SKU -> (store -> most recent event for that store) ---
+    const bySkuStore = new Map();
+
+    for (const r of inWindow) {
+      const rawSku = String(r?.sku || "").trim();
+      if (!rawSku) continue;
+
+      const sku = String(canon(rawSku) || "").trim();
+      if (!sku) continue;
+
+      const storeLabel = String(r?.storeLabel || r?.store || "Store").trim() || "Store";
+      const ms = eventMs(r);
+
+      let storeMap = bySkuStore.get(sku);
+      if (!storeMap) bySkuStore.set(sku, (storeMap = new Map()));
+
+      const prev = storeMap.get(storeLabel);
+      if (!prev || eventMs(prev) < ms) storeMap.set(storeLabel, r);
+    }
+
+    // --- PICK ONE PER SKU: choose the most "important" among latest-per-store events ---
+    const picked = [];
+    for (const [sku, storeMap] of bySkuStore.entries()) {
+      let best = null;
+
+      for (const r of storeMap.values()) {
+        const meta = rankRecent(r, canon);
+        const ms = eventMs(r);
+
+        if (
+          !best ||
+          meta.score > best.meta.score ||
+          (meta.score === best.meta.score && meta.tie > best.meta.tie) ||
+          (meta.score === best.meta.score && meta.tie === best.meta.tie && ms > best.ms)
+        ) {
+          best = { r, meta, ms };
+        }
+      }
+
+      if (best) picked.push(best);
+    }
+
+    const ranked = picked.sort((a, b) => {
+      if (b.meta.score !== a.meta.score) return b.meta.score - a.meta.score;
+      if (b.meta.tie !== a.meta.tie) return b.meta.tie - a.meta.tie;
+      return String(a.meta.sku || "").localeCompare(String(b.meta.sku || ""));
+    });
 
     const limited = ranked.slice(0, 140);
 
     $results.innerHTML =
-      `<div class="small">Recently changed (last 24 hours):</div>` +
+      `<div class="small">Recently changed (last 3 days):</div>` +
       limited
         .map(({ r, meta }) => {
           const kindLabel =
@@ -315,11 +354,10 @@ export function renderSearch($app) {
 
           const when = r.ts ? prettyTs(r.ts) : r.date || "";
 
-          const sku = meta.sku;
+          const sku = meta.sku; // canonical SKU
           const agg = aggBySku.get(sku) || null;
           const img = agg?.img || "";
 
-          // show "+N" if the canonical SKU exists in other stores (via SKU mapping)
           const storeCount = agg?.stores?.size || 0;
           const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 
@@ -328,9 +366,9 @@ export function renderSearch($app) {
             ? `<a class="badge" href="${esc(
                 href
               )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-                (r.storeLabel || "") + plus
+                (r.storeLabel || r.store || "") + plus
               )}</a>`
-            : `<span class="badge">${esc((r.storeLabel || "") + plus)}</span>`;
+            : `<span class="badge">${esc((r.storeLabel || r.store || "") + plus)}</span>`;
 
           const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
 
@@ -380,6 +418,7 @@ export function renderSearch($app) {
       });
     }
   }
+
 
   function applySearch() {
     if (!indexReady) return;
