@@ -369,31 +369,27 @@ export async function renderItem($app, skuInput) {
         return ta - tb;
       });
 
-    // Group per day: keep first+last commit for that day (so add+remove same day still yields a dot)
-    const byDay = new Map();
+    // Group commits by day (keep ALL commits per day; needed for add+remove same day)
+    const byDay = new Map(); // date -> commits[]
     for (const c of commits) {
-      const d = String(c.date || "");
+      const d = String(c?.date || "");
       if (!d) continue;
-
-      const t = Date.parse(String(c.ts || "")) || Date.parse(d + "T00:00:00Z") || 0;
-
-      let e = byDay.get(d);
-      if (!e) {
-        e = { date: d, first: c, last: c, firstT: t, lastT: t };
-        byDay.set(d, e);
-      } else {
-        if (t < e.firstT) {
-          e.first = c;
-          e.firstT = t;
-        }
-        if (t > e.lastT) {
-          e.last = c;
-          e.lastT = t;
-        }
-      }
+      let arr = byDay.get(d);
+      if (!arr) byDay.set(d, (arr = []));
+      arr.push(c);
     }
 
-    let dayEntries = Array.from(byDay.values()).sort((a, b) => (a.date < b.date ? -1 : 1));
+    // Sort commits within each day by time
+    function commitMs(c) {
+      const d = String(c?.date || "");
+      const t = Date.parse(String(c?.ts || ""));
+      if (Number.isFinite(t)) return t;
+      return d ? Date.parse(d + "T00:00:00Z") || 0 : 0;
+    }
+
+    let dayEntries = Array.from(byDay.entries())
+      .map(([date, arr]) => ({ date, commits: arr.slice().sort((a, b) => commitMs(a) - commitMs(b)) }))
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
 
     const points = new Map();
     const values = [];
@@ -417,9 +413,12 @@ export async function renderItem($app, skuInput) {
 
     for (const day of dayEntries) {
       const d = String(day.date || "");
-      const firstSha = String(day.first?.sha || "");
-      const lastSha = String(day.last?.sha || "");
-      if (!d || !lastSha) continue;
+      const dayCommits = Array.isArray(day.commits) ? day.commits : [];
+      if (!d || !dayCommits.length) continue;
+
+      const last = dayCommits[dayCommits.length - 1];
+      const lastSha = String(last?.sha || "");
+      if (!lastSha) continue;
 
       let objLast;
       try {
@@ -432,34 +431,40 @@ export async function renderItem($app, skuInput) {
       const lastLive = lastMin.liveMin;
       const lastRemoved = lastMin.removedMin;
 
-      // "removed state" at end of day: no live price but removed price exists
-      const isRemovedDayState = lastLive === null && lastRemoved !== null;
+      // end-of-day removed state: no live but removed exists
+      const endIsRemoved = lastLive === null && lastRemoved !== null;
 
-      // If removed at end-of-day, try to find a live price earlier the same day
-      let sameDayLive = null;
-      if (isRemovedDayState && firstSha && firstSha !== lastSha) {
-        try {
-          const objFirst = await loadAtSha(firstSha);
-          const firstMin = findMinPricesForSkuGroupInDb(objFirst, skuKeys, storeLabel);
-          if (firstMin.liveMin !== null) sameDayLive = firstMin.liveMin;
-        } catch {}
+      // If end-of-day is removed, find the LAST live price earlier the same day
+      let sameDayLastLive = null;
+      if (endIsRemoved && dayCommits.length > 1) {
+        for (let i = dayCommits.length - 2; i >= 0; i--) {
+          const sha = String(dayCommits[i]?.sha || "");
+          if (!sha) continue;
+          try {
+            const obj = await loadAtSha(sha);
+            const m = findMinPricesForSkuGroupInDb(obj, skuKeys, storeLabel);
+            if (m.liveMin !== null) {
+              sameDayLastLive = m.liveMin;
+              break;
+            }
+          } catch {}
+        }
       }
 
       let v = null;
 
       if (lastLive !== null) {
-        // live exists at end of day
+        // live at end-of-day
         v = lastLive;
         removedStreak = false;
         prevLive = lastLive;
-      } else if (isRemovedDayState) {
-        // show a dot ONLY on the first day it becomes removed
+      } else if (endIsRemoved) {
+        // first removed day => show dot (prefer removed price; else last live earlier that day; else prev live)
         if (!removedStreak) {
-          // Prefer removed snapshot price (price at removal time), else earlier same-day live, else last known live
-          v = lastRemoved !== null ? lastRemoved : sameDayLive !== null ? sameDayLive : prevLive;
+          v = lastRemoved !== null ? lastRemoved : sameDayLastLive !== null ? sameDayLastLive : prevLive;
           removedStreak = true;
         } else {
-          v = null; // days after removal: no dot
+          v = null; // days AFTER removal: no dot
         }
       } else {
         v = null;
@@ -537,8 +542,8 @@ export async function renderItem($app, skuInput) {
   $status.textContent = manifest
     ? isRemovedEverywhere
       ? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
-      : `History loaded from prebuilt manifest (1+ commit/day) + current run. Points=${labels.length}.`
+      : `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${labels.length}.`
     : isRemovedEverywhere
     ? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
-    : `History loaded (GitHub API fallback; 1+ commit/day) + current run. Points=${labels.length}.`;
+    : `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`;
 }
