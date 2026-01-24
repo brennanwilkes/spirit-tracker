@@ -17,9 +17,11 @@ export function destroyChart() {
 
 /* ---------------- History helpers ---------------- */
 
-function findMinPriceForSkuGroupInDb(obj, skuKeys, storeLabel) {
+// Returns BOTH mins, so we can show a dot on removal day using removed price.
+function findMinPricesForSkuGroupInDb(obj, skuKeys, storeLabel) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
-  let best = null;
+  let liveMin = null;
+  let removedMin = null;
 
   // Build quick lookup for real sku entries (cheap)
   const want = new Set();
@@ -29,39 +31,44 @@ function findMinPriceForSkuGroupInDb(obj, skuKeys, storeLabel) {
   }
 
   for (const it of items) {
-    if (!it || it.removed) continue;
+    if (!it) continue;
+
+    const isRemoved = Boolean(it.removed);
+
+    const consider = (priceVal) => {
+      const p = parsePriceToNumber(priceVal);
+      if (p === null) return;
+      if (!isRemoved) liveMin = liveMin === null ? p : Math.min(liveMin, p);
+      else removedMin = removedMin === null ? p : Math.min(removedMin, p);
+    };
 
     const real = String(it.sku || "").trim();
     if (real && want.has(real)) {
-      const p = parsePriceToNumber(it.price);
-      if (p !== null) best = best === null ? p : Math.min(best, p);
+      consider(it.price);
       continue;
     }
 
     // synthetic match (only relevant if a caller passes u: keys)
     if (!real) {
-      // if any skuKey is synthetic, match by hashing storeLabel|url
       for (const skuKey of skuKeys) {
         const k = String(skuKey || "");
         if (!k.startsWith("u:")) continue;
         const row = { sku: "", url: String(it.url || ""), storeLabel: storeLabel || "", store: "" };
         const kk = keySkuForRow(row);
-        if (kk === k) {
-          const p = parsePriceToNumber(it.price);
-          if (p !== null) best = best === null ? p : Math.min(best, p);
-        }
+        if (kk === k) consider(it.price);
       }
     }
   }
 
-  return best;
+  return { liveMin, removedMin };
 }
 
 function computeSuggestedY(values) {
   const nums = values.filter((v) => Number.isFinite(v));
   if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
-  let min = nums[0], max = nums[0];
+  let min = nums[0],
+    max = nums[0];
   for (const n of nums) {
     if (n < min) min = n;
     if (n > max) max = n;
@@ -70,18 +77,6 @@ function computeSuggestedY(values) {
 
   const pad = (max - min) * 0.08;
   return { suggestedMin: Math.max(0, min - pad), suggestedMax: max + pad };
-}
-
-// Collapse commit list down to 1 commit per day (keep most recent commit for that day)
-function collapseCommitsToDaily(commits) {
-  const byDate = new Map();
-  for (const c of commits) {
-    const d = String(c?.date || "");
-    const sha = String(c?.sha || "");
-    if (!d || !sha) continue;
-    byDate.set(d, { sha, date: d, ts: String(c?.ts || "") });
-  }
-  return [...byDate.values()];
 }
 
 function cacheKeySeries(sku, dbFile, cacheBust) {
@@ -169,8 +164,7 @@ export async function renderItem($app, skuInput) {
   // include toSku + all fromSkus mapped to it
   const skuGroup = rules.groupForCanonical(sku);
 
-  // IMPORTANT CHANGE:
-  // index.json now includes removed rows too. Split live vs all.
+  // index.json includes removed rows too. Split live vs all.
   const allRows = all.filter((x) => skuGroup.has(String(keySkuForRow(x) || "")));
   const liveRows = allRows.filter((x) => !Boolean(x?.removed));
 
@@ -239,34 +233,54 @@ export async function renderItem($app, skuInput) {
   $thumbBox.innerHTML = bestImg ? renderThumbHtml(bestImg, "detailThumb") : `<div class="thumbPlaceholder"></div>`;
 
   // Render store links:
-  // - LIVE stores first (normal)
-  // - then removed-history stores with a "(removed)" suffix
-  const seenLinks = new Set();
-  const linkRows = allRows
-    .slice()
-    .sort((a, b) => {
-      const ar = Boolean(a?.removed) ? 1 : 0;
-      const br = Boolean(b?.removed) ? 1 : 0;
+  // - one link per store label (even if URL differs)
+  // - pick most recent row for that store
+  function rowMs(r) {
+    const t = String(r?.ts || "");
+    const ms = t ? Date.parse(t) : NaN;
+    if (Number.isFinite(ms)) return ms;
+
+    const d = String(r?.date || "");
+    const ms2 = d ? Date.parse(d + "T23:59:59Z") : NaN;
+    return Number.isFinite(ms2) ? ms2 : 0;
+  }
+
+  const bestByStore = new Map(); // storeLabel -> row
+  for (const r of allRows) {
+    const href = String(r?.url || "").trim();
+    if (!href) continue;
+
+    const store = String(r?.storeLabel || r?.store || "Store").trim() || "Store";
+    const prev = bestByStore.get(store);
+
+    if (!prev) {
+      bestByStore.set(store, r);
+      continue;
+    }
+
+    const a = rowMs(prev);
+    const b = rowMs(r);
+    if (b > a) bestByStore.set(store, r);
+    else if (b === a) {
+      // tie-break: prefer live over removed
+      if (Boolean(prev?.removed) && !Boolean(r?.removed)) bestByStore.set(store, r);
+    }
+  }
+
+  const linkRows = Array.from(bestByStore.entries())
+    .map(([store, r]) => ({ store, r }))
+    .sort((A, B) => {
+      const ar = Boolean(A.r?.removed) ? 1 : 0;
+      const br = Boolean(B.r?.removed) ? 1 : 0;
       if (ar !== br) return ar - br; // live first
-      return String(a.storeLabel || "").localeCompare(String(b.storeLabel || ""));
-    })
-    .filter((r) => {
-      const href = String(r?.url || "").trim();
-      const text = String(r?.storeLabel || r?.store || "Store").trim();
-      if (!href) return false;
-      const suffix = Boolean(r?.removed) ? " (removed)" : "";
-      const key = `${href}|${text}${suffix}`;
-      if (seenLinks.has(key)) return false;
-      seenLinks.add(key);
-      return true;
+      return A.store.localeCompare(B.store);
     });
 
   $links.innerHTML = linkRows
-    .map((r) => {
+    .map(({ store, r }) => {
       const href = String(r.url || "").trim();
-      const text = String(r.storeLabel || r.store || "Store").trim();
       const suffix = Boolean(r?.removed) ? " (removed)" : "";
-      return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(text + suffix)}</a>`;
+      return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
     })
     .join("");
 
@@ -303,7 +317,6 @@ export async function renderItem($app, skuInput) {
     const rowsAll = byDbFileAll.get(dbFile) || [];
 
     // Determine current LIVE rows for this dbFile:
-    // (we don't want to add a "today" point if the listing is removed in this store now)
     const rowsLive = rowsAll.filter((r) => !Boolean(r?.removed));
 
     const storeLabel = String(rowsAll[0]?.storeLabel || rowsAll[0]?.store || dbFile);
@@ -344,38 +357,118 @@ export async function renderItem($app, skuInput) {
       }
     }
 
-    commits = collapseCommitsToDaily(commits);
+    // Ensure chronological
+    commits = commits
+      .slice()
+      .filter((c) => c && c.date && c.sha)
+      .sort((a, b) => {
+        const da = String(a.date || "");
+        const db = String(b.date || "");
+        const ta = Date.parse(String(a.ts || "")) || (da ? Date.parse(da + "T00:00:00Z") : 0) || 0;
+        const tb = Date.parse(String(b.ts || "")) || (db ? Date.parse(db + "T00:00:00Z") : 0) || 0;
+        return ta - tb;
+      });
+
+    // Group per day: keep first+last commit for that day (so add+remove same day still yields a dot)
+    const byDay = new Map();
+    for (const c of commits) {
+      const d = String(c.date || "");
+      if (!d) continue;
+
+      const t = Date.parse(String(c.ts || "")) || Date.parse(d + "T00:00:00Z") || 0;
+
+      let e = byDay.get(d);
+      if (!e) {
+        e = { date: d, first: c, last: c, firstT: t, lastT: t };
+        byDay.set(d, e);
+      } else {
+        if (t < e.firstT) {
+          e.first = c;
+          e.firstT = t;
+        }
+        if (t > e.lastT) {
+          e.last = c;
+          e.lastT = t;
+        }
+      }
+    }
+
+    let dayEntries = Array.from(byDay.values()).sort((a, b) => (a.date < b.date ? -1 : 1));
 
     const points = new Map();
     const values = [];
     const compactPoints = [];
 
     const MAX_POINTS = 260;
-    if (commits.length > MAX_POINTS) commits = commits.slice(commits.length - MAX_POINTS);
+    if (dayEntries.length > MAX_POINTS) dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
 
-    for (const c of commits) {
-      const sha = String(c.sha || "");
-      const d = String(c.date || "");
-      if (!sha || !d) continue;
+    let removedStreak = false;
+    let prevLive = null;
 
+    async function loadAtSha(sha) {
       const ck = `${sha}|${dbFile}`;
       let obj = fileJsonCache.get(ck) || null;
       if (!obj) {
-        try {
-          obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
-          fileJsonCache.set(ck, obj);
-        } catch {
-          continue;
-        }
+        obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
+        fileJsonCache.set(ck, obj);
+      }
+      return obj;
+    }
+
+    for (const day of dayEntries) {
+      const d = String(day.date || "");
+      const firstSha = String(day.first?.sha || "");
+      const lastSha = String(day.last?.sha || "");
+      if (!d || !lastSha) continue;
+
+      let objLast;
+      try {
+        objLast = await loadAtSha(lastSha);
+      } catch {
+        continue;
       }
 
-      // findMinPriceForSkuGroupInDb already ignores removed rows inside each DB snapshot.
-      const pNum = findMinPriceForSkuGroupInDb(obj, skuKeys, storeLabel);
+      const lastMin = findMinPricesForSkuGroupInDb(objLast, skuKeys, storeLabel);
+      const lastLive = lastMin.liveMin;
+      const lastRemoved = lastMin.removedMin;
 
-      points.set(d, pNum);
-      if (pNum !== null) values.push(pNum);
+      // "removed state" at end of day: no live price but removed price exists
+      const isRemovedDayState = lastLive === null && lastRemoved !== null;
+
+      // If removed at end-of-day, try to find a live price earlier the same day
+      let sameDayLive = null;
+      if (isRemovedDayState && firstSha && firstSha !== lastSha) {
+        try {
+          const objFirst = await loadAtSha(firstSha);
+          const firstMin = findMinPricesForSkuGroupInDb(objFirst, skuKeys, storeLabel);
+          if (firstMin.liveMin !== null) sameDayLive = firstMin.liveMin;
+        } catch {}
+      }
+
+      let v = null;
+
+      if (lastLive !== null) {
+        // live exists at end of day
+        v = lastLive;
+        removedStreak = false;
+        prevLive = lastLive;
+      } else if (isRemovedDayState) {
+        // show a dot ONLY on the first day it becomes removed
+        if (!removedStreak) {
+          // Prefer removed snapshot price (price at removal time), else earlier same-day live, else last known live
+          v = lastRemoved !== null ? lastRemoved : sameDayLive !== null ? sameDayLive : prevLive;
+          removedStreak = true;
+        } else {
+          v = null; // days after removal: no dot
+        }
+      } else {
+        v = null;
+      }
+
+      points.set(d, v);
+      if (v !== null) values.push(v);
       allDatesSet.add(d);
-      compactPoints.push({ date: d, price: pNum });
+      compactPoints.push({ date: d, price: v });
     }
 
     // Add "today" point ONLY if listing currently exists in this store/dbFile (live rows present)
@@ -442,10 +535,10 @@ export async function renderItem($app, skuInput) {
   });
 
   $status.textContent = manifest
-    ? (isRemovedEverywhere
-        ? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
-        : `History loaded from prebuilt manifest (1 point/day) + current run. Points=${labels.length}.`)
-    : (isRemovedEverywhere
-        ? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
-        : `History loaded (GitHub API fallback; 1 point/day) + current run. Points=${labels.length}.`);
+    ? isRemovedEverywhere
+      ? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
+      : `History loaded from prebuilt manifest (1+ commit/day) + current run. Points=${labels.length}.`
+    : isRemovedEverywhere
+    ? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
+    : `History loaded (GitHub API fallback; 1+ commit/day) + current run. Points=${labels.length}.`;
 }
