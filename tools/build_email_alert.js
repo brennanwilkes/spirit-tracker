@@ -11,6 +11,10 @@
       B) this store is currently the cheapest for that canonical SKU (ties allowed)
   - If nothing matches, do not send email.
 
+  NEW CHANGE (2026-01):
+  - If a store/category DB file is completely new in this commit (file did not exist in previous commit),
+    then ALL of its "new" rows are ignored for the email alert (but still appear in report text elsewhere).
+
   Outputs:
     reports/alert.html
     reports/alert_subject.txt
@@ -38,6 +42,18 @@ function gitShowJson(sha, filePath) {
     return JSON.parse(txt);
   } catch {
     return null;
+  }
+}
+
+function gitFileExistsAtSha(sha, filePath) {
+  if (!sha) return false;
+  try {
+    execFileSync("git", ["cat-file", "-e", `${sha}:${filePath}`], {
+      stdio: ["ignore", "ignore", "ignore"],
+    });
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -121,7 +137,6 @@ function listDbFilesOnDisk() {
 // We reuse your existing canonical SKU mapping logic.
 function loadSkuMapOrNull() {
   try {
-    // exists on data branch because you merge main -> data before committing runs
     // eslint-disable-next-line node/no-missing-require
     const { loadSkuMap } = require(path.join(process.cwd(), "src", "utils", "sku_map"));
     return loadSkuMap({ dbDir: path.join(process.cwd(), "data", "db") });
@@ -137,7 +152,6 @@ function normalizeSkuKeyOrEmpty({ skuRaw, storeLabel, url }) {
     const k = normalizeSkuKey(skuRaw, { storeLabel, url });
     return k ? String(k) : "";
   } catch {
-    // fallback: use 6-digit SKU if present; else url hash-ish (still stable enough for 1 run)
     const m = String(skuRaw ?? "").match(/\b(\d{6})\b/);
     if (m) return m[1];
     if (url) return `u:${normToken(storeLabel)}:${normToken(url)}`;
@@ -196,12 +210,12 @@ function diffDb(prevObj, nextObj, skuMap) {
       newItems.push(now);
       continue;
     }
-    // restored not used for now (you didn’t request it)
   }
 
   for (const [canon, now] of nextLive.entries()) {
     const was = prevLive.get(canon);
     if (!was) continue;
+
     const a = String(was.price || "");
     const b = String(now.price || "");
     if (a === b) continue;
@@ -238,14 +252,11 @@ function buildCurrentIndexes(skuMap) {
     if (!byStoreCanon.has(storeLabel)) byStoreCanon.set(storeLabel, new Map());
 
     for (const it of live.values()) {
-      // availability
       if (!availability.has(it.canonSku)) availability.set(it.canonSku, new Set());
       availability.get(it.canonSku).add(storeLabel);
 
-      // per-store lookup
       byStoreCanon.get(storeLabel).set(it.canonSku, it);
 
-      // cheapest
       const p = priceToNumber(it.price);
       if (p === null) continue;
 
@@ -282,7 +293,9 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
   }
 
   function card(it, extraHtml) {
-    const img = it.img ? `<img src="${htmlEscape(it.img)}" width="84" height="84" style="object-fit:contain;border-radius:8px;border:1px solid #eee;background:#fff" />` : "";
+    const img = it.img
+      ? `<img src="${htmlEscape(it.img)}" width="84" height="84" style="object-fit:contain;border-radius:8px;border:1px solid #eee;background:#fff" />`
+      : "";
     const name = htmlEscape(it.name || "");
     const store = htmlEscape(it.storeLabel || "");
     const cat = htmlEscape(it.categoryLabel || "");
@@ -355,9 +368,7 @@ function writeGithubOutput(kv) {
   const outPath = process.env.GITHUB_OUTPUT;
   if (!outPath) return;
   const lines = [];
-  for (const [k, v] of Object.entries(kv)) {
-    lines.push(`${k}=${String(v)}`);
-  }
+  for (const [k, v] of Object.entries(kv)) lines.push(`${k}=${String(v)}`);
   fs.appendFileSync(outPath, lines.join("\n") + "\n", "utf8");
 }
 
@@ -383,34 +394,36 @@ function main() {
     return;
   }
 
-  // Current-state indexes (across ALL stores) from disk
   const { availability, cheapest, byStoreCanon } = buildCurrentIndexes(skuMap);
 
   const uniqueNews = [];
   const bigSales = [];
 
   for (const file of changed) {
+    const existedBefore = gitFileExistsAtSha(parentSha, file);
+    const existsNow = gitFileExistsAtSha(headSha, file);
+
+    // NEW FEATURE: if this DB file is brand new, ignore its "new items" for alert.
+    if (!existedBefore && existsNow) {
+      continue;
+    }
+
     const prevObj = gitShowJson(parentSha, file);
     const nextObj = gitShowJson(headSha, file);
     if (!prevObj && !nextObj) continue;
 
     const { newItems, priceDown } = diffDb(prevObj, nextObj, skuMap);
 
-    // New unique listings (canon sku available at exactly 1 store)
     for (const it of newItems) {
       const stores = availability.get(it.canonSku);
       const storeCount = stores ? stores.size : 0;
       if (storeCount !== 1) continue;
-
-      // ensure the only store is this one
       if (!stores.has(it.storeLabel)) continue;
 
-      // refresh with current item to get img if present now
       const cur = (byStoreCanon.get(it.storeLabel) || new Map()).get(it.canonSku) || it;
       uniqueNews.push(cur);
     }
 
-    // Sales: >=20% and cheapest store currently (ties allowed)
     for (const it of priceDown) {
       const pct = it.pct;
       if (!Number.isFinite(pct) || pct < 20) continue;
@@ -421,11 +434,9 @@ function main() {
       const newN = priceToNumber(it.newPrice);
       if (newN === null) continue;
 
-      // must be at cheapest price, and this store among cheapest stores
       if (best.priceNum !== newN) continue;
       if (!best.stores.has(it.storeLabel)) continue;
 
-      // refresh with current item for img/name/category if needed
       const cur = (byStoreCanon.get(it.storeLabel) || new Map()).get(it.canonSku) || it;
 
       bigSales.push({
@@ -437,7 +448,6 @@ function main() {
     }
   }
 
-  // de-dupe by (canonSku, storeLabel)
   function dedupe(arr) {
     const out = [];
     const seen = new Set();

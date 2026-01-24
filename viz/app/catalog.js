@@ -14,6 +14,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
     const name = String(r?.name || "");
     const url = String(r?.url || "");
     const storeLabel = String(r?.storeLabel || r?.store || "");
+    const removed = Boolean(r?.removed);
 
     const img = normImg(r?.img || r?.image || r?.thumb || "");
 
@@ -29,18 +30,22 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
         cheapestPriceStr: pStr || "",
         cheapestPriceNum: pNum,
         cheapestStoreLabel: storeLabel || "",
-        stores: new Set(),
+        stores: new Set(), // LIVE stores only
+        storesEver: new Set(), // live + removed presence (history)
         sampleUrl: url || "",
         _searchParts: [],
         searchText: "",
 
-        _imgByName: new Map(), // name -> img
+        _imgByName: new Map(),
         _imgAny: "",
       };
       bySku.set(sku, agg);
     }
 
-    if (storeLabel) agg.stores.add(storeLabel);
+    if (storeLabel) {
+      agg.storesEver.add(storeLabel);
+      if (!removed) agg.stores.add(storeLabel);
+    }
     if (!agg.sampleUrl && url) agg.sampleUrl = url;
 
     // Keep first non-empty name, but keep thumbnail aligned to chosen name
@@ -56,8 +61,8 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
       if (name) agg._imgByName.set(name, img);
     }
 
-    // cheapest (across all merged rows)
-    if (pNum !== null) {
+    // cheapest across LIVE rows only (so removed history doesn't "win")
+    if (!removed && pNum !== null) {
       if (agg.cheapestPriceNum === null || pNum < agg.cheapestPriceNum) {
         agg.cheapestPriceNum = pNum;
         agg.cheapestPriceStr = pStr || "";
@@ -71,6 +76,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
     if (name) agg._searchParts.push(name);
     if (url) agg._searchParts.push(url);
     if (storeLabel) agg._searchParts.push(storeLabel);
+    if (removed) agg._searchParts.push("removed");
   }
 
   const out = [...bySku.values()];
@@ -85,11 +91,14 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
     delete it._imgByName;
     delete it._imgAny;
 
+    it.storeCount = it.stores.size;
+    it.storeCountEver = it.storesEver.size;
+    it.removedEverywhere = it.storeCount === 0;
+
     it._searchParts.push(it.sku);
     it._searchParts.push(it.name || "");
     it._searchParts.push(it.sampleUrl || "");
     it._searchParts.push(it.cheapestStoreLabel || "");
-
     it.searchText = normSearchText(it._searchParts.join(" | "));
     delete it._searchParts;
   }
