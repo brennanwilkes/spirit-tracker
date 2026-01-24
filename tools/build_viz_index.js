@@ -39,6 +39,7 @@ function main() {
   ensureDir(outDir);
 
   const items = [];
+  let liveCount = 0;
 
   for (const file of listJsonFiles(dbDir)) {
     const obj = readJson(file);
@@ -53,11 +54,14 @@ function main() {
 
     const dbFile = path
       .relative(repoRoot, file)
-      .replace(/\\/g, "/"); // for GitHub raw paths on Windows too
+      .replace(/\\/g, "/");
 
     const arr = Array.isArray(obj.items) ? obj.items : [];
     for (const it of arr) {
-      if (!it || it.removed) continue;
+      if (!it) continue;
+
+      const removed = Boolean(it.removed);
+      if (!removed) liveCount++;
 
       const sku = String(it.sku || "").trim();
       const name = String(it.name || "").trim();
@@ -71,6 +75,7 @@ function main() {
         price,
         url,
         img,
+        removed, // NEW (additive): allows viz to show history / removed-only items
         store,
         storeLabel,
         category,
@@ -83,14 +88,17 @@ function main() {
   }
 
   items.sort((a, b) => {
-    const ak = `${a.sku}|${a.storeLabel}|${a.name}|${a.url}`;
-    const bk = `${b.sku}|${b.storeLabel}|${b.name}|${b.url}`;
+    const ak = `${a.sku}|${a.storeLabel}|${a.removed ? 1 : 0}|${a.name}|${a.url}`;
+    const bk = `${b.sku}|${b.storeLabel}|${b.removed ? 1 : 0}|${b.name}|${b.url}`;
     return ak.localeCompare(bk);
   });
 
   const outObj = {
     generatedAt: new Date().toISOString(),
+    // Additive metadata. Old readers can ignore.
+    includesRemoved: true,
     count: items.length,
+    countLive: liveCount,
     items,
   };
 

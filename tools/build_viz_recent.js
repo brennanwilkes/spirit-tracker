@@ -21,6 +21,17 @@ function gitShowJson(sha, filePath) {
   }
 }
 
+function gitFileExistsAtSha(sha, filePath) {
+  if (!sha) return false;
+  try {
+    execFileSync("git", ["cat-file", "-e", `${sha}:${filePath}`], {
+      stdio: ["ignore", "ignore", "ignore"],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function gitListTreeFiles(sha, dirRel) {
   try {
@@ -84,14 +95,13 @@ function keySkuForItem(it, storeLabel) {
 function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
   const m = new Map();
   const items = Array.isArray(obj?.items) ? obj.items : [];
-
   const storeLabel = String(obj?.storeLabel || obj?.store || "");
 
   for (const it of items) {
     if (!it) continue;
 
     const sku = keySkuForItem(it, storeLabel);
-    if (!sku) continue; // still skip truly keyless rows (no sku + no url)
+    if (!sku) continue;
 
     const removed = Boolean(it.removed);
     if (!includeRemoved && removed) continue;
@@ -119,7 +129,6 @@ function diffDb(prevObj, nextObj) {
   const removedItems = [];
   const priceChanges = [];
 
-  // NEW + RESTORED
   for (const [sku, now] of nextLive.entries()) {
     const had = prevAll.get(sku);
     if (!had) {
@@ -132,7 +141,6 @@ function diffDb(prevObj, nextObj) {
     }
   }
 
-  // REMOVED
   for (const [sku, was] of prevLive.entries()) {
     const nxt = nextAll.get(sku);
     if (!nxt || nxt.removed) {
@@ -140,7 +148,6 @@ function diffDb(prevObj, nextObj) {
     }
   }
 
-  // PRICE CHANGES
   for (const [sku, now] of nextLive.entries()) {
     const was = prevLive.get(sku);
     if (!was) continue;
@@ -184,7 +191,6 @@ function firstParentSha(sha) {
   try {
     const out = runGit(["rev-list", "--parents", "-n", "1", sha]);
     const parts = out.split(/\s+/).filter(Boolean);
-    // parts[0] is sha, parts[1] is first parent (if any)
     return parts.length >= 2 ? parts[1] : "";
   } catch {
     return "";
@@ -192,13 +198,11 @@ function firstParentSha(sha) {
 }
 
 function listChangedDbFiles(fromSha, toSha) {
-  // toSha can be "WORKTREE"
   if (!fromSha && toSha && toSha !== "WORKTREE") {
     return gitListTreeFiles(toSha, "data/db");
   }
 
   if (!fromSha && toSha === "WORKTREE") {
-    // Fall back: list files on disk
     try {
       return fs
         .readdirSync(path.join(process.cwd(), "data", "db"), { withFileTypes: true })
@@ -234,7 +238,6 @@ function logDbCommitsSince(sinceIso) {
       const d = dateOnly(ts);
       arr.push({ sha, ts, date: d });
     }
-    // newest -> oldest from git; convert to oldest -> newest
     arr.reverse();
     return arr;
   } catch {
@@ -258,13 +261,8 @@ function main() {
   const headSha = getHeadShaOrEmpty();
   const items = [];
 
-  // Collect committed runs in the last N days (touching data/db)
   const commits = headSha ? logDbCommitsSince(sinceIso) : [];
 
-  // Build diff pairs:
-  //   parent(of first in window) -> first
-  //   then each consecutive commit -> next
-  //   then HEAD -> WORKTREE (so this run shows up before the commit exists)
   const pairs = [];
 
   if (commits.length) {
@@ -319,14 +317,24 @@ function main() {
 
       if (!prevObj && !nextObj) continue;
 
-      const storeLabel = String(
-        nextObj?.storeLabel || nextObj?.store || prevObj?.storeLabel || prevObj?.store || ""
-      );
-      const categoryLabel = String(
-        nextObj?.categoryLabel || nextObj?.category || prevObj?.categoryLabel || prevObj?.category || ""
-      );
+      const storeLabel = String(nextObj?.storeLabel || nextObj?.store || prevObj?.storeLabel || prevObj?.store || "");
+      const categoryLabel = String(nextObj?.categoryLabel || nextObj?.category || prevObj?.categoryLabel || prevObj?.category || "");
 
-      const { newItems, restoredItems, removedItems, priceChanges } = diffDb(prevObj, nextObj);
+      // NEW FEATURE:
+      // If this DB file did not exist at fromSha, then treat it as a "new store/category file"
+      // and DO NOT emit its "new"/"restored" items into recent.json (frontpage).
+      // (Report text is unaffected elsewhere.)
+      const isNewStoreFile =
+        Boolean(fromSha) &&
+        !gitFileExistsAtSha(fromSha, file) &&
+        (toSha === "WORKTREE" ? fs.existsSync(path.join(repoRoot, file)) : gitFileExistsAtSha(toSha, file));
+
+      let { newItems, restoredItems, removedItems, priceChanges } = diffDb(prevObj, nextObj);
+
+      if (isNewStoreFile) {
+        newItems = [];
+        restoredItems = [];
+      }
 
       for (const it of newItems) {
         items.push({
@@ -399,10 +407,8 @@ function main() {
     }
   }
 
-  // Newest first
   items.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
 
-  // Keep file size under control (but still allows multiple runs/day over the window)
   const trimmed = items.slice(0, maxItems);
 
   const payload = {

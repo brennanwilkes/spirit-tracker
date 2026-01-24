@@ -169,24 +169,31 @@ export async function renderItem($app, skuInput) {
   // include toSku + all fromSkus mapped to it
   const skuGroup = rules.groupForCanonical(sku);
 
-  const cur = all.filter((x) => skuGroup.has(String(keySkuForRow(x) || "")));
+  // IMPORTANT CHANGE:
+  // index.json now includes removed rows too. Split live vs all.
+  const allRows = all.filter((x) => skuGroup.has(String(keySkuForRow(x) || "")));
+  const liveRows = allRows.filter((x) => !Boolean(x?.removed));
 
-  if (!cur.length) {
-    $title.textContent = "Item not found in current index";
-    $status.textContent = "Tip: index.json only includes current (non-removed) items.";
+  if (!allRows.length) {
+    $title.textContent = "Item not found";
+    $status.textContent = "No matching SKU in index.";
     if ($thumbBox) $thumbBox.innerHTML = `<div class="thumbPlaceholder"></div>`;
     return;
   }
 
-  // pick bestName by most common across merged rows
+  const isRemovedEverywhere = liveRows.length === 0;
+
+  // pick bestName by most common across LIVE rows (fallback to allRows)
+  const basisForName = liveRows.length ? liveRows : allRows;
+
   const nameCounts = new Map();
-  for (const r of cur) {
+  for (const r of basisForName) {
     const n = String(r.name || "");
     if (!n) continue;
     nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
   }
 
-  let bestName = cur[0].name || `(SKU ${sku})`;
+  let bestName = basisForName[0].name || `(SKU ${sku})`;
   let bestCount = -1;
   for (const [n, c] of nameCounts.entries()) {
     if (c > bestCount) {
@@ -196,11 +203,13 @@ export async function renderItem($app, skuInput) {
   }
   $title.textContent = bestName;
 
-  // choose thumbnail from cheapest listing across merged rows (fallback: first that matches name)
+  // choose thumbnail from cheapest LIVE listing (fallback: any matching name; fallback: any)
   let bestImg = "";
   let bestPrice = null;
 
-  for (const r of cur) {
+  const basisForThumb = liveRows.length ? liveRows : allRows;
+
+  for (const r of basisForThumb) {
     const p = parsePriceToNumber(r.price);
     const img = String(r?.img || "").trim();
     if (p !== null && img) {
@@ -211,7 +220,7 @@ export async function renderItem($app, skuInput) {
     }
   }
   if (!bestImg) {
-    for (const r of cur) {
+    for (const r of basisForThumb) {
       if (String(r?.name || "") === String(bestName || "") && String(r?.img || "").trim()) {
         bestImg = String(r.img).trim();
         break;
@@ -219,7 +228,7 @@ export async function renderItem($app, skuInput) {
     }
   }
   if (!bestImg) {
-    for (const r of cur) {
+    for (const r of basisForThumb) {
       if (String(r?.img || "").trim()) {
         bestImg = String(r.img).trim();
         break;
@@ -229,28 +238,35 @@ export async function renderItem($app, skuInput) {
 
   $thumbBox.innerHTML = bestImg ? renderThumbHtml(bestImg, "detailThumb") : `<div class="thumbPlaceholder"></div>`;
 
-  // show store links from merged rows (may include multiple per store; OK)
-  // show store links from merged rows (may include multiple per store; OK)
-  // If two identical links exist, only render one.
+  // Render store links:
+  // - LIVE stores first (normal)
+  // - then removed-history stores with a "(removed)" suffix
   const seenLinks = new Set();
-  $links.innerHTML = cur
+  const linkRows = allRows
     .slice()
-    .sort((a, b) => String(a.storeLabel || "").localeCompare(String(b.storeLabel || "")))
+    .sort((a, b) => {
+      const ar = Boolean(a?.removed) ? 1 : 0;
+      const br = Boolean(b?.removed) ? 1 : 0;
+      if (ar !== br) return ar - br; // live first
+      return String(a.storeLabel || "").localeCompare(String(b.storeLabel || ""));
+    })
     .filter((r) => {
       const href = String(r?.url || "").trim();
       const text = String(r?.storeLabel || r?.store || "Store").trim();
       if (!href) return false;
-
-      // "identical" = same href + same rendered text
-      const key = `${href}|${text}`;
+      const suffix = Boolean(r?.removed) ? " (removed)" : "";
+      const key = `${href}|${text}${suffix}`;
       if (seenLinks.has(key)) return false;
       seenLinks.add(key);
       return true;
-    })
+    });
+
+  $links.innerHTML = linkRows
     .map((r) => {
       const href = String(r.url || "").trim();
       const text = String(r.storeLabel || r.store || "Store").trim();
-      return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`;
+      const suffix = Boolean(r?.removed) ? " (removed)" : "";
+      return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(text + suffix)}</a>`;
     })
     .join("");
 
@@ -259,17 +275,19 @@ export async function renderItem($app, skuInput) {
   const repo = gh.repo;
   const branch = "data";
 
-  // dbFile -> rows (because merged skus can exist in same dbFile)
-  const byDbFile = new Map();
-  for (const r of cur) {
+  // Group DB files by historical presence (LIVE or REMOVED rows).
+  const byDbFileAll = new Map();
+  for (const r of allRows) {
     if (!r.dbFile) continue;
     const k = String(r.dbFile);
-    if (!byDbFile.has(k)) byDbFile.set(k, []);
-    byDbFile.get(k).push(r);
+    if (!byDbFileAll.has(k)) byDbFileAll.set(k, []);
+    byDbFileAll.get(k).push(r);
   }
-  const dbFiles = [...byDbFile.keys()].sort();
+  const dbFiles = [...byDbFileAll.keys()].sort();
 
-  $status.textContent = `Loading history for ${dbFiles.length} store file(s)…`;
+  $status.textContent = isRemovedEverywhere
+    ? `Item is removed everywhere (showing historical chart across ${dbFiles.length} store file(s))…`
+    : `Loading history for ${dbFiles.length} store file(s)…`;
 
   const manifest = await loadDbCommitsManifest();
   const allDatesSet = new Set();
@@ -282,8 +300,13 @@ export async function renderItem($app, skuInput) {
   const skuKeys = [...skuGroup];
 
   for (const dbFile of dbFiles) {
-    const rows = byDbFile.get(dbFile) || [];
-    const storeLabel = String(rows[0]?.storeLabel || rows[0]?.store || dbFile);
+    const rowsAll = byDbFileAll.get(dbFile) || [];
+
+    // Determine current LIVE rows for this dbFile:
+    // (we don't want to add a "today" point if the listing is removed in this store now)
+    const rowsLive = rowsAll.filter((r) => !Boolean(r?.removed));
+
+    const storeLabel = String(rowsAll[0]?.storeLabel || rowsAll[0]?.store || dbFile);
 
     const cached = loadSeriesCache(sku, dbFile, cacheBust);
     if (cached && Array.isArray(cached.points) && cached.points.length) {
@@ -346,6 +369,7 @@ export async function renderItem($app, skuInput) {
         }
       }
 
+      // findMinPriceForSkuGroupInDb already ignores removed rows inside each DB snapshot.
       const pNum = findMinPriceForSkuGroupInDb(obj, skuKeys, storeLabel);
 
       points.set(d, pNum);
@@ -354,17 +378,19 @@ export async function renderItem($app, skuInput) {
       compactPoints.push({ date: d, price: pNum });
     }
 
-    // Always add "today" from current index (min across merged rows in this store/dbFile)
-    let curMin = null;
-    for (const r of rows) {
-      const p = parsePriceToNumber(r.price);
-      if (p !== null) curMin = curMin === null ? p : Math.min(curMin, p);
-    }
-    if (curMin !== null) {
-      points.set(today, curMin);
-      values.push(curMin);
-      allDatesSet.add(today);
-      compactPoints.push({ date: today, price: curMin });
+    // Add "today" point ONLY if listing currently exists in this store/dbFile (live rows present)
+    if (rowsLive.length) {
+      let curMin = null;
+      for (const r of rowsLive) {
+        const p = parsePriceToNumber(r.price);
+        if (p !== null) curMin = curMin === null ? p : Math.min(curMin, p);
+      }
+      if (curMin !== null) {
+        points.set(today, curMin);
+        values.push(curMin);
+        allDatesSet.add(today);
+        compactPoints.push({ date: today, price: curMin });
+      }
     }
 
     saveSeriesCache(sku, dbFile, cacheBust, compactPoints);
@@ -416,6 +442,10 @@ export async function renderItem($app, skuInput) {
   });
 
   $status.textContent = manifest
-    ? `History loaded from prebuilt manifest (1 point/day) + current run. Points=${labels.length}.`
-    : `History loaded (GitHub API fallback; 1 point/day) + current run. Points=${labels.length}.`;
+    ? (isRemovedEverywhere
+        ? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
+        : `History loaded from prebuilt manifest (1 point/day) + current run. Points=${labels.length}.`)
+    : (isRemovedEverywhere
+        ? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
+        : `History loaded (GitHub API fallback; 1 point/day) + current run. Points=${labels.length}.`);
 }
