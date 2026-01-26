@@ -84,6 +84,6 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: file://reports/alert_subject.txt
-          to: brennan@codexwilkes.com
+          to: brennan@codexwilkes.com, nathan.wilkes@codexwilkes.com
           from: Spirit Tracker <${{ secrets.MAIL_USERNAME }}>
           html_body: file://reports/alert.html
