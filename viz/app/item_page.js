@@ -63,32 +63,26 @@ function findMinPricesForSkuGroupInDb(obj, skuKeys, storeLabel) {
   return { liveMin, removedMin };
 }
 
-function computeSuggestedY(values) {
+function computeSuggestedY(values, minRange) {
   const nums = values.filter((v) => Number.isFinite(v));
   if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
   let min = nums[0], max = nums[0];
-  for (const n of nums) {
-    if (n < min) min = n;
-    if (n > max) max = n;
-  }
+  for (const n of nums) { if (n < min) min = n; if (n > max) max = n; }
 
-  // base padding like before
   const range = max - min;
   const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;
 
   let suggestedMin = Math.max(0, min - pad);
   let suggestedMax = max + pad;
 
-  // NEW: ensure at least $10 of vertical range
-  const MIN_RANGE = 10;
-  if (suggestedMax - suggestedMin < MIN_RANGE) {
-    const mid = (suggestedMin + suggestedMax) / 2;
-    suggestedMin = mid - MIN_RANGE / 2;
-    suggestedMax = mid + MIN_RANGE / 2;
-    if (suggestedMin < 0) {
-      suggestedMax -= suggestedMin; // shift up
-      suggestedMin = 0;
+  if (Number.isFinite(minRange) && minRange > 0) {
+    const span = suggestedMax - suggestedMin;
+    if (span < minRange) {
+      const mid = (suggestedMin + suggestedMax) / 2;
+      suggestedMin = mid - minRange / 2;
+      suggestedMax = mid + minRange / 2;
+      if (suggestedMin < 0) { suggestedMax -= suggestedMin; suggestedMin = 0; }
     }
   }
 
@@ -555,6 +549,21 @@ export async function renderItem($app, skuInput) {
       },
     },
   });
+
+  const yScale = CHART.scales?.y;
+  const tickCount = yScale?.ticks?.length || 0;
+
+  if (tickCount >= 2) {
+    const minRange = (tickCount - 1) * 10; // $10 per gap, same number of gaps as before
+    const ySug2 = computeSuggestedY(allVals, minRange);
+
+    CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
+    CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
+    CHART.options.scales.y.ticks.stepSize = 10; // lock spacing at $10 now
+
+    CHART.update();
+  }
+
 
   $status.textContent = manifest
     ? isRemovedEverywhere
