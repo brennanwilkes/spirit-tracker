@@ -127,6 +127,20 @@ async function loadDbCommitsManifest() {
   }
 }
 
+function niceStepAtLeast(minStep, span, maxTicks) {
+  if (!Number.isFinite(span) || span <= 0) return minStep;
+
+  const target = span / Math.max(1, (maxTicks - 1)); // desired step to stay under maxTicks
+  const raw = Math.max(minStep, target);
+
+  // "nice" steps: 1/2/5 * 10^k, but never below minStep
+  const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+  const m = raw / pow;
+  const niceM = m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10;
+  return Math.max(minStep, niceM * pow);
+}
+
+
 /* ---------------- Page ---------------- */
 
 export async function renderItem($app, skuInput) {
@@ -516,6 +530,13 @@ export async function renderItem($app, skuInput) {
   for (const s of series) for (const v of s.values) allVals.push(v);
   const ySug = computeSuggestedY(allVals);
 
+  const MIN_STEP = 10;     // never denser than $10
+  const MAX_TICKS = 12;    // cap tick count when span is huge
+
+  const span = (ySug.suggestedMax ?? 0) - (ySug.suggestedMin ?? 0);
+  const step = niceStepAtLeast(MIN_STEP, span, MAX_TICKS);
+
+
   const datasets = series.map((s) => ({
     label: s.label,
     data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
@@ -545,7 +566,14 @@ export async function renderItem($app, skuInput) {
       },
       scales: {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
-        y: { ...ySug, ticks: { callback: (v) => `$${Number(v).toFixed(0)}` } },
+        y: {
+          ...ySug,
+          ticks: {
+            stepSize: step,
+            maxTicksLimit: MAX_TICKS,
+            callback: (v) => `$${Number(v).toFixed(0)}`,
+          },
+        },
       },
     },
   });
