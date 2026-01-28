@@ -67,17 +67,24 @@ function computeSuggestedY(values) {
   const nums = values.filter((v) => Number.isFinite(v));
   if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
-  let min = nums[0],
-    max = nums[0];
+  let min = nums[0], max = nums[0];
   for (const n of nums) {
     if (n < min) min = n;
     if (n > max) max = n;
   }
-  if (min === max) return { suggestedMin: min * 0.95, suggestedMax: max * 1.05 };
 
-  const pad = (max - min) * 0.08;
-  return { suggestedMin: Math.max(0, min - pad), suggestedMax: max + pad };
+  const range = max - min;
+  const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;
+
+  const rawMin = Math.max(0, min - pad);
+  const rawMax = max + pad;
+
+  const suggestedMin = Math.floor(rawMin / 10) * 10;
+  const suggestedMax = Math.ceil(rawMax / 10) * 10;
+
+  return { suggestedMin, suggestedMax };
 }
+
 
 function cacheKeySeries(sku, dbFile, cacheBust) {
   return `stviz:v3:series:${cacheBust}:${sku}:${dbFile}`;
@@ -534,7 +541,13 @@ export async function renderItem($app, skuInput) {
       },
       scales: {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
-        y: { ...ySug, ticks: { callback: (v) => `$${Number(v).toFixed(0)}` } },
+        y: {
+          ...ySug,
+          ticks: {
+            stepSize: 10,
+            callback: (v) => `$${Number(v).toFixed(0)}`,
+          },
+        },
       },
     },
   });
