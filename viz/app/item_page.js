@@ -73,14 +73,24 @@ function computeSuggestedY(values) {
     if (n > max) max = n;
   }
 
+  // base padding like before
   const range = max - min;
   const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;
 
-  const rawMin = Math.max(0, min - pad);
-  const rawMax = max + pad;
+  let suggestedMin = Math.max(0, min - pad);
+  let suggestedMax = max + pad;
 
-  const suggestedMin = Math.floor(rawMin / 10) * 10;
-  const suggestedMax = Math.ceil(rawMax / 10) * 10;
+  // NEW: ensure at least $10 of vertical range
+  const MIN_RANGE = 10;
+  if (suggestedMax - suggestedMin < MIN_RANGE) {
+    const mid = (suggestedMin + suggestedMax) / 2;
+    suggestedMin = mid - MIN_RANGE / 2;
+    suggestedMax = mid + MIN_RANGE / 2;
+    if (suggestedMin < 0) {
+      suggestedMax -= suggestedMin; // shift up
+      suggestedMin = 0;
+    }
+  }
 
   return { suggestedMin, suggestedMax };
 }
@@ -541,13 +551,7 @@ export async function renderItem($app, skuInput) {
       },
       scales: {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
-        y: {
-          ...ySug,
-          ticks: {
-            stepSize: 10,
-            callback: (v) => `$${Number(v).toFixed(0)}`,
-          },
-        },
+        y: { ...ySug, ticks: { callback: (v) => `$${Number(v).toFixed(0)}` } },
       },
     },
   });
