@@ -22,6 +22,7 @@ import {
   addPendingIgnore,
   pendingCounts,
   movePendingToSubmitted,
+  clearPendingEdits,
 } from "./pending.js";
 
 /* ---------------- Similarity helpers ---------------- */
@@ -50,7 +51,6 @@ function smwsKeyFromName(name) {
   const m = s.match(SMWS_CODE_RE);
   return m ? m[1] : "";
 }
-
 
 function isNumberToken(t) {
   return /^\d+$/.test(String(t || ""));
@@ -131,10 +131,9 @@ function similarityScore(aName, bName) {
   const gate = firstMatch ? 1.0 : 0.12;
   const numGate = numberMismatchPenalty(aToks, bToks);
 
-  return numGate * (
-    firstMatch * 3.0 +
-    overlapTail * 2.2 * gate +
-    levSim * (firstMatch ? 1.0 : 0.15)
+  return (
+    numGate *
+    (firstMatch * 3.0 + overlapTail * 2.2 * gate + levSim * (firstMatch ? 1.0 : 0.15))
   );
 }
 
@@ -198,7 +197,7 @@ function buildMappedSkuSet(links) {
 
 function isBCStoreLabel(label) {
   const s = String(label || "").toLowerCase();
-  return s.includes("bcl") || s.includes("strath")|| s.includes("gull")|| s.includes("legacy");
+  return s.includes("bcl") || s.includes("strath") || s.includes("gull") || s.includes("legacy");
 }
 
 function skuIsBC(allRows, skuKey) {
@@ -304,8 +303,7 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
 }
 
 function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn) {
-  if (!pinned || !pinned.name)
-    return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
+  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const base = String(pinned.name || "");
   const pinnedSku = String(pinned.sku || "");
@@ -319,7 +317,10 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
     if (storesOverlap(pinned, it)) continue;
 
-    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, String(it.sku || "")))
+    if (
+      typeof isIgnoredPairFn === "function" &&
+      isIgnoredPairFn(pinnedSku, String(it.sku || ""))
+    )
       continue;
 
     // SMWS exact NUM.NUM match => force to top (requires SMWS + code match)
@@ -347,7 +348,6 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
 }
-
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const itemsAll = allAgg.filter((it) => !!it);
@@ -396,7 +396,10 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
       if (!arr0 || arr0.length < 2) continue;
 
       // Bound bucket size
-      const arr = arr0.slice().sort((a, b) => itemRank(b) - itemRank(a)).slice(0, 80);
+      const arr = arr0
+        .slice()
+        .sort((a, b) => itemRank(b) - itemRank(a))
+        .slice(0, 80);
 
       const mapped = [];
       const unmapped = [];
@@ -407,8 +410,9 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
       }
 
       // Pick best anchor (prefer mapped if available)
-      const anchor =
-        (mapped.length ? mapped : unmapped).slice().sort((a, b) => itemRank(b) - itemRank(a))[0];
+      const anchor = (mapped.length ? mapped : unmapped)
+        .slice()
+        .sort((a, b) => itemRank(b) - itemRank(a))[0];
 
       if (!anchor) continue;
 
@@ -479,7 +483,9 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const itemNormName = new Map();
 
   for (const it of work) {
-    const toks = Array.from(new Set(tokenizeQuery(it.name || ""))).filter(Boolean).slice(0, 10);
+    const toks = Array.from(new Set(tokenizeQuery(it.name || "")))
+      .filter(Boolean)
+      .slice(0, 10);
     itemTokens.set(it.sku, toks);
     itemNormName.set(it.sku, normSearchText(it.name || ""));
     for (const t of toks) {
@@ -573,7 +579,6 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   return out.slice(0, limitPairs);
 }
 
-
 /* ---------------- Page ---------------- */
 
 export async function renderSkuLinker($app) {
@@ -585,6 +590,12 @@ export async function renderSkuLinker($app) {
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
         <div style="flex:1"></div>
+        ${!localWrite ? `<span id="pendingTop" class="badge mono" style="display:none;"></span>` : ``}
+        ${
+          !localWrite
+            ? `<button id="clearPendingBtn" class="btn" style="padding:6px 10px; display:none;">Clear</button>`
+            : ``
+        }
         <span class="badge">SKU Linker</span>
         ${
           localWrite
@@ -630,6 +641,8 @@ export async function renderSkuLinker($app) {
   const $linkBtn = document.getElementById("linkBtn");
   const $ignoreBtn = document.getElementById("ignoreBtn");
   const $status = document.getElementById("status");
+  const $pendingTop = !localWrite ? document.getElementById("pendingTop") : null;
+  const $clearPendingBtn = !localWrite ? document.getElementById("clearPendingBtn") : null;
 
   $listL.innerHTML = `<div class="small">Loading index…</div>`;
   $listR.innerHTML = `<div class="small">Loading index…</div>`;
@@ -676,7 +689,7 @@ export async function renderSkuLinker($app) {
     const storeCount = it.stores.size || 0;
     const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
-    const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
+    const store = it.cheapestStoreLabel || [...it.stores][0] || "Store";
 
     const href =
       URL_BY_SKU_STORE.get(String(it.sku || ""))?.get(String(store || "")) ||
@@ -684,7 +697,9 @@ export async function renderSkuLinker($app) {
       "";
 
     const storeBadge = href
-      ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
+      ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+          store
+        )}${esc(plus)}</a>`
       : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
     const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
@@ -731,8 +746,7 @@ export async function renderSkuLinker($app) {
     }
 
     // auto-suggestions: never include mapped skus
-    if (otherPinned)
-      return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair);
+    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair);
 
     if (initialPairs && initialPairs.length) {
       const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
@@ -807,6 +821,14 @@ export async function renderSkuLinker($app) {
       $pr.disabled = c0.total === 0;
     }
 
+    if ($pendingTop && $clearPendingBtn) {
+      const c0 = pendingCounts();
+      $pendingTop.textContent = c0.total ? `Pending: ${c0.total}` : "";
+      $pendingTop.style.display = c0.total ? "inline-flex" : "none";
+      $clearPendingBtn.style.display = c0.total ? "inline-flex" : "none";
+      $clearPendingBtn.disabled = c0.total === 0;
+    }
+
     if (!(pinnedL && pinnedR)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
@@ -817,7 +839,8 @@ export async function renderSkuLinker($app) {
           ? `Pending changes: ${c.links} link(s), ${c.ignores} ignore(s). Create PR when ready.`
           : "Pin one item on each side to enable linking / ignoring.";
       } else {
-        if (!$status.textContent) $status.textContent = "Pin one item on each side to enable linking / ignoring.";
+        if (!$status.textContent)
+          $status.textContent = "Pin one item on each side to enable linking / ignoring.";
       }
       return;
     }
@@ -859,6 +882,39 @@ export async function renderSkuLinker($app) {
       const c = pendingCounts();
       $pr.disabled = c.total === 0;
     }
+  }
+
+  if ($clearPendingBtn) {
+    $clearPendingBtn.addEventListener("click", async () => {
+      const c0 = pendingCounts();
+      if (c0.total === 0) return;
+
+      const ok = window.confirm(
+        `Clear ${c0.total} pending change(s)? This only clears local staged edits.`
+      );
+      if (!ok) return;
+
+      clearPendingEdits();
+
+      clearSkuRulesCache();
+      rules = await loadSkuRules();
+      ignoreSet = rules.ignoreSet;
+
+      const rebuilt = buildMappedSkuSet(rules.links || []);
+      mappedSkus.clear();
+      for (const x of rebuilt) mappedSkus.add(x);
+
+      const $pr = document.getElementById("createPrBtn");
+      if ($pr) {
+        const c = pendingCounts();
+        $pr.disabled = c.total === 0;
+      }
+
+      pinnedL = null;
+      pinnedR = null;
+      $status.textContent = "Cleared pending staged edits.";
+      updateAll();
+    });
   }
 
   const $createPrBtn = document.getElementById("createPrBtn");
@@ -1025,7 +1081,9 @@ export async function renderSkuLinker($app) {
     try {
       for (let i = 0; i < uniq.length; i++) {
         const w = uniq[i];
-        $status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(w.fromSku)} → ${displaySku(w.toSku)} …`;
+        $status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(w.fromSku)} → ${displaySku(
+          w.toSku
+        )} …`;
         await apiWriteSkuLink(w.fromSku, w.toSku);
       }
 
