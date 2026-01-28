@@ -889,11 +889,6 @@ export async function renderSkuLinker($app) {
       const c0 = pendingCounts();
       if (c0.total === 0) return;
 
-      const ok = window.confirm(
-        `Clear ${c0.total} pending change(s)? This only clears local staged edits.`
-      );
-      if (!ok) return;
-
       clearPendingEdits();
 
       clearSkuRulesCache();
