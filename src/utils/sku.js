@@ -16,9 +16,35 @@ function fnv1a32(str) {
 }
 
 function makeSyntheticSkuKey({ storeLabel, url }) {
-  const store = String(storeLabel || "store");
-  const u = String(url || "");
+  const store = String(storeLabel || "store").trim().toLowerCase();
+  let u = String(url || "").trim();
   if (!u) return "";
+
+  // Normalize common "same product, different slug" cases.
+  // This is intentionally conservative and forward-only: it only changes the
+  // *synthetic* ID when we otherwise have no real SKU.
+  try {
+    const U = new URL(u);
+    // drop query/hash
+    U.search = "";
+    U.hash = "";
+
+    // normalize path
+    let p = U.pathname || "";
+
+    // Common pattern: /product/preorder-<slug>/ becomes /product/<slug>/
+    p = p.replace(/\/product\/preorder-([a-z0-9-]+)\/?$/i, "/product/$1/");
+
+    // also normalize trailing slash
+    if (!p.endsWith("/")) p += "/";
+
+    U.pathname = p;
+    u = U.toString();
+  } catch {
+    // If URL() parsing fails, do a minimal string normalize.
+    u = u.replace(/\/product\/preorder-([a-z0-9-]+)\/?$/i, "/product/$1/");
+  }
+
   return `u:${fnv1a32(`${store}|${u}`)}`;
 }
 
