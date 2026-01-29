@@ -184,14 +184,24 @@ function storesOverlap(aItem, bItem) {
 
 /* ---------------- Mapping helpers ---------------- */
 
-function buildMappedSkuSet(links) {
+function buildMappedSkuSet(links, rules) {
   const s = new Set();
-  for (const x of Array.isArray(links) ? links : []) {
-    const a = String(x?.fromSku || "").trim();
-    const b = String(x?.toSku || "").trim();
-    if (a) s.add(a);
-    if (b) s.add(b);
+
+  function add(k) {
+    const x = String(k || "").trim();
+    if (!x) return;
+    s.add(x);
+    if (rules && typeof rules.canonicalSku === "function") {
+      const c = String(rules.canonicalSku(x) || "").trim();
+      if (c) s.add(c);
+    }
   }
+
+  for (const x of Array.isArray(links) ? links : []) {
+    add(x?.fromSku);
+    add(x?.toSku);
+  }
+
   return s;
 }
 
@@ -651,8 +661,23 @@ export async function renderSkuLinker($app) {
   const allRows = Array.isArray(idx.items) ? idx.items : [];
 
   const URL_BY_SKU_STORE = new Map();
+
+  function urlQuality(r) {
+    // Prefer “better” URLs if dupes exist.
+    // Heuristics: longer path > shorter, avoid obvious legacy/short generic slugs when possible.
+    const u = String(r?.url || "").trim();
+    if (!u) return -1;
+    let s = 0;
+    s += u.length; // more specific tends to be longer
+    if (/\bproduct\/\d+\//.test(u)) s += 50;
+    if (/[a-z0-9-]{8,}/i.test(u)) s += 10; // sluggy
+    return s;
+  }
+
   for (const r of allRows) {
+    // Keep active only
     if (!r || r.removed) continue;
+
     const skuKey = String(keySkuForRow(r) || "").trim();
     if (!skuKey) continue;
 
@@ -662,13 +687,30 @@ export async function renderSkuLinker($app) {
 
     let m = URL_BY_SKU_STORE.get(skuKey);
     if (!m) URL_BY_SKU_STORE.set(skuKey, (m = new Map()));
-    if (!m.has(storeLabel)) m.set(storeLabel, url);
+
+    const prevUrl = m.get(storeLabel);
+    if (!prevUrl) {
+      m.set(storeLabel, url);
+      continue;
+    }
+
+    // If duplicates exist, prefer the “better” URL deterministically.
+    const prevScore = urlQuality({ url: prevUrl });
+    const nextScore = urlQuality(r);
+
+    if (nextScore > prevScore) {
+      m.set(storeLabel, url);
+    } else if (nextScore === prevScore && url < prevUrl) {
+      // stable tie-break
+      m.set(storeLabel, url);
+    }
   }
+
 
   const allAgg = aggregateBySku(allRows, (x) => x);
 
   const meta = await loadSkuMetaBestEffort();
-  const mappedSkus = buildMappedSkuSet(meta.links || []);
+  const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
   let ignoreSet = rules.ignoreSet;
 
   function isIgnoredPair(a, b) {
@@ -895,7 +937,7 @@ export async function renderSkuLinker($app) {
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
-      const rebuilt = buildMappedSkuSet(rules.links || []);
+      const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
 
@@ -952,7 +994,7 @@ export async function renderSkuLinker($app) {
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
-      const rebuilt = buildMappedSkuSet(rules.links || []);
+      const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
 
@@ -1055,7 +1097,7 @@ export async function renderSkuLinker($app) {
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
-      const rebuilt = buildMappedSkuSet(rules.links || []);
+      const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
 
@@ -1136,7 +1178,7 @@ export async function renderSkuLinker($app) {
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
-      const rebuilt = buildMappedSkuSet(rules.links || []);
+      const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
 
