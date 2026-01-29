@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --- parse wrapper args (only --debug for now) ---
+DEBUG=0
+FORWARD_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --debug)
+      DEBUG=1
+      shift
+      ;;
+    --) # stop parsing; forward the rest
+      shift
+      while [[ $# -gt 0 ]]; do FORWARD_ARGS+=("$1"); shift; done
+      ;;
+    *)
+      # keep unknown args to forward (or error if you prefer)
+      FORWARD_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
 DATA_BRANCH="${DATA_BRANCH:-data}"
@@ -57,10 +78,14 @@ if git show-ref --verify --quiet "refs/remotes/$REMOTE/$MAIN_BRANCH"; then
 fi
 
 # Run tracker (writes data/db + a plain report file in reports/)
-TRACKER_ARGS=()
+TRACKER_ARGS=("${FORWARD_ARGS[@]}")
 if [[ -n "${STORES:-}" ]]; then
   TRACKER_ARGS+=(--stores "${STORES}")
 fi
+if [[ $DEBUG -eq 1 ]]; then
+  TRACKER_ARGS+=(--debug)
+fi
+
 set +e
 "$NODE_BIN" bin/tracker.js "${TRACKER_ARGS[@]}"
 rc=$?
