@@ -287,7 +287,7 @@ async function scanCategoryCoop(ctx, prevDb, report) {
   ctx.logger.ok(`${ctx.catPrefixOut} | Unique products: ${discovered.size}`);
 
   const { merged, newItems, updatedItems, removedItems, restoredItems } =
-    mergeDiscoveredIntoDb(prevDb, discovered);
+    mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);

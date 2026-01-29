@@ -327,7 +327,7 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
 
   logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered);
+  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);

@@ -197,7 +197,7 @@ async function scanCategoryBCLAjax(ctx, prevDb, report) {
     ctx.logger.warn(`${ctx.catPrefixOut} | BCL browse fetch failed: ${e?.message || e}`);
 
     const discovered = new Map();
-    const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered);
+    const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
     const dbObj = buildDbObject(ctx, merged);
     writeJsonAtomic(ctx.dbFile, dbObj);
 
@@ -271,7 +271,7 @@ async function scanCategoryBCLAjax(ctx, prevDb, report) {
 
   ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered);
+  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);
