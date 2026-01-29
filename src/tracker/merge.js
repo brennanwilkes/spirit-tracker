@@ -23,15 +23,42 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
   const removedItems = [];
   const restoredItems = [];
 
-  // If a product's URL changes but it has a *real* SKU, treat it as the same product:
-  // update DB entry (and URL key) but do NOT count it as New/Removed.
-  const prevByRealSku = new Map(); // sku6 -> { url, item }
+  // Choose a deterministic "best" record among dup active SKU rows.
+  // Prefer: more complete fields, then lexicographically smallest URL.
+  function scoreItem(it) {
+    if (!it) return 0;
+    const name = String(it.name || "").trim();
+    const price = String(it.price || "").trim();
+    const url = String(it.url || "").trim();
+    const img = String(it.img || "").trim();
+    return (name ? 1 : 0) + (price ? 1 : 0) + (url ? 1 : 0) + (img ? 1 : 0);
+  }
+
+  function pickBetter({ url: urlA, item: a }, { url: urlB, item: b }) {
+    const sa = scoreItem(a);
+    const sb = scoreItem(b);
+    if (sa !== sb) return sa > sb ? { url: urlA, item: a } : { url: urlB, item: b };
+    // tie-breaker: stable + deterministic
+    return String(urlA || "") <= String(urlB || "") ? { url: urlA, item: a } : { url: urlB, item: b };
+  }
+
+  // Index active items by real SKU; also track *all* urls per SKU to cleanup dupes.
+  const prevByRealSku = new Map(); // sku6 -> { url, item } (best)
+  const prevUrlsByRealSku = new Map(); // sku6 -> Set(urls)
+
   for (const [url, it] of prevDb.byUrl.entries()) {
     if (!it || it.removed) continue;
     const sku6 = normalizeCspc(it.sku);
     if (!sku6) continue;
-    // If dup SKUs exist, keep the first one we saw (stable enough).
-    if (!prevByRealSku.has(sku6)) prevByRealSku.set(sku6, { url, item: it });
+
+    let set = prevUrlsByRealSku.get(sku6);
+    if (!set) prevUrlsByRealSku.set(sku6, (set = new Set()));
+    set.add(url);
+
+    const cur = prevByRealSku.get(sku6);
+    const next = { url, item: it };
+    if (!cur) prevByRealSku.set(sku6, next);
+    else prevByRealSku.set(sku6, pickBetter(cur, next));
   }
 
   const matchedPrevUrls = new Set(); // old URLs we "found" via SKU even if URL changed
@@ -48,10 +75,24 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
         if (hit && hit.url && hit.url !== url) {
           prev = hit.item;
           prevUrlForThisItem = hit.url;
-          matchedPrevUrls.add(hit.url);
 
-          // Move record key from old URL -> new URL in DB map (no New/Removed noise)
-          if (merged.has(hit.url)) merged.delete(hit.url);
+          // Mark ALL prior URLs for this SKU as matched, so we don't later "remove" them.
+          const allOld = prevUrlsByRealSku.get(nowSku6);
+          if (allOld) {
+            for (const u of allOld) matchedPrevUrls.add(u);
+          } else {
+            matchedPrevUrls.add(hit.url);
+          }
+
+          // Cleanup: remove any existing active duplicates for this SKU from the merged map.
+          // We'll re-add the chosen record at the new URL below.
+          if (allOld) {
+            for (const u of allOld) {
+              if (u !== url && merged.has(u)) merged.delete(u);
+            }
+          } else {
+            if (merged.has(hit.url)) merged.delete(hit.url);
+          }
         }
       }
     }
@@ -70,7 +111,6 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     }
 
     // If the previous record was removed and we found it by the SAME URL, keep current behavior (restored).
-    // Note: if it "came back" under a different URL, we only de-dupe New/Removed for URL changes on active items.
     if (prevUrlForThisItem === url && prev.removed) {
       const now = {
         ...nowRaw,
@@ -121,7 +161,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
 
   for (const [url, prev] of prevDb.byUrl.entries()) {
     if (discovered.has(url)) continue;
-    if (matchedPrevUrls.has(url)) continue; // de-dupe URL changes for real-SKU items
+    if (matchedPrevUrls.has(url)) continue; // de-dupe URL changes for real-SKU items (and cleanup dupes)
     if (!prev.removed) {
       const removed = { ...prev, removed: true };
       merged.set(url, removed);

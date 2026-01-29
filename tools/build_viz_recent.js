@@ -106,14 +106,35 @@ function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
     const removed = Boolean(it.removed);
     if (!includeRemoved && removed) continue;
 
-    m.set(sku, {
+    const next = {
       sku,
       name: String(it.name || ""),
       price: String(it.price || ""),
       url: String(it.url || ""),
       removed,
-    });
+    };
+
+    const prev = m.get(sku);
+    if (!prev) {
+      m.set(sku, next);
+      continue;
+    }
+
+    // Prefer the non-removed record if both exist.
+    if (prev.removed && !next.removed) {
+      m.set(sku, next);
+      continue;
+    }
+    if (!prev.removed && next.removed) {
+      continue; // keep the active one
+    }
+
+    // Otherwise keep the “better” one (more complete data), deterministic.
+    const prevScore = (prev.name ? 1 : 0) + (prev.price ? 1 : 0) + (prev.url ? 1 : 0);
+    const nextScore = (next.name ? 1 : 0) + (next.price ? 1 : 0) + (next.url ? 1 : 0);
+    if (nextScore > prevScore) m.set(sku, next);
   }
+
   return m;
 }
 
