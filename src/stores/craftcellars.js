@@ -240,7 +240,7 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 
   ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered);
+  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);
