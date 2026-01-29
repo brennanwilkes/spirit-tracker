@@ -507,10 +507,12 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   if (out.length >= limitPairs) return out.slice(0, limitPairs);
 
   // --- Existing logic continues (fills remaining slots), but avoid reusing SMWS-picked *unmapped* SKUs ---
-  const seeds = topSuggestions(work, Math.min(400, work.length), "", mappedSkus).filter(
+  const seedsPool = topSuggestions(work, Math.min(400, work.length), "", mappedSkus).filter(
     (it) => !used.has(String(it?.sku || ""))
   );
-
+  shuffleInPlace(seedsPool, rnd);
+  const seeds = seedsPool.slice(0, Math.min(140, seedsPool.length));
+    
   const TOKEN_BUCKET_CAP = 500;
   const tokMap = new Map();
   const itemTokens = new Map();
@@ -597,8 +599,13 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const pairs = Array.from(bestByPair.values());
   pairs.sort((x, y) => y.score - x.score);
 
-  for (const p of pairs) {
-    const aSku = String(p.a.sku || "");
+  // Pick from a shuffled "top band" to keep quality but vary selection across reloads
+  const TOP_BAND = 220;
+  const band = pairs.slice(0, Math.min(TOP_BAND, pairs.length));
+  shuffleInPlace(band, rnd);
+
+  for (const p of band) {
+      const aSku = String(p.a.sku || "");
     const bSku = String(p.b.sku || "");
     if (!aSku || !bSku || aSku === bSku) continue;
     if (used.has(aSku) || used.has(bSku)) continue;
