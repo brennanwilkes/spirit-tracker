@@ -1,7 +1,7 @@
 // src/tracker/merge.js
 "use strict";
 
-const { normalizeSkuKey } = require("../utils/sku");
+const { normalizeSkuKey, normalizeCspc } = require("../utils/sku");
 const { normPrice } = require("../utils/price");
 
 function normImg(v) {

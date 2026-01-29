@@ -340,12 +340,12 @@ function createStore(defaultUa) {
     },
 
     categories: [
-    //   { key: "canadian-whisky", label: "Canadian Whisky", coopSlug: "canadian_whisky", coopCategoryId: 4, startUrl: `${REFERER}#/category/canadian_whisky` },
-    //   { key: "bourbon-whiskey", label: "Bourbon Whiskey", coopSlug: "bourbon_whiskey", coopCategoryId: 9, startUrl: `${REFERER}#/category/bourbon_whiskey` },
-    //   { key: "scottish-single-malts", label: "Scottish Single Malts", coopSlug: "scottish_single_malts", coopCategoryId: 6, startUrl: `${REFERER}#/category/scottish_single_malts` },
-    //   { key: "scottish-blends", label: "Scottish Whisky Blends", coopSlug: "scottish_whisky_blends", coopCategoryId: 5, startUrl: `${REFERER}#/category/scottish_whisky_blends` },
-    //   { key: "american-whiskey", label: "American Whiskey", coopSlug: "american_whiskey", coopCategoryId: 8, startUrl: `${REFERER}#/category/american_whiskey` },
-    //   { key: "world-whisky", label: "World / International Whisky", coopSlug: "world_international", coopCategoryId: 10, startUrl: `${REFERER}#/category/world_international` },
+      { key: "canadian-whisky", label: "Canadian Whisky", coopSlug: "canadian_whisky", coopCategoryId: 4, startUrl: `${REFERER}#/category/canadian_whisky` },
+      { key: "bourbon-whiskey", label: "Bourbon Whiskey", coopSlug: "bourbon_whiskey", coopCategoryId: 9, startUrl: `${REFERER}#/category/bourbon_whiskey` },
+      { key: "scottish-single-malts", label: "Scottish Single Malts", coopSlug: "scottish_single_malts", coopCategoryId: 6, startUrl: `${REFERER}#/category/scottish_single_malts` },
+      { key: "scottish-blends", label: "Scottish Whisky Blends", coopSlug: "scottish_whisky_blends", coopCategoryId: 5, startUrl: `${REFERER}#/category/scottish_whisky_blends` },
+      { key: "american-whiskey", label: "American Whiskey", coopSlug: "american_whiskey", coopCategoryId: 8, startUrl: `${REFERER}#/category/american_whiskey` },
+      { key: "world-whisky", label: "World / International Whisky", coopSlug: "world_international", coopCategoryId: 10, startUrl: `${REFERER}#/category/world_international` },
       { key: "rum", label: "Rum", coopSlug: "spirits_rum", coopCategoryId: 24, startUrl: `${REFERER}#/category/spirits_rum` },
     ],
   };
