@@ -55,6 +55,12 @@ function isNumericSku(k) {
   return /^\d+$/.test(String(k || "").trim());
 }
 
+function isUpcSku(k) {
+  // UPC-A/EAN/GTIN-ish (most common: 12 or 13; sometimes 14)
+  return /^\d{12,14}$/.test(String(k || "").trim());
+}
+  
+
 function compareSku(a, b) {
   a = String(a || "").trim();
   b = String(b || "").trim();
@@ -63,6 +69,12 @@ function compareSku(a, b) {
   const au = isUnknownSkuKey(a);
   const bu = isUnknownSkuKey(b);
   if (au !== bu) return au ? 1 : -1; // real first
+
+
+  const aUpc = isUpcSku(a);
+  const bUpc = isUpcSku(b);
+  if (aUpc !== bUpc) return aUpc ? 1 : -1; // UPCs after other "real" keys
+  
 
   const an = isNumericSku(a);
   const bn = isNumericSku(b);

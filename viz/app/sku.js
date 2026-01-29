@@ -26,7 +26,8 @@ export function parsePriceToNumber(v) {
   }
   
   export function displaySku(key) {
-    return String(key || "").startsWith("u:") ? "unknown" : String(key || "");
+    const s = String(key || "");
+    return s.startsWith("u:") ? "unknown" : s;
   }
   
   export function isUnknownSkuKey(key) {

@@ -222,8 +222,20 @@ function skuIsBC(allRows, skuKey) {
 /* ---------------- Canonical preference (AB real > other real > BC real > u:) ---------------- */
 
 function isRealSkuKey(skuKey) {
-  return !String(skuKey || "").startsWith("u:");
+  const s = String(skuKey || "").trim();
+  return /^\d{6}$/.test(s); // only CSPC counts as "real"
 }
+
+function isSoftSkuKey(k) {
+  const s = String(k || "");
+  return s.startsWith("upc:") || s.startsWith("id:");
+}
+
+
+function isUpcSkuKey(k) {
+  return /^\d{12,14}$/.test(String(k || "").trim());
+}
+  
 
 function isABStoreLabel(label) {
   const s = String(label || "").toLowerCase();
@@ -249,7 +261,9 @@ function scoreCanonical(allRows, skuKey) {
   const real = isRealSkuKey(s) ? 1 : 0;
   const ab = skuIsAB(allRows, s) ? 1 : 0;
   const bc = skuIsBC(allRows, s) ? 1 : 0;
-  return real * 100 + ab * 25 - bc * 10 + (real ? 0 : -1000);
+  const upc = isUpcSkuKey(s) ? 1 : 0;
+  const soft = isSoftSkuKey(s) ? 1 : 0;
+  return real * 100 + ab * 25 - bc * 10 - upc * 60  - soft * 60 + (real ? 0 : -1000);
 }
 
 function pickPreferredCanonical(allRows, skuKeys) {

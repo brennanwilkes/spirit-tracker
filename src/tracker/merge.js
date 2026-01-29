@@ -15,6 +15,13 @@ function isRealSku(v) {
   return Boolean(normalizeCspc(v));
 }
 
+function normalizeSkuPreserve(raw) {
+  const s = String(raw || "").trim();
+  const c = normalizeCspc(s);
+  return c || s; // CSPC if present, else keep UPC/ProductStoreID/etc
+}
+  
+
 function mergeDiscoveredIntoDb(prevDb, discovered) {
   const merged = new Map(prevDb.byUrl);
 
@@ -101,7 +108,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (!prev) {
       const now = {
         ...nowRaw,
-        sku: normalizeCspc(nowRaw.sku),
+        sku: normalizeSkuPreserve(nowRaw.sku),
         img: normImg(nowRaw.img),
         removed: false,
       };
@@ -114,7 +121,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (prevUrlForThisItem === url && prev.removed) {
       const now = {
         ...nowRaw,
-        sku: normalizeCspc(nowRaw.sku) || normalizeCspc(prev.sku),
+        sku: normalizeSkuPreserve(nowRaw.sku) || normalizeSkuPreserve(prev.sku),
         img: normImg(nowRaw.img) || normImg(prev.img),
         removed: false,
       };
@@ -132,8 +139,8 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     const prevPrice = normPrice(prev.price);
     const nowPrice = normPrice(nowRaw.price);
 
-    const prevSku = normalizeCspc(prev.sku);
-    const nowSku = normalizeCspc(nowRaw.sku) || prevSku;
+    const prevSku = normalizeSkuPreserve(prev.sku);
+    const nowSku = normalizeSkuPreserve(nowRaw.sku) || prevSku;
 
     const prevImg = normImg(prev.img);
     let nowImg = normImg(nowRaw.img);

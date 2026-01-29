@@ -15,6 +15,18 @@ function fnv1a32(str) {
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
+function normalizeUpc(v) {
+  const m = String(v ?? "").match(/\b(\d{12,14})\b/);
+  return m ? m[1] : "";
+}
+
+// Other stable-ish numeric IDs (e.g. ProductStoreID), keep bounded
+function normalizeNumericId(v) {
+  const m = String(v ?? "").match(/\b(\d{4,11})\b/);
+  return m ? m[1] : "";
+}
+  
+
 function makeSyntheticSkuKey({ storeLabel, url }) {
   const store = String(storeLabel || "store").trim().toLowerCase();
   let u = String(url || "").trim();
@@ -51,6 +63,8 @@ function makeSyntheticSkuKey({ storeLabel, url }) {
 /**
  * For DB + comparisons:
  * - If we can extract a real 6-digit SKU, use it.
+ * - Else if UPC-ish digits exist, store as upc:<digits> (low priority but stable)
+ * - Else if other numeric id exists, store as id:<digits>
  * - Else if v already looks like u:xxxx, keep it.
  * - Else if sku missing, generate u:hash(store|url) if possible.
  */
@@ -59,10 +73,18 @@ function normalizeSkuKey(v, { storeLabel, url } = {}) {
   const cspc = normalizeCspc(raw);
   if (cspc) return cspc;
 
+  const upc = normalizeUpc(raw);
+  if (upc) return `upc:${upc}`;
+
+  const nid = normalizeNumericId(raw);
+  if (nid) return `id:${nid}`;
+  
+  
+
   if (raw.startsWith("u:")) return raw;
 
   const syn = makeSyntheticSkuKey({ storeLabel, url });
   return syn || "";
 }
 
-module.exports = { normalizeCspc, normalizeSkuKey, makeSyntheticSkuKey };
+module.exports = { normalizeCspc, normalizeUpc, normalizeSkuKey, makeSyntheticSkuKey };
