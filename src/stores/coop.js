@@ -161,10 +161,16 @@ function productFromApi(p) {
       p?.CountDetails?.PriceText ||
       (Number.isFinite(p?.Price) ? `$${Number(p.Price).toFixed(2)}` : "");
   
+
     const upc = String(p.UPC || "").trim();
-    const rawKey = upc || String(p.ProductStoreID || "").trim() || String(p.ProductID || "").trim();
+
+    let rawKey = "";
+    if (upc) rawKey = `upc:${upc}`;
+    else if (p.ProductStoreID) rawKey = `id:${String(p.ProductStoreID).trim()}`;
+    else if (p.ProductID) rawKey = `id:${String(p.ProductID).trim()}`;
+    
     const sku = normalizeSkuKey(rawKey, { storeLabel: "Co-op World of Whisky", url });
-        
+
     const img = normalizeAbsUrl(p.ImageURL);
   
     return {
