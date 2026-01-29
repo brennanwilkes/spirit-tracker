@@ -15,11 +15,21 @@ function isRealSku(v) {
   return Boolean(normalizeCspc(v));
 }
 
-function normalizeSkuForDb(raw, { storeLabel, url } = {}) {
-  const lab = storeLabel || "";
+function dbStoreLabel(prevDb) {
+  return String(prevDb?.storeLabel || prevDb?.store || "").trim();
+}
+
+function itemStoreLabel(prevDb, it) {
+  return String(it?.storeLabel || it?.store || dbStoreLabel(prevDb)).trim();
+}
+
+function normalizeSkuForDb(prevDb, raw, { storeLabel, url } = {}) {
+  const lab = String(storeLabel || dbStoreLabel(prevDb)).trim();
+  // IMPORTANT: if we still don't have a label, don't accidentally use "store"
+  // (but in practice dbStoreLabel(prevDb) should always exist)
   return normalizeSkuKey(raw, { storeLabel: lab, url });
 }
-    
+
 
 function mergeDiscoveredIntoDb(prevDb, discovered) {
   const merged = new Map(prevDb.byUrl);
@@ -107,10 +117,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (!prev) {
       const now = {
         ...nowRaw,
-        sku: normalizeSkuForDb(nowRaw.sku, {
-          storeLabel: nowRaw.storeLabel || nowRaw.store || "",
-          url,
-        }),
+        sku: normalizeSkuForDb(prevDb, nowRaw.sku, { storeLabel: itemStoreLabel(prevDb, nowRaw), url }),
         img: normImg(nowRaw.img),
         removed: false,
       };
@@ -124,11 +131,8 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
       const now = {
         ...nowRaw,
         sku:
-          normalizeSkuForDb(nowRaw.sku, {
-            storeLabel: nowRaw.storeLabel || nowRaw.store || prev.storeLabel || prev.store || "",
-            url,
-          }) ||
-          normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel || prev.store || "", url: prev.url }),
+          normalizeSkuForDb(prevDb, nowRaw.sku, { storeLabel: itemStoreLabel(prevDb, nowRaw), url }) ||
+          normalizeSkuForDb(prevDb, prev.sku, { storeLabel: itemStoreLabel(prevDb, prev), url: prev.url }),
         img: normImg(nowRaw.img) || normImg(prev.img),
         removed: false,
       };
@@ -146,13 +150,9 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     const prevPrice = normPrice(prev.price);
     const nowPrice = normPrice(nowRaw.price);
 
-    const prevSku = normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel || prev.store || "", url: prev.url });
-    const nowSku =
-      normalizeSkuForDb(nowRaw.sku, {
-        storeLabel: nowRaw.storeLabel || nowRaw.store || prev.storeLabel || prev.store || "",
-        url,
-      }) || prevSku;
-        
+    const prevSku = normalizeSkuForDb(prevDb, prev.sku, { storeLabel: itemStoreLabel(prevDb, prev), url: prev.url });
+    const nowSku = normalizeSkuForDb(prevDb, nowRaw.sku, { storeLabel: itemStoreLabel(prevDb, nowRaw), url }) || prevSku;
+            
     const prevImg = normImg(prev.img);
     let nowImg = normImg(nowRaw.img);
     if (!nowImg) nowImg = prevImg;
