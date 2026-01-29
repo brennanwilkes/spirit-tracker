@@ -656,7 +656,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const need = Math.max(0, limitPairs - out.length);
   if (!need) return out.slice(0, limitPairs);
 
-  const TOP_BAND = Math.min(420, pairs.length); // bigger band => more variety
+  const TOP_BAND = Math.min(600, pairs.length); // bigger band => more variety
   const JITTER = 0.08; // total span; smaller => safer quality
 
   const band = pairs.slice(0, TOP_BAND).map((p) => {
