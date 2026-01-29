@@ -233,8 +233,9 @@ function isSoftSkuKey(k) {
 
 
 function isUpcSkuKey(k) {
-  return /^\d{12,14}$/.test(String(k || "").trim());
-}
+    const s = String(k || "").trim();
+    return s.startsWith("upc:") || /^\d{12,14}$/.test(s);
+  }
   
 
 function isABStoreLabel(label) {

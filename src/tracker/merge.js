@@ -1,7 +1,7 @@
 // src/tracker/merge.js
 "use strict";
 
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeSkuKey } = require("../utils/sku");
 const { normPrice } = require("../utils/price");
 
 function normImg(v) {
@@ -15,12 +15,10 @@ function isRealSku(v) {
   return Boolean(normalizeCspc(v));
 }
 
-function normalizeSkuPreserve(raw) {
-  const s = String(raw || "").trim();
-  const c = normalizeCspc(s);
-  return c || s; // CSPC if present, else keep UPC/ProductStoreID/etc
+function normalizeSkuForDb(raw, { storeLabel, url } = {}) {
+  return normalizeSkuKey(raw, { storeLabel, url });
 }
-  
+    
 
 function mergeDiscoveredIntoDb(prevDb, discovered) {
   const merged = new Map(prevDb.byUrl);
@@ -108,7 +106,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (!prev) {
       const now = {
         ...nowRaw,
-        sku: normalizeSkuPreserve(nowRaw.sku),
+        sku: normalizeSkuForDb(nowRaw.sku, { storeLabel: nowRaw.storeLabel, url }),
         img: normImg(nowRaw.img),
         removed: false,
       };
@@ -121,7 +119,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (prevUrlForThisItem === url && prev.removed) {
       const now = {
         ...nowRaw,
-        sku: normalizeSkuPreserve(nowRaw.sku) || normalizeSkuPreserve(prev.sku),
+        sku: normalizeSkuForDb(nowRaw.sku, { storeLabel: nowRaw.storeLabel, url }) || normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel, url: prev.url }),
         img: normImg(nowRaw.img) || normImg(prev.img),
         removed: false,
       };
@@ -139,9 +137,9 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     const prevPrice = normPrice(prev.price);
     const nowPrice = normPrice(nowRaw.price);
 
-    const prevSku = normalizeSkuPreserve(prev.sku);
-    const nowSku = normalizeSkuPreserve(nowRaw.sku) || prevSku;
-
+    const prevSku = normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel, url: prev.url });
+    const nowSku = normalizeSkuForDb(nowRaw.sku, { storeLabel: nowRaw.storeLabel, url }) || prevSku;
+    
     const prevImg = normImg(prev.img);
     let nowImg = normImg(nowRaw.img);
     if (!nowImg) nowImg = prevImg;

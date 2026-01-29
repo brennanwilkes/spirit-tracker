@@ -56,8 +56,9 @@ function isNumericSku(k) {
 }
 
 function isUpcSku(k) {
-  // UPC-A/EAN/GTIN-ish (most common: 12 or 13; sometimes 14)
-  return /^\d{12,14}$/.test(String(k || "").trim());
+    const s = String(k || "").trim();
+    if (s.startsWith("upc:")) return true;
+    return /^\d{12,14}$/.test(s); // keep legacy support
 }
   
 

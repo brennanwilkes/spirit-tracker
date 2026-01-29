@@ -1,6 +1,6 @@
 "use strict";
 
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeSkuKey } = require("../utils/sku");
 const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
 
@@ -163,10 +163,9 @@ function productFromApi(p) {
       (Number.isFinite(p?.Price) ? `$${Number(p.Price).toFixed(2)}` : "");
   
     const upc = String(p.UPC || "").trim();
-    const sku =
-      upc ||                      // use UPC if present
-      String(p.ProductStoreID);  // fallback to store-specific ID
-  
+    const rawKey = upc || String(p.ProductStoreID || "").trim() || String(p.ProductID || "").trim();
+    const sku = normalizeSkuKey(rawKey, { storeLabel: "Co-op World of Whisky", url });
+        
     const img = normalizeAbsUrl(p.ImageURL);
   
     return {
