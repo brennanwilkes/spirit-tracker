@@ -54,13 +54,12 @@ function coopHeaders(ctx, sourcepage) {
   };
 }
 
-async function fetchText(url, { headers, ua } = {}) {
-    const h = { ...(headers || {}) };
-    if (ua) h["User-Agent"] = ua;
-    const res = await fetch(url, { method: "GET", headers: h });
-    const text = await res.text();
-    return { status: res.status, text };
-  }
+async function coopFetchText(ctx, url, label, { headers } = {}) {
+  return await ctx.http.fetchTextWithRetry(url, label, ctx.store.ua, {
+    method: "GET",
+    headers: headers || {},
+  });
+}
   
   function extractVar(html, re) {
     const m = String(html || "").match(re);
@@ -71,24 +70,24 @@ async function fetchText(url, { headers, ua } = {}) {
     const coop = ctx.store.coop;
     if (coop.sessionKey && coop.chainId && coop.storeId && coop.appVersion) return;
   
-    const r = await fetchText(REFERER, {
-      ua: ctx.store.ua,
-      headers: {
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        Referer: REFERER,
-      },
-    });
-  
-    if (r.status !== 200 || !r.text) {
-      throw new Error(`coop bootstrap failed: GET ${REFERER} => ${r.status}`);
+const r = await coopFetchText(ctx, REFERER, "coop:bootstrap", {
+    headers: {
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      Referer: REFERER,
+    },
+  });
+          
+    const html = r?.text || "";
+    if (r?.status !== 200 || !html) {
+        throw new Error(`coop bootstrap failed: GET ${REFERER} => ${r.status}`);
     }
   
     // Values are in <script> var SESSIONKEY = "..."; etc.
-    coop.sessionKey = extractVar(r.text, /var\s+SESSIONKEY\s*=\s*"([^"]+)"/i);
-    coop.chainId = extractVar(r.text, /var\s+chainID\s*=\s*"([^"]+)"/i);
-    coop.storeId = extractVar(r.text, /var\s+store_unique_id\s*=\s*"([^"]+)"/i);
-    coop.appVersion = extractVar(r.text, /var\s+CLIENTVERSION\s*=\s*"([^"]+)"/i);
-  
+  coop.sessionKey = extractVar(html, /var\s+SESSIONKEY\s*=\s*"([^"]+)"/i);
+  coop.chainId = extractVar(html, /var\s+chainID\s*=\s*"([^"]+)"/i);
+  coop.storeId = extractVar(html, /var\s+store_unique_id\s*=\s*"([^"]+)"/i);
+  coop.appVersion = extractVar(html, /var\s+CLIENTVERSION\s*=\s*"([^"]+)"/i);
+      
     if (!coop.sessionKey || !coop.chainId || !coop.storeId || !coop.appVersion) {
       throw new Error(
         `coop bootstrap missing values: sessionKey=${!!coop.sessionKey} chainId=${!!coop.chainId} storeId=${!!coop.storeId} appVersion=${!!coop.appVersion}`
@@ -267,7 +266,7 @@ async function scanCategoryCoop(ctx, prevDb, report) {
     }
 
     ctx.logger.ok(
-      `${ctx.catPrefixOut} | Page ${pageStr(done, done)} | ${String(
+      `${ctx.catPrefixOut} | Page ${padLeft(page, 3)} | ${String(
         r.status || ""
       ).padEnd(3)} | items=${padLeft(kept, 3)} | bytes=${kbStr(
         r.bytes
@@ -345,7 +344,7 @@ function createStore(defaultUa) {
       { key: "scottish-single-malts", label: "Scottish Single Malts", coopSlug: "scottish_single_malts", coopCategoryId: 6, startUrl: `${REFERER}#/category/scottish_single_malts` },
       { key: "scottish-blends", label: "Scottish Whisky Blends", coopSlug: "scottish_whisky_blends", coopCategoryId: 5, startUrl: `${REFERER}#/category/scottish_whisky_blends` },
       { key: "american-whiskey", label: "American Whiskey", coopSlug: "american_whiskey", coopCategoryId: 8, startUrl: `${REFERER}#/category/american_whiskey` },
-      { key: "world-whisky", label: "World / International Whisky", coopSlug: "world_international", coopCategoryId: 10, startUrl: `${REFERER}#/category/world_international` },
+      { key: "world-whisky", label: "World Whisky", coopSlug: "world_international", coopCategoryId: 10, startUrl: `${REFERER}#/category/world_international` },
       { key: "rum", label: "Rum", coopSlug: "spirits_rum", coopCategoryId: 24, startUrl: `${REFERER}#/category/spirits_rum` },
     ],
   };

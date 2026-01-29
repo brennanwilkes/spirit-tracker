@@ -16,7 +16,8 @@ function isRealSku(v) {
 }
 
 function normalizeSkuForDb(raw, { storeLabel, url } = {}) {
-  return normalizeSkuKey(raw, { storeLabel, url });
+  const lab = storeLabel || "";
+  return normalizeSkuKey(raw, { storeLabel: lab, url });
 }
     
 
@@ -106,7 +107,10 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (!prev) {
       const now = {
         ...nowRaw,
-        sku: normalizeSkuForDb(nowRaw.sku, { storeLabel: nowRaw.storeLabel, url }),
+        sku: normalizeSkuForDb(nowRaw.sku, {
+          storeLabel: nowRaw.storeLabel || nowRaw.store || "",
+          url,
+        }),
         img: normImg(nowRaw.img),
         removed: false,
       };
@@ -119,7 +123,12 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     if (prevUrlForThisItem === url && prev.removed) {
       const now = {
         ...nowRaw,
-        sku: normalizeSkuForDb(nowRaw.sku, { storeLabel: nowRaw.storeLabel, url }) || normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel, url: prev.url }),
+        sku:
+          normalizeSkuForDb(nowRaw.sku, {
+            storeLabel: nowRaw.storeLabel || nowRaw.store || prev.storeLabel || prev.store || "",
+            url,
+          }) ||
+          normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel || prev.store || "", url: prev.url }),
         img: normImg(nowRaw.img) || normImg(prev.img),
         removed: false,
       };
@@ -137,9 +146,13 @@ function mergeDiscoveredIntoDb(prevDb, discovered) {
     const prevPrice = normPrice(prev.price);
     const nowPrice = normPrice(nowRaw.price);
 
-    const prevSku = normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel, url: prev.url });
-    const nowSku = normalizeSkuForDb(nowRaw.sku, { storeLabel: nowRaw.storeLabel, url }) || prevSku;
-    
+    const prevSku = normalizeSkuForDb(prev.sku, { storeLabel: prev.storeLabel || prev.store || "", url: prev.url });
+    const nowSku =
+      normalizeSkuForDb(nowRaw.sku, {
+        storeLabel: nowRaw.storeLabel || nowRaw.store || prev.storeLabel || prev.store || "",
+        url,
+      }) || prevSku;
+        
     const prevImg = normImg(prev.img);
     let nowImg = normImg(nowRaw.img);
     if (!nowImg) nowImg = prevImg;

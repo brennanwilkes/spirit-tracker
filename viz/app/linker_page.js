@@ -232,10 +232,10 @@ function isSoftSkuKey(k) {
 }
 
 
-function isUpcSkuKey(k) {
-    const s = String(k || "").trim();
-    return s.startsWith("upc:") || /^\d{12,14}$/.test(s);
-  }
+function isUnknownSkuKey2(k) {
+  return String(k || "").trim().startsWith("u:");
+}
+  
   
 
 function isABStoreLabel(label) {
@@ -262,10 +262,19 @@ function scoreCanonical(allRows, skuKey) {
   const real = isRealSkuKey(s) ? 1 : 0;
   const ab = skuIsAB(allRows, s) ? 1 : 0;
   const bc = skuIsBC(allRows, s) ? 1 : 0;
-  const upc = isUpcSkuKey(s) ? 1 : 0;
   const soft = isSoftSkuKey(s) ? 1 : 0;
-  return real * 100 + ab * 25 - bc * 10 - upc * 60  - soft * 60 + (real ? 0 : -1000);
-}
+  const unk = isUnknownSkuKey2(s) ? 1 : 0;
+
+  // Canonical preference:
+  // CSPC (best) > soft (upc/id) > other non-u keys > u: (worst)
+  let base = 0;
+  if (real) base = 1000;
+  else if (soft) base = 200;
+  else if (!unk) base = 100; // some other stable-ish non-u key
+  else base = -1000;
+
+  return base + ab * 25 - bc * 10;
+  }
 
 function pickPreferredCanonical(allRows, skuKeys) {
   let best = "";
