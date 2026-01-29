@@ -59,17 +59,71 @@ function isNumberToken(t) {
 function filterSimTokens(tokens) {
   const out = [];
   const seen = new Set();
-  for (const raw of Array.isArray(tokens) ? tokens : []) {
-    const t = String(raw || "").trim().toLowerCase();
+
+  // Normalize some common variants -> single token
+  const SIM_EQUIV = new Map([
+    ["years", "yr"],
+    ["year", "yr"],
+    ["yrs", "yr"],
+    ["yr", "yr"],
+
+    // small safe extras
+    ["whiskey", "whisky"],
+    ["bourbon", "bourbon"],
+  ]);
+
+  const VOL_UNIT = new Set([
+    "ml",
+    "l",
+    "cl",
+    "oz",
+    "liter",
+    "liters",
+    "litre",
+    "litres",
+  ]);
+
+  const VOL_INLINE_RE = /^\d+(?:\.\d+)?(?:ml|l|cl|oz)$/i; // 700ml, 1.14l
+  const PCT_INLINE_RE = /^\d+(?:\.\d+)?%$/; // 46%, 40.0%
+
+  const arr = Array.isArray(tokens) ? tokens : [];
+
+  for (let i = 0; i < arr.length; i++) {
+    const raw = arr[i];
+    let t = String(raw || "").trim().toLowerCase();
     if (!t) continue;
-    // keep numbers (we handle mismatch separately)
+
+    // Drop inline volume + inline percentages
+    if (VOL_INLINE_RE.test(t)) continue;
+    if (PCT_INLINE_RE.test(t)) continue;
+
+    // Normalize
+    t = SIM_EQUIV.get(t) || t;
+
+    // Drop unit tokens (ml/l/oz/etc) and ABV-ish
+    if (VOL_UNIT.has(t) || t === "abv" || t === "proof") continue;
+
+    // Drop "number + unit" volume patterns: "750 ml", "1.14 l"
+    if (isNumberToken(t)) {
+      const next = String(arr[i + 1] || "").trim().toLowerCase();
+      const nextNorm = SIM_EQUIV.get(next) || next;
+      if (VOL_UNIT.has(nextNorm)) {
+        i++; // skip the unit token too
+        continue;
+      }
+    }
+
+    // Ignore ultra-common / low-signal tokens (but keep numbers)
     if (!isNumberToken(t) && SIM_STOP_TOKENS.has(t)) continue;
+
     if (seen.has(t)) continue;
     seen.add(t);
     out.push(t);
   }
+
   return out;
 }
+
 
 function numberMismatchPenalty(aTokens, bTokens) {
   const aNums = new Set(aTokens.filter(isNumberToken));
@@ -400,7 +454,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     return !(mappedSkus && mappedSkus.has(String(it.sku)));
   });
 
-  // --- NEW: SMWS exact-code pairs first (including mapped anchors) ---
+  // --- SMWS exact-code pairs first (including mapped anchors) ---
   function itemRank(it) {
     const stores = it.stores ? it.stores.size : 0;
     const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
@@ -507,12 +561,10 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   if (out.length >= limitPairs) return out.slice(0, limitPairs);
 
   // --- Existing logic continues (fills remaining slots), but avoid reusing SMWS-picked *unmapped* SKUs ---
-  const seedsPool = topSuggestions(work, Math.min(400, work.length), "", mappedSkus).filter(
+  const seeds = topSuggestions(work, Math.min(400, work.length), "", mappedSkus).filter(
     (it) => !used.has(String(it?.sku || ""))
   );
-  shuffleInPlace(seedsPool, rnd);
-  const seeds = seedsPool.slice(0, Math.min(140, seedsPool.length));
-    
+
   const TOKEN_BUCKET_CAP = 500;
   const tokMap = new Map();
   const itemTokens = new Map();
@@ -599,22 +651,45 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   const pairs = Array.from(bestByPair.values());
   pairs.sort((x, y) => y.score - x.score);
 
-  // Pick from a shuffled "top band" to keep quality but vary selection across reloads
-  const TOP_BAND = 220;
-  const band = pairs.slice(0, Math.min(TOP_BAND, pairs.length));
-  shuffleInPlace(band, rnd);
+  // ---- Happy-medium randomness: light jitter inside a top band ----
+  // Strongly prefers best pairs, but changes order/selection across reloads.
+  const need = Math.max(0, limitPairs - out.length);
+  if (!need) return out.slice(0, limitPairs);
 
-  for (const p of band) {
-      const aSku = String(p.a.sku || "");
+  const TOP_BAND = Math.min(420, pairs.length); // bigger band => more variety
+  const JITTER = 0.08; // total span; smaller => safer quality
+
+  const band = pairs.slice(0, TOP_BAND).map((p) => {
+    const jitter = (rnd() - 0.5) * JITTER; // +-JITTER/2
+    return { ...p, _rank: p.score * (1 + jitter) };
+  });
+  band.sort((a, b) => b._rank - a._rank);
+
+  function tryTake(p) {
+    const aSku = String(p.a.sku || "");
     const bSku = String(p.b.sku || "");
-    if (!aSku || !bSku || aSku === bSku) continue;
-    if (used.has(aSku) || used.has(bSku)) continue;
-    if (storesOverlap(p.a, p.b)) continue;
+    if (!aSku || !bSku || aSku === bSku) return false;
+    if (used.has(aSku) || used.has(bSku)) return false;
+    if (storesOverlap(p.a, p.b)) return false;
 
     used.add(aSku);
     used.add(bSku);
     out.push({ a: p.a, b: p.b, score: p.score });
+    return true;
+  }
+
+  // First pass: jittered top band
+  for (const p of band) {
     if (out.length >= limitPairs) break;
+    tryTake(p);
+  }
+
+  // Second pass: remainder in strict score order (quality backstop)
+  if (out.length < limitPairs) {
+    for (let i = TOP_BAND; i < pairs.length; i++) {
+      if (out.length >= limitPairs) break;
+      tryTake(pairs[i]);
+    }
   }
 
   return out.slice(0, limitPairs);
