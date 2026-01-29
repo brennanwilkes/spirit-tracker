@@ -1,6 +1,9 @@
 "use strict";
 
 const { setTimeout: sleep } = require("timers/promises");
+const { setTimeout: setTimeoutCb, clearTimeout } = require("timers");
+
+/* ---------------- Errors ---------------- */
 
 class RetryableError extends Error {
   constructor(msg) {
@@ -17,15 +20,40 @@ function isRetryable(e) {
   return /ECONNRESET|ENOTFOUND|EAI_AGAIN|ETIMEDOUT|socket hang up|fetch failed/i.test(msg);
 }
 
+/* ---------------- Backoff ---------------- */
+
 function backoffMs(attempt) {
   const base = Math.min(12000, 500 * Math.pow(2, attempt));
   const jitter = Math.floor(Math.random() * 400);
   return base + jitter;
 }
 
+function retryAfterMs(res) {
+  const ra = res?.headers?.get ? res.headers.get("retry-after") : null;
+  if (!ra) return 0;
+
+  const secs = Number(String(ra).trim());
+  if (Number.isFinite(secs)) return Math.max(0, secs * 1000);
+
+  const dt = Date.parse(String(ra));
+  if (Number.isFinite(dt)) return Math.max(0, dt - Date.now());
+
+  return 0;
+}
+
+/* ---------------- Utils ---------------- */
+
 async function safeText(res) {
   try {
     return await res.text();
+  } catch {
+    return "";
+  }
+}
+
+function hostFromUrl(u) {
+  try {
+    return new URL(u).host || "";
   } catch {
     return "";
   }
@@ -37,16 +65,7 @@ async function safeText(res) {
 function createCookieJar() {
   const jar = new Map();
 
-  function getHost(u) {
-    try {
-      return new URL(u).hostname || "";
-    } catch {
-      return "";
-    }
-  }
-
   function parseSetCookieLine(line) {
-    // "name=value; Path=/; Secure; HttpOnly; ..."
     const s = String(line || "").trim();
     if (!s) return null;
     const first = s.split(";")[0] || "";
@@ -59,22 +78,16 @@ function createCookieJar() {
   }
 
   function getSetCookieArray(headers) {
-    // Node/undici may support headers.getSetCookie()
     if (headers && typeof headers.getSetCookie === "function") {
       try {
         const arr = headers.getSetCookie();
         return Array.isArray(arr) ? arr : [];
-      } catch {
-        // fall through
-      }
+      } catch {}
     }
 
-    // Fallback: single combined header (may lose multiples, but better than nothing)
     const one = headers?.get ? headers.get("set-cookie") : null;
     if (!one) return [];
 
-    // Best-effort split. This is imperfect with Expires=... commas, but OK for most WP cookies.
-    // If this causes issues later, we can replace with a more robust splitter.
     return String(one)
       .split(/,(?=[^;,]*=)/g)
       .map((x) => x.trim())
@@ -82,7 +95,7 @@ function createCookieJar() {
   }
 
   function storeFromResponse(url, res) {
-    const host = getHost(res?.url || url);
+    const host = hostFromUrl(res?.url || url);
     if (!host) return;
 
     const lines = getSetCookieArray(res?.headers);
@@ -96,13 +109,12 @@ function createCookieJar() {
 
     for (const line of lines) {
       const c = parseSetCookieLine(line);
-      if (!c) continue;
-      m.set(c.name, c.pair);
+      if (c) m.set(c.name, c.pair);
     }
   }
 
   function cookieHeaderFor(url) {
-    const host = getHost(url);
+    const host = hostFromUrl(url);
     if (!host) return "";
     const m = jar.get(host);
     if (!m || m.size === 0) return "";
@@ -120,8 +132,31 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 
   const cookieJar = createCookieJar();
 
+  // host -> epoch ms when next request is allowed
+  const hostNextOkAt = new Map();
+  const minHostIntervalMs = 900;
+
   function inflightStr() {
     return `inflight=${inflight}`;
+  }
+
+  async function throttleHost(url) {
+    const host = hostFromUrl(url);
+    if (!host) return;
+    const now = Date.now();
+    const next = hostNextOkAt.get(host) || 0;
+    if (next > now) {
+      logger?.dbg?.(`THROTTLE host=${host} wait=${next - now}ms`);
+      await sleep(next - now);
+    }
+  }
+
+  function noteHost(url, extraDelayMs = 0) {
+    const host = hostFromUrl(url);
+    if (!host) return;
+    const until = Date.now() + minHostIntervalMs + extraDelayMs;
+    hostNextOkAt.set(host, until);
+    logger?.dbg?.(`HOST-PACE host=${host} nextOkIn=${until - Date.now()}ms`);
   }
 
   async function fetchWithRetry(
@@ -140,11 +175,15 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
       );
 
       try {
+        await throttleHost(url);
+
         const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), timeoutMs);
+        const t = setTimeoutCb(() => ctrl.abort(), timeoutMs);
 
         const cookieHdr =
-          cookies && !Object.prototype.hasOwnProperty.call(headers, "Cookie") && !Object.prototype.hasOwnProperty.call(headers, "cookie")
+          cookies &&
+          !("Cookie" in headers) &&
+          !("cookie" in headers)
             ? cookieJar.cookieHeaderFor(url)
             : "";
 
@@ -166,48 +205,72 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 
         const status = res.status;
         const finalUrl = res.url || url;
+        const elapsed = Date.now() - start;
 
-        // capture cookies for subsequent requests to same host
+        noteHost(finalUrl);
         if (cookies) cookieJar.storeFromResponse(url, res);
 
-        logger?.dbg?.(`REQ#${reqId} HTTP ${status} ${tag} finalUrl=${finalUrl}`);
+        logger?.dbg?.(
+          `REQ#${reqId} HTTP ${status} ${tag} ms=${elapsed} finalUrl=${finalUrl}`
+        );
 
-        if (status === 429 || status === 408 || (status >= 500 && status <= 599)) {
+        if (status === 429) {
+          const raMs = retryAfterMs(res);
+          if (raMs > 0) noteHost(finalUrl, raMs);
+
+          logger?.dbg?.(
+            `REQ#${reqId} 429 retryAfterMs=${raMs} host=${hostFromUrl(finalUrl)}`
+          );
+          throw new RetryableError("HTTP 429");
+        }
+
+        if (status === 408 || (status >= 500 && status <= 599)) {
           throw new RetryableError(`HTTP ${status}`);
         }
+
         if (status >= 400) {
           const bodyTxt = await safeText(res);
           throw new Error(
-            `HTTP ${status} bodyHead=${String(bodyTxt).slice(0, 160).replace(/\s+/g, " ")}`
+            `HTTP ${status} bodyHead=${String(bodyTxt)
+              .slice(0, 160)
+              .replace(/\s+/g, " ")}`
           );
         }
 
         if (mode === "json") {
           const txt = await res.text();
-          const ms = Date.now() - start;
           let json;
           try {
             json = JSON.parse(txt);
           } catch (e) {
             throw new RetryableError(`Bad JSON: ${e?.message || e}`);
           }
-          return { json, ms, bytes: txt.length, status, finalUrl };
+          return { json, ms: elapsed, bytes: txt.length, status, finalUrl };
         }
 
         const text = await res.text();
-        if (!text || text.length < 200) throw new RetryableError(`Short HTML bytes=${text.length}`);
+        if (!text || text.length < 200) {
+          throw new RetryableError(`Short HTML bytes=${text.length}`);
+        }
 
-        const ms = Date.now() - start;
-        return { text, ms, bytes: text.length, status, finalUrl };
+        return { text, ms: elapsed, bytes: text.length, status, finalUrl };
       } catch (e) {
         const retryable = isRetryable(e);
+        const host = hostFromUrl(url);
+        const nextOk = hostNextOkAt.get(host) || 0;
+
         logger?.dbg?.(
-          `REQ#${reqId} ERROR ${tag} retryable=${retryable} err=${e?.message || e} (${inflightStr()})`
+          `REQ#${reqId} FAIL ${tag} retryable=${retryable} err=${e?.message || e} host=${host} nextOkIn=${Math.max(
+            0,
+            nextOk - Date.now()
+          )}ms`
         );
 
         if (!retryable || attempt === maxRetries) throw e;
 
-        const delay = backoffMs(attempt);
+        let delay = backoffMs(attempt);
+        if (nextOk > Date.now()) delay = Math.max(delay, nextOk - Date.now());
+
         logger?.warn?.(`Request failed, retrying in ${delay}ms (${attempt + 1}/${maxRetries})`);
         await sleep(delay);
       } finally {
@@ -215,6 +278,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
         logger?.dbg?.(`REQ#${reqId} END ${tag} (${inflightStr()})`);
       }
     }
+
     throw new Error("unreachable");
   }
 
