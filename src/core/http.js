@@ -1,3 +1,4 @@
+// src/core/http.js
 "use strict";
 
 const { setTimeout: sleep } = require("timers/promises");
@@ -134,29 +135,70 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 
   // host -> epoch ms when next request is allowed
   const hostNextOkAt = new Map();
-  const minHostIntervalMs = 900;
+
+  // Conservative pacing defaults (slow > blocked)
+  const minHostIntervalMs = 2500;
+
+  // Per-host inflight clamp (prevents bursts when global concurrency is high)
+  const hostInflight = new Map();
+  const maxHostInflight = 1;
 
   function inflightStr() {
     return `inflight=${inflight}`;
   }
 
+  async function acquireHost(url) {
+    const host = hostFromUrl(url);
+    if (!host) return () => {};
+
+    while (true) {
+      const cur = hostInflight.get(host) || 0;
+      if (cur < maxHostInflight) {
+        hostInflight.set(host, cur + 1);
+        return () => {
+          const n = (hostInflight.get(host) || 1) - 1;
+          if (n <= 0) hostInflight.delete(host);
+          else hostInflight.set(host, n);
+        };
+      }
+      await sleep(50);
+    }
+  }
+
+  // ✅ Pre-pacing reservation: reserve the next slot BEFORE the fetch is sent
   async function throttleHost(url) {
     const host = hostFromUrl(url);
     if (!host) return;
-    const now = Date.now();
-    const next = hostNextOkAt.get(host) || 0;
-    if (next > now) {
-      logger?.dbg?.(`THROTTLE host=${host} wait=${next - now}ms`);
-      await sleep(next - now);
+
+    while (true) {
+      const now = Date.now();
+      const next = hostNextOkAt.get(host) || 0;
+      const wait = next - now;
+
+      if (wait > 0) {
+        logger?.dbg?.(`THROTTLE host=${host} wait=${wait}ms`);
+        await sleep(wait);
+        continue;
+      }
+
+      // Reserve immediately to prevent concurrent pass-through
+      hostNextOkAt.set(host, now + minHostIntervalMs);
+      return;
     }
   }
 
   function noteHost(url, extraDelayMs = 0) {
     const host = hostFromUrl(url);
     if (!host) return;
-    const until = Date.now() + minHostIntervalMs + extraDelayMs;
-    hostNextOkAt.set(host, until);
-    logger?.dbg?.(`HOST-PACE host=${host} nextOkIn=${until - Date.now()}ms`);
+
+    const now = Date.now();
+    const current = hostNextOkAt.get(host) || 0;
+
+    // Extend (never shorten) any existing cooldown
+    const target = now + minHostIntervalMs + Math.max(0, extraDelayMs);
+    hostNextOkAt.set(host, Math.max(current, target));
+
+    logger?.dbg?.(`HOST-PACE host=${host} nextOkIn=${Math.max(0, (hostNextOkAt.get(host) || 0) - Date.now())}ms`);
   }
 
   async function fetchWithRetry(
@@ -170,9 +212,9 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
       const start = Date.now();
 
       inflight++;
-      logger?.dbg?.(
-        `REQ#${reqId} START ${tag} attempt=${attempt + 1}/${maxRetries + 1} ${url} (${inflightStr()})`
-      );
+      logger?.dbg?.(`REQ#${reqId} START ${tag} attempt=${attempt + 1}/${maxRetries + 1} ${url} (${inflightStr()})`);
+
+      const releaseHost = await acquireHost(url);
 
       try {
         await throttleHost(url);
@@ -181,11 +223,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
         const t = setTimeoutCb(() => ctrl.abort(), timeoutMs);
 
         const cookieHdr =
-          cookies &&
-          !("Cookie" in headers) &&
-          !("cookie" in headers)
-            ? cookieJar.cookieHeaderFor(url)
-            : "";
+          cookies && !("Cookie" in headers) && !("cookie" in headers) ? cookieJar.cookieHeaderFor(url) : "";
 
         const res = await fetch(url, {
           method,
@@ -207,20 +245,20 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
         const finalUrl = res.url || url;
         const elapsed = Date.now() - start;
 
+        // Always pace the host a bit after any response
         noteHost(finalUrl);
         if (cookies) cookieJar.storeFromResponse(url, res);
 
-        logger?.dbg?.(
-          `REQ#${reqId} HTTP ${status} ${tag} ms=${elapsed} finalUrl=${finalUrl}`
-        );
+        logger?.dbg?.(`REQ#${reqId} HTTP ${status} ${tag} ms=${elapsed} finalUrl=${finalUrl}`);
 
         if (status === 429) {
-          const raMs = retryAfterMs(res);
-          if (raMs > 0) noteHost(finalUrl, raMs);
+          let raMs = retryAfterMs(res);
 
-          logger?.dbg?.(
-            `REQ#${reqId} 429 retryAfterMs=${raMs} host=${hostFromUrl(finalUrl)}`
-          );
+          // ✅ If no Retry-After header, enforce a real cooldown (Shopify often omits it)
+          if (raMs <= 0) raMs = 15000 + Math.floor(Math.random() * 5000);
+
+          noteHost(finalUrl, raMs);
+          logger?.dbg?.(`REQ#${reqId} 429 retryAfterMs=${raMs} host=${hostFromUrl(finalUrl)}`);
           throw new RetryableError("HTTP 429");
         }
 
@@ -231,9 +269,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
         if (status >= 400) {
           const bodyTxt = await safeText(res);
           throw new Error(
-            `HTTP ${status} bodyHead=${String(bodyTxt)
-              .slice(0, 160)
-              .replace(/\s+/g, " ")}`
+            `HTTP ${status} bodyHead=${String(bodyTxt).slice(0, 160).replace(/\s+/g, " ")}`
           );
         }
 
@@ -274,6 +310,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
         logger?.warn?.(`Request failed, retrying in ${delay}ms (${attempt + 1}/${maxRetries})`);
         await sleep(delay);
       } finally {
+        releaseHost();
         inflight--;
         logger?.dbg?.(`REQ#${reqId} END ${tag} (${inflightStr()})`);
       }
