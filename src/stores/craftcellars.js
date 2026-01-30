@@ -1,4 +1,7 @@
+// src/stores/craftcellars.js
 "use strict";
+
+const { setTimeout: sleep } = require("timers/promises");
 
 const { decodeHtml, stripTags, extractFirstImgUrl } = require("../utils/html");
 const { sanitizeName } = require("../utils/text");
@@ -29,7 +32,8 @@ function canonicalizeCraftProductUrl(raw) {
 
 function extractShopifyCardPrice(block) {
   const b = String(block || "");
-  const dollars = (txt) => [...String(txt).matchAll(/\$\s*[\d,]+(?:\.\d{2})?/g)].map((m) => m[0].replace(/\s+/g, ""));
+  const dollars = (txt) =>
+    [...String(txt).matchAll(/\$\s*[\d,]+(?:\.\d{2})?/g)].map((m) => m[0].replace(/\s+/g, ""));
 
   const saleRegion = b.split(/sale price/i)[1] || "";
   const saleD = dollars(saleRegion);
@@ -83,12 +87,8 @@ function parseProductsCraftCellarsInner(html, ctx) {
     url = canonicalizeCraftProductUrl(url);
 
     const nameHtml =
-      block.match(
-        /<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>\s*<[^>]*>\s*([^<]{2,200}?)\s*</i
-      )?.[1] ||
-      block.match(
-        /<h[23]\b[^>]*>[\s\S]*?<a\b[^>]*\/products\/[^"']+[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/h[23]>/i
-      )?.[1] ||
+      block.match(/<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>\s*<[^>]*>\s*([^<]{2,200}?)\s*</i)?.[1] ||
+      block.match(/<h[23]\b[^>]*>[\s\S]*?<a\b[^>]*\/products\/[^"']+[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/h[23]>/i)?.[1] ||
       block.match(/<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>([\s\S]*?)<\/a>/i)?.[1];
 
     const name = sanitizeName(stripTags(decodeHtml(nameHtml || "")));
@@ -105,11 +105,14 @@ function parseProductsCraftCellarsInner(html, ctx) {
   return [...uniq.values()];
 }
 
-
 function usdFromShopifyPriceStr(s) {
   const n = Number(String(s || "").replace(/[^0-9.]/g, ""));
   if (!Number.isFinite(n)) return "";
   return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function cfgNum(v, fallback) {
+  return Number.isFinite(v) ? v : fallback;
 }
 
 /**
@@ -120,6 +123,18 @@ function usdFromShopifyPriceStr(s) {
 async function scanCategoryCraftCellars(ctx, prevDb, report) {
   const t0 = Date.now();
 
+  // Strongly prefer "slow and steady" to avoid 429s.
+  // Use per-category knobs if present; otherwise default conservative.
+  const perPageDelayMs = Math.max(
+    0,
+    cfgNum(ctx?.cat?.pageStaggerMs, cfgNum(ctx?.cat?.discoveryDelayMs, 0)) || 0
+  ) || 0;
+
+  const perJsonPageDelayMs = Math.max(
+    0,
+    cfgNum(ctx?.cat?.jsonPageDelayMs, perPageDelayMs)
+  );
+
   // 1) HTML scan: allowlist of in-stock listing URLs
   const htmlMap = new Map(); // url -> {name, price, url, img}
 
@@ -128,6 +143,8 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
   let emptyStreak = 0;
 
   for (let p = 1; p <= maxPages; p++) {
+    if (p > 1 && perPageDelayMs > 0) await sleep(perPageDelayMs);
+
     const pageUrl = makePageUrlShopifyQueryPage(ctx.cat.startUrl, p);
     const { text: html } = await ctx.http.fetchTextWithRetry(pageUrl, `craft:html:${ctx.cat.key}:p${p}`, ctx.store.ua);
     htmlPagesFetched++;
@@ -151,9 +168,7 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 
   // If HTML returns nothing, don't let JSON invent a category
   if (!htmlMap.size) {
-    ctx.logger.warn(
-      `${ctx.catPrefixOut} | HTML listing returned 0 items; refusing to use products.json as source of truth.`
-    );
+    ctx.logger.warn(`${ctx.catPrefixOut} | HTML listing returned 0 items; refusing to use products.json as source of truth.`);
   }
 
   // 2) JSON scan: build SKU index (but do NOT add new URLs from JSON)
@@ -170,6 +185,8 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
     let jsonPagesFetched = 0;
 
     while (true) {
+      if (jsonPage > 1 && perJsonPageDelayMs > 0) await sleep(perJsonPageDelayMs);
+
       const url = `https://${ctx.store.host}/collections/${collectionHandle}/products.json?limit=${limit}&page=${jsonPage}`;
       const r = await ctx.http.fetchJsonWithRetry(url, `craft:coljson:${ctx.cat.key}:p${jsonPage}`, ctx.store.ua);
 
@@ -240,7 +257,9 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 
   ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
+  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
+    storeLabel: ctx.store.name,
+  });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);
@@ -271,7 +290,6 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
   addCategoryResultToReport(report, ctx.store.name, ctx.cat.label, newItems, updatedItems, removedItems, restoredItems);
 }
 
-
 function createStore(defaultUa) {
   return {
     key: "craftcellars",
@@ -292,37 +310,68 @@ function createStore(defaultUa) {
         key: "whisky",
         label: "Whisky",
         startUrl: "https://craftcellars.ca/collections/whisky?filter.v.availability=1",
-        discoveryStartPage: 10,
+
+        // slow-and-safe defaults (override globally if you want)
+        discoveryStartPage: 3,
+        discoveryStep: 2,
+        pageConcurrency: 1,
+        pageStaggerMs: 10000,
+        discoveryDelayMs: 10000,
       },
       {
         key: "rum",
         label: "Rum",
         startUrl: "https://craftcellars.ca/collections/rum?filter.v.availability=1",
-        discoveryStartPage: 5,
+
+        discoveryStartPage: 3,
+        discoveryStep: 2,
+        pageConcurrency: 1,
+        pageStaggerMs: 10000,
+        discoveryDelayMs: 10000,
       },
       {
         key: "single-malt-scotch",
         label: "Single Malt Scotch",
         startUrl: "https://craftcellars.ca/collections/single-malt-scotch?filter.v.availability=1",
-        discoveryStartPage: 1,
+
+        discoveryStartPage: 3,
+        discoveryStep: 2,
+        pageConcurrency: 1,
+        pageStaggerMs: 10000,
+        discoveryDelayMs: 10000,
       },
       {
         key: "other-scotch-styles",
         label: "Other Scotch Styles",
         startUrl: "https://craftcellars.ca/collections/other-scotch-styles?filter.v.availability=1",
-        discoveryStartPage: 1,
+
+        discoveryStartPage: 3,
+        discoveryStep: 2,
+        pageConcurrency: 1,
+        pageStaggerMs: 10000,
+        discoveryDelayMs: 10000,
       },
       {
         key: "single-grain-scotch",
         label: "Single Grain Scotch",
         startUrl: "https://craftcellars.ca/collections/single-grain-scotch?filter.v.availability=1",
-        discoveryStartPage: 1,
+
+        discoveryStartPage: 3,
+        discoveryStep: 2,
+        pageConcurrency: 1,
+        pageStaggerMs: 10000,
+        discoveryDelayMs: 10000,
       },
       {
         key: "blended-malt-scotch",
         label: "Blended Malt Scotch",
         startUrl: "https://craftcellars.ca/collections/blended-malt-scotch?filter.v.availability=1",
-        discoveryStartPage: 10,
+
+        discoveryStartPage: 3,
+        discoveryStep: 2,
+        pageConcurrency: 1,
+        pageStaggerMs: 10000,
+        discoveryDelayMs: 10000,
       },
     ],
   };
