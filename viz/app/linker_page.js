@@ -261,7 +261,7 @@ function buildMappedSkuSet(links, rules) {
 
 function isBCStoreLabel(label) {
   const s = String(label || "").toLowerCase();
-  return s.includes("bcl") || s.includes("strath") || s.includes("gull") || s.includes("legacy") || s.includes("tudor");
+  return s.includes("bcl") || s.includes("strath") || s.includes("gull") || s.includes("legacy") || s.includes("tudor") ||s.includes("vessel") ||s.includes("vintagespirits");
 }
 
 function skuIsBC(allRows, skuKey) {
