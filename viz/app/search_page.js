@@ -16,6 +16,16 @@ export function renderSearch($app) {
         <a class="btn" href="#/link" style="text-decoration:none;">Link SKUs</a>
       </div>
 
+      <div class="card storeNav">
+        <div class="storeNavRow">
+          <select id="storeSelect" class="input storeSelect">
+            <option value="">Open store…</option>
+          </select>
+          <input id="storeFilter" class="input storeFilter" placeholder="Filter stores…" autocomplete="off" />
+        </div>
+        <div id="stores" class="storeList"></div>
+      </div>
+
       <div class="card">
         <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" />
         <div id="results" class="list"></div>
@@ -26,6 +36,10 @@ export function renderSearch($app) {
   const $q = document.getElementById("q");
   const $results = document.getElementById("results");
 
+  const $storeSelect = document.getElementById("storeSelect");
+  const $storeFilter = document.getElementById("storeFilter");
+  const $stores = document.getElementById("stores");
+
   $q.value = loadSavedQuery();
 
   let aggBySku = new Map();
@@ -34,6 +48,53 @@ export function renderSearch($app) {
 
   // canonicalSku -> storeLabel -> url
   let URL_BY_SKU_STORE = new Map();
+
+  // --- Store nav ---
+  let ALL_STORES = [];
+
+  function storeLabelForRow(r) {
+    return String(r?.storeLabel || r?.store || "").trim();
+  }
+
+  function extractStores(listings) {
+    const s = new Set();
+    for (const r of Array.isArray(listings) ? listings : []) {
+      const lab = storeLabelForRow(r);
+      if (lab) s.add(lab);
+    }
+    return Array.from(s).sort((a, b) => a.localeCompare(b));
+  }
+
+  function renderStoreSelect(stores) {
+    $storeSelect.innerHTML =
+      `<option value="">Open store…</option>` +
+      stores.map((x) => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
+
+    $storeSelect.addEventListener("change", () => {
+      const v = String($storeSelect.value || "");
+      if (!v) return;
+      location.hash = `#/store/${encodeURIComponent(v)}`;
+      $storeSelect.value = "";
+    });
+  }
+
+  function renderStoreChips(filterText) {
+    const f = String(filterText || "").trim().toLowerCase();
+    const filtered = !f ? ALL_STORES : ALL_STORES.filter((x) => String(x).toLowerCase().includes(f));
+
+    $stores.innerHTML = filtered.length
+      ? filtered
+          .map(
+            (lab) =>
+              `<a class="badge storeChip" href="#/store/${encodeURIComponent(lab)}">${esc(lab)}</a>`
+          )
+          .join("")
+      : `<div class="small">No store matches.</div>`;
+  }
+
+  $storeFilter.addEventListener("input", () => {
+    renderStoreChips($storeFilter.value);
+  });
 
   function buildUrlMap(listings, canonicalSkuFn) {
     const out = new Map();
@@ -157,14 +218,14 @@ export function renderSearch($app) {
   function rankRecent(r, canonSkuFn) {
     const rawSku = String(r?.sku || "");
     const sku = String(canonSkuFn ? canonSkuFn(rawSku) : rawSku);
-  
+
     const agg = aggBySku.get(sku) || null;
-  
+
     const storeLabelRaw = String(r?.storeLabel || r?.store || "").trim();
     const bestStoreRaw = String(agg?.cheapestStoreLabel || "").trim();
-  
+
     const normStore = (s) => String(s || "").trim().toLowerCase();
-  
+
     // Normalize kind
     let kind = String(r?.kind || "");
     if (kind === "price_change") {
@@ -175,36 +236,36 @@ export function renderSearch($app) {
         else if (n > o) kind = "price_up";
       }
     }
-  
+
     const pctOff = kind === "price_down" ? salePctOff(r?.oldPrice || "", r?.newPrice || "") : null;
     const pctUp = kind === "price_up" ? pctChange(r?.oldPrice || "", r?.newPrice || "") : null;
-  
+
     const isNew = kind === "new";
     const storeCount = agg?.stores?.size || 0;
     const isNewUnique = isNew && storeCount <= 1;
-  
+
     // Cheapest checks (use aggregate index)
     const newPriceNum = kind === "price_down" || kind === "price_up" ? parsePriceToNumber(r?.newPrice || "") : null;
     const bestPriceNum = Number.isFinite(agg?.cheapestPriceNum) ? agg.cheapestPriceNum : null;
-  
+
     const EPS = 0.01;
     const priceMatchesBest =
       Number.isFinite(newPriceNum) && Number.isFinite(bestPriceNum) ? Math.abs(newPriceNum - bestPriceNum) <= EPS : false;
-  
+
     const storeIsBest =
       normStore(storeLabelRaw) && normStore(bestStoreRaw) && normStore(storeLabelRaw) === normStore(bestStoreRaw);
-  
+
     const saleIsCheapestHere = kind === "price_down" && storeIsBest && priceMatchesBest;
     const saleIsTiedCheapest = kind === "price_down" && !storeIsBest && priceMatchesBest;
     const saleIsCheapest = saleIsCheapestHere || saleIsTiedCheapest;
-  
+
     // Bucketed scoring (higher = earlier)
     let score = 0;
-  
+
     // Helper for sales buckets
     function saleBucketScore(isCheapest, pct) {
       const p = Number.isFinite(pct) ? pct : 0;
-  
+
       if (isCheapest) {
         if (p >= 20) return 9000 + p;      // Bucket #1
         if (p >= 10) return 7000 + p;      // Bucket #3
@@ -217,7 +278,7 @@ export function renderSearch($app) {
         return 1000;                       // bottom-ish
       }
     }
-  
+
     if (kind === "price_down") {
       score = saleBucketScore(saleIsCheapest, pctOff);
     } else if (isNewUnique) {
@@ -234,16 +295,16 @@ export function renderSearch($app) {
     } else {
       score = 0;
     }
-  
+
     // Tie-breaks: within bucket prefer bigger % for sales, then recency
     let tie = 0;
     if (kind === "price_down") tie = (pctOff || 0) * 100000 + tsValue(r);
     else if (kind === "price_up") tie = (pctUp || 0) * 100000 + tsValue(r);
     else tie = tsValue(r);
-  
+
     return { sku, kind, pctOff, storeCount, isNewUnique, score, tie };
   }
-  
+
   function renderRecent(recent, canonicalSkuFn) {
     const items = Array.isArray(recent?.items) ? recent.items : [];
     if (!items.length) {
@@ -373,15 +434,11 @@ export function renderSearch($app) {
 
           const offBadge =
             meta.kind === "price_down" && meta.pctOff !== null
-              ? `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
-                  meta.pctOff
-                )}% Off]</span>`
+              ? `<span class="badge good" style="margin-left:6px;">[${esc(meta.pctOff)}% Off]</span>`
               : "";
 
           const kindBadgeStyle =
-            meta.kind === "new" && meta.isNewUnique
-              ? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
-              : "";
+            meta.kind === "new" && meta.isNewUnique ? ` class="badge good"` : ` class="badge"`;
 
           return `
             <div class="item" data-sku="${esc(sku)}">
@@ -395,7 +452,7 @@ export function renderSearch($app) {
                     <span class="badge mono">${esc(displaySku(sku))}</span>
                   </div>
                   <div class="metaRow">
-                    <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
+                    <span${kindBadgeStyle}>${esc(kindLabel)}</span>
                     <span class="mono price">${esc(priceLine)}</span>
                     ${offBadge}
                     ${storeBadge}
@@ -417,7 +474,6 @@ export function renderSearch($app) {
       });
     }
   }
-
 
   function applySearch() {
     if (!indexReady) return;
@@ -455,6 +511,12 @@ export function renderSearch($app) {
   Promise.all([loadIndex(), loadSkuRules()])
     .then(([idx, rules]) => {
       const listings = Array.isArray(idx.items) ? idx.items : [];
+
+      // store nav: build once
+      ALL_STORES = extractStores(listings);
+      renderStoreSelect(ALL_STORES);
+      renderStoreChips($storeFilter.value);
+
       allAgg = aggregateBySku(listings, rules.canonicalSku);
       aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
       URL_BY_SKU_STORE = buildUrlMap(listings, rules.canonicalSku);

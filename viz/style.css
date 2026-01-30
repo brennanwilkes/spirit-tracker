@@ -276,3 +276,68 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   position: sticky;
   bottom: 0;
 }
+
+/* --- Store nav (search page) --- */
+.storeNav {
+  margin-bottom: 12px;
+}
+
+.storeNavRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.storeSelect {
+  flex: 1;
+}
+
+.storeFilter {
+  width: 260px;
+  max-width: 100%;
+}
+
+.storeList {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 160px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.storeChip {
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .storeFilter { display: none; }
+  .storeList { max-height: 220px; }
+}
+
+/* --- Highlight badges (store page + reused) --- */
+.badge.good {
+  color: rgba(20,110,40,0.95);
+  background: rgba(20,110,40,0.10);
+  border: 1px solid rgba(20,110,40,0.20);
+}
+
+.badge.bad {
+  color: rgba(160,40,40,0.95);
+  background: rgba(160,40,40,0.12);
+  border: 1px solid rgba(160,40,40,0.22);
+}
+
+.badge.neutral {
+  color: var(--muted);
+  background: rgba(200,200,200,0.06);
+  border: 1px solid rgba(200,200,200,0.16);
+}
+
+.badge.exclusive {
+  color: rgba(20,110,40,0.95);
+  background: rgba(20,110,40,0.10);
+  border: 1px solid rgba(20,110,40,0.20);
+}
