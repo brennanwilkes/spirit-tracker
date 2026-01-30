@@ -69,7 +69,10 @@ export async function renderStore($app, storeLabelRaw) {
     </div>
   `;
 
-  document.getElementById("back").addEventListener("click", () => (location.hash = "#/"));
+  document.getElementById("back").addEventListener("click", () => {
+    sessionStorage.setItem("viz:lastRoute", location.hash);
+    location.hash = "#/"
+});
 
   const $q = document.getElementById("q");
   const $status = document.getElementById("status");
@@ -230,7 +233,7 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="itemBody">
             <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <a class="badge mono skuLink" href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(
+              <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer" href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(
                 displaySku(it.sku)
               )}</a>
             </div>
@@ -294,6 +297,7 @@ export async function renderStore($app, storeLabelRaw) {
     if (!el) return;
     const sku = el.getAttribute("data-sku") || "";
     if (!sku) return;
+    sessionStorage.setItem("viz:lastRoute", location.hash);
     location.hash = `#/item/${encodeURIComponent(sku)}`;
   });
 

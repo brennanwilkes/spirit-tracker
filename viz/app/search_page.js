@@ -131,7 +131,7 @@ export function renderSearch($app) {
                   <div class="itemName">${esc(it.name || "(no name)")}</div>
                   <a class="badge mono skuLink" href="${esc(
                     skuLink
-                  )}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+                  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
                 </div>
                 <div class="metaRow">
                   <span class="mono price">${esc(price)}</span>
@@ -149,6 +149,7 @@ export function renderSearch($app) {
         const sku = el.getAttribute("data-sku") || "";
         if (!sku) return;
         saveQuery($q.value);
+        sessionStorage.setItem("viz:lastRoute", location.hash);
         location.hash = `#/item/${encodeURIComponent(sku)}`;
       });
     }
@@ -419,7 +420,7 @@ export function renderSearch($app) {
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
                     <a class="badge mono skuLink" href="${esc(
                       skuLink
-                    )}" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
+                    )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
                   </div>
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
@@ -440,6 +441,7 @@ export function renderSearch($app) {
         const sku = el.getAttribute("data-sku") || "";
         if (!sku) return;
         saveQuery($q.value);
+        sessionStorage.setItem("viz:lastRoute", location.hash);
         location.hash = `#/item/${encodeURIComponent(sku)}`;
       });
     }
