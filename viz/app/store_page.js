@@ -67,7 +67,10 @@ export async function renderStore($app, storeLabelRaw) {
         <div id="results" class="storeGrid">
           <div class="storeCol">
             <div class="storeColHeader">
-              <span class="badge badgeExclusive">Exclusive</span>
+              <div>
+                <span class="badge badgeExclusive">Exclusive</span>
+                <span class="badge badgeLastStock">Last Stock</span>
+              </div>
               <span class="small">Only sold here</span>
             </div>
             <div id="resultsExclusive" class="storeColList"></div>
