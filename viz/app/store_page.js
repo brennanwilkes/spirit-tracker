@@ -250,7 +250,7 @@ export async function renderStore($app, storeLabelRaw) {
     const pctBadge = priceBadgeHtml(it);
 
     const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
-
+    console.log(it);
     return `
       <div class="item" data-sku="${esc(it.sku)}">
         <div class="itemRow">
@@ -268,7 +268,7 @@ export async function renderStore($app, storeLabelRaw) {
               <span class="mono price">${esc(price)}</span>
               ${
                 href
-                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${normStoreLabel(it.store)}</a>`
+                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
                   : ``
               }
             </div>
