@@ -3,17 +3,15 @@
 
 /*
   Build a report of canonical SKUs and how many STORES carry each one.
-  - "Store" means storeLabel, NOT category. We union across categories per store.
-  - Uses sku_map canonicalization (same as alert tool).
+  - Store = storeLabel (union across categories).
+  - Canonicalizes via sku_map.
+  - Debug output while scanning.
   - Writes: reports/common_listings.json
-  - Prints debug while scanning.
 
-  Usage:
-    node tools/build_common_listings.js [--top 50] [--min-stores 3] [--prefer-real-sku] [--require-all]
-
-  Notes:
-  - If --require-all is set, output includes only SKUs present in ALL stores (often empty).
-  - Otherwise, outputs top N by store coverage.
+  Flags:
+    --top N
+    --min-stores N
+    --require-all
 */
 
 const fs = require("fs");
@@ -25,15 +23,15 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-function readJson(filePath) {
+function readJson(p) {
   try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return JSON.parse(fs.readFileSync(p, "utf8"));
   } catch {
     return null;
   }
 }
 
-function listDbFilesOnDisk() {
+function listDbFiles() {
   const dir = path.join(process.cwd(), "data", "db");
   try {
     return fs
@@ -59,13 +57,13 @@ function isSyntheticSkuKey(k) {
   return String(k || "").startsWith("u:");
 }
 
-/* ---------------- sku map + normalization ---------------- */
+/* ---------------- sku helpers ---------------- */
 
 function loadSkuMapOrNull() {
   try {
     // eslint-disable-next-line node/no-missing-require
-    const { loadSkuMap } = require(path.join(process.cwd(), "src", "utils", "sku_map"));
-    return loadSkuMap({ dbDir: path.join(process.cwd(), "data", "db") });
+    const { loadSkuMap } = require(path.join(process.cwd(), "src/utils/sku_map"));
+    return loadSkuMap({ dbDir: path.join(process.cwd(), "data/db") });
   } catch {
     return null;
   }
@@ -74,40 +72,33 @@ function loadSkuMapOrNull() {
 function normalizeSkuKeyOrEmpty({ skuRaw, storeLabel, url }) {
   try {
     // eslint-disable-next-line node/no-missing-require
-    const { normalizeSkuKey } = require(path.join(process.cwd(), "src", "utils", "sku"));
+    const { normalizeSkuKey } = require(path.join(process.cwd(), "src/utils/sku"));
     const k = normalizeSkuKey(skuRaw, { storeLabel, url });
     return k ? String(k) : "";
   } catch {
-    // fallback: a 6-digit SKU if present, else synthetic from URL
     const m = String(skuRaw ?? "").match(/\b(\d{6})\b/);
     if (m) return m[1];
-    if (url) return `u:${String(storeLabel || "").toLowerCase()}:${String(url || "").toLowerCase()}`;
+    if (url) return `u:${storeLabel}:${url}`;
     return "";
   }
 }
 
-function canonicalize(skuKey, skuMap) {
-  if (!skuKey) return "";
-  if (skuMap && typeof skuMap.canonicalSku === "function") return String(skuMap.canonicalSku(skuKey) || skuKey);
-  return skuKey;
+function canonicalize(k, skuMap) {
+  if (!k) return "";
+  if (skuMap && typeof skuMap.canonicalSku === "function") {
+    return String(skuMap.canonicalSku(k) || k);
+  }
+  return k;
 }
 
 /* ---------------- args ---------------- */
 
 function parseArgs(argv) {
-  const out = {
-    top: 50,
-    minStores: 2,
-    preferRealSku: true,
-    requireAll: false,
-  };
-
+  const out = { top: 50, minStores: 2, requireAll: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--top" && argv[i + 1]) out.top = Math.max(1, Number(argv[++i]) || 50);
-    else if (a === "--min-stores" && argv[i + 1]) out.minStores = Math.max(1, Number(argv[++i]) || 2);
-    else if (a === "--prefer-real-sku") out.preferRealSku = true;
-    else if (a === "--no-prefer-real-sku") out.preferRealSku = false;
+    if (a === "--top" && argv[i + 1]) out.top = Number(argv[++i]) || 50;
+    else if (a === "--min-stores" && argv[i + 1]) out.minStores = Number(argv[++i]) || 2;
     else if (a === "--require-all") out.requireAll = true;
   }
   return out;
@@ -121,70 +112,56 @@ function main() {
   const reportsDir = path.join(repoRoot, "reports");
   ensureDir(reportsDir);
 
-  const dbFiles = listDbFilesOnDisk();
+  const dbFiles = listDbFiles();
   if (!dbFiles.length) {
-    console.error("No DB files found under data/db");
+    console.error("No DB files found");
     process.exitCode = 2;
     return;
   }
 
   const skuMap = loadSkuMapOrNull();
-  console.log(`[debug] skuMap: ${skuMap ? "loaded" : "NOT loaded (will use raw sku keys)"}`);
-  console.log(`[debug] scanning ${dbFiles.length} db files...`);
+  console.log(`[debug] skuMap: ${skuMap ? "loaded" : "missing"}`);
+  console.log(`[debug] scanning ${dbFiles.length} db files`);
 
-  // storeLabel -> Set(canonSku) (union across categories)
-  const storeToCanon = new Map();
-
-  // canonSku -> aggregate
-  const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest:{priceNum,item}|null }
-
-  const EXCLUDED_STORE_LABELS = new Set(["gull", "legacy", "strath", "vessel", "tudor"]);
+  const storeToCanon = new Map();     // storeLabel -> Set(canonSku)
+  const canonAgg = new Map();         // canonSku -> { stores:Set, listings:[], cheapest }
 
   let liveRows = 0;
   let removedRows = 0;
-  let skippedNoSku = 0;
 
   for (const abs of dbFiles.sort()) {
     const obj = readJson(abs);
-    if (!obj) {
-      console.log(`[debug] skip unreadable: ${path.relative(repoRoot, abs)}`);
-      continue;
-    }
+    if (!obj) continue;
 
     const storeLabel = String(obj.storeLabel || obj.store || "").trim();
-    const categoryLabel = String(obj.categoryLabel || obj.category || "").trim();
-    const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
+    if (!storeLabel) continue;
 
-    if (!storeLabel) {
-      console.log(`[debug] skip no-storeLabel: ${rel}`);
-      continue;
+    if (!storeToCanon.has(storeLabel)) {
+      storeToCanon.set(storeLabel, new Set());
     }
 
-    if (!storeToCanon.has(storeLabel)) storeToCanon.set(storeLabel, new Set());
-
+    const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
     const items = Array.isArray(obj.items) ? obj.items : [];
-    console.log(`[debug] file ${rel} | store="${storeLabel}" cat="${categoryLabel}" items=${items.length}`);
+
+    console.log(`[debug] ${rel} store="${storeLabel}" items=${items.length}`);
 
     for (const it of items) {
       if (!it) continue;
-      if (Boolean(it.removed)) {
+      if (it.removed) {
         removedRows++;
         continue;
       }
       liveRows++;
 
-      const skuRaw = String(it.sku || "");
-      const url = String(it.url || "");
-      const skuKey = normalizeSkuKeyOrEmpty({ skuRaw, storeLabel, url });
-      if (!skuKey) {
-        skippedNoSku++;
-        continue;
-      }
+      const skuKey = normalizeSkuKeyOrEmpty({
+        skuRaw: it.sku,
+        storeLabel,
+        url: it.url,
+      });
+      if (!skuKey) continue;
+
       const canonSku = canonicalize(skuKey, skuMap);
-      if (!canonSku) {
-        skippedNoSku++;
-        continue;
-      }
+      if (!canonSku) continue;
 
       storeToCanon.get(storeLabel).add(canonSku);
 
@@ -193,25 +170,22 @@ function main() {
         agg = { stores: new Set(), listings: [], cheapest: null };
         canonAgg.set(canonSku, agg);
       }
+
       agg.stores.add(storeLabel);
 
-      const priceStr = String(it.price || "");
-      const priceNum = priceToNumber(priceStr);
-
+      const priceNum = priceToNumber(it.price);
       const listing = {
         canonSku,
         skuKey,
-        skuRaw,
+        skuRaw: String(it.sku || ""),
         name: String(it.name || ""),
-        price: priceStr,
+        price: String(it.price || ""),
         priceNum,
-        url,
-        img: String(it.img || it.image || it.thumb || ""),
+        url: String(it.url || ""),
         storeLabel,
-        categoryLabel,
+        categoryLabel: String(obj.categoryLabel || obj.category || ""),
         dbFile: rel,
-        hasRealSku6: hasRealSku6(skuRaw) && !isSyntheticSkuKey(skuKey),
-        excludedStore: EXCLUDED_STORE_LABELS.has(String(storeLabel || "").toLowerCase()),
+        hasRealSku6: hasRealSku6(it.sku) && !isSyntheticSkuKey(skuKey),
       };
 
       agg.listings.push(listing);
@@ -224,52 +198,33 @@ function main() {
     }
   }
 
-  const stores = [...storeToCanon.keys()].sort((a, b) => a.localeCompare(b));
+  const stores = [...storeToCanon.keys()].sort();
   const storeCount = stores.length;
 
-  console.log(`[debug] stores=${storeCount} (${stores.join(", ")})`);
-  console.log(
-    `[debug] liveRows=${liveRows} removedRows=${removedRows} skippedNoSku=${skippedNoSku} canonSkus=${canonAgg.size}`
-  );
+  console.log(`[debug] stores (${storeCount}): ${stores.join(", ")}`);
+  console.log(`[debug] liveRows=${liveRows} removedRows=${removedRows} canonSkus=${canonAgg.size}`);
 
   function pickRepresentative(agg) {
-    // prefer: real 6-digit + non-excluded store + cheapest among those
-    const candidates = agg.listings.slice();
+    const preferred = agg.listings
+      .filter((l) => l.hasRealSku6)
+      .sort((a, b) => (a.priceNum ?? Infinity) - (b.priceNum ?? Infinity));
 
-    const byPrice = (a, b) => {
-      const ap = a.priceNum;
-      const bp = b.priceNum;
-      if (ap === null && bp === null) return 0;
-      if (ap === null) return 1;
-      if (bp === null) return -1;
-      return ap - bp;
-    };
-
-    const preferred = candidates
-      .filter((x) => x.hasRealSku6 && !x.excludedStore)
-      .sort(byPrice);
-
-    if (args.preferRealSku && preferred.length) return preferred[0];
-
-    // else: cheapest overall if available
-    if (agg.cheapest && agg.cheapest.item) return agg.cheapest.item;
-
-    // else: deterministic fallback
-    candidates.sort((a, b) => {
-      const ak = `${a.storeLabel}|${a.name}|${a.url}`;
-      const bk = `${b.storeLabel}|${b.name}|${b.url}`;
-      return ak.localeCompare(bk);
-    });
-    return candidates[0] || null;
+    if (preferred.length) return preferred[0];
+    if (agg.cheapest) return agg.cheapest.item;
+    return agg.listings[0] || null;
   }
 
   const rows = [];
+
   for (const [canonSku, agg] of canonAgg.entries()) {
     const rep = pickRepresentative(agg);
+    const missingStores = stores.filter((s) => !agg.stores.has(s));
+
     rows.push({
       canonSku,
       storeCount: agg.stores.size,
-      stores: [...agg.stores].sort((a, b) => a.localeCompare(b)),
+      stores: [...agg.stores].sort(),
+      missingStores,
       representative: rep
         ? {
             name: rep.name,
@@ -279,8 +234,8 @@ function main() {
             skuRaw: rep.skuRaw,
             skuKey: rep.skuKey,
             url: rep.url,
-            dbFile: rep.dbFile,
             categoryLabel: rep.categoryLabel,
+            dbFile: rep.dbFile,
           }
         : null,
       cheapest: agg.cheapest
@@ -294,33 +249,13 @@ function main() {
     });
   }
 
-  // Sort by coverage desc, then cheapest asc, then canonSku
-  rows.sort((a, b) => {
-    if (b.storeCount !== a.storeCount) return b.storeCount - a.storeCount;
-    const ap = a.cheapest ? a.cheapest.priceNum : null;
-    const bp = b.cheapest ? b.cheapest.priceNum : null;
-    if (ap !== null && bp !== null && ap !== bp) return ap - bp;
-    if (ap !== null && bp === null) return -1;
-    if (ap === null && bp !== null) return 1;
-    return String(a.canonSku).localeCompare(String(b.canonSku));
-  });
+  rows.sort((a, b) => b.storeCount - a.storeCount);
 
-  const allStoresRows = rows.filter((r) => r.storeCount === storeCount);
-  const filtered = args.requireAll ? allStoresRows : rows.filter((r) => r.storeCount >= args.minStores);
+  const filtered = args.requireAll
+    ? rows.filter((r) => r.storeCount === storeCount)
+    : rows.filter((r) => r.storeCount >= args.minStores);
+
   const top = filtered.slice(0, args.top);
-
-  console.log(
-    `[debug] all-stores=${allStoresRows.length} minStores>=${args.minStores} filtered=${filtered.length} top=${top.length}`
-  );
-  if (top.length) {
-    console.log("[debug] sample:");
-    for (const r of top.slice(0, Math.min(10, top.length))) {
-      const rep = r.representative;
-      console.log(
-        `  - stores=${r.storeCount}/${storeCount} canon=${r.canonSku} | rep="${rep?.name || "?"}" ${rep?.price || ""} @ ${rep?.storeLabel || "?"}`
-      );
-    }
-  }
 
   const payload = {
     generatedAt: new Date().toISOString(),
@@ -330,9 +265,7 @@ function main() {
     totals: {
       liveRows,
       removedRows,
-      skippedNoSku,
       canonSkus: canonAgg.size,
-      allStores: allStoresRows.length,
       outputCount: top.length,
     },
     rows: top,
