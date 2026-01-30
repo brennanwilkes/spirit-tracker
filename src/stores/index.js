@@ -18,21 +18,21 @@ const { createStore: createWillowPark } = require("./willowpark");
 
 function createStores({ defaultUa } = {}) {
   return [
-    createGull(defaultUa),
-    createSierra(defaultUa),
     createKWM(defaultUa),
     createCraftCellars(defaultUa),
-    createStrath(defaultUa),
-    createBSW(defaultUa),
+    createSierra(defaultUa),
+    createGull(defaultUa),
     createCoop(defaultUa),
-    createKegNCork(defaultUa),
-    createTudor(defaultUa),
-    createMaltsAndGrains(defaultUa),
+    createStrath(defaultUa),
     createBCL(defaultUa),
+    createBSW(defaultUa),
     createWillowPark(defaultUa),
     createVessel(defaultUa),
-    createLegacy(defaultUa),
+    createMaltsAndGrains(defaultUa), 
+    createKegNCork(defaultUa),
+    createTudor(defaultUa),
     createVintage(defaultUa),
+    createLegacy(defaultUa),
   ];
 }
 
