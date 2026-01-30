@@ -69,7 +69,7 @@ export async function renderStore($app, storeLabelRaw) {
             <div class="storeColHeader">
               <div>
                 <span class="badge badgeExclusive">Exclusive</span>
-                and
+                <span class="small">and</span>
                 <span class="badge badgeLastStock">Last Stock</span>
               </div>
               <span class="small">Only sold here</span>
