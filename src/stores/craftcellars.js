@@ -300,6 +300,30 @@ function createStore(defaultUa) {
         startUrl: "https://craftcellars.ca/collections/rum?filter.v.availability=1",
         discoveryStartPage: 5,
       },
+      {
+        key: "single-malt-scotch",
+        label: "Single Malt Scotch",
+        startUrl: "https://craftcellars.ca/collections/single-malt-scotch?filter.v.availability=1",
+        discoveryStartPage: 1,
+      },
+      {
+        key: "other-scotch-styles",
+        label: "Other Scotch Styles",
+        startUrl: "https://craftcellars.ca/collections/other-scotch-styles?filter.v.availability=1",
+        discoveryStartPage: 1,
+      },
+      {
+        key: "single-grain-scotch",
+        label: "Single Grain Scotch",
+        startUrl: "https://craftcellars.ca/collections/single-grain-scotch?filter.v.availability=1",
+        discoveryStartPage: 1,
+      },
+      {
+        key: "blended-malt-scotch",
+        label: "Blended Malt Scotch",
+        startUrl: "https://craftcellars.ca/collections/blended-malt-scotch?filter.v.availability=1",
+        discoveryStartPage: 10,
+      },
     ],
   };
 }
