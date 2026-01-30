@@ -268,7 +268,7 @@ export async function renderStore($app, storeLabelRaw) {
               <span class="mono price">${esc(price)}</span>
               ${
                 href
-                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Open</a>`
+                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${normStoreLabel(it.store)}</a>`
                   : ``
               }
             </div>
