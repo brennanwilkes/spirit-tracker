@@ -9,16 +9,18 @@ export function renderSearch($app) {
   $app.innerHTML = `
     <div class="container">
       <div class="header">
-        <div style="min-width:0;">
+        <div class="headerLeft">
           <h1 class="h1">Spirit Tracker Viz</h1>
           <div class="small">Search name / url / sku (word AND)</div>
 
           <div class="storeBarWrap">
-            <div class="small storeBarLabel">Stores:</div>
-            <div id="storeBar" class="storeBar"></div>
+            <div id="stores" class="storeBar"></div>
           </div>
         </div>
-        <a class="btn" href="#/link" style="text-decoration:none;">Link SKUs</a>
+
+        <div class="headerRight">
+          <a class="btn btnWide" href="#/link" style="text-decoration:none;">Link SKUs</a>
+        </div>
       </div>
 
       <div class="card">
@@ -30,7 +32,7 @@ export function renderSearch($app) {
 
   const $q = document.getElementById("q");
   const $results = document.getElementById("results");
-  const $storeBar = document.getElementById("storeBar");
+  const $stores = document.getElementById("stores");
 
   $q.value = loadSavedQuery();
 
@@ -40,14 +42,6 @@ export function renderSearch($app) {
 
   // canonicalSku -> storeLabel -> url
   let URL_BY_SKU_STORE = new Map();
-
-  function normStoreLabel(s) {
-    return String(s || "").trim().toLowerCase();
-  }
-
-  function storeLabelFromRow(r) {
-    return String(r?.storeLabel || r?.store || "").trim();
-  }
 
   function buildUrlMap(listings, canonicalSkuFn) {
     const out = new Map();
@@ -60,7 +54,7 @@ export function renderSearch($app) {
       const sku = String(canonicalSkuFn ? canonicalSkuFn(skuKey) : skuKey);
       if (!sku) continue;
 
-      const storeLabel = storeLabelFromRow(r);
+      const storeLabel = String(r.storeLabel || r.store || "").trim();
       const url = String(r.url || "").trim();
       if (!storeLabel || !url) continue;
 
@@ -77,17 +71,26 @@ export function renderSearch($app) {
     return URL_BY_SKU_STORE.get(sku)?.get(s) || "";
   }
 
-  function renderStoreBar(listingsLive, storeLabelMapDisplay) {
-    if (!$storeBar) return;
+  function normStoreLabel(s) {
+    return String(s || "").trim();
+  }
 
-    const stores = Array.from(storeLabelMapDisplay.values()).sort((a, b) => a.localeCompare(b));
+  function renderStoreButtons(listings) {
+    // include all stores seen (live or removed) so the selector is stable
+    const set = new Set();
+    for (const r of Array.isArray(listings) ? listings : []) {
+      const lab = normStoreLabel(r?.storeLabel || r?.store || "");
+      if (lab) set.add(lab);
+    }
+    const stores = Array.from(set).sort((a, b) => a.localeCompare(b));
+
     if (!stores.length) {
-      $storeBar.innerHTML = `<span class="small">No stores</span>`;
+      $stores.innerHTML = "";
       return;
     }
 
-    $storeBar.innerHTML = stores
-      .map((s) => `<a class="badge storePill" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`)
+    $stores.innerHTML = stores
+      .map((s) => `<a class="storeBtn" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`)
       .join("");
   }
 
@@ -115,6 +118,8 @@ export function renderSearch($app) {
             )}</a>`
           : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
+        const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
+
         return `
           <div class="item" data-sku="${esc(it.sku)}">
             <div class="itemRow">
@@ -124,7 +129,9 @@ export function renderSearch($app) {
               <div class="itemBody">
                 <div class="itemTop">
                   <div class="itemName">${esc(it.name || "(no name)")}</div>
-                  <span class="badge mono">${esc(displaySku(it.sku))}</span>
+                  <a class="badge mono skuLink" href="${esc(
+                    skuLink
+                  )}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
                 </div>
                 <div class="metaRow">
                   <span class="mono price">${esc(price)}</span>
@@ -175,13 +182,7 @@ export function renderSearch($app) {
     return Number.isFinite(ms2) ? ms2 : 0;
   }
 
-  // Custom priority:
-  // - Sales that make this store cheapest (or tied cheapest) are most interesting
-  // - New unique (no other stores have canonical SKU)
-  // - Other sales (not cheapest) are demoted
-  // - Removed
-  // - Price increases
-  // - New (available elsewhere)
+  // Custom priority (unchanged)
   function rankRecent(r, canonSkuFn) {
     const rawSku = String(r?.sku || "");
     const sku = String(canonSkuFn ? canonSkuFn(rawSku) : rawSku);
@@ -229,41 +230,38 @@ export function renderSearch($app) {
     // Bucketed scoring (higher = earlier)
     let score = 0;
 
-    // Helper for sales buckets
     function saleBucketScore(isCheapest, pct) {
       const p = Number.isFinite(pct) ? pct : 0;
 
       if (isCheapest) {
-        if (p >= 20) return 9000 + p;      // Bucket #1
-        if (p >= 10) return 7000 + p;      // Bucket #3
-        if (p > 0) return 6000 + p;        // Bucket #4
-        return 5900;                       // weird but keep below real pct
+        if (p >= 20) return 9000 + p;
+        if (p >= 10) return 7000 + p;
+        if (p > 0) return 6000 + p;
+        return 5900;
       } else {
-        if (p >= 20) return 4500 + p;      // Bucket #5 (below NEW unique)
-        if (p >= 10) return 1500 + p;      // Bucket #8
-        if (p > 0) return 1200 + p;        // Bucket #9
-        return 1000;                       // bottom-ish
+        if (p >= 20) return 4500 + p;
+        if (p >= 10) return 1500 + p;
+        if (p > 0) return 1200 + p;
+        return 1000;
       }
     }
 
     if (kind === "price_down") {
       score = saleBucketScore(saleIsCheapest, pctOff);
     } else if (isNewUnique) {
-      score = 8000;                        // Bucket #2
+      score = 8000;
     } else if (kind === "removed") {
-      score = 3000;                        // Bucket #6
+      score = 3000;
     } else if (kind === "price_up") {
-      score = 2000 + Math.min(99, Math.max(0, pctUp || 0)); // Bucket #7
+      score = 2000 + Math.min(99, Math.max(0, pctUp || 0));
     } else if (kind === "new") {
-      score = 1100;                        // Bucket #10
+      score = 1100;
     } else if (kind === "restored") {
-      // not in your bucket list, but keep it reasonably high (below NEW unique, above removals)
       score = 5000;
     } else {
       score = 0;
     }
 
-    // Tie-breaks: within bucket prefer bigger % for sales, then recency
     let tie = 0;
     if (kind === "price_down") tie = (pctOff || 0) * 100000 + tsValue(r);
     else if (kind === "price_up") tie = (pctUp || 0) * 100000 + tsValue(r);
@@ -289,7 +287,6 @@ export function renderSearch($app) {
       const ms = t ? Date.parse(t) : NaN;
       if (Number.isFinite(ms)) return ms;
 
-      // fallback: date-only => treat as start of day UTC-ish
       const d = String(r?.date || "");
       const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
       return Number.isFinite(ms2) ? ms2 : 0;
@@ -305,7 +302,6 @@ export function renderSearch($app) {
       return;
     }
 
-    // --- DEDUPE: canonical SKU -> (store -> most recent event for that store) ---
     const bySkuStore = new Map();
 
     for (const r of inWindow) {
@@ -325,7 +321,6 @@ export function renderSearch($app) {
       if (!prev || eventMs(prev) < ms) storeMap.set(storeLabel, r);
     }
 
-    // --- PICK ONE PER SKU: choose the most "important" among latest-per-store events ---
     const picked = [];
     for (const [sku, storeMap] of bySkuStore.entries()) {
       let best = null;
@@ -411,6 +406,8 @@ export function renderSearch($app) {
               ? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
               : "";
 
+          const skuLink = `#/link/?left=${encodeURIComponent(String(sku || ""))}`;
+
           return `
             <div class="item" data-sku="${esc(sku)}">
               <div class="itemRow">
@@ -420,7 +417,9 @@ export function renderSearch($app) {
                 <div class="itemBody">
                   <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <span class="badge mono">${esc(displaySku(sku))}</span>
+                    <a class="badge mono skuLink" href="${esc(
+                      skuLink
+                    )}" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
                   </div>
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
@@ -454,7 +453,6 @@ export function renderSearch($app) {
 
     const matches = allAgg.filter((it) => matchesAllTokens(it.searchText, tokens));
 
-    // If query prefixes an SMWS distillery name, also surface SMWS bottles by code XXX.YYY where XXX matches.
     const wantCodes = new Set(smwsDistilleryCodesForQueryPrefix($q.value));
     if (!wantCodes.size) {
       renderAggregates(matches);
@@ -473,27 +471,16 @@ export function renderSearch($app) {
       }
     }
 
-    // Put SMWS distillery matches first, then normal search matches.
     renderAggregates([...extra, ...matches]);
   }
 
   $results.innerHTML = `<div class="small">Loading index…</div>`;
-  if ($storeBar) $storeBar.innerHTML = `<span class="small">Loading stores…</span>`;
 
   Promise.all([loadIndex(), loadSkuRules()])
     .then(([idx, rules]) => {
       const listings = Array.isArray(idx.items) ? idx.items : [];
 
-      // Build store list from LIVE rows only
-      const live = listings.filter((r) => r && !r.removed);
-      const storeDisplayByNorm = new Map();
-      for (const r of live) {
-        const label = storeLabelFromRow(r);
-        if (!label) continue;
-        const n = normStoreLabel(label);
-        if (!storeDisplayByNorm.has(n)) storeDisplayByNorm.set(n, label);
-      }
-      renderStoreBar(live, storeDisplayByNorm);
+      renderStoreButtons(listings);
 
       allAgg = aggregateBySku(listings, rules.canonicalSku);
       aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
@@ -511,7 +498,6 @@ export function renderSearch($app) {
     })
     .catch((e) => {
       $results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
-      if ($storeBar) $storeBar.innerHTML = ``;
     });
 
   let t = null;

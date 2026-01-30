@@ -22,6 +22,10 @@ a:hover { text-decoration: underline; }
 a.badge { color: var(--muted); }
 a.badge:hover { text-decoration: underline; cursor: pointer; }
 
+/* SKU badge links (search/store -> link page) */
+a.skuLink { color: var(--muted); }
+a.skuLink:hover { text-decoration: underline; cursor: pointer; }
+
 .container {
   max-width: 980px;
   margin: 0 auto;
@@ -31,9 +35,19 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 .header {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 14px;
+  flex-wrap: wrap; /* keeps Link SKUs comfy on small screens */
+}
+
+.headerLeft {
+  flex: 1 1 520px;
+  min-width: 240px;
+}
+
+.headerRight {
+  flex: 0 0 auto;
 }
 
 .h1 {
@@ -148,6 +162,29 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   gap: 6px;
 }
 
+.badgeGood {
+  color: rgba(20,110,40,0.95);
+  background: rgba(20,110,40,0.10);
+  border-color: rgba(20,110,40,0.25);
+}
+
+.badgeNeutral {
+  color: var(--muted);
+  background: rgba(255,255,255,0.02);
+}
+
+.badgeBad {
+  color: rgba(160,40,40,0.95);
+  background: rgba(160,40,40,0.12);
+  border-color: rgba(160,40,40,0.25);
+}
+
+.badgeBest {
+  color: rgba(160,120,20,0.95);
+  background: rgba(160,120,20,0.10);
+  border-color: rgba(160,120,20,0.22);
+}
+
 .metaRow {
   margin-top: 8px;
   display: flex;
@@ -158,8 +195,6 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   color: var(--muted);
   font-size: 13px;
 }
-
-.metaRowWrap { flex-wrap: wrap; } /* used for store page so badges can wrap */
 
 .price {
   font-weight: 700;
@@ -186,6 +221,13 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 
 .btn:hover { border-color: #2f3a46; }
 
+.btnWide {
+  padding-left: 14px;
+  padding-right: 14px;
+  min-width: 120px;
+  text-align: center;
+}
+
 .links {
   display: flex;
   gap: 10px;
@@ -198,54 +240,39 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   font-size: 12px;
 }
 
-/* --- Store selector pills (search page header) --- */
+/* --- Store selector (top of search page) --- */
 .storeBarWrap {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-
-.storeBarLabel {
-  flex: 0 0 auto;
+  margin-top: 12px; /* slightly more gap from the top text */
 }
 
 .storeBar {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;       /* desktop: wrap nicely into 2 lines if needed */
-  min-width: 0;
+  flex-wrap: wrap;
 }
 
-.storePill {
-  padding: 2px 9px;
+.storeBtn {
+  border: 1px solid var(--border);
+  background: #0f1318;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 10px;
   font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
 }
 
-/* Badge color variants (store page percent badges) */
-.badgeGood {
-  color: rgba(20,110,40,0.95);
-  background: rgba(20,110,40,0.10);
-  border-color: rgba(20,110,40,0.20);
+.storeBtn:hover {
+  border-color: #2f3a46;
+  color: var(--text);
+  text-decoration: none;
 }
 
-.badgeBad {
-  color: rgba(180,70,60,0.95);
-  background: rgba(180,70,60,0.10);
-  border-color: rgba(180,70,60,0.25);
-}
-
-.badgeNeutral {
-  color: rgba(154,166,178,0.95);
-  background: rgba(154,166,178,0.08);
-  border-color: rgba(154,166,178,0.18);
-}
-
-.badgeExclusive {
-  color: rgba(125,211,252,0.95);
-  background: rgba(125,211,252,0.10);
-  border-color: rgba(125,211,252,0.20);
+.storeBtnActive {
+  border-color: #37566b;
+  outline: 1px solid #37566b;
+  color: var(--text);
 }
 
 /* Detail view sizing */
@@ -310,15 +337,6 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
     min-height: 260px;
     padding: 8px;
   }
-
-  /* mobile: make stores a single-row scroll instead of wrapping */
-  .storeBar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 6px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .storeBar::-webkit-scrollbar { display: none; }
 }
 
 .chartBox canvas {

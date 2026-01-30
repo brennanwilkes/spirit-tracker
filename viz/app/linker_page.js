@@ -1114,11 +1114,52 @@ export async function renderSkuLinker($app) {
     });
   }
 
+  function findAggForPreselectSku(rawSku) {
+    const want = String(rawSku || "").trim();
+    if (!want) return null;
+  
+    // exact match first
+    let it = allAgg.find((x) => String(x?.sku || "") === want);
+    if (it) return it;
+  
+    // try canonical group match
+    const canonWant = String(rules.canonicalSku(want) || want).trim();
+    if (!canonWant) return null;
+  
+    it = allAgg.find((x) => String(x?.sku || "") === canonWant);
+    if (it) return it;
+  
+    // any member whose canonicalSku matches
+    return (
+      allAgg.find((x) => String(rules.canonicalSku(String(x?.sku || "")) || "") === canonWant) ||
+      null
+    );
+  }
+
   function updateAll() {
+    // One-time left preselect from hash query:
+    //   #/link/?left=<sku>
+    // (works with your router because "link" stays as the first path segment)
+    if (!updateAll._didPreselect) {
+      updateAll._didPreselect = true;
+  
+      const h = String(location.hash || "");
+      const qi = h.indexOf("?");
+      if (qi !== -1) {
+        const qs = new URLSearchParams(h.slice(qi + 1));
+        const leftSku = String(qs.get("left") || qs.get("sku") || "").trim();
+        if (leftSku && !pinnedL) {
+          const it = findAggForPreselectSku(leftSku);
+          if (it) pinnedL = it;
+        }
+      }
+    }
+  
     renderSide("L");
     renderSide("R");
     updateButtons();
   }
+  
 
   let tL = null,
     tR = null;

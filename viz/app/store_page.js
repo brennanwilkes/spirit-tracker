@@ -1,5 +1,11 @@
 import { esc, renderThumbHtml } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
+import {
+  tokenizeQuery,
+  matchesAllTokens,
+  displaySku,
+  keySkuForRow,
+  parsePriceToNumber,
+} from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
@@ -8,54 +14,57 @@ function normStoreLabel(s) {
   return String(s || "").trim().toLowerCase();
 }
 
-function storeLabelFromRow(r) {
-  return String(r?.storeLabel || r?.store || "").trim();
-}
+function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
+  // Prefer the most recent-ish url if multiple exist; stable enough for viz.
+  let bestUrl = "";
+  let bestScore = -1;
 
-function storeQueryKey(storeNorm) {
-  return `stviz:v1:store:q:${storeNorm}`;
-}
-
-function loadStoreQuery(storeNorm) {
-  try {
-    return localStorage.getItem(storeQueryKey(storeNorm)) || "";
-  } catch {
-    return "";
+  function scoreUrl(u) {
+    if (!u) return -1;
+    let s = u.length;
+    if (/\bproduct\/\d+\//.test(u)) s += 50;
+    if (/[a-z0-9-]{8,}/i.test(u)) s += 10;
+    return s;
   }
+
+  for (const r of listingsLive) {
+    if (!r || r.removed) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (store !== storeLabelNorm) continue;
+
+    const skuKey = String(rulesCache?.canonicalSku(keySkuForRow(r)) || keySkuForRow(r));
+    if (skuKey !== canonSku) continue;
+
+    const u = String(r.url || "").trim();
+    const sc = scoreUrl(u);
+    if (sc > bestScore) {
+      bestScore = sc;
+      bestUrl = u;
+    } else if (sc === bestScore && u && bestUrl && u < bestUrl) {
+      bestUrl = u;
+    }
+  }
+  return bestUrl;
 }
 
-function saveStoreQuery(storeNorm, v) {
-  try {
-    localStorage.setItem(storeQueryKey(storeNorm), String(v ?? ""));
-  } catch {}
-}
+// small module-level cache so we can reuse in readLinkHrefForSkuInStore
+let rulesCache = null;
 
-function urlQuality(u) {
-  u = String(u || "").trim();
-  if (!u) return -1;
-  let s = 0;
-  s += u.length;
-  if (/\bproduct\/\d+\//.test(u)) s += 50;
-  if (/[a-z0-9-]{8,}/i.test(u)) s += 10;
-  return s;
-}
-
-export async function renderStore($app, storeParamRaw) {
-  const storeParam = String(storeParamRaw || "").trim();
-  const storeNorm = normStoreLabel(storeParam);
+export async function renderStore($app, storeLabelRaw) {
+  const storeLabel = String(storeLabelRaw || "").trim();
 
   $app.innerHTML = `
-    <div class="container" style="max-width:980px;">
+    <div class="container">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
-        <span class="badge">${esc(storeParam || "Store")}</span>
-        <div style="flex:1"></div>
+        <span class="badge">${esc(storeLabel || "Store")}</span>
       </div>
 
       <div class="card">
-        <input id="q" class="input" placeholder="Search this store…" autocomplete="off" />
-        <div id="status" class="small" style="margin-top:10px;"></div>
+        <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
+        <div class="small" id="status" style="margin-top:10px;"></div>
         <div id="results" class="list"></div>
+        <div id="sentinel" class="small" style="text-align:center; padding:12px 0;"></div>
       </div>
     </div>
   `;
@@ -63,175 +72,156 @@ export async function renderStore($app, storeParamRaw) {
   document.getElementById("back").addEventListener("click", () => (location.hash = "#/"));
 
   const $q = document.getElementById("q");
-  const $results = document.getElementById("results");
   const $status = document.getElementById("status");
-
-  $q.value = loadStoreQuery(storeNorm);
+  const $results = document.getElementById("results");
+  const $sentinel = document.getElementById("sentinel");
 
   $results.innerHTML = `<div class="small">Loading…</div>`;
 
-  const [idx, rules] = await Promise.all([loadIndex(), loadSkuRules()]);
-  const allRows = Array.isArray(idx.items) ? idx.items : [];
+  const idx = await loadIndex();
+  rulesCache = await loadSkuRules();
+  const rules = rulesCache;
 
-  // Live only
-  const liveAll = allRows.filter((r) => r && !r.removed);
+  const listingsAll = Array.isArray(idx.items) ? idx.items : [];
+  const liveAll = listingsAll.filter((r) => r && !r.removed);
 
-  // Resolve store display label (in case casing differs)
-  let storeDisplay = storeParam || "Store";
-  {
-    const dispByNorm = new Map();
-    for (const r of liveAll) {
-      const lab = storeLabelFromRow(r);
-      if (!lab) continue;
-      const n = normStoreLabel(lab);
-      if (!dispByNorm.has(n)) dispByNorm.set(n, lab);
-    }
-    storeDisplay = dispByNorm.get(storeNorm) || storeDisplay;
-  }
+  const storeNorm = normStoreLabel(storeLabel);
 
-  // Filter rows for this store
-  const liveStore = liveAll.filter((r) => normStoreLabel(storeLabelFromRow(r)) === storeNorm);
-
-  if (!liveStore.length) {
-    $results.innerHTML = `<div class="small">No in-stock items for this store.</div>`;
-    $status.textContent = "";
-    return;
-  }
-
-  // Global presence + min-price map (by canonical sku)
-  const presenceBySku = new Map(); // sku -> Set(storeNorm)
-  const minPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> minPrice)
+  // Build global per-canonical-SKU store presence + min prices
+  const storesBySku = new Map(); // sku -> Set(storeLabelNorm)
+  const minPriceBySkuStore = new Map(); // sku -> Map(storeLabelNorm -> minPrice)
 
   for (const r of liveAll) {
-    const storeLab = storeLabelFromRow(r);
-    const sNorm = normStoreLabel(storeLab);
-    if (!sNorm) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (!store) continue;
 
-    const skuKey = String(keySkuForRow(r) || "").trim();
-    if (!skuKey) continue;
+    const skuKey = keySkuForRow(r);
+    const sku = String(rules.canonicalSku(skuKey) || skuKey);
 
-    const sku = String(rules.canonicalSku(skuKey) || "").trim();
-    if (!sku) continue;
+    let ss = storesBySku.get(sku);
+    if (!ss) storesBySku.set(sku, (ss = new Set()));
+    ss.add(store);
 
-    let pres = presenceBySku.get(sku);
-    if (!pres) presenceBySku.set(sku, (pres = new Set()));
-    pres.add(sNorm);
-
-    const p = parsePriceToNumber(r?.price);
-    if (p === null) continue;
-
-    let m = minPriceBySkuStore.get(sku);
-    if (!m) minPriceBySkuStore.set(sku, (m = new Map()));
-
-    const prev = m.get(sNorm);
-    if (!Number.isFinite(prev) || p < prev) m.set(sNorm, p);
-  }
-
-  // Build store-only aggregates (canonicalized)
-  const storeAgg = aggregateBySku(liveStore, rules.canonicalSku);
-
-  // Best URL for this store per canonical SKU
-  const urlBySku = new Map(); // sku -> url
-  for (const r of liveStore) {
-    const skuKey = String(keySkuForRow(r) || "").trim();
-    if (!skuKey) continue;
-    const sku = String(rules.canonicalSku(skuKey) || "").trim();
-    if (!sku) continue;
-
-    const u = String(r?.url || "").trim();
-    if (!u) continue;
-
-    const prev = urlBySku.get(sku);
-    if (!prev) {
-      urlBySku.set(sku, u);
-      continue;
+    const p = parsePriceToNumber(r.price);
+    if (p !== null) {
+      let m = minPriceBySkuStore.get(sku);
+      if (!m) minPriceBySkuStore.set(sku, (m = new Map()));
+      const prev = m.get(store);
+      if (prev === undefined || p < prev) m.set(store, p);
     }
-
-    const a = urlQuality(prev);
-    const b = urlQuality(u);
-    if (b > a) urlBySku.set(sku, u);
-    else if (b === a && u < prev) urlBySku.set(sku, u);
   }
 
-  function computeCompare(it) {
-    const sku = String(it?.sku || "");
-    const pres = presenceBySku.get(sku) || new Set([storeNorm]);
-    const exclusive = pres.size === 1 && pres.has(storeNorm);
+  function bestAllPrice(sku) {
+    const m = minPriceBySkuStore.get(sku);
+    if (!m) return null;
+    let best = null;
+    for (const v of m.values()) best = best === null ? v : Math.min(best, v);
+    return best;
+  }
 
-    const storePrice = Number.isFinite(it?.cheapestPriceNum) ? it.cheapestPriceNum : null;
-
-    const m = minPriceBySkuStore.get(sku) || new Map();
-    let bestAll = null;
-    let bestOther = null;
-
-    for (const [sNorm, p] of m.entries()) {
-      if (!Number.isFinite(p)) continue;
-      bestAll = bestAll === null ? p : Math.min(bestAll, p);
-      if (sNorm !== storeNorm) bestOther = bestOther === null ? p : Math.min(bestOther, p);
+  function bestOtherPrice(sku, store) {
+    const m = minPriceBySkuStore.get(sku);
+    if (!m) return null;
+    let best = null;
+    for (const [k, v] of m.entries()) {
+      if (k === store) continue;
+      best = best === null ? v : Math.min(best, v);
     }
-
-    // pct: (this - nextBestOther)/nextBestOther * 100
-    const pct =
-      storePrice !== null && bestOther !== null && bestOther > 0
-        ? ((storePrice - bestOther) / bestOther) * 100
-        : null;
-
-    const EPS = 0.01;
-    const isBestPrice = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
-
-    return { exclusive, pct, isBestPrice };
+    return best;
   }
 
-  const items = storeAgg
+  // Store-specific live rows only (in-stock for that store)
+  const rowsStoreLive = liveAll.filter((r) => normStoreLabel(r.storeLabel || r.store || "") === storeNorm);
+
+  // Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
+  let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
+
+  // Decorate each item with pricing comparisons + exclusivity
+  const EPS = 0.01;
+
+  items = items
     .map((it) => {
-      const c = computeCompare(it);
+      const sku = String(it.sku || "");
+      const storeSet = storesBySku.get(sku) || new Set([storeNorm]);
+      const exclusive = storeSet.size === 1 && storeSet.has(storeNorm);
+
+      const storePrice = Number.isFinite(it.cheapestPriceNum) ? it.cheapestPriceNum : null;
+      const bestAll = bestAllPrice(sku);
+      const other = bestOtherPrice(sku, storeNorm);
+
+      const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
+
+      // Sort key: compare vs cheapest alternative store (if we're best, that's "next best"; else that's "best")
+      const pctVsOther =
+        storePrice !== null && other !== null && other > 0 ? ((storePrice - other) / other) * 100 : null;
+
+      const pctVsBest =
+        storePrice !== null && bestAll !== null && bestAll > 0 ? ((storePrice - bestAll) / bestAll) * 100 : null;
+
       return {
         ...it,
-        _exclusive: c.exclusive,
-        _pct: c.pct,
-        _isBestPrice: c.isBestPrice,
+        _exclusive: exclusive,
+        _storePrice: storePrice,
+        _bestAll: bestAll,
+        _bestOther: other,
+        _isBest: isBest,
+        _pctVsOther: pctVsOther,
+        _pctVsBest: pctVsBest,
       };
     })
     .sort((a, b) => {
       if (a._exclusive !== b._exclusive) return a._exclusive ? -1 : 1;
 
-      const ap = Number.isFinite(a._pct) ? a._pct : Infinity;
-      const bp = Number.isFinite(b._pct) ? b._pct : Infinity;
-      if (ap !== bp) return ap - bp;
+      const pa = a._pctVsOther;
+      const pb = b._pctVsOther;
+      const sa = pa === null ? 999999 : pa;
+      const sb = pb === null ? 999999 : pb;
+      if (sa !== sb) return sa - sb;
 
-      return (String(a.name) + String(a.sku)).localeCompare(String(b.name) + String(b.sku));
+      return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
     });
 
-  function pctBadge(pct) {
-    if (!Number.isFinite(pct)) return null;
+  function priceBadgeHtml(it) {
+    if (it._exclusive) return "";
 
-    const p = Math.round(pct);
-    const txt = `${p >= 0 ? "+" : ""}${p}% vs next`;
+    const pOther = it._pctVsOther;
+    const pBest = it._pctVsBest;
 
-    if (pct < -5) return { cls: "badge badgeGood", txt };
-    if (pct > 5) return { cls: "badge badgeBad", txt };
-    return { cls: "badge badgeNeutral", txt }; // -5%..+5%
+    // If we can't compare, skip the % badge.
+    if (pOther === null || !Number.isFinite(pOther)) return "";
+
+    // Grey zone: -5% .. +5% => "same as next best price"
+    if (Math.abs(pOther) <= 5) {
+      return `<span class="badge badgeNeutral">same as next best price</span>`;
+    }
+
+    // Deals: we're best (cheaper than other)
+    if (pOther < 0 && it._bestOther !== null && it._bestOther > 0 && it._storePrice !== null) {
+      const pct = Math.round(((it._bestOther - it._storePrice) / it._bestOther) * 100);
+      if (pct <= 0) return `<span class="badge badgeNeutral">same as next best price</span>`;
+      return `<span class="badge badgeGood">${esc(pct)}% vs next best price</span>`;
+    }
+
+    // More expensive: show vs best price
+    if (pBest !== null && Number.isFinite(pBest) && pBest > 0) {
+      const pct = Math.round(pBest);
+      if (pct <= 5) return `<span class="badge badgeNeutral">same as next best price</span>`;
+      return `<span class="badge badgeBad">${esc(pct)}% vs best price</span>`;
+    }
+
+    return "";
   }
 
   function renderCard(it) {
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
-    const href = urlBySku.get(String(it.sku || "")) || String(it.sampleUrl || "").trim();
+    const href = String(it.sampleUrl || "").trim();
 
-    const storeBadge = href
-      ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-          storeDisplay
-        )}</a>`
-      : `<span class="badge">${esc(storeDisplay)}</span>`;
+    const exclusiveBadge = it._exclusive ? `<span class="badge badgeGood">Exclusive</span>` : "";
+    const bestBadge = !it._exclusive && it._isBest ? `<span class="badge badgeBest">Best Price</span>` : "";
+    const pctBadge = priceBadgeHtml(it);
 
-    const badges = [];
-
-    if (it._exclusive) badges.push(`<span class="badge badgeExclusive">EXCLUSIVE</span>`);
-    if (!it._exclusive && it._isBestPrice) badges.push(`<span class="badge badgeGood">Best Price</span>`);
-
-    if (!it._exclusive) {
-      const pb = pctBadge(it._pct);
-      if (pb) badges.push(`<span class="${esc(pb.cls)}">${esc(pb.txt)}</span>`);
-    }
+    const skuLink =
+      `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
     return `
       <div class="item" data-sku="${esc(it.sku)}">
@@ -240,12 +230,20 @@ export async function renderStore($app, storeParamRaw) {
           <div class="itemBody">
             <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <span class="badge mono">${esc(displaySku(it.sku))}</span>
+              <a class="badge mono skuLink" href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(
+                displaySku(it.sku)
+              )}</a>
             </div>
-            <div class="metaRow metaRowWrap">
-              ${badges.join("")}
+            <div class="metaRow">
+              ${exclusiveBadge}
+              ${bestBadge}
+              ${pctBadge}
               <span class="mono price">${esc(price)}</span>
-              ${storeBadge}
+              ${
+                href
+                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Open</a>`
+                  : ``
+              }
             </div>
           </div>
         </div>
@@ -253,41 +251,81 @@ export async function renderStore($app, storeParamRaw) {
     `;
   }
 
-  function renderList(filtered) {
-    if (!filtered.length) {
-      $results.innerHTML = `<div class="small">No matches.</div>`;
+  // ---- Infinite scroll paging ----
+  const PAGE_SIZE = 140;
+
+  let filtered = items.slice();
+  let shown = 0;
+
+  function setStatus() {
+    const total = filtered.length;
+    if (!total) {
+      $status.textContent = "No in-stock items for this store.";
       return;
     }
+    $status.textContent = `In stock: ${total} item(s).`;
+  }
 
-    const limited = filtered.slice(0, 120);
-    $results.innerHTML = limited.map(renderCard).join("");
+  function renderNext(reset) {
+    if (reset) {
+      $results.innerHTML = "";
+      shown = 0;
+    }
 
-    for (const el of Array.from($results.querySelectorAll(".item"))) {
-      el.addEventListener("click", () => {
-        const sku = el.getAttribute("data-sku") || "";
-        if (!sku) return;
-        saveStoreQuery(storeNorm, $q.value);
-        location.hash = `#/item/${encodeURIComponent(sku)}`;
-      });
+    const slice = filtered.slice(shown, shown + PAGE_SIZE);
+    shown += slice.length;
+
+    if (slice.length) {
+      $results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
+    }
+
+    if (!filtered.length) {
+      $sentinel.textContent = "";
+    } else if (shown >= filtered.length) {
+      $sentinel.textContent = `Showing ${shown} / ${filtered.length}`;
+    } else {
+      $sentinel.textContent = `Showing ${shown} / ${filtered.length}…`;
     }
   }
 
-  function applySearch() {
+  // Click -> item page (delegated). SKU + Open links stopPropagation already.
+  $results.addEventListener("click", (e) => {
+    const el = e.target.closest(".item");
+    if (!el) return;
+    const sku = el.getAttribute("data-sku") || "";
+    if (!sku) return;
+    location.hash = `#/item/${encodeURIComponent(sku)}`;
+  });
+
+  function applyFilter() {
     const tokens = tokenizeQuery($q.value);
-    saveStoreQuery(storeNorm, $q.value);
-
-    const filtered = tokens.length ? items.filter((it) => matchesAllTokens(it.searchText, tokens)) : items;
-
-    $status.textContent = `In stock: ${items.length}. Showing: ${filtered.length}.`;
-    renderList(filtered);
+    if (!tokens.length) {
+      filtered = items.slice();
+    } else {
+      filtered = items.filter((it) => matchesAllTokens(it.searchText, tokens));
+    }
+    setStatus();
+    renderNext(true);
   }
 
-  $q.focus();
-  applySearch();
+  // Initial render
+  setStatus();
+  renderNext(true);
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      const hit = entries.some((x) => x.isIntersecting);
+      if (!hit) return;
+      if (shown >= filtered.length) return;
+      renderNext(false);
+    },
+    { root: null, rootMargin: "600px 0px", threshold: 0.01 }
+  );
+  io.observe($sentinel);
 
   let t = null;
   $q.addEventListener("input", () => {
     if (t) clearTimeout(t);
-    t = setTimeout(applySearch, 50);
+    t = setTimeout(applyFilter, 60);
   });
 }
