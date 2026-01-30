@@ -11,6 +11,7 @@ const { createStore: createStrath } = require("./strath");
 const { createStore: createLegacy } = require("./legacyliquor");
 const { createStore: createGull } = require("./gull");
 const { createStore: createCoop } = require("./coop");
+const { createStore: createTudor } = require("./tudor");
 
 function createStores({ defaultUa } = {}) {
   return [
@@ -22,6 +23,7 @@ function createStores({ defaultUa } = {}) {
     createBSW(defaultUa),
     createCoop(defaultUa),
     createKegNCork(defaultUa),
+    createTudor(defaultUa),
     createMaltsAndGrains(defaultUa),
     createBCL(defaultUa),
     createLegacy(defaultUa),
