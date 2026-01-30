@@ -159,6 +159,8 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   font-size: 13px;
 }
 
+.metaRowWrap { flex-wrap: wrap; } /* used for store page so badges can wrap */
+
 .price {
   font-weight: 700;
   color: var(--text);
@@ -194,6 +196,56 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 .small {
   color: var(--muted);
   font-size: 12px;
+}
+
+/* --- Store selector pills (search page header) --- */
+.storeBarWrap {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.storeBarLabel {
+  flex: 0 0 auto;
+}
+
+.storeBar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;       /* desktop: wrap nicely into 2 lines if needed */
+  min-width: 0;
+}
+
+.storePill {
+  padding: 2px 9px;
+  font-size: 12px;
+}
+
+/* Badge color variants (store page percent badges) */
+.badgeGood {
+  color: rgba(20,110,40,0.95);
+  background: rgba(20,110,40,0.10);
+  border-color: rgba(20,110,40,0.20);
+}
+
+.badgeBad {
+  color: rgba(180,70,60,0.95);
+  background: rgba(180,70,60,0.10);
+  border-color: rgba(180,70,60,0.25);
+}
+
+.badgeNeutral {
+  color: rgba(154,166,178,0.95);
+  background: rgba(154,166,178,0.08);
+  border-color: rgba(154,166,178,0.18);
+}
+
+.badgeExclusive {
+  color: rgba(125,211,252,0.95);
+  background: rgba(125,211,252,0.10);
+  border-color: rgba(125,211,252,0.20);
 }
 
 /* Detail view sizing */
@@ -258,6 +310,15 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
     min-height: 260px;
     padding: 8px;
   }
+
+  /* mobile: make stores a single-row scroll instead of wrapping */
+  .storeBar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .storeBar::-webkit-scrollbar { display: none; }
 }
 
 .chartBox canvas {
@@ -275,69 +336,4 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
   margin-top: 12px;
   position: sticky;
   bottom: 0;
-}
-
-/* --- Store nav (search page) --- */
-.storeNav {
-  margin-bottom: 12px;
-}
-
-.storeNavRow {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.storeSelect {
-  flex: 1;
-}
-
-.storeFilter {
-  width: 260px;
-  max-width: 100%;
-}
-
-.storeList {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-height: 160px;
-  overflow: auto;
-  padding-right: 2px;
-}
-
-.storeChip {
-  user-select: none;
-}
-
-@media (max-width: 640px) {
-  .storeFilter { display: none; }
-  .storeList { max-height: 220px; }
-}
-
-/* --- Highlight badges (store page + reused) --- */
-.badge.good {
-  color: rgba(20,110,40,0.95);
-  background: rgba(20,110,40,0.10);
-  border: 1px solid rgba(20,110,40,0.20);
-}
-
-.badge.bad {
-  color: rgba(160,40,40,0.95);
-  background: rgba(160,40,40,0.12);
-  border: 1px solid rgba(160,40,40,0.22);
-}
-
-.badge.neutral {
-  color: var(--muted);
-  background: rgba(200,200,200,0.06);
-  border: 1px solid rgba(200,200,200,0.16);
-}
-
-.badge.exclusive {
-  color: rgba(20,110,40,0.95);
-  background: rgba(20,110,40,0.10);
-  border: 1px solid rgba(20,110,40,0.20);
 }

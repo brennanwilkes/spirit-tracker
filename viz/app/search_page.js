@@ -9,21 +9,16 @@ export function renderSearch($app) {
   $app.innerHTML = `
     <div class="container">
       <div class="header">
-        <div>
+        <div style="min-width:0;">
           <h1 class="h1">Spirit Tracker Viz</h1>
           <div class="small">Search name / url / sku (word AND)</div>
+
+          <div class="storeBarWrap">
+            <div class="small storeBarLabel">Stores:</div>
+            <div id="storeBar" class="storeBar"></div>
+          </div>
         </div>
         <a class="btn" href="#/link" style="text-decoration:none;">Link SKUs</a>
-      </div>
-
-      <div class="card storeNav">
-        <div class="storeNavRow">
-          <select id="storeSelect" class="input storeSelect">
-            <option value="">Open store…</option>
-          </select>
-          <input id="storeFilter" class="input storeFilter" placeholder="Filter stores…" autocomplete="off" />
-        </div>
-        <div id="stores" class="storeList"></div>
       </div>
 
       <div class="card">
@@ -35,10 +30,7 @@ export function renderSearch($app) {
 
   const $q = document.getElementById("q");
   const $results = document.getElementById("results");
-
-  const $storeSelect = document.getElementById("storeSelect");
-  const $storeFilter = document.getElementById("storeFilter");
-  const $stores = document.getElementById("stores");
+  const $storeBar = document.getElementById("storeBar");
 
   $q.value = loadSavedQuery();
 
@@ -49,52 +41,13 @@ export function renderSearch($app) {
   // canonicalSku -> storeLabel -> url
   let URL_BY_SKU_STORE = new Map();
 
-  // --- Store nav ---
-  let ALL_STORES = [];
+  function normStoreLabel(s) {
+    return String(s || "").trim().toLowerCase();
+  }
 
-  function storeLabelForRow(r) {
+  function storeLabelFromRow(r) {
     return String(r?.storeLabel || r?.store || "").trim();
   }
-
-  function extractStores(listings) {
-    const s = new Set();
-    for (const r of Array.isArray(listings) ? listings : []) {
-      const lab = storeLabelForRow(r);
-      if (lab) s.add(lab);
-    }
-    return Array.from(s).sort((a, b) => a.localeCompare(b));
-  }
-
-  function renderStoreSelect(stores) {
-    $storeSelect.innerHTML =
-      `<option value="">Open store…</option>` +
-      stores.map((x) => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
-
-    $storeSelect.addEventListener("change", () => {
-      const v = String($storeSelect.value || "");
-      if (!v) return;
-      location.hash = `#/store/${encodeURIComponent(v)}`;
-      $storeSelect.value = "";
-    });
-  }
-
-  function renderStoreChips(filterText) {
-    const f = String(filterText || "").trim().toLowerCase();
-    const filtered = !f ? ALL_STORES : ALL_STORES.filter((x) => String(x).toLowerCase().includes(f));
-
-    $stores.innerHTML = filtered.length
-      ? filtered
-          .map(
-            (lab) =>
-              `<a class="badge storeChip" href="#/store/${encodeURIComponent(lab)}">${esc(lab)}</a>`
-          )
-          .join("")
-      : `<div class="small">No store matches.</div>`;
-  }
-
-  $storeFilter.addEventListener("input", () => {
-    renderStoreChips($storeFilter.value);
-  });
 
   function buildUrlMap(listings, canonicalSkuFn) {
     const out = new Map();
@@ -107,7 +60,7 @@ export function renderSearch($app) {
       const sku = String(canonicalSkuFn ? canonicalSkuFn(skuKey) : skuKey);
       if (!sku) continue;
 
-      const storeLabel = String(r.storeLabel || r.store || "").trim();
+      const storeLabel = storeLabelFromRow(r);
       const url = String(r.url || "").trim();
       if (!storeLabel || !url) continue;
 
@@ -122,6 +75,20 @@ export function renderSearch($app) {
     const sku = String(it?.sku || "");
     const s = String(storeLabel || "");
     return URL_BY_SKU_STORE.get(sku)?.get(s) || "";
+  }
+
+  function renderStoreBar(listingsLive, storeLabelMapDisplay) {
+    if (!$storeBar) return;
+
+    const stores = Array.from(storeLabelMapDisplay.values()).sort((a, b) => a.localeCompare(b));
+    if (!stores.length) {
+      $storeBar.innerHTML = `<span class="small">No stores</span>`;
+      return;
+    }
+
+    $storeBar.innerHTML = stores
+      .map((s) => `<a class="badge storePill" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`)
+      .join("");
   }
 
   function renderAggregates(items) {
@@ -434,11 +401,15 @@ export function renderSearch($app) {
 
           const offBadge =
             meta.kind === "price_down" && meta.pctOff !== null
-              ? `<span class="badge good" style="margin-left:6px;">[${esc(meta.pctOff)}% Off]</span>`
+              ? `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
+                  meta.pctOff
+                )}% Off]</span>`
               : "";
 
           const kindBadgeStyle =
-            meta.kind === "new" && meta.isNewUnique ? ` class="badge good"` : ` class="badge"`;
+            meta.kind === "new" && meta.isNewUnique
+              ? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
+              : "";
 
           return `
             <div class="item" data-sku="${esc(sku)}">
@@ -452,7 +423,7 @@ export function renderSearch($app) {
                     <span class="badge mono">${esc(displaySku(sku))}</span>
                   </div>
                   <div class="metaRow">
-                    <span${kindBadgeStyle}>${esc(kindLabel)}</span>
+                    <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
                     <span class="mono price">${esc(priceLine)}</span>
                     ${offBadge}
                     ${storeBadge}
@@ -507,15 +478,22 @@ export function renderSearch($app) {
   }
 
   $results.innerHTML = `<div class="small">Loading index…</div>`;
+  if ($storeBar) $storeBar.innerHTML = `<span class="small">Loading stores…</span>`;
 
   Promise.all([loadIndex(), loadSkuRules()])
     .then(([idx, rules]) => {
       const listings = Array.isArray(idx.items) ? idx.items : [];
 
-      // store nav: build once
-      ALL_STORES = extractStores(listings);
-      renderStoreSelect(ALL_STORES);
-      renderStoreChips($storeFilter.value);
+      // Build store list from LIVE rows only
+      const live = listings.filter((r) => r && !r.removed);
+      const storeDisplayByNorm = new Map();
+      for (const r of live) {
+        const label = storeLabelFromRow(r);
+        if (!label) continue;
+        const n = normStoreLabel(label);
+        if (!storeDisplayByNorm.has(n)) storeDisplayByNorm.set(n, label);
+      }
+      renderStoreBar(live, storeDisplayByNorm);
 
       allAgg = aggregateBySku(listings, rules.canonicalSku);
       aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
@@ -533,6 +511,7 @@ export function renderSearch($app) {
     })
     .catch((e) => {
       $results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
+      if ($storeBar) $storeBar.innerHTML = ``;
     });
 
   let t = null;

@@ -1,64 +1,60 @@
 import { esc, renderThumbHtml } from "./dom.js";
-import {
-  tokenizeQuery,
-  matchesAllTokens,
-  displaySku,
-  keySkuForRow,
-  parsePriceToNumber,
-  normSearchText,
-} from "./sku.js";
+import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 
-function storeLabelForRow(r) {
+function normStoreLabel(s) {
+  return String(s || "").trim().toLowerCase();
+}
+
+function storeLabelFromRow(r) {
   return String(r?.storeLabel || r?.store || "").trim();
 }
 
-function extractStores(listings) {
-  const s = new Set();
-  for (const r of Array.isArray(listings) ? listings : []) {
-    const lab = storeLabelForRow(r);
-    if (lab) s.add(lab);
+function storeQueryKey(storeNorm) {
+  return `stviz:v1:store:q:${storeNorm}`;
+}
+
+function loadStoreQuery(storeNorm) {
+  try {
+    return localStorage.getItem(storeQueryKey(storeNorm)) || "";
+  } catch {
+    return "";
   }
-  return Array.from(s).sort((a, b) => a.localeCompare(b));
+}
+
+function saveStoreQuery(storeNorm, v) {
+  try {
+    localStorage.setItem(storeQueryKey(storeNorm), String(v ?? ""));
+  } catch {}
 }
 
 function urlQuality(u) {
-  const s = String(u || "").trim();
-  if (!s) return -1;
-  let sc = 0;
-  sc += s.length;
-  if (/\bproduct\/\d+\//.test(s)) sc += 50;
-  if (/[a-z0-9-]{8,}/i.test(s)) sc += 10;
-  return sc;
+  u = String(u || "").trim();
+  if (!u) return -1;
+  let s = 0;
+  s += u.length;
+  if (/\bproduct\/\d+\//.test(u)) s += 50;
+  if (/[a-z0-9-]{8,}/i.test(u)) s += 10;
+  return s;
 }
 
-function pctClass(pct) {
-  if (!Number.isFinite(pct)) return "neutral";
-  if (pct >= 5) return "good";
-  if (pct <= -5) return "bad";
-  return "neutral";
-}
+export async function renderStore($app, storeParamRaw) {
+  const storeParam = String(storeParamRaw || "").trim();
+  const storeNorm = normStoreLabel(storeParam);
 
-function pctLabel(pct) {
-  if (!Number.isFinite(pct)) return "No compare";
-  const s = pct > 0 ? `+${pct}` : `${pct}`;
-  return `${s}% vs next`;
-}
-
-export async function renderStore($app, storeLabelInput) {
   $app.innerHTML = `
-    <div class="container">
+    <div class="container" style="max-width:980px;">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
-        <span class="badge">${esc(storeLabelInput || "Store")}</span>
+        <span class="badge">${esc(storeParam || "Store")}</span>
         <div style="flex:1"></div>
       </div>
 
       <div class="card">
-        <div class="small" id="subtitle">Loading…</div>
-        <input id="q" class="input" placeholder="Search this store (name / url / sku)..." autocomplete="off" />
+        <input id="q" class="input" placeholder="Search this store…" autocomplete="off" />
+        <div id="status" class="small" style="margin-top:10px;"></div>
         <div id="results" class="list"></div>
       </div>
     </div>
@@ -66,52 +62,50 @@ export async function renderStore($app, storeLabelInput) {
 
   document.getElementById("back").addEventListener("click", () => (location.hash = "#/"));
 
-  const $subtitle = document.getElementById("subtitle");
   const $q = document.getElementById("q");
   const $results = document.getElementById("results");
+  const $status = document.getElementById("status");
 
-  $results.innerHTML = `<div class="small">Loading index…</div>`;
+  $q.value = loadStoreQuery(storeNorm);
 
-  let idx, rules;
-  try {
-    [idx, rules] = await Promise.all([loadIndex(), loadSkuRules()]);
-  } catch (e) {
-    $results.innerHTML = `<div class="small">Failed to load: ${esc(e?.message || String(e))}</div>`;
-    $subtitle.textContent = "";
+  $results.innerHTML = `<div class="small">Loading…</div>`;
+
+  const [idx, rules] = await Promise.all([loadIndex(), loadSkuRules()]);
+  const allRows = Array.isArray(idx.items) ? idx.items : [];
+
+  // Live only
+  const liveAll = allRows.filter((r) => r && !r.removed);
+
+  // Resolve store display label (in case casing differs)
+  let storeDisplay = storeParam || "Store";
+  {
+    const dispByNorm = new Map();
+    for (const r of liveAll) {
+      const lab = storeLabelFromRow(r);
+      if (!lab) continue;
+      const n = normStoreLabel(lab);
+      if (!dispByNorm.has(n)) dispByNorm.set(n, lab);
+    }
+    storeDisplay = dispByNorm.get(storeNorm) || storeDisplay;
+  }
+
+  // Filter rows for this store
+  const liveStore = liveAll.filter((r) => normStoreLabel(storeLabelFromRow(r)) === storeNorm);
+
+  if (!liveStore.length) {
+    $results.innerHTML = `<div class="small">No in-stock items for this store.</div>`;
+    $status.textContent = "";
     return;
   }
 
-  const listings = Array.isArray(idx?.items) ? idx.items : [];
-  const stores = extractStores(listings);
+  // Global presence + min-price map (by canonical sku)
+  const presenceBySku = new Map(); // sku -> Set(storeNorm)
+  const minPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> minPrice)
 
-  // Normalize store label by case-insensitive match (helps if someone edits hash by hand)
-  const wantLower = String(storeLabelInput || "").trim().toLowerCase();
-  const storeLabel =
-    stores.find((s) => String(s).toLowerCase() === wantLower) || String(storeLabelInput || "").trim();
-
-  // Update header badge text (if normalized)
-  const $badge = document.querySelector(".topbar .badge");
-  if ($badge) $badge.textContent = storeLabel || "Store";
-
-  if (!storeLabel || !stores.includes(storeLabel)) {
-    $subtitle.textContent = "Unknown store.";
-    $results.innerHTML =
-      `<div class="small">Pick a store:</div>` +
-      `<div class="storeList" style="margin-top:10px;">` +
-      stores.map((s) => `<a class="badge storeChip" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`).join("") +
-      `</div>`;
-    return;
-  }
-
-  // Build canonical aggregates
-  const allAgg = aggregateBySku(listings, rules.canonicalSku);
-
-  // Build per-(canonical sku)->store min price + best URL (LIVE only)
-  const PRICE_BY_SKU_STORE = new Map(); // sku -> Map(store -> {priceNum, priceStr})
-  const URL_BY_SKU_STORE = new Map(); // sku -> Map(store -> url)
-
-  for (const r of listings) {
-    if (!r || r.removed) continue;
+  for (const r of liveAll) {
+    const storeLab = storeLabelFromRow(r);
+    const sNorm = normStoreLabel(storeLab);
+    if (!sNorm) continue;
 
     const skuKey = String(keySkuForRow(r) || "").trim();
     if (!skuKey) continue;
@@ -119,182 +113,181 @@ export async function renderStore($app, storeLabelInput) {
     const sku = String(rules.canonicalSku(skuKey) || "").trim();
     if (!sku) continue;
 
-    const lab = storeLabelForRow(r);
-    if (!lab) continue;
+    let pres = presenceBySku.get(sku);
+    if (!pres) presenceBySku.set(sku, (pres = new Set()));
+    pres.add(sNorm);
 
-    // price
-    const pNum = parsePriceToNumber(r.price);
-    const pStr = String(r.price || "").trim();
+    const p = parsePriceToNumber(r?.price);
+    if (p === null) continue;
 
-    let sm = PRICE_BY_SKU_STORE.get(sku);
-    if (!sm) PRICE_BY_SKU_STORE.set(sku, (sm = new Map()));
+    let m = minPriceBySkuStore.get(sku);
+    if (!m) minPriceBySkuStore.set(sku, (m = new Map()));
 
-    if (pNum !== null) {
-      const prev = sm.get(lab);
-      if (!prev || pNum < prev.priceNum) sm.set(lab, { priceNum: pNum, priceStr: pStr });
-      else if (prev && pNum === prev.priceNum && pStr && (!prev.priceStr || pStr.length < prev.priceStr.length))
-        sm.set(lab, { priceNum: pNum, priceStr: pStr });
-    }
-
-    // url (prefer better)
-    const url = String(r.url || "").trim();
-    if (url) {
-      let um = URL_BY_SKU_STORE.get(sku);
-      if (!um) URL_BY_SKU_STORE.set(sku, (um = new Map()));
-
-      const prev = um.get(lab);
-      if (!prev) um.set(lab, url);
-      else {
-        const a = urlQuality(prev);
-        const b = urlQuality(url);
-        if (b > a) um.set(lab, url);
-        else if (b === a && url < prev) um.set(lab, url);
-      }
-    }
+    const prev = m.get(sNorm);
+    if (!Number.isFinite(prev) || p < prev) m.set(sNorm, p);
   }
 
-  // Build store-only list (in stock in this store), compute exclusive + pct vs next cheapest other store
-  const EPS = 0.01;
+  // Build store-only aggregates (canonicalized)
+  const storeAgg = aggregateBySku(liveStore, rules.canonicalSku);
 
-  const base = [];
-  for (const it of allAgg) {
-    if (!it || !it.stores || !it.stores.has(storeLabel)) continue;
+  // Best URL for this store per canonical SKU
+  const urlBySku = new Map(); // sku -> url
+  for (const r of liveStore) {
+    const skuKey = String(keySkuForRow(r) || "").trim();
+    if (!skuKey) continue;
+    const sku = String(rules.canonicalSku(skuKey) || "").trim();
+    if (!sku) continue;
 
-    const pm = PRICE_BY_SKU_STORE.get(String(it.sku || ""));
-    const storeRec = pm?.get(storeLabel) || null;
-    const storePriceNum = storeRec?.priceNum ?? null;
-    const storePriceStr = storeRec?.priceStr || it.cheapestPriceStr || "(no price)";
+    const u = String(r?.url || "").trim();
+    if (!u) continue;
 
-    let globalMin = null;
-    let otherMin = null;
-
-    if (pm) {
-      for (const [lab, rec] of pm.entries()) {
-        const v = rec?.priceNum;
-        if (!Number.isFinite(v)) continue;
-
-        globalMin = globalMin === null ? v : Math.min(globalMin, v);
-
-        if (lab !== storeLabel) {
-          otherMin = otherMin === null ? v : Math.min(otherMin, v);
-        }
-      }
+    const prev = urlBySku.get(sku);
+    if (!prev) {
+      urlBySku.set(sku, u);
+      continue;
     }
 
-    const bestHere = globalMin !== null && storePriceNum !== null && Math.abs(storePriceNum - globalMin) <= EPS;
+    const a = urlQuality(prev);
+    const b = urlQuality(u);
+    if (b > a) urlBySku.set(sku, u);
+    else if (b === a && u < prev) urlBySku.set(sku, u);
+  }
 
-    let pct = null;
-    if (storePriceNum !== null && otherMin !== null && otherMin > 0) {
-      pct = Math.round(((otherMin - storePriceNum) / otherMin) * 100);
+  function computeCompare(it) {
+    const sku = String(it?.sku || "");
+    const pres = presenceBySku.get(sku) || new Set([storeNorm]);
+    const exclusive = pres.size === 1 && pres.has(storeNorm);
+
+    const storePrice = Number.isFinite(it?.cheapestPriceNum) ? it.cheapestPriceNum : null;
+
+    const m = minPriceBySkuStore.get(sku) || new Map();
+    let bestAll = null;
+    let bestOther = null;
+
+    for (const [sNorm, p] of m.entries()) {
+      if (!Number.isFinite(p)) continue;
+      bestAll = bestAll === null ? p : Math.min(bestAll, p);
+      if (sNorm !== storeNorm) bestOther = bestOther === null ? p : Math.min(bestOther, p);
     }
 
-    const exclusive = it.stores.size === 1;
+    // pct: (this - nextBestOther)/nextBestOther * 100
+    const pct =
+      storePrice !== null && bestOther !== null && bestOther > 0
+        ? ((storePrice - bestOther) / bestOther) * 100
+        : null;
 
-    const href =
-      URL_BY_SKU_STORE.get(String(it.sku || ""))?.get(storeLabel) ||
-      String(it.sampleUrl || "").trim() ||
-      "";
+    const EPS = 0.01;
+    const isBestPrice = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
 
-    const storeSearchText = normSearchText([it.searchText || "", href || ""].join(" | "));
+    return { exclusive, pct, isBestPrice };
+  }
 
-    base.push({
-      ...it,
-      _exclusive: exclusive,
-      _bestHere: bestHere,
-      _pct: pct,
-      _storePriceNum: storePriceNum,
-      _storePriceStr: storePriceStr,
-      _href: href,
-      _storeSearchText: storeSearchText,
+  const items = storeAgg
+    .map((it) => {
+      const c = computeCompare(it);
+      return {
+        ...it,
+        _exclusive: c.exclusive,
+        _pct: c.pct,
+        _isBestPrice: c.isBestPrice,
+      };
+    })
+    .sort((a, b) => {
+      if (a._exclusive !== b._exclusive) return a._exclusive ? -1 : 1;
+
+      const ap = Number.isFinite(a._pct) ? a._pct : Infinity;
+      const bp = Number.isFinite(b._pct) ? b._pct : Infinity;
+      if (ap !== bp) return ap - bp;
+
+      return (String(a.name) + String(a.sku)).localeCompare(String(b.name) + String(b.sku));
     });
+
+  function pctBadge(pct) {
+    if (!Number.isFinite(pct)) return null;
+
+    const p = Math.round(pct);
+    const txt = `${p >= 0 ? "+" : ""}${p}% vs next`;
+
+    if (pct < -5) return { cls: "badge badgeGood", txt };
+    if (pct > 5) return { cls: "badge badgeBad", txt };
+    return { cls: "badge badgeNeutral", txt }; // -5%..+5%
   }
 
-  base.sort((a, b) => {
-    const ax = a._exclusive ? 0 : 1;
-    const bx = b._exclusive ? 0 : 1;
-    if (ax !== bx) return ax - bx;
+  function renderCard(it) {
+    const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
+    const href = urlBySku.get(String(it.sku || "")) || String(it.sampleUrl || "").trim();
 
-    // Exclusives: stable by name
-    if (ax === 0) return (String(a.name) + String(a.sku)).localeCompare(String(b.name) + String(b.sku));
+    const storeBadge = href
+      ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+          storeDisplay
+        )}</a>`
+      : `<span class="badge">${esc(storeDisplay)}</span>`;
 
-    const ap = Number.isFinite(a._pct) ? a._pct : -1e9;
-    const bp = Number.isFinite(b._pct) ? b._pct : -1e9;
-    if (bp !== ap) return bp - ap;
+    const badges = [];
 
-    return (String(a.name) + String(a.sku)).localeCompare(String(b.name) + String(b.sku));
-  });
+    if (it._exclusive) badges.push(`<span class="badge badgeExclusive">EXCLUSIVE</span>`);
+    if (!it._exclusive && it._isBestPrice) badges.push(`<span class="badge badgeGood">Best Price</span>`);
 
-  $subtitle.textContent = `In-stock items for ${storeLabel} — Exclusives first, then best deals.`;
+    if (!it._exclusive) {
+      const pb = pctBadge(it._pct);
+      if (pb) badges.push(`<span class="${esc(pb.cls)}">${esc(pb.txt)}</span>`);
+    }
 
-  function renderList(query) {
-    const tokens = tokenizeQuery(query);
+    return `
+      <div class="item" data-sku="${esc(it.sku)}">
+        <div class="itemRow">
+          <div class="thumbBox">${renderThumbHtml(it.img)}</div>
+          <div class="itemBody">
+            <div class="itemTop">
+              <div class="itemName">${esc(it.name || "(no name)")}</div>
+              <span class="badge mono">${esc(displaySku(it.sku))}</span>
+            </div>
+            <div class="metaRow metaRowWrap">
+              ${badges.join("")}
+              <span class="mono price">${esc(price)}</span>
+              ${storeBadge}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
-    const items = !tokens.length
-      ? base
-      : base.filter((it) => matchesAllTokens(String(it._storeSearchText || ""), tokens));
-
-    if (!items.length) {
+  function renderList(filtered) {
+    if (!filtered.length) {
       $results.innerHTML = `<div class="small">No matches.</div>`;
       return;
     }
 
-    $results.innerHTML = items
-      .map((it) => {
-        const exclusiveBadge = it._exclusive ? `<span class="badge exclusive">EXCLUSIVE</span>` : ``;
-        const bestBadge = it._bestHere ? `<span class="badge good">Best Price</span>` : ``;
-
-        const pct = it._pct;
-        const pctBadge =
-          it._exclusive
-            ? ``
-            : `<span class="badge ${pctClass(pct)}">${esc(pctLabel(pct))}</span>`;
-
-        const href = String(it._href || "").trim();
-        const storeBadge = href
-          ? `<a class="badge" href="${esc(
-              href
-            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
-          : `<span class="badge">${esc(storeLabel)}</span>`;
-
-        const price = String(it._storePriceStr || "(no price)");
-
-        return `
-          <div class="item" data-sku="${esc(it.sku)}">
-            <div class="itemRow">
-              <div class="thumbBox">${renderThumbHtml(it.img)}</div>
-              <div class="itemBody">
-                <div class="itemTop">
-                  <div class="itemName">${esc(it.name || "(no name)")}</div>
-                  <span class="badge mono">${esc(displaySku(it.sku))}</span>
-                </div>
-                <div class="metaRow">
-                  ${exclusiveBadge}
-                  ${bestBadge}
-                  ${pctBadge}
-                  <span class="mono price">${esc(price)}</span>
-                  ${storeBadge}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    const limited = filtered.slice(0, 120);
+    $results.innerHTML = limited.map(renderCard).join("");
 
     for (const el of Array.from($results.querySelectorAll(".item"))) {
       el.addEventListener("click", () => {
         const sku = el.getAttribute("data-sku") || "";
         if (!sku) return;
+        saveStoreQuery(storeNorm, $q.value);
         location.hash = `#/item/${encodeURIComponent(sku)}`;
       });
     }
   }
 
-  renderList("");
+  function applySearch() {
+    const tokens = tokenizeQuery($q.value);
+    saveStoreQuery(storeNorm, $q.value);
+
+    const filtered = tokens.length ? items.filter((it) => matchesAllTokens(it.searchText, tokens)) : items;
+
+    $status.textContent = `In stock: ${items.length}. Showing: ${filtered.length}.`;
+    renderList(filtered);
+  }
+
+  $q.focus();
+  applySearch();
 
   let t = null;
   $q.addEventListener("input", () => {
     if (t) clearTimeout(t);
-    t = setTimeout(() => renderList($q.value), 50);
+    t = setTimeout(applySearch, 50);
   });
 }
