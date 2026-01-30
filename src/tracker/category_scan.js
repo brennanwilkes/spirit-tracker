@@ -119,6 +119,12 @@ function extractTotalPagesFromPaginationHtml(html) {
     if (Number.isFinite(n) && n > max) max = n;
   }
 
+  // Shopify: ?page=23
+  for (const m of s.matchAll(/href=["'][^"']*[?&]page=(\d+)[^"']*["']/gi)) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n > max) max = n;
+  }
+
   // Sometimes themes render plain numbers without /page/ in href; keep it conservative:
   // Only trust these if we already found at least one pagination-ish token.
   if (max > 1) return max;
@@ -236,11 +242,23 @@ async function discoverTotalPagesFast(ctx, baseUrl, guess, step) {
   }
 
   const extracted = extractTotalPagesFromPaginationHtml(html1);
-  if (extracted && extracted >= 1) {
-    ctx.logger.ok(`${ctx.catPrefixOut} | Total pages (from pagination): ${extracted}`);
-    return extracted;
-  }
 
+  // Shopify collections with filters often lie about pagination.
+  // If page 1 looks full, don't trust a tiny extracted count.
+  if (extracted && extracted >= 1) {
+    const looksTruncated =
+      extracted <= 2 && items1 >= 40; // Shopify default page size ≈ 48
+  
+    if (!looksTruncated) {
+      ctx.logger.ok(`${ctx.catPrefixOut} | Total pages (from pagination): ${extracted}`);
+      return extracted;
+    }
+  
+    ctx.logger.warn(
+      `${ctx.catPrefixOut} | Pagination says ${extracted} but page looks full; falling back to probe`
+    );
+  }
+  
   // Fallback to probing if pagination parse fails
   const g = Math.max(2, guess);
   const pg = await probePage(ctx, baseUrl, g, state);

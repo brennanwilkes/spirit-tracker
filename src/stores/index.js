@@ -12,6 +12,8 @@ const { createStore: createLegacy } = require("./legacyliquor");
 const { createStore: createGull } = require("./gull");
 const { createStore: createCoop } = require("./coop");
 const { createStore: createTudor } = require("./tudor");
+const { createStore: createVintage } = require("./vintagespirits");
+const { createStore: createVessel } = require("./vessel");
 
 function createStores({ defaultUa } = {}) {
   return [
@@ -26,7 +28,9 @@ function createStores({ defaultUa } = {}) {
     createTudor(defaultUa),
     createMaltsAndGrains(defaultUa),
     createBCL(defaultUa),
+    createVessel(defaultUa),
     createLegacy(defaultUa),
+    createVintage(defaultUa),
   ];
 }
 
