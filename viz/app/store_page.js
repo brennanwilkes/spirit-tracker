@@ -14,6 +14,27 @@ function normStoreLabel(s) {
   return String(s || "").trim().toLowerCase();
 }
 
+const STORE_Q_LS_PREFIX = "stviz:v1:store:q:";
+
+function storeQKey(storeLabel) {
+  return STORE_Q_LS_PREFIX + String(storeLabel || "").trim().toLowerCase();
+}
+
+function loadStoreQuery(storeLabel) {
+  try {
+    return localStorage.getItem(storeQKey(storeLabel)) || "";
+  } catch {
+    return "";
+  }
+}
+
+function saveStoreQuery(storeLabel, v) {
+  try {
+    localStorage.setItem(storeQKey(storeLabel), String(v ?? ""));
+  } catch {}
+}
+
+
 function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
   // Prefer the most recent-ish url if multiple exist; stable enough for viz.
   let bestUrl = "";
@@ -75,6 +96,8 @@ export async function renderStore($app, storeLabelRaw) {
 });
 
   const $q = document.getElementById("q");
+  $q.value = loadStoreQuery(storeLabel);
+  
   const $status = document.getElementById("status");
   const $results = document.getElementById("results");
   const $sentinel = document.getElementById("sentinel");
@@ -303,6 +326,7 @@ export async function renderStore($app, storeLabelRaw) {
 
   function applyFilter() {
     const tokens = tokenizeQuery($q.value);
+
     if (!tokens.length) {
       filtered = items.slice();
     } else {
@@ -329,6 +353,7 @@ export async function renderStore($app, storeLabelRaw) {
 
   let t = null;
   $q.addEventListener("input", () => {
+    saveStoreQuery(storeLabel, $q.value);
     if (t) clearTimeout(t);
     t = setTimeout(applyFilter, 60);
   });
