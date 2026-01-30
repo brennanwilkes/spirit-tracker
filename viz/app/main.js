@@ -1,9 +1,9 @@
 /**
  * Hash routes:
- *   #/                      search
- *   #/item/<sku>            detail
- *   #/link                  sku linker (local-write only)
- *   #/store/<storeLabel>    store page (in-stock only)
+ *   #/                search
+ *   #/item/<sku>      detail
+ *   #/link            sku linker (local-write only)
+ *   #/store/<store>   store page (in-stock only)
  */
 
 import { destroyChart } from "./item_page.js";
@@ -24,8 +24,8 @@ function route() {
 
   if (parts.length === 0) return renderSearch($app);
   if (parts[0] === "item" && parts[1]) return renderItem($app, decodeURIComponent(parts[1]));
-  if (parts[0] === "link") return renderSkuLinker($app);
   if (parts[0] === "store" && parts[1]) return renderStore($app, decodeURIComponent(parts[1]));
+  if (parts[0] === "link") return renderSkuLinker($app);
 
   return renderSearch($app);
 }
