@@ -32,26 +32,35 @@ async function mapLimit(list, limit, fn) {
   return out;
 }
 
-/* ---------------- History helpers ---------------- */
-
-// Precompute synthetic keys for any "u:" skuKeys, so we don’t rebuild rows each call.
-function precomputeSyntheticKeys(skuKeys, storeLabel) {
-  const res = [];
-  for (const skuKey of skuKeys) {
-    const k = String(skuKey || "");
-    if (!k.startsWith("u:")) continue;
-    // Mirror the original matching logic exactly.
-    const row = { sku: "", url: "", storeLabel: storeLabel || "", store: "" };
-    res.push({ k, storeLabel: storeLabel || "" });
-    // Note: url is per item, so we still need to compute keySkuForRow per item.url.
-    // We keep the list of keys to try; we’ll compute with item.url cheaply.
-  }
-  return res;
+// Global limiter for aggressive network concurrency (shared across ALL stores/files)
+function makeLimiter(max) {
+  let active = 0;
+  const q = [];
+  const runNext = () => {
+    while (active < max && q.length) {
+      active++;
+      const { fn, resolve, reject } = q.shift();
+      Promise.resolve()
+        .then(fn)
+        .then(resolve, reject)
+        .finally(() => {
+          active--;
+          runNext();
+        });
+    }
+  };
+  return (fn) =>
+    new Promise((resolve, reject) => {
+      q.push({ fn, resolve, reject });
+      runNext();
+    });
 }
 
+/* ---------------- History helpers ---------------- */
+
 // Returns BOTH mins, so we can show a dot on removal day using removed price.
-// Optimized: pass in prebuilt "want" Set for real skus + synthetic u: keys list.
-function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, uKeys) {
+// Optimized: pass prebuilt wantRealSkus Set + skuKeys. Keeps behavior identical.
+function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
   let liveMin = null;
   let removedMin = null;
@@ -67,6 +76,7 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, uK
     if (!it) continue;
 
     const isRemoved = Boolean(it.removed);
+
     const real = String(it.sku || "").trim();
     if (real && wantRealSkus.has(real)) {
       consider(isRemoved, it.price);
@@ -74,10 +84,8 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, uK
     }
 
     // synthetic match (only relevant if a caller passes u: keys)
-    if (!real && uKeys && uKeys.length) {
+    if (!real) {
       const url = String(it.url || "");
-      // We must preserve original behavior: recompute keySkuForRow for each u: key
-      // because it embeds storeLabel and url. storeLabel is fixed per dbFile.
       for (const skuKey of skuKeys) {
         const k = String(skuKey || "");
         if (!k.startsWith("u:")) continue;
@@ -128,7 +136,7 @@ function computeSuggestedY(values, minRange) {
 }
 
 function cacheKeySeries(sku, dbFile, cacheBust) {
-  return `stviz:v4:series:${cacheBust}:${sku}:${dbFile}`;
+  return `stviz:v5:series:${cacheBust}:${sku}:${dbFile}`;
 }
 
 function loadSeriesCache(sku, dbFile, cacheBust) {
@@ -180,8 +188,7 @@ function niceStepAtLeast(minStep, span, maxTicks) {
 function cacheBustForDbFile(manifest, dbFile, commits) {
   const arr = manifest?.files?.[dbFile];
   if (Array.isArray(arr) && arr.length) {
-    const last = arr[arr.length - 1];
-    const sha = String(last?.sha || "");
+    const sha = String(arr[arr.length - 1]?.sha || "");
     if (sha) return sha;
   }
   if (Array.isArray(commits) && commits.length) {
@@ -379,10 +386,11 @@ export async function renderItem($app, skuInput) {
     : `Loading history for ${dbFiles.length} store file(s)…`;
 
   const manifest = await loadDbCommitsManifest();
-  const fileJsonCache = new Map(); // shared across stores: (sha|path) -> parsed JSON
 
+  // Shared caches across all stores
+  const fileJsonCache = new Map(); // ck(sha|path) -> parsed JSON
+  const inflightFetch = new Map(); // ck -> Promise
   const today = dateOnly(idx.generatedAt || new Date().toISOString());
-
   const skuKeys = [...skuGroup];
   const wantRealSkus = new Set(
     skuKeys
@@ -390,15 +398,19 @@ export async function renderItem($app, skuInput) {
       .filter((x) => x)
   );
 
+  // Tuning knobs:
+  // - keep compute modest: only a few stores processed simultaneously
+  // - make network aggressive: many file-at-sha fetches in-flight globally
+  const DBFILE_CONCURRENCY = 3;
+  const NET_CONCURRENCY = 16;
+  const limitNet = makeLimiter(NET_CONCURRENCY);
+
   const MAX_POINTS = 260;
-  const CONCURRENCY = Math.min(6, Math.max(2, (navigator?.hardwareConcurrency || 4) - 2));
 
   async function processDbFile(dbFile) {
     const rowsAll = byDbFileAll.get(dbFile) || [];
     const rowsLive = rowsAll.filter((r) => !Boolean(r?.removed));
     const storeLabel = String(rowsAll[0]?.storeLabel || rowsAll[0]?.store || dbFile);
-
-    const uKeys = precomputeSyntheticKeys(skuKeys, storeLabel);
 
     // Build commits list (prefer manifest)
     let commits = [];
@@ -433,6 +445,7 @@ export async function renderItem($app, skuInput) {
         return ta - tb;
       });
 
+    // Per-dbFile cache bust by latest sha, so we don't invalidate everything on each publish.
     const cacheBust = cacheBustForDbFile(manifest, dbFile, commits);
     const cached = loadSeriesCache(sku, dbFile, cacheBust);
     if (cached && Array.isArray(cached.points) && cached.points.length) {
@@ -474,6 +487,39 @@ export async function renderItem($app, skuInput) {
 
     if (dayEntries.length > MAX_POINTS) dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
 
+    // Aggressive global network fetch (dedup + throttled)
+    async function loadAtSha(sha) {
+      const ck = `${sha}|${dbFile}`;
+      const cachedObj = fileJsonCache.get(ck);
+      if (cachedObj) return cachedObj;
+
+      const prev = inflightFetch.get(ck);
+      if (prev) return prev;
+
+      const p = limitNet(async () => {
+        const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
+        fileJsonCache.set(ck, obj);
+        return obj;
+      }).finally(() => {
+        inflightFetch.delete(ck);
+      });
+
+      inflightFetch.set(ck, p);
+      return p;
+    }
+
+    // Prefetch the last sha for each day (these are always needed)
+    {
+      const shas = [];
+      for (const day of dayEntries) {
+        const arr = day.commits;
+        if (!arr?.length) continue;
+        const sha = String(arr[arr.length - 1]?.sha || "");
+        if (sha) shas.push(sha);
+      }
+      await Promise.all(shas.map((sha) => loadAtSha(sha).catch(() => null)));
+    }
+
     const points = new Map();
     const values = [];
     const compactPoints = [];
@@ -481,16 +527,6 @@ export async function renderItem($app, skuInput) {
 
     let removedStreak = false;
     let prevLive = null;
-
-    async function loadAtSha(sha) {
-      const ck = `${sha}|${dbFile}`;
-      let obj = fileJsonCache.get(ck) || null;
-      if (!obj) {
-        obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
-        fileJsonCache.set(ck, obj);
-      }
-      return obj;
-    }
 
     for (const day of dayEntries) {
       const d = String(day.date || "");
@@ -508,7 +544,7 @@ export async function renderItem($app, skuInput) {
         continue;
       }
 
-      const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeys, storeLabel, uKeys);
+      const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeys, storeLabel);
       const lastLive = lastMin.liveMin;
       const lastRemoved = lastMin.removedMin;
 
@@ -523,14 +559,22 @@ export async function renderItem($app, skuInput) {
         if (firstSha) {
           try {
             const objFirst = await loadAtSha(firstSha);
-            const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeys, storeLabel, uKeys);
+            const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeys, storeLabel);
             if (firstMin.liveMin !== null) {
+              // Fire off loads for candidates (throttled) then scan backwards
+              const candidates = [];
+              for (let i = 0; i < dayCommits.length - 1; i++) {
+                const sha = String(dayCommits[i]?.sha || "");
+                if (sha) candidates.push(sha);
+              }
+              await Promise.all(candidates.map((sha) => loadAtSha(sha).catch(() => null)));
+
               for (let i = dayCommits.length - 2; i >= 0; i--) {
                 const sha = String(dayCommits[i]?.sha || "");
                 if (!sha) continue;
                 try {
                   const obj = await loadAtSha(sha);
-                  const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, uKeys);
+                  const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel);
                   if (m.liveMin !== null) {
                     sameDayLastLive = m.liveMin;
                     break;
@@ -586,8 +630,7 @@ export async function renderItem($app, skuInput) {
     return { label: storeLabel, points, values, dates };
   }
 
-  // Process stores concurrently (big win vs sequential)
-  const results = await mapLimit(dbFiles, CONCURRENCY, async (dbFile) => {
+  const results = await mapLimit(dbFiles, DBFILE_CONCURRENCY, async (dbFile) => {
     try {
       return await processDbFile(dbFile);
     } catch {
