@@ -16,6 +16,27 @@ function normalizeAbsUrl(raw) {
   }
 }
 
+// Strip noisy Shopify/tracking params so URLs stay stable.
+// Keep only "variant" since it can represent a distinct product configuration.
+function normalizeShopifyProductUrl(rawUrl) {
+  try {
+    const u = new URL(String(rawUrl || ""));
+    u.hash = "";
+
+    const keep = new Set(["variant"]);
+    for (const k of [...u.searchParams.keys()]) {
+      if (!keep.has(k)) u.searchParams.delete(k);
+    }
+
+    if ([...u.searchParams.keys()].length === 0) u.search = "";
+    if (u.pathname.length > 1) u.pathname = u.pathname.replace(/\/+$/, "");
+
+    return u.toString();
+  } catch {
+    return String(rawUrl || "");
+  }
+}
+
 function makeVesselPageUrl(baseUrl, pageNum) {
   const u = new URL(normalizeBaseUrl(baseUrl));
   u.hash = "";
@@ -54,6 +75,29 @@ function vesselExtractPrice(block) {
   return "";
 }
 
+// Vessel image filenames are often numeric (e.g. 67424.jpg). Grab that.
+function vesselExtractSkuFromImgOrBlock(imgUrl, block) {
+  // Prefer existing CSPC normalizer if it matches
+  const cspc = normalizeCspc(imgUrl) || "";
+  if (cspc) return cspc;
+
+  // From image URL path
+  try {
+    const u = new URL(String(imgUrl || ""));
+    const m = u.pathname.match(/\/(\d{4,10})\.(?:jpe?g|png|webp)$/i);
+    if (m && m[1]) return m[1];
+  } catch {
+    // ignore
+  }
+
+  // From raw HTML (src/srcset often contains the numeric filename)
+  const s = String(block || "");
+  const m2 = s.match(/\/cdn\/shop\/products\/(\d{4,10})\.(?:jpe?g|png|webp)/i);
+  if (m2 && m2[1]) return m2[1];
+
+  return "";
+}
+
 function vesselCardToItem(block, base) {
   if (!vesselLooksInStock(block)) return null;
 
@@ -63,6 +107,7 @@ function vesselCardToItem(block, base) {
   let url = "";
   try {
     url = new URL(decodeHtml(hrefM[1]), base).toString();
+    url = normalizeShopifyProductUrl(url);
   } catch {
     return null;
   }
@@ -77,8 +122,8 @@ function vesselCardToItem(block, base) {
   const img = normalizeAbsUrl(extractFirstImgUrl(block, base));
   const price = vesselExtractPrice(block);
 
-  // Try to pull a 6-digit SKU (often their image filenames are CSPC-like).
-  const sku = normalizeCspc(img) || "";
+  // Prefer numeric filename SKU like 67424.jpg (works for 5-digit too)
+  const sku = vesselExtractSkuFromImgOrBlock(img, block);
 
   return { name, price, url, sku, img };
 }
