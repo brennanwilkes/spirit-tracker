@@ -15,47 +15,78 @@ export function destroyChart() {
   }
 }
 
+/* ---------------- Small async helpers ---------------- */
+
+async function mapLimit(list, limit, fn) {
+  const out = new Array(list.length);
+  let i = 0;
+  const n = Math.max(1, Math.floor(limit || 1));
+  const workers = Array.from({ length: n }, async () => {
+    while (true) {
+      const idx = i++;
+      if (idx >= list.length) return;
+      out[idx] = await fn(list[idx], idx);
+    }
+  });
+  await Promise.all(workers);
+  return out;
+}
+
 /* ---------------- History helpers ---------------- */
 
+// Precompute synthetic keys for any "u:" skuKeys, so we don’t rebuild rows each call.
+function precomputeSyntheticKeys(skuKeys, storeLabel) {
+  const res = [];
+  for (const skuKey of skuKeys) {
+    const k = String(skuKey || "");
+    if (!k.startsWith("u:")) continue;
+    // Mirror the original matching logic exactly.
+    const row = { sku: "", url: "", storeLabel: storeLabel || "", store: "" };
+    res.push({ k, storeLabel: storeLabel || "" });
+    // Note: url is per item, so we still need to compute keySkuForRow per item.url.
+    // We keep the list of keys to try; we’ll compute with item.url cheaply.
+  }
+  return res;
+}
+
 // Returns BOTH mins, so we can show a dot on removal day using removed price.
-function findMinPricesForSkuGroupInDb(obj, skuKeys, storeLabel) {
+// Optimized: pass in prebuilt "want" Set for real skus + synthetic u: keys list.
+function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, uKeys) {
   const items = Array.isArray(obj?.items) ? obj.items : [];
   let liveMin = null;
   let removedMin = null;
 
-  // Build quick lookup for real sku entries (cheap)
-  const want = new Set();
-  for (const s of skuKeys) {
-    const x = String(s || "").trim();
-    if (x) want.add(x);
-  }
+  const consider = (isRemoved, priceVal) => {
+    const p = parsePriceToNumber(priceVal);
+    if (p === null) return;
+    if (!isRemoved) liveMin = liveMin === null ? p : Math.min(liveMin, p);
+    else removedMin = removedMin === null ? p : Math.min(removedMin, p);
+  };
 
   for (const it of items) {
     if (!it) continue;
 
     const isRemoved = Boolean(it.removed);
-
-    const consider = (priceVal) => {
-      const p = parsePriceToNumber(priceVal);
-      if (p === null) return;
-      if (!isRemoved) liveMin = liveMin === null ? p : Math.min(liveMin, p);
-      else removedMin = removedMin === null ? p : Math.min(removedMin, p);
-    };
-
     const real = String(it.sku || "").trim();
-    if (real && want.has(real)) {
-      consider(it.price);
+    if (real && wantRealSkus.has(real)) {
+      consider(isRemoved, it.price);
       continue;
     }
 
     // synthetic match (only relevant if a caller passes u: keys)
-    if (!real) {
+    if (!real && uKeys && uKeys.length) {
+      const url = String(it.url || "");
+      // We must preserve original behavior: recompute keySkuForRow for each u: key
+      // because it embeds storeLabel and url. storeLabel is fixed per dbFile.
       for (const skuKey of skuKeys) {
         const k = String(skuKey || "");
         if (!k.startsWith("u:")) continue;
-        const row = { sku: "", url: String(it.url || ""), storeLabel: storeLabel || "", store: "" };
+        const row = { sku: "", url, storeLabel: storeLabel || "", store: "" };
         const kk = keySkuForRow(row);
-        if (kk === k) consider(it.price);
+        if (kk === k) {
+          consider(isRemoved, it.price);
+          break;
+        }
       }
     }
   }
@@ -67,8 +98,12 @@ function computeSuggestedY(values, minRange) {
   const nums = values.filter((v) => Number.isFinite(v));
   if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
-  let min = nums[0], max = nums[0];
-  for (const n of nums) { if (n < min) min = n; if (n > max) max = n; }
+  let min = nums[0],
+    max = nums[0];
+  for (const n of nums) {
+    if (n < min) min = n;
+    if (n > max) max = n;
+  }
 
   const range = max - min;
   const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;
@@ -82,16 +117,18 @@ function computeSuggestedY(values, minRange) {
       const mid = (suggestedMin + suggestedMax) / 2;
       suggestedMin = mid - minRange / 2;
       suggestedMax = mid + minRange / 2;
-      if (suggestedMin < 0) { suggestedMax -= suggestedMin; suggestedMin = 0; }
+      if (suggestedMin < 0) {
+        suggestedMax -= suggestedMin;
+        suggestedMin = 0;
+      }
     }
   }
 
   return { suggestedMin, suggestedMax };
 }
 
-
 function cacheKeySeries(sku, dbFile, cacheBust) {
-  return `stviz:v3:series:${cacheBust}:${sku}:${dbFile}`;
+  return `stviz:v4:series:${cacheBust}:${sku}:${dbFile}`;
 }
 
 function loadSeriesCache(sku, dbFile, cacheBust) {
@@ -130,7 +167,7 @@ async function loadDbCommitsManifest() {
 function niceStepAtLeast(minStep, span, maxTicks) {
   if (!Number.isFinite(span) || span <= 0) return minStep;
 
-  const target = span / Math.max(1, (maxTicks - 1)); // desired step to stay under maxTicks
+  const target = span / Math.max(1, maxTicks - 1); // desired step to stay under maxTicks
   const raw = Math.max(minStep, target);
 
   // "nice" steps: 1/2/5 * 10^k, but never below minStep
@@ -140,6 +177,19 @@ function niceStepAtLeast(minStep, span, maxTicks) {
   return Math.max(minStep, niceM * pow);
 }
 
+function cacheBustForDbFile(manifest, dbFile, commits) {
+  const arr = manifest?.files?.[dbFile];
+  if (Array.isArray(arr) && arr.length) {
+    const last = arr[arr.length - 1];
+    const sha = String(last?.sha || "");
+    if (sha) return sha;
+  }
+  if (Array.isArray(commits) && commits.length) {
+    const sha = String(commits[commits.length - 1]?.sha || "");
+    if (sha) return sha;
+  }
+  return "no-sha";
+}
 
 /* ---------------- Page ---------------- */
 
@@ -329,39 +379,28 @@ export async function renderItem($app, skuInput) {
     : `Loading history for ${dbFiles.length} store file(s)…`;
 
   const manifest = await loadDbCommitsManifest();
-  const allDatesSet = new Set();
-  const series = [];
-  const fileJsonCache = new Map();
+  const fileJsonCache = new Map(); // shared across stores: (sha|path) -> parsed JSON
 
-  const cacheBust = String(idx.generatedAt || new Date().toISOString());
   const today = dateOnly(idx.generatedAt || new Date().toISOString());
 
   const skuKeys = [...skuGroup];
+  const wantRealSkus = new Set(
+    skuKeys
+      .map((s) => String(s || "").trim())
+      .filter((x) => x)
+  );
 
-  for (const dbFile of dbFiles) {
+  const MAX_POINTS = 260;
+  const CONCURRENCY = Math.min(6, Math.max(2, (navigator?.hardwareConcurrency || 4) - 2));
+
+  async function processDbFile(dbFile) {
     const rowsAll = byDbFileAll.get(dbFile) || [];
-
-    // Determine current LIVE rows for this dbFile:
     const rowsLive = rowsAll.filter((r) => !Boolean(r?.removed));
-
     const storeLabel = String(rowsAll[0]?.storeLabel || rowsAll[0]?.store || dbFile);
 
-    const cached = loadSeriesCache(sku, dbFile, cacheBust);
-    if (cached && Array.isArray(cached.points) && cached.points.length) {
-      const points = new Map();
-      const values = [];
-      for (const p of cached.points) {
-        const d = String(p.date || "");
-        const v = p.price === null ? null : Number(p.price);
-        if (!d) continue;
-        points.set(d, Number.isFinite(v) ? v : null);
-        if (Number.isFinite(v)) values.push(v);
-        allDatesSet.add(d);
-      }
-      series.push({ label: storeLabel, points, values });
-      continue;
-    }
+    const uKeys = precomputeSyntheticKeys(skuKeys, storeLabel);
 
+    // Build commits list (prefer manifest)
     let commits = [];
     if (manifest && manifest.files && Array.isArray(manifest.files[dbFile])) {
       commits = manifest.files[dbFile];
@@ -382,7 +421,7 @@ export async function renderItem($app, skuInput) {
       }
     }
 
-    // Ensure chronological
+    // Chronological sort (handles either manifest or API fallback)
     commits = commits
       .slice()
       .filter((c) => c && c.date && c.sha)
@@ -394,6 +433,24 @@ export async function renderItem($app, skuInput) {
         return ta - tb;
       });
 
+    const cacheBust = cacheBustForDbFile(manifest, dbFile, commits);
+    const cached = loadSeriesCache(sku, dbFile, cacheBust);
+    if (cached && Array.isArray(cached.points) && cached.points.length) {
+      const points = new Map();
+      const values = [];
+      const dates = [];
+      for (const p of cached.points) {
+        const d = String(p.date || "");
+        const v = p.price === null ? null : Number(p.price);
+        if (!d) continue;
+        const vv = Number.isFinite(v) ? v : null;
+        points.set(d, vv);
+        if (vv !== null) values.push(vv);
+        dates.push(d);
+      }
+      return { label: storeLabel, points, values, dates };
+    }
+
     // Group commits by day (keep ALL commits per day; needed for add+remove same day)
     const byDay = new Map(); // date -> commits[]
     for (const c of commits) {
@@ -404,7 +461,6 @@ export async function renderItem($app, skuInput) {
       arr.push(c);
     }
 
-    // Sort commits within each day by time
     function commitMs(c) {
       const d = String(c?.date || "");
       const t = Date.parse(String(c?.ts || ""));
@@ -416,12 +472,12 @@ export async function renderItem($app, skuInput) {
       .map(([date, arr]) => ({ date, commits: arr.slice().sort((a, b) => commitMs(a) - commitMs(b)) }))
       .sort((a, b) => (a.date < b.date ? -1 : 1));
 
+    if (dayEntries.length > MAX_POINTS) dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
+
     const points = new Map();
     const values = [];
     const compactPoints = [];
-
-    const MAX_POINTS = 260;
-    if (dayEntries.length > MAX_POINTS) dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
+    const dates = [];
 
     let removedStreak = false;
     let prevLive = null;
@@ -452,7 +508,7 @@ export async function renderItem($app, skuInput) {
         continue;
       }
 
-      const lastMin = findMinPricesForSkuGroupInDb(objLast, skuKeys, storeLabel);
+      const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeys, storeLabel, uKeys);
       const lastLive = lastMin.liveMin;
       const lastRemoved = lastMin.removedMin;
 
@@ -462,15 +518,25 @@ export async function renderItem($app, skuInput) {
       // If end-of-day is removed, find the LAST live price earlier the same day
       let sameDayLastLive = null;
       if (endIsRemoved && dayCommits.length > 1) {
-        for (let i = dayCommits.length - 2; i >= 0; i--) {
-          const sha = String(dayCommits[i]?.sha || "");
-          if (!sha) continue;
+        // fast reject: if earliest commit already has no live, no need to scan
+        const firstSha = String(dayCommits[0]?.sha || "");
+        if (firstSha) {
           try {
-            const obj = await loadAtSha(sha);
-            const m = findMinPricesForSkuGroupInDb(obj, skuKeys, storeLabel);
-            if (m.liveMin !== null) {
-              sameDayLastLive = m.liveMin;
-              break;
+            const objFirst = await loadAtSha(firstSha);
+            const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeys, storeLabel, uKeys);
+            if (firstMin.liveMin !== null) {
+              for (let i = dayCommits.length - 2; i >= 0; i--) {
+                const sha = String(dayCommits[i]?.sha || "");
+                if (!sha) continue;
+                try {
+                  const obj = await loadAtSha(sha);
+                  const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, uKeys);
+                  if (m.liveMin !== null) {
+                    sameDayLastLive = m.liveMin;
+                    break;
+                  }
+                } catch {}
+              }
             }
           } catch {}
         }
@@ -497,8 +563,8 @@ export async function renderItem($app, skuInput) {
 
       points.set(d, v);
       if (v !== null) values.push(v);
-      allDatesSet.add(d);
       compactPoints.push({ date: d, price: v });
+      dates.push(d);
     }
 
     // Add "today" point ONLY if listing currently exists in this store/dbFile (live rows present)
@@ -511,31 +577,48 @@ export async function renderItem($app, skuInput) {
       if (curMin !== null) {
         points.set(today, curMin);
         values.push(curMin);
-        allDatesSet.add(today);
         compactPoints.push({ date: today, price: curMin });
+        dates.push(today);
       }
     }
 
     saveSeriesCache(sku, dbFile, cacheBust, compactPoints);
-    series.push({ label: storeLabel, points, values });
+    return { label: storeLabel, points, values, dates };
+  }
+
+  // Process stores concurrently (big win vs sequential)
+  const results = await mapLimit(dbFiles, CONCURRENCY, async (dbFile) => {
+    try {
+      return await processDbFile(dbFile);
+    } catch {
+      return null;
+    }
+  });
+
+  const allDatesSet = new Set();
+  const series = [];
+  for (const r of results) {
+    if (!r) continue;
+    series.push({ label: r.label, points: r.points, values: r.values });
+    for (const d of r.dates) allDatesSet.add(d);
   }
 
   const labels = [...allDatesSet].sort();
-  if (!labels.length) {
+  if (!labels.length || !series.length) {
     $status.textContent = "No historical points found.";
     return;
   }
 
   const allVals = [];
   for (const s of series) for (const v of s.values) allVals.push(v);
+
   const ySug = computeSuggestedY(allVals);
 
-  const MIN_STEP = 10;     // never denser than $10
-  const MAX_TICKS = 12;    // cap tick count when span is huge
+  const MIN_STEP = 10; // never denser than $10
+  const MAX_TICKS = 12; // cap tick count when span is huge
 
   const span = (ySug.suggestedMax ?? 0) - (ySug.suggestedMin ?? 0);
   const step = niceStepAtLeast(MIN_STEP, span, MAX_TICKS);
-
 
   const datasets = series.map((s) => ({
     label: s.label,
@@ -591,7 +674,6 @@ export async function renderItem($app, skuInput) {
 
     CHART.update();
   }
-
 
   $status.textContent = manifest
     ? isRemovedEverywhere
