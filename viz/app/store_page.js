@@ -67,7 +67,7 @@ export async function renderStore($app, storeLabelRaw) {
         <div id="results" class="storeGrid">
           <div class="storeCol">
             <div class="storeColHeader">
-              <span class="badge badgeGood">Exclusive</span>
+              <span class="badge badgeExclusive">Exclusive</span>
               <span class="small">Only sold here</span>
             </div>
             <div id="resultsExclusive" class="storeColList"></div>
@@ -115,7 +115,22 @@ export async function renderStore($app, storeLabelRaw) {
   const listingsAll = Array.isArray(idx.items) ? idx.items : [];
   const liveAll = listingsAll.filter((r) => r && !r.removed);
 
-  // Build global per-canonical-SKU store presence + min prices
+  // Build "ever seen" store presence per canonical SKU (includes removed rows)
+  const everStoresBySku = new Map(); // sku -> Set(storeLabelNorm)
+  for (const r of listingsAll) {
+    if (!r) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (!store) continue;
+
+    const skuKey = keySkuForRow(r);
+    const sku = String(rules.canonicalSku(skuKey) || skuKey);
+
+    let ss = everStoresBySku.get(sku);
+    if (!ss) everStoresBySku.set(sku, (ss = new Set()));
+    ss.add(store);
+  }
+
+  // Build global per-canonical-SKU live store presence + min prices
   const storesBySku = new Map(); // sku -> Set(storeLabelNorm)
   const minPriceBySkuStore = new Map(); // sku -> Map(storeLabelNorm -> minPrice)
 
@@ -172,8 +187,12 @@ export async function renderStore($app, storeLabelRaw) {
   items = items
     .map((it) => {
       const sku = String(it.sku || "");
-      const storeSet = storesBySku.get(sku) || new Set([storeNorm]);
-      const exclusive = storeSet.size === 1 && storeSet.has(storeNorm);
+      const liveStoreSet = storesBySku.get(sku) || new Set([storeNorm]);
+      const everStoreSet = everStoresBySku.get(sku) || liveStoreSet;
+
+      const soloLiveHere = liveStoreSet.size === 1 && liveStoreSet.has(storeNorm);
+      const lastStock = soloLiveHere && everStoreSet.size > 1;
+      const exclusive = soloLiveHere && !lastStock;
 
       const storePrice = Number.isFinite(it.cheapestPriceNum) ? it.cheapestPriceNum : null;
       const bestAll = bestAllPrice(sku);
@@ -181,73 +200,72 @@ export async function renderStore($app, storeLabelRaw) {
 
       const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
 
-      const pctVsOther =
-        storePrice !== null && other !== null && other > 0
-          ? ((storePrice - other) / other) * 100
-          : null;
+      const diffVsOther =
+        storePrice !== null && other !== null ? storePrice - other : null;
 
-      const pctVsBest =
-        storePrice !== null && bestAll !== null && bestAll > 0
-          ? ((storePrice - bestAll) / bestAll) * 100
-          : null;
+      const diffVsBest =
+        storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
 
       return {
         ...it,
         _exclusive: exclusive,
+        _lastStock: lastStock,
         _storePrice: storePrice,
         _bestAll: bestAll,
         _bestOther: other,
         _isBest: isBest,
-        _pctVsOther: pctVsOther,
-        _pctVsBest: pctVsBest,
+        _diffVsOther: diffVsOther,
+        _diffVsBest: diffVsBest,
       };
     })
     .sort((a, b) => {
-      if (a._exclusive !== b._exclusive) return a._exclusive ? -1 : 1;
+      const aSpecial = !!(a._exclusive || a._lastStock);
+      const bSpecial = !!(b._exclusive || b._lastStock);
+      if (aSpecial !== bSpecial) return aSpecial ? -1 : 1;
 
-      const pa = a._pctVsOther;
-      const pb = b._pctVsOther;
-      const sa = pa === null ? 999999 : pa;
-      const sb = pb === null ? 999999 : pb;
+      const da = a._diffVsOther;
+      const db = b._diffVsOther;
+      const sa = da === null ? 999999 : da;
+      const sb = db === null ? 999999 : db;
       if (sa !== sb) return sa - sb;
 
       return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
     });
 
   function priceBadgeHtml(it) {
-    if (it._exclusive) return "";
+    if (it._exclusive || it._lastStock) return "";
 
-    const pOther = it._pctVsOther;
-    const pBest = it._pctVsBest;
+    const d = it._diffVsOther;
+    if (d === null || !Number.isFinite(d)) return "";
 
-    if (pOther === null || !Number.isFinite(pOther)) return "";
-
-    if (Math.abs(pOther) <= 5) {
-      return `<span class="badge badgeNeutral">same as next best price</span>`;
+    const abs = Math.abs(d);
+    if (abs <= 5) {
+      return `<span class="badge badgeNeutral">within $5</span>`;
     }
 
-    if (pOther < 0 && it._bestOther !== null && it._bestOther > 0 && it._storePrice !== null) {
-      const pct = Math.round(((it._bestOther - it._storePrice) / it._bestOther) * 100);
-      if (pct <= 0) return `<span class="badge badgeNeutral">same as next best price</span>`;
-      return `<span class="badge badgeGood">${esc(pct)}% lower</span>`;
+    const dollars = Math.round(abs);
+    if (d < 0) {
+      return `<span class="badge badgeGood">$${esc(dollars)} lower</span>`;
     }
-
-    if (pBest !== null && Number.isFinite(pBest) && pBest > 0) {
-      const pct = Math.round(pBest);
-      if (pct <= 5) return `<span class="badge badgeNeutral">competitive</span>`;
-      return `<span class="badge badgeBad">${esc(pct)}% higher</span>`;
-    }
-
-    return "";
+    return `<span class="badge badgeBad">$${esc(dollars)} higher</span>`;
   }
 
   function renderCard(it) {
     const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     const href = String(it.sampleUrl || "").trim();
 
-    const exclusiveBadge = it._exclusive ? `<span class="badge badgeGood">Exclusive</span>` : "";
-    const bestBadge = !it._exclusive && it._isBest ? `<span class="badge badgeBest">Best Price</span>` : "";
-    const pctBadge = priceBadgeHtml(it);
+    const specialBadge = it._lastStock
+      ? `<span class="badge badgeLastStock">Last Stock</span>`
+      : it._exclusive
+        ? `<span class="badge badgeExclusive">Exclusive</span>`
+        : "";
+
+    const bestBadge =
+      !it._exclusive && !it._lastStock && it._isBest
+        ? `<span class="badge badgeBest">Best Price</span>`
+        : "";
+
+    const diffBadge = priceBadgeHtml(it);
 
     const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
     console.log(it);
@@ -262,9 +280,9 @@ export async function renderStore($app, storeLabelRaw) {
                  href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
             </div>
             <div class="metaRow">
-              ${exclusiveBadge}
+              ${specialBadge}
               ${bestBadge}
-              ${pctBadge}
+              ${diffBadge}
               <span class="mono price">${esc(price)}</span>
               ${
                 href
@@ -353,8 +371,8 @@ export async function renderStore($app, storeLabelRaw) {
       base = items.filter((it) => matchesAllTokens(it.searchText, tokens));
     }
 
-    filteredExclusive = base.filter((it) => it._exclusive);
-    filteredCompare = base.filter((it) => !it._exclusive);
+    filteredExclusive = base.filter((it) => it._exclusive || it._lastStock);
+    filteredCompare = base.filter((it) => !it._exclusive && !it._lastStock);
 
     setStatus();
     renderNext(true);
