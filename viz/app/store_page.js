@@ -14,27 +14,6 @@ function normStoreLabel(s) {
   return String(s || "").trim().toLowerCase();
 }
 
-const STORE_Q_LS_PREFIX = "stviz:v1:store:q:";
-
-function storeQKey(storeLabel) {
-  return STORE_Q_LS_PREFIX + String(storeLabel || "").trim().toLowerCase();
-}
-
-function loadStoreQuery(storeLabel) {
-  try {
-    return localStorage.getItem(storeQKey(storeLabel)) || "";
-  } catch {
-    return "";
-  }
-}
-
-function saveStoreQuery(storeLabel, v) {
-  try {
-    localStorage.setItem(storeQKey(storeLabel), String(v ?? ""));
-  } catch {}
-}
-
-
 function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
   // Prefer the most recent-ish url if multiple exist; stable enough for viz.
   let bestUrl = "";
@@ -84,7 +63,25 @@ export async function renderStore($app, storeLabelRaw) {
       <div class="card">
         <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
         <div class="small" id="status" style="margin-top:10px;"></div>
-        <div id="results" class="list"></div>
+
+        <div id="results" class="storeGrid">
+          <div class="storeCol">
+            <div class="storeColHeader">
+              <span class="badge badgeGood">Exclusive</span>
+              <span class="small">Only sold here</span>
+            </div>
+            <div id="resultsExclusive" class="storeColList"></div>
+          </div>
+
+          <div class="storeCol">
+            <div class="storeColHeader">
+              <span class="badge">Price compare</span>
+              <span class="small">Cross-store pricing</span>
+            </div>
+            <div id="resultsCompare" class="storeColList"></div>
+          </div>
+        </div>
+
         <div id="sentinel" class="small" style="text-align:center; padding:12px 0;"></div>
       </div>
     </div>
@@ -92,17 +89,24 @@ export async function renderStore($app, storeLabelRaw) {
 
   document.getElementById("back").addEventListener("click", () => {
     sessionStorage.setItem("viz:lastRoute", location.hash);
-    location.hash = "#/"
-});
+    location.hash = "#/";
+  });
 
   const $q = document.getElementById("q");
-  $q.value = loadStoreQuery(storeLabel);
-  
   const $status = document.getElementById("status");
-  const $results = document.getElementById("results");
+  const $resultsExclusive = document.getElementById("resultsExclusive");
+  const $resultsCompare = document.getElementById("resultsCompare");
   const $sentinel = document.getElementById("sentinel");
+  const $resultsWrap = document.getElementById("results");
 
-  $results.innerHTML = `<div class="small">Loading…</div>`;
+  // Persist query per store
+  const storeNorm = normStoreLabel(storeLabel);
+  const LS_KEY = `viz:storeQuery:${storeNorm}`;
+  const savedQ = String(localStorage.getItem(LS_KEY) || "");
+  if (savedQ) $q.value = savedQ;
+
+  $resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
+  $resultsCompare.innerHTML = ``;
 
   const idx = await loadIndex();
   rulesCache = await loadSkuRules();
@@ -110,8 +114,6 @@ export async function renderStore($app, storeLabelRaw) {
 
   const listingsAll = Array.isArray(idx.items) ? idx.items : [];
   const liveAll = listingsAll.filter((r) => r && !r.removed);
-
-  const storeNorm = normStoreLabel(storeLabel);
 
   // Build global per-canonical-SKU store presence + min prices
   const storesBySku = new Map(); // sku -> Set(storeLabelNorm)
@@ -157,7 +159,9 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   // Store-specific live rows only (in-stock for that store)
-  const rowsStoreLive = liveAll.filter((r) => normStoreLabel(r.storeLabel || r.store || "") === storeNorm);
+  const rowsStoreLive = liveAll.filter(
+    (r) => normStoreLabel(r.storeLabel || r.store || "") === storeNorm
+  );
 
   // Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
   let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
@@ -177,12 +181,15 @@ export async function renderStore($app, storeLabelRaw) {
 
       const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
 
-      // Sort key: compare vs cheapest alternative store (if we're best, that's "next best"; else that's "best")
       const pctVsOther =
-        storePrice !== null && other !== null && other > 0 ? ((storePrice - other) / other) * 100 : null;
+        storePrice !== null && other !== null && other > 0
+          ? ((storePrice - other) / other) * 100
+          : null;
 
       const pctVsBest =
-        storePrice !== null && bestAll !== null && bestAll > 0 ? ((storePrice - bestAll) / bestAll) * 100 : null;
+        storePrice !== null && bestAll !== null && bestAll > 0
+          ? ((storePrice - bestAll) / bestAll) * 100
+          : null;
 
       return {
         ...it,
@@ -213,22 +220,18 @@ export async function renderStore($app, storeLabelRaw) {
     const pOther = it._pctVsOther;
     const pBest = it._pctVsBest;
 
-    // If we can't compare, skip the % badge.
     if (pOther === null || !Number.isFinite(pOther)) return "";
 
-    // Grey zone: -5% .. +5% => "same as next best price"
     if (Math.abs(pOther) <= 5) {
       return `<span class="badge badgeNeutral">same as next best price</span>`;
     }
 
-    // Deals: we're best (cheaper than other)
     if (pOther < 0 && it._bestOther !== null && it._bestOther > 0 && it._storePrice !== null) {
       const pct = Math.round(((it._bestOther - it._storePrice) / it._bestOther) * 100);
       if (pct <= 0) return `<span class="badge badgeNeutral">same as next best price</span>`;
       return `<span class="badge badgeGood">${esc(pct)}% vs next best price</span>`;
     }
 
-    // More expensive: show vs best price
     if (pBest !== null && Number.isFinite(pBest) && pBest > 0) {
       const pct = Math.round(pBest);
       if (pct <= 5) return `<span class="badge badgeNeutral">same as next best price</span>`;
@@ -246,8 +249,7 @@ export async function renderStore($app, storeLabelRaw) {
     const bestBadge = !it._exclusive && it._isBest ? `<span class="badge badgeBest">Best Price</span>` : "";
     const pctBadge = priceBadgeHtml(it);
 
-    const skuLink =
-      `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
+    const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
     return `
       <div class="item" data-sku="${esc(it.sku)}">
@@ -256,9 +258,8 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="itemBody">
             <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer" href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(
-                displaySku(it.sku)
-              )}</a>
+              <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
+                 href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
             </div>
             <div class="metaRow">
               ${exclusiveBadge}
@@ -277,14 +278,24 @@ export async function renderStore($app, storeLabelRaw) {
     `;
   }
 
-  // ---- Infinite scroll paging ----
-  const PAGE_SIZE = 140;
+  // ---- Infinite scroll paging (shared across both columns) ----
+  const PAGE_SIZE = 140; // total per "page" across both columns
+  const PAGE_EACH = Math.max(1, Math.floor(PAGE_SIZE / 2));
 
-  let filtered = items.slice();
-  let shown = 0;
+  let filteredExclusive = [];
+  let filteredCompare = [];
+  let shownExclusive = 0;
+  let shownCompare = 0;
+
+  function totalFiltered() {
+    return filteredExclusive.length + filteredCompare.length;
+  }
+  function totalShown() {
+    return shownExclusive + shownCompare;
+  }
 
   function setStatus() {
-    const total = filtered.length;
+    const total = totalFiltered();
     if (!total) {
       $status.textContent = "No in-stock items for this store.";
       return;
@@ -294,28 +305,35 @@ export async function renderStore($app, storeLabelRaw) {
 
   function renderNext(reset) {
     if (reset) {
-      $results.innerHTML = "";
-      shown = 0;
+      $resultsExclusive.innerHTML = "";
+      $resultsCompare.innerHTML = "";
+      shownExclusive = 0;
+      shownCompare = 0;
     }
 
-    const slice = filtered.slice(shown, shown + PAGE_SIZE);
-    shown += slice.length;
+    const sliceEx = filteredExclusive.slice(shownExclusive, shownExclusive + PAGE_EACH);
+    const sliceCo = filteredCompare.slice(shownCompare, shownCompare + PAGE_EACH);
 
-    if (slice.length) {
-      $results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
-    }
+    shownExclusive += sliceEx.length;
+    shownCompare += sliceCo.length;
 
-    if (!filtered.length) {
+    if (sliceEx.length) $resultsExclusive.insertAdjacentHTML("beforeend", sliceEx.map(renderCard).join(""));
+    if (sliceCo.length) $resultsCompare.insertAdjacentHTML("beforeend", sliceCo.map(renderCard).join(""));
+
+    const total = totalFiltered();
+    const shown = totalShown();
+
+    if (!total) {
       $sentinel.textContent = "";
-    } else if (shown >= filtered.length) {
-      $sentinel.textContent = `Showing ${shown} / ${filtered.length}`;
+    } else if (shown >= total) {
+      $sentinel.textContent = `Showing ${shown} / ${total}`;
     } else {
-      $sentinel.textContent = `Showing ${shown} / ${filtered.length}…`;
+      $sentinel.textContent = `Showing ${shown} / ${total}…`;
     }
   }
 
   // Click -> item page (delegated). SKU + Open links stopPropagation already.
-  $results.addEventListener("click", (e) => {
+  $resultsWrap.addEventListener("click", (e) => {
     const el = e.target.closest(".item");
     if (!el) return;
     const sku = el.getAttribute("data-sku") || "";
@@ -325,26 +343,31 @@ export async function renderStore($app, storeLabelRaw) {
   });
 
   function applyFilter() {
-    const tokens = tokenizeQuery($q.value);
+    const raw = String($q.value || "");
+    localStorage.setItem(LS_KEY, raw);
 
-    if (!tokens.length) {
-      filtered = items.slice();
-    } else {
-      filtered = items.filter((it) => matchesAllTokens(it.searchText, tokens));
+    const tokens = tokenizeQuery(raw);
+
+    let base = items;
+    if (tokens.length) {
+      base = items.filter((it) => matchesAllTokens(it.searchText, tokens));
     }
+
+    filteredExclusive = base.filter((it) => it._exclusive);
+    filteredCompare = base.filter((it) => !it._exclusive);
+
     setStatus();
     renderNext(true);
   }
 
-  // Initial render
-  setStatus();
-  renderNext(true);
+  // Initial render (apply saved query if present)
+  applyFilter();
 
   const io = new IntersectionObserver(
     (entries) => {
       const hit = entries.some((x) => x.isIntersecting);
       if (!hit) return;
-      if (shown >= filtered.length) return;
+      if (totalShown() >= totalFiltered()) return;
       renderNext(false);
     },
     { root: null, rootMargin: "600px 0px", threshold: 0.01 }
@@ -353,7 +376,6 @@ export async function renderStore($app, storeLabelRaw) {
 
   let t = null;
   $q.addEventListener("input", () => {
-    saveStoreQuery(storeLabel, $q.value);
     if (t) clearTimeout(t);
     t = setTimeout(applyFilter, 60);
   });
