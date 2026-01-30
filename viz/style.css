@@ -253,7 +253,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   justify-content: space-between; /* spread each row to fill */
 }
 
-
 .storeBtn {
   border: 1px solid var(--border);
   background: #0f1318;
@@ -357,4 +356,37 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   margin-top: 12px;
   position: sticky;
   bottom: 0;
+}
+
+/* --- Store page: two-column results (new; isolated to store page) --- */
+.storeGrid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.storeCol {
+  min-width: 0;
+}
+
+.storeColHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 2px 10px 2px;
+}
+
+.storeColList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .storeGrid {
+    grid-template-columns: 1fr; /* stack columns */
+  }
 }
