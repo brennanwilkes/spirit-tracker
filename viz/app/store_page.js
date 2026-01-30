@@ -229,13 +229,13 @@ export async function renderStore($app, storeLabelRaw) {
     if (pOther < 0 && it._bestOther !== null && it._bestOther > 0 && it._storePrice !== null) {
       const pct = Math.round(((it._bestOther - it._storePrice) / it._bestOther) * 100);
       if (pct <= 0) return `<span class="badge badgeNeutral">same as next best price</span>`;
-      return `<span class="badge badgeGood">${esc(pct)}% vs next best price</span>`;
+      return `<span class="badge badgeGood">${esc(pct)}% lower</span>`;
     }
 
     if (pBest !== null && Number.isFinite(pBest) && pBest > 0) {
       const pct = Math.round(pBest);
-      if (pct <= 5) return `<span class="badge badgeNeutral">same as next best price</span>`;
-      return `<span class="badge badgeBad">${esc(pct)}% vs best price</span>`;
+      if (pct <= 5) return `<span class="badge badgeNeutral">competitive</span>`;
+      return `<span class="badge badgeBad">${esc(pct)}% higher</span>`;
     }
 
     return "";
