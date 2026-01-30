@@ -231,9 +231,11 @@ export async function renderItem($app, skuInput) {
   `;
 
   document.getElementById("back").addEventListener("click", () => {
-    location.hash = "#/";
+    const last = sessionStorage.getItem("viz:lastRoute");
+    if (last && last !== location.hash) location.hash = last;
+    else location.hash = "#/";
   });
-
+  
   const $title = document.getElementById("title");
   const $links = document.getElementById("links");
   const $status = document.getElementById("status");
