@@ -128,9 +128,9 @@ function createStore(defaultUa) {
 
     categories: [
       {
-        key: "whisky-whiskey",
-        label: "Whisky / Whiskey",
-        startUrl: "https://www.willowpark.net/collections/whisky-whiskey?filter.v.availability=1",
+        key: "scotch",
+        label: "Scotch",
+        startUrl: "https://www.willowpark.net/collections/scotch?filter.v.availability=1",
         discoveryStartPage: 5,
       },
       {
