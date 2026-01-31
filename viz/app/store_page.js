@@ -64,9 +64,7 @@ export async function renderStore($app, storeLabelRaw) {
 
       <div class="card">
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
-
-          <div id="priceWrap" style="display:flex; align-items:center; gap:10px;">
+          <div id="priceWrap" style="display:flex; align-items:center; gap:10px; width:100%;">
             <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
 
             <input
@@ -77,8 +75,8 @@ export async function renderStore($app, storeLabelRaw) {
               step="1"
               value="1000"
               style="
-                width: 320px;
-                max-width: 100%;
+                flex: 1 1 auto;
+                width: 100%;
                 height: 18px;
                 accent-color: #9aa3b2;
                 opacity: .85;
@@ -93,9 +91,12 @@ export async function renderStore($app, storeLabelRaw) {
                 text-align: right;
                 white-space: nowrap;
                 opacity: .9;
+                flex: 0 0 auto;
               "
             ></div>
           </div>
+
+          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
         </div>
 
         <div class="small" id="status" style="margin-top:10px;"></div>
@@ -358,10 +359,7 @@ export async function renderStore($app, storeLabelRaw) {
       $maxPriceLabel.textContent = "No prices";
       return;
     }
-    const atTop = Math.abs(selectedMaxPrice - boundMax) <= 0.01;
-    $maxPriceLabel.textContent = atTop
-      ? `${formatDollars(boundMax)} (all)`
-      : `${formatDollars(selectedMaxPrice)}`;
+    $maxPriceLabel.textContent = `${formatDollars(selectedMaxPrice)}`;
   }
 
   if (pageMax === null) {
@@ -422,7 +420,6 @@ export async function renderStore($app, storeLabelRaw) {
     const diffBadge = priceBadgeHtml(it);
 
     const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
-    console.log(it);
     return `
       <div class="item" data-sku="${esc(it.sku)}">
         <div class="itemRow">
@@ -474,9 +471,7 @@ export async function renderStore($app, storeLabelRaw) {
     }
 
     if (pageMax !== null) {
-      const atTop = Math.abs(selectedMaxPrice - boundMax) <= 0.01;
-      const cap = atTop ? "all prices" : `≤ ${formatDollars(selectedMaxPrice)}`;
-      $status.textContent = `In stock: ${total} item(s) (${cap}).`;
+      $status.textContent = `In stock: ${total} item(s) (≤ ${formatDollars(selectedMaxPrice)}).`;
       return;
     }
 
