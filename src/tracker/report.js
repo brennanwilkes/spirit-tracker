@@ -20,7 +20,7 @@ function createReport() {
   return {
     startedAt: new Date(),
     categories: [],
-    totals: { newCount: 0, updatedCount: 0, removedCount: 0, restoredCount: 0 },
+    totals: { newCount: 0, updatedCount: 0, removedCount: 0, restoredCount: 0, metaChangedCount: 0 },
     newItems: [],
     updatedItems: [],
     removedItems: [],
