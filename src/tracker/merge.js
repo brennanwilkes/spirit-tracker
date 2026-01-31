@@ -1,7 +1,7 @@
 // src/tracker/merge.js
 "use strict";
 
-const { normalizeSkuKey, normalizeCspc } = require("../utils/sku");
+const { normalizeSkuKey, normalizeCspc, pickBetterSku } = require("../utils/sku");
 const { normPrice } = require("../utils/price");
 
 function normImg(v) {
@@ -14,13 +14,7 @@ function normImg(v) {
 function dbStoreLabel(prevDb) {
   return String(prevDb?.storeLabel || prevDb?.store || "").trim();
 }
-  
-function isRealSku(v) {
-  return Boolean(normalizeCspc(v));
-}
 
-
-  
 function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
   const effectiveStoreLabel = String(storeLabel || dbStoreLabel(prevDb)).trim();
   if (!effectiveStoreLabel) {
@@ -28,6 +22,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
       "mergeDiscoveredIntoDb: missing storeLabel; refusing to generate synthetic SKUs with fallback 'store'"
     );
   }
+
   function normalizeSkuForDb(raw, url) {
     return normalizeSkuKey(raw, { storeLabel: effectiveStoreLabel, url });
   }
@@ -58,49 +53,51 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
     return String(urlA || "") <= String(urlB || "") ? { url: urlA, item: a } : { url: urlB, item: b };
   }
 
-  // Index active items by real SKU; also track *all* urls per SKU to cleanup dupes.
-  const prevByRealSku = new Map(); // sku6 -> { url, item } (best)
-  const prevUrlsByRealSku = new Map(); // sku6 -> Set(urls)
+  // Index active items by non-synthetic skuKey (CSPC / id:* / upc:* / etc).
+  // Also track *all* urls per skuKey to cleanup dupes.
+  const prevBySkuKey = new Map(); // skuKey -> { url, item } (best)
+  const prevUrlsBySkuKey = new Map(); // skuKey -> Set(urls)
 
   for (const [url, it] of prevDb.byUrl.entries()) {
     if (!it || it.removed) continue;
-    const sku6 = normalizeCspc(it.sku);
-    if (!sku6) continue;
 
-    let set = prevUrlsByRealSku.get(sku6);
-    if (!set) prevUrlsByRealSku.set(sku6, (set = new Set()));
+    const skuKey = normalizeSkuForDb(it.sku, url);
+    if (!skuKey || /^u:/i.test(skuKey)) continue;
+
+    let set = prevUrlsBySkuKey.get(skuKey);
+    if (!set) prevUrlsBySkuKey.set(skuKey, (set = new Set()));
     set.add(url);
 
-    const cur = prevByRealSku.get(sku6);
+    const cur = prevBySkuKey.get(skuKey);
     const next = { url, item: it };
-    if (!cur) prevByRealSku.set(sku6, next);
-    else prevByRealSku.set(sku6, pickBetter(cur, next));
+    if (!cur) prevBySkuKey.set(skuKey, next);
+    else prevBySkuKey.set(skuKey, pickBetter(cur, next));
   }
 
-  const matchedPrevUrls = new Set(); // old URLs we "found" via SKU even if URL changed
+  const matchedPrevUrls = new Set(); // old URLs we "found" via skuKey even if URL changed
 
   for (const [url, nowRaw] of discovered.entries()) {
     let prev = prevDb.byUrl.get(url);
     let prevUrlForThisItem = url;
 
-    // URL not found in previous DB: try to match by *real* SKU.
+    // URL not found in previous DB: try to match by non-synthetic skuKey.
     if (!prev) {
-      const nowSku6 = normalizeCspc(nowRaw.sku);
-      if (nowSku6) {
-        const hit = prevByRealSku.get(nowSku6);
+      const nowSkuKey = normalizeSkuForDb(nowRaw.sku, url);
+      if (nowSkuKey && !/^u:/i.test(nowSkuKey)) {
+        const hit = prevBySkuKey.get(nowSkuKey);
         if (hit && hit.url && hit.url !== url) {
           prev = hit.item;
           prevUrlForThisItem = hit.url;
 
-          // Mark ALL prior URLs for this SKU as matched, so we don't later "remove" them.
-          const allOld = prevUrlsByRealSku.get(nowSku6);
+          // Mark ALL prior URLs for this skuKey as matched, so we don't later "remove" them.
+          const allOld = prevUrlsBySkuKey.get(nowSkuKey);
           if (allOld) {
             for (const u of allOld) matchedPrevUrls.add(u);
           } else {
             matchedPrevUrls.add(hit.url);
           }
 
-          // Cleanup: remove any existing active duplicates for this SKU from the merged map.
+          // Cleanup: remove any existing active duplicates for this skuKey from the merged map.
           // We'll re-add the chosen record at the new URL below.
           if (allOld) {
             for (const u of allOld) {
@@ -113,11 +110,12 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
       }
     }
 
-    // Truly new (no URL match, no real-SKU match)
+    // Truly new (no URL match, no skuKey match)
     if (!prev) {
+      const nowSku = normalizeSkuForDb(nowRaw.sku, url);
       const now = {
         ...nowRaw,
-        sku: normalizeSkuForDb(nowRaw.sku, url),
+        sku: nowSku,
         img: normImg(nowRaw.img),
         removed: false,
       };
@@ -128,31 +126,36 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 
     // If the previous record was removed and we found it by the SAME URL, keep current behavior (restored).
     if (prevUrlForThisItem === url && prev.removed) {
+      const prevSku = normalizeSkuForDb(prev.sku, prev.url);
+      const rawNowSku = normalizeSkuForDb(nowRaw.sku, url);
+      const nowSku = pickBetterSku(rawNowSku, prevSku);
+
       const now = {
         ...nowRaw,
-        sku:
-          normalizeSkuForDb(nowRaw.sku, url) ||
-          normalizeSkuForDb(prev.sku, prev.url),
+        sku: nowSku,
         img: normImg(nowRaw.img) || normImg(prev.img),
         removed: false,
       };
+
       restoredItems.push({
         url,
         name: now.name || prev.name || "",
         price: now.price || prev.price || "",
         sku: now.sku || "",
       });
+
       merged.set(url, now);
       continue;
     }
 
-    // Update-in-place (or URL-move-with-real-SKU): update DB, report price changes normally.
+    // Update-in-place (or URL-move-with-skuKey): update DB, report price changes normally.
     const prevPrice = normPrice(prev.price);
     const nowPrice = normPrice(nowRaw.price);
 
     const prevSku = normalizeSkuForDb(prev.sku, prev.url);
-    const nowSku = normalizeSkuForDb(nowRaw.sku, url) || prevSku;
-                
+    const rawNowSku = normalizeSkuForDb(nowRaw.sku, url);
+    const nowSku = pickBetterSku(rawNowSku, prevSku);
+
     const prevImg = normImg(prev.img);
     let nowImg = normImg(nowRaw.img);
     if (!nowImg) nowImg = prevImg;
@@ -179,7 +182,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 
   for (const [url, prev] of prevDb.byUrl.entries()) {
     if (discovered.has(url)) continue;
-    if (matchedPrevUrls.has(url)) continue; // de-dupe URL changes for real-SKU items (and cleanup dupes)
+    if (matchedPrevUrls.has(url)) continue; // de-dupe URL changes for skuKey items (and cleanup dupes)
     if (!prev.removed) {
       const removed = { ...prev, removed: true };
       merged.set(url, removed);

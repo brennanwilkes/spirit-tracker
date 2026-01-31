@@ -80,7 +80,6 @@ function bclIsInStock(src) {
   return true;
 }
 
-
 function bclNormalizeAbsUrl(raw) {
   const s = String(raw || "").trim();
   if (!s) return "";
@@ -141,7 +140,17 @@ function bclHitToItem(hit) {
   const regular = asNumber(src.regularPrice);
   const price = cad(Number.isFinite(current) ? current : regular);
 
-  const sku = normalizeCspc(url);
+  // SKU key:
+  // - Keep CSPC 6-digit when present (rare for BCL, but safe)
+  // - Otherwise upgrade to an explicit soft key: id:<digits>
+  //
+  // ✅ PATCH: handle tiny SKUs too (3/4/5-digit) by forcing id:<digits>
+  //          only fall back to raw (NOT u:) if it’s genuinely non-numeric.
+  let sku = normalizeCspc(skuRaw);
+  if (!sku) {
+    const m = skuRaw.match(/^\d{1,6}$/); // BCL product IDs like 141, 596, 984, 117, etc.
+    sku = m ? `id:${m[0]}` : `id:${skuRaw}`;
+  }
 
   const inStock = bclIsInStock(src);
   if (!inStock) return null;
@@ -154,8 +163,6 @@ function bclHitToItem(hit) {
 
   return { name, price, url, sku, img };
 }
-
-
 
 async function bclFetchBrowsePage(ctx, page1, size) {
   const type = ctx.cat.bclType; // e.g. "rum" or "whisky / whiskey"
@@ -293,10 +300,11 @@ async function scanCategoryBCLAjax(ctx, prevDb, report) {
     newCount: newItems.length,
     updatedCount: updatedItems.length,
     removedCount: removedItems.length,
-    restoredCount: removedItems.length,
+    restoredCount: restoredItems.length,
     elapsedMs: elapsed,
   });
   report.totals.newCount += newItems.length;
+  report.totals.updatedCount += updatedItems.length;
   report.totals.updatedCount += updatedItems.length;
   report.totals.removedCount += removedItems.length;
   report.totals.restoredCount += restoredItems.length;
