@@ -3,16 +3,29 @@
 
 const { decodeHtml, stripTags, extractFirstImgUrl, cleanText } = require("../utils/html");
 const { makePageUrlShopifyQueryPage } = require("../utils/url");
+
 function extractSkuFromUrlOrHref(hrefOrUrl) {
-    const s = String(hrefOrUrl || "");
-    // Common Willow patterns:
-    // /products/<handle>-123456
-    // /collections/rum/products/<handle>-123456
-    // Also sometimes querystring fragments etc.
-    const m = s.match(/-(\d{6})(?:\/)?(?:[?#].*)?$/);
-    return m ? m[1] : "";
-  }
-  
+  const s = String(hrefOrUrl || "");
+  // /products/<handle>-123456 or /collections/.../products/<handle>-123456
+  const m = s.match(/-(\d{6})(?:\/)?(?:[?#].*)?$/);
+  return m ? m[1] : "";
+}
+
+function extractSkuFromWillowBlock(block) {
+  const b = String(block || "");
+
+  // Image filename pattern:
+  // /products/710296-Zaya-Gran-Reserva-16-Year_160x.png
+  const m1 = b.match(/\/products\/(\d{6})[-_]/i);
+  if (m1) return m1[1];
+
+  // Generic fallback
+  const m2 = b.match(/\b(\d{6})[-_][A-Za-z]/);
+  if (m2) return m2[1];
+
+  return "";
+}
+
 function canonicalizeWillowUrl(raw) {
   try {
     const u = new URL(String(raw));
@@ -52,14 +65,10 @@ function parseProductsWillowPark(html, ctx, finalUrl) {
 
   const base = `https://${(ctx && ctx.store && ctx.store.host) || "www.willowpark.net"}/`;
 
-  // Find start offsets of each product tile.
-  // This ignores <div class="grid-anchor" ...> nodes safely.
   const starts = [...s.matchAll(/<div\b[^>]*class=["'][^"']*\bgrid-item\b[^"']*\bgrid-product\b[^"']*["'][^>]*>/gi)]
-    .map((m) => m.index)
-    .filter((i) => typeof i === "number");
+    .map(m => m.index)
+    .filter(i => typeof i === "number");
 
-  // Slice into blocks from each start to the next start.
-  // Robust to varying nesting/closing div counts.
   const blocks = [];
   for (let i = 0; i < starts.length; i++) {
     const a = starts[i];
@@ -68,9 +77,6 @@ function parseProductsWillowPark(html, ctx, finalUrl) {
   }
 
   for (const block of blocks) {
-    // Do NOT skip sold-out by badge; badge can exist but be display:none.
-    // Availability filtering should be done via URL query (?filter.v.availability=1).
-
     const href =
       block.match(/<a\b[^>]*href=["']([^"']*\/collections\/[^"']*\/products\/[^"']+)["']/i)?.[1] ||
       block.match(/<a\b[^>]*href=["']([^"']*\/products\/[^"']+)["']/i)?.[1];
@@ -91,22 +97,21 @@ function parseProductsWillowPark(html, ctx, finalUrl) {
 
     const price = extractWillowCardPrice(block);
     const img = extractFirstImgUrl(block, base);
-
-    // Some pages include data-product-id on the tile; useful but optional.
     const pid = block.match(/\bdata-product-id=["'](\d+)["']/i)?.[1] || "";
 
-    const sku = extractSkuFromUrlOrHref(href) || extractSkuFromUrlOrHref(url);
+    const sku =
+      extractSkuFromUrlOrHref(href) ||
+      extractSkuFromUrlOrHref(url) ||
+      extractSkuFromWillowBlock(block);
 
     items.push({ name, price, url, sku, img, pid });
   }
 
-  // De-dupe by canonical URL (same product can appear multiple times).
   const uniq = new Map();
   for (const it of items) uniq.set(it.url, it);
   return [...uniq.values()];
 }
 
-// Helps discovery + scanning stop when paging past inventory.
 function willowIsEmptyListingPage(html) {
   const s = String(html || "");
   if (/Sorry,\s+there are no products in this collection\./i.test(s)) return true;
