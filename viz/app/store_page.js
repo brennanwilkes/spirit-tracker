@@ -334,9 +334,8 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   function formatDollars(p) {
-    return `$${p}`;
-    // if (!Number.isFinite(p)) return "";
-    // return `$${Math.round(p)}`;
+    if (!Number.isFinite(p)) return "";
+    return `$${Math.round(p)}`;
   }
 
   let selectedMaxPrice = clampAndRound(
@@ -377,12 +376,11 @@ export async function renderStore($app, storeLabelRaw) {
     updateMaxPriceLabel();
   }
 
-  // ---- Round listing display price to nearest $1 ----
-  function roundedListingPriceStr(it) {
+  // ---- Listing display price: keep cents (no rounding) ----
+  function listingPriceStr(it) {
     const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
     if (p === null) return it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
-    const dollars = Math.round(p);
-    return `$${dollars}`;
+    return `$${p.toFixed(2)}`;
   }
 
   function priceBadgeHtml(it) {
@@ -404,7 +402,7 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   function renderCard(it) {
-    const price = roundedListingPriceStr(it);
+    const price = listingPriceStr(it);
     const href = String(it.sampleUrl || "").trim();
 
     const specialBadge = it._lastStock
