@@ -63,12 +63,38 @@ export async function renderStore($app, storeLabelRaw) {
       </div>
 
       <div class="card">
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" style="flex: 1 1 320px;" />
-          <div id="priceWrap" style="display:flex; gap:10px; align-items:center; flex: 1 1 320px; min-width:260px;">
-            <div class="small" style="white-space:nowrap;">Max price:</div>
-            <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" style="flex:1 1 auto;" />
-            <div class="badge mono" id="maxPriceLabel" style="white-space:nowrap;"></div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
+
+          <div id="priceWrap" style="display:flex; align-items:center; gap:10px;">
+            <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
+
+            <input
+              id="maxPrice"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="1000"
+              style="
+                width: 320px;
+                max-width: 100%;
+                height: 18px;
+                accent-color: #9aa3b2;
+                opacity: .85;
+              "
+            />
+
+            <div
+              class="badge mono"
+              id="maxPriceLabel"
+              style="
+                width: 120px;
+                text-align: right;
+                white-space: nowrap;
+                opacity: .9;
+              "
+            ></div>
           </div>
         </div>
 
@@ -253,7 +279,7 @@ export async function renderStore($app, storeLabelRaw) {
       return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
     });
 
-  // ---- Max price slider (exponential mapping) ----
+  // ---- Max price slider (exponential mapping + clicky rounding) ----
   const MIN_PRICE = 25;
 
   function maxStorePriceOnPage() {
@@ -267,11 +293,20 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   const pageMax = maxStorePriceOnPage();
-  // If nothing priced, hide slider (still functional, but not meaningful)
   const boundMax = pageMax !== null ? Math.max(MIN_PRICE, pageMax) : MIN_PRICE;
 
-  // Exponential scale: t in [0..1] maps price in [MIN_PRICE..boundMax]
-  // price = MIN_PRICE * exp( ln(boundMax/MIN_PRICE) * t )
+  function stepForPrice(p) {
+    const x = Number.isFinite(p) ? p : boundMax;
+    if (x < 120) return 5;
+    if (x < 250) return 10;
+    if (x < 600) return 25;
+    return 100;
+  }
+  function roundToStep(p) {
+    const step = stepForPrice(p);
+    return Math.round(p / step) * step;
+  }
+
   function priceFromT(t) {
     t = Math.max(0, Math.min(1, t));
     if (boundMax <= MIN_PRICE) return MIN_PRICE;
@@ -291,9 +326,18 @@ export async function renderStore($app, storeLabelRaw) {
     return Math.max(MIN_PRICE, Math.min(boundMax, p));
   }
 
-  // Initialize selected max price:
-  // default = highest price on page, otherwise MIN_PRICE
-  let selectedMaxPrice = clampPrice(
+  function clampAndRound(p) {
+    const c = clampPrice(p);
+    const r = roundToStep(c);
+    return clampPrice(r);
+  }
+
+  function formatDollars(p) {
+    if (!Number.isFinite(p)) return "";
+    return `$${Math.round(p)}`;
+  }
+
+  let selectedMaxPrice = clampAndRound(
     savedMaxPrice !== null ? savedMaxPrice : boundMax
   );
 
@@ -302,16 +346,11 @@ export async function renderStore($app, storeLabelRaw) {
     const v = Math.round(t * 1000);
     $maxPrice.value = String(v);
   }
-  function getPriceFromSlider() {
+
+  function getRawPriceFromSlider() {
     const v = Number($maxPrice.value);
     const t = Number.isFinite(v) ? v / 1000 : 1;
     return clampPrice(priceFromT(t));
-  }
-
-  function formatDollars(p) {
-    if (!Number.isFinite(p)) return "";
-    const rounded = Math.round(p);
-    return `$${rounded}`;
   }
 
   function updateMaxPriceLabel() {
@@ -326,19 +365,25 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   if (pageMax === null) {
-    // No prices found; slider isn't useful.
     $maxPrice.disabled = true;
     $priceWrap.title = "No priced items in this store.";
-    setSliderFromPrice(boundMax);
     selectedMaxPrice = boundMax;
+    setSliderFromPrice(boundMax);
     localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
     updateMaxPriceLabel();
   } else {
-    // Clamp saved value to bounds (and write back clamped value)
-    selectedMaxPrice = clampPrice(selectedMaxPrice);
+    selectedMaxPrice = clampAndRound(selectedMaxPrice);
     localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
     setSliderFromPrice(selectedMaxPrice);
     updateMaxPriceLabel();
+  }
+
+  // ---- Round listing display price to nearest $1 ----
+  function roundedListingPriceStr(it) {
+    const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+    if (p === null) return it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
+    const dollars = Math.round(p);
+    return `$${dollars}`;
   }
 
   function priceBadgeHtml(it) {
@@ -360,7 +405,7 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   function renderCard(it) {
-    const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
+    const price = roundedListingPriceStr(it);
     const href = String(it.sampleUrl || "").trim();
 
     const specialBadge = it._lastStock
@@ -406,7 +451,7 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   // ---- Infinite scroll paging (shared across both columns) ----
-  const PAGE_SIZE = 140; // total per "page" across both columns
+  const PAGE_SIZE = 140;
   const PAGE_EACH = Math.max(1, Math.floor(PAGE_SIZE / 2));
 
   let filteredExclusive = [];
@@ -452,8 +497,16 @@ export async function renderStore($app, storeLabelRaw) {
     shownExclusive += sliceEx.length;
     shownCompare += sliceCo.length;
 
-    if (sliceEx.length) $resultsExclusive.insertAdjacentHTML("beforeend", sliceEx.map(renderCard).join(""));
-    if (sliceCo.length) $resultsCompare.insertAdjacentHTML("beforeend", sliceCo.map(renderCard).join(""));
+    if (sliceEx.length)
+      $resultsExclusive.insertAdjacentHTML(
+        "beforeend",
+        sliceEx.map(renderCard).join("")
+      );
+    if (sliceCo.length)
+      $resultsCompare.insertAdjacentHTML(
+        "beforeend",
+        sliceCo.map(renderCard).join("")
+      );
 
     const total = totalFiltered();
     const shown = totalShown();
@@ -467,7 +520,6 @@ export async function renderStore($app, storeLabelRaw) {
     }
   }
 
-  // Click -> item page (delegated). SKU + Open links stopPropagation already.
   $resultsWrap.addEventListener("click", (e) => {
     const el = e.target.closest(".item");
     if (!el) return;
@@ -485,12 +537,10 @@ export async function renderStore($app, storeLabelRaw) {
 
     let base = items;
 
-    // Search filter
     if (tokens.length) {
       base = base.filter((it) => matchesAllTokens(it.searchText, tokens));
     }
 
-    // Max price filter (include items with no price)
     if (pageMax !== null && Number.isFinite(selectedMaxPrice)) {
       const cap = selectedMaxPrice + 0.0001;
       base = base.filter((it) => {
@@ -506,7 +556,6 @@ export async function renderStore($app, storeLabelRaw) {
     renderNext(true);
   }
 
-  // Initial render (apply saved query/max price if present)
   applyFilter();
 
   const io = new IntersectionObserver(
@@ -527,14 +576,31 @@ export async function renderStore($app, storeLabelRaw) {
   });
 
   let tp = null;
+  function setSelectedMaxPriceFromSlider() {
+    const raw = getRawPriceFromSlider();
+    const rounded = clampAndRound(raw);
+    if (Math.abs(rounded - selectedMaxPrice) > 0.001) {
+      selectedMaxPrice = rounded;
+      localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+      updateMaxPriceLabel();
+    } else {
+      updateMaxPriceLabel();
+    }
+  }
+
   $maxPrice.addEventListener("input", () => {
     if (pageMax === null) return;
-    selectedMaxPrice = getPriceFromSlider();
-    selectedMaxPrice = clampPrice(selectedMaxPrice);
-    localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
-    updateMaxPriceLabel();
+    setSelectedMaxPriceFromSlider();
 
     if (tp) clearTimeout(tp);
     tp = setTimeout(applyFilter, 40);
+  });
+
+  $maxPrice.addEventListener("change", () => {
+    if (pageMax === null) return;
+    setSelectedMaxPriceFromSlider();
+    setSliderFromPrice(selectedMaxPrice);
+    updateMaxPriceLabel();
+    applyFilter();
   });
 }
