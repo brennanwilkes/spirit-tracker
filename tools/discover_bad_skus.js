@@ -3,8 +3,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const DB_DIR = path.join(__dirname, "data/db");
-const LINKS_FILE = path.join(__dirname, "data/sku_links.json");
+const DB_DIR = path.join(__dirname, "../data/db");
+const LINKS_FILE = path.join(__dirname, "../data/sku_links.json");
 
 const includeKegNCork = process.argv.includes("--include-kegncork");
 const includeLinked = process.argv.includes("--include-linked");
