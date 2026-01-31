@@ -156,7 +156,6 @@ const PRODUCTS_QUERY = `
     $isStaffPick: Boolean,
     $pageCursor: String,
     $pageLimit: Int,
-    $pointsMin: Int,
     $priceMin: Float,
     $priceMax: Float,
     $quantityMin: Float,
