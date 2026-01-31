@@ -160,7 +160,8 @@ async function main() {
     (report?.totals?.newCount || 0) +
       (report?.totals?.updatedCount || 0) +
       (report?.totals?.removedCount || 0) +
-      (report?.totals?.restoredCount || 0) >
+      (report?.totals?.restoredCount || 0) +
+      (report?.totals?.metaChangedCount || 0) >
     0;
 
   const reportTextColor = renderFinalReport(report, {

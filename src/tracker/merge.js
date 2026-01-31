@@ -33,6 +33,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
   const updatedItems = [];
   const removedItems = [];
   const restoredItems = [];
+  const metaChangedItems = [];
 
   // Choose a deterministic "best" record among dup active SKU rows.
   // Prefer: more complete fields, then lexicographically smallest URL.
@@ -177,6 +178,13 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
         oldPrice: prev.price || "",
         newPrice: nowRaw.price || "",
       });
+    } else if (nameChanged || skuChanged || imgChanged || prevUrlForThisItem !== url) {
+      // Count non-price changes (SKU upgrades, name/img changes, or URL moves) as meaningful.
+      metaChangedItems.push({
+        url,
+        name: nowRaw.name || prev.name || "",
+        sku: nowSku || "",
+      });
     }
   }
 
@@ -195,7 +203,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
     }
   }
 
-  return { merged, newItems, updatedItems, removedItems, restoredItems };
+  return { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems };
 }
 
 module.exports = { mergeDiscoveredIntoDb };

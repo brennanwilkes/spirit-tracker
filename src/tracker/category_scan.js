@@ -345,7 +345,8 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
 
   logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
+  const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems } =
+    mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);
@@ -368,12 +369,14 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
     updatedCount: updatedItems.length,
     removedCount: removedItems.length,
     restoredCount: restoredItems.length,
+    metaChangedCount: metaChangedItems.length,
     elapsedMs: elapsed,
   });
   report.totals.newCount += newItems.length;
   report.totals.updatedCount += updatedItems.length;
   report.totals.removedCount += removedItems.length;
   report.totals.restoredCount += restoredItems.length;
+  report.totals.metaChangedCount += metaChangedItems.length;
 
   addCategoryResultToReport(report, ctx.store.name, ctx.cat.label, newItems, updatedItems, removedItems, restoredItems);
 }
