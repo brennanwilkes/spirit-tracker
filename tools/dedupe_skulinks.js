@@ -3,8 +3,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const DB_DIR = path.join(__dirname, "data/db");
-const LINKS_FILE = path.join(__dirname, "data/sku_links.json");
+const DB_DIR = path.join(__dirname, "../data/db");
+const LINKS_FILE = path.join(__dirname, "../data/sku_links.json");
 
 // collect all valid SKUs from db files
 const validSkus = new Set();
