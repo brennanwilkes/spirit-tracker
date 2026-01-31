@@ -334,8 +334,9 @@ export async function renderStore($app, storeLabelRaw) {
   }
 
   function formatDollars(p) {
-    if (!Number.isFinite(p)) return "";
-    return `$${Math.round(p)}`;
+    return `$${p}`;
+    // if (!Number.isFinite(p)) return "";
+    // return `$${Math.round(p)}`;
   }
 
   let selectedMaxPrice = clampAndRound(
