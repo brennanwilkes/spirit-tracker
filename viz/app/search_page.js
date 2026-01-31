@@ -10,8 +10,8 @@ export function renderSearch($app) {
     <div class="container">
       <div class="header">
         <div class="headerLeft">
-          <h1 class="h1">Spirit Tracker Viz</h1>
-          <div class="small">Search name / url / sku (word AND)</div>
+          <h1 class="h1">Brennan's Spirit Tracker</h1>
+          <div class="small">Search name / url / sku / store</div>
 
           <div class="storeBarWrap">
             <div id="stores" class="storeBar"></div>

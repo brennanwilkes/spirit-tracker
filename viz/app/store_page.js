@@ -32,7 +32,9 @@ function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
     const store = normStoreLabel(r.storeLabel || r.store || "");
     if (store !== storeLabelNorm) continue;
 
-    const skuKey = String(rulesCache?.canonicalSku(keySkuForRow(r)) || keySkuForRow(r));
+    const skuKey = String(
+      rulesCache?.canonicalSku(keySkuForRow(r)) || keySkuForRow(r)
+    );
     if (skuKey !== canonSku) continue;
 
     const u = String(r.url || "").trim();
@@ -61,7 +63,15 @@ export async function renderStore($app, storeLabelRaw) {
       </div>
 
       <div class="card">
-        <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" style="flex: 1 1 320px;" />
+          <div id="priceWrap" style="display:flex; gap:10px; align-items:center; flex: 1 1 320px; min-width:260px;">
+            <div class="small" style="white-space:nowrap;">Max price:</div>
+            <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" style="flex:1 1 auto;" />
+            <div class="badge mono" id="maxPriceLabel" style="white-space:nowrap;"></div>
+          </div>
+        </div>
+
         <div class="small" id="status" style="margin-top:10px;"></div>
 
         <div id="results" class="storeGrid">
@@ -103,11 +113,21 @@ export async function renderStore($app, storeLabelRaw) {
   const $sentinel = document.getElementById("sentinel");
   const $resultsWrap = document.getElementById("results");
 
+  const $maxPrice = document.getElementById("maxPrice");
+  const $maxPriceLabel = document.getElementById("maxPriceLabel");
+  const $priceWrap = document.getElementById("priceWrap");
+
   // Persist query per store
   const storeNorm = normStoreLabel(storeLabel);
   const LS_KEY = `viz:storeQuery:${storeNorm}`;
   const savedQ = String(localStorage.getItem(LS_KEY) || "");
   if (savedQ) $q.value = savedQ;
+
+  // Persist max price per store (clamped later once bounds known)
+  const LS_MAX_PRICE = `viz:storeMaxPrice:${storeNorm}`;
+  const savedMaxPriceRaw = localStorage.getItem(LS_MAX_PRICE);
+  let savedMaxPrice = savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
+  if (!Number.isFinite(savedMaxPrice)) savedMaxPrice = null;
 
   $resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
   $resultsCompare.innerHTML = ``;
@@ -204,11 +224,8 @@ export async function renderStore($app, storeLabelRaw) {
 
       const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
 
-      const diffVsOther =
-        storePrice !== null && other !== null ? storePrice - other : null;
-
-      const diffVsBest =
-        storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
+      const diffVsOther = storePrice !== null && other !== null ? storePrice - other : null;
+      const diffVsBest = storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
 
       return {
         ...it,
@@ -235,6 +252,94 @@ export async function renderStore($app, storeLabelRaw) {
 
       return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
     });
+
+  // ---- Max price slider (exponential mapping) ----
+  const MIN_PRICE = 25;
+
+  function maxStorePriceOnPage() {
+    let mx = null;
+    for (const it of items) {
+      const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+      if (p === null) continue;
+      mx = mx === null ? p : Math.max(mx, p);
+    }
+    return mx;
+  }
+
+  const pageMax = maxStorePriceOnPage();
+  // If nothing priced, hide slider (still functional, but not meaningful)
+  const boundMax = pageMax !== null ? Math.max(MIN_PRICE, pageMax) : MIN_PRICE;
+
+  // Exponential scale: t in [0..1] maps price in [MIN_PRICE..boundMax]
+  // price = MIN_PRICE * exp( ln(boundMax/MIN_PRICE) * t )
+  function priceFromT(t) {
+    t = Math.max(0, Math.min(1, t));
+    if (boundMax <= MIN_PRICE) return MIN_PRICE;
+    const ratio = boundMax / MIN_PRICE;
+    return MIN_PRICE * Math.exp(Math.log(ratio) * t);
+  }
+  function tFromPrice(price) {
+    if (!Number.isFinite(price)) return 1;
+    if (boundMax <= MIN_PRICE) return 1;
+    const p = Math.max(MIN_PRICE, Math.min(boundMax, price));
+    const ratio = boundMax / MIN_PRICE;
+    return Math.log(p / MIN_PRICE) / Math.log(ratio);
+  }
+
+  function clampPrice(p) {
+    if (!Number.isFinite(p)) return boundMax;
+    return Math.max(MIN_PRICE, Math.min(boundMax, p));
+  }
+
+  // Initialize selected max price:
+  // default = highest price on page, otherwise MIN_PRICE
+  let selectedMaxPrice = clampPrice(
+    savedMaxPrice !== null ? savedMaxPrice : boundMax
+  );
+
+  function setSliderFromPrice(p) {
+    const t = tFromPrice(p);
+    const v = Math.round(t * 1000);
+    $maxPrice.value = String(v);
+  }
+  function getPriceFromSlider() {
+    const v = Number($maxPrice.value);
+    const t = Number.isFinite(v) ? v / 1000 : 1;
+    return clampPrice(priceFromT(t));
+  }
+
+  function formatDollars(p) {
+    if (!Number.isFinite(p)) return "";
+    const rounded = Math.round(p);
+    return `$${rounded}`;
+  }
+
+  function updateMaxPriceLabel() {
+    if (pageMax === null) {
+      $maxPriceLabel.textContent = "No prices";
+      return;
+    }
+    const atTop = Math.abs(selectedMaxPrice - boundMax) <= 0.01;
+    $maxPriceLabel.textContent = atTop
+      ? `${formatDollars(boundMax)} (all)`
+      : `${formatDollars(selectedMaxPrice)}`;
+  }
+
+  if (pageMax === null) {
+    // No prices found; slider isn't useful.
+    $maxPrice.disabled = true;
+    $priceWrap.title = "No priced items in this store.";
+    setSliderFromPrice(boundMax);
+    selectedMaxPrice = boundMax;
+    localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+    updateMaxPriceLabel();
+  } else {
+    // Clamp saved value to bounds (and write back clamped value)
+    selectedMaxPrice = clampPrice(selectedMaxPrice);
+    localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+    setSliderFromPrice(selectedMaxPrice);
+    updateMaxPriceLabel();
+  }
 
   function priceBadgeHtml(it) {
     if (it._exclusive || it._lastStock) return "";
@@ -322,6 +427,14 @@ export async function renderStore($app, storeLabelRaw) {
       $status.textContent = "No in-stock items for this store.";
       return;
     }
+
+    if (pageMax !== null) {
+      const atTop = Math.abs(selectedMaxPrice - boundMax) <= 0.01;
+      const cap = atTop ? "all prices" : `≤ ${formatDollars(selectedMaxPrice)}`;
+      $status.textContent = `In stock: ${total} item(s) (${cap}).`;
+      return;
+    }
+
     $status.textContent = `In stock: ${total} item(s).`;
   }
 
@@ -371,8 +484,19 @@ export async function renderStore($app, storeLabelRaw) {
     const tokens = tokenizeQuery(raw);
 
     let base = items;
+
+    // Search filter
     if (tokens.length) {
-      base = items.filter((it) => matchesAllTokens(it.searchText, tokens));
+      base = base.filter((it) => matchesAllTokens(it.searchText, tokens));
+    }
+
+    // Max price filter (include items with no price)
+    if (pageMax !== null && Number.isFinite(selectedMaxPrice)) {
+      const cap = selectedMaxPrice + 0.0001;
+      base = base.filter((it) => {
+        const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+        return p === null ? true : p <= cap;
+      });
     }
 
     filteredExclusive = base.filter((it) => it._exclusive || it._lastStock);
@@ -382,7 +506,7 @@ export async function renderStore($app, storeLabelRaw) {
     renderNext(true);
   }
 
-  // Initial render (apply saved query if present)
+  // Initial render (apply saved query/max price if present)
   applyFilter();
 
   const io = new IntersectionObserver(
@@ -400,5 +524,17 @@ export async function renderStore($app, storeLabelRaw) {
   $q.addEventListener("input", () => {
     if (t) clearTimeout(t);
     t = setTimeout(applyFilter, 60);
+  });
+
+  let tp = null;
+  $maxPrice.addEventListener("input", () => {
+    if (pageMax === null) return;
+    selectedMaxPrice = getPriceFromSlider();
+    selectedMaxPrice = clampPrice(selectedMaxPrice);
+    localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+    updateMaxPriceLabel();
+
+    if (tp) clearTimeout(tp);
+    tp = setTimeout(applyFilter, 40);
   });
 }
