@@ -561,7 +561,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
   if (out.length >= limitPairs) return out.slice(0, limitPairs);
 
   // --- Existing logic continues (fills remaining slots), but avoid reusing SMWS-picked *unmapped* SKUs ---
-  const seeds = topSuggestions(work, Math.min(400, work.length), "", mappedSkus).filter(
+  const seeds = topSuggestions(work, Math.min(150, work.length), "", mappedSkus).filter(
     (it) => !used.has(String(it?.sku || ""))
   );
 
