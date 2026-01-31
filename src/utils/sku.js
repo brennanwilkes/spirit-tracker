@@ -20,8 +20,9 @@ function normalizeUpcDigits(v) {
   return m ? m[1] : "";
 }
 
+// CHANGE: allow 1-11 digits so BCL 3-digit ids like id:141 are preserved
 function normalizeIdDigits(v) {
-  const m = String(v ?? "").match(/\b(\d{4,11})\b/);
+  const m = String(v ?? "").match(/\b(\d{1,11})\b/);
   return m ? m[1] : "";
 }
 
@@ -31,6 +32,35 @@ function makeSyntheticSkuKey({ storeLabel, url }) {
   const u = String(url || "");
   if (!u) return "";
   return `u:${fnv1a32(`${store}|${u}`)}`;
+}
+
+/* ---------------- NEW: SKU quality helpers ---------------- */
+
+function skuQuality(v) {
+  const s = String(v ?? "").trim();
+  if (!s) return 0; // missing
+  if (/^u:/i.test(s)) return 0; // synthetic
+  if (normalizeCspc(s)) return 3; // best (6-digit CSPC)
+  if (/^upc:/i.test(s)) return 2;
+  if (/^id:/i.test(s)) return 2;
+  return 1; // explicit non-synthetic string
+}
+
+// Prefer higher quality; on ties keep existing (stable) value
+function pickBetterSku(newSku, oldSku) {
+  const a = String(newSku ?? "").trim();
+  const b = String(oldSku ?? "").trim();
+  const qa = skuQuality(a);
+  const qb = skuQuality(b);
+  if (qa > qb) return a;
+  if (qb > qa) return b;
+  return b || a;
+}
+
+// Only fetch product pages when missing/synthetic
+function needsSkuDetail(sku) {
+  const s = String(sku ?? "").trim();
+  return !s || /^u:/i.test(s);
 }
 
 /**
@@ -63,4 +93,11 @@ function normalizeSkuKey(v, { storeLabel, url } = {}) {
   return syn || "";
 }
 
-module.exports = { normalizeCspc, normalizeSkuKey, makeSyntheticSkuKey };
+module.exports = {
+  normalizeCspc,
+  normalizeSkuKey,
+  makeSyntheticSkuKey,
+  skuQuality,
+  pickBetterSku,
+  needsSkuDetail,
+};

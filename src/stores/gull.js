@@ -1,7 +1,8 @@
+// src/stores/gull.js
 "use strict";
 
 const { decodeHtml, cleanText, extractFirstImgUrl } = require("../utils/html");
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeCspc, pickBetterSku, needsSkuDetail } = require("../utils/sku");
 const { makePageUrl } = require("../utils/url");
 
 function looksInStock(block) {
@@ -45,6 +46,133 @@ function extractGullPriceFromBlock(block) {
   return `$${chosen.toFixed(2)}`;
 }
 
+// Gull SKUs are often NOT 6 digits (e.g. 67424).
+// If it's not 6 digits, represent as id:<digits> to avoid normalizeCspc turning it into u:SHA.
+function normalizeGullSku(raw) {
+  const s = cleanText(decodeHtml(String(raw || ""))).trim();
+
+  // already in a stable prefixed form
+  if (/^(id:|u:)/i.test(s)) return s;
+
+  // digits-only SKU (from page / tile)
+  const digits = s.match(/\b(\d{3,10})\b/)?.[1] || "";
+  if (digits) {
+    if (digits.length === 6) return normalizeCspc(digits);
+    return `id:${digits}`;
+  }
+
+  // fall back to existing normalizer (may yield u:...)
+  return normalizeCspc(s);
+}
+
+// When we fall back to normalizeCspc(url), we may end up with a generated u:XXXXXXXX.
+function isGeneratedUrlSku(sku) {
+  const s = String(sku || "");
+  // you have u:8hex in the DB, so accept 8+
+  return /^u:[0-9a-f]{8,128}$/i.test(s);
+}
+
+// Extract SKU from Gull product page HTML.
+function extractGullSkuFromProductPage(html) {
+  const s = String(html || "");
+
+  // Most reliable: <span class="sku">67424</span>
+  const m1 = s.match(
+    /<span\b[^>]*class=["'][^"']*\bsku\b[^"']*["'][^>]*>\s*([0-9]{3,10})\s*<\/span>/i
+  );
+  if (m1?.[1]) return normalizeGullSku(m1[1]);
+
+  // Fallback: "SKU: 67424" text
+  const m2 = s.match(/\bSKU:\s*([0-9]{3,10})\b/i);
+  if (m2?.[1]) return normalizeGullSku(m2[1]);
+
+  return "";
+}
+
+// Serial limiter: ensures at least minIntervalMs between request starts.
+function createMinIntervalLimiter(minIntervalMs) {
+  let lastStart = 0;
+  let chain = Promise.resolve();
+
+  return async function schedule(fn) {
+    chain = chain.then(async () => {
+      const now = Date.now();
+      const waitMs = Math.max(0, lastStart + minIntervalMs - now);
+      if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
+      lastStart = Date.now();
+      return fn();
+    });
+    return chain;
+  };
+}
+
+async function fetchWith429Backoff(url, { fetchFn, headers, maxRetries = 2 }) {
+  let attempt = 0;
+
+  while (true) {
+    const res = await fetchFn(url, { headers });
+
+    if (res.status !== 429) {
+      if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
+      return await res.text();
+    }
+
+    if (attempt >= maxRetries) throw new Error(`HTTP 429 fetching ${url}`);
+
+    // Respect Retry-After if present; otherwise progressive backoff.
+    const ra =
+      res.headers && typeof res.headers.get === "function"
+        ? res.headers.get("retry-after")
+        : null;
+
+    const waitSec = ra && /^\d+$/.test(ra) ? parseInt(ra, 10) : 15 * (attempt + 1);
+    await new Promise((r) => setTimeout(r, waitSec * 1000));
+    attempt++;
+  }
+}
+
+/**
+ * Only fetches product pages for items whose sku is a generated u:... (from URL fallback).
+ * Runs serially + slowly to avoid Gull 429s.
+ *
+ * NEW: accepts prevDb so we can skip fetch if URL already has a good SKU cached.
+ */
+async function hydrateGullSkus(
+  items,
+  { fetchFn, ua, minIntervalMs = 12000, maxRetries = 2, prevDb } = {}
+) {
+  if (!fetchFn) throw new Error("hydrateGullSkus requires opts.fetchFn");
+
+  const schedule = createMinIntervalLimiter(minIntervalMs);
+
+  const headers = {
+    "user-agent": ua || "Mozilla/5.0",
+    accept: "text/html,application/xhtml+xml",
+  };
+
+  for (const it of items || []) {
+    if (!it || !it.url) continue;
+
+    // NEW: if DB already has a good SKU, reuse it and skip fetch
+    const prev = prevDb?.byUrl?.get(it.url) || null;
+    if (prev?.sku && !needsSkuDetail(prev.sku)) {
+      it.sku = pickBetterSku(it.sku, prev.sku);
+      continue;
+    }
+
+    if (!isGeneratedUrlSku(it.sku)) continue; // only where required
+
+    const html = await schedule(() =>
+      fetchWith429Backoff(it.url, { fetchFn, headers, maxRetries })
+    );
+
+    const realSku = extractGullSkuFromProductPage(html);
+    if (realSku) it.sku = pickBetterSku(realSku, it.sku);
+  }
+
+  return items;
+}
+
 function parseProductsGull(html, ctx) {
   const s = String(html || "");
   const items = [];
@@ -82,11 +210,12 @@ function parseProductsGull(html, ctx) {
 
     const price = extractGullPriceFromBlock(block);
 
-    const sku = normalizeCspc(
+    const skuRaw =
       block.match(/\bdata-product_sku=["']([^"']+)["']/i)?.[1] ||
-        block.match(/\bSKU\b[^0-9]{0,20}(\d{6})\b/i)?.[1] ||
-        url
-    );
+      block.match(/\bSKU\b[^0-9]{0,30}(\d{3,10})\b/i)?.[1] ||
+      url; // OK fallback; hydrateGullSkus will only re-fetch when this becomes u:...
+
+    const sku = normalizeGullSku(skuRaw);
 
     const img = extractFirstImgUrl(block, base);
 
@@ -98,7 +227,6 @@ function parseProductsGull(html, ctx) {
   return [...uniq.values()];
 }
 
-
 function createStore(defaultUa) {
   return {
     key: "gull",
@@ -106,12 +234,19 @@ function createStore(defaultUa) {
     host: "gullliquorstore.com",
     ua: defaultUa,
     parseProducts: parseProductsGull,
+
+    // Optional hook callers can use to post-process items:
+    // only hits product pages when sku is u:...
+    hydrateSkus: hydrateGullSkus,
+    productPageMinIntervalMs: 12000, // slow by default; Gull is strict
+
     makePageUrl, // enables /page/N/ paging
     categories: [
       {
         key: "whisky",
         label: "Whisky",
-        startUrl: "https://gullliquorstore.com/product-category/spirits/?spirit_type=whisky",
+        startUrl:
+          "https://gullliquorstore.com/product-category/spirits/?spirit_type=whisky",
         discoveryStartPage: 3,
         discoveryStep: 2,
         pageConcurrency: 1,
@@ -121,7 +256,8 @@ function createStore(defaultUa) {
       {
         key: "rum",
         label: "Rum",
-        startUrl: "https://gullliquorstore.com/product-category/spirits/?spirit_type=rum",
+        startUrl:
+          "https://gullliquorstore.com/product-category/spirits/?spirit_type=rum",
         discoveryStartPage: 3,
         discoveryStep: 2,
         pageConcurrency: 1,
@@ -132,4 +268,11 @@ function createStore(defaultUa) {
   };
 }
 
-module.exports = { createStore, parseProductsGull };
+module.exports = {
+  createStore,
+  parseProductsGull,
+  hydrateGullSkus,
+  extractGullSkuFromProductPage,
+  isGeneratedUrlSku,
+  normalizeGullSku,
+};

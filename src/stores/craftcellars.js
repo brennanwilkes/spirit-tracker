@@ -5,7 +5,7 @@ const { setTimeout: sleep } = require("timers/promises");
 
 const { decodeHtml, stripTags, extractFirstImgUrl } = require("../utils/html");
 const { sanitizeName } = require("../utils/text");
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeCspc, pickBetterSku, needsSkuDetail } = require("../utils/sku");
 const { makePageUrlShopifyQueryPage } = require("../utils/url");
 
 const { mergeDiscoveredIntoDb } = require("../tracker/merge");
@@ -33,7 +33,9 @@ function canonicalizeCraftProductUrl(raw) {
 function extractShopifyCardPrice(block) {
   const b = String(block || "");
   const dollars = (txt) =>
-    [...String(txt).matchAll(/\$\s*[\d,]+(?:\.\d{2})?/g)].map((m) => m[0].replace(/\s+/g, ""));
+    [...String(txt).matchAll(/\$\s*[\d,]+(?:\.\d{2})?/g)].map((m) =>
+      m[0].replace(/\s+/g, "")
+    );
 
   const saleRegion = b.split(/sale price/i)[1] || "";
   const saleD = dollars(saleRegion);
@@ -50,8 +52,14 @@ function extractShopifyCardPrice(block) {
 function parseProductsCraftCellars(html, ctx) {
   const s = String(html || "");
 
-  const g1 = s.match(/<div\b[^>]*id=["']ProductGridContainer["'][^>]*>[\s\S]*?<\/div>/i)?.[0] || "";
-  const g2 = s.match(/<div\b[^>]*id=["']product-grid["'][^>]*>[\s\S]*?<\/div>/i)?.[0] || "";
+  const g1 =
+    s.match(
+      /<div\b[^>]*id=["']ProductGridContainer["'][^>]*>[\s\S]*?<\/div>/i
+    )?.[0] || "";
+  const g2 =
+    s.match(
+      /<div\b[^>]*id=["']product-grid["'][^>]*>[\s\S]*?<\/div>/i
+    )?.[0] || "";
 
   const gridCandidate = g1.length > g2.length ? g1 : g2;
   const grid = /\/products\//i.test(gridCandidate) ? gridCandidate : s;
@@ -63,18 +71,24 @@ function parseProductsCraftCellarsInner(html, ctx) {
   const s = String(html || "");
   const items = [];
 
-  let blocks = [...s.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/gi)].map((m) => m[0]);
+  let blocks = [...s.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/gi)].map(
+    (m) => m[0]
+  );
   if (blocks.length < 5) {
-    blocks = [...s.matchAll(/<div\b[^>]*class=["'][^"']*\bcard\b[^"']*["'][^>]*>[\s\S]*?<\/div>/gi)].map(
-      (m) => m[0]
-    );
+    blocks = [
+      ...s.matchAll(
+        /<div\b[^>]*class=["'][^"']*\bcard\b[^"']*["'][^>]*>[\s\S]*?<\/div>/gi
+      ),
+    ].map((m) => m[0]);
   }
 
   const base = `https://${(ctx && ctx.store && ctx.store.host) || "craftcellars.ca"}/`;
 
   for (const block of blocks) {
     const href =
-      block.match(/<a\b[^>]*href=["']([^"']*\/products\/[^"']+)["']/i)?.[1] ||
+      block.match(
+        /<a\b[^>]*href=["']([^"']*\/products\/[^"']+)["']/i
+      )?.[1] ||
       block.match(/href=["']([^"']*\/products\/[^"']+)["']/i)?.[1];
     if (!href) continue;
 
@@ -87,9 +101,15 @@ function parseProductsCraftCellarsInner(html, ctx) {
     url = canonicalizeCraftProductUrl(url);
 
     const nameHtml =
-      block.match(/<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>\s*<[^>]*>\s*([^<]{2,200}?)\s*</i)?.[1] ||
-      block.match(/<h[23]\b[^>]*>[\s\S]*?<a\b[^>]*\/products\/[^"']+[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/h[23]>/i)?.[1] ||
-      block.match(/<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>([\s\S]*?)<\/a>/i)?.[1];
+      block.match(
+        /<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>\s*<[^>]*>\s*([^<]{2,200}?)\s*</i
+      )?.[1] ||
+      block.match(
+        /<h[23]\b[^>]*>[\s\S]*?<a\b[^>]*\/products\/[^"']+[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/h[23]>/i
+      )?.[1] ||
+      block.match(
+        /<a\b[^>]*href=["'][^"']*\/products\/[^"']+["'][^>]*>([\s\S]*?)<\/a>/i
+      )?.[1];
 
     const name = sanitizeName(stripTags(decodeHtml(nameHtml || "")));
     if (!name) continue;
@@ -108,37 +128,58 @@ function parseProductsCraftCellarsInner(html, ctx) {
 function usdFromShopifyPriceStr(s) {
   const n = Number(String(s || "").replace(/[^0-9.]/g, ""));
   if (!Number.isFinite(n)) return "";
-  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `$${n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 function cfgNum(v, fallback) {
   return Number.isFinite(v) ? v : fallback;
 }
 
+/* ---------- NEW: product page SKU extractor ---------- */
+function extractCraftSkuFromProductPageHtml(html) {
+  const s = String(html || "");
+
+  const m =
+    s.match(
+      /<strong>\s*SKU:\s*<\/strong>\s*<span>\s*([^<]{1,80}?)\s*<\/span>/i
+    ) ||
+    s.match(/\bSKU:\s*<\/strong>\s*<span>\s*([^<]{1,80}?)\s*<\/span>/i) ||
+    s.match(/\bSKU:\s*([A-Za-z0-9][A-Za-z0-9\-_/ ]{0,40})/i);
+
+  const raw = m && m[1] ? stripTags(decodeHtml(m[1])) : "";
+  return normalizeCspc(raw);
+}
+
 /**
  * Craft Cellars:
- * - HTML listing with ?filter.v.availability=1 is the allowlist (prevents OOS leaking in)
- * - Shopify products.json is used only to enrich SKU (and optionally price) for those allowed URLs
+ * - HTML listing with ?filter.v.availability=1 is the allowlist
+ * - products.json enriches SKU/price
+ * - product page HTML is final SKU fallback
  */
 async function scanCategoryCraftCellars(ctx, prevDb, report) {
   const t0 = Date.now();
 
-  // Strongly prefer "slow and steady" to avoid 429s.
-  // Use per-category knobs if present; otherwise default conservative.
-  const perPageDelayMs = Math.max(
-    0,
-    cfgNum(ctx?.cat?.pageStaggerMs, cfgNum(ctx?.cat?.discoveryDelayMs, 0)) || 0
-  ) || 0;
+  const perPageDelayMs =
+    Math.max(
+      0,
+      cfgNum(ctx?.cat?.pageStaggerMs, cfgNum(ctx?.cat?.discoveryDelayMs, 0))
+    ) || 0;
 
   const perJsonPageDelayMs = Math.max(
     0,
     cfgNum(ctx?.cat?.jsonPageDelayMs, perPageDelayMs)
   );
 
-  // 1) HTML scan: allowlist of in-stock listing URLs
-  const htmlMap = new Map(); // url -> {name, price, url, img}
+  const htmlMap = new Map();
 
-  const maxPages = ctx.config.maxPages === null ? 200 : Math.min(ctx.config.maxPages, 200);
+  const maxPages =
+    ctx.config.maxPages === null
+      ? 200
+      : Math.min(ctx.config.maxPages, 200);
+
   let htmlPagesFetched = 0;
   let emptyStreak = 0;
 
@@ -146,7 +187,11 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
     if (p > 1 && perPageDelayMs > 0) await sleep(perPageDelayMs);
 
     const pageUrl = makePageUrlShopifyQueryPage(ctx.cat.startUrl, p);
-    const { text: html } = await ctx.http.fetchTextWithRetry(pageUrl, `craft:html:${ctx.cat.key}:p${p}`, ctx.store.ua);
+    const { text: html } = await ctx.http.fetchTextWithRetry(
+      pageUrl,
+      `craft:html:${ctx.cat.key}:p${p}`,
+      ctx.store.ua
+    );
     htmlPagesFetched++;
 
     if (craftCellarsIsEmptyListingPage(html)) break;
@@ -162,22 +207,30 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
     for (const it of items) {
       const url = canonicalizeCraftProductUrl(it.url);
       if (!url) continue;
-      htmlMap.set(url, { name: it.name || "", price: it.price || "", url, img: it.img || "" });
+      htmlMap.set(url, {
+        name: it.name || "",
+        price: it.price || "",
+        url,
+        img: it.img || "",
+      });
     }
   }
 
-  // If HTML returns nothing, don't let JSON invent a category
   if (!htmlMap.size) {
-    ctx.logger.warn(`${ctx.catPrefixOut} | HTML listing returned 0 items; refusing to use products.json as source of truth.`);
+    ctx.logger.warn(
+      `${ctx.catPrefixOut} | HTML listing returned 0 items; refusing JSON-only discovery`
+    );
   }
 
-  // 2) JSON scan: build SKU index (but do NOT add new URLs from JSON)
-  const jsonMap = new Map(); // url -> { sku, price, img }
+  const jsonMap = new Map();
 
   if (htmlMap.size) {
     const start = new URL(ctx.cat.startUrl);
     const m = start.pathname.match(/^\/collections\/([^/]+)/i);
-    if (!m) throw new Error(`CraftCellars: couldn't extract collection handle from ${ctx.cat.startUrl}`);
+    if (!m)
+      throw new Error(
+        `CraftCellars: couldn't extract collection handle from ${ctx.cat.startUrl}`
+      );
     const collectionHandle = m[1];
 
     const limit = 250;
@@ -185,12 +238,19 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
     let jsonPagesFetched = 0;
 
     while (true) {
-      if (jsonPage > 1 && perJsonPageDelayMs > 0) await sleep(perJsonPageDelayMs);
+      if (jsonPage > 1 && perJsonPageDelayMs > 0)
+        await sleep(perJsonPageDelayMs);
 
       const url = `https://${ctx.store.host}/collections/${collectionHandle}/products.json?limit=${limit}&page=${jsonPage}`;
-      const r = await ctx.http.fetchJsonWithRetry(url, `craft:coljson:${ctx.cat.key}:p${jsonPage}`, ctx.store.ua);
+      const r = await ctx.http.fetchJsonWithRetry(
+        url,
+        `craft:coljson:${ctx.cat.key}:p${jsonPage}`,
+        ctx.store.ua
+      );
 
-      const products = Array.isArray(r?.json?.products) ? r.json.products : [];
+      const products = Array.isArray(r?.json?.products)
+        ? r.json.products
+        : [];
       jsonPagesFetched++;
 
       if (!products.length) break;
@@ -199,72 +259,115 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
         const handle = String(p?.handle || "");
         if (!handle) continue;
 
-        const prodUrl = canonicalizeCraftProductUrl(`https://${ctx.store.host}/products/${handle}`);
-
-        // Only enrich if it's on the HTML allowlist
+        const prodUrl = canonicalizeCraftProductUrl(
+          `https://${ctx.store.host}/products/${handle}`
+        );
         if (!htmlMap.has(prodUrl)) continue;
 
         const variants = Array.isArray(p?.variants) ? p.variants : [];
-        const v = variants.find((x) => x && x.available === true) || variants[0] || null;
+        const v =
+          variants.find((x) => x && x.available === true) ||
+          variants[0] ||
+          null;
 
         const sku = normalizeCspc(v?.sku || "");
         const price = v?.price ? usdFromShopifyPriceStr(v.price) : "";
 
-        // Product image (best effort)
         let img = "";
         const images = Array.isArray(p?.images) ? p.images : [];
         if (images[0]) {
-          if (typeof images[0] === "string") img = images[0];
-          else img = String(images[0]?.src || images[0]?.url || "");
+          img =
+            typeof images[0] === "string"
+              ? images[0]
+              : String(images[0]?.src || images[0]?.url || "");
         }
-        if (!img && p?.image) img = String(p.image?.src || p.image?.url || p.image || "");
+        if (!img && p?.image)
+          img = String(p.image?.src || p.image?.url || p.image || "");
         img = String(img || "").trim();
         if (img.startsWith("//")) img = `https:${img}`;
-        if (img && !/^https?:\/\//i.test(img)) {
-          try {
-            img = new URL(img, `https://${ctx.store.host}/`).toString();
-          } catch {
-            // keep as-is
-          }
-        }
 
         jsonMap.set(prodUrl, { sku, price, img });
       }
 
       if (products.length < limit) break;
-      jsonPage++;
-      if (jsonPage > 200) break; // safety
+      if (++jsonPage > 200) break;
     }
 
-    ctx.logger.ok(`${ctx.catPrefixOut} | HTML pages=${htmlPagesFetched} JSON pages=${jsonPagesFetched}`);
-  } else {
-    ctx.logger.ok(`${ctx.catPrefixOut} | HTML pages=${htmlPagesFetched} JSON pages=0`);
+    ctx.logger.ok(
+      `${ctx.catPrefixOut} | HTML pages=${htmlPagesFetched} JSON pages=${jsonPagesFetched}`
+    );
   }
 
-  // 3) Final discovered: HTML allowlist, enriched by JSON
   const discovered = new Map();
   for (const [url, it] of htmlMap.entries()) {
     const j = jsonMap.get(url);
+    const prev = prevDb?.byUrl?.get(url) || null;
+
     discovered.set(url, {
-      name: it.name || "",
-      // Prefer JSON price (normalized) when present, else keep HTML price (already formatted)
+      name: it.name,
       price: j?.price || it.price || "",
       url,
-      sku: j?.sku || "",
-      img: j?.img || it.img || "",
+      // reuse cached SKU unless we found something better this run
+      sku: pickBetterSku(j?.sku || "", prev?.sku || ""),
+      // reuse cached image if we didn't find one
+      img: (j?.img || it.img || prev?.img || ""),
     });
   }
 
-  ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
+  /* ---------- NEW: product page SKU fallback (cached; only when needed) ---------- */
+  const perProductSkuDelayMs = Math.max(
+    0,
+    cfgNum(
+      ctx?.cat?.skuPageDelayMs,
+      cfgNum(ctx?.cat?.jsonPageDelayMs, perPageDelayMs)
+    )
+  );
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
+  let skuPagesFetched = 0;
+
+  for (const it of discovered.values()) {
+    // only hit product pages when missing/synthetic
+    if (!needsSkuDetail(it.sku)) continue;
+
+    if (perProductSkuDelayMs > 0) await sleep(perProductSkuDelayMs);
+
+    try {
+      const { text } = await ctx.http.fetchTextWithRetry(
+        it.url,
+        `craft:prodpage:${ctx.cat.key}:${Buffer.from(it.url)
+          .toString("base64")
+          .slice(0, 24)}`,
+        ctx.store.ua
+      );
+      skuPagesFetched++;
+
+      const sku = extractCraftSkuFromProductPageHtml(text);
+      if (sku) it.sku = sku;
+    } catch {
+      /* best effort */
+    }
+  }
+
+  ctx.logger.ok(
+    `${ctx.catPrefixOut} | SKU fallback pages=${skuPagesFetched}`
+  );
+
+  ctx.logger.ok(
+    `${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`
+  );
+
+  const {
+    merged,
+    newItems,
+    updatedItems,
+    removedItems,
+    restoredItems,
+  } = mergeDiscoveredIntoDb(prevDb, discovered, {
     storeLabel: ctx.store.name,
   });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);
-
-  ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${dbObj.count} items)`);
 
   const elapsed = Date.now() - t0;
 
@@ -287,7 +390,15 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
   report.totals.removedCount += removedItems.length;
   report.totals.restoredCount += restoredItems.length;
 
-  addCategoryResultToReport(report, ctx.store.name, ctx.cat.label, newItems, updatedItems, removedItems, restoredItems);
+  addCategoryResultToReport(
+    report,
+    ctx.store.name,
+    ctx.cat.label,
+    newItems,
+    updatedItems,
+    removedItems,
+    restoredItems
+  );
 }
 
 function createStore(defaultUa) {
@@ -297,10 +408,8 @@ function createStore(defaultUa) {
     host: "craftcellars.ca",
     ua: defaultUa,
 
-    // ✅ Custom scan (HTML allowlist + JSON enrichment)
     scanCategory: scanCategoryCraftCellars,
 
-    // Keep HTML parser for debugging
     parseProducts: parseProductsCraftCellars,
     makePageUrl: makePageUrlShopifyQueryPage,
     isEmptyListingPage: craftCellarsIsEmptyListingPage,
@@ -309,69 +418,22 @@ function createStore(defaultUa) {
       {
         key: "whisky",
         label: "Whisky",
-        startUrl: "https://craftcellars.ca/collections/whisky?filter.v.availability=1",
-
-        // slow-and-safe defaults (override globally if you want)
-        discoveryStartPage: 3,
-        discoveryStep: 2,
+        startUrl:
+          "https://craftcellars.ca/collections/whisky?filter.v.availability=1",
         pageConcurrency: 1,
         pageStaggerMs: 10000,
         discoveryDelayMs: 10000,
+        skuPageDelayMs: 12000,
       },
       {
         key: "rum",
         label: "Rum",
-        startUrl: "https://craftcellars.ca/collections/rum?filter.v.availability=1",
-
-        discoveryStartPage: 3,
-        discoveryStep: 2,
+        startUrl:
+          "https://craftcellars.ca/collections/rum?filter.v.availability=1",
         pageConcurrency: 1,
         pageStaggerMs: 10000,
         discoveryDelayMs: 10000,
-      },
-      {
-        key: "single-malt-scotch",
-        label: "Single Malt Scotch",
-        startUrl: "https://craftcellars.ca/collections/single-malt-scotch?filter.v.availability=1",
-
-        discoveryStartPage: 3,
-        discoveryStep: 2,
-        pageConcurrency: 1,
-        pageStaggerMs: 10000,
-        discoveryDelayMs: 10000,
-      },
-      {
-        key: "other-scotch-styles",
-        label: "Other Scotch Styles",
-        startUrl: "https://craftcellars.ca/collections/other-scotch-styles?filter.v.availability=1",
-
-        discoveryStartPage: 3,
-        discoveryStep: 2,
-        pageConcurrency: 1,
-        pageStaggerMs: 10000,
-        discoveryDelayMs: 10000,
-      },
-      {
-        key: "single-grain-scotch",
-        label: "Single Grain Scotch",
-        startUrl: "https://craftcellars.ca/collections/single-grain-scotch?filter.v.availability=1",
-
-        discoveryStartPage: 3,
-        discoveryStep: 2,
-        pageConcurrency: 1,
-        pageStaggerMs: 10000,
-        discoveryDelayMs: 10000,
-      },
-      {
-        key: "blended-malt-scotch",
-        label: "Blended Malt Scotch",
-        startUrl: "https://craftcellars.ca/collections/blended-malt-scotch?filter.v.availability=1",
-
-        discoveryStartPage: 3,
-        discoveryStep: 2,
-        pageConcurrency: 1,
-        pageStaggerMs: 10000,
-        discoveryDelayMs: 10000,
+        skuPageDelayMs: 12000,
       },
     ],
   };
