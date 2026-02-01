@@ -108,7 +108,7 @@ export function recommendSimilar(
   const perWin = Math.max(1, Math.floor(scanN / WINDOWS));
 
   // Optional debug:
-  // console.log("[linker] recommendSimilar scan", { pinnedSku, nAll, scanN, perWin, starts: starts.map(s => allAgg[s]?.name) });
+  console.log("[linker] recommendSimilar scan", { pinnedSku, nAll, scanN, perWin, starts: starts.map(s => allAgg[s]?.name) });
 
   let scanned = 0;
 
