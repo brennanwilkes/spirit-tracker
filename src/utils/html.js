@@ -60,10 +60,31 @@ function normalizeMaybeRelativeUrl(raw, baseUrl) {
   }
 }
 
-/**
- * Best-effort thumbnail extractor for listing HTML blocks.
- * Returns absolute URL when baseUrl is provided.
- */
+function resolveShopifyWidthPlaceholder(url, tag) {
+  const s = String(url || "");
+  if (!/%7Bwidth%7D|\{width\}/i.test(s)) return s;
+
+  // Pick a reasonable width from data-widths if available
+  let w = 400;
+  const dw = extractHtmlAttr(tag, "data-widths");
+  if (dw) {
+    try {
+      const arr = JSON.parse(dw);
+      if (Array.isArray(arr) && arr.length) {
+        if (arr.includes(400)) w = 400;
+        else if (arr.includes(360)) w = 360;
+        else w = arr[0];
+      }
+    } catch {}
+  }
+
+  return s
+    .replace(/_%7Bwidth%7D(x)/gi, `_${w}$1`)
+    .replace(/_\{width\}(x)/gi, `_${w}$1`)
+    .replace(/%7Bwidth%7D/gi, String(w))
+    .replace(/\{width\}/gi, String(w));
+}
+
 function extractFirstImgUrl(html, baseUrl) {
   const s = String(html || "");
   const m = s.match(/<img\b[^>]*>/i);
@@ -71,14 +92,7 @@ function extractFirstImgUrl(html, baseUrl) {
 
   const tag = m[0];
 
-  const attrs = [
-    "data-src",
-    "data-lazy-src",
-    "data-original",
-    "data-srcset",
-    "srcset",
-    "src",
-  ];
+  const attrs = ["data-src", "data-lazy-src", "data-original", "data-srcset", "srcset", "src"];
 
   for (const a of attrs) {
     let v = extractHtmlAttr(tag, a);
@@ -87,19 +101,35 @@ function extractFirstImgUrl(html, baseUrl) {
     v = decodeHtml(String(v)).trim();
     if (!v) continue;
 
-    if (a.toLowerCase().includes("srcset")) v = pickFirstUrlFromSrcset(v);
+    const isSrcset = a.toLowerCase().includes("srcset");
+    if (isSrcset) v = pickFirstUrlFromSrcset(v);
     v = String(v || "").trim();
     if (!v) continue;
 
-    // Skip data URIs
     if (/^data:/i.test(v)) continue;
 
-    const abs = normalizeMaybeRelativeUrl(v, baseUrl);
+    // If this attr is a template URL, prefer trying srcset next
+    if (!isSrcset && /%7Bwidth%7D|\{width\}/i.test(v)) continue;
+
+    let abs = normalizeMaybeRelativeUrl(v, baseUrl);
+    abs = resolveShopifyWidthPlaceholder(abs, tag);
+    if (abs) return abs;
+  }
+
+  // Fallback: accept template URLs but force a width
+  for (const a of ["data-src", "src"]) {
+    let v = extractHtmlAttr(tag, a);
+    if (!v) continue;
+    v = decodeHtml(String(v)).trim();
+    if (!v || /^data:/i.test(v)) continue;
+    let abs = normalizeMaybeRelativeUrl(v, baseUrl);
+    abs = resolveShopifyWidthPlaceholder(abs, tag);
     if (abs) return abs;
   }
 
   return "";
 }
+
 
 module.exports = {
   stripTags,
