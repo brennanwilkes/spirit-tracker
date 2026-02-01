@@ -620,48 +620,47 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
     const itToks = filterSimTokens(itRawToks);
     const itBrand = itToks[0] || "";
 
-    const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
-    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
-    
-    // If first token mismatches, DO NOT BLOCK.
-    // Penalize unless containment is very high.
-    if (!firstMatch) {
-      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-    
-      // 0.10..~1.0 based on containment
-      let mult = 0.10 + 0.95 * contain;
-    
-      // If the name is very short (e.g. "Bowmore 12 Sherry") then first token matters more.
-      if (smallN <= 3 && contain < 0.78) mult *= 0.18;
-    
-      s *= Math.min(1.0, mult);
-    }
-    
-
-    // HARD brand gate: eliminates Tamnavulin/Jura/etc when Benromach pinned
-    // if (pinBrand && itBrand && pinBrand !== itBrand) continue;
-
+    // score first
     let s = similarityScore(base, it.name || "");
     if (s <= 0) continue;
 
+    // soft first-token mismatch penalty (never blocks)
+    const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
+    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+
+    if (!firstMatch) {
+      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+
+      // 0.10..~1.0 based on containment
+      let mult = 0.10 + 0.95 * contain;
+
+      // Short names: first token matters more unless containment is *very* high
+      if (smallN <= 3 && contain < 0.78) mult *= 0.18;
+
+      s *= Math.min(1.0, mult);
+      if (s <= 0) continue;
+    }
+
+    // size penalty (your existing hook)
     if (typeof sizePenaltyFn === "function") {
       s *= sizePenaltyFn(pinnedSku, itSku);
       if (s <= 0) continue;
     }
 
-    // Extra age boost when pinned has an age and candidate matches it.
+    // age boost/penalty (existing)
     const itAge = extractAgeFromText(itNorm);
     if (pinAge && itAge) {
       if (pinAge === itAge) s *= 2.0;
       else s *= 0.15;
     }
 
-    // Small boost if either side is an unknown sku (u:...)
+    // unknown boost (existing)
     const aUnknown = pinnedSku.startsWith("u:");
     const bUnknown = itSku.startsWith("u:");
     if (aUnknown || bUnknown) s *= 1.12;
 
     if (s > 0) scored.push({ it, s });
+
   }
 
   scored.sort((a, b) => b.s - a.s);
