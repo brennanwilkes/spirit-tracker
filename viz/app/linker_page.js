@@ -26,6 +26,7 @@ import {
 } from "./pending.js";
 
 /* ---------------- Similarity helpers ---------------- */
+
 // Ignore ultra-common / low-signal tokens in bottle names.
 const SIM_STOP_TOKENS = new Set([
   "the",
@@ -60,7 +61,7 @@ const SIM_STOP_TOKENS = new Set([
   "abv",
   "proof",
 
-  // helps your Benromach “20th Anniversary” case
+  // helps e.g. "20th Anniversary"
   "anniversary",
 ]);
 
@@ -213,67 +214,6 @@ function levenshtein(a, b) {
   return dp[m];
 }
 
-
-/* ---------------- Size helpers ---------------- */
-
-const SIZE_TOLERANCE_ML = 8; // tolerate minor formatting noise (e.g. 749 vs 750)
-
-function parseSizesMlFromText(text) {
-  const s = String(text || "").toLowerCase();
-  if (!s) return [];
-
-  const out = new Set();
-
-  // 750ml, 700 ml, 1140ml, 1.14l, 70cl, etc.
-  const re = /\b(\d+(?:\.\d+)?)\s*(ml|cl|l|litre|litres|liter|liters)\b/g;
-  let m;
-  while ((m = re.exec(s))) {
-    const val = parseFloat(m[1]);
-    const unit = m[2];
-    if (!isFinite(val) || val <= 0) continue;
-
-    let ml = 0;
-    if (unit === "ml") ml = Math.round(val);
-    else if (unit === "cl") ml = Math.round(val * 10);
-    else ml = Math.round(val * 1000); // l/litre/liter
-
-    // sanity: ignore crazy
-    if (ml >= 50 && ml <= 5000) out.add(ml);
-  }
-
-  return Array.from(out);
-}
-
-function mergeSizeSet(intoSet, sizesArr) {
-  if (!intoSet || !sizesArr) return;
-  for (const x of sizesArr) {
-    const n = Number(x);
-    if (Number.isFinite(n) && n > 0) intoSet.add(n);
-  }
-}
-
-function sizeSetsMatch(aSet, bSet) {
-  if (!aSet?.size || !bSet?.size) return false;
-  for (const a of aSet) {
-    for (const b of bSet) {
-      if (Math.abs(a - b) <= SIZE_TOLERANCE_ML) return true;
-    }
-  }
-  return false;
-}
-
-function sizePenalty(aSet, bSet) {
-  // If either side has no known sizes, don't punish much.
-  if (!aSet?.size || !bSet?.size) return 1.0;
-
-  // If any size matches (within tolerance), no penalty.
-  if (sizeSetsMatch(aSet, bSet)) return 1.0;
-
-  // Both have sizes but none match => probably different products (750 vs 1140).
-  return 0.08;
-}
-
-
 function tokenContainmentScore(aTokens, bTokens) {
   // Measures how well the smaller token set is contained in the larger one.
   // Returns 0..1 (1 = perfect containment).
@@ -404,6 +344,57 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   s *= 1 + 0.9 * contain;
 
   return s;
+}
+
+/* ---------------- Size helpers ---------------- */
+
+const SIZE_TOLERANCE_ML = 8; // tolerate minor formatting noise (e.g. 749 vs 750)
+
+function parseSizesMlFromText(text) {
+  const s = String(text || "").toLowerCase();
+  if (!s) return [];
+
+  const out = new Set();
+
+  // 750ml, 700 ml, 1140ml, 1.14l, 70cl, etc.
+  const re = /\b(\d+(?:\.\d+)?)\s*(ml|cl|l|litre|litres|liter|liters)\b/g;
+  let m;
+  while ((m = re.exec(s))) {
+    const val = parseFloat(m[1]);
+    const unit = m[2];
+    if (!isFinite(val) || val <= 0) continue;
+
+    let ml = 0;
+    if (unit === "ml") ml = Math.round(val);
+    else if (unit === "cl") ml = Math.round(val * 10);
+    else ml = Math.round(val * 1000); // l/litre/liter
+
+    // sanity: ignore crazy
+    if (ml >= 50 && ml <= 5000) out.add(ml);
+  }
+
+  return Array.from(out);
+}
+
+function sizeSetsMatch(aSet, bSet) {
+  if (!aSet?.size || !bSet?.size) return false;
+  for (const a of aSet) {
+    for (const b of bSet) {
+      if (Math.abs(a - b) <= SIZE_TOLERANCE_ML) return true;
+    }
+  }
+  return false;
+}
+
+function sizePenalty(aSet, bSet) {
+  // If either side has no known sizes, don't punish much.
+  if (!aSet?.size || !bSet?.size) return 1.0;
+
+  // If any size matches (within tolerance), no penalty.
+  if (sizeSetsMatch(aSet, bSet)) return 1.0;
+
+  // Both have sizes but none match => probably different products (750 vs 1140).
+  return 0.08;
 }
 
 /* ---------------- Store-overlap rule ---------------- */
@@ -580,6 +571,7 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
 
   const pinnedSku = String(pinned.sku || "");
   const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
+  const base = String(pinned.name || "");
 
   const pinNorm = normSearchText(pinned.name || "");
   const pinRawToks = tokenizeQuery(pinNorm);
@@ -587,19 +579,34 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
 
   // "brand" = first meaningful token (usually distillery)
   const pinBrand = pinToks[0] || "";
-
   const pinAge = extractAgeFromText(pinNorm);
 
+  const pinnedSmws = smwsKeyFromName(pinned.name || "");
   const scored = [];
 
   for (const it of allAgg) {
     if (!it) continue;
 
     const itSku = String(it.sku || "");
-    if (!itSku || itSku === pinnedSku || (otherSku && itSku === otherSku)) continue;
+    if (!itSku) continue;
+
+    if (itSku === pinnedSku) continue;
+    if (otherSku && itSku === otherSku) continue;
     if (storesOverlap(pinned, it)) continue;
 
     if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
+
+    // SMWS exact NUM.NUM match => force to top (requires SMWS + code match)
+    if (pinnedSmws) {
+      const k = smwsKeyFromName(it.name || "");
+      if (k && k === pinnedSmws) {
+        const stores = it.stores ? it.stores.size : 0;
+        const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
+        const s = 1e9 + stores * 10 + hasPrice; // tie-break within exact matches
+        scored.push({ it, s });
+        continue;
+      }
+    }
 
     const itNorm = normSearchText(it.name || "");
     if (!itNorm) continue;
@@ -608,19 +615,16 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
     const itToks = filterSimTokens(itRawToks);
     const itBrand = itToks[0] || "";
 
-    // HARD brand gate: if brands disagree, skip.
-    // This eliminates Tamnavulin/Jura/etc from a Benromach pin.
+    // HARD brand gate: eliminates Tamnavulin/Jura/etc when Benromach pinned
     if (pinBrand && itBrand && pinBrand !== itBrand) continue;
 
     let s = similarityScore(base, it.name || "");
     if (s <= 0) continue;
 
     if (typeof sizePenaltyFn === "function") {
-      s *= sizePenaltyFn(pinnedSku, String(it.sku || ""));
+      s *= sizePenaltyFn(pinnedSku, itSku);
+      if (s <= 0) continue;
     }
-
-    if (s > 0) scored.push({ it, s });
-
 
     // Extra age boost when pinned has an age and candidate matches it.
     const itAge = extractAgeFromText(itNorm);
@@ -629,13 +633,17 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
       else s *= 0.15;
     }
 
-    scored.push({ it, s });
+    // Small boost if either side is an unknown sku (u:...)
+    const aUnknown = pinnedSku.startsWith("u:");
+    const bUnknown = itSku.startsWith("u:");
+    if (aUnknown || bUnknown) s *= 1.12;
+
+    if (s > 0) scored.push({ it, s });
   }
 
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
 }
-
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const itemsAll = allAgg.filter((it) => !!it);
@@ -1018,59 +1026,69 @@ export async function renderSkuLinker($app) {
   const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
   let ignoreSet = rules.ignoreSet;
 
-  /* ---------------- Canonical-group size cache ---------------- */
+  /* ---------------- Canonical-group size cache (FAST) ---------------- */
 
-  // sizes observed for a specific skuKey (from allRows + agg name)
-  const SKU_SIZE_CACHE = new Map(); // skuKey -> Set<int ml>
+  // skuKey -> Set<int ml>
+  const SKU_SIZE_CACHE = new Map();
 
-  function skuSizesMl(skuKey) {
-    const k = String(skuKey || "");
-    if (!k) return new Set();
-    const prev = SKU_SIZE_CACHE.get(k);
-    if (prev) return prev;
-
-    const set = new Set();
-
-    // include agg display name (often best normalized name)
-    const agg = allAgg.find((x) => String(x?.sku || "") === k);
-    if (agg?.name) mergeSizeSet(set, parseSizesMlFromText(agg.name));
-
-    // include any row names for this skuKey
-    for (const r of allRows) {
-      if (!r || r.removed) continue;
-      if (String(keySkuForRow(r) || "") !== k) continue;
-      mergeSizeSet(set, parseSizesMlFromText(r.name || r.title || r.productName || ""));
-    }
-
-    SKU_SIZE_CACHE.set(k, set);
+  function ensureSkuSet(k) {
+    let set = SKU_SIZE_CACHE.get(k);
+    if (!set) SKU_SIZE_CACHE.set(k, (set = new Set()));
     return set;
   }
 
-  // canonicalSku -> Set<int ml> (sizes anywhere in that group)
-  const CANON_SIZE_CACHE = new Map();
-
-  for (const it of allAgg) {
-    const skuKey = String(it?.sku || "");
+  // 1) One pass over rows (O(allRows))
+  for (const r of allRows) {
+    if (!r || r.removed) continue;
+    const skuKey = String(keySkuForRow(r) || "").trim();
     if (!skuKey) continue;
-    const canon = String(rules.canonicalSku(skuKey) || skuKey);
-    let set = CANON_SIZE_CACHE.get(canon);
-    if (!set) CANON_SIZE_CACHE.set(canon, (set = new Set()));
-    const s = skuSizesMl(skuKey);
-    for (const x of s) set.add(x);
+
+    const name = r.name || r.title || r.productName || "";
+    const sizes = parseSizesMlFromText(name);
+    if (!sizes.length) continue;
+
+    const set = ensureSkuSet(skuKey);
+    for (const x of sizes) set.add(x);
   }
 
-  function groupSizesMl(skuKey) {
-    const canon = String(rules.canonicalSku(String(skuKey || "")) || "");
-    return canon ? (CANON_SIZE_CACHE.get(canon) || new Set()) : new Set();
+  // 2) One pass over aggregated names (O(allAgg))
+  for (const it of allAgg) {
+    const skuKey = String(it?.sku || "").trim();
+    if (!skuKey || !it?.name) continue;
+    const sizes = parseSizesMlFromText(it.name);
+    if (!sizes.length) continue;
+
+    const set = ensureSkuSet(skuKey);
+    for (const x of sizes) set.add(x);
+  }
+
+  // 3) canon -> Set<int ml> (O(allAgg))
+  const CANON_SIZE_CACHE = new Map();
+
+  function ensureCanonSet(k) {
+    let set = CANON_SIZE_CACHE.get(k);
+    if (!set) CANON_SIZE_CACHE.set(k, (set = new Set()));
+    return set;
+  }
+
+  for (const it of allAgg) {
+    const skuKey = String(it?.sku || "").trim();
+    if (!skuKey) continue;
+
+    const canon = String(rules.canonicalSku(skuKey) || skuKey);
+    const canonSet = ensureCanonSet(canon);
+
+    const skuSet = SKU_SIZE_CACHE.get(skuKey);
+    if (skuSet) for (const x of skuSet) canonSet.add(x);
   }
 
   function sizePenaltyForPair(aSku, bSku) {
-    const A = groupSizesMl(aSku);
-    const B = groupSizesMl(bSku);
+    const aCanon = String(rules.canonicalSku(String(aSku || "")) || "");
+    const bCanon = String(rules.canonicalSku(String(bSku || "")) || "");
+    const A = aCanon ? (CANON_SIZE_CACHE.get(aCanon) || new Set()) : new Set();
+    const B = bCanon ? (CANON_SIZE_CACHE.get(bCanon) || new Set()) : new Set();
     return sizePenalty(A, B);
   }
-
-
 
   function isIgnoredPair(a, b) {
     return rules.isIgnoredPair(String(a || ""), String(b || ""));
@@ -1148,7 +1166,15 @@ export async function renderSkuLinker($app) {
 
     // auto-suggestions: never include mapped skus
     if (otherPinned)
-      return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair, sizePenaltyForPair);
+      return recommendSimilar(
+        allAgg,
+        otherPinned,
+        60,
+        otherSku,
+        mappedSkus,
+        isIgnoredPair,
+        sizePenaltyForPair
+      );
 
     if (initialPairs && initialPairs.length) {
       const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
