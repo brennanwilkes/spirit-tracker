@@ -336,6 +336,13 @@ function main() {
         nextObj = gitShowJson(toSha, file);
       }
 
+      // NEW: if the DB file itself doesn't exist at "to", skip (prevents mass "removed")
+      const nextExists =
+        toSha === "WORKTREE"
+          ? fs.existsSync(path.join(repoRoot, file))
+          : gitFileExistsAtSha(toSha, file);
+      if (!nextExists) continue;
+
       if (!prevObj && !nextObj) continue;
 
       const storeLabel = String(nextObj?.storeLabel || nextObj?.store || prevObj?.storeLabel || prevObj?.store || "");
@@ -426,6 +433,7 @@ function main() {
         });
       }
     }
+
   }
 
   items.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
