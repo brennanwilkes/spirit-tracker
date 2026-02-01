@@ -37,9 +37,31 @@ const SIM_STOP_TOKENS = new Set([
   "in",
   "for",
   "with",
+
+  // age words (we extract age separately)
   "year",
   "years",
+  "yr",
+  "yrs",
   "old",
+
+  // whisky noise words
+  "whisky",
+  "whiskey",
+  "scotch",
+  "single",
+  "malt",
+  "cask",
+  "finish",
+  "edition",
+  "release",
+  "batch",
+  "strength",
+  "abv",
+  "proof",
+
+  // helps your Benromach “20th Anniversary” case
+  "anniversary",
 ]);
 
 const SMWS_WORD_RE = /\bsmws\b/i;
@@ -52,8 +74,34 @@ function smwsKeyFromName(name) {
   return m ? m[1] : "";
 }
 
+// Treat ordinal tokens like "20th" as numbers, and detect ages explicitly.
+const ORDINAL_RE = /^(\d+)(st|nd|rd|th)$/i;
+
+function numKey(t) {
+  const s = String(t || "").trim().toLowerCase();
+  if (!s) return "";
+  if (/^\d+$/.test(s)) return s;
+  const m = s.match(ORDINAL_RE);
+  return m ? m[1] : "";
+}
+
 function isNumberToken(t) {
-  return /^\d+$/.test(String(t || ""));
+  return !!numKey(t);
+}
+
+function extractAgeFromText(normName) {
+  const s = String(normName || "");
+  if (!s) return "";
+
+  // "10 years", "10 year", "10 yr", "10 yrs", "aged 10 years"
+  const m = s.match(/\b(?:aged\s*)?(\d{1,2})\s*(?:yr|yrs|year|years)\b/i);
+  if (m && m[1]) return String(parseInt(m[1], 10));
+
+  // "10 yo"
+  const m2 = s.match(/\b(\d{1,2})\s*yo\b/i);
+  if (m2 && m2[1]) return String(parseInt(m2[1], 10));
+
+  return "";
 }
 
 function filterSimTokens(tokens) {
@@ -69,6 +117,7 @@ function filterSimTokens(tokens) {
 
     // small safe extras
     ["whiskey", "whisky"],
+    ["whisky", "whisky"],
     ["bourbon", "bourbon"],
   ]);
 
@@ -93,6 +142,9 @@ function filterSimTokens(tokens) {
     let t = String(raw || "").trim().toLowerCase();
     if (!t) continue;
 
+    // Drop tokens that are just punctuation / separators (e.g. "-")
+    if (!/[a-z0-9]/i.test(t)) continue;
+
     // Drop inline volume + inline percentages
     if (VOL_INLINE_RE.test(t)) continue;
     if (PCT_INLINE_RE.test(t)) continue;
@@ -100,11 +152,15 @@ function filterSimTokens(tokens) {
     // Normalize
     t = SIM_EQUIV.get(t) || t;
 
+    // Normalize ordinals like "20th" -> "20"
+    const nk = numKey(t);
+    if (nk) t = nk;
+
     // Drop unit tokens (ml/l/oz/etc) and ABV-ish
     if (VOL_UNIT.has(t) || t === "abv" || t === "proof") continue;
 
     // Drop "number + unit" volume patterns: "750 ml", "1.14 l"
-    if (isNumberToken(t)) {
+    if (/^\d+(?:\.\d+)?$/.test(t)) {
       const next = String(arr[i + 1] || "").trim().toLowerCase();
       const nextNorm = SIM_EQUIV.get(next) || next;
       if (VOL_UNIT.has(nextNorm)) {
@@ -124,13 +180,12 @@ function filterSimTokens(tokens) {
   return out;
 }
 
-
 function numberMismatchPenalty(aTokens, bTokens) {
-  const aNums = new Set(aTokens.filter(isNumberToken));
-  const bNums = new Set(bTokens.filter(isNumberToken));
+  const aNums = new Set((aTokens || []).map(numKey).filter(Boolean));
+  const bNums = new Set((bTokens || []).map(numKey).filter(Boolean));
   if (!aNums.size || !bNums.size) return 1.0; // no penalty if either has no numbers
   for (const n of aNums) if (bNums.has(n)) return 1.0; // at least one number matches
-  return 0.55; // mismatch (e.g. "18" vs "12") => penalize
+  return 0.28; // stronger penalty than before
 }
 
 function levenshtein(a, b) {
@@ -158,14 +213,49 @@ function levenshtein(a, b) {
   return dp[m];
 }
 
+function tokenContainmentScore(aTokens, bTokens) {
+  // Measures how well the smaller token set is contained in the larger one.
+  // Returns 0..1 (1 = perfect containment).
+  const A = filterSimTokens(aTokens || []);
+  const B = filterSimTokens(bTokens || []);
+  if (!A.length || !B.length) return 0;
+
+  const aSet = new Set(A);
+  const bSet = new Set(B);
+
+  const small = aSet.size <= bSet.size ? aSet : bSet;
+  const big = aSet.size <= bSet.size ? bSet : aSet;
+
+  let hit = 0;
+  for (const t of small) if (big.has(t)) hit++;
+
+  const recall = hit / Math.max(1, small.size);
+  const precision = hit / Math.max(1, big.size);
+  const f1 = (2 * precision * recall) / Math.max(1e-9, precision + recall);
+
+  return f1;
+}
+
 function similarityScore(aName, bName) {
   const a = normSearchText(aName);
   const b = normSearchText(bName);
   if (!a || !b) return 0;
 
-  const aToks = filterSimTokens(tokenizeQuery(a));
-  const bToks = filterSimTokens(tokenizeQuery(b));
+  // Explicit age handling
+  const aAge = extractAgeFromText(a);
+  const bAge = extractAgeFromText(b);
+  const ageBoth = !!(aAge && bAge);
+  const ageMatch = ageBoth && aAge === bAge;
+  const ageMismatch = ageBoth && aAge !== bAge;
+
+  const aToksRaw = tokenizeQuery(a);
+  const bToksRaw = tokenizeQuery(b);
+
+  const aToks = filterSimTokens(aToksRaw);
+  const bToks = filterSimTokens(bToksRaw);
   if (!aToks.length || !bToks.length) return 0;
+
+  const contain = tokenContainmentScore(aToksRaw, bToksRaw);
 
   const aFirst = aToks[0] || "";
   const bFirst = bToks[0] || "";
@@ -185,16 +275,40 @@ function similarityScore(aName, bName) {
   const gate = firstMatch ? 1.0 : 0.12;
   const numGate = numberMismatchPenalty(aToks, bToks);
 
-  return (
+  let s =
     numGate *
-    (firstMatch * 3.0 + overlapTail * 2.2 * gate + levSim * (firstMatch ? 1.0 : 0.15))
-  );
+    (firstMatch * 3.0 +
+      overlapTail * 2.2 * gate +
+      levSim * (firstMatch ? 1.0 : 0.15));
+
+  // Age boosts/penalties
+  if (ageMatch) s *= 2.2;
+  else if (ageMismatch) s *= 0.18;
+
+  // Bundle/containment boost (short name contained in long name)
+  s *= 1 + 0.9 * contain;
+
+  return s;
 }
 
 function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
-  aTokens = filterSimTokens(aTokens);
-  bTokens = filterSimTokens(bTokens);
+  const aTokensRaw = aTokens || [];
+  const bTokensRaw = bTokens || [];
+
+  aTokens = filterSimTokens(aTokensRaw);
+  bTokens = filterSimTokens(bTokensRaw);
   if (!aTokens.length || !bTokens.length) return 0;
+
+  const a = String(aNormName || "");
+  const b = String(bNormName || "");
+
+  const aAge = extractAgeFromText(a);
+  const bAge = extractAgeFromText(b);
+  const ageBoth = !!(aAge && bAge);
+  const ageMatch = ageBoth && aAge === bAge;
+  const ageMismatch = ageBoth && aAge !== bAge;
+
+  const contain = tokenContainmentScore(aTokensRaw, bTokensRaw);
 
   const aFirst = aTokens[0] || "";
   const bFirst = bTokens[0] || "";
@@ -210,8 +324,6 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   const denom = Math.max(1, Math.max(aTail.length, bTail.length));
   const overlapTail = inter / denom;
 
-  const a = String(aNormName || "");
-  const b = String(bNormName || "");
   const pref =
     firstMatch &&
     a.slice(0, 10) &&
@@ -223,7 +335,14 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   const gate = firstMatch ? 1.0 : 0.12;
   const numGate = numberMismatchPenalty(aTokens, bTokens);
 
-  return numGate * (firstMatch * 2.4 + overlapTail * 2.0 * gate + pref);
+  let s = numGate * (firstMatch * 2.4 + overlapTail * 2.0 * gate + pref);
+
+  if (ageMatch) s *= 2.0;
+  else if (ageMismatch) s *= 0.2;
+
+  s *= 1 + 0.9 * contain;
+
+  return s;
 }
 
 /* ---------------- Store-overlap rule ---------------- */
@@ -261,7 +380,15 @@ function buildMappedSkuSet(links, rules) {
 
 function isBCStoreLabel(label) {
   const s = String(label || "").toLowerCase();
-  return s.includes("bcl") || s.includes("strath") || s.includes("gull") || s.includes("legacy") || s.includes("tudor") ||s.includes("vessel") ||s.includes("vintagespirits");
+  return (
+    s.includes("bcl") ||
+    s.includes("strath") ||
+    s.includes("gull") ||
+    s.includes("legacy") ||
+    s.includes("tudor") ||
+    s.includes("vessel") ||
+    s.includes("vintagespirits")
+  );
 }
 
 function skuIsBC(allRows, skuKey) {
@@ -285,12 +412,9 @@ function isSoftSkuKey(k) {
   return s.startsWith("upc:") || s.startsWith("id:");
 }
 
-
 function isUnknownSkuKey2(k) {
   return String(k || "").trim().startsWith("u:");
 }
-  
-  
 
 function isABStoreLabel(label) {
   const s = String(label || "").toLowerCase();
@@ -328,7 +452,7 @@ function scoreCanonical(allRows, skuKey) {
   else base = -1000;
 
   return base + ab * 25 - bc * 10;
-  }
+}
 
 function pickPreferredCanonical(allRows, skuKeys) {
   let best = "";
@@ -812,7 +936,6 @@ export async function renderSkuLinker($app) {
     }
   }
 
-
   const allAgg = aggregateBySku(allRows, (x) => x);
 
   const meta = await loadSkuMetaBestEffort();
@@ -894,7 +1017,8 @@ export async function renderSkuLinker($app) {
     }
 
     // auto-suggestions: never include mapped skus
-    if (otherPinned) return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair);
+    if (otherPinned)
+      return recommendSimilar(allAgg, otherPinned, 60, otherSku, mappedSkus, isIgnoredPair);
 
     if (initialPairs && initialPairs.length) {
       const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
@@ -1117,18 +1241,18 @@ export async function renderSkuLinker($app) {
   function findAggForPreselectSku(rawSku) {
     const want = String(rawSku || "").trim();
     if (!want) return null;
-  
+
     // exact match first
     let it = allAgg.find((x) => String(x?.sku || "") === want);
     if (it) return it;
-  
+
     // try canonical group match
     const canonWant = String(rules.canonicalSku(want) || want).trim();
     if (!canonWant) return null;
-  
+
     it = allAgg.find((x) => String(x?.sku || "") === canonWant);
     if (it) return it;
-  
+
     // any member whose canonicalSku matches
     return (
       allAgg.find((x) => String(rules.canonicalSku(String(x?.sku || "")) || "") === canonWant) ||
@@ -1142,7 +1266,7 @@ export async function renderSkuLinker($app) {
     // (works with your router because "link" stays as the first path segment)
     if (!updateAll._didPreselect) {
       updateAll._didPreselect = true;
-  
+
       const h = String(location.hash || "");
       const qi = h.indexOf("?");
       if (qi !== -1) {
@@ -1154,12 +1278,11 @@ export async function renderSkuLinker($app) {
         }
       }
     }
-  
+
     renderSide("L");
     renderSide("R");
     updateButtons();
   }
-  
 
   let tL = null,
     tR = null;
@@ -1265,9 +1388,9 @@ export async function renderSkuLinker($app) {
     try {
       for (let i = 0; i < uniq.length; i++) {
         const w = uniq[i];
-        $status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(w.fromSku)} → ${displaySku(
-          w.toSku
-        )} …`;
+        $status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(
+          w.fromSku
+        )} → ${displaySku(w.toSku)} …`;
         await apiWriteSkuLink(w.fromSku, w.toSku);
       }
 
