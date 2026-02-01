@@ -51,19 +51,6 @@ export function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-
-// viz/app/linker/suggestions.js
-import { tokenizeQuery, normSearchText } from "../sku.js";
-import {
-  smwsKeyFromName,
-  extractAgeFromText,
-  filterSimTokens,
-  tokenContainmentScore,
-  fastSimilarityScore,
-  similarityScore,
-} from "./similarity.js";
-import { topSuggestions } from "./suggestions.js"; // if in same file, remove this line
-
 export function recommendSimilar(
   allAgg,
   pinned,
