@@ -37,11 +37,12 @@ let prunedAuto = 0;
 let prunedDup = 0;
 
 const seen = new Set(); // dedupe after normalization
-
 const nextLinks = [];
+
 for (const x of Array.isArray(linksData.links) ? linksData.links : []) {
   const a = normalizeImplicitSkuKey(x?.fromSku);
   const b = normalizeImplicitSkuKey(x?.toSku);
+
   if (!a || !b) {
     prunedMissing++;
     continue;
@@ -67,7 +68,12 @@ for (const x of Array.isArray(linksData.links) ? linksData.links : []) {
   }
   seen.add(key);
 
-  nextLinks.push({ fromSku: a, toSku: b });
+  // preserve datestamps/metadata; just normalize the SKUs
+  nextLinks.push({
+    ...x,
+    fromSku: a,
+    toSku: b,
+  });
 }
 
 linksData.links = nextLinks;
