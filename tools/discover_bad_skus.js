@@ -29,12 +29,13 @@ for (const file of fs.readdirSync(DB_DIR)) {
   const data = JSON.parse(fs.readFileSync(path.join(DB_DIR, file), "utf8"));
   if (!Array.isArray(data.items)) continue;
 
-  for (const { sku, url } of data.items) {
+  for (const { sku, url, removed } of data.items) {
     if (
+      removed === false &&
       typeof sku === "string" &&
       sku.startsWith("u:") &&
       url &&
-      (includeLinked || !linkedSkus.has(String(sku)))
+      (includeLinked || !linkedSkus.has(sku))
     ) {
       console.log(url);
     }

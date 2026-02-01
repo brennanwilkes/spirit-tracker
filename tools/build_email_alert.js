@@ -308,7 +308,7 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
           <td style="padding:12px;vertical-align:top">
             <div style="font-weight:700;font-size:14px;line-height:1.3">${name}</div>
             <div style="color:#666;font-size:12px;margin-top:2px">${store}${cat ? " · " + cat : ""}</div>
-            <div style="margin-top:8px;font-size:13px"><span style="font-weight:700">${price}</span></div>
+            ${price ? `<div style="margin-top:8px;font-size:13px"><span style="font-weight:700">${price}</span></div>` : ""}
             ${extraHtml || ""}
             ${url ? `<div style="margin-top:8px"><a href="${url}" style="color:#0b57d0;text-decoration:none">View item</a></div>` : ""}
           </td>
@@ -331,7 +331,7 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
           ${pct !== null ? `<span style="margin-left:8px;color:#137333;font-weight:700">(${pct}% off)</span>` : ""}
         </div>
       `;
-      return card({ ...it, price: it.newPrice }, extra);
+      return card({ ...it, price: "" }, extra);
     })
     .join("");
 

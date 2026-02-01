@@ -380,6 +380,12 @@ function createStore(defaultUa) {
         startUrl: "https://www.bswliquor.com/collections/rum?page=1",
         bswRuleContext: "rum",
       },
+      {
+        key: "whisky",
+        label: "Whisky",
+        startUrl: "https://www.bswliquor.com/collections/whisky?page=1",
+        bswRuleContext: "whisky",
+      },
     ],
   };
 }
