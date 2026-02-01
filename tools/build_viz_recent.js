@@ -272,8 +272,8 @@ function main() {
   const outFile = path.join(outDir, "recent.json");
   fs.mkdirSync(outDir, { recursive: true });
 
-  const windowDays = Math.max(1, Number(process.env.RECENT_DAYS || 3));
-  const maxItems = Math.max(1, Number(process.env.RECENT_MAX_ITEMS || 500));
+  const windowDays = Math.max(1, Number(process.env.RECENT_DAYS || 7));
+  const maxItems = Math.max(1, Number(process.env.RECENT_MAX_ITEMS || 5000));
 
   const now = new Date();
   const since = new Date(now.getTime() - windowDays * 24 * 3600 * 1000);
@@ -335,6 +335,13 @@ function main() {
         prevObj = fromSha ? gitShowJson(fromSha, file) : null;
         nextObj = gitShowJson(toSha, file);
       }
+
+      // NEW: if the DB file itself doesn't exist at "to", skip (prevents mass "removed")
+      const nextExists =
+        toSha === "WORKTREE"
+          ? fs.existsSync(path.join(repoRoot, file))
+          : gitFileExistsAtSha(toSha, file);
+      if (!nextExists) continue;
 
       if (!prevObj && !nextObj) continue;
 
@@ -426,6 +433,7 @@ function main() {
         });
       }
     }
+
   }
 
   items.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
