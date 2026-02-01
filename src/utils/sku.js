@@ -10,6 +10,13 @@ function fnv1a32(str) {
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
+function idToCspc6(idDigits) {
+  const s = String(idDigits || "").trim();
+  if (!/^\d{1,6}$/.test(s)) return "";
+  return s.padStart(6, "0");
+}
+  
+
 function normalizeCspc(v) {
   const m = String(v ?? "").match(/\b(\d{6})\b/);
   return m ? m[1] : "";
@@ -84,7 +91,9 @@ function normalizeSkuKey(v, { storeLabel, url } = {}) {
   }
   if (/^id:/i.test(raw)) {
     const id = normalizeIdDigits(raw);
-    return id ? `id:${id}` : "";
+    if (!id) return "";
+    const cspc = idToCspc6(id);
+    return cspc ? cspc : `id:${id}`;
   }
 
   if (raw.startsWith("u:")) return raw;

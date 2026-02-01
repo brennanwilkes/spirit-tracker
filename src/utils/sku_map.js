@@ -135,6 +135,13 @@ function findSkuLinksFile({ dbDir, mappingFile } = {}) {
   return "";
 }
 
+function normalizeImplicitSkuKey(k) {
+  const s = String(k || "").trim();
+  const m = s.match(/^id:(\d{1,6})$/i);
+  if (m) return String(m[1]).padStart(6, "0");
+  return s;
+}
+
 /* ---------------- Public API ---------------- */
 
 function buildSkuMapFromLinksArray(links) {
@@ -142,8 +149,8 @@ function buildSkuMapFromLinksArray(links) {
   const all = new Set();
 
   for (const x of Array.isArray(links) ? links : []) {
-    const a = String(x?.fromSku || "").trim();
-    const b = String(x?.toSku || "").trim();
+    const a = normalizeImplicitSkuKey(x?.fromSku);
+    const b = normalizeImplicitSkuKey(x?.toSku);
     if (!a || !b) continue;
 
     all.add(a);
@@ -179,7 +186,7 @@ function buildSkuMapFromLinksArray(links) {
   }
 
   function canonicalSku(sku) {
-    const s = String(sku || "").trim();
+    const s = normalizeImplicitSkuKey(sku);
     if (!s) return s;
     return canonBySku.get(s) || s;
   }
