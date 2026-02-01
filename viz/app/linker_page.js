@@ -517,49 +517,57 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
 function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn) {
   if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
-  const base = String(pinned.name || "");
   const pinnedSku = String(pinned.sku || "");
-  const pinnedSmws = smwsKeyFromName(pinned.name || "");
+  const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
+
+  const pinNorm = normSearchText(pinned.name || "");
+  const pinRawToks = tokenizeQuery(pinNorm);
+  const pinToks = filterSimTokens(pinRawToks);
+
+  // "brand" = first meaningful token (usually distillery)
+  const pinBrand = pinToks[0] || "";
+
+  const pinAge = extractAgeFromText(pinNorm);
+
   const scored = [];
 
   for (const it of allAgg) {
     if (!it) continue;
-    if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
-    if (it.sku === pinned.sku) continue;
-    if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
+
+    const itSku = String(it.sku || "");
+    if (!itSku || itSku === pinnedSku || (otherSku && itSku === otherSku)) continue;
     if (storesOverlap(pinned, it)) continue;
 
-    if (
-      typeof isIgnoredPairFn === "function" &&
-      isIgnoredPairFn(pinnedSku, String(it.sku || ""))
-    )
-      continue;
+    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
 
-    // SMWS exact NUM.NUM match => force to top (requires SMWS + code match)
-    if (pinnedSmws) {
-      const k = smwsKeyFromName(it.name || "");
-      if (k && k === pinnedSmws) {
-        const stores = it.stores ? it.stores.size : 0;
-        const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-        const s = 1e9 + stores * 10 + hasPrice; // tie-break within exact matches
-        scored.push({ it, s });
-        continue;
-      }
+    const itNorm = normSearchText(it.name || "");
+    if (!itNorm) continue;
+
+    const itRawToks = tokenizeQuery(itNorm);
+    const itToks = filterSimTokens(itRawToks);
+    const itBrand = itToks[0] || "";
+
+    // HARD brand gate: if brands disagree, skip.
+    // This eliminates Tamnavulin/Jura/etc from a Benromach pin.
+    if (pinBrand && itBrand && pinBrand !== itBrand) continue;
+
+    let s = similarityScore(pinned.name || "", it.name || "");
+    if (s <= 0) continue;
+
+    // Extra age boost when pinned has an age and candidate matches it.
+    const itAge = extractAgeFromText(itNorm);
+    if (pinAge && itAge) {
+      if (pinAge === itAge) s *= 2.0;
+      else s *= 0.15;
     }
 
-    let s = similarityScore(base, it.name || "");
-
-    // Small boost if either side is an unknown sku (u:...)
-    const aUnknown = String(pinnedSku || "").startsWith("u:");
-    const bUnknown = String(it.sku || "").startsWith("u:");
-    if (aUnknown || bUnknown) s *= 1.12;
-
-    if (s > 0) scored.push({ it, s });
+    scored.push({ it, s });
   }
 
   scored.sort((a, b) => b.s - a.s);
   return scored.slice(0, limit).map((x) => x.it);
 }
+
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const itemsAll = allAgg.filter((it) => !!it);
