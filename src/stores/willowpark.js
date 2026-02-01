@@ -3,6 +3,7 @@
 
 const { decodeHtml, stripTags, extractFirstImgUrl, cleanText } = require("../utils/html");
 const { makePageUrlShopifyQueryPage } = require("../utils/url");
+const { needsSkuDetail, pickBetterSku, normalizeCspc } = require("../utils/sku");
 
 function extractSkuFromUrlOrHref(hrefOrUrl) {
   const s = String(hrefOrUrl || "");
@@ -66,8 +67,8 @@ function parseProductsWillowPark(html, ctx, finalUrl) {
   const base = `https://${(ctx && ctx.store && ctx.store.host) || "www.willowpark.net"}/`;
 
   const starts = [...s.matchAll(/<div\b[^>]*class=["'][^"']*\bgrid-item\b[^"']*\bgrid-product\b[^"']*["'][^>]*>/gi)]
-    .map(m => m.index)
-    .filter(i => typeof i === "number");
+    .map((m) => m.index)
+    .filter((i) => typeof i === "number");
 
   const blocks = [];
   for (let i = 0; i < starts.length; i++) {
@@ -91,7 +92,8 @@ function parseProductsWillowPark(html, ctx, finalUrl) {
     url = canonicalizeWillowUrl(url);
 
     const titleHtml =
-      block.match(/<div\b[^>]*class=["'][^"']*\bgrid-product__title\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1] || "";
+      block.match(/<div\b[^>]*class=["'][^"']*\bgrid-product__title\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1] ||
+      "";
     const name = cleanText(decodeHtml(stripTags(titleHtml)));
     if (!name) continue;
 
@@ -120,6 +122,147 @@ function willowIsEmptyListingPage(html) {
   return false;
 }
 
+/* ---------------- Storefront GraphQL (token extracted from HTML) ---------------- */
+
+const WILLOW_STOREFRONT_GQL_URL = "https://willow-park-wines.myshopify.com/api/2025-07/graphql.json";
+
+const PRODUCT_BY_ID_QUERY = `
+query ($id: ID!) @inContext(country: CA) {
+  product(id: $id) {
+    variants(first: 50) {
+      nodes { sku availableForSale quantityAvailable }
+    }
+  }
+}
+`;
+
+function pickBestVariantSku(product) {
+  const vs = Array.isArray(product?.variants?.nodes) ? product.variants.nodes : [];
+  if (!vs.length) return "";
+
+  const inStock = vs.find((v) => Number(v?.quantityAvailable) > 0 && String(v?.sku || "").trim());
+  if (inStock) return String(inStock.sku).trim();
+
+  const forSale = vs.find((v) => Boolean(v?.availableForSale) && String(v?.sku || "").trim());
+  if (forSale) return String(forSale.sku).trim();
+
+  const any = vs.find((v) => String(v?.sku || "").trim());
+  return any ? String(any.sku).trim() : "";
+}
+
+function extractStorefrontTokenFromHtml(html) {
+  const s = String(html || "");
+
+  // 1) script#shopify-features JSON: {"accessToken":"..."}
+  const j = s.match(/<script[^>]+id=["']shopify-features["'][^>]*>([\s\S]*?)<\/script>/i)?.[1];
+  if (j) {
+    try {
+      const obj = JSON.parse(j);
+      const t = String(obj?.accessToken || "").trim();
+      if (t) return t;
+    } catch {}
+  }
+
+  // 2) meta name="shopify-checkout-api-token"
+  const m = s.match(
+    /<meta[^>]+name=["']shopify-checkout-api-token["'][^>]+content=["']([^"']+)["']/i
+  )?.[1];
+  return String(m || "").trim();
+}
+
+async function willowGetStorefrontToken(ctx) {
+  if (ctx._willowStorefrontToken) return ctx._willowStorefrontToken;
+
+  const r = await ctx.http.fetchTextWithRetry("https://www.willowpark.net/", "willow:token", ctx.store.ua);
+  const t = extractStorefrontTokenFromHtml(r?.text || "");
+  if (!t) throw new Error("Willow Park: could not find storefront token in homepage HTML");
+
+  ctx._willowStorefrontToken = t;
+  return t;
+}
+
+async function willowGql(ctx, label, query, variables) {
+  const token = await willowGetStorefrontToken(ctx);
+
+  const r = await ctx.http.fetchJsonWithRetry(WILLOW_STOREFRONT_GQL_URL, label, ctx.store.ua, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "content-type": "application/json",
+      Origin: "https://www.willowpark.net",
+      Referer: "https://www.willowpark.net/",
+      "x-shopify-storefront-access-token": token,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  // If token is rejected, clear so a future attempt re-fetches it once.
+  if (r?.status === 401 || r?.status === 403) ctx._willowStorefrontToken = "";
+  return r;
+}
+
+// If GQL returns a numeric SKU that isn't 6 digits, namespace it as id:<NUM>.
+// Keep 6-digit CSPC as-is. For non-numeric / already-namespaced formats, return as-is.
+function normalizeWillowGqlSku(rawSku) {
+  const s = String(rawSku || "").trim();
+  if (!s) return "";
+  const cspc = normalizeCspc(s);
+  if (cspc) return cspc; // 6-digit wins
+  if (/^id:/i.test(s) || /^upc:/i.test(s) || /^u:/i.test(s)) return s;
+   if (/^\d+$/.test(s)) return `id:${s}`;
+   return s;
+}
+  
+
+async function willowFetchSkuByPid(ctx, pid) {
+  const id = String(pid || "").trim();
+  if (!id) return "";
+
+  if (!ctx._willowSkuCacheByPid) ctx._willowSkuCacheByPid = new Map();
+  if (ctx._willowSkuCacheByPid.has(id)) return ctx._willowSkuCacheByPid.get(id);
+
+  const gid = `gid://shopify/Product/${id}`;
+  let sku = "";
+
+  try {
+    const r = await willowGql(ctx, `willow:gql:pid:${id}`, PRODUCT_BY_ID_QUERY, { id: gid });
+    if (r?.status === 200) sku = normalizeWillowGqlSku(pickBestVariantSku(r?.json?.data?.product));
+  } catch {
+    sku = "";
+  }
+
+  ctx._willowSkuCacheByPid.set(id, sku);
+  return sku;
+}
+
+/**
+ * Second-pass repair: if SKU is missing/synthetic, use Storefront GQL by product id.
+ * Budgeted to avoid exploding requests.
+ */
+async function willowRepairDiscoveredItems(ctx, discovered, prevDb) {
+  const budget = Number.isFinite(ctx?.config?.willowparkGqlBudget) ? ctx.config.willowparkGqlBudget : 200;
+  let used = 0;
+
+  for (const [url, it] of discovered.entries()) {
+    if (!it) continue;
+
+    // Seed from prev DB so we don't repair repeatedly if we already learned a good SKU.
+    const prev = prevDb?.byUrl?.get(url);
+    if (prev) it.sku = pickBetterSku(it.sku, prev.sku);
+
+    if (!needsSkuDetail(it.sku)) continue;
+    if (used >= budget) break;
+
+    const repaired = await willowFetchSkuByPid(ctx, it.pid);
+    if (repaired) it.sku = pickBetterSku(repaired, it.sku);
+
+    discovered.set(url, it);
+    used++;
+  }
+
+  ctx.logger.ok(`${ctx.catPrefixOut} | Willow SKU repair (GQL): used=${used}/${budget}`);
+}
+
 function createStore(defaultUa) {
   return {
     key: "willowpark",
@@ -130,6 +273,9 @@ function createStore(defaultUa) {
     parseProducts: parseProductsWillowPark,
     makePageUrl: makePageUrlShopifyQueryPage,
     isEmptyListingPage: willowIsEmptyListingPage,
+
+    // Hook called by scanner (add 1-line call in scanner before merge)
+    repairDiscoveredItems: willowRepairDiscoveredItems,
 
     categories: [
       {

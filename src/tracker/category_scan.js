@@ -343,6 +343,10 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
     }
   }
 
+  if (typeof ctx.store.repairDiscoveredItems === "function") {
+    await ctx.store.repairDiscoveredItems(ctx, discovered, prevDb);
+  }
+
   logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
   const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems } =
