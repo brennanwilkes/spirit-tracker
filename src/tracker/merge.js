@@ -8,8 +8,10 @@ function normImg(v) {
   const s = String(v || "").trim();
   if (!s) return "";
   if (/^data:/i.test(s)) return "";
+  if (/%7Bwidth%7D|\{width\}/i.test(s)) return ""; // drop Shopify width-template URLs
   return s;
 }
+
 
 function dbStoreLabel(prevDb) {
   return String(prevDb?.storeLabel || prevDb?.store || "").trim();
