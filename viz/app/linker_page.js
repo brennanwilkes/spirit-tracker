@@ -139,7 +139,30 @@ export async function renderSkuLinker($app) {
     return String(rules.canonicalSku(aSku)) === String(rules.canonicalSku(bSku));
   }
 
-  const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28, isIgnoredPair, sameStoreCanon);
+  let initialPairs = null;
+
+  function getInitialPairsIfNeeded() {
+    // never compute if either side is pinned
+    if (pinnedL || pinnedR) return null;
+  
+    // never compute if URL query param was used (preselect flow)
+    if (shouldReloadAfterLink) return null;
+  
+    if (initialPairs) return initialPairs;
+  
+    initialPairs = computeInitialPairsFast(
+      allAgg,
+      mappedSkus,
+      28,
+      isIgnoredPair,
+      sameStoreCanon,
+      sizePenaltyForPair // ✅ NEW
+    );
+  
+    return initialPairs;
+  }
+  
+
 
   let pinnedL = null;
   let pinnedR = null;
@@ -221,16 +244,17 @@ export async function renderSkuLinker($app) {
         sameGroup
       );
 
-    if (initialPairs && initialPairs.length) {
-      const list = side === "L" ? initialPairs.map((p) => p.a) : initialPairs.map((p) => p.b);
-      return list.filter(
-        (it) =>
-          it &&
-          it.sku !== otherSku &&
-          (!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || ""))
-      );
-    }
-
+      const pairs = getInitialPairsIfNeeded();
+      if (pairs && pairs.length) {
+        const list = side === "L" ? pairs.map((p) => p.a) : pairs.map((p) => p.b);
+        return list.filter(
+          (it) =>
+            it &&
+            it.sku !== otherSku &&
+            (!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || ""))
+        );
+      }
+  
     return topSuggestions(allAgg, 60, otherSku, mappedSkus);
   }
 
