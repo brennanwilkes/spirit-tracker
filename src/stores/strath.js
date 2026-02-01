@@ -1,7 +1,7 @@
 "use strict";
 
 const { decodeHtml, stripTags, cleanText, extractFirstImgUrl } = require("../utils/html");
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeCspc, pickBetterSku } = require("../utils/sku");
 const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
 
@@ -97,6 +97,13 @@ function extractSkuFromArticle(articleHtml) {
   return "";
 }
 
+function idFromImageUrl(imgUrl) {
+  const s = String(imgUrl || "");
+  // /1487-1_... or /1487_... or /1487-... => 1487
+  const m = s.match(/\/(\d{1,11})(?=[-_])/);
+  return m && m[1] ? `id:${m[1]}` : "";
+}
+
 function looksInStock(articleHtml) {
   const a = String(articleHtml || "");
 
@@ -136,21 +143,22 @@ function parseProductFromArticle(articleHtml) {
   const price = pickPriceFromArticle(a);
   const productId = extractProductIdFromArticle(a);
 
-  const skuFromHtml = extractSkuFromArticle(a);
-  const fallbackSku = normalizeCspc(url) || "";
-
   const img = extractFirstImgUrl(a, "https://www.strathliquor.com/");
 
+  const skuFromHtml = extractSkuFromArticle(a);
+  const skuFromImg = idFromImageUrl(img);
+  const fallbackSku = normalizeCspc(url) || "";
+  
   return {
     name,
     price,
     url,
-    sku: skuFromHtml || fallbackSku,
+    sku: skuFromHtml || skuFromImg || fallbackSku,
     productId,
     img,
   };
+  
 }
-
 
 /* ---------------- Store API paging ---------------- */
 
@@ -218,8 +226,6 @@ function normalizeProductImage(p) {
   if (!direct) return "";
   return direct.startsWith("//") ? `https:${direct}` : direct;
 }
-
-
 
 function toMoneyStringFromMinorUnits(valueStr, minorUnit) {
   const mu = Number(minorUnit);
@@ -393,16 +399,24 @@ async function scanCategoryStrath(ctx, prevDb, report) {
       const sku = normalizeProductSku(p);
       const productId = normalizeProductId(p);
 
-      const fallbackSku = sku || normalizeCspc(url) || "";
 
       const prev = discovered.get(url) || null;
-      const img = normalizeProductImage(p) || (prev && prev.img) || "";
+
+      const apiImg = normalizeProductImage(p) || "";
+      const img = apiImg || (prev && prev.img) || "";
+      
+      const skuFromApiImg = idFromImageUrl(apiImg);
+      const fallbackSku = sku || skuFromApiImg || normalizeCspc(url) || "";
+      
+      const newSku = sku || fallbackSku;
+      const mergedSku = pickBetterSku(newSku, prev && prev.sku);
+      
 
       discovered.set(url, {
         name,
         price,
         url,
-        sku: sku || fallbackSku,
+        sku: mergedSku,
         productId,
         img,
       });
@@ -433,7 +447,9 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 
   ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
+  const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
+    storeLabel: ctx.store.name,
+  });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);

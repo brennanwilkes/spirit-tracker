@@ -75,25 +75,19 @@ function vesselExtractPrice(block) {
   return "";
 }
 
-// Vessel image filenames are often numeric (e.g. 67424.jpg). Grab that.
 function vesselExtractSkuFromImgOrBlock(imgUrl, block) {
-  // Prefer existing CSPC normalizer if it matches
   const cspc = normalizeCspc(imgUrl) || "";
   if (cspc) return cspc;
 
-  // From image URL path
   try {
     const u = new URL(String(imgUrl || ""));
-    const m = u.pathname.match(/\/(\d{4,10})\.(?:jpe?g|png|webp)$/i);
-    if (m && m[1]) return m[1];
-  } catch {
-    // ignore
-  }
+    const m = u.pathname.match(/\/(\d{1,11})\.(?:jpe?g|png|webp)$/i);
+    if (m && m[1]) return `id:${m[1]}`;
+  } catch {}
 
-  // From raw HTML (src/srcset often contains the numeric filename)
   const s = String(block || "");
-  const m2 = s.match(/\/cdn\/shop\/products\/(\d{4,10})\.(?:jpe?g|png|webp)/i);
-  if (m2 && m2[1]) return m2[1];
+  const m2 = s.match(/\/cdn\/shop\/(?:products|files)\/(\d{1,11})\.(?:jpe?g|png|webp)/i);
+  if (m2 && m2[1]) return `id:${m2[1]}`;
 
   return "";
 }

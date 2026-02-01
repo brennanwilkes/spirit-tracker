@@ -1,6 +1,6 @@
 "use strict";
 
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeCspc, normalizeSkuKey } = require("../utils/sku");
 const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
 
@@ -10,6 +10,19 @@ const { addCategoryResultToReport } = require("../tracker/report");
 
 function kbStr(bytes) {
   return humanBytes(bytes).padStart(8, " ");
+}
+
+function normalizeLegacySku(rawSku, { storeLabel, url }) {
+  const raw = String(rawSku ?? "").trim();
+  if (!raw) return "";
+
+  const cspc = normalizeCspc(raw);
+  if (cspc) return cspc;
+
+  const m = raw.match(/\b(\d{1,11})\b/);
+  if (m && m[1]) return `id:${m[1]}`;
+
+  return normalizeSkuKey(raw, { storeLabel, url });
 }
 
 function secStr(ms) {
@@ -158,7 +171,7 @@ function legacyProductToItem(p, ctx) {
     cad(p?.priceTo) ||
     "";
 
-  const sku = normalizeCspc(v?.sku || "") || normalizeCspc(url) || "";
+  const sku = normalizeLegacySku(v?.sku, { storeLabel: ctx.store.name, url }) || normalizeLegacySku(url, { storeLabel: ctx.store.name, url }) ||"";
   const img = normalizeAbsUrl(v?.image || "");
 
   return { name, price, url, sku, img };
