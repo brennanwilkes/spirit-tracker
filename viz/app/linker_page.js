@@ -1222,6 +1222,9 @@ export async function renderSkuLinker($app) {
   let pinnedL = null;
   let pinnedR = null;
 
+  // ✅ change: if page was opened with #/link/?left=... (or sku=...), reload after LINK completes
+  let shouldReloadAfterLink = false;
+
   function renderCard(it, pinned) {
     const storeCount = it.stores.size || 0;
     const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
@@ -1550,7 +1553,12 @@ export async function renderSkuLinker($app) {
       const qi = h.indexOf("?");
       if (qi !== -1) {
         const qs = new URLSearchParams(h.slice(qi + 1));
-        const leftSku = String(qs.get("left") || qs.get("sku") || "").trim();
+        const leftSkuRaw = qs.get("left") || qs.get("sku");
+        const leftSku = String(leftSkuRaw || "").trim();
+
+        // ✅ change: remember that the query param was set (even if SKU not found)
+        if (leftSku) shouldReloadAfterLink = true;
+
         if (leftSku && !pinnedL) {
           const it = findAggForPreselectSku(leftSku);
           if (it) pinnedL = it;
@@ -1659,6 +1667,10 @@ export async function renderSkuLinker($app) {
       pinnedL = null;
       pinnedR = null;
       updateAll();
+
+      // ✅ change: reload after LINK completes when query param was used
+      if (shouldReloadAfterLink) location.reload();
+
       return;
     }
 
@@ -1686,6 +1698,9 @@ export async function renderSkuLinker($app) {
       pinnedL = null;
       pinnedR = null;
       updateAll();
+
+      // ✅ change: reload after LINK completes when query param was used
+      if (shouldReloadAfterLink) location.reload();
     } catch (e) {
       $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
     }
