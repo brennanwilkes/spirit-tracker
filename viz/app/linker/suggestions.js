@@ -51,173 +51,198 @@ export function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-// same behavior guarantees as your comment in linker_page.js
 export function recommendSimilar(
-  allAgg,
-  pinned,
-  limit,
-  otherPinnedSku,
-  mappedSkus,
-  isIgnoredPairFn,
-  sizePenaltyFn,
-  sameStoreFn,
-  sameGroupFn
-) {
-  if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
-
-  const pinnedSku = String(pinned.sku || "");
-  const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
-  const base = String(pinned.name || "");
-
-  const pinNorm = normSearchText(pinned.name || "");
-  const pinRawToks = tokenizeQuery(pinNorm);
-  const pinToks = filterSimTokens(pinRawToks);
-  const pinBrand = pinToks[0] || "";
-  const pinAge = extractAgeFromText(pinNorm);
-  const pinnedSmws = smwsKeyFromName(pinned.name || "");
-
-  const MAX_SCAN = 5000;
-  const MAX_CHEAP_KEEP = 320;
-  const MAX_FINE = 70;
-
-  function pushTopK(arr, item, k) {
-    arr.push(item);
-    if (arr.length > k) {
-      arr.sort((a, b) => b.s - a.s);
-      arr.length = k;
-    }
-  }
-
-  const cheap = [];
-  let scanned = 0;
-
-  for (const it of allAgg) {
-    if (!it) continue;
-    if (scanned++ > MAX_SCAN) break;
-
-    const itSku = String(it.sku || "");
-    if (!itSku) continue;
-
-    if (itSku === pinnedSku) continue;
-    if (otherSku && itSku === otherSku) continue;
-
-    if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
-    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
-    if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
-
-    if (pinnedSmws) {
-      const k = smwsKeyFromName(it.name || "");
-      if (k && k === pinnedSmws) {
-        const stores = it.stores ? it.stores.size : 0;
-        const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-        pushTopK(cheap, { it, s: 1e9 + stores * 10 + hasPrice, itNorm: "", itRawToks: null }, MAX_CHEAP_KEEP);
-        continue;
+    allAgg,
+    pinned,
+    limit,
+    otherPinnedSku,
+    mappedSkus,
+    isIgnoredPairFn,
+    sizePenaltyFn,
+    sameStoreFn,
+    sameGroupFn
+  ) {
+    if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
+  
+    const pinnedSku = String(pinned.sku || "");
+    const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
+    const base = String(pinned.name || "");
+  
+    const pinNorm = normSearchText(pinned.name || "");
+    const pinRawToks = tokenizeQuery(pinNorm);
+    const pinToks = filterSimTokens(pinRawToks);
+    const pinBrand = pinToks[0] || "";
+    const pinAge = extractAgeFromText(pinNorm);
+    const pinnedSmws = smwsKeyFromName(pinned.name || "");
+  
+    // ---- Tuning knobs (performance + not-overzealous) ----
+    const MAX_SCAN = 5000;
+    const MAX_CHEAP_KEEP = 320;
+    const MAX_FINE = 70;
+    // ------------------------------------------------------
+  
+    function pushTopK(arr, item, k) {
+      arr.push(item);
+      if (arr.length > k) {
+        arr.sort((a, b) => b.s - a.s);
+        arr.length = k;
       }
     }
-
-    const itNorm = normSearchText(it.name || "");
-    if (!itNorm) continue;
-
-    const itRawToks = tokenizeQuery(itNorm);
-    const itToks = filterSimTokens(itRawToks);
-    if (!itToks.length) continue;
-
-    const itBrand = itToks[0] || "";
-    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
-    const contain = tokenContainmentScore(pinRawToks, itRawToks);
-
-    let s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
-    if (s0 <= 0) s0 = 0.01 + 0.25 * contain;
-
-    if (!firstMatch) {
-      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-      let mult = 0.10 + 0.95 * contain;
-      if (smallN <= 3 && contain < 0.78) mult *= 0.22;
-      s0 *= Math.min(1.0, mult);
+  
+    const cheap = [];
+  
+    // ✅ FIX: avoid alphabetical bias by scanning a rotating window
+    const nAll = allAgg.length || 0;
+    const scanN = Math.min(MAX_SCAN, nAll);
+    const start = nAll ? (fnv1a32u(pinnedSku || pinNorm) % nAll) : 0;
+  
+    // Optional debug:
+    // console.log("[linker] recommendSimilar scan", { pinnedSku, nAll, scanN, start, startName: allAgg[start]?.name });
+  
+    for (let i = 0; i < scanN; i++) {
+      const it = allAgg[(start + i) % nAll];
+      if (!it) continue;
+  
+      const itSku = String(it.sku || "");
+      if (!itSku) continue;
+  
+      if (itSku === pinnedSku) continue;
+      if (otherSku && itSku === otherSku) continue;
+  
+      // HARD BLOCKS ONLY:
+      if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
+      if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
+      if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
+  
+      // SMWS exact NUM.NUM match => keep at top
+      if (pinnedSmws) {
+        const k = smwsKeyFromName(it.name || "");
+        if (k && k === pinnedSmws) {
+          const stores = it.stores ? it.stores.size : 0;
+          const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
+          pushTopK(
+            cheap,
+            { it, s: 1e9 + stores * 10 + hasPrice, itNorm: "", itRawToks: null },
+            MAX_CHEAP_KEEP
+          );
+          continue;
+        }
+      }
+  
+      const itNorm = normSearchText(it.name || "");
+      if (!itNorm) continue;
+  
+      const itRawToks = tokenizeQuery(itNorm);
+      const itToks = filterSimTokens(itRawToks);
+      if (!itToks.length) continue;
+  
+      const itBrand = itToks[0] || "";
+      const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+      const contain = tokenContainmentScore(pinRawToks, itRawToks);
+  
+      // Cheap score first (no Levenshtein)
+      let s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
+  
+      // If fast score is 0, still allow it as "least bad"
+      if (s0 <= 0) s0 = 0.01 + 0.25 * contain;
+  
+      // Soft first-token mismatch penalty (never blocks)
+      if (!firstMatch) {
+        const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+        let mult = 0.10 + 0.95 * contain;
+        if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+        s0 *= Math.min(1.0, mult);
+      }
+  
+      // Size penalty early
+      if (typeof sizePenaltyFn === "function") {
+        s0 *= sizePenaltyFn(pinnedSku, itSku);
+      }
+  
+      // Age handling early
+      const itAge = extractAgeFromText(itNorm);
+      if (pinAge && itAge) {
+        if (pinAge === itAge) s0 *= 1.6;
+        else s0 *= 0.22;
+      }
+  
+      // Unknown boost
+      if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s0 *= 1.08;
+  
+      pushTopK(cheap, { it, s: s0, itNorm, itRawToks }, MAX_CHEAP_KEEP);
     }
-
-    if (typeof sizePenaltyFn === "function") {
-      s0 *= sizePenaltyFn(pinnedSku, itSku);
-    }
-
-    const itAge = extractAgeFromText(itNorm);
-    if (pinAge && itAge) {
-      if (pinAge === itAge) s0 *= 1.6;
-      else s0 *= 0.22;
-    }
-
-    if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s0 *= 1.08;
-
-    pushTopK(cheap, { it, s: s0, itNorm, itRawToks }, MAX_CHEAP_KEEP);
-  }
-
-  cheap.sort((a, b) => b.s - a.s);
-
-  const fine = [];
-  for (const x of cheap.slice(0, MAX_FINE)) {
-    const it = x.it;
-    const itSku = String(it.sku || "");
-
-    let s = similarityScore(base, it.name || "");
-    if (s <= 0) continue;
-
-    const itNorm = x.itNorm || normSearchText(it.name || "");
-    const itRawToks = x.itRawToks || tokenizeQuery(itNorm);
-    const itToks = filterSimTokens(itRawToks);
-    const itBrand = itToks[0] || "";
-    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
-    const contain = tokenContainmentScore(pinRawToks, itRawToks);
-
-    if (!firstMatch) {
-      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-      let mult = 0.10 + 0.95 * contain;
-      if (smallN <= 3 && contain < 0.78) mult *= 0.22;
-      s *= Math.min(1.0, mult);
+  
+    cheap.sort((a, b) => b.s - a.s);
+  
+    // Fine stage: expensive scoring only on top candidates
+    const fine = [];
+    for (const x of cheap.slice(0, MAX_FINE)) {
+      const it = x.it;
+      const itSku = String(it.sku || "");
+  
+      let s = similarityScore(base, it.name || "");
       if (s <= 0) continue;
+  
+      // Apply soft first-token mismatch penalty again
+      const itNorm = x.itNorm || normSearchText(it.name || "");
+      const itRawToks = x.itRawToks || tokenizeQuery(itNorm);
+      const itToks = filterSimTokens(itRawToks);
+      const itBrand = itToks[0] || "";
+      const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+      const contain = tokenContainmentScore(pinRawToks, itRawToks);
+  
+      if (!firstMatch) {
+        const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+        let mult = 0.10 + 0.95 * contain;
+        if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+        s *= Math.min(1.0, mult);
+        if (s <= 0) continue;
+      }
+  
+      if (typeof sizePenaltyFn === "function") {
+        s *= sizePenaltyFn(pinnedSku, itSku);
+        if (s <= 0) continue;
+      }
+  
+      const itAge = extractAgeFromText(itNorm);
+      if (pinAge && itAge) {
+        if (pinAge === itAge) s *= 2.0;
+        else s *= 0.15;
+      }
+  
+      if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s *= 1.12;
+  
+      if (s > 0) fine.push({ it, s });
     }
-
-    if (typeof sizePenaltyFn === "function") {
-      s *= sizePenaltyFn(pinnedSku, itSku);
-      if (s <= 0) continue;
+  
+    fine.sort((a, b) => b.s - a.s);
+    const out = fine.slice(0, limit).map((x) => x.it);
+  
+    if (out.length) return out;
+  
+    // Fallback: "least bad" options with hard blocks only.
+    const fallback = [];
+    for (const it of allAgg) {
+      if (!it) continue;
+      const itSku = String(it.sku || "");
+      if (!itSku) continue;
+      if (itSku === pinnedSku) continue;
+      if (otherSku && itSku === otherSku) continue;
+  
+      if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
+      if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
+      if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
+  
+      const stores = it.stores ? it.stores.size : 0;
+      const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
+      const hasName = it.name ? 1 : 0;
+      fallback.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 });
+      if (fallback.length >= 250) break;
     }
-
-    const itAge = extractAgeFromText(itNorm);
-    if (pinAge && itAge) {
-      if (pinAge === itAge) s *= 2.0;
-      else s *= 0.15;
-    }
-
-    if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s *= 1.12;
-
-    if (s > 0) fine.push({ it, s });
+  
+    fallback.sort((a, b) => b.s - a.s);
+    return fallback.slice(0, limit).map((x) => x.it);
   }
-
-  fine.sort((a, b) => b.s - a.s);
-  const out = fine.slice(0, limit).map((x) => x.it);
-  if (out.length) return out;
-
-  const fallback = [];
-  for (const it of allAgg) {
-    if (!it) continue;
-    const itSku = String(it.sku || "");
-    if (!itSku) continue;
-    if (itSku === pinnedSku) continue;
-    if (otherSku && itSku === otherSku) continue;
-
-    if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
-    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
-    if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
-
-    const stores = it.stores ? it.stores.size : 0;
-    const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
-    const hasName = it.name ? 1 : 0;
-    fallback.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 });
-    if (fallback.length >= 250) break;
-  }
-
-  fallback.sort((a, b) => b.s - a.s);
-  return fallback.slice(0, limit).map((x) => x.it);
-}
 
 export function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn, sameStoreFn) {
   const itemsAll = allAgg.filter((it) => !!it);
@@ -456,3 +481,13 @@ export function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnore
 
   return out.slice(0, limitPairs);
 }
+function fnv1a32u(str) {
+    let h = 0x811c9dc5;
+    str = String(str || "");
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+}
+  
