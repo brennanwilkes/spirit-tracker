@@ -1,7 +1,7 @@
 "use strict";
 
 const { decodeHtml, cleanText, extractFirstImgUrl } = require("../utils/html");
-const { normalizeCspc } = require("../utils/sku");
+const { normalizeCspc, normalizeSkuKey } = require("../utils/sku");
 const { extractPriceFromTmbBlock } = require("../utils/woocommerce");
 
 function allowSierraSpiritsLiquorUrlRumWhisky(item) {
@@ -34,12 +34,19 @@ function parseProductsSierra(html, ctx) {
 
     const price = extractPriceFromTmbBlock(block);
 
-    const sku = normalizeCspc(
+    const rawSku =
       block.match(/\bdata-product_sku=["']([^"']+)["']/i)?.[1] ||
-        block.match(/\bSKU[:\s]*([0-9]{6})\b/i)?.[1] ||
-        ""
-    );
+      block.match(/\bSKU[:\s]*([0-9]{6})\b/i)?.[1] ||
+      "";
 
+    // Sierra uses short numeric SKUs like "1222" -> treat as id:
+    const taggedSku = /^\d{1,11}$/.test(String(rawSku).trim())
+      ? `id:${String(rawSku).trim()}`
+      : rawSku;
+
+    const sku = normalizeSkuKey(taggedSku, { storeLabel: ctx?.store?.name, url });
+        
+    
     const img = extractFirstImgUrl(block, base);
 
     items.push({ name, price, url, sku, img });
