@@ -273,14 +273,19 @@ function similarityScore(aName, bName) {
   const maxLen = Math.max(1, Math.max(a.length, b.length));
   const levSim = 1 - d / maxLen;
 
-  const gate = firstMatch ? 1.0 : 0.12;
+  // If first token mismatches, allow the tail to matter more when containment is high.
+  let gate = firstMatch ? 1.0 : Math.min(0.70, 0.06 + 0.90 * contain);
+
+  // For short names, keep first token much more important unless containment is *very* high.
+  const smallN = Math.min(aToks.length, bToks.length);
+  if (!firstMatch && smallN <= 3 && contain < 0.78) gate *= 0.18;
   const numGate = numberMismatchPenalty(aToks, bToks);
 
   let s =
     numGate *
     (firstMatch * 3.0 +
       overlapTail * 2.2 * gate +
-      levSim * (firstMatch ? 1.0 : 0.15));
+      levSim * (firstMatch ? 1.0 : (0.10 + 0.70 * contain)));
 
   // Age boosts/penalties
   if (ageMatch) s *= 2.2;
@@ -615,8 +620,26 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
     const itToks = filterSimTokens(itRawToks);
     const itBrand = itToks[0] || "";
 
+    const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
+    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+    
+    // If first token mismatches, DO NOT BLOCK.
+    // Penalize unless containment is very high.
+    if (!firstMatch) {
+      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+    
+      // 0.10..~1.0 based on containment
+      let mult = 0.10 + 0.95 * contain;
+    
+      // If the name is very short (e.g. "Bowmore 12 Sherry") then first token matters more.
+      if (smallN <= 3 && contain < 0.78) mult *= 0.18;
+    
+      s *= Math.min(1.0, mult);
+    }
+    
+
     // HARD brand gate: eliminates Tamnavulin/Jura/etc when Benromach pinned
-    if (pinBrand && itBrand && pinBrand !== itBrand) continue;
+    // if (pinBrand && itBrand && pinBrand !== itBrand) continue;
 
     let s = similarityScore(base, it.name || "");
     if (s <= 0) continue;
