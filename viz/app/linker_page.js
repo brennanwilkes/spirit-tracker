@@ -273,12 +273,13 @@ function similarityScore(aName, bName) {
   const maxLen = Math.max(1, Math.max(a.length, b.length));
   const levSim = 1 - d / maxLen;
 
-  // If first token mismatches, allow the tail to matter more when containment is high.
-  let gate = firstMatch ? 1.0 : Math.min(0.70, 0.06 + 0.90 * contain);
+  // Dynamic gate: if first token mismatches, allow tail to matter more when containment is high.
+  let gate = firstMatch ? 1.0 : Math.min(0.80, 0.06 + 0.95 * contain);
 
-  // For short names, keep first token much more important unless containment is *very* high.
+  // For very short names, keep first token more important unless containment is very high.
   const smallN = Math.min(aToks.length, bToks.length);
   if (!firstMatch && smallN <= 3 && contain < 0.78) gate *= 0.18;
+
   const numGate = numberMismatchPenalty(aToks, bToks);
 
   let s =
@@ -301,9 +302,9 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
   const aTokensRaw = aTokens || [];
   const bTokensRaw = bTokens || [];
 
-  aTokens = filterSimTokens(aTokensRaw);
-  bTokens = filterSimTokens(bTokensRaw);
-  if (!aTokens.length || !bTokens.length) return 0;
+  const aTokF = filterSimTokens(aTokensRaw);
+  const bTokF = filterSimTokens(bTokensRaw);
+  if (!aTokF.length || !bTokF.length) return 0;
 
   const a = String(aNormName || "");
   const b = String(bNormName || "");
@@ -316,12 +317,12 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
 
   const contain = tokenContainmentScore(aTokensRaw, bTokensRaw);
 
-  const aFirst = aTokens[0] || "";
-  const bFirst = bTokens[0] || "";
+  const aFirst = aTokF[0] || "";
+  const bFirst = bTokF[0] || "";
   const firstMatch = aFirst && bFirst && aFirst === bFirst ? 1 : 0;
 
-  const aTail = aTokens.slice(1);
-  const bTail = bTokens.slice(1);
+  const aTail = aTokF.slice(1);
+  const bTail = bTokF.slice(1);
 
   let inter = 0;
   const bSet = new Set(bTail);
@@ -338,8 +339,11 @@ function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
       ? 0.2
       : 0;
 
-  const gate = firstMatch ? 1.0 : 0.12;
-  const numGate = numberMismatchPenalty(aTokens, bTokens);
+  let gate = firstMatch ? 1.0 : Math.min(0.80, 0.06 + 0.95 * contain);
+  const smallN = Math.min(aTokF.length, bTokF.length);
+  if (!firstMatch && smallN <= 3 && contain < 0.78) gate *= 0.18;
+
+  const numGate = numberMismatchPenalty(aTokF, bTokF);
 
   let s = numGate * (firstMatch * 2.4 + overlapTail * 2.0 * gate + pref);
 
@@ -571,7 +575,20 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   return scored.slice(0, limit).map((x) => x.it);
 }
 
-function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isIgnoredPairFn, sizePenaltyFn) {
+// IMPORTANT behavior guarantees:
+// - NEVER fully blocks based on "brand"/first-token mismatch.
+// - ONLY hard-blocks: same-store overlap, ignored pair, already-linked (same canonical group), otherPinnedSku, self.
+// - If scoring gets too strict, it falls back to a "least-bad" list (still respecting hard blocks).
+function recommendSimilar(
+  allAgg,
+  pinned,
+  limit,
+  otherPinnedSku,
+  mappedSkus,
+  isIgnoredPairFn,
+  sizePenaltyFn,
+  sameGroupFn
+) {
   if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
 
   const pinnedSku = String(pinned.sku || "");
@@ -581,26 +598,18 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
   const pinNorm = normSearchText(pinned.name || "");
   const pinRawToks = tokenizeQuery(pinNorm);
   const pinToks = filterSimTokens(pinRawToks);
-
   const pinBrand = pinToks[0] || "";
   const pinAge = extractAgeFromText(pinNorm);
   const pinnedSmws = smwsKeyFromName(pinned.name || "");
 
-  // Precompute set for cheap overlap checks
-  const pinTokSet = new Set(pinToks);
+  // ---- Tuning knobs (performance + not-overzealous) ----
+  const MAX_SCAN = 5000;          // cap scan work
+  const MAX_CHEAP_KEEP = 320;     // top-K candidates to keep from cheap stage
+  const MAX_FINE = 70;            // only run expensive similarityScore on top-N
+  // ------------------------------------------------------
 
-  // ---- Tuning knobs ----
-  const MAX_SCAN = 4500;          // cap scan cost if your catalog gets huge
-  const MAX_CHEAP_KEEP = 220;     // keep only top cheap candidates
-  const MAX_FINE = 40;            // run expensive similarityScore on only top N
-  const CHEAP_MIN = 0.35;         // drop obviously bad cheap matches
-  const REQUIRE_SHARED_IF_BRAND_DIFF = 2; // if first token differs, require at least this many shared tokens
-  // ----------------------
-
-  // Fast insert into top-K list (descending)
   function pushTopK(arr, item, k) {
     arr.push(item);
-    // tiny lists; sort is fine
     if (arr.length > k) {
       arr.sort((a, b) => b.s - a.s);
       arr.length = k;
@@ -616,18 +625,22 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
 
     const itSku = String(it.sku || "");
     if (!itSku) continue;
+
     if (itSku === pinnedSku) continue;
     if (otherSku && itSku === otherSku) continue;
+
+    // HARD BLOCKS ONLY:
     if (storesOverlap(pinned, it)) continue;
     if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
+    if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 
-    // SMWS exact code match: keep (still cheap)
+    // SMWS exact NUM.NUM match => keep at top
     if (pinnedSmws) {
       const k = smwsKeyFromName(it.name || "");
       if (k && k === pinnedSmws) {
         const stores = it.stores ? it.stores.size : 0;
         const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-        pushTopK(cheap, { it, s: 1e9 + stores * 10 + hasPrice }, MAX_CHEAP_KEEP);
+        pushTopK(cheap, { it, s: 1e9 + stores * 10 + hasPrice, itNorm: "", itRawToks: null }, MAX_CHEAP_KEEP);
         continue;
       }
     }
@@ -641,49 +654,44 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
 
     const itBrand = itToks[0] || "";
     const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
-
-    // Cheap “shared tokens” count
-    let shared = 0;
-    for (const t of itToks) if (pinTokSet.has(t)) shared++;
-
-    // If brands differ, don’t block completely — but avoid total junk
-    if (!firstMatch && shared < REQUIRE_SHARED_IF_BRAND_DIFF) continue;
+    const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
 
     // Cheap score first (no Levenshtein)
     let s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
-    if (s0 <= CHEAP_MIN) continue;
 
-    // Soft first-token mismatch penalty based on containment (fastSimilarityScore already uses contain)
+    // If fast score is 0 (token buckets don't overlap well), still allow it as "least bad"
+    // using containment as a weak baseline.
+    if (s0 <= 0) s0 = 0.01 + 0.25 * contain;
+
+    // Soft first-token mismatch penalty (never blocks)
     if (!firstMatch) {
-      const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
       const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-
-      let mult = 0.10 + 0.95 * contain;
-      if (smallN <= 3 && contain < 0.78) mult *= 0.18;
-
+      let mult = 0.10 + 0.95 * contain; // 0.10..~1.05
+      if (smallN <= 3 && contain < 0.78) mult *= 0.22; // short names: first token matters more
       s0 *= Math.min(1.0, mult);
-      if (s0 <= CHEAP_MIN) continue;
     }
 
-    // Apply size penalty early (cheap stage) so mismatched sizes don’t waste fine scoring
+    // Size penalty early so mismatched sizes don't dominate fine scoring
     if (typeof sizePenaltyFn === "function") {
       s0 *= sizePenaltyFn(pinnedSku, itSku);
-      if (s0 <= CHEAP_MIN) continue;
     }
 
-    // Apply age penalty/boost early too (cheap)
+    // Age handling early (cheap)
     const itAge = extractAgeFromText(itNorm);
     if (pinAge && itAge) {
       if (pinAge === itAge) s0 *= 1.6;
       else s0 *= 0.22;
-      if (s0 <= CHEAP_MIN) continue;
     }
+
+    // Unknown boost (cheap)
+    if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s0 *= 1.08;
 
     pushTopK(cheap, { it, s: s0, itNorm, itRawToks }, MAX_CHEAP_KEEP);
   }
 
-  // Fine stage: expensive scoring only on top candidates
   cheap.sort((a, b) => b.s - a.s);
+
+  // Fine stage: expensive scoring only on top candidates
   const fine = [];
   for (const x of cheap.slice(0, MAX_FINE)) {
     const it = x.it;
@@ -692,29 +700,68 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
     let s = similarityScore(base, it.name || "");
     if (s <= 0) continue;
 
-    // Keep these here too for correct ordering vs other candidates
+    // Apply soft first-token mismatch penalty again (final ordering)
+    const itNorm = x.itNorm || normSearchText(it.name || "");
+    const itRawToks = x.itRawToks || tokenizeQuery(itNorm);
+    const itToks = filterSimTokens(itRawToks);
+    const itBrand = itToks[0] || "";
+    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+    const contain = tokenContainmentScore(pinRawToks, itRawToks);
+
+    if (!firstMatch) {
+      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+      let mult = 0.10 + 0.95 * contain;
+      if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+      s *= Math.min(1.0, mult);
+      if (s <= 0) continue;
+    }
+
     if (typeof sizePenaltyFn === "function") {
       s *= sizePenaltyFn(pinnedSku, itSku);
       if (s <= 0) continue;
     }
 
-    const itAge = extractAgeFromText(x.itNorm || normSearchText(it.name || ""));
+    const itAge = extractAgeFromText(itNorm);
     if (pinAge && itAge) {
       if (pinAge === itAge) s *= 2.0;
       else s *= 0.15;
     }
 
-    const aUnknown = pinnedSku.startsWith("u:");
-    const bUnknown = itSku.startsWith("u:");
-    if (aUnknown || bUnknown) s *= 1.12;
+    if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s *= 1.12;
 
-    fine.push({ it, s });
+    if (s > 0) fine.push({ it, s });
   }
 
   fine.sort((a, b) => b.s - a.s);
-  return fine.slice(0, limit).map((x) => x.it);
-}
+  const out = fine.slice(0, limit).map((x) => x.it);
 
+  // Guarantee: never return empty unless the catalog is genuinely empty after hard blocks.
+  if (out.length) return out;
+
+  // Fallback: "least bad" options with hard blocks only.
+  const fallback = [];
+  for (const it of allAgg) {
+    if (!it) continue;
+    const itSku = String(it.sku || "");
+    if (!itSku) continue;
+    if (itSku === pinnedSku) continue;
+    if (otherSku && itSku === otherSku) continue;
+
+    if (storesOverlap(pinned, it)) continue;
+    if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
+    if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
+
+    // very cheap fallback score: store count + has price + has name
+    const stores = it.stores ? it.stores.size : 0;
+    const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
+    const hasName = it.name ? 1 : 0;
+    fallback.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 });
+    if (fallback.length >= 250) break;
+  }
+
+  fallback.sort((a, b) => b.s - a.s);
+  return fallback.slice(0, limit).map((x) => x.it);
+}
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const itemsAll = allAgg.filter((it) => !!it);
@@ -1240,11 +1287,12 @@ export async function renderSkuLinker($app) {
       return recommendSimilar(
         allAgg,
         otherPinned,
-        30,
+        60,
         otherSku,
         mappedSkus,
         isIgnoredPair,
-        sizePenaltyForPair
+        sizePenaltyForPair,
+        sameGroup
       );
 
     if (initialPairs && initialPairs.length) {
@@ -1274,11 +1322,13 @@ export async function renderSkuLinker($app) {
           return;
         }
 
+        // HARD BLOCK: store overlap (per your requirement)
         if (other && storesOverlap(other, it)) {
           $status.textContent = "Not allowed: both items belong to the same store.";
           return;
         }
 
+        // HARD BLOCK: already linked group
         if (other && sameGroup(String(other.sku || ""), String(it.sku || ""))) {
           $status.textContent = "Already linked: both SKUs are in the same group.";
           return;
@@ -1354,6 +1404,7 @@ export async function renderSkuLinker($app) {
       return;
     }
 
+    // HARD BLOCK: store overlap
     if (storesOverlap(pinnedL, pinnedR)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
@@ -1361,6 +1412,7 @@ export async function renderSkuLinker($app) {
       return;
     }
 
+    // HARD BLOCK: already linked
     if (sameGroup(a, b)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
