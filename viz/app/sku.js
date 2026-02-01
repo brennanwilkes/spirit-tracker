@@ -21,8 +21,12 @@ export function parsePriceToNumber(v) {
   }
   
   export function keySkuForRow(r) {
-    const real = String(r?.sku || "").trim();
-    return real ? real : makeSyntheticSku(r);
+    const real0 = String(r?.sku || "").trim();
+    if (real0) {
+      const m = real0.match(/^id:(\d{1,6})$/i);
+      return m ? String(m[1]).padStart(6, "0") : real0;
+    }
+    return makeSyntheticSku(r);
   }
   
   export function displaySku(key) {

@@ -8,9 +8,16 @@ export function clearSkuRulesCache() {
   CACHED = null;
 }
 
+function normalizeImplicitSkuKey(k) {
+  const s = String(k || "").trim();
+  const m = s.match(/^id:(\d{1,6})$/i);
+  if (m) return String(m[1]).padStart(6, "0");
+  return s;
+}
+
 function canonicalPairKey(a, b) {
-  const x = String(a || "");
-  const y = String(b || "");
+  const x = normalizeImplicitSkuKey(a);
+  const y = normalizeImplicitSkuKey(b);
   if (!x || !y) return "";
   return x < y ? `${x}|${y}` : `${y}|${x}`;
 }
@@ -19,8 +26,8 @@ function buildForwardMap(links) {
   // Keep this for reference/debug; grouping no longer depends on direction.
   const m = new Map();
   for (const x of Array.isArray(links) ? links : []) {
-    const fromSku = String(x?.fromSku || "").trim();
-    const toSku = String(x?.toSku || "").trim();
+    const fromSku = normalizeImplicitSkuKey(x?.fromSku);
+    const toSku = normalizeImplicitSkuKey(x?.toSku);
     if (fromSku && toSku && fromSku !== toSku) m.set(fromSku, toSku);
   }
   return m;
@@ -120,8 +127,8 @@ function buildGroupsAndCanonicalMap(links) {
   const all = new Set();
 
   for (const x of Array.isArray(links) ? links : []) {
-    const a = String(x?.fromSku || "").trim();
-    const b = String(x?.toSku || "").trim();
+    const a = normalizeImplicitSkuKey(x?.fromSku);
+    const b = normalizeImplicitSkuKey(x?.toSku);
     if (!a || !b) continue;
     all.add(a);
     all.add(b);
@@ -187,7 +194,7 @@ export async function loadSkuRules() {
   const ignoreSet = buildIgnoreSet(ignores);
 
   function canonicalSku(sku) {
-    const s = String(sku || "").trim();
+    const s = normalizeImplicitSkuKey(sku);
     if (!s) return s;
     return canonBySku.get(s) || s;
   }
