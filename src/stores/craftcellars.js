@@ -142,11 +142,9 @@ function cfgNum(v, fallback) {
 function extractCraftSkuFromProductPageHtml(html) {
   const s = String(html || "");
 
+  // allow any content between </strong> and <span> (including newlines, other tags)
   const m =
-    s.match(
-      /<strong>\s*SKU:\s*<\/strong>\s*<span>\s*([^<]{1,80}?)\s*<\/span>/i
-    ) ||
-    s.match(/\bSKU:\s*<\/strong>\s*<span>\s*([^<]{1,80}?)\s*<\/span>/i) ||
+    s.match(/<strong>\s*SKU:\s*<\/strong>[\s\S]{0,200}?<span>\s*([^<]{1,80}?)\s*<\/span>/i) ||
     s.match(/\bSKU:\s*([A-Za-z0-9][A-Za-z0-9\-_/ ]{0,40})/i);
 
   const raw = m && m[1] ? stripTags(decodeHtml(m[1])) : "";
