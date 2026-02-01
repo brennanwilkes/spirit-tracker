@@ -272,8 +272,8 @@ function main() {
   const outFile = path.join(outDir, "recent.json");
   fs.mkdirSync(outDir, { recursive: true });
 
-  const windowDays = Math.max(1, Number(process.env.RECENT_DAYS || 3));
-  const maxItems = Math.max(1, Number(process.env.RECENT_MAX_ITEMS || 500));
+  const windowDays = Math.max(1, Number(process.env.RECENT_DAYS || 7));
+  const maxItems = Math.max(1, Number(process.env.RECENT_MAX_ITEMS || 5000));
 
   const now = new Date();
   const since = new Date(now.getTime() - windowDays * 24 * 3600 * 1000);
