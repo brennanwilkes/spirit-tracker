@@ -416,6 +416,48 @@ function storesOverlap(aItem, bItem) {
   return false;
 }
 
+/* ---------------- Canonical-group store cache (FAST) ---------------- */
+
+// canonSku -> Set<storeLabel>
+let CANON_STORE_CACHE = new Map();
+
+function buildCanonStoreCache(allAgg, rules) {
+  const m = new Map();
+  for (const it of allAgg) {
+    if (!it) continue;
+
+    const skuKey = String(it.sku || "").trim();
+    if (!skuKey) continue;
+
+    const canon = String(rules.canonicalSku(skuKey) || skuKey);
+    let set = m.get(canon);
+    if (!set) m.set(canon, (set = new Set()));
+
+    const stores = it.stores;
+    if (stores && stores.size) for (const s of stores) set.add(s);
+  }
+  return m;
+}
+
+function canonKeyForSku(rules, skuKey) {
+  const s = String(skuKey || "").trim();
+  if (!s) return "";
+  return String(rules.canonicalSku(s) || s);
+}
+
+function canonStoresForSku(rules, skuKey) {
+  const canon = canonKeyForSku(rules, skuKey);
+  return canon ? CANON_STORE_CACHE.get(canon) || new Set() : new Set();
+}
+
+function canonStoresOverlapSku(rules, aSku, bSku) {
+  const A = canonStoresForSku(rules, aSku);
+  const B = canonStoresForSku(rules, bSku);
+  if (!A.size || !B.size) return false;
+  for (const s of A) if (B.has(s)) return true;
+  return false;
+}
+
 /* ---------------- Mapping helpers ---------------- */
 
 function buildMappedSkuSet(links, rules) {
@@ -577,7 +619,7 @@ function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
 
 // IMPORTANT behavior guarantees:
 // - NEVER fully blocks based on "brand"/first-token mismatch.
-// - ONLY hard-blocks: same-store overlap, ignored pair, already-linked (same canonical group), otherPinnedSku, self.
+// - ONLY hard-blocks: same-store overlap (by canonical-group), ignored pair, already-linked (same canonical group), otherPinnedSku, self.
 // - If scoring gets too strict, it falls back to a "least-bad" list (still respecting hard blocks).
 function recommendSimilar(
   allAgg,
@@ -587,6 +629,7 @@ function recommendSimilar(
   mappedSkus,
   isIgnoredPairFn,
   sizePenaltyFn,
+  sameStoreFn, // (aSku, bSku) => bool  ✅ CHANGED
   sameGroupFn
 ) {
   if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
@@ -630,7 +673,7 @@ function recommendSimilar(
     if (otherSku && itSku === otherSku) continue;
 
     // HARD BLOCKS ONLY:
-    if (storesOverlap(pinned, it)) continue;
+    if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue; // ✅ CHANGED
     if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
     if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 
@@ -747,7 +790,7 @@ function recommendSimilar(
     if (itSku === pinnedSku) continue;
     if (otherSku && itSku === otherSku) continue;
 
-    if (storesOverlap(pinned, it)) continue;
+    if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue; // ✅ CHANGED
     if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
     if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 
@@ -763,7 +806,7 @@ function recommendSimilar(
   return fallback.slice(0, limit).map((x) => x.it);
 }
 
-function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
+function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn, sameStoreFn) { // ✅ CHANGED
   const itemsAll = allAgg.filter((it) => !!it);
 
   const seed = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
@@ -838,7 +881,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
           const aSku = String(a.sku || "");
           const bSku = String(b.sku || "");
           if (!aSku || !bSku || aSku === bSku) continue;
-          if (storesOverlap(a, b)) continue;
+          if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue; // ✅ CHANGED
           if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
 
           const s = 1e9 + itemRank(a) + itemRank(b);
@@ -934,7 +977,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
         if (mappedSkus && mappedSkus.has(bSku)) continue;
 
         if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
-        if (storesOverlap(a, b)) continue;
+        if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue; // ✅ CHANGED
 
         cand.set(bSku, b);
       }
@@ -996,7 +1039,7 @@ function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn
     const bSku = String(p.b.sku || "");
     if (!aSku || !bSku || aSku === bSku) return false;
     if (used.has(aSku) || used.has(bSku)) return false;
-    if (storesOverlap(p.a, p.b)) return false;
+    if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return false; // ✅ CHANGED
 
     used.add(aSku);
     used.add(bSku);
@@ -1144,6 +1187,14 @@ export async function renderSkuLinker($app) {
   const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
   let ignoreSet = rules.ignoreSet;
 
+  // ✅ NEW: build canonical-group store cache (used for hard blocking store duplicates)
+  CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
+
+  // Helper uses current rules + cache
+  function sameStoreCanon(aSku, bSku) {
+    return canonStoresOverlapSku(rules, String(aSku || ""), String(bSku || ""));
+  }
+
   /* ---------------- Canonical-group size cache (FAST) ---------------- */
 
   // skuKey -> Set<int ml>
@@ -1217,7 +1268,7 @@ export async function renderSkuLinker($app) {
     return String(rules.canonicalSku(aSku)) === String(rules.canonicalSku(bSku));
   }
 
-  const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28, isIgnoredPair);
+  const initialPairs = computeInitialPairsFast(allAgg, mappedSkus, 28, isIgnoredPair, sameStoreCanon); // ✅ CHANGED
 
   let pinnedL = null;
   let pinnedR = null;
@@ -1278,7 +1329,7 @@ export async function renderSkuLinker($app) {
       if (otherPinned) {
         const oSku = String(otherPinned.sku || "");
         out = out.filter((it) => !isIgnoredPair(oSku, String(it.sku || "")));
-        out = out.filter((it) => !storesOverlap(otherPinned, it));
+        out = out.filter((it) => !sameStoreCanon(oSku, String(it.sku || ""))); // ✅ CHANGED
         out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
       }
 
@@ -1295,6 +1346,7 @@ export async function renderSkuLinker($app) {
         mappedSkus,
         isIgnoredPair,
         sizePenaltyForPair,
+        sameStoreCanon, // ✅ CHANGED
         sameGroup
       );
 
@@ -1325,8 +1377,8 @@ export async function renderSkuLinker($app) {
           return;
         }
 
-        // HARD BLOCK: store overlap (per your requirement)
-        if (other && storesOverlap(other, it)) {
+        // HARD BLOCK: store overlap (canonical-group) ✅ CHANGED
+        if (other && sameStoreCanon(String(other.sku || ""), String(it.sku || ""))) {
           $status.textContent = "Not allowed: both items belong to the same store.";
           return;
         }
@@ -1407,8 +1459,8 @@ export async function renderSkuLinker($app) {
       return;
     }
 
-    // HARD BLOCK: store overlap
-    if (storesOverlap(pinnedL, pinnedR)) {
+    // HARD BLOCK: store overlap (canonical-group) ✅ CHANGED
+    if (sameStoreCanon(a, b)) {
       $linkBtn.disabled = true;
       $ignoreBtn.disabled = true;
       $status.textContent = "Not allowed: both items belong to the same store.";
@@ -1448,6 +1500,9 @@ export async function renderSkuLinker($app) {
       clearSkuRulesCache();
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
+
+      // ✅ NEW: rebuild canonical-store cache after rules reload
+      CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
 
       const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
@@ -1505,6 +1560,9 @@ export async function renderSkuLinker($app) {
       clearSkuRulesCache();
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
+
+      // ✅ NEW: rebuild canonical-store cache after rules reload
+      CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
 
       const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
@@ -1602,7 +1660,8 @@ export async function renderSkuLinker($app) {
       $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
-    if (storesOverlap(pinnedL, pinnedR)) {
+    // HARD BLOCK: store overlap (canonical-group) ✅ CHANGED
+    if (sameStoreCanon(a, b)) {
       $status.textContent = "Not allowed: both items belong to the same store.";
       return;
     }
@@ -1654,6 +1713,9 @@ export async function renderSkuLinker($app) {
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
+      // ✅ NEW: rebuild canonical-store cache after rules reload
+      CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
+
       const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
@@ -1689,8 +1751,11 @@ export async function renderSkuLinker($app) {
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
 
+      // ✅ NEW: rebuild canonical-store cache after rules reload
+      CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
+
       const meta2 = await loadSkuMetaBestEffort();
-      const rebuilt = buildMappedSkuSet(meta2?.links || []);
+      const rebuilt = buildMappedSkuSet(meta2?.links || [], rules);
       mappedSkus.clear();
       for (const x of rebuilt) mappedSkus.add(x);
 
@@ -1720,7 +1785,8 @@ export async function renderSkuLinker($app) {
       $status.textContent = "Not allowed: both sides cannot be the same SKU.";
       return;
     }
-    if (storesOverlap(pinnedL, pinnedR)) {
+    // HARD BLOCK: store overlap (canonical-group) ✅ CHANGED
+    if (sameStoreCanon(a, b)) {
       $status.textContent = "Not allowed: both items belong to the same store.";
       return;
     }
@@ -1741,6 +1807,9 @@ export async function renderSkuLinker($app) {
       clearSkuRulesCache();
       rules = await loadSkuRules();
       ignoreSet = rules.ignoreSet;
+
+      // ✅ NEW: rebuild canonical-store cache after rules reload
+      CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
 
       const rebuilt = buildMappedSkuSet(rules.links || [], rules);
       mappedSkus.clear();
@@ -1766,6 +1835,8 @@ export async function renderSkuLinker($app) {
       $status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
       pinnedL = null;
       pinnedR = null;
+
+      // (rules not reloaded here, but if ignore changes canonical behavior in your rules impl, you can reload)
       updateAll();
     } catch (e) {
       $status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
