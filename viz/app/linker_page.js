@@ -582,33 +582,52 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
   const pinRawToks = tokenizeQuery(pinNorm);
   const pinToks = filterSimTokens(pinRawToks);
 
-  // "brand" = first meaningful token (usually distillery)
   const pinBrand = pinToks[0] || "";
   const pinAge = extractAgeFromText(pinNorm);
-
   const pinnedSmws = smwsKeyFromName(pinned.name || "");
-  const scored = [];
+
+  // Precompute set for cheap overlap checks
+  const pinTokSet = new Set(pinToks);
+
+  // ---- Tuning knobs ----
+  const MAX_SCAN = 4500;          // cap scan cost if your catalog gets huge
+  const MAX_CHEAP_KEEP = 220;     // keep only top cheap candidates
+  const MAX_FINE = 40;            // run expensive similarityScore on only top N
+  const CHEAP_MIN = 0.35;         // drop obviously bad cheap matches
+  const REQUIRE_SHARED_IF_BRAND_DIFF = 2; // if first token differs, require at least this many shared tokens
+  // ----------------------
+
+  // Fast insert into top-K list (descending)
+  function pushTopK(arr, item, k) {
+    arr.push(item);
+    // tiny lists; sort is fine
+    if (arr.length > k) {
+      arr.sort((a, b) => b.s - a.s);
+      arr.length = k;
+    }
+  }
+
+  const cheap = [];
+  let scanned = 0;
 
   for (const it of allAgg) {
     if (!it) continue;
+    if (scanned++ > MAX_SCAN) break;
 
     const itSku = String(it.sku || "");
     if (!itSku) continue;
-
     if (itSku === pinnedSku) continue;
     if (otherSku && itSku === otherSku) continue;
     if (storesOverlap(pinned, it)) continue;
-
     if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
 
-    // SMWS exact NUM.NUM match => force to top (requires SMWS + code match)
+    // SMWS exact code match: keep (still cheap)
     if (pinnedSmws) {
       const k = smwsKeyFromName(it.name || "");
       if (k && k === pinnedSmws) {
         const stores = it.stores ? it.stores.size : 0;
         const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-        const s = 1e9 + stores * 10 + hasPrice; // tie-break within exact matches
-        scored.push({ it, s });
+        pushTopK(cheap, { it, s: 1e9 + stores * 10 + hasPrice }, MAX_CHEAP_KEEP);
         continue;
       }
     }
@@ -618,54 +637,84 @@ function recommendSimilar(allAgg, pinned, limit, otherPinnedSku, mappedSkus, isI
 
     const itRawToks = tokenizeQuery(itNorm);
     const itToks = filterSimTokens(itRawToks);
-    const itBrand = itToks[0] || "";
+    if (!itToks.length) continue;
 
-    // score first
+    const itBrand = itToks[0] || "";
+    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+
+    // Cheap “shared tokens” count
+    let shared = 0;
+    for (const t of itToks) if (pinTokSet.has(t)) shared++;
+
+    // If brands differ, don’t block completely — but avoid total junk
+    if (!firstMatch && shared < REQUIRE_SHARED_IF_BRAND_DIFF) continue;
+
+    // Cheap score first (no Levenshtein)
+    let s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
+    if (s0 <= CHEAP_MIN) continue;
+
+    // Soft first-token mismatch penalty based on containment (fastSimilarityScore already uses contain)
+    if (!firstMatch) {
+      const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
+      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+
+      let mult = 0.10 + 0.95 * contain;
+      if (smallN <= 3 && contain < 0.78) mult *= 0.18;
+
+      s0 *= Math.min(1.0, mult);
+      if (s0 <= CHEAP_MIN) continue;
+    }
+
+    // Apply size penalty early (cheap stage) so mismatched sizes don’t waste fine scoring
+    if (typeof sizePenaltyFn === "function") {
+      s0 *= sizePenaltyFn(pinnedSku, itSku);
+      if (s0 <= CHEAP_MIN) continue;
+    }
+
+    // Apply age penalty/boost early too (cheap)
+    const itAge = extractAgeFromText(itNorm);
+    if (pinAge && itAge) {
+      if (pinAge === itAge) s0 *= 1.6;
+      else s0 *= 0.22;
+      if (s0 <= CHEAP_MIN) continue;
+    }
+
+    pushTopK(cheap, { it, s: s0, itNorm, itRawToks }, MAX_CHEAP_KEEP);
+  }
+
+  // Fine stage: expensive scoring only on top candidates
+  cheap.sort((a, b) => b.s - a.s);
+  const fine = [];
+  for (const x of cheap.slice(0, MAX_FINE)) {
+    const it = x.it;
+    const itSku = String(it.sku || "");
+
     let s = similarityScore(base, it.name || "");
     if (s <= 0) continue;
 
-    // soft first-token mismatch penalty (never blocks)
-    const contain = tokenContainmentScore(pinRawToks, itRawToks); // 0..1
-    const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
-
-    if (!firstMatch) {
-      const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-
-      // 0.10..~1.0 based on containment
-      let mult = 0.10 + 0.95 * contain;
-
-      // Short names: first token matters more unless containment is *very* high
-      if (smallN <= 3 && contain < 0.78) mult *= 0.18;
-
-      s *= Math.min(1.0, mult);
-      if (s <= 0) continue;
-    }
-
-    // size penalty (your existing hook)
+    // Keep these here too for correct ordering vs other candidates
     if (typeof sizePenaltyFn === "function") {
       s *= sizePenaltyFn(pinnedSku, itSku);
       if (s <= 0) continue;
     }
 
-    // age boost/penalty (existing)
-    const itAge = extractAgeFromText(itNorm);
+    const itAge = extractAgeFromText(x.itNorm || normSearchText(it.name || ""));
     if (pinAge && itAge) {
       if (pinAge === itAge) s *= 2.0;
       else s *= 0.15;
     }
 
-    // unknown boost (existing)
     const aUnknown = pinnedSku.startsWith("u:");
     const bUnknown = itSku.startsWith("u:");
     if (aUnknown || bUnknown) s *= 1.12;
 
-    if (s > 0) scored.push({ it, s });
-
+    fine.push({ it, s });
   }
 
-  scored.sort((a, b) => b.s - a.s);
-  return scored.slice(0, limit).map((x) => x.it);
+  fine.sort((a, b) => b.s - a.s);
+  return fine.slice(0, limit).map((x) => x.it);
 }
+
 
 function computeInitialPairsFast(allAgg, mappedSkus, limitPairs, isIgnoredPairFn) {
   const itemsAll = allAgg.filter((it) => !!it);
@@ -1191,7 +1240,7 @@ export async function renderSkuLinker($app) {
       return recommendSimilar(
         allAgg,
         otherPinned,
-        60,
+        30,
         otherSku,
         mappedSkus,
         isIgnoredPair,
