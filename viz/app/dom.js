@@ -54,6 +54,6 @@ export function esc(s) {
   export function renderThumbHtml(imgUrl, cls = "thumb") {
     const img = normImg(imgUrl);
     if (!img) return `<div class="thumbPlaceholder"></div>`;
-    return `<img class="${esc(cls)}" src="${esc(img)}" alt="" loading="lazy" onerror="this.style.display='none'" />`;
+    return `<img referrerpolicy="no-referrer" class="${esc(cls)}" src="${esc(img)}" alt="" loading="lazy" onerror="this.style.display='none'" />`;
   }
   
