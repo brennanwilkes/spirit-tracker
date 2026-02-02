@@ -37,7 +37,7 @@ export function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
   const scored = [];
   for (const it of allAgg) {
     if (!it) continue;
-    if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
+    // if (mappedSkus && mappedSkus.has(String(it.sku))) continue;
     if (otherPinnedSku && String(it.sku) === String(otherPinnedSku)) continue;
 
     const stores = it.stores ? it.stores.size : 0;
@@ -327,7 +327,7 @@ export function recommendSimilar(
           if (!aSku || !bSku || aSku === bSku) continue;
   
           // Only link *unmapped* targets in this stage
-          if (mappedSkus && mappedSkus.has(bSku)) continue;
+        //   if (mappedSkus && mappedSkus.has(bSku)) continue;
   
           if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
           if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
@@ -420,7 +420,7 @@ export function recommendSimilar(
           const bSku = String(b.sku || "");
           if (!bSku || bSku === aSku) continue;
           if (used.has(bSku)) continue;
-          if (mappedSkus && mappedSkus.has(bSku)) continue;
+        //   if (mappedSkus && mappedSkus.has(bSku)) continue;
   
           if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
           if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
