@@ -125,7 +125,7 @@ export function recommendSimilar(
   
       // (Optional) original mapped exclusion lives here in your codebase.
       // Keep it if you want, but it wasn't your issue:
-      if (mappedSkus && mappedSkus.has(itSku)) continue;
+    //   if (mappedSkus && mappedSkus.has(itSku)) continue;
   
       // SMWS exact NUM.NUM match => keep at top
       if (pinnedSmws) {
