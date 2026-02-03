@@ -698,6 +698,8 @@ export async function renderSkuLinker($app) {
       pinnedL = null;
       pinnedR = null;
       updateAll();
+      location.reload();
+
       return;
     }
 
@@ -710,6 +712,7 @@ export async function renderSkuLinker($app) {
       pinnedL = null;
       pinnedR = null;
       updateAll();
+      location.reload();
     } catch (e) {
       $status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
     }
