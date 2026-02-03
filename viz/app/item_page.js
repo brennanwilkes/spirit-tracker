@@ -668,19 +668,23 @@ export async function renderItem($app, skuInput) {
   const colorMap = buildStoreColorMap(series.map((s) => s.label));
 
   const datasets = series.map((s) => {
-    const c = storeColor(s.label, colorMap);
+    const base = storeColor(s.label, colorMap);
+    const stroke = lighten(base, 0.25);
+  
     return {
       label: s.label,
       data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
       spanGaps: false,
       tension: 0.15,
   
-      borderColor: c,
-      backgroundColor: c,
-      pointBackgroundColor: c,
-      pointBorderColor: c,
+      backgroundColor: base,
+      borderColor: stroke,
+      pointBackgroundColor: base,
+      pointBorderColor: stroke,
+      borderWidth: datasetStrokeWidth(base),
     };
   });
+  
   
   const ctx = $canvas.getContext("2d");
   CHART = new Chart(ctx, {
