@@ -5,6 +5,7 @@ import {
   githubFetchFileAtSha,
   githubListCommits,
 } from "./api.js";
+import { storeColor, isWhite } from "./storeColors.js";
 
 let _chart = null;
 
@@ -692,14 +693,23 @@ export async function renderStats($app) {
     const canvas = document.getElementById("statsChart");
     if (!canvas) return;
 
-    const datasets = stores.map((s) => ({
-      label: displayStoreName(s),
-      data: Array.isArray(seriesByStore[s])
-        ? seriesByStore[s]
-        : labels.map(() => null),
-      spanGaps: false,
-      tension: 0.15,
-    }));
+    const datasets = stores.map((s) => {
+        const c = storeColor(s); // store key
+      
+        return {
+          label: displayStoreName(s),
+          data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
+          spanGaps: false,
+          tension: 0.15,
+      
+          borderColor: c,
+          backgroundColor: c,
+          pointBackgroundColor: c,
+          pointBorderColor: c,
+          borderWidth: isWhite(c) ? 2 : 1.5,
+        };
+      });
+      
 
     if (_chart) {
       _chart.data.labels = labels;
