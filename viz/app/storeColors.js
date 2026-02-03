@@ -4,14 +4,17 @@ function normalizeId(s) {
   
   // Your pinned colors (exact / “roughly right”)
   const OVERRIDES = {
-    strath: "#76B7FF",              // light blue
-    bsw: "#E9DF7A",                 // faded yellow
-    kensingtonwinemarket: "#F2C200",// bolder yellow
-    vessel: "#FFFFFF",              // white
-    gullliquor: "#6B0F1A",          // maroon
-    kegncork: "#111111",            // black
-    legacyliquor: "#7B4A12",        // brown
-    vintagespirits: "#E34A2C",      // orange-ish red
+    strath: "#76B7FF",
+    bsw: "#E9DF7A",
+    kensingtonwinemarket: "#F2C200",
+    vessel: "#FFFFFF",
+    gullliquor: "#6B0F1A",
+    kegncork: "#111111",
+    legacyliquor: "#7B4A12",
+    vintagespirits: "#E34A2C",
+  
+    craftcellars: "#E31B23",     // bright red
+    maltsandgrains: "#A67C52",   // faded brown
   
     // aliases
     gull: "#6B0F1A",
@@ -19,7 +22,7 @@ function normalizeId(s) {
     vintage: "#E34A2C",
     kwm: "#F2C200",
   };
-  
+    
   // High-contrast qualitative palette (distinct hues).
   // (Avoids whites/blacks/yellows that clash w/ your overrides by filtering below.)
   const PALETTE = [
