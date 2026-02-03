@@ -3,17 +3,17 @@
 
 /*
   Build a report of canonical SKUs and how many STORES carry each one.
-  - Store = storeLabel (union across categories).
+  - Store = storeKey (stable id derived from db filename).
   - Canonicalizes via sku_map.
-  - Debug output while scanning.
-  - Writes: reports/common_listings_<group>_top<N>.json (or --out)
+  - Includes per-store numeric price (min live price per store for that SKU).
+  - Writes one output file (see --out).
 
   Flags:
     --top N
     --min-stores N
     --require-all
     --group all|bc|ab
-    --out path/to/file.json
+    --out path
 */
 
 const fs = require("fs");
@@ -59,6 +59,13 @@ function isSyntheticSkuKey(k) {
   return String(k || "").startsWith("u:");
 }
 
+function storeKeyFromDbPath(abs) {
+  const base = path.basename(abs);
+  const m = base.match(/^([^_]+)__.+\.json$/i);
+  const k = m ? m[1] : base.replace(/\.json$/i, "");
+  return String(k || "").toLowerCase();
+}
+
 /* ---------------- sku helpers ---------------- */
 
 function loadSkuMapOrNull() {
@@ -93,32 +100,38 @@ function canonicalize(k, skuMap) {
   return k;
 }
 
+/* ---------------- grouping ---------------- */
+
+const BC_STORE_KEYS = new Set([
+  "gull",
+  "strath",
+  "bcl",
+  "legacy",
+  "legacyliquor",
+  "tudor",
+]);
+
+function groupAllowsStore(group, storeKey) {
+  const k = String(storeKey || "").toLowerCase();
+  if (group === "bc") return BC_STORE_KEYS.has(k);
+  if (group === "ab") return !BC_STORE_KEYS.has(k);
+  return true; // all
+}
+
 /* ---------------- args ---------------- */
 
 function parseArgs(argv) {
-  const out = {
-    top: 50,
-    minStores: 2,
-    requireAll: false,
-    group: "all", // all|bc|ab
-    out: "", // optional explicit output path
-  };
+  const out = { top: 50, minStores: 2, requireAll: false, group: "all", out: "" };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--top" && argv[i + 1]) out.top = Number(argv[++i]) || 50;
     else if (a === "--min-stores" && argv[i + 1]) out.minStores = Number(argv[++i]) || 2;
     else if (a === "--require-all") out.requireAll = true;
-    else if (a === "--group" && argv[i + 1]) out.group = String(argv[++i] || "all");
+    else if (a === "--group" && argv[i + 1]) out.group = String(argv[++i] || "all").toLowerCase();
     else if (a === "--out" && argv[i + 1]) out.out = String(argv[++i] || "");
   }
+  if (out.group !== "all" && out.group !== "bc" && out.group !== "ab") out.group = "all";
   return out;
-}
-
-function groupStores(group, allStoresSorted) {
-  const bc = new Set(["gull", "strath", "bcl", "legacy", "tudor"]);
-  if (group === "bc") return allStoresSorted.filter((s) => bc.has(s));
-  if (group === "ab") return allStoresSorted.filter((s) => !bc.has(s));
-  return allStoresSorted; // "all"
 }
 
 /* ---------------- main ---------------- */
@@ -128,6 +141,9 @@ function main() {
   const repoRoot = process.cwd();
   const reportsDir = path.join(repoRoot, "reports");
   ensureDir(reportsDir);
+
+  const outPath = args.out ? path.join(repoRoot, args.out) : path.join(reportsDir, "common_listings.json");
+  ensureDir(path.dirname(outPath));
 
   const dbFiles = listDbFiles();
   if (!dbFiles.length) {
@@ -140,8 +156,8 @@ function main() {
   console.log(`[debug] skuMap: ${skuMap ? "loaded" : "missing"}`);
   console.log(`[debug] scanning ${dbFiles.length} db files`);
 
-  const storeToCanon = new Map(); // storeLabel -> Set(canonSku)
-  const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest, perStore:Map(storeLabel -> {priceNum, item}) }
+  const storeToCanon = new Map(); // storeKey -> Set(canonSku)
+  const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest, storeMin:Map }
 
   let liveRows = 0;
   let removedRows = 0;
@@ -153,14 +169,17 @@ function main() {
     const storeLabel = String(obj.storeLabel || obj.store || "").trim();
     if (!storeLabel) continue;
 
-    if (!storeToCanon.has(storeLabel)) {
-      storeToCanon.set(storeLabel, new Set());
+    const storeKey = storeKeyFromDbPath(abs);
+    if (!groupAllowsStore(args.group, storeKey)) continue;
+
+    if (!storeToCanon.has(storeKey)) {
+      storeToCanon.set(storeKey, new Set());
     }
 
     const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
     const items = Array.isArray(obj.items) ? obj.items : [];
 
-    console.log(`[debug] ${rel} store="${storeLabel}" items=${items.length}`);
+    console.log(`[debug] ${rel} storeKey="${storeKey}" storeLabel="${storeLabel}" items=${items.length}`);
 
     for (const it of items) {
       if (!it) continue;
@@ -180,17 +199,22 @@ function main() {
       const canonSku = canonicalize(skuKey, skuMap);
       if (!canonSku) continue;
 
-      storeToCanon.get(storeLabel).add(canonSku);
+      storeToCanon.get(storeKey).add(canonSku);
 
       let agg = canonAgg.get(canonSku);
       if (!agg) {
-        agg = { stores: new Set(), listings: [], cheapest: null, perStore: new Map() };
+        agg = { stores: new Set(), listings: [], cheapest: null, storeMin: new Map() };
         canonAgg.set(canonSku, agg);
       }
 
-      agg.stores.add(storeLabel);
+      agg.stores.add(storeKey);
 
       const priceNum = priceToNumber(it.price);
+      if (priceNum !== null) {
+        const prev = agg.storeMin.get(storeKey);
+        if (prev === undefined || priceNum < prev) agg.storeMin.set(storeKey, priceNum);
+      }
+
       const listing = {
         canonSku,
         skuKey,
@@ -199,6 +223,7 @@ function main() {
         price: String(it.price || ""),
         priceNum,
         url: String(it.url || ""),
+        storeKey,
         storeLabel,
         categoryLabel: String(obj.categoryLabel || obj.category || ""),
         dbFile: rel,
@@ -212,24 +237,12 @@ function main() {
           agg.cheapest = { priceNum, item: listing };
         }
       }
-
-      // per-store numeric price (best/lowest numeric; otherwise first seen)
-      const prev = agg.perStore.get(storeLabel);
-      if (priceNum !== null) {
-        if (!prev || prev.priceNum === null || priceNum < prev.priceNum) {
-          agg.perStore.set(storeLabel, { priceNum, item: listing });
-        }
-      } else {
-        if (!prev) agg.perStore.set(storeLabel, { priceNum: null, item: listing });
-      }
     }
   }
 
-  const allStores = [...storeToCanon.keys()].sort();
-  const stores = groupStores(String(args.group || "all").toLowerCase(), allStores);
+  const stores = [...storeToCanon.keys()].sort();
   const storeCount = stores.length;
 
-  console.log(`[debug] stores(all) (${allStores.length}): ${allStores.join(", ")}`);
   console.log(`[debug] group="${args.group}" stores(${storeCount}): ${stores.join(", ")}`);
   console.log(`[debug] liveRows=${liveRows} removedRows=${removedRows} canonSkus=${canonAgg.size}`);
 
@@ -246,29 +259,27 @@ function main() {
   const rows = [];
 
   for (const [canonSku, agg] of canonAgg.entries()) {
-    const groupStoresPresent = stores.filter((s) => agg.stores.has(s));
-    if (groupStoresPresent.length === 0) continue;
-
     const rep = pickRepresentative(agg);
     const missingStores = stores.filter((s) => !agg.stores.has(s));
 
     const storePrices = {};
     for (const s of stores) {
-      const ps = agg.perStore.get(s);
-      storePrices[s] = ps ? ps.priceNum : null;
+      const p = agg.storeMin.get(s);
+      if (Number.isFinite(p)) storePrices[s] = p;
     }
 
     rows.push({
       canonSku,
-      storeCount: groupStoresPresent.length,
-      stores: groupStoresPresent.sort(),
+      storeCount: agg.stores.size,
+      stores: [...agg.stores].sort(),
       missingStores,
-      storePrices,
+      storePrices, // { [storeKey]: number } min live price per store
       representative: rep
         ? {
             name: rep.name,
             price: rep.price,
             priceNum: rep.priceNum,
+            storeKey: rep.storeKey,
             storeLabel: rep.storeLabel,
             skuRaw: rep.skuRaw,
             skuKey: rep.skuKey,
@@ -281,14 +292,14 @@ function main() {
         ? {
             price: agg.cheapest.item.price,
             priceNum: agg.cheapest.priceNum,
-            storeLabel: agg.cheapest.item.storeLabel,
+            storeKey: agg.cheapest.item.storeKey,
             url: agg.cheapest.item.url,
           }
         : null,
     });
   }
 
-  // stable-ish ordering: primary by store coverage, tie-break by canonSku
+  // Stable-ish sort: storeCount desc, then canonSku asc (stable diffs over time)
   rows.sort((a, b) => {
     if (b.storeCount !== a.storeCount) return b.storeCount - a.storeCount;
     return String(a.canonSku).localeCompare(String(b.canonSku));
@@ -300,11 +311,15 @@ function main() {
 
   const top = filtered.slice(0, args.top);
 
-  const safeGroup = String(args.group || "all").toLowerCase();
-
   const payload = {
     generatedAt: new Date().toISOString(),
-    args: { ...args, group: safeGroup },
+    args: {
+      top: args.top,
+      minStores: args.minStores,
+      requireAll: args.requireAll,
+      group: args.group,
+      out: path.relative(repoRoot, outPath).replace(/\\/g, "/"),
+    },
     storeCount,
     stores,
     totals: {
@@ -315,9 +330,6 @@ function main() {
     },
     rows: top,
   };
-
-  const defaultName = `common_listings_${safeGroup}_top${args.top}.json`;
-  const outPath = args.out ? path.resolve(repoRoot, args.out) : path.join(reportsDir, defaultName);
 
   fs.writeFileSync(outPath, JSON.stringify(payload, null, 2) + "\n", "utf8");
   console.log(`Wrote ${path.relative(repoRoot, outPath)} (${top.length} rows)`);

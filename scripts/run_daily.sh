@@ -101,23 +101,20 @@ if [[ $rc -ne 0 ]]; then
   exit $rc
 fi
 
+# Build common listings reports FIRST (so commits manifest can see them)
+for group in all bc ab; do
+  for top in 50 250 1000; do
+    "$NODE_BIN" tools/build_common_listings.js \
+      --group "$group" \
+      --top "$top" \
+      --out "reports/common_listings_${group}_top${top}.json"
+  done
+done
+
 # Build viz artifacts on the data branch
 "$NODE_BIN" tools/build_viz_index.js
 "$NODE_BIN" tools/build_viz_commits.js
 "$NODE_BIN" tools/build_viz_recent.js
-
-# Build common listings artifacts (9 files)
-"$NODE_BIN" tools/build_common_listings.js --group all --top 50   --out "reports/common_listings_all_top50.json"
-"$NODE_BIN" tools/build_common_listings.js --group all --top 250  --out "reports/common_listings_all_top250.json"
-"$NODE_BIN" tools/build_common_listings.js --group all --top 1000 --out "reports/common_listings_all_top1000.json"
-
-"$NODE_BIN" tools/build_common_listings.js --group bc --top 50   --out "reports/common_listings_bc_top50.json"
-"$NODE_BIN" tools/build_common_listings.js --group bc --top 250  --out "reports/common_listings_bc_top250.json"
-"$NODE_BIN" tools/build_common_listings.js --group bc --top 1000 --out "reports/common_listings_bc_top1000.json"
-
-"$NODE_BIN" tools/build_common_listings.js --group ab --top 50   --out "reports/common_listings_ab_top50.json"
-"$NODE_BIN" tools/build_common_listings.js --group ab --top 250  --out "reports/common_listings_ab_top250.json"
-"$NODE_BIN" tools/build_common_listings.js --group ab --top 1000 --out "reports/common_listings_ab_top1000.json"
 
 # Stage only data/report/viz outputs
 git add -A data/db reports viz/data
