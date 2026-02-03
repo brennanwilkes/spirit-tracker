@@ -286,36 +286,35 @@ export async function renderStats($app) {
   $app.innerHTML = `
     <div class="container">
         <div class="header">
-        <div class="headerRow1">
-            <div class="headerLeft">
-            <h1 class="h1">Store Price Index</h1>
-            <div class="small" id="statsStatus">Loading…</div>
-
-            <div class="headerButtons" style="margin-top:10px;">
-                <button id="back" class="btn">← Back</button>
-            </div>
+            <div class="headerRow1">
+                <div class="headerLeft">
+                    <div class="headerButtons" style="margin-top:10px;">
+                    <button id="back" class="btn">← Back</button>
+                </div>
+                <h1 class="h1">Store Price Index</h1>
+                <div class="small" id="statsStatus">Loading…</div>
             </div>
 
             <div class="headerRight">
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Stores
-                <select id="statsGroup" class="selectSmall" aria-label="Store group">
-                    <option value="all">All Stores</option>
-                    <option value="bc">BC Only</option>
-                    <option value="ab">Alberta Only</option>
-                </select>
-                </label>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
+                    <label class="small" style="display:flex; gap:8px; align-items:center;">
+                    Stores
+                    <select id="statsGroup" class="selectSmall" aria-label="Store group">
+                        <option value="all">All Stores</option>
+                        <option value="bc">BC Only</option>
+                        <option value="ab">Alberta Only</option>
+                    </select>
+                    </label>
 
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Index Size
-                <select id="statsSize" class="selectSmall" aria-label="Index size">
-                    <option value="50">50</option>
-                    <option value="250">250</option>
-                    <option value="1000">1000</option>
-                </select>
-                </label>
-            </div>
+                    <label class="small" style="display:flex; gap:8px; align-items:center;">
+                    Index Size
+                    <select id="statsSize" class="selectSmall" aria-label="Index size">
+                        <option value="50">50</option>
+                        <option value="250">250</option>
+                        <option value="1000">1000</option>
+                    </select>
+                    </label>
+                </div>
             </div>
         </div>
         </div>
