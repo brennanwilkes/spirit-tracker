@@ -228,6 +228,15 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   text-align: center;
 }
 
+.btnSm {
+  padding: 10px 12px;
+  color: var(--muted);
+}
+
+.btnSm:hover {
+  color: var(--text);
+}
+
 .links {
   display: flex;
   gap: 10px;
@@ -238,6 +247,30 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .small {
   color: var(--muted);
   font-size: 12px;
+}
+
+/* small subtle inline selects */
+.selectSmall {
+  border: 1px solid var(--border);
+  background: #0f1318;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1;
+  outline: none;
+}
+
+.selectSmall:hover {
+  border-color: #2f3a46;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.selectSmall:focus {
+  border-color: #37566b;
+  outline: 1px solid #37566b;
+  color: var(--text);
 }
 
 /* --- Store selector (top of search page) --- */

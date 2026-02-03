@@ -14,6 +14,12 @@ function normStoreLabel(s) {
   return String(s || "").trim().toLowerCase();
 }
 
+function abbrevStoreLabel(s) {
+  const t = String(s || "").trim();
+  if (!t) return "";
+  return t.split(/\s+/)[0] || t;
+}
+
 function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
   // Prefer the most recent-ish url if multiple exist; stable enough for viz.
   let bestUrl = "";
@@ -54,12 +60,13 @@ let rulesCache = null;
 
 export async function renderStore($app, storeLabelRaw) {
   const storeLabel = String(storeLabelRaw || "").trim();
+  const storeLabelShort = abbrevStoreLabel(storeLabel) || (storeLabel ? storeLabel : "Store");
 
   $app.innerHTML = `
     <div class="container">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
-        <span class="badge">${esc(storeLabel || "Store")}</span>
+        <span class="badge">${esc(storeLabelShort || "Store")}</span>
       </div>
 
       <div class="card">
@@ -96,7 +103,10 @@ export async function renderStore($app, storeLabelRaw) {
             ></div>
           </div>
 
-          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
+          <div style="display:flex; gap:10px; align-items:center; width:100%;">
+            <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" style="flex: 1 1 auto;" />
+            <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
+          </div>
         </div>
 
         <div class="small" id="status" style="margin-top:10px;"></div>
@@ -109,7 +119,15 @@ export async function renderStore($app, storeLabelRaw) {
                 <span class="small">and</span>
                 <span class="badge badgeLastStock">Last Stock</span>
               </div>
-              <span class="small">Only sold here</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="small">Sort</span>
+                <select id="exSort" class="selectSmall" aria-label="Sort exclusives">
+                  <option value="priceDesc">Price Desc</option>
+                  <option value="priceAsc">Price Asc</option>
+                  <option value="dateDesc">Date Desc</option>
+                  <option value="dateAsc">Date Asc</option>
+                </select>
+              </div>
             </div>
             <div id="resultsExclusive" class="storeColList"></div>
           </div>
@@ -117,7 +135,13 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="storeCol">
             <div class="storeColHeader">
               <span class="badge">Price compare</span>
-              <span class="small">Cross-store pricing</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="small">Comparison</span>
+                <select id="cmpMode" class="selectSmall" aria-label="Comparison technique">
+                  <option value="dollar">Dollar Amount</option>
+                  <option value="percent">Percentage Difference</option>
+                </select>
+              </div>
             </div>
             <div id="resultsCompare" class="storeColList"></div>
           </div>
@@ -144,6 +168,10 @@ export async function renderStore($app, storeLabelRaw) {
   const $maxPriceLabel = document.getElementById("maxPriceLabel");
   const $priceWrap = document.getElementById("priceWrap");
 
+  const $clearSearch = document.getElementById("clearSearch");
+  const $exSort = document.getElementById("exSort");
+  const $cmpMode = document.getElementById("cmpMode");
+
   // Persist query per store
   const storeNorm = normStoreLabel(storeLabel);
   const LS_KEY = `viz:storeQuery:${storeNorm}`;
@@ -156,6 +184,16 @@ export async function renderStore($app, storeLabelRaw) {
   let savedMaxPrice = savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
   if (!Number.isFinite(savedMaxPrice)) savedMaxPrice = null;
 
+  // Persist exclusives sort per store
+  const LS_EX_SORT = `viz:storeExclusiveSort:${storeNorm}`;
+  const savedExSort = String(localStorage.getItem(LS_EX_SORT) || "");
+  if (savedExSort) $exSort.value = savedExSort;
+
+  // Persist comparison technique per store
+  const LS_CMP_MODE = `viz:storeCompareMode:${storeNorm}`;
+  const savedCmpMode = String(localStorage.getItem(LS_CMP_MODE) || "");
+  if (savedCmpMode) $cmpMode.value = savedCmpMode;
+
   $resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
   $resultsCompare.innerHTML = ``;
 
@@ -165,6 +203,49 @@ export async function renderStore($app, storeLabelRaw) {
 
   const listingsAll = Array.isArray(idx.items) ? idx.items : [];
   const liveAll = listingsAll.filter((r) => r && !r.removed);
+
+  function dateMsFromRow(r) {
+    if (!r) return null;
+    const keys = [
+      "firstSeenAt",
+      "firstSeen",
+      "createdAt",
+      "created",
+      "addedAt",
+      "added",
+      "date",
+      "ts",
+      "timestamp",
+    ];
+    for (const k of keys) {
+      const v = r[k];
+      if (v === undefined || v === null) continue;
+      if (typeof v === "number" && Number.isFinite(v)) {
+        // If seconds-ish, normalize to ms
+        if (v > 0 && v < 2e10) return v < 2e9 ? v * 1000 : v;
+        return v;
+      }
+      if (typeof v === "string") {
+        const t = Date.parse(v);
+        if (Number.isFinite(t)) return t;
+      }
+    }
+    return null;
+  }
+
+  // Build earliest "first in DB" timestamp per canonical SKU (includes removed rows)
+  const firstSeenBySku = new Map(); // sku -> ms
+  for (const r of listingsAll) {
+    if (!r) continue;
+    const skuKey = keySkuForRow(r);
+    const sku = String(rules.canonicalSku(skuKey) || skuKey);
+
+    const ms = dateMsFromRow(r);
+    if (ms === null) continue;
+
+    const prev = firstSeenBySku.get(sku);
+    if (prev === undefined || ms < prev) firstSeenBySku.set(sku, ms);
+  }
 
   // Build "ever seen" store presence per canonical SKU (includes removed rows)
   const everStoresBySku = new Map(); // sku -> Set(storeLabelNorm)
@@ -235,50 +316,51 @@ export async function renderStore($app, storeLabelRaw) {
   // Decorate each item with pricing comparisons + exclusivity
   const EPS = 0.01;
 
-  items = items
-    .map((it) => {
-      const sku = String(it.sku || "");
-      const liveStoreSet = storesBySku.get(sku) || new Set([storeNorm]);
-      const everStoreSet = everStoresBySku.get(sku) || liveStoreSet;
+  items = items.map((it) => {
+    const sku = String(it.sku || "");
+    const liveStoreSet = storesBySku.get(sku) || new Set([storeNorm]);
+    const everStoreSet = everStoresBySku.get(sku) || liveStoreSet;
 
-      const soloLiveHere = liveStoreSet.size === 1 && liveStoreSet.has(storeNorm);
-      const lastStock = soloLiveHere && everStoreSet.size > 1;
-      const exclusive = soloLiveHere && !lastStock;
+    const soloLiveHere = liveStoreSet.size === 1 && liveStoreSet.has(storeNorm);
+    const lastStock = soloLiveHere && everStoreSet.size > 1;
+    const exclusive = soloLiveHere && !lastStock;
 
-      const storePrice = Number.isFinite(it.cheapestPriceNum) ? it.cheapestPriceNum : null;
-      const bestAll = bestAllPrice(sku);
-      const other = bestOtherPrice(sku, storeNorm);
+    const storePrice = Number.isFinite(it.cheapestPriceNum) ? it.cheapestPriceNum : null;
+    const bestAll = bestAllPrice(sku);
+    const other = bestOtherPrice(sku, storeNorm);
 
-      const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
+    const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
 
-      const diffVsOther = storePrice !== null && other !== null ? storePrice - other : null;
-      const diffVsBest = storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
+    const diffVsOtherDollar = storePrice !== null && other !== null ? storePrice - other : null;
+    const diffVsOtherPct =
+      storePrice !== null && other !== null && other > 0
+        ? ((storePrice - other) / other) * 100
+        : null;
 
-      return {
-        ...it,
-        _exclusive: exclusive,
-        _lastStock: lastStock,
-        _storePrice: storePrice,
-        _bestAll: bestAll,
-        _bestOther: other,
-        _isBest: isBest,
-        _diffVsOther: diffVsOther,
-        _diffVsBest: diffVsBest,
-      };
-    })
-    .sort((a, b) => {
-      const aSpecial = !!(a._exclusive || a._lastStock);
-      const bSpecial = !!(b._exclusive || b._lastStock);
-      if (aSpecial !== bSpecial) return aSpecial ? -1 : 1;
+    const diffVsBestDollar = storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
+    const diffVsBestPct =
+      storePrice !== null && bestAll !== null && bestAll > 0
+        ? ((storePrice - bestAll) / bestAll) * 100
+        : null;
 
-      const da = a._diffVsOther;
-      const db = b._diffVsOther;
-      const sa = da === null ? 999999 : da;
-      const sb = db === null ? 999999 : db;
-      if (sa !== sb) return sa - sb;
+    const firstSeenMs = firstSeenBySku.get(sku);
+    const firstSeen = firstSeenMs !== undefined ? firstSeenMs : null;
 
-      return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
-    });
+    return {
+      ...it,
+      _exclusive: exclusive,
+      _lastStock: lastStock,
+      _storePrice: storePrice,
+      _bestAll: bestAll,
+      _bestOther: other,
+      _isBest: isBest,
+      _diffVsOtherDollar: diffVsOtherDollar,
+      _diffVsOtherPct: diffVsOtherPct,
+      _diffVsBestDollar: diffVsBestDollar,
+      _diffVsBestPct: diffVsBestPct,
+      _firstSeenMs: firstSeen,
+    };
+  });
 
   // ---- Max price slider (exponential mapping + clicky rounding) ----
   const MIN_PRICE = 25;
@@ -383,10 +465,28 @@ export async function renderStore($app, storeLabelRaw) {
     return `$${p.toFixed(2)}`;
   }
 
+  function compareMode() {
+    return $cmpMode && $cmpMode.value === "percent" ? "percent" : "dollar";
+  }
+
   function priceBadgeHtml(it) {
     if (it._exclusive || it._lastStock) return "";
 
-    const d = it._diffVsOther;
+    const mode = compareMode();
+
+    if (mode === "percent") {
+      const d = it._diffVsOtherPct;
+      if (d === null || !Number.isFinite(d)) return "";
+      const abs = Math.abs(d);
+      if (abs <= 5) {
+        return `<span class="badge badgeNeutral">within 5%</span>`;
+      }
+      const pct = Math.round(abs);
+      if (d < 0) return `<span class="badge badgeGood">${esc(pct)}% lower</span>`;
+      return `<span class="badge badgeBad">${esc(pct)}% higher</span>`;
+    }
+
+    const d = it._diffVsOtherDollar;
     if (d === null || !Number.isFinite(d)) return "";
 
     const abs = Math.abs(d);
@@ -436,7 +536,7 @@ export async function renderStore($app, storeLabelRaw) {
               <span class="mono price">${esc(price)}</span>
               ${
                 href
-                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
+                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabelShort)}</a>`
                   : ``
               }
             </div>
@@ -523,6 +623,48 @@ export async function renderStore($app, storeLabelRaw) {
     location.hash = `#/item/${encodeURIComponent(sku)}`;
   });
 
+  function sortExclusiveInPlace(arr) {
+    const mode = String($exSort.value || "priceDesc");
+    if (mode === "priceAsc" || mode === "priceDesc") {
+      arr.sort((a, b) => {
+        const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
+        const bp = Number.isFinite(b._storePrice) ? b._storePrice : null;
+        const aKey = ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
+        const bKey = bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
+        if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
+        return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+      });
+      return;
+    }
+
+    if (mode === "dateAsc" || mode === "dateDesc") {
+      arr.sort((a, b) => {
+        const ad = Number.isFinite(a._firstSeenMs) ? a._firstSeenMs : null;
+        const bd = Number.isFinite(b._firstSeenMs) ? b._firstSeenMs : null;
+        const aKey = ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
+        const bKey = bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
+        if (aKey !== bKey) return mode === "dateAsc" ? aKey - bKey : bKey - aKey;
+        return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+      });
+    }
+  }
+
+  function sortCompareInPlace(arr) {
+    const mode = compareMode();
+    arr.sort((a, b) => {
+      const da =
+        mode === "percent" ? a._diffVsOtherPct : a._diffVsOtherDollar;
+      const db =
+        mode === "percent" ? b._diffVsOtherPct : b._diffVsOtherDollar;
+
+      const sa = da === null || !Number.isFinite(da) ? 999999 : da;
+      const sb = db === null || !Number.isFinite(db) ? 999999 : db;
+      if (sa !== sb) return sa - sb;
+
+      return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+    });
+  }
+
   function applyFilter() {
     const raw = String($q.value || "");
     localStorage.setItem(LS_KEY, raw);
@@ -546,6 +688,9 @@ export async function renderStore($app, storeLabelRaw) {
     filteredExclusive = base.filter((it) => it._exclusive || it._lastStock);
     filteredCompare = base.filter((it) => !it._exclusive && !it._lastStock);
 
+    sortExclusiveInPlace(filteredExclusive);
+    sortCompareInPlace(filteredCompare);
+
     setStatus();
     renderNext(true);
   }
@@ -567,6 +712,24 @@ export async function renderStore($app, storeLabelRaw) {
   $q.addEventListener("input", () => {
     if (t) clearTimeout(t);
     t = setTimeout(applyFilter, 60);
+  });
+
+  $clearSearch.addEventListener("click", () => {
+    if (!$q.value) return;
+    $q.value = "";
+    localStorage.setItem(LS_KEY, "");
+    applyFilter();
+    $q.focus();
+  });
+
+  $exSort.addEventListener("change", () => {
+    localStorage.setItem(LS_EX_SORT, String($exSort.value || ""));
+    applyFilter();
+  });
+
+  $cmpMode.addEventListener("change", () => {
+    localStorage.setItem(LS_CMP_MODE, String($cmpMode.value || ""));
+    applyFilter();
   });
 
   let tp = null;
