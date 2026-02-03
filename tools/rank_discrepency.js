@@ -3,20 +3,23 @@
 
 /*
   Print local link URLs for SKUs with largest rank discrepancy between AB and BC lists,
-  but ONLY when there exists another *different* listing (not in same linked group)
+  BUT only when there exists another *different* listing (not in same linked group)
   with a reasonably high similarity score by name.
 
   Usage:
-    node scripts/rank_discrepency_links.js \
+    node ./tools/rank_discrepency.js \
       --ab reports/common_listings_ab_top1000.json \
       --bc reports/common_listings_bc_top1000.json \
       --meta viz/data/sku_meta.json \
-      --min-score 0.75 \
+      --min 10 \
+      --min-score 0.7 \
       --top 50 \
-      --base "http://127.0.0.1:8080/#/link/?left="
+      --base "http://127.0.0.1:8080/#/link/?left=" \
+      --debug
 
-  Output:
-    http://127.0.0.1:8080/#/link/?left=<urlencoded canonSku>
+  Notes:
+   - If --meta is not provided, "same-linked" filtering is disabled (each SKU is its own group).
+   - Debug output goes to STDERR so your STDOUT stays as just links.
 */
 
 const fs = require("fs");
@@ -32,13 +35,21 @@ function parseArgs(argv) {
   const out = {
     ab: "reports/common_listings_ab_top1000.json",
     bc: "reports/common_listings_bc_top1000.json",
-    meta: "", // optional sku_meta containing {links:[{fromSku,toSku}], ignores:...}
+    meta: "",
+
     top: 50,
     minDiscrep: 1,
     includeMissing: false,
+
+    minScore: 0.75,
     base: "http://127.0.0.1:8080/#/link/?left=",
-    minScore: 0.75, // similarity threshold for "reasonably high"
+
+    debug: false,
+    debugN: 20, // how many discrepancy candidates to dump debug lines for
+    debugPayload: false, // show payload structure details
+    dumpScores: false, // dump best match info per emitted link
   };
+
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--ab" && argv[i + 1]) out.ab = argv[++i];
@@ -49,25 +60,69 @@ function parseArgs(argv) {
     else if (a === "--min-score" && argv[i + 1]) out.minScore = Number(argv[++i]) || out.minScore;
     else if (a === "--include-missing") out.includeMissing = true;
     else if (a === "--base" && argv[i + 1]) out.base = String(argv[++i] || out.base);
+
+    else if (a === "--debug") out.debug = true;
+    else if (a === "--debug-n" && argv[i + 1]) out.debugN = Number(argv[++i]) || out.debugN;
+    else if (a === "--debug-payload") out.debugPayload = true;
+    else if (a === "--dump-scores") out.dumpScores = true;
   }
   return out;
 }
 
-function buildRankMap(payload) {
-  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
-  const map = new Map();
-  for (let i = 0; i < rows.length; i++) {
-    const r = rows[i];
-    const k = r?.canonSku;
-    if (!k) continue;
-    map.set(String(k), { rank: i + 1, row: r });
-  }
-  return map;
+/* ---------------- row extraction ---------------- */
+
+function extractRows(payload) {
+  // Most likely shapes:
+  // - [ ... ]
+  // - { rows: [...] }
+  // - { data: { rows: [...] } }
+  // - { data: [...] }  (sometimes)
+  // - { items: [...] } / { results: [...] } etc.
+  if (Array.isArray(payload)) return payload;
+
+  const candidates = [
+    payload?.rows,
+    payload?.data?.rows,
+    payload?.data,
+    payload?.items,
+    payload?.list,
+    payload?.results,
+  ];
+  for (const x of candidates) if (Array.isArray(x)) return x;
+
+  return [];
+}
+
+function rowKey(r) {
+  // Prefer canonSku if present (this script works in canonSku space).
+  // Fall back to sku/id-like fields.
+  const k = r?.canonSku ?? r?.sku ?? r?.canon ?? r?.id ?? r?.key;
+  return k ? String(k) : "";
 }
 
 function pickName(row) {
   if (!row) return "";
-  return String(row.name || row.title || row.productName || row.displayName || "");
+  return String(
+    row.name ??
+      row.title ??
+      row.productName ??
+      row.displayName ??
+      row.itemName ??
+      row.text ??
+      ""
+  );
+}
+
+function buildRankMap(payload) {
+  const rows = extractRows(payload);
+  const map = new Map();
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const k = rowKey(r);
+    if (!k) continue;
+    map.set(String(k), { rank: i + 1, row: r });
+  }
+  return { map, rowsLen: rows.length };
 }
 
 /* ---------------- sku_meta grouping (optional) ---------------- */
@@ -121,7 +176,6 @@ class DSU {
   }
 }
 
-// Choose a stable representative (good enough for filtering “same-linked”)
 function compareSku(a, b) {
   a = String(a || "").trim();
   b = String(b || "").trim();
@@ -134,7 +188,8 @@ function compareSku(a, b) {
   const aNum = /^\d+$/.test(a);
   const bNum = /^\d+$/.test(b);
   if (aNum && bNum) {
-    const na = Number(a), nb = Number(b);
+    const na = Number(a),
+      nb = Number(b);
     if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na < nb ? -1 : 1;
   }
   return a < b ? -1 : 1;
@@ -156,7 +211,6 @@ function buildCanonicalSkuFnFromMeta(meta) {
     dsu.union(a, b);
   }
 
-  // root -> members
   const groupsByRoot = new Map();
   for (const s of all) {
     const r = dsu.find(s);
@@ -166,7 +220,6 @@ function buildCanonicalSkuFnFromMeta(meta) {
     set.add(s);
   }
 
-  // root -> representative
   const repByRoot = new Map();
   for (const [root, members] of groupsByRoot.entries()) {
     const arr = Array.from(members);
@@ -174,7 +227,6 @@ function buildCanonicalSkuFnFromMeta(meta) {
     repByRoot.set(root, arr[0] || root);
   }
 
-  // sku -> rep
   const canonBySku = new Map();
   for (const [root, members] of groupsByRoot.entries()) {
     const rep = repByRoot.get(root) || root;
@@ -190,7 +242,6 @@ function buildCanonicalSkuFnFromMeta(meta) {
 
 /* ---------------- similarity (copied from viz/app) ---------------- */
 
-// Normalize for search: lowercase, punctuation -> space, collapse spaces
 function normSearchText(s) {
   return String(s ?? "")
     .toLowerCase()
@@ -205,9 +256,33 @@ function tokenizeQuery(q) {
 }
 
 const SIM_STOP_TOKENS = new Set([
-  "the","a","an","and","of","to","in","for","with",
-  "year","years","yr","yrs","old",
-  "whisky","whiskey","scotch","single","malt","cask","finish","edition","release","batch","strength","abv","proof",
+  "the",
+  "a",
+  "an",
+  "and",
+  "of",
+  "to",
+  "in",
+  "for",
+  "with",
+  "year",
+  "years",
+  "yr",
+  "yrs",
+  "old",
+  "whisky",
+  "whiskey",
+  "scotch",
+  "single",
+  "malt",
+  "cask",
+  "finish",
+  "edition",
+  "release",
+  "batch",
+  "strength",
+  "abv",
+  "proof",
   "anniversary",
 ]);
 
@@ -248,7 +323,7 @@ function filterSimTokens(tokens) {
     ["bourbon", "bourbon"],
   ]);
 
-  const VOL_UNIT = new Set(["ml","l","cl","oz","liter","liters","litre","litres"]);
+  const VOL_UNIT = new Set(["ml", "l", "cl", "oz", "liter", "liters", "litre", "litres"]);
   const VOL_INLINE_RE = /^\d+(?:\.\d+)?(?:ml|l|cl|oz)$/i;
   const PCT_INLINE_RE = /^\d+(?:\.\d+)?%$/;
 
@@ -314,7 +389,8 @@ function tokenContainmentScore(aTokens, bTokens) {
 function levenshtein(a, b) {
   a = String(a || "");
   b = String(b || "");
-  const n = a.length, m = b.length;
+  const n = a.length,
+    m = b.length;
   if (!n) return m;
   if (!m) return n;
 
@@ -343,7 +419,6 @@ function numberMismatchPenalty(aTokens, bTokens) {
   return 0.28;
 }
 
-// Same structure/weights as viz/app/linker/similarity.js
 function similarityScore(aName, bName) {
   const a = normSearchText(aName);
   const b = normSearchText(bName);
@@ -379,7 +454,7 @@ function similarityScore(aName, bName) {
   const maxLen = Math.max(1, Math.max(a.length, b.length));
   const levSim = 1 - d / maxLen;
 
-  let gate = firstMatch ? 1.0 : Math.min(0.80, 0.06 + 0.95 * contain);
+  let gate = firstMatch ? 1.0 : Math.min(0.8, 0.06 + 0.95 * contain);
 
   const smallN = Math.min(aToks.length, bToks.length);
   if (!firstMatch && smallN <= 3 && contain < 0.78) gate *= 0.18;
@@ -390,7 +465,7 @@ function similarityScore(aName, bName) {
     numGate *
     (firstMatch * 3.0 +
       overlapTail * 2.2 * gate +
-      levSim * (firstMatch ? 1.0 : (0.10 + 0.70 * contain)));
+      levSim * (firstMatch ? 1.0 : 0.1 + 0.7 * contain));
 
   if (ageMatch) s *= 2.2;
   else if (ageMismatch) s *= 0.18;
@@ -400,7 +475,24 @@ function similarityScore(aName, bName) {
   return s;
 }
 
-/* ---------------- main logic ---------------- */
+/* ---------------- debug helpers ---------------- */
+
+function briefObjShape(x) {
+  if (Array.isArray(x)) return { type: "array", len: x.length };
+  if (x && typeof x === "object") return { type: "object", keys: Object.keys(x).slice(0, 30) };
+  return { type: typeof x };
+}
+
+function eprintln(...args) {
+  console.error(...args);
+}
+
+function truncate(s, n) {
+  s = String(s || "");
+  return s.length <= n ? s : s.slice(0, n - 1) + "…";
+}
+
+/* ---------------- main ---------------- */
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -409,7 +501,9 @@ function main() {
   const abPath = path.isAbsolute(args.ab) ? args.ab : path.join(repoRoot, args.ab);
   const bcPath = path.isAbsolute(args.bc) ? args.bc : path.join(repoRoot, args.bc);
   const metaPath = args.meta
-    ? (path.isAbsolute(args.meta) ? args.meta : path.join(repoRoot, args.meta))
+    ? path.isAbsolute(args.meta)
+      ? args.meta
+      : path.join(repoRoot, args.meta)
     : "";
 
   const ab = readJson(abPath);
@@ -419,8 +513,49 @@ function main() {
     ? buildCanonicalSkuFnFromMeta(readJson(metaPath))
     : (sku) => normalizeImplicitSkuKey(sku);
 
-  const abMap = buildRankMap(ab);
-  const bcMap = buildRankMap(bc);
+  const abBuilt = buildRankMap(ab);
+  const bcBuilt = buildRankMap(bc);
+  const abMap = abBuilt.map;
+  const bcMap = bcBuilt.map;
+
+  if (args.debug || args.debugPayload) {
+    eprintln("[rank_discrepency] inputs:", {
+      abPath,
+      bcPath,
+      metaPath: metaPath || "(none)",
+      minDiscrep: args.minDiscrep,
+      minScore: args.minScore,
+      top: args.top,
+      includeMissing: args.includeMissing,
+    });
+    eprintln("[rank_discrepency] payload shapes:", {
+      ab: briefObjShape(ab),
+      bc: briefObjShape(bc),
+    });
+    eprintln("[rank_discrepency] extracted rows:", {
+      abRows: abBuilt.rowsLen,
+      bcRows: bcBuilt.rowsLen,
+      abKeys: abMap.size,
+      bcKeys: bcMap.size,
+    });
+
+    if (args.debugPayload) {
+      // show a tiny sample row keys + fields
+      const abRows = extractRows(ab);
+      const bcRows = extractRows(bc);
+      eprintln("[rank_discrepency] sample AB row[0] keys:", abRows[0] && typeof abRows[0] === "object" ? Object.keys(abRows[0]).slice(0, 40) : abRows[0]);
+      eprintln("[rank_discrepency] sample BC row[0] keys:", bcRows[0] && typeof bcRows[0] === "object" ? Object.keys(bcRows[0]).slice(0, 40) : bcRows[0]);
+      eprintln("[rank_discrepency] sample AB rowKey:", rowKey(abRows[0]));
+      eprintln("[rank_discrepency] sample BC rowKey:", rowKey(bcRows[0]));
+      eprintln("[rank_discrepency] sample AB name:", truncate(pickName(abRows[0]), 120));
+      eprintln("[rank_discrepency] sample BC name:", truncate(pickName(bcRows[0]), 120));
+    }
+  }
+
+  if (!abMap.size || !bcMap.size) {
+    eprintln("[rank_discrepency] ERROR: empty rank maps. Your JSON shape probably isn't {rows:[...]}. Try --debug-payload.");
+    process.exit(2);
+  }
 
   // Build a flat pool of candidates from AB+BC (unique by canonSku)
   const rowBySku = new Map();
@@ -446,14 +581,14 @@ function main() {
     const rankAB = a ? a.rank : null;
     const rankBC = b ? b.rank : null;
 
-    const discrep =
-      rankAB !== null && rankBC !== null ? Math.abs(rankAB - rankBC) : Infinity;
-
+    const discrep = rankAB !== null && rankBC !== null ? Math.abs(rankAB - rankBC) : Infinity;
     if (discrep !== Infinity && discrep < args.minDiscrep) continue;
 
     diffs.push({
       canonSku,
       discrep,
+      rankAB,
+      rankBC,
       sumRank: (rankAB ?? 1e9) + (rankBC ?? 1e9),
     });
   }
@@ -464,35 +599,113 @@ function main() {
     return String(x.canonSku).localeCompare(String(y.canonSku));
   });
 
-  // Keep only discrepancies that have a high-scoring "other" candidate not in same linked group
+  if (args.debug) {
+    eprintln("[rank_discrepency] discrepancy candidates:", {
+      unionKeys: keys.size,
+      diffsAfterMin: diffs.length,
+      topDiscrepSample: diffs.slice(0, 5).map((d) => ({
+        sku: d.canonSku,
+        discrep: d.discrep,
+        rankAB: d.rankAB,
+        rankBC: d.rankBC,
+        name: truncate(allNames.get(String(d.canonSku)) || "", 90),
+      })),
+    });
+  }
+
   const filtered = [];
+  const debugLines = [];
+
   for (const d of diffs) {
     const skuA = String(d.canonSku);
-    const nameA = allNames.get(skuA) || pickName(abMap.get(skuA)?.row) || pickName(bcMap.get(skuA)?.row);
-    if (!nameA) continue;
+    const nameA =
+      allNames.get(skuA) ||
+      pickName(abMap.get(skuA)?.row) ||
+      pickName(bcMap.get(skuA)?.row) ||
+      "";
+    if (!nameA) {
+      if (args.debug && debugLines.length < args.debugN) {
+        debugLines.push({ sku: skuA, reason: "no-name" });
+      }
+      continue;
+    }
 
     const groupA = canonicalSku(skuA);
 
     let best = 0;
+    let bestSku = "";
+    let bestName = "";
+
     for (const skuB of allSkus) {
       if (skuB === skuA) continue;
-
-      // not same-linked group
       if (canonicalSku(skuB) === groupA) continue;
 
       const nameB = allNames.get(skuB) || "";
       if (!nameB) continue;
 
       const s = similarityScore(nameA, nameB);
-      if (s > best) best = s;
+      if (s > best) {
+        best = s;
+        bestSku = skuB;
+        bestName = nameB;
+      }
     }
 
-    if (best >= args.minScore) filtered.push(d);
+    const pass = best >= args.minScore;
+    if (args.debug && debugLines.length < args.debugN) {
+      debugLines.push({
+        sku: skuA,
+        discrep: d.discrep,
+        rankAB: d.rankAB,
+        rankBC: d.rankBC,
+        nameA: truncate(nameA, 80),
+        groupA,
+        best,
+        bestSku,
+        bestGroup: bestSku ? canonicalSku(bestSku) : "",
+        bestName: truncate(bestName, 80),
+        pass,
+      });
+    }
+
+    if (!pass) continue;
+
+    filtered.push({ ...d, best, bestSku, bestName });
     if (filtered.length >= args.top) break;
   }
 
+  if (args.debug) {
+    eprintln("[rank_discrepency] filter results:", {
+      filtered: filtered.length,
+      minScore: args.minScore,
+      minDiscrep: args.minDiscrep,
+    });
+    eprintln("[rank_discrepency] debug sample (first N checked):");
+    for (const x of debugLines) eprintln("  ", x);
+  }
+
+  // STDOUT: links (and optionally score dumps)
   for (const d of filtered) {
-    console.log(args.base + encodeURIComponent(d.canonSku));
+    if (args.dumpScores) {
+      // keep link first so it's easy to pipe
+      eprintln(
+        "[rank_discrepency] emit",
+        JSON.stringify({
+          sku: d.canonSku,
+          discrep: d.discrep,
+          rankAB: d.rankAB,
+          rankBC: d.rankBC,
+          best: d.best,
+          bestSku: d.bestSku,
+          bestName: truncate(d.bestName, 120),
+        })
+      );
+    }
+    console.log(args.base + encodeURIComponent(String(d.canonSku)));
+  }
+
+  if (args.debug) {
+    eprintln("[rank_discrepency] done.");
   }
 }
 
