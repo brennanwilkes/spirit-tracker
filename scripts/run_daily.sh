@@ -106,6 +106,19 @@ fi
 "$NODE_BIN" tools/build_viz_commits.js
 "$NODE_BIN" tools/build_viz_recent.js
 
+# Build common listings artifacts (9 files)
+"$NODE_BIN" tools/build_common_listings.js --group all --top 50   --out "reports/common_listings_all_top50.json"
+"$NODE_BIN" tools/build_common_listings.js --group all --top 250  --out "reports/common_listings_all_top250.json"
+"$NODE_BIN" tools/build_common_listings.js --group all --top 1000 --out "reports/common_listings_all_top1000.json"
+
+"$NODE_BIN" tools/build_common_listings.js --group bc --top 50   --out "reports/common_listings_bc_top50.json"
+"$NODE_BIN" tools/build_common_listings.js --group bc --top 250  --out "reports/common_listings_bc_top250.json"
+"$NODE_BIN" tools/build_common_listings.js --group bc --top 1000 --out "reports/common_listings_bc_top1000.json"
+
+"$NODE_BIN" tools/build_common_listings.js --group ab --top 50   --out "reports/common_listings_ab_top50.json"
+"$NODE_BIN" tools/build_common_listings.js --group ab --top 250  --out "reports/common_listings_ab_top250.json"
+"$NODE_BIN" tools/build_common_listings.js --group ab --top 1000 --out "reports/common_listings_ab_top1000.json"
+
 # Stage only data/report/viz outputs
 git add -A data/db reports viz/data
 
