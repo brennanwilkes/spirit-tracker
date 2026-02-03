@@ -31,6 +31,7 @@ import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker/store_cache
 import { buildSizePenaltyForPair } from "./linker/size.js";
 import { pickPreferredCanonical } from "./linker/canonical_pref.js";
 import { smwsKeyFromName } from "./linker/similarity.js";
+import { buildPricePenaltyForPair } from "./linker/price.js";
 import {
   topSuggestions,
   recommendSimilar,
@@ -124,10 +125,14 @@ export async function renderSkuLinker($app) {
   // ✅ canonical-group size cache + helper
   let sizePenaltyForPair = buildSizePenaltyForPair({ allRows, allAgg, rules });
 
+  // ✅ canonical-group price cache + helper
+  let pricePenaltyForPair = buildPricePenaltyForPair({ allAgg, rules });
+
   function rebuildCachesAfterRulesReload() {
     CANON_STORE_CACHE = buildCanonStoreCache(allAgg, rules);
     sameStoreCanon = makeSameStoreCanonFn(rules, CANON_STORE_CACHE);
     sizePenaltyForPair = buildSizePenaltyForPair({ allRows, allAgg, rules });
+    pricePenaltyForPair = buildPricePenaltyForPair({ allAgg, rules });
   }
 
   function isIgnoredPair(a, b) {
@@ -156,7 +161,8 @@ export async function renderSkuLinker($app) {
       28,
       isIgnoredPair,
       sameStoreCanon,
-      sizePenaltyForPair // ✅ NEW
+      sizePenaltyForPair, // ✅ NEW
+      pricePenaltyForPair // ✅ NEW
     );
   
     return initialPairs;
@@ -240,6 +246,7 @@ export async function renderSkuLinker($app) {
         mappedSkus,
         isIgnoredPair,
         sizePenaltyForPair,
+        pricePenaltyForPair,
         sameStoreCanon,
         sameGroup
       );
