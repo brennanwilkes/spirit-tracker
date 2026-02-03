@@ -356,9 +356,7 @@ export async function renderStats($app) {
   };
 
   document.getElementById("back")?.addEventListener("click", () => {
-    const last = sessionStorage.getItem("viz:lastRoute");
-    if (last && last !== location.hash) location.hash = last;
-    else location.hash = "#/";
+    location.hash = "#/";
   });
 
   const rerender = async () => {
