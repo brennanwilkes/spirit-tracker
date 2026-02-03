@@ -679,7 +679,6 @@ export async function renderItem($app, skuInput) {
       backgroundColor: c,
       pointBackgroundColor: c,
       pointBorderColor: c,
-      borderWidth: datasetStrokeWidth(c),
     };
   });
   

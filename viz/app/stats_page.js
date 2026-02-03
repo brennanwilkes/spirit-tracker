@@ -706,7 +706,6 @@ export async function renderStats($app) {
           backgroundColor: c,
           pointBackgroundColor: c,
           pointBorderColor: c,
-          borderWidth: datasetStrokeWidth(c),
         };
       });
       
