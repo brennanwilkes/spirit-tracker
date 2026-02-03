@@ -60,7 +60,8 @@ let rulesCache = null;
 
 export async function renderStore($app, storeLabelRaw) {
   const storeLabel = String(storeLabelRaw || "").trim();
-  const storeLabelShort = abbrevStoreLabel(storeLabel) || (storeLabel ? storeLabel : "Store");
+  const storeLabelShort =
+    abbrevStoreLabel(storeLabel) || (storeLabel ? storeLabel : "Store");
 
   $app.innerHTML = `
     <div class="container">
@@ -181,7 +182,8 @@ export async function renderStore($app, storeLabelRaw) {
   // Persist max price per store (clamped later once bounds known)
   const LS_MAX_PRICE = `viz:storeMaxPrice:${storeNorm}`;
   const savedMaxPriceRaw = localStorage.getItem(LS_MAX_PRICE);
-  let savedMaxPrice = savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
+  let savedMaxPrice =
+    savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
   if (!Number.isFinite(savedMaxPrice)) savedMaxPrice = null;
 
   // Persist exclusives sort per store
@@ -205,32 +207,26 @@ export async function renderStore($app, storeLabelRaw) {
   const liveAll = listingsAll.filter((r) => r && !r.removed);
 
   function dateMsFromRow(r) {
-    if (!r) return null;
-  
-    // Match renderItem() semantics:
-    // 1) prefer precise ts
-    const t = String(r?.ts || "");
+    const t = String(r?.firstSeenAt || "");
     const ms = t ? Date.parse(t) : NaN;
-    if (Number.isFinite(ms)) return ms;
-  
-    // 2) fall back to date-only (treat as end of day UTC so ordering within day is stable)
-    const d = String(r?.date || "");
-    const ms2 = d ? Date.parse(d + "T23:59:59Z") : NaN;
-    return Number.isFinite(ms2) ? ms2 : null;
+    return Number.isFinite(ms) ? ms : null;
   }
-  
-  // Build earliest "first in DB" timestamp per canonical SKU (includes removed rows)
-  const firstSeenBySku = new Map(); // sku -> ms
+
+  // Build earliest "first in DB (for this store)" timestamp per canonical SKU (includes removed rows)
+  const firstSeenBySkuInStore = new Map(); // sku -> ms
   for (const r of listingsAll) {
     if (!r) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (store !== storeNorm) continue;
+
     const skuKey = keySkuForRow(r);
     const sku = String(rules.canonicalSku(skuKey) || skuKey);
 
     const ms = dateMsFromRow(r);
     if (ms === null) continue;
 
-    const prev = firstSeenBySku.get(sku);
-    if (prev === undefined || ms < prev) firstSeenBySku.set(sku, ms);
+    const prev = firstSeenBySkuInStore.get(sku);
+    if (prev === undefined || ms < prev) firstSeenBySkuInStore.set(sku, ms);
   }
 
   // Build "ever seen" store presence per canonical SKU (includes removed rows)
@@ -307,29 +303,37 @@ export async function renderStore($app, storeLabelRaw) {
     const liveStoreSet = storesBySku.get(sku) || new Set([storeNorm]);
     const everStoreSet = everStoresBySku.get(sku) || liveStoreSet;
 
-    const soloLiveHere = liveStoreSet.size === 1 && liveStoreSet.has(storeNorm);
+    const soloLiveHere =
+      liveStoreSet.size === 1 && liveStoreSet.has(storeNorm);
     const lastStock = soloLiveHere && everStoreSet.size > 1;
     const exclusive = soloLiveHere && !lastStock;
 
-    const storePrice = Number.isFinite(it.cheapestPriceNum) ? it.cheapestPriceNum : null;
+    const storePrice = Number.isFinite(it.cheapestPriceNum)
+      ? it.cheapestPriceNum
+      : null;
     const bestAll = bestAllPrice(sku);
     const other = bestOtherPrice(sku, storeNorm);
 
-    const isBest = storePrice !== null && bestAll !== null ? storePrice <= bestAll + EPS : false;
+    const isBest =
+      storePrice !== null && bestAll !== null
+        ? storePrice <= bestAll + EPS
+        : false;
 
-    const diffVsOtherDollar = storePrice !== null && other !== null ? storePrice - other : null;
+    const diffVsOtherDollar =
+      storePrice !== null && other !== null ? storePrice - other : null;
     const diffVsOtherPct =
       storePrice !== null && other !== null && other > 0
         ? ((storePrice - other) / other) * 100
         : null;
 
-    const diffVsBestDollar = storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
+    const diffVsBestDollar =
+      storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
     const diffVsBestPct =
       storePrice !== null && bestAll !== null && bestAll > 0
         ? ((storePrice - bestAll) / bestAll) * 100
         : null;
 
-    const firstSeenMs = firstSeenBySku.get(sku);
+    const firstSeenMs = firstSeenBySkuInStore.get(sku);
     const firstSeen = firstSeenMs !== undefined ? firstSeenMs : null;
 
     return {
@@ -447,7 +451,8 @@ export async function renderStore($app, storeLabelRaw) {
   // ---- Listing display price: keep cents (no rounding) ----
   function listingPriceStr(it) {
     const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
-    if (p === null) return it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
+    if (p === null)
+      return it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
     return `$${p.toFixed(2)}`;
   }
 
@@ -494,8 +499,8 @@ export async function renderStore($app, storeLabelRaw) {
     const specialBadge = it._lastStock
       ? `<span class="badge badgeLastStock">Last Stock</span>`
       : it._exclusive
-        ? `<span class="badge badgeExclusive">Exclusive</span>`
-        : "";
+      ? `<span class="badge badgeExclusive">Exclusive</span>`
+      : "";
 
     const bestBadge =
       !it._exclusive && !it._lastStock && it._isBest
@@ -513,7 +518,9 @@ export async function renderStore($app, storeLabelRaw) {
             <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
               <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
-                 href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+                 href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(
+      displaySku(it.sku)
+    )}</a>
             </div>
             <div class="metaRow">
               ${specialBadge}
@@ -522,7 +529,11 @@ export async function renderStore($app, storeLabelRaw) {
               <span class="mono price">${esc(price)}</span>
               ${
                 href
-                  ? `<a class="badge" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabelShort)}</a>`
+                  ? `<a class="badge" href="${esc(
+                      href
+                    )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+                      storeLabelShort
+                    )}</a>`
                   : ``
               }
             </div>
@@ -556,7 +567,9 @@ export async function renderStore($app, storeLabelRaw) {
     }
 
     if (pageMax !== null) {
-      $status.textContent = `In stock: ${total} item(s) (≤ ${formatDollars(selectedMaxPrice)}).`;
+      $status.textContent = `In stock: ${total} item(s) (≤ ${formatDollars(
+        selectedMaxPrice
+      )}).`;
       return;
     }
 
@@ -571,8 +584,14 @@ export async function renderStore($app, storeLabelRaw) {
       shownCompare = 0;
     }
 
-    const sliceEx = filteredExclusive.slice(shownExclusive, shownExclusive + PAGE_EACH);
-    const sliceCo = filteredCompare.slice(shownCompare, shownCompare + PAGE_EACH);
+    const sliceEx = filteredExclusive.slice(
+      shownExclusive,
+      shownExclusive + PAGE_EACH
+    );
+    const sliceCo = filteredCompare.slice(
+      shownCompare,
+      shownCompare + PAGE_EACH
+    );
 
     shownExclusive += sliceEx.length;
     shownCompare += sliceCo.length;
@@ -615,8 +634,10 @@ export async function renderStore($app, storeLabelRaw) {
       arr.sort((a, b) => {
         const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
         const bp = Number.isFinite(b._storePrice) ? b._storePrice : null;
-        const aKey = ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
-        const bKey = bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
+        const aKey =
+          ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
+        const bKey =
+          bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
         if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
         return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
       });
@@ -627,8 +648,10 @@ export async function renderStore($app, storeLabelRaw) {
       arr.sort((a, b) => {
         const ad = Number.isFinite(a._firstSeenMs) ? a._firstSeenMs : null;
         const bd = Number.isFinite(b._firstSeenMs) ? b._firstSeenMs : null;
-        const aKey = ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
-        const bKey = bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
+        const aKey =
+          ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
+        const bKey =
+          bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
         if (aKey !== bKey) return mode === "dateAsc" ? aKey - bKey : bKey - aKey;
         return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
       });
@@ -638,10 +661,8 @@ export async function renderStore($app, storeLabelRaw) {
   function sortCompareInPlace(arr) {
     const mode = compareMode();
     arr.sort((a, b) => {
-      const da =
-        mode === "percent" ? a._diffVsOtherPct : a._diffVsOtherDollar;
-      const db =
-        mode === "percent" ? b._diffVsOtherPct : b._diffVsOtherDollar;
+      const da = mode === "percent" ? a._diffVsOtherPct : a._diffVsOtherDollar;
+      const db = mode === "percent" ? b._diffVsOtherPct : b._diffVsOtherDollar;
 
       const sa = da === null || !Number.isFinite(da) ? 999999 : da;
       const sb = db === null || !Number.isFinite(db) ? 999999 : db;
@@ -702,13 +723,13 @@ export async function renderStore($app, storeLabelRaw) {
 
   $clearSearch.addEventListener("click", () => {
     let changed = false;
-  
+
     if ($q.value) {
       $q.value = "";
       localStorage.setItem(LS_KEY, "");
       changed = true;
     }
-  
+
     // reset max price too (only if slider is active)
     if (pageMax !== null) {
       selectedMaxPrice = clampAndRound(boundMax);
@@ -717,11 +738,11 @@ export async function renderStore($app, storeLabelRaw) {
       updateMaxPriceLabel();
       changed = true;
     }
-  
+
     if (changed) applyFilter();
     $q.focus();
   });
-  
+
   $exSort.addEventListener("change", () => {
     localStorage.setItem(LS_EX_SORT, String($exSort.value || ""));
     applyFilter();
