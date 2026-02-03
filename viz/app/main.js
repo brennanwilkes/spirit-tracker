@@ -12,7 +12,7 @@ import { renderSearch } from "./search_page.js";
 import { renderItem } from "./item_page.js";
 import { renderSkuLinker } from "./linker_page.js";
 import { renderStore } from "./store_page.js";
-+import { renderStats, destroyStatsChart } from "./stats_page.js";
+import { renderStats, destroyStatsChart } from "./stats_page.js";
 
 function route() {
   const $app = document.getElementById("app");
