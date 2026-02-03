@@ -487,3 +487,27 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   background: rgba(200, 120, 20, 0.12);
   border-color: rgba(200, 120, 20, 0.28);
 }
+
+/* --- Stats page: dual range slider --- */
+.rangeDual {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 18px;
+}
+
+.rangeDual input[type="range"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  accent-color: #9aa3b2;
+  pointer-events: none; /* allow both sliders to be interactable via thumbs */
+}
+
+/* thumbs must still receive pointer events */
+.rangeDual input[type="range"]::-webkit-slider-thumb { pointer-events: all; }
+.rangeDual input[type="range"]::-moz-range-thumb { pointer-events: all; }
