@@ -109,6 +109,8 @@ const BC_STORE_KEYS = new Set([
   "legacy",
   "legacyliquor",
   "tudor",
+  "vessel",
+  "vintage",
 ]);
 
 function groupAllowsStore(group, storeKey) {

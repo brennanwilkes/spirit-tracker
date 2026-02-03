@@ -428,6 +428,21 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   bottom: 0;
 }
 
+/* Stats page only */
+.statsHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.statsTitleStack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 /* --- Store page: two-column results (new; isolated to store page) --- */
 .storeGrid {
   margin-top: 12px;
