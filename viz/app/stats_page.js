@@ -210,7 +210,7 @@ function computeDailyStoreSeriesFromReport(report, filter) {
 
     if (minP !== null || maxP !== null) {
       const rp = rowPriceNum(r, stores);
-      // store-page behavior: "no price" rows pass the filter (they won't contribute anyway)
+      // "no price" rows pass the filter (they won't contribute anyway)
       if (rp !== null) {
         if (minP !== null && rp < minP) continue;
         if (maxP !== null && rp > maxP) continue;
@@ -271,17 +271,26 @@ async function loadCommonCommitsManifest() {
 // Fallback: GitHub API commits for a path, collapsed to one commit per day (newest that day),
 // returned oldest -> newest, same shape as manifest entries.
 async function loadCommitsFallback({ owner, repo, branch, relPath }) {
-  let apiCommits = await githubListCommits({ owner, repo, branch, path: relPath });
+  let apiCommits = await githubListCommits({
+    owner,
+    repo,
+    branch,
+    path: relPath,
+  });
   apiCommits = Array.isArray(apiCommits) ? apiCommits : [];
 
+  // newest -> oldest from API; we want newest-per-day then oldest -> newest
   const byDate = new Map();
   for (const c of apiCommits) {
     const sha = String(c?.sha || "");
-    const ts = String(c?.commit?.committer?.date || c?.commit?.author?.date || "");
+    const ts = String(
+      c?.commit?.committer?.date || c?.commit?.author?.date || ""
+    );
     const d = dateOnly(ts);
     if (!sha || !d) continue;
     if (!byDate.has(d)) byDate.set(d, { sha, date: d, ts });
   }
+
   return [...byDate.values()].reverse();
 }
 
@@ -297,8 +306,10 @@ async function loadRawSeries({ group, size, onStatus }) {
   const branch = "data";
 
   const manifest = await loadCommonCommitsManifest();
+
   let commits = Array.isArray(manifest?.files?.[rel]) ? manifest.files[rel] : null;
 
+  // Fallback if manifest missing/empty
   if (!commits || !commits.length) {
     if (typeof onStatus === "function")
       onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
@@ -313,7 +324,11 @@ async function loadRawSeries({ group, size, onStatus }) {
 
   const cacheKey = `${group}:${size}`;
   const cached = RAW_SERIES_CACHE.get(cacheKey);
-  if (cached && cached.latestSha === latestSha && cached.labels?.length === commits.length) {
+  if (
+    cached &&
+    cached.latestSha === latestSha &&
+    cached.labels?.length === commits.length
+  ) {
     return cached;
   }
 
@@ -328,12 +343,14 @@ async function loadRawSeries({ group, size, onStatus }) {
   const stores = Array.isArray(newestReport?.stores)
     ? newestReport.stores.map(String)
     : [];
-  if (!stores.length) throw new Error(`No stores found in ${rel} at ${latestSha.slice(0, 7)}`);
+  if (!stores.length)
+    throw new Error(`No stores found in ${rel} at ${latestSha.slice(0, 7)}`);
 
   const labels = commits.map((c) => String(c.date || "")).filter(Boolean);
   const shaByIdx = commits.map((c) => String(c.sha || ""));
 
-  if (typeof onStatus === "function") onStatus(`Loading ${labels.length} day(s)…`);
+  if (typeof onStatus === "function")
+    onStatus(`Loading ${labels.length} day(s)…`);
 
   const reportsByIdx = new Array(shaByIdx.length).fill(null);
 
@@ -342,12 +359,20 @@ async function loadRawSeries({ group, size, onStatus }) {
     shaByIdx.map((sha, idx) =>
       limitNet(async () => {
         try {
-          reportsByIdx[idx] = await githubFetchFileAtSha({ owner, repo, sha, path: rel });
+          reportsByIdx[idx] = await githubFetchFileAtSha({
+            owner,
+            repo,
+            sha,
+            path: rel,
+          });
         } catch {
           reportsByIdx[idx] = null;
         } finally {
           done++;
-          if (typeof onStatus === "function" && (done % 10 === 0 || done === shaByIdx.length)) {
+          if (
+            typeof onStatus === "function" &&
+            (done % 10 === 0 || done === shaByIdx.length)
+          ) {
             onStatus(`Loading ${labels.length} day(s)… ${done}/${labels.length}`);
           }
         }
@@ -407,6 +432,28 @@ function computeSeriesFromRaw(raw, filter) {
   }
 
   return { labels, stores, seriesByStore, newestUsed, newestTotal };
+}
+
+/* ---------------- y-axis bounds ---------------- */
+
+function computeYBounds(seriesByStore, defaultAbs) {
+  let mn = Infinity;
+  let mx = -Infinity;
+
+  for (const arr of Object.values(seriesByStore || {})) {
+    if (!Array.isArray(arr)) continue;
+    for (const v of arr) {
+      if (!Number.isFinite(v)) continue;
+      mn = Math.min(mn, v);
+      mx = Math.max(mx, v);
+    }
+  }
+
+  if (mn === Infinity) return { min: -defaultAbs, max: defaultAbs };
+
+  const min = Math.min(-defaultAbs, Math.floor(mn));
+  const max = Math.max(defaultAbs, Math.ceil(mx));
+  return { min, max };
 }
 
 /* ---------------- prefs ---------------- */
@@ -495,6 +542,8 @@ export async function renderStats($app) {
                 <div class="small" style="white-space:nowrap; opacity:.75;">Price</div>
 
                 <div class="rangeDual" aria-label="Price range">
+                  <div class="rangeTrack"></div>
+                  <div class="rangeFill" id="statsRangeFill"></div>
                   <input id="statsMinPrice" type="range" min="0" max="1000" step="1" value="0" />
                   <input id="statsMaxPrice" type="range" min="0" max="1000" step="1" value="1000" />
                 </div>
@@ -523,6 +572,7 @@ export async function renderStats($app) {
 
   const $minR = document.getElementById("statsMinPrice");
   const $maxR = document.getElementById("statsMaxPrice");
+  const $fill = document.getElementById("statsRangeFill");
   const $priceLabel = document.getElementById("statsPriceLabel");
   const $priceWrap = document.getElementById("statsPriceWrap");
 
@@ -571,6 +621,7 @@ export async function renderStats($app) {
     const t = Number.isFinite(v) ? v / 1000 : 1;
     return priceFromT(t);
   }
+
   function updateRangeZ() {
     // help when thumbs overlap
     const a = Number($minR.value);
@@ -584,9 +635,21 @@ export async function renderStats($app) {
     }
   }
 
+  function updateRangeFill() {
+    if (!$fill) return;
+    const a = Number($minR.value) || 0; // 0..1000
+    const b = Number($maxR.value) || 1000;
+    const lo = Math.min(a, b) / 1000;
+    const hi = Math.max(a, b) / 1000;
+    $fill.style.left = `${(lo * 100).toFixed(2)}%`;
+    $fill.style.right = `${((1 - hi) * 100).toFixed(2)}%`;
+  }
+
   function updatePriceLabel() {
     if (!$priceLabel) return;
-    $priceLabel.textContent = `${formatDollars(selectedMinPrice)} – ${formatDollars(selectedMaxPrice)}`;
+    $priceLabel.textContent = `${formatDollars(
+      selectedMinPrice
+    )} – ${formatDollars(selectedMaxPrice)}`;
   }
 
   function saveFilterPrefs(group, size) {
@@ -615,16 +678,16 @@ export async function renderStats($app) {
     return { q, minP, maxP };
   }
 
-  async function drawOrUpdateChart({ labels, stores, seriesByStore }) {
+  async function drawOrUpdateChart(series, yBounds) {
+    const { labels, stores, seriesByStore } = series;
+
     const Chart = await ensureChartJs();
     const canvas = document.getElementById("statsChart");
     if (!canvas) return;
 
     const datasets = stores.map((s) => ({
       label: displayStoreName(s),
-      data: Array.isArray(seriesByStore[s])
-        ? seriesByStore[s]
-        : labels.map(() => null),
+      data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
       spanGaps: false,
       tension: 0.15,
     }));
@@ -632,6 +695,10 @@ export async function renderStats($app) {
     if (_chart) {
       _chart.data.labels = labels;
       _chart.data.datasets = datasets;
+      if (yBounds) {
+        _chart.options.scales.y.min = yBounds.min;
+        _chart.options.scales.y.max = yBounds.max;
+      }
       _chart.update("none");
       return;
     }
@@ -663,6 +730,8 @@ export async function renderStats($app) {
             ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
           },
           y: {
+            min: yBounds?.min,
+            max: yBounds?.max,
             title: { display: true, text: "Avg % vs per-SKU median" },
             ticks: { callback: (v) => `${Number(v).toFixed(0)}%`, maxTicksLimit: 12 },
           },
@@ -674,7 +743,7 @@ export async function renderStats($app) {
   let raw = null; // loaded series (reports cached in-memory)
   let applyTimer = null;
 
-  async function rerender(loadOnly = false) {
+  async function rerender() {
     destroyStatsChart();
 
     const group = String($group?.value || "all");
@@ -690,9 +759,13 @@ export async function renderStats($app) {
       const b = computePriceBoundsFromReport(newestReport, raw.stores);
 
       // dynamic floor: if we have a real min, use it (but keep >= 1); else default to 25
-      const floor = Number.isFinite(b.min) && b.min > 0 ? Math.max(1, Math.floor(b.min)) : 25;
+      const floor =
+        Number.isFinite(b.min) && b.min > 0 ? Math.max(1, Math.floor(b.min)) : 25;
       boundMin = floor;
-      boundMax = Number.isFinite(b.max) && b.max > boundMin ? Math.ceil(b.max) : Math.max(boundMin, 1000);
+      boundMax =
+        Number.isFinite(b.max) && b.max > boundMin
+          ? Math.ceil(b.max)
+          : Math.max(boundMin, 1000);
 
       // hydrate UI from prefs (and clamp to bounds)
       const saved = loadFilterPrefs(group, size);
@@ -707,6 +780,8 @@ export async function renderStats($app) {
         selectedMaxPrice = boundMax;
         setSliderFromPrice($minR, boundMin);
         setSliderFromPrice($maxR, boundMax);
+        updateRangeZ();
+        updateRangeFill();
         updatePriceLabel();
       } else {
         $minR.disabled = false;
@@ -724,10 +799,9 @@ export async function renderStats($app) {
         setSliderFromPrice($minR, selectedMinPrice);
         setSliderFromPrice($maxR, selectedMaxPrice);
         updateRangeZ();
+        updateRangeFill();
         updatePriceLabel();
       }
-
-      if (loadOnly) return;
 
       // apply filters and draw
       const tokens = tokenizeQuery($q?.value || "");
@@ -737,14 +811,16 @@ export async function renderStats($app) {
         maxPrice: selectedMaxPrice,
       });
 
-      await drawOrUpdateChart(series);
+      const abs = group === "all" ? 12 : 8;
+      const yBounds = computeYBounds(series.seriesByStore, abs);
 
-      const rel = relReportPath(group, size);
-      onStatus(
-        `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}. Source=${esc(
-          rel
-        )} @ ${esc(raw.latestSha.slice(0, 7))}`
-      );
+      await drawOrUpdateChart(series, yBounds);
+
+      const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
+      onStatus(short);
+      if ($status) {
+        $status.title = `Source: ${relReportPath(group, size)} @ ${raw.latestSha.slice(0, 7)}`;
+      }
 
       saveFilterPrefs(group, size);
     } catch (e) {
@@ -771,13 +847,16 @@ export async function renderStats($app) {
         maxPrice: selectedMaxPrice,
       });
 
-      await drawOrUpdateChart(series);
+      const abs = group === "all" ? 12 : 8;
+      const yBounds = computeYBounds(series.seriesByStore, abs);
 
-      onStatus(
-        `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}. Source=${esc(
-          relReportPath(group, size)
-        )} @ ${esc(raw.latestSha.slice(0, 7))}`
-      );
+      await drawOrUpdateChart(series, yBounds);
+
+      const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
+      onStatus(short);
+      if ($status) {
+        $status.title = `Source: ${relReportPath(group, size)} @ ${raw.latestSha.slice(0, 7)}`;
+      }
 
       saveFilterPrefs(group, size);
     }, ms);
@@ -805,20 +884,21 @@ export async function renderStats($app) {
     setSliderFromPrice($minR, selectedMinPrice);
     setSliderFromPrice($maxR, selectedMaxPrice);
     updateRangeZ();
+    updateRangeFill();
     updatePriceLabel();
   }
 
   // initial load
-  await rerender(false);
+  await rerender();
 
   // dropdowns: reload raw series + rehydrate filters (clamped)
   $group?.addEventListener("change", async () => {
     onStatus("Loading…");
-    await rerender(false);
+    await rerender();
   });
   $size?.addEventListener("change", async () => {
     onStatus("Loading…");
-    await rerender(false);
+    await rerender();
   });
 
   // search: realtime
@@ -861,9 +941,14 @@ export async function renderStats($app) {
     setSliderFromPrice($minR, selectedMinPrice);
     setSliderFromPrice($maxR, selectedMaxPrice);
     updateRangeZ();
+    updateRangeFill();
     updatePriceLabel();
 
     applyFiltersDebounced(0);
     $q?.focus();
   });
+
+  // ensure fill is correct on first paint
+  updateRangeZ();
+  updateRangeFill();
 }

@@ -488,7 +488,19 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   border-color: rgba(200, 120, 20, 0.28);
 }
 
-/* --- Stats page: dual range slider --- */
+/* Prevent layout width shift when scrollbar appears/disappears */
+html { overflow-y: scroll; }
+
+/* Prevent long status text from forcing header wrap */
+#statsStatus{
+  max-width: 52ch;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Stats dual range slider: custom track + fill (no native progress) --- */
 .rangeDual {
   position: relative;
   flex: 1 1 auto;
@@ -496,6 +508,28 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   height: 18px;
 }
 
+.rangeDual .rangeTrack,
+.rangeDual .rangeFill {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  border-radius: 999px;
+}
+
+.rangeDual .rangeTrack {
+  left: 0;
+  right: 0;
+  background: var(--border);
+}
+
+.rangeDual .rangeFill {
+  left: 0;
+  right: 0;
+  background: #37566b; /* matches your focus outline color */
+}
+
+/* Hide native track/progress; keep thumbs clickable */
 .rangeDual input[type="range"] {
   position: absolute;
   left: 0;
@@ -504,10 +538,14 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   height: 18px;
   margin: 0;
   background: transparent;
-  accent-color: #9aa3b2;
-  pointer-events: none; /* allow both sliders to be interactable via thumbs */
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-/* thumbs must still receive pointer events */
+.rangeDual input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
 .rangeDual input[type="range"]::-webkit-slider-thumb { pointer-events: all; }
+
+.rangeDual input[type="range"]::-moz-range-track { background: transparent; }
+.rangeDual input[type="range"]::-moz-range-progress { background: transparent; }
 .rangeDual input[type="range"]::-moz-range-thumb { pointer-events: all; }
