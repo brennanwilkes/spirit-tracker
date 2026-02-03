@@ -310,9 +310,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   gap:8px;
   flex-wrap:wrap;
   width:100%;
-  justify-content:space-evenly;
+  justify-content: space-between; /* spread each row to fill */
 }
-
 
 .storeBtn {
   border: 1px solid var(--border);
@@ -324,6 +323,16 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   line-height: 1;
   display: inline-flex;
   align-items: center;
+}
+.storeBreak {
+  flex-basis: 100%;
+  width: 0;
+  height: 0;
+}
+
+/* let mobile wrap naturally */
+@media (max-width: 640px) {
+  .storeBreak { display: none; }
 }
 
 .storeBtn:hover {
