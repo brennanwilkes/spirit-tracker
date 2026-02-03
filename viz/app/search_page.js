@@ -97,9 +97,17 @@ export function renderSearch($app) {
       return;
     }
 
+    const half = Math.ceil(stores.length / 2);
+
     $stores.innerHTML = stores
-      .map((s) => `<a class="storeBtn" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`)
+      .map((s, i) => {
+        const btn = `<a class="storeBtn" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`;
+        const brk = i === half - 1 && stores.length > 1 ? `<span class="storeBreak" aria-hidden="true"></span>` : "";
+        return btn + brk;
+      })
       .join("");
+
+
   }
 
   function renderAggregates(items) {
