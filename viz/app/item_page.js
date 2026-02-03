@@ -3,7 +3,7 @@ import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
-import { storeColor, isWhite } from "./storeColors.js";
+import { buildStoreColorMap, storeColor, datasetStrokeWidth, datasetPointRadius } from "./storeColors.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
@@ -665,10 +665,10 @@ export async function renderItem($app, skuInput) {
 
   const span = (ySug.suggestedMax ?? 0) - (ySug.suggestedMin ?? 0);
   const step = niceStepAtLeast(MIN_STEP, span, MAX_TICKS);
+  const colorMap = buildStoreColorMap(series.map((s) => s.label));
 
   const datasets = series.map((s) => {
-    const c = storeColor(s.label); // store label
-  
+    const c = storeColor(s.label, colorMap);
     return {
       label: s.label,
       data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
@@ -679,11 +679,11 @@ export async function renderItem($app, skuInput) {
       backgroundColor: c,
       pointBackgroundColor: c,
       pointBorderColor: c,
-      borderWidth: isWhite(c) ? 2 : 1.5,
+      borderWidth: datasetStrokeWidth(c),
+      pointRadius: datasetPointRadius(c),
     };
   });
   
-
   const ctx = $canvas.getContext("2d");
   CHART = new Chart(ctx, {
     type: "line",
