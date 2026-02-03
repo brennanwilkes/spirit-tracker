@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-03T08:12:32.420Z",
+  "generatedAt": "2026-02-03T17:06:27.436Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -21,7 +21,7 @@
   "totals": {
     "liveRows": 7668,
     "removedRows": 208,
-    "canonSkus": 4514,
+    "canonSkus": 4515,
     "outputCount": 1000
   },
   "rows": [
@@ -34306,44 +34306,6 @@
       }
     },
     {
-      "canonSku": "105751",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "craftcellars"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 94.99,
-        "craftcellars": 95.99
-      },
-      "representative": {
-        "name": "Alberta Premium 20 Year Old",
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "820652",
-        "skuKey": "820652",
-        "url": "https://www.bswliquor.com/products/alberta-premium-20-year-old-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/alberta-premium-20-year-old-whisky"
-      }
-    },
-    {
       "canonSku": "105816",
       "storeCount": 2,
       "stores": [
@@ -39433,6 +39395,44 @@
         "priceNum": 229.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/smws-89-22-melts-in-the-mouth-700-ml/"
+      }
+    },
+    {
+      "canonSku": "123909",
+      "storeCount": 2,
+      "stores": [
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "kegncork": 164.96,
+        "kwm": 168.99
+      },
+      "representative": {
+        "name": "SMWS 93.218 KNEES-UP ON A TUGBOAT",
+        "price": "$168.99",
+        "priceNum": 168.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "123909",
+        "skuKey": "123909",
+        "url": "https://kensingtonwinemarket.com/product/123909/smws-93-218-knees-up-on-a-tugboat",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$164.96",
+        "priceNum": 164.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/smws-93-218-knees-up-on-a-tugboat-700-ml/"
       }
     }
   ]
