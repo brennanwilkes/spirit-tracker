@@ -1,9 +1,18 @@
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
+import {
+  tokenizeQuery,
+  matchesAllTokens,
+  displaySku,
+  keySkuForRow,
+  parsePriceToNumber,
+} from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
-import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
+import {
+  smwsDistilleryCodesForQueryPrefix,
+  smwsDistilleryCodeFromName,
+} from "./smws.js";
 
 export function renderSearch($app) {
   $app.innerHTML = `
@@ -32,16 +41,19 @@ export function renderSearch($app) {
       </div>
 
       <div class="card">
-        <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" />
+        <div style="display:flex; gap:10px; align-items:center; width:100%;">
+          <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" style="flex: 1 1 auto;" />
+          <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
+        </div>
         <div id="results" class="list"></div>
       </div>
     </div>
   `;
 
-
   const $q = document.getElementById("q");
   const $results = document.getElementById("results");
   const $stores = document.getElementById("stores");
+  const $clearSearch = document.getElementById("clearSearch");
 
   $q.value = loadSavedQuery();
 
@@ -114,15 +126,16 @@ export function renderSearch($app) {
 
     $stores.innerHTML = stores
       .map((s, i) => {
-        const btn = `<a class="storeBtn" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`;
-        const brk = i === breakAt - 1 && stores.length > 1
-          ? `<span class="storeBreak" aria-hidden="true"></span>`
-          : "";
+        const btn = `<a class="storeBtn" href="#/store/${encodeURIComponent(
+          s
+        )}">${esc(s)}</a>`;
+        const brk =
+          i === breakAt - 1 && stores.length > 1
+            ? `<span class="storeBreak" aria-hidden="true"></span>`
+            : "";
         return btn + brk;
       })
       .join("");
-
-
   }
 
   function renderAggregates(items) {
@@ -137,19 +150,21 @@ export function renderSearch($app) {
         const storeCount = it.stores.size || 0;
         const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
         const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
-        const store = it.cheapestStoreLabel || ([...it.stores][0] || "Store");
+        const store = it.cheapestStoreLabel || [...it.stores][0] || "Store";
 
         // link must match the displayed store label
         const href = urlForAgg(it, store) || String(it.sampleUrl || "").trim();
         const storeBadge = href
           ? `<a class="badge" href="${esc(
               href
-            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(
-              plus
-            )}</a>`
+            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+              store
+            )}${esc(plus)}</a>`
           : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
-        const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
+        const skuLink = `#/link/?left=${encodeURIComponent(
+          String(it.sku || "")
+        )}`;
 
         return `
           <div class="item" data-sku="${esc(it.sku)}">
@@ -162,7 +177,9 @@ export function renderSearch($app) {
                   <div class="itemName">${esc(it.name || "(no name)")}</div>
                   <a class="badge mono skuLink" href="${esc(
                     skuLink
-                  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+                  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+                    displaySku(it.sku)
+                  )}</a>
                 </div>
                 <div class="metaRow">
                   <span class="mono price">${esc(price)}</span>
@@ -237,26 +254,43 @@ export function renderSearch($app) {
       }
     }
 
-    const pctOff = kind === "price_down" ? salePctOff(r?.oldPrice || "", r?.newPrice || "") : null;
-    const pctUp = kind === "price_up" ? pctChange(r?.oldPrice || "", r?.newPrice || "") : null;
+    const pctOff =
+      kind === "price_down"
+        ? salePctOff(r?.oldPrice || "", r?.newPrice || "")
+        : null;
+    const pctUp =
+      kind === "price_up"
+        ? pctChange(r?.oldPrice || "", r?.newPrice || "")
+        : null;
 
     const isNew = kind === "new";
     const storeCount = agg?.stores?.size || 0;
     const isNewUnique = isNew && storeCount <= 1;
 
     // Cheapest checks (use aggregate index)
-    const newPriceNum = kind === "price_down" || kind === "price_up" ? parsePriceToNumber(r?.newPrice || "") : null;
-    const bestPriceNum = Number.isFinite(agg?.cheapestPriceNum) ? agg.cheapestPriceNum : null;
+    const newPriceNum =
+      kind === "price_down" || kind === "price_up"
+        ? parsePriceToNumber(r?.newPrice || "")
+        : null;
+    const bestPriceNum = Number.isFinite(agg?.cheapestPriceNum)
+      ? agg.cheapestPriceNum
+      : null;
 
     const EPS = 0.01;
     const priceMatchesBest =
-      Number.isFinite(newPriceNum) && Number.isFinite(bestPriceNum) ? Math.abs(newPriceNum - bestPriceNum) <= EPS : false;
+      Number.isFinite(newPriceNum) && Number.isFinite(bestPriceNum)
+        ? Math.abs(newPriceNum - bestPriceNum) <= EPS
+        : false;
 
     const storeIsBest =
-      normStore(storeLabelRaw) && normStore(bestStoreRaw) && normStore(storeLabelRaw) === normStore(bestStoreRaw);
+      normStore(storeLabelRaw) &&
+      normStore(bestStoreRaw) &&
+      normStore(storeLabelRaw) === normStore(bestStoreRaw);
 
-    const saleIsCheapestHere = kind === "price_down" && storeIsBest && priceMatchesBest;
-    const saleIsTiedCheapest = kind === "price_down" && !storeIsBest && priceMatchesBest;
+    const saleIsCheapestHere =
+      kind === "price_down" && storeIsBest && priceMatchesBest;
+    const saleIsTiedCheapest =
+      kind === "price_down" && !storeIsBest && priceMatchesBest;
     const saleIsCheapest = saleIsCheapestHere || saleIsTiedCheapest;
 
     // Bucketed scoring (higher = earlier)
@@ -309,7 +343,8 @@ export function renderSearch($app) {
       return;
     }
 
-    const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
+    const canon =
+      typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
 
     const nowMs = Date.now();
     const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
@@ -365,7 +400,9 @@ export function renderSearch($app) {
           !best ||
           meta.score > best.meta.score ||
           (meta.score === best.meta.score && meta.tie > best.meta.tie) ||
-          (meta.score === best.meta.score && meta.tie === best.meta.tie && ms > best.ms)
+          (meta.score === best.meta.score &&
+            meta.tie === best.meta.tie &&
+            ms > best.ms)
         ) {
           best = { r, meta, ms };
         }
@@ -422,9 +459,13 @@ export function renderSearch($app) {
               )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
                 (r.storeLabel || r.store || "") + plus
               )}</a>`
-            : `<span class="badge">${esc((r.storeLabel || r.store || "") + plus)}</span>`;
+            : `<span class="badge">${esc(
+                (r.storeLabel || r.store || "") + plus
+              )}</span>`;
 
-          const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
+          const dateBadge = when
+            ? `<span class="badge mono">${esc(when)}</span>`
+            : "";
 
           const offBadge =
             meta.kind === "price_down" && meta.pctOff !== null
@@ -451,7 +492,9 @@ export function renderSearch($app) {
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
                     <a class="badge mono skuLink" href="${esc(
                       skuLink
-                    )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
+                    )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+                      displaySku(sku)
+                    )}</a>
                   </div>
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
@@ -484,7 +527,9 @@ export function renderSearch($app) {
     const tokens = tokenizeQuery($q.value);
     if (!tokens.length) return;
 
-    const matches = allAgg.filter((it) => matchesAllTokens(it.searchText, tokens));
+    const matches = allAgg.filter((it) =>
+      matchesAllTokens(it.searchText, tokens)
+    );
 
     const wantCodes = new Set(smwsDistilleryCodesForQueryPrefix($q.value));
     if (!wantCodes.size) {
@@ -526,12 +571,31 @@ export function renderSearch($app) {
       if (tokens.length) {
         applySearch();
       } else {
-        return loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku));
+        return loadRecent().then((recent) =>
+          renderRecent(recent, rules.canonicalSku)
+        );
       }
     })
     .catch((e) => {
-      $results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
+      $results.innerHTML = `<div class="small">Failed to load: ${esc(
+        e.message
+      )}</div>`;
     });
+
+  $clearSearch.addEventListener("click", () => {
+    if ($q.value) {
+      $q.value = "";
+      saveQuery("");
+    }
+    loadSkuRules()
+      .then((rules) =>
+        loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku))
+      )
+      .catch(() => {
+        $results.innerHTML = `<div class="small">Type to search…</div>`;
+      });
+    $q.focus();
+  });
 
   let t = null;
   $q.addEventListener("input", () => {
@@ -541,7 +605,9 @@ export function renderSearch($app) {
       const tokens = tokenizeQuery($q.value);
       if (!tokens.length) {
         loadSkuRules()
-          .then((rules) => loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku)))
+          .then((rules) =>
+            loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku))
+          )
           .catch(() => {
             $results.innerHTML = `<div class="small">Type to search…</div>`;
           });
