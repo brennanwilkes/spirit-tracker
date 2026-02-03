@@ -32,23 +32,39 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   padding: 18px;
 }
 
+/* header becomes 2 rows */
 .header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.headerRow1 {
   display: flex;
   gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 14px;
-  flex-wrap: wrap; /* keeps Link SKUs comfy on small screens */
+  flex-wrap: wrap;
 }
 
-.headerLeft {
-  flex: 1 1 520px;
-  min-width: 240px;
+.headerRow2 {
+  width: 100%;
 }
 
-.headerRight {
-  flex: 0 0 auto;
+.headerButtons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
+
+/* disabled button styling */
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 
 .h1 {
   font-size: 18px;

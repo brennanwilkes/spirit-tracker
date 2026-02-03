@@ -9,17 +9,24 @@ export function renderSearch($app) {
   $app.innerHTML = `
     <div class="container">
       <div class="header">
-        <div class="headerLeft">
-          <h1 class="h1">Brennan's Spirit Tracker</h1>
-          <div class="small">Search name / url / sku / store</div>
+        <!-- Row 1 -->
+        <div class="headerRow1">
+          <div class="headerLeft">
+            <h1 class="h1">Brennan's Spirit Tracker</h1>
+            <div class="small">Search name / url / sku / store</div>
+          </div>
 
-          <div class="storeBarWrap">
-            <div id="stores" class="storeBar"></div>
+          <div class="headerRight headerButtons">
+            <a class="btn btnWide" href="#/link" style="text-decoration:none;">Link SKUs</a>
+            <button class="btn btnWide" type="button" disabled>Email Notifications</button>
           </div>
         </div>
 
-        <div class="headerRight">
-          <a class="btn btnWide" href="#/link" style="text-decoration:none;">Link SKUs</a>
+        <!-- Row 2 -->
+        <div class="headerRow2">
+          <div class="storeBarWrap">
+            <div id="stores" class="storeBar"></div>
+          </div>
         </div>
       </div>
 
@@ -29,6 +36,7 @@ export function renderSearch($app) {
       </div>
     </div>
   `;
+
 
   const $q = document.getElementById("q");
   const $results = document.getElementById("results");
