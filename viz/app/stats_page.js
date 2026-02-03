@@ -695,7 +695,7 @@ export async function renderStats($app) {
 
     const datasets = stores.map((s) => {
         const c = storeColor(s); // store key
-        console.log();
+        console.log(c);
         return {
           label: displayStoreName(s),
           data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
