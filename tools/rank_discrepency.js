@@ -20,7 +20,7 @@ function parseArgs(argv) {
     minDiscrep: 1,
     includeMissing: false,
 
-    // IMPORTANT: similarityScore is NOT 0..1. defaults should be high.
+    // similarityScore is NOT 0..1.
     minScore: 9.0,
     minContain: 0.75,
 
@@ -103,12 +103,31 @@ function pickName(row) {
   return "";
 }
 
-/* ---------------- sku_links union-find grouping ---------------- */
+/* ---------------- sku_links union-find grouping + ignores ---------------- */
 
 function normalizeImplicitSkuKey(k) {
   const s = String(k || "").trim();
   const m = s.match(/^id:(\d{1,6})$/i);
   if (m) return String(m[1]).padStart(6, "0");
+  return s;
+}
+
+function canonicalPairKey(a, b) {
+  const x = normalizeImplicitSkuKey(a);
+  const y = normalizeImplicitSkuKey(b);
+  if (!x || !y) return "";
+  return x < y ? `${x}|${y}` : `${y}|${x}`;
+}
+
+function buildIgnoreSet(meta) {
+  const ignores = Array.isArray(meta?.ignores) ? meta.ignores : [];
+  const s = new Set();
+  for (const x of ignores) {
+    const a = String(x?.skuA || x?.a || x?.left || "").trim();
+    const b = String(x?.skuB || x?.b || x?.right || "").trim();
+    const k = canonicalPairKey(a, b);
+    if (k) s.add(k);
+  }
   return s;
 }
 
@@ -444,6 +463,12 @@ function main() {
   const meta = metaPath ? readJson(metaPath) : null;
   const canonicalSku = meta ? buildCanonicalSkuFnFromMeta(meta) : (sku) => normalizeImplicitSkuKey(sku);
 
+  const ignoreSet = meta ? buildIgnoreSet(meta) : new Set();
+  function isIgnoredPair(a, b) {
+    const k = canonicalPairKey(a, b);
+    return k ? ignoreSet.has(k) : false;
+  }
+
   const abBuilt = buildRankMap(ab);
   const bcBuilt = buildRankMap(bc);
 
@@ -475,6 +500,8 @@ function main() {
     eprintln("[rank_discrepency] inputs:", {
       abPath, bcPath, metaPath: metaPath || "(none)",
       linkCount: Array.isArray(meta?.links) ? meta.links.length : 0,
+      ignoreCount: Array.isArray(meta?.ignores) ? meta.ignores.length : 0,
+      ignoreSetSize: ignoreSet.size,
       minDiscrep: args.minDiscrep,
       minScore: args.minScore,
       minContain: args.minContain,
@@ -525,7 +552,6 @@ function main() {
     );
   }
 
-  // debug-best (top 5) for first discrep SKU, but restricted to cross-group + contain threshold
   if (args.debugBest && diffs.length) {
     const skuA = String(diffs[0].canonSku);
     const nameA = allNames.get(skuA) || "";
@@ -539,6 +565,8 @@ function main() {
     for (const skuB of pool) {
       if (skuB === skuA) continue;
       if (canonicalSku(skuB) === groupA) continue;
+      if (isIgnoredPair(skuA, skuB)) continue;
+
       const nameB = allNames.get(skuB) || "";
       if (!nameB) continue;
 
@@ -574,10 +602,17 @@ function main() {
     const aRaw = tokenizeQuery(nameA);
 
     let best = 0, bestSku = "", bestName = "", bestContain = 0;
+    let bestWasIgnored = false;
 
     for (const skuB of pool) {
       if (skuB === skuA) continue;
       if (canonicalSku(skuB) === groupA) continue;
+
+      if (isIgnoredPair(skuA, skuB)) {
+        // critical: ignored pairs must NOT satisfy the requirement
+        bestWasIgnored = true;
+        continue;
+      }
 
       const nameB = allNames.get(skuB) || "";
       if (!nameB) continue;
@@ -609,7 +644,7 @@ function main() {
         bestSku,
         bestSide: abSkus.has(bestSku) ? "AB" : "BC",
         bestName: truncate(bestName, 52),
-        sameGroupBlocked: bestSku ? (canonicalSku(bestSku) === groupA) : false,
+        sawIgnoredPairs: bestWasIgnored,
         pass,
       });
     }
