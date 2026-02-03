@@ -686,32 +686,51 @@ export async function renderStats($app) {
     return { q, minP, maxP };
   }
 
+  function lastFiniteFromEnd(arr) {
+    if (!Array.isArray(arr)) return null;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const v = arr[i];
+      if (Number.isFinite(v)) return v;
+    }
+    return null;
+  }
+  
   async function drawOrUpdateChart(series, yBounds) {
     const { labels, stores, seriesByStore } = series;
 
     const Chart = await ensureChartJs();
     const canvas = document.getElementById("statsChart");
     if (!canvas) return;
-    const colorMap = buildStoreColorMap(stores); 
     
-    const datasets = stores.map((s) => {
+    const order = stores
+        .map((s) => ({ s, v: lastFiniteFromEnd(seriesByStore[s]) }))
+        .sort((a, b) => {
+        const av = a.v, bv = b.v;
+        if (av === null && bv === null) return displayStoreName(a.s).localeCompare(displayStoreName(b.s));
+        if (av === null) return 1;
+        if (bv === null) return -1;
+        if (av !== bv) return av - bv; // cheapest (lowest index) first
+        return displayStoreName(a.s).localeCompare(displayStoreName(b.s));
+        })
+        .map((x) => x.s);
+    
+    const colorMap = buildStoreColorMap(order);
+    
+    const datasets = order.map((s) => {
         const base = storeColor(s, colorMap);
         const stroke = lighten(base, 0.25);
-      
         return {
-          label: displayStoreName(s),
-          data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
-          spanGaps: false,
-          tension: 0.15,
-      
-          backgroundColor: base,
-          borderColor: stroke,
-          pointBackgroundColor: base,
-          pointBorderColor: stroke,
+        label: displayStoreName(s),
+        data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
+        spanGaps: false,
+        tension: 0.15,
+        backgroundColor: base,
+        borderColor: stroke,
+        pointBackgroundColor: base,
+        pointBorderColor: stroke,
         };
-      });
-      
-
+    });
+  
     if (_chart) {
       _chart.data.labels = labels;
       _chart.data.datasets = datasets;

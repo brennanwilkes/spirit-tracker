@@ -102,6 +102,14 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
 
   return { liveMin, removedMin };
 }
+function lastFiniteFromEnd(arr) {
+  if (!Array.isArray(arr)) return null;
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const v = arr[i];
+    if (Number.isFinite(v)) return v;
+  }
+  return null;
+}
 
 function computeSuggestedY(values, minRange) {
   const nums = values.filter((v) => Number.isFinite(v));
@@ -665,22 +673,41 @@ export async function renderItem($app, skuInput) {
 
   const span = (ySug.suggestedMax ?? 0) - (ySug.suggestedMin ?? 0);
   const step = niceStepAtLeast(MIN_STEP, span, MAX_TICKS);
-  const colorMap = buildStoreColorMap(series.map((s) => s.label));
 
-  const datasets = series.map((s) => {
+  const todayKey = today; // you already computed this earlier
+  const labelsLen = labels.length;
+  
+  const seriesSorted = series
+    .map((s) => {
+      const todayVal = s.points.has(todayKey) ? s.points.get(todayKey) : null;
+      const lastVal = todayVal !== null ? todayVal : lastFiniteFromEnd(labels.map((d) => s.points.get(d)));
+      return { s, v: Number.isFinite(lastVal) ? lastVal : null };
+    })
+    .sort((a, b) => {
+      const av = a.v, bv = b.v;
+      if (av === null && bv === null) return a.s.label.localeCompare(b.s.label);
+      if (av === null) return 1;
+      if (bv === null) return -1;
+      if (av !== bv) return av - bv;
+      return a.s.label.localeCompare(b.s.label);
+    })
+    .map((x) => x.s);
+  
+  const colorMap = buildStoreColorMap(seriesSorted.map((s) => s.label));
+  
+  const datasets = seriesSorted.map((s) => {
     const base = storeColor(s.label, colorMap);
     const stroke = lighten(base, 0.25);
-  
     return {
       label: s.label,
       data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
       spanGaps: false,
       tension: 0.15,
-  
       backgroundColor: base,
       borderColor: stroke,
       pointBackgroundColor: base,
       pointBorderColor: stroke,
+      borderWidth: datasetStrokeWidth(base),
     };
   });
   
