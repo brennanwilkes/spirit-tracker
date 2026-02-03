@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-03T20:12:29.278Z",
+  "generatedAt": "2026-02-03T23:06:41.333Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7703,
-    "removedRows": 201,
-    "canonSkus": 4526,
+    "liveRows": 7716,
+    "removedRows": 196,
+    "canonSkus": 4531,
     "outputCount": 50
   },
   "rows": [
@@ -1886,6 +1886,48 @@
       }
     },
     {
+      "canonSku": "521992",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "coop": 89.99,
+        "craftcellars": 84.99,
+        "kegncork": 84.96,
+        "kwm": 92.99,
+        "maltsandgrains": 83.31
+      },
+      "representative": {
+        "name": "Nikka Taketsuru Pure Malt Japanese Whisky",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "854767",
+        "skuKey": "854767",
+        "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk"
+      }
+    },
+    {
       "canonSku": "530352",
       "storeCount": 6,
       "stores": [
@@ -2093,48 +2135,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/high-west-rendevous-rye"
-      }
-    },
-    {
-      "canonSku": "636845",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 92.99,
-        "craftcellars": 106.99,
-        "kegncork": 104.96,
-        "kwm": 107.99,
-        "maltsandgrains": 112.71,
-        "sierrasprings": 82.75
-      },
-      "representative": {
-        "name": "REDBREAST 12 YEAR OLD 40%",
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "636845",
-        "skuKey": "636845",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/redbreast-12-year-old-40/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/redbreast-12-year-old-40/"
       }
     }
   ]
