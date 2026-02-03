@@ -193,14 +193,18 @@ export async function renderSkuLinker($app) {
         )}${esc(plus)}</a>`
       : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
+    const thumbHref = href || "";
+
     const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
 
     return `
       <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemRow">
-          <div class="thumbBox">${renderThumbHtml(it.img)}</div>
+          <div class="thumbBox thumbLink" data-href="${esc(thumbHref)}">
+            ${renderThumbHtml(it.img)}
+          </div>
           <div class="itemBody">
-            <div class="itemTop">
+              <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
               <span class="badge mono">${esc(displaySku(it.sku))}</span>
             </div>
@@ -266,6 +270,19 @@ export async function renderSkuLinker($app) {
   }
 
   function attachHandlers($root, side) {
+
+    for (const el of Array.from($root.querySelectorAll(".thumbLink"))) {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+  
+        const href = (el.getAttribute("data-href") || "").trim();
+        if (!href) return;
+  
+        window.open(href, "_blank", "noopener,noreferrer");
+      });
+    }
+
     for (const el of Array.from($root.querySelectorAll(".item"))) {
       el.addEventListener("click", () => {
         const skuKey = el.getAttribute("data-sku") || "";
