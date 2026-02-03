@@ -63,6 +63,7 @@ export function recommendSimilar(
     mappedSkus,
     isIgnoredPairFn,
     sizePenaltyFn,
+    pricePenaltyFn,
     sameStoreFn,
     sameGroupFn
   ) {
@@ -169,6 +170,11 @@ export function recommendSimilar(
       if (typeof sizePenaltyFn === "function") {
         s0 *= sizePenaltyFn(pinnedSku, itSku);
       }
+
+      // Price penalty early
+      if (typeof pricePenaltyFn === "function") {
+        s0 *= pricePenaltyFn(pinnedSku, itSku);
+      }
   
       // Age handling early
       const itAge = extractAgeFromText(itNorm);
@@ -213,6 +219,11 @@ export function recommendSimilar(
   
       if (typeof sizePenaltyFn === "function") {
         s *= sizePenaltyFn(pinnedSku, itSku);
+        if (s <= 0) continue;
+      }
+
+      if (typeof pricePenaltyFn === "function") {
+        s *= pricePenaltyFn(pinnedSku, itSku);
         if (s <= 0) continue;
       }
   
@@ -263,7 +274,8 @@ export function recommendSimilar(
     limitPairs,
     isIgnoredPairFn,
     sameStoreFn,
-    sizePenaltyFn // ✅ NEW: pass sizePenaltyForPair in
+    sizePenaltyFn, // ✅ NEW: pass sizePenaltyForPair in
+    pricePenaltyFn
   ) {
     const itemsAll = allAgg.filter((it) => !!it);
   
@@ -455,6 +467,8 @@ export function recommendSimilar(
         }
   
         if (typeof sizePenaltyFn === "function") s *= sizePenaltyFn(aSku, bSku);
+
+        if (typeof pricePenaltyFn === "function") s *= pricePenaltyFn(aSku, bSku);
   
         const bAge = extractAgeFromText(bNorm);
         if (aAge && bAge) {
@@ -492,6 +506,11 @@ export function recommendSimilar(
   
         if (typeof sizePenaltyFn === "function") {
           s *= sizePenaltyFn(aSku, bSku);
+          if (s <= 0) continue;
+        }
+
+        if (typeof pricePenaltyFn === "function") {
+          s *= pricePenaltyFn(aSku, bSku);
           if (s <= 0) continue;
         }
   
@@ -577,4 +596,3 @@ export function recommendSimilar(
     }
     return h >>> 0;
 }
-  
