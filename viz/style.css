@@ -305,17 +305,34 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   margin-top: 12px; /* slightly more gap from the top text */
 }
 
-.storeBar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
-  width: 100%;
+.storeBar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  width:100%;
+  justify-content:flex-start; /* no space-between weirdness */
 }
 
-.storeBtn {
-  justify-content: center;   /* center text within each pill */
-  width: 100%;               /* make each pill fill its grid cell */
+/* 6 per row on desktop */
+.storeBtn{
+  flex: 0 0 calc(16.666% - 8px);
+  justify-content: center;
   text-align: center;
+}
+
+/* 4 per row on smaller screens */
+@media (max-width: 900px){
+  .storeBtn{ flex-basis: calc(25% - 8px); }
+}
+
+/* 3 per row */
+@media (max-width: 640px){
+  .storeBtn{ flex-basis: calc(33.333% - 8px); }
+}
+
+/* 2 per row */
+@media (max-width: 420px){
+  .storeBtn{ flex-basis: calc(50% - 8px); }
 }
 
 
