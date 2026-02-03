@@ -154,13 +154,15 @@ function rowPriceNum(r, stores) {
   return Number.isFinite(med) ? med : null;
 }
 
-/* ---------------- price slider mapping (store-page style) ---------------- */
+/* ---------------- price slider mapping (store-page-ish, but faster low-end) ---------------- */
 
+// faster low-end: coarser step sizes early so you jump past $10/$20 quickly
 function stepForPrice(p, boundMax) {
   const x = Number.isFinite(p) ? p : boundMax;
-  if (x < 120) return 5;
-  if (x < 250) return 10;
-  if (x < 600) return 25;
+  if (x < 50) return 10;
+  if (x < 120) return 25;
+  if (x < 250) return 25;
+  if (x < 600) return 50;
   return 100;
 }
 function roundToStep(p, boundMax) {
@@ -279,7 +281,6 @@ async function loadCommitsFallback({ owner, repo, branch, relPath }) {
   });
   apiCommits = Array.isArray(apiCommits) ? apiCommits : [];
 
-  // newest -> oldest from API; we want newest-per-day then oldest -> newest
   const byDate = new Map();
   for (const c of apiCommits) {
     const sha = String(c?.sha || "");
@@ -294,7 +295,7 @@ async function loadCommitsFallback({ owner, repo, branch, relPath }) {
   return [...byDate.values()].reverse();
 }
 
-/* ---------------- raw series cache (network only once per group/size) ---------------- */
+/* ---------------- raw series cache ---------------- */
 
 const RAW_SERIES_CACHE = new Map(); // key: `${group}:${size}` -> { latestSha, labels, stores, commits, reportsByIdx }
 
@@ -307,9 +308,10 @@ async function loadRawSeries({ group, size, onStatus }) {
 
   const manifest = await loadCommonCommitsManifest();
 
-  let commits = Array.isArray(manifest?.files?.[rel]) ? manifest.files[rel] : null;
+  let commits = Array.isArray(manifest?.files?.[rel])
+    ? manifest.files[rel]
+    : null;
 
-  // Fallback if manifest missing/empty
   if (!commits || !commits.length) {
     if (typeof onStatus === "function")
       onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
@@ -407,7 +409,6 @@ function computeSeriesFromRaw(raw, filter) {
   const seriesByStore = {};
   for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
 
-  // counts based on newest day only (for status)
   let newestUsed = 0;
   let newestTotal = 0;
 
@@ -587,35 +588,42 @@ export async function renderStats($app) {
     location.hash = "#/";
   });
 
-  // current UI state (derived after load)
-  let boundMin = 25;
+  // allow 0 as the floor
+  let boundMin = 0;
   let boundMax = 1000;
 
   let selectedMinPrice = boundMin;
   let selectedMaxPrice = boundMax;
 
+  // faster early ramp: use sqrt easing so early motion moves faster up the range
   function priceFromT(t) {
     t = clamp(t, 0, 1);
     if (boundMax <= boundMin) return boundMin;
-    const ratio = boundMax / boundMin;
-    return boundMin * Math.exp(Math.log(ratio) * t);
+    // sqrt easing (fast early)
+    const te = Math.sqrt(t);
+    return boundMin + (boundMax - boundMin) * te;
   }
+
   function tFromPrice(price) {
     if (!Number.isFinite(price)) return 1;
     if (boundMax <= boundMin) return 1;
     const p = clamp(price, boundMin, boundMax);
-    const ratio = boundMax / boundMin;
-    return Math.log(p / boundMin) / Math.log(ratio);
+    const lin = (p - boundMin) / (boundMax - boundMin);
+    // inverse of sqrt easing
+    return lin * lin;
   }
+
   function clampAndRound(p) {
     const c = clamp(p, boundMin, boundMax);
     const r = roundToStep(c, boundMax);
     return clamp(r, boundMin, boundMax);
   }
+
   function setSliderFromPrice($el, price) {
     const t = tFromPrice(price);
     $el.value = String(Math.round(t * 1000));
   }
+
   function priceFromSlider($el) {
     const v = Number($el.value);
     const t = Number.isFinite(v) ? v / 1000 : 1;
@@ -623,7 +631,6 @@ export async function renderStats($app) {
   }
 
   function updateRangeZ() {
-    // help when thumbs overlap
     const a = Number($minR.value);
     const b = Number($maxR.value);
     if (a >= b - 10) {
@@ -637,7 +644,7 @@ export async function renderStats($app) {
 
   function updateRangeFill() {
     if (!$fill) return;
-    const a = Number($minR.value) || 0; // 0..1000
+    const a = Number($minR.value) || 0;
     const b = Number($maxR.value) || 1000;
     const lo = Math.min(a, b) / 1000;
     const hi = Math.max(a, b) / 1000;
@@ -647,9 +654,9 @@ export async function renderStats($app) {
 
   function updatePriceLabel() {
     if (!$priceLabel) return;
-    $priceLabel.textContent = `${formatDollars(
-      selectedMinPrice
-    )} – ${formatDollars(selectedMaxPrice)}`;
+    $priceLabel.textContent = `${formatDollars(selectedMinPrice)} – ${formatDollars(
+      selectedMaxPrice
+    )}`;
   }
 
   function saveFilterPrefs(group, size) {
@@ -687,7 +694,9 @@ export async function renderStats($app) {
 
     const datasets = stores.map((s) => ({
       label: displayStoreName(s),
-      data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
+      data: Array.isArray(seriesByStore[s])
+        ? seriesByStore[s]
+        : labels.map(() => null),
       spanGaps: false,
       tension: 0.15,
     }));
@@ -733,14 +742,17 @@ export async function renderStats($app) {
             min: yBounds?.min,
             max: yBounds?.max,
             title: { display: true, text: "Avg % vs per-SKU median" },
-            ticks: { callback: (v) => `${Number(v).toFixed(0)}%`, maxTicksLimit: 12 },
+            ticks: {
+              callback: (v) => `${Number(v).toFixed(0)}%`,
+              maxTicksLimit: 12,
+            },
           },
         },
       },
     });
   }
 
-  let raw = null; // loaded series (reports cached in-memory)
+  let raw = null;
   let applyTimer = null;
 
   async function rerender() {
@@ -754,35 +766,23 @@ export async function renderStats($app) {
       onStatus("Loading…");
       raw = await loadRawSeries({ group, size, onStatus });
 
-      // bounds based on newest day report (last)
       const newestReport = raw.reportsByIdx[raw.reportsByIdx.length - 1];
       const b = computePriceBoundsFromReport(newestReport, raw.stores);
 
-      // dynamic floor: if we have a real min, use it (but keep >= 1); else default to 25
-      const floor =
-        Number.isFinite(b.min) && b.min > 0 ? Math.max(1, Math.floor(b.min)) : 25;
-      boundMin = floor;
+      // floor is ALWAYS 0 now
+      boundMin = 0;
       boundMax =
-        Number.isFinite(b.max) && b.max > boundMin
-          ? Math.ceil(b.max)
-          : Math.max(boundMin, 1000);
+        Number.isFinite(b.max) && b.max > 0 ? Math.ceil(b.max) : 1000;
 
-      // hydrate UI from prefs (and clamp to bounds)
       const saved = loadFilterPrefs(group, size);
       if ($q) $q.value = saved.q || "";
 
-      // if no prices, disable slider
       if (!Number.isFinite(b.max)) {
         $minR.disabled = true;
         $maxR.disabled = true;
         $priceWrap.title = "No priced items in this dataset.";
         selectedMinPrice = boundMin;
         selectedMaxPrice = boundMax;
-        setSliderFromPrice($minR, boundMin);
-        setSliderFromPrice($maxR, boundMax);
-        updateRangeZ();
-        updateRangeFill();
-        updatePriceLabel();
       } else {
         $minR.disabled = false;
         $maxR.disabled = false;
@@ -794,16 +794,16 @@ export async function renderStats($app) {
         selectedMinPrice = clampAndRound(wantMin);
         selectedMaxPrice = clampAndRound(wantMax);
 
-        if (selectedMinPrice > selectedMaxPrice) selectedMinPrice = selectedMaxPrice;
-
-        setSliderFromPrice($minR, selectedMinPrice);
-        setSliderFromPrice($maxR, selectedMaxPrice);
-        updateRangeZ();
-        updateRangeFill();
-        updatePriceLabel();
+        if (selectedMinPrice > selectedMaxPrice)
+          selectedMinPrice = selectedMaxPrice;
       }
 
-      // apply filters and draw
+      setSliderFromPrice($minR, selectedMinPrice);
+      setSliderFromPrice($maxR, selectedMaxPrice);
+      updateRangeZ();
+      updateRangeFill();
+      updatePriceLabel();
+
       const tokens = tokenizeQuery($q?.value || "");
       const series = computeSeriesFromRaw(raw, {
         tokens,
@@ -871,7 +871,6 @@ export async function renderStats($app) {
     let nextMin = clampAndRound(rawMin);
     let nextMax = clampAndRound(rawMax);
 
-    // prevent crossing (keep the one being dragged “authoritative”)
     if (nextMin > nextMax) {
       if (which === "min") nextMax = nextMin;
       else nextMin = nextMax;
@@ -880,7 +879,6 @@ export async function renderStats($app) {
     selectedMinPrice = nextMin;
     selectedMaxPrice = nextMax;
 
-    // snap sliders to rounded values for stability
     setSliderFromPrice($minR, selectedMinPrice);
     setSliderFromPrice($maxR, selectedMaxPrice);
     updateRangeZ();
@@ -888,10 +886,8 @@ export async function renderStats($app) {
     updatePriceLabel();
   }
 
-  // initial load
   await rerender();
 
-  // dropdowns: reload raw series + rehydrate filters (clamped)
   $group?.addEventListener("change", async () => {
     onStatus("Loading…");
     await rerender();
@@ -901,14 +897,12 @@ export async function renderStats($app) {
     await rerender();
   });
 
-  // search: realtime
   let tq = null;
   $q?.addEventListener("input", () => {
     if (tq) clearTimeout(tq);
     tq = setTimeout(() => applyFiltersDebounced(0), 60);
   });
 
-  // sliders: realtime
   let tp = null;
   $minR?.addEventListener("input", () => {
     setSelectedRangeFromSliders("min");
@@ -921,7 +915,6 @@ export async function renderStats($app) {
     tp = setTimeout(() => applyFiltersDebounced(0), 40);
   });
 
-  // on change: snap and apply
   $minR?.addEventListener("change", () => {
     setSelectedRangeFromSliders("min");
     applyFiltersDebounced(0);
@@ -931,7 +924,6 @@ export async function renderStats($app) {
     applyFiltersDebounced(0);
   });
 
-  // clear: reset query + full range
   $clear?.addEventListener("click", () => {
     if ($q) $q.value = "";
 
@@ -948,7 +940,6 @@ export async function renderStats($app) {
     $q?.focus();
   });
 
-  // ensure fill is correct on first paint
   updateRangeZ();
   updateRangeFill();
 }
