@@ -193,14 +193,12 @@ export async function renderSkuLinker($app) {
         )}${esc(plus)}</a>`
       : `<span class="badge">${esc(store)}${esc(plus)}</span>`;
 
-    const thumbHref = href || "";
-
     const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
 
     return `
       <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemRow">
-          <div class="thumbBox thumbLink" data-href="${esc(thumbHref)}">
+          <div class="thumbBox thumbInternalLink" data-sku="${esc(it.sku)}">
             ${renderThumbHtml(it.img)}
           </div>
           <div class="itemBody">
@@ -271,15 +269,17 @@ export async function renderSkuLinker($app) {
 
   function attachHandlers($root, side) {
 
-    for (const el of Array.from($root.querySelectorAll(".thumbLink"))) {
+    for (const el of Array.from($root.querySelectorAll(".thumbInternalLink"))) {
       el.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-  
-        const href = (el.getAttribute("data-href") || "").trim();
-        if (!href) return;
-  
-        window.open(href, "_blank", "noopener,noreferrer");
+    
+        const sku = (el.getAttribute("data-sku") || "").trim();
+        if (!sku) return;
+    
+        const u = new URL(location.href);
+        u.hash = `#/item/${encodeURIComponent(sku)}`;
+        window.open(u.toString(), "_blank", "noopener,noreferrer");
       });
     }
 
