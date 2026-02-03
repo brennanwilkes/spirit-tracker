@@ -97,12 +97,26 @@ export function renderSearch($app) {
       return;
     }
 
-    const half = Math.ceil(stores.length / 2);
+    const totalChars = stores.reduce((n, s) => n + s.length, 0);
+    const target = totalChars / 2;
+
+    let acc = 0;
+    let breakAt = stores.length;
+
+    for (let i = 0; i < stores.length; i++) {
+      acc += stores[i].length;
+      if (acc >= target) {
+        breakAt = i + 1;
+        break;
+      }
+    }
 
     $stores.innerHTML = stores
       .map((s, i) => {
         const btn = `<a class="storeBtn" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`;
-        const brk = i === half - 1 && stores.length > 1 ? `<span class="storeBreak" aria-hidden="true"></span>` : "";
+        const brk = i === breakAt - 1 && stores.length > 1
+          ? `<span class="storeBreak" aria-hidden="true"></span>`
+          : "";
         return btn + brk;
       })
       .join("");
