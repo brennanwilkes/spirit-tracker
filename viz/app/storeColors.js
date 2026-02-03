@@ -128,3 +128,38 @@ function normalizeId(s) {
     return isWhiteHex(color) ? 2.8 : 2.2;
   }
   
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  }
+  
+  function hexToRgb(hex) {
+    const m = String(hex).replace("#", "");
+    if (m.length !== 6) return null;
+    const n = parseInt(m, 16);
+    return {
+      r: (n >> 16) & 255,
+      g: (n >> 8) & 255,
+      b: n & 255,
+    };
+  }
+  
+  function rgbToHex({ r, g, b }) {
+    const h = (x) => clamp(Math.round(x), 0, 255).toString(16).padStart(2, "0");
+    return `#${h(r)}${h(g)}${h(b)}`;
+  }
+  
+  // lighten by mixing with white (amount 0–1)
+  export function lighten(hex, amount = 0.25) {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return hex;
+    return rgbToHex({
+      r: rgb.r + (255 - rgb.r) * amount,
+      g: rgb.g + (255 - rgb.g) * amount,
+      b: rgb.b + (255 - rgb.b) * amount,
+    });
+  }
+  
+  export function datasetStrokeWidth(color) {
+    return String(color).toUpperCase() === "#FFFFFF" ? 2.5 : 1.5;
+  }
+  

@@ -695,17 +695,20 @@ export async function renderStats($app) {
     const colorMap = buildStoreColorMap(stores); 
     
     const datasets = stores.map((s) => {
-        const c = storeColor(s, colorMap);
+        const base = storeColor(s, colorMap);
+        const stroke = lighten(base, 0.25);
+      
         return {
           label: displayStoreName(s),
           data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
           spanGaps: false,
           tension: 0.15,
       
-          borderColor: c,
-          backgroundColor: c,
-          pointBackgroundColor: c,
-          pointBorderColor: c,
+          backgroundColor: base,
+          borderColor: stroke,
+          pointBackgroundColor: base,
+          pointBorderColor: stroke,
+          borderWidth: datasetStrokeWidth(base),
         };
       });
       
