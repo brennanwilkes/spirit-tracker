@@ -3,6 +3,31 @@ import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommit
 
 let _chart = null;
 
+
+const STORE_LABELS = {
+    bcl: "BCL",
+    bsw: "BSW",
+    coop: "Co-op World of Whisky",
+    craftcellars: "Craft Cellars",
+    gull: "Gull Liquor",
+    kegncork: "Keg N Cork",
+    kwm: "Kensington Wine Market",
+    legacy: "Legacy Liquor",
+    legacyliquor: "Legacy Liquor",
+    maltsandgrains: "Malts & Grains",
+    sierrasprings: "Sierra Springs",
+    strath: "Strath Liquor",
+    tudor: "Tudor House",
+    vessel: "Vessel Liquor",
+    vintage: "Vintage Spirits",
+    willowpark: "Willow Park",
+  };
+  
+function displayStoreName(storeKey) {
+const k = String(storeKey || "").toLowerCase();
+return STORE_LABELS[k] || storeKey;
+}
+
 export function destroyStatsChart() {
   try {
     if (_chart) _chart.destroy();
@@ -284,45 +309,35 @@ export async function renderStats($app) {
   const pref = loadPrefs();
 
   $app.innerHTML = `
-    <div class="container">
-        <div class="header">
-        <div class="headerRow1">
-            <div class="headerLeft">
+    <div class="headerRow1">
+        <div class="statsHeaderLeft">
+        <button id="back" class="btn">← Back</button>
+
+        <div class="statsTitleStack">
             <h1 class="h1">Store Price Index</h1>
             <div class="small" id="statsStatus">Loading…</div>
-
-            <div class="headerButtons" style="margin-top:10px;">
-                <button id="back" class="btn">← Back</button>
-            </div>
-            </div>
-
-            <div class="headerRight">
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Stores
-                <select id="statsGroup" class="selectSmall" aria-label="Store group">
-                    <option value="all">All Stores</option>
-                    <option value="bc">BC Only</option>
-                    <option value="ab">Alberta Only</option>
-                </select>
-                </label>
-
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Index Size
-                <select id="statsSize" class="selectSmall" aria-label="Index size">
-                    <option value="50">50</option>
-                    <option value="250">250</option>
-                    <option value="1000">1000</option>
-                </select>
-                </label>
-            </div>
-            </div>
         </div>
         </div>
 
-        <div class="card">
-        <div style="height:420px;">
-            <canvas id="statsChart" aria-label="Statistics chart" role="img"></canvas>
+        <div class="headerRight">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
+            <label class="small" style="display:flex; gap:8px; align-items:center;">
+            Stores
+            <select id="statsGroup" class="selectSmall" aria-label="Store group">
+                <option value="all">All Stores</option>
+                <option value="bc">BC Only</option>
+                <option value="ab">Alberta Only</option>
+            </select>
+            </label>
+
+            <label class="small" style="display:flex; gap:8px; align-items:center;">
+            Index Size
+            <select id="statsSize" class="selectSmall" aria-label="Index size">
+                <option value="50">50</option>
+                <option value="250">250</option>
+                <option value="1000">1000</option>
+            </select>
+            </label>
         </div>
         </div>
     </div>
@@ -366,7 +381,7 @@ export async function renderStats($app) {
       });
 
       const datasets = stores.map((s) => ({
-        label: s,
+        label: displayStoreName(s),
         data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
         spanGaps: false,
         tension: 0.15,
