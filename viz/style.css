@@ -305,12 +305,11 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   margin-top: 12px; /* slightly more gap from the top text */
 }
 
-.storeBar{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  width:100%;
-  justify-content: space-between; /* spread each row to fill */
+.storeBar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  width: 100%;
 }
 
 .storeBtn {
