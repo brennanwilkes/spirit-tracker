@@ -159,7 +159,5 @@ function normalizeId(s) {
     });
   }
   
-  export function datasetStrokeWidth(color) {
-    return String(color).toUpperCase() === "#FFFFFF" ? 2.5 : 1.5;
-  }
+  
   
