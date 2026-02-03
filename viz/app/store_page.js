@@ -206,33 +206,19 @@ export async function renderStore($app, storeLabelRaw) {
 
   function dateMsFromRow(r) {
     if (!r) return null;
-    const keys = [
-      "firstSeenAt",
-      "firstSeen",
-      "createdAt",
-      "created",
-      "addedAt",
-      "added",
-      "date",
-      "ts",
-      "timestamp",
-    ];
-    for (const k of keys) {
-      const v = r[k];
-      if (v === undefined || v === null) continue;
-      if (typeof v === "number" && Number.isFinite(v)) {
-        // If seconds-ish, normalize to ms
-        if (v > 0 && v < 2e10) return v < 2e9 ? v * 1000 : v;
-        return v;
-      }
-      if (typeof v === "string") {
-        const t = Date.parse(v);
-        if (Number.isFinite(t)) return t;
-      }
-    }
-    return null;
+  
+    // Match renderItem() semantics:
+    // 1) prefer precise ts
+    const t = String(r?.ts || "");
+    const ms = t ? Date.parse(t) : NaN;
+    if (Number.isFinite(ms)) return ms;
+  
+    // 2) fall back to date-only (treat as end of day UTC so ordering within day is stable)
+    const d = String(r?.date || "");
+    const ms2 = d ? Date.parse(d + "T23:59:59Z") : NaN;
+    return Number.isFinite(ms2) ? ms2 : null;
   }
-
+  
   // Build earliest "first in DB" timestamp per canonical SKU (includes removed rows)
   const firstSeenBySku = new Map(); // sku -> ms
   for (const r of listingsAll) {
@@ -715,13 +701,27 @@ export async function renderStore($app, storeLabelRaw) {
   });
 
   $clearSearch.addEventListener("click", () => {
-    if (!$q.value) return;
-    $q.value = "";
-    localStorage.setItem(LS_KEY, "");
-    applyFilter();
+    let changed = false;
+  
+    if ($q.value) {
+      $q.value = "";
+      localStorage.setItem(LS_KEY, "");
+      changed = true;
+    }
+  
+    // reset max price too (only if slider is active)
+    if (pageMax !== null) {
+      selectedMaxPrice = clampAndRound(boundMax);
+      localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+      setSliderFromPrice(selectedMaxPrice);
+      updateMaxPriceLabel();
+      changed = true;
+    }
+  
+    if (changed) applyFilter();
     $q.focus();
   });
-
+  
   $exSort.addEventListener("change", () => {
     localStorage.setItem(LS_EX_SORT, String($exSort.value || ""));
     applyFilter();
