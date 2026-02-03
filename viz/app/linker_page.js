@@ -617,7 +617,7 @@ export async function renderSkuLinker($app) {
       pinnedR = null;
       updateAll();
 
-      if (shouldReloadAfterLink) location.reload();
+      location.reload();
       return;
     }
 
@@ -648,7 +648,7 @@ export async function renderSkuLinker($app) {
       pinnedR = null;
       updateAll();
 
-      if (shouldReloadAfterLink) location.reload();
+      location.reload();
     } catch (e) {
       $status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
     }
