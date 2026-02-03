@@ -5,7 +5,7 @@ import {
   githubFetchFileAtSha,
   githubListCommits,
 } from "./api.js";
-import { buildStoreColorMap, storeColor, datasetStrokeWidth, datasetPointRadius } from "./storeColors.js";
+import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 
 let _chart = null;
 

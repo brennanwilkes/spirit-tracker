@@ -3,7 +3,7 @@ import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
-import { buildStoreColorMap, storeColor, datasetStrokeWidth, datasetPointRadius } from "./storeColors.js";
+import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
