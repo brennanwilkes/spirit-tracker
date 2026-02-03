@@ -2,17 +2,17 @@
 "use strict";
 
 /*
-  Compare rank placement between AB and BC "common_listings_*_top*.json" reports.
+  Print local link URLs for SKUs with largest rank discrepancy between AB and BC lists.
 
   Usage:
-    node scripts/rank_discrepency.js \
+    node scripts/rank_discrepency_links.js \
       --ab reports/common_listings_ab_top1000.json \
       --bc reports/common_listings_bc_top1000.json \
-      --top 50
+      --top 50 \
+      --base "http://127.0.0.1:8080/#/link/?left="
 
-  Notes:
-  - Rank = index in payload.rows (1-based).
-  - Only compares SKUs that exist in BOTH files (unless --include-missing).
+  Output:
+    http://127.0.0.1:8080/#/link/?left=<urlencoded canonSku>
 */
 
 const fs = require("fs");
@@ -27,8 +27,9 @@ function parseArgs(argv) {
     ab: "reports/common_listings_ab_top1000.json",
     bc: "reports/common_listings_bc_top1000.json",
     top: 50,
-    includeMissing: false,
     minDiscrep: 1,
+    includeMissing: false,
+    base: "http://127.0.0.1:8080/#/link/?left=",
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -37,6 +38,7 @@ function parseArgs(argv) {
     else if (a === "--top" && argv[i + 1]) out.top = Number(argv[++i]) || out.top;
     else if (a === "--min" && argv[i + 1]) out.minDiscrep = Number(argv[++i]) || out.minDiscrep;
     else if (a === "--include-missing") out.includeMissing = true;
+    else if (a === "--base" && argv[i + 1]) out.base = String(argv[++i] || out.base);
   }
   return out;
 }
@@ -46,14 +48,11 @@ function buildRankMap(payload) {
   const map = new Map();
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
-    if (!r || !r.canonSku) continue;
-    map.set(String(r.canonSku), { rank: i + 1, row: r });
+    const k = r?.canonSku;
+    if (!k) continue;
+    map.set(String(k), { rank: i + 1, row: r });
   }
   return map;
-}
-
-function fmtMoney(n) {
-  return Number.isFinite(n) ? `$${n.toFixed(2)}` : "";
 }
 
 function main() {
@@ -86,64 +85,28 @@ function main() {
 
     if (discrep !== Infinity && discrep < args.minDiscrep) continue;
 
-    const rep = (a?.row?.representative || b?.row?.representative) ?? null;
-    const name = rep?.name || "";
-    const priceNum = rep?.priceNum;
-    const url = rep?.url || "";
-
     diffs.push({
       canonSku,
       discrep,
-      rankAB,
-      rankBC,
-      storeCountAB: a?.row?.storeCount ?? null,
-      storeCountBC: b?.row?.storeCount ?? null,
-      name,
-      price: fmtMoney(priceNum),
-      url,
+      // tie-breakers
+      sumRank: (rankAB ?? 1e9) + (rankBC ?? 1e9),
     });
   }
 
   diffs.sort((x, y) => {
     if (y.discrep !== x.discrep) return y.discrep - x.discrep;
-    // tie-breaker: best average rank (smaller is "higher")
-    const ax = (x.rankAB ?? 1e9) + (x.rankBC ?? 1e9);
-    const ay = (y.rankAB ?? 1e9) + (y.rankBC ?? 1e9);
-    if (ax !== ay) return ax - ay;
+    if (x.sumRank !== y.sumRank) return x.sumRank - y.sumRank;
     return String(x.canonSku).localeCompare(String(y.canonSku));
   });
 
   const top = diffs.slice(0, args.top);
 
-  console.log(
-    `AB: ${path.relative(repoRoot, abPath)} (rows=${ab?.rows?.length ?? 0})`
-  );
-  console.log(
-    `BC: ${path.relative(repoRoot, bcPath)} (rows=${bc?.rows?.length ?? 0})`
-  );
-  console.log(
-    `Showing top ${top.length} by |rankAB-rankBC| (min=${args.minDiscrep})\n`
-  );
-
   for (const d of top) {
-    const ra = d.rankAB === null ? "—" : String(d.rankAB);
-    const rb = d.rankBC === null ? "—" : String(d.rankBC);
-    const sca = d.storeCountAB === null ? "—" : String(d.storeCountAB);
-    const scb = d.storeCountBC === null ? "—" : String(d.storeCountBC);
-
-    console.log(
-      [
-        `Δ=${d.discrep}`,
-        `AB#${ra} (stores=${sca})`,
-        `BC#${rb} (stores=${scb})`,
-        `sku=${d.canonSku}`,
-        d.price ? `rep=${d.price}` : "",
-        d.name ? `name="${d.name.replace(/\s+/g, " ").trim().slice(0, 120)}"` : "",
-      ]
-        .filter(Boolean)
-        .join(" | ")
-    );
-    if (d.url) console.log(`  ${d.url}`);
+    // examples:
+    // 884096 -> left=884096
+    // id:1049355 -> left=id%3A1049355
+    // u:bb504a62 -> left=u%3Abb504a62
+    console.log(args.base + encodeURIComponent(d.canonSku));
   }
 }
 
