@@ -1,31 +1,35 @@
 import { esc } from "./dom.js";
-import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommits } from "./api.js";
+import {
+  fetchJson,
+  inferGithubOwnerRepo,
+  githubFetchFileAtSha,
+  githubListCommits,
+} from "./api.js";
 
 let _chart = null;
 
-
 const STORE_LABELS = {
-    bcl: "BCL",
-    bsw: "BSW",
-    coop: "Co-op World of Whisky",
-    craftcellars: "Craft Cellars",
-    gull: "Gull Liquor",
-    kegncork: "Keg N Cork",
-    kwm: "Kensington Wine Market",
-    legacy: "Legacy Liquor",
-    legacyliquor: "Legacy Liquor",
-    maltsandgrains: "Malts & Grains",
-    sierrasprings: "Sierra Springs",
-    strath: "Strath Liquor",
-    tudor: "Tudor House",
-    vessel: "Vessel Liquor",
-    vintage: "Vintage Spirits",
-    willowpark: "Willow Park",
-  };
-  
+  bcl: "BCL",
+  bsw: "BSW",
+  coop: "Co-op World of Whisky",
+  craftcellars: "Craft Cellars",
+  gull: "Gull Liquor",
+  kegncork: "Keg N Cork",
+  kwm: "Kensington Wine Market",
+  legacy: "Legacy Liquor",
+  legacyliquor: "Legacy Liquor",
+  maltsandgrains: "Malts & Grains",
+  sierrasprings: "Sierra Springs",
+  strath: "Strath Liquor",
+  tudor: "Tudor House",
+  vessel: "Vessel Liquor",
+  vintage: "Vintage Spirits",
+  willowpark: "Willow Park",
+};
+
 function displayStoreName(storeKey) {
-const k = String(storeKey || "").toLowerCase();
-return STORE_LABELS[k] || storeKey;
+  const k = String(storeKey || "").toLowerCase();
+  return STORE_LABELS[k] || storeKey;
 }
 
 export function destroyStatsChart() {
@@ -41,7 +45,8 @@ function ensureChartJs() {
   return new Promise((resolve, reject) => {
     const s = document.createElement("script");
     // UMD build -> window.Chart
-    s.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
+    s.src =
+      "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
     s.async = true;
     s.onload = () => resolve(window.Chart);
     s.onerror = () => reject(new Error("Failed to load Chart.js"));
@@ -91,41 +96,101 @@ function makeLimiter(max) {
     });
 }
 
-function statsCacheKey(group, size, latestSha) {
-  return `stviz:v1:stats:common:${group}:${size}:${latestSha}`;
+function tokenizeQuery(q) {
+  return String(q || "")
+    .toLowerCase()
+    .split(/\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
-function loadStatsCache(group, size, latestSha) {
-  try {
-    const raw = localStorage.getItem(statsCacheKey(group, size, latestSha));
-    if (!raw) return null;
-    const obj = JSON.parse(raw);
-    if (!obj || !Array.isArray(obj.labels) || !Array.isArray(obj.stores) || typeof obj.seriesByStore !== "object") return null;
-    const savedAt = Number(obj.savedAt || 0);
-    if (!Number.isFinite(savedAt) || Date.now() - savedAt > 7 * 24 * 3600 * 1000) return null;
-    return obj;
-  } catch {
-    return null;
+function matchesAllTokens(haystack, tokens) {
+  if (!tokens.length) return true;
+  const h = String(haystack || "").toLowerCase();
+  for (const t of tokens) {
+    if (!h.includes(t)) return false;
   }
+  return true;
 }
 
-function saveStatsCache(group, size, latestSha, payload) {
-  try {
-    localStorage.setItem(
-      statsCacheKey(group, size, latestSha),
-      JSON.stringify({ savedAt: Date.now(), ...payload })
-    );
-  } catch {}
+function rowSearchText(r) {
+  const rep = r?.representative || {};
+  return [
+    r?.canonSku,
+    rep?.name,
+    rep?.skuRaw,
+    rep?.skuKey,
+    rep?.categoryLabel,
+    rep?.storeLabel,
+    rep?.storeKey,
+  ]
+    .map((x) => String(x || "").trim())
+    .filter(Boolean)
+    .join(" | ")
+    .toLowerCase();
 }
 
-function relReportPath(group, size) {
-  return `reports/common_listings_${group}_top${size}.json`;
+// Prefer representative.priceNum; else cheapest.priceNum; else median(storePrices)
+function rowPriceNum(r, stores) {
+  const rep = r?.representative;
+  const ch = r?.cheapest;
+
+  const a = rep && Number.isFinite(rep.priceNum) ? rep.priceNum : null;
+  if (a !== null) return a;
+
+  const b = ch && Number.isFinite(ch.priceNum) ? ch.priceNum : null;
+  if (b !== null) return b;
+
+  const sp = r && typeof r === "object" ? r.storePrices : null;
+  if (!sp || typeof sp !== "object") return null;
+
+  const prices = [];
+  for (const s of stores) {
+    const p = sp[s];
+    if (Number.isFinite(p)) prices.push(p);
+  }
+  prices.sort((x, y) => x - y);
+  const med = medianOfSorted(prices);
+  return Number.isFinite(med) ? med : null;
 }
+
+/* ---------------- price slider mapping (store-page style) ---------------- */
+
+function stepForPrice(p, boundMax) {
+  const x = Number.isFinite(p) ? p : boundMax;
+  if (x < 120) return 5;
+  if (x < 250) return 10;
+  if (x < 600) return 25;
+  return 100;
+}
+function roundToStep(p, boundMax) {
+  const step = stepForPrice(p, boundMax);
+  return Math.round(p / step) * step;
+}
+
+function clamp(n, lo, hi) {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+function formatDollars(p) {
+  if (!Number.isFinite(p)) return "";
+  return `$${Math.round(p)}`;
+}
+
+/* ---------------- report filtering + series ---------------- */
 
 // avg over SKUs that store has a price for: ((storePrice - medianPrice) / medianPrice) * 100
-function computeDailyStoreSeriesFromReport(report) {
-  const stores = Array.isArray(report?.stores) ? report.stores.map(String) : [];
+function computeDailyStoreSeriesFromReport(report, filter) {
+  const stores = Array.isArray(filter?.stores)
+    ? filter.stores.map(String)
+    : Array.isArray(report?.stores)
+    ? report.stores.map(String)
+    : [];
+
   const rows = Array.isArray(report?.rows) ? report.rows : [];
+  const tokens = Array.isArray(filter?.tokens) ? filter.tokens : [];
+  const minP = Number.isFinite(filter?.minPrice) ? filter.minPrice : null;
+  const maxP = Number.isFinite(filter?.maxPrice) ? filter.maxPrice : null;
 
   const sum = new Map();
   const cnt = new Map();
@@ -134,8 +199,25 @@ function computeDailyStoreSeriesFromReport(report) {
     cnt.set(s, 0);
   }
 
+  let usedRows = 0;
+
   for (const r of rows) {
-    const sp = r && typeof r === "object" ? r.storePrices : null;
+    if (!r || typeof r !== "object") continue;
+
+    if (tokens.length) {
+      if (!matchesAllTokens(rowSearchText(r), tokens)) continue;
+    }
+
+    if (minP !== null || maxP !== null) {
+      const rp = rowPriceNum(r, stores);
+      // store-page behavior: "no price" rows pass the filter (they won't contribute anyway)
+      if (rp !== null) {
+        if (minP !== null && rp < minP) continue;
+        if (maxP !== null && rp > maxP) continue;
+      }
+    }
+
+    const sp = r.storePrices;
     if (!sp || typeof sp !== "object") continue;
 
     const prices = [];
@@ -147,6 +229,8 @@ function computeDailyStoreSeriesFromReport(report) {
 
     const med = medianOfSorted(prices);
     if (!isFinitePos(med)) continue;
+
+    usedRows++;
 
     for (const s of stores) {
       const p = sp[s];
@@ -162,7 +246,11 @@ function computeDailyStoreSeriesFromReport(report) {
     const c = cnt.get(s) || 0;
     out[s] = c > 0 ? (sum.get(s) || 0) / c : null;
   }
-  return { stores, valuesByStore: out };
+  return { stores, valuesByStore: out, usedRows, totalRows: rows.length };
+}
+
+function relReportPath(group, size) {
+  return `reports/common_listings_${group}_top${size}.json`;
 }
 
 /* ---------------- commits manifest ---------------- */
@@ -186,7 +274,6 @@ async function loadCommitsFallback({ owner, repo, branch, relPath }) {
   let apiCommits = await githubListCommits({ owner, repo, branch, path: relPath });
   apiCommits = Array.isArray(apiCommits) ? apiCommits : [];
 
-  // newest -> oldest from API; we want newest-per-day then oldest -> newest
   const byDate = new Map();
   for (const c of apiCommits) {
     const sha = String(c?.sha || "");
@@ -195,11 +282,14 @@ async function loadCommitsFallback({ owner, repo, branch, relPath }) {
     if (!sha || !d) continue;
     if (!byDate.has(d)) byDate.set(d, { sha, date: d, ts });
   }
-
   return [...byDate.values()].reverse();
 }
 
-async function buildStatsSeries({ group, size, onStatus }) {
+/* ---------------- raw series cache (network only once per group/size) ---------------- */
+
+const RAW_SERIES_CACHE = new Map(); // key: `${group}:${size}` -> { latestSha, labels, stores, commits, reportsByIdx }
+
+async function loadRawSeries({ group, size, onStatus }) {
   const rel = relReportPath(group, size);
   const gh = inferGithubOwnerRepo();
   const owner = gh.owner;
@@ -207,12 +297,11 @@ async function buildStatsSeries({ group, size, onStatus }) {
   const branch = "data";
 
   const manifest = await loadCommonCommitsManifest();
-
   let commits = Array.isArray(manifest?.files?.[rel]) ? manifest.files[rel] : null;
 
-  // Fallback if manifest missing/empty
   if (!commits || !commits.length) {
-    if (typeof onStatus === "function") onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
+    if (typeof onStatus === "function")
+      onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
     commits = await loadCommitsFallback({ owner, repo, branch, relPath: rel });
   }
 
@@ -222,49 +311,40 @@ async function buildStatsSeries({ group, size, onStatus }) {
   const latestSha = String(latest?.sha || "");
   if (!latestSha) throw new Error(`Invalid latest sha for ${rel}`);
 
-  const cached = loadStatsCache(group, size, latestSha);
-  if (cached) return { latestSha, labels: cached.labels, stores: cached.stores, seriesByStore: cached.seriesByStore };
+  const cacheKey = `${group}:${size}`;
+  const cached = RAW_SERIES_CACHE.get(cacheKey);
+  if (cached && cached.latestSha === latestSha && cached.labels?.length === commits.length) {
+    return cached;
+  }
 
   const NET_CONCURRENCY = 10;
   const limitNet = makeLimiter(NET_CONCURRENCY);
 
   if (typeof onStatus === "function") onStatus(`Loading stores…`);
-  const newestReport = await limitNet(() => githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel }));
+  const newestReport = await limitNet(() =>
+    githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel })
+  );
 
-  const stores = Array.isArray(newestReport?.stores) ? newestReport.stores.map(String) : [];
+  const stores = Array.isArray(newestReport?.stores)
+    ? newestReport.stores.map(String)
+    : [];
   if (!stores.length) throw new Error(`No stores found in ${rel} at ${latestSha.slice(0, 7)}`);
 
   const labels = commits.map((c) => String(c.date || "")).filter(Boolean);
-
-  const seriesByStore = {};
-  for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
+  const shaByIdx = commits.map((c) => String(c.sha || ""));
 
   if (typeof onStatus === "function") onStatus(`Loading ${labels.length} day(s)…`);
 
-  const shaByIdx = commits.map((c) => String(c.sha || ""));
-  const fileJsonCache = new Map();
-
-  async function loadReportAtSha(sha) {
-    if (fileJsonCache.has(sha)) return fileJsonCache.get(sha);
-    const obj = await githubFetchFileAtSha({ owner, repo, sha, path: rel });
-    fileJsonCache.set(sha, obj);
-    return obj;
-  }
+  const reportsByIdx = new Array(shaByIdx.length).fill(null);
 
   let done = 0;
   await Promise.all(
     shaByIdx.map((sha, idx) =>
       limitNet(async () => {
         try {
-          const report = await loadReportAtSha(sha);
-          const { valuesByStore } = computeDailyStoreSeriesFromReport(report);
-
-          for (const s of stores) {
-            const v = valuesByStore[s];
-            seriesByStore[s][idx] = Number.isFinite(v) ? v : null;
-          }
+          reportsByIdx[idx] = await githubFetchFileAtSha({ owner, repo, sha, path: rel });
         } catch {
-          // leave nulls
+          reportsByIdx[idx] = null;
         } finally {
           done++;
           if (typeof onStatus === "function" && (done % 10 === 0 || done === shaByIdx.length)) {
@@ -275,14 +355,72 @@ async function buildStatsSeries({ group, size, onStatus }) {
     )
   );
 
-  saveStatsCache(group, size, latestSha, { labels, stores, seriesByStore });
-  return { latestSha, labels, stores, seriesByStore };
+  const out = { latestSha, labels, stores, commits, reportsByIdx };
+  RAW_SERIES_CACHE.set(cacheKey, out);
+  return out;
 }
 
-/* ---------------- render ---------------- */
+function computePriceBoundsFromReport(report, stores) {
+  const rows = Array.isArray(report?.rows) ? report.rows : [];
+  let mn = null;
+  let mx = null;
+
+  for (const r of rows) {
+    const p = rowPriceNum(r, stores);
+    if (!Number.isFinite(p) || p <= 0) continue;
+    mn = mn === null ? p : Math.min(mn, p);
+    mx = mx === null ? p : Math.max(mx, p);
+  }
+  return { min: mn, max: mx };
+}
+
+function computeSeriesFromRaw(raw, filter) {
+  const labels = raw.labels;
+  const stores = raw.stores;
+  const reportsByIdx = raw.reportsByIdx;
+
+  const seriesByStore = {};
+  for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
+
+  // counts based on newest day only (for status)
+  let newestUsed = 0;
+  let newestTotal = 0;
+
+  for (let i = 0; i < reportsByIdx.length; i++) {
+    const rep = reportsByIdx[i];
+    if (!rep) continue;
+
+    const daily = computeDailyStoreSeriesFromReport(rep, {
+      ...filter,
+      stores,
+    });
+
+    for (const s of stores) {
+      const v = daily.valuesByStore[s];
+      seriesByStore[s][i] = Number.isFinite(v) ? v : null;
+    }
+
+    if (i === reportsByIdx.length - 1) {
+      newestUsed = daily.usedRows;
+      newestTotal = daily.totalRows;
+    }
+  }
+
+  return { labels, stores, seriesByStore, newestUsed, newestTotal };
+}
+
+/* ---------------- prefs ---------------- */
 
 const LS_GROUP = "stviz:v1:stats:group";
 const LS_SIZE = "stviz:v1:stats:size";
+
+const LS_Q = "stviz:v1:stats:q";
+function lsMinKey(group, size) {
+  return `stviz:v1:stats:minPrice:${group}:${size}`;
+}
+function lsMaxKey(group, size) {
+  return `stviz:v1:stats:maxPrice:${group}:${size}`;
+}
 
 function loadPrefs() {
   let group = "all";
@@ -303,6 +441,8 @@ function savePrefs(group, size) {
   } catch {}
 }
 
+/* ---------------- render ---------------- */
+
 export async function renderStats($app) {
   destroyStatsChart();
 
@@ -310,54 +450,81 @@ export async function renderStats($app) {
 
   $app.innerHTML = `
     <div class="container">
-        <div class="header">
+      <div class="header">
         <div class="headerRow1">
-            <div class="statsHeaderLeft">
+          <div class="statsHeaderLeft">
             <button id="back" class="btn">← Back</button>
-
             <div class="statsTitleStack">
-                <h1 class="h1">Store Price Index</h1>
-                <div class="small" id="statsStatus">Loading…</div>
+              <h1 class="h1">Store Price Index</h1>
+              <div class="small" id="statsStatus">Loading…</div>
             </div>
-            </div>
+          </div>
 
-            <div class="headerRight">
+          <div class="headerRight">
             <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
+              <label class="small" style="display:flex; gap:8px; align-items:center;">
                 Stores
                 <select id="statsGroup" class="selectSmall" aria-label="Store group">
-                    <option value="all">All Stores</option>
-                    <option value="bc">BC Only</option>
-                    <option value="ab">Alberta Only</option>
+                  <option value="all">All Stores</option>
+                  <option value="bc">BC Only</option>
+                  <option value="ab">Alberta Only</option>
                 </select>
-                </label>
+              </label>
 
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
+              <label class="small" style="display:flex; gap:8px; align-items:center;">
                 Index Size
                 <select id="statsSize" class="selectSmall" aria-label="Index size">
-                    <option value="50">50</option>
-                    <option value="250">250</option>
-                    <option value="1000">1000</option>
+                  <option value="50">50</option>
+                  <option value="250">250</option>
+                  <option value="1000">1000</option>
                 </select>
-                </label>
+              </label>
             </div>
-            </div>
-        </div>
+          </div>
         </div>
 
-        <div class="card">
+        <div class="headerRow2">
+          <div class="card" style="padding:12px;">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; gap:10px; align-items:center; width:100%;">
+                <input id="statsQ" class="input" placeholder="Filter SKUs (name, sku, category…)" autocomplete="off" style="flex: 1 1 auto;" />
+                <button id="statsClear" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
+              </div>
+
+              <div id="statsPriceWrap" style="display:flex; align-items:center; gap:10px; width:100%;">
+                <div class="small" style="white-space:nowrap; opacity:.75;">Price</div>
+
+                <div class="rangeDual" aria-label="Price range">
+                  <input id="statsMinPrice" type="range" min="0" max="1000" step="1" value="0" />
+                  <input id="statsMaxPrice" type="range" min="0" max="1000" step="1" value="1000" />
+                </div>
+
+                <div class="badge mono" id="statsPriceLabel" style="width: 160px; text-align:right; white-space:nowrap; opacity:.9; flex: 0 0 auto;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <div style="height:420px;">
-            <canvas id="statsChart" aria-label="Statistics chart" role="img"></canvas>
+          <canvas id="statsChart" aria-label="Statistics chart" role="img"></canvas>
         </div>
-        </div>
+      </div>
     </div>
-    `;
+  `;
 
-
-  
   const $status = document.getElementById("statsStatus");
   const $group = document.getElementById("statsGroup");
   const $size = document.getElementById("statsSize");
+
+  const $q = document.getElementById("statsQ");
+  const $clear = document.getElementById("statsClear");
+
+  const $minR = document.getElementById("statsMinPrice");
+  const $maxR = document.getElementById("statsMaxPrice");
+  const $priceLabel = document.getElementById("statsPriceLabel");
+  const $priceWrap = document.getElementById("statsPriceWrap");
 
   if ($group) $group.value = pref.group;
   if ($size) $size.value = String(pref.size);
@@ -370,7 +537,144 @@ export async function renderStats($app) {
     location.hash = "#/";
   });
 
-  const rerender = async () => {
+  // current UI state (derived after load)
+  let boundMin = 25;
+  let boundMax = 1000;
+
+  let selectedMinPrice = boundMin;
+  let selectedMaxPrice = boundMax;
+
+  function priceFromT(t) {
+    t = clamp(t, 0, 1);
+    if (boundMax <= boundMin) return boundMin;
+    const ratio = boundMax / boundMin;
+    return boundMin * Math.exp(Math.log(ratio) * t);
+  }
+  function tFromPrice(price) {
+    if (!Number.isFinite(price)) return 1;
+    if (boundMax <= boundMin) return 1;
+    const p = clamp(price, boundMin, boundMax);
+    const ratio = boundMax / boundMin;
+    return Math.log(p / boundMin) / Math.log(ratio);
+  }
+  function clampAndRound(p) {
+    const c = clamp(p, boundMin, boundMax);
+    const r = roundToStep(c, boundMax);
+    return clamp(r, boundMin, boundMax);
+  }
+  function setSliderFromPrice($el, price) {
+    const t = tFromPrice(price);
+    $el.value = String(Math.round(t * 1000));
+  }
+  function priceFromSlider($el) {
+    const v = Number($el.value);
+    const t = Number.isFinite(v) ? v / 1000 : 1;
+    return priceFromT(t);
+  }
+  function updateRangeZ() {
+    // help when thumbs overlap
+    const a = Number($minR.value);
+    const b = Number($maxR.value);
+    if (a >= b - 10) {
+      $minR.style.zIndex = "5";
+      $maxR.style.zIndex = "4";
+    } else {
+      $minR.style.zIndex = "4";
+      $maxR.style.zIndex = "5";
+    }
+  }
+
+  function updatePriceLabel() {
+    if (!$priceLabel) return;
+    $priceLabel.textContent = `${formatDollars(selectedMinPrice)} – ${formatDollars(selectedMaxPrice)}`;
+  }
+
+  function saveFilterPrefs(group, size) {
+    try {
+      localStorage.setItem(LS_Q, String($q?.value || ""));
+      localStorage.setItem(lsMinKey(group, size), String(selectedMinPrice));
+      localStorage.setItem(lsMaxKey(group, size), String(selectedMaxPrice));
+    } catch {}
+  }
+
+  function loadFilterPrefs(group, size) {
+    let q = "";
+    let minP = null;
+    let maxP = null;
+
+    try {
+      q = String(localStorage.getItem(LS_Q) || "");
+      const a = localStorage.getItem(lsMinKey(group, size));
+      const b = localStorage.getItem(lsMaxKey(group, size));
+      minP = a !== null ? Number(a) : null;
+      maxP = b !== null ? Number(b) : null;
+      if (!Number.isFinite(minP)) minP = null;
+      if (!Number.isFinite(maxP)) maxP = null;
+    } catch {}
+
+    return { q, minP, maxP };
+  }
+
+  async function drawOrUpdateChart({ labels, stores, seriesByStore }) {
+    const Chart = await ensureChartJs();
+    const canvas = document.getElementById("statsChart");
+    if (!canvas) return;
+
+    const datasets = stores.map((s) => ({
+      label: displayStoreName(s),
+      data: Array.isArray(seriesByStore[s])
+        ? seriesByStore[s]
+        : labels.map(() => null),
+      spanGaps: false,
+      tension: 0.15,
+    }));
+
+    if (_chart) {
+      _chart.data.labels = labels;
+      _chart.data.datasets = datasets;
+      _chart.update("none");
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    _chart = new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: "nearest", intersect: false },
+        plugins: {
+          legend: { display: true },
+          tooltip: {
+            callbacks: {
+              label: (ctx2) => {
+                const v = ctx2.parsed?.y;
+                if (!Number.isFinite(v)) return `${ctx2.dataset.label}: (no data)`;
+                return `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Date" },
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+          },
+          y: {
+            title: { display: true, text: "Avg % vs per-SKU median" },
+            ticks: { callback: (v) => `${Number(v).toFixed(0)}%`, maxTicksLimit: 12 },
+          },
+        },
+      },
+    });
+  }
+
+  let raw = null; // loaded series (reports cached in-memory)
+  let applyTimer = null;
+
+  async function rerender(loadOnly = false) {
     destroyStatsChart();
 
     const group = String($group?.value || "all");
@@ -378,66 +682,188 @@ export async function renderStats($app) {
     savePrefs(group, size);
 
     try {
-      onStatus("Loading chart…");
-      const Chart = await ensureChartJs();
-      const canvas = document.getElementById("statsChart");
-      if (!canvas) return;
+      onStatus("Loading…");
+      raw = await loadRawSeries({ group, size, onStatus });
 
-      const { labels, stores, seriesByStore, latestSha } = await buildStatsSeries({
-        group,
-        size,
-        onStatus,
+      // bounds based on newest day report (last)
+      const newestReport = raw.reportsByIdx[raw.reportsByIdx.length - 1];
+      const b = computePriceBoundsFromReport(newestReport, raw.stores);
+
+      // dynamic floor: if we have a real min, use it (but keep >= 1); else default to 25
+      const floor = Number.isFinite(b.min) && b.min > 0 ? Math.max(1, Math.floor(b.min)) : 25;
+      boundMin = floor;
+      boundMax = Number.isFinite(b.max) && b.max > boundMin ? Math.ceil(b.max) : Math.max(boundMin, 1000);
+
+      // hydrate UI from prefs (and clamp to bounds)
+      const saved = loadFilterPrefs(group, size);
+      if ($q) $q.value = saved.q || "";
+
+      // if no prices, disable slider
+      if (!Number.isFinite(b.max)) {
+        $minR.disabled = true;
+        $maxR.disabled = true;
+        $priceWrap.title = "No priced items in this dataset.";
+        selectedMinPrice = boundMin;
+        selectedMaxPrice = boundMax;
+        setSliderFromPrice($minR, boundMin);
+        setSliderFromPrice($maxR, boundMax);
+        updatePriceLabel();
+      } else {
+        $minR.disabled = false;
+        $maxR.disabled = false;
+        $priceWrap.title = "";
+
+        const wantMin = saved.minP !== null ? saved.minP : boundMin;
+        const wantMax = saved.maxP !== null ? saved.maxP : boundMax;
+
+        selectedMinPrice = clampAndRound(wantMin);
+        selectedMaxPrice = clampAndRound(wantMax);
+
+        if (selectedMinPrice > selectedMaxPrice) selectedMinPrice = selectedMaxPrice;
+
+        setSliderFromPrice($minR, selectedMinPrice);
+        setSliderFromPrice($maxR, selectedMaxPrice);
+        updateRangeZ();
+        updatePriceLabel();
+      }
+
+      if (loadOnly) return;
+
+      // apply filters and draw
+      const tokens = tokenizeQuery($q?.value || "");
+      const series = computeSeriesFromRaw(raw, {
+        tokens,
+        minPrice: selectedMinPrice,
+        maxPrice: selectedMaxPrice,
       });
 
-      const datasets = stores.map((s) => ({
-        label: displayStoreName(s),
-        data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
-        spanGaps: false,
-        tension: 0.15,
-      }));
+      await drawOrUpdateChart(series);
 
-      const ctx = canvas.getContext("2d");
-      _chart = new Chart(ctx, {
-        type: "line",
-        data: { labels, datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          interaction: { mode: "nearest", intersect: false },
-          plugins: {
-            legend: { display: true },
-            tooltip: {
-              callbacks: {
-                label: (ctx2) => {
-                  const v = ctx2.parsed?.y;
-                  if (!Number.isFinite(v)) return `${ctx2.dataset.label}: (no data)`;
-                  return `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
-                },
-              },
-            },
-          },
-          scales: {
-            x: { title: { display: true, text: "Date" }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } },
-            y: {
-              title: { display: true, text: "Avg % vs per-SKU median" },
-              ticks: { callback: (v) => `${Number(v).toFixed(0)}%`, maxTicksLimit: 12 },
-            },
-          },
-        },
-      });
+      const rel = relReportPath(group, size);
+      onStatus(
+        `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}. Source=${esc(
+          rel
+        )} @ ${esc(raw.latestSha.slice(0, 7))}`
+      );
 
-      onStatus(`Loaded ${labels.length} day(s). Source=${esc(relReportPath(group, size))} @ ${esc(latestSha.slice(0, 7))}`);
+      saveFilterPrefs(group, size);
     } catch (e) {
       const msg = esc(e?.message || String(e));
       onStatus(`Error: ${msg}`);
       const card = $app.querySelector(".card");
       if (card) card.innerHTML = `<div class="small">Chart unavailable: ${msg}</div>`;
     }
-  };
+  }
 
-  $group?.addEventListener("change", () => rerender());
-  $size?.addEventListener("change", () => rerender());
+  function applyFiltersDebounced(ms) {
+    if (applyTimer) clearTimeout(applyTimer);
+    applyTimer = setTimeout(async () => {
+      if (!raw) return;
 
-  await rerender();
+      const group = String($group?.value || "all");
+      const size = Number($size?.value || 250);
+
+      const tokens = tokenizeQuery($q?.value || "");
+
+      const series = computeSeriesFromRaw(raw, {
+        tokens,
+        minPrice: selectedMinPrice,
+        maxPrice: selectedMaxPrice,
+      });
+
+      await drawOrUpdateChart(series);
+
+      onStatus(
+        `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}. Source=${esc(
+          relReportPath(group, size)
+        )} @ ${esc(raw.latestSha.slice(0, 7))}`
+      );
+
+      saveFilterPrefs(group, size);
+    }, ms);
+  }
+
+  function setSelectedRangeFromSliders(which) {
+    if ($minR.disabled || $maxR.disabled) return;
+
+    const rawMin = priceFromSlider($minR);
+    const rawMax = priceFromSlider($maxR);
+
+    let nextMin = clampAndRound(rawMin);
+    let nextMax = clampAndRound(rawMax);
+
+    // prevent crossing (keep the one being dragged “authoritative”)
+    if (nextMin > nextMax) {
+      if (which === "min") nextMax = nextMin;
+      else nextMin = nextMax;
+    }
+
+    selectedMinPrice = nextMin;
+    selectedMaxPrice = nextMax;
+
+    // snap sliders to rounded values for stability
+    setSliderFromPrice($minR, selectedMinPrice);
+    setSliderFromPrice($maxR, selectedMaxPrice);
+    updateRangeZ();
+    updatePriceLabel();
+  }
+
+  // initial load
+  await rerender(false);
+
+  // dropdowns: reload raw series + rehydrate filters (clamped)
+  $group?.addEventListener("change", async () => {
+    onStatus("Loading…");
+    await rerender(false);
+  });
+  $size?.addEventListener("change", async () => {
+    onStatus("Loading…");
+    await rerender(false);
+  });
+
+  // search: realtime
+  let tq = null;
+  $q?.addEventListener("input", () => {
+    if (tq) clearTimeout(tq);
+    tq = setTimeout(() => applyFiltersDebounced(0), 60);
+  });
+
+  // sliders: realtime
+  let tp = null;
+  $minR?.addEventListener("input", () => {
+    setSelectedRangeFromSliders("min");
+    if (tp) clearTimeout(tp);
+    tp = setTimeout(() => applyFiltersDebounced(0), 40);
+  });
+  $maxR?.addEventListener("input", () => {
+    setSelectedRangeFromSliders("max");
+    if (tp) clearTimeout(tp);
+    tp = setTimeout(() => applyFiltersDebounced(0), 40);
+  });
+
+  // on change: snap and apply
+  $minR?.addEventListener("change", () => {
+    setSelectedRangeFromSliders("min");
+    applyFiltersDebounced(0);
+  });
+  $maxR?.addEventListener("change", () => {
+    setSelectedRangeFromSliders("max");
+    applyFiltersDebounced(0);
+  });
+
+  // clear: reset query + full range
+  $clear?.addEventListener("click", () => {
+    if ($q) $q.value = "";
+
+    selectedMinPrice = boundMin;
+    selectedMaxPrice = boundMax;
+
+    setSliderFromPrice($minR, selectedMinPrice);
+    setSliderFromPrice($maxR, selectedMaxPrice);
+    updateRangeZ();
+    updatePriceLabel();
+
+    applyFiltersDebounced(0);
+    $q?.focus();
+  });
 }
