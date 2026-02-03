@@ -1,5 +1,5 @@
 import { esc } from "./dom.js";
-import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha } from "./api.js";
+import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommits } from "./api.js";
 
 let _chart = null;
 
@@ -24,7 +24,12 @@ function ensureChartJs() {
   });
 }
 
-/* ---------------- small helpers ---------------- */
+/* ---------------- helpers ---------------- */
+
+function dateOnly(iso) {
+  const m = String(iso ?? "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : "";
+}
 
 function medianOfSorted(nums) {
   const n = nums.length;
@@ -88,34 +93,17 @@ function saveStatsCache(group, size, latestSha, payload) {
   } catch {}
 }
 
-/* ---------------- data loading ---------------- */
-
-let COMMON_COMMITS = null;
-
-async function loadCommonCommitsManifest() {
-  if (COMMON_COMMITS) return COMMON_COMMITS;
-  try {
-    COMMON_COMMITS = await fetchJson("./data/common_listings_commits.json");
-    return COMMON_COMMITS;
-  } catch {
-    COMMON_COMMITS = null;
-    return null;
-  }
-}
-
 function relReportPath(group, size) {
   return `reports/common_listings_${group}_top${size}.json`;
 }
 
-// Computes per-store daily metric:
 // avg over SKUs that store has a price for: ((storePrice - medianPrice) / medianPrice) * 100
 function computeDailyStoreSeriesFromReport(report) {
   const stores = Array.isArray(report?.stores) ? report.stores.map(String) : [];
   const rows = Array.isArray(report?.rows) ? report.rows : [];
 
-  const sum = new Map(); // store -> sumPct
-  const cnt = new Map(); // store -> count
-
+  const sum = new Map();
+  const cnt = new Map();
   for (const s of stores) {
     sum.set(s, 0);
     cnt.set(s, 0);
@@ -152,15 +140,59 @@ function computeDailyStoreSeriesFromReport(report) {
   return { stores, valuesByStore: out };
 }
 
-async function buildStatsSeries({ group, size, onStatus }) {
-  const manifest = await loadCommonCommitsManifest();
-  if (!manifest?.files) throw new Error("Missing common_listings_commits.json (viz/data)");
+/* ---------------- commits manifest ---------------- */
 
+let COMMON_COMMITS = null;
+
+async function loadCommonCommitsManifest() {
+  if (COMMON_COMMITS) return COMMON_COMMITS;
+  try {
+    COMMON_COMMITS = await fetchJson("./data/common_listings_commits.json");
+    return COMMON_COMMITS;
+  } catch {
+    COMMON_COMMITS = null;
+    return null;
+  }
+}
+
+// Fallback: GitHub API commits for a path, collapsed to one commit per day (newest that day),
+// returned oldest -> newest, same shape as manifest entries.
+async function loadCommitsFallback({ owner, repo, branch, relPath }) {
+  let apiCommits = await githubListCommits({ owner, repo, branch, path: relPath });
+  apiCommits = Array.isArray(apiCommits) ? apiCommits : [];
+
+  // newest -> oldest from API; we want newest-per-day then oldest -> newest
+  const byDate = new Map();
+  for (const c of apiCommits) {
+    const sha = String(c?.sha || "");
+    const ts = String(c?.commit?.committer?.date || c?.commit?.author?.date || "");
+    const d = dateOnly(ts);
+    if (!sha || !d) continue;
+    if (!byDate.has(d)) byDate.set(d, { sha, date: d, ts });
+  }
+
+  return [...byDate.values()].reverse();
+}
+
+async function buildStatsSeries({ group, size, onStatus }) {
   const rel = relReportPath(group, size);
-  const commits = Array.isArray(manifest.files[rel]) ? manifest.files[rel] : null;
+  const gh = inferGithubOwnerRepo();
+  const owner = gh.owner;
+  const repo = gh.repo;
+  const branch = "data";
+
+  const manifest = await loadCommonCommitsManifest();
+
+  let commits = Array.isArray(manifest?.files?.[rel]) ? manifest.files[rel] : null;
+
+  // Fallback if manifest missing/empty
+  if (!commits || !commits.length) {
+    if (typeof onStatus === "function") onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
+    commits = await loadCommitsFallback({ owner, repo, branch, relPath: rel });
+  }
+
   if (!commits || !commits.length) throw new Error(`No commits tracked for ${rel}`);
 
-  // commits are oldest -> newest in the manifest
   const latest = commits[commits.length - 1];
   const latestSha = String(latest?.sha || "");
   if (!latestSha) throw new Error(`Invalid latest sha for ${rel}`);
@@ -168,18 +200,11 @@ async function buildStatsSeries({ group, size, onStatus }) {
   const cached = loadStatsCache(group, size, latestSha);
   if (cached) return { latestSha, labels: cached.labels, stores: cached.stores, seriesByStore: cached.seriesByStore };
 
-  const gh = inferGithubOwnerRepo();
-  const owner = gh.owner;
-  const repo = gh.repo;
-
   const NET_CONCURRENCY = 10;
   const limitNet = makeLimiter(NET_CONCURRENCY);
 
-  // Fetch newest report once to get the store list (authoritative for the selected file)
   if (typeof onStatus === "function") onStatus(`Loading stores…`);
-  const newestReport = await limitNet(() =>
-    githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel })
-  );
+  const newestReport = await limitNet(() => githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel }));
 
   const stores = Array.isArray(newestReport?.stores) ? newestReport.stores.map(String) : [];
   if (!stores.length) throw new Error(`No stores found in ${rel} at ${latestSha.slice(0, 7)}`);
@@ -189,12 +214,10 @@ async function buildStatsSeries({ group, size, onStatus }) {
   const seriesByStore = {};
   for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
 
-  // Load each day's report and compute that day’s per-store average % vs median
   if (typeof onStatus === "function") onStatus(`Loading ${labels.length} day(s)…`);
 
-  // De-dupe by sha (just in case)
   const shaByIdx = commits.map((c) => String(c.sha || ""));
-  const fileJsonCache = new Map(); // sha -> report json
+  const fileJsonCache = new Map();
 
   async function loadReportAtSha(sha) {
     if (fileJsonCache.has(sha)) return fileJsonCache.get(sha);
@@ -203,7 +226,6 @@ async function buildStatsSeries({ group, size, onStatus }) {
     return obj;
   }
 
-  // Batch fetch + compute with limited concurrency
   let done = 0;
   await Promise.all(
     shaByIdx.map((sha, idx) =>
@@ -217,7 +239,7 @@ async function buildStatsSeries({ group, size, onStatus }) {
             seriesByStore[s][idx] = Number.isFinite(v) ? v : null;
           }
         } catch {
-          // leave nulls for this day
+          // leave nulls
         } finally {
           done++;
           if (typeof onStatus === "function" && (done % 10 === 0 || done === shaByIdx.length)) {
@@ -266,29 +288,33 @@ export async function renderStats($app) {
       <div class="header">
         <div class="headerRow1">
           <div class="headerLeft">
-            <button id="back" class="btn">← Back</button>
             <h1 class="h1">Store Price Index</h1>
             <div class="small" id="statsStatus">Loading…</div>
           </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Stores
-                <select id="statsGroup" class="selectSmall" aria-label="Store group">
-                    <option value="all">All Stores</option>
-                    <option value="bc">BC Only</option>
-                    <option value="ab">Alberta Only</option>
-                </select>
-                </label>
+          <div class="headerRight headerButtons">
+            <button id="back" class="btn">← Back</button>
+          </div>
+        </div>
 
-                <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Index Size
-                <select id="statsSize" class="selectSmall" aria-label="Index size">
-                    <option value="50">50</option>
-                    <option value="250">250</option>
-                    <option value="1000">1000</option>
-                </select>
-                </label>
-            </div>
+        <div class="headerRow2">
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <label class="small" style="display:flex; gap:8px; align-items:center;">
+              Stores
+              <select id="statsGroup" class="selectSmall" aria-label="Store group">
+                <option value="all">All Stores</option>
+                <option value="bc">BC Only</option>
+                <option value="ab">Alberta Only</option>
+              </select>
+            </label>
+
+            <label class="small" style="display:flex; gap:8px; align-items:center;">
+              Index Size
+              <select id="statsSize" class="selectSmall" aria-label="Index size">
+                <option value="50">50</option>
+                <option value="250">250</option>
+                <option value="1000">1000</option>
+              </select>
+            </label>
           </div>
         </div>
       </div>
@@ -337,7 +363,6 @@ export async function renderStats($app) {
         onStatus,
       });
 
-      // Build datasets: one per store
       const datasets = stores.map((s) => ({
         label: s,
         data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
