@@ -360,12 +360,25 @@ export async function renderItem($app, skuInput) {
     }
   }
 
+  function rowMinPrice(r) {
+    const p = parsePriceToNumber(r?.price);
+    return p === null ? Infinity : p;
+  }
+  
   const linkRows = Array.from(bestByStore.entries())
     .map(([store, r]) => ({ store, r }))
     .sort((A, B) => {
+      // 1) cheapest current price first (Infinity sorts to end)
+      const ap = rowMinPrice(A.r);
+      const bp = rowMinPrice(B.r);
+      if (ap !== bp) return ap - bp;
+  
+      // 2) live before removed
       const ar = Boolean(A.r?.removed) ? 1 : 0;
       const br = Boolean(B.r?.removed) ? 1 : 0;
-      if (ar !== br) return ar - br; // live first
+      if (ar !== br) return ar - br;
+  
+      // 3) stable fallback
       return A.store.localeCompare(B.store);
     });
 
