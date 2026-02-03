@@ -3,6 +3,31 @@ import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommit
 
 let _chart = null;
 
+
+const STORE_LABELS = {
+    bcl: "BCL",
+    bsw: "BSW",
+    coop: "Co-op World of Whisky",
+    craftcellars: "Craft Cellars",
+    gull: "Gull Liquor",
+    kegncork: "Keg N Cork",
+    kwm: "Kensington Wine Market",
+    legacy: "Legacy Liquor",
+    legacyliquor: "Legacy Liquor",
+    maltsandgrains: "Malts & Grains",
+    sierrasprings: "Sierra Springs",
+    strath: "Strath Liquor",
+    tudor: "Tudor House",
+    vessel: "Vessel Liquor",
+    vintage: "Vintage Spirits",
+    willowpark: "Willow Park",
+  };
+  
+function displayStoreName(storeKey) {
+const k = String(storeKey || "").toLowerCase();
+return STORE_LABELS[k] || storeKey;
+}
+
 export function destroyStatsChart() {
   try {
     if (_chart) _chart.destroy();
@@ -356,7 +381,7 @@ export async function renderStats($app) {
       });
 
       const datasets = stores.map((s) => ({
-        label: s,
+        label: displayStoreName(s),
         data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
         spanGaps: false,
         tension: 0.15,
