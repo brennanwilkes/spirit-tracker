@@ -123,10 +123,10 @@ export async function renderStore($app, storeLabelRaw) {
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="small">Sort</span>
                 <select id="exSort" class="selectSmall" aria-label="Sort exclusives">
-                  <option value="priceDesc">Price Desc</option>
-                  <option value="priceAsc">Price Asc</option>
-                  <option value="dateDesc">Date Desc</option>
-                  <option value="dateAsc">Date Asc</option>
+                  <option value="priceDesc">Highest Price</option>
+                  <option value="priceAsc">Lowest Price</option>
+                  <option value="dateDesc">Newest</option>
+                  <option value="dateAsc">Oldest</option>
                 </select>
               </div>
             </div>
