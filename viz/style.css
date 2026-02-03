@@ -313,6 +313,13 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 .storeBtn {
+  justify-content: center;   /* center text within each pill */
+  width: 100%;               /* make each pill fill its grid cell */
+  text-align: center;
+}
+
+
+.storeBtn {
   border: 1px solid var(--border);
   background: #0f1318;
   color: var(--muted);
