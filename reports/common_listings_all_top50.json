@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-05T02:06:28.002Z",
+  "generatedAt": "2026-02-05T08:12:35.296Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 10997,
-    "removedRows": 293,
-    "canonSkus": 5369,
+    "liveRows": 11003,
+    "removedRows": 306,
+    "canonSkus": 5374,
     "outputCount": 50
   },
   "rows": [
@@ -1075,6 +1075,60 @@
       }
     },
     {
+      "canonSku": "773002",
+      "storeCount": 11,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "maltsandgrains",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 63.99,
+        "bsw": 69.99,
+        "coop": 79.99,
+        "gull": 66.65,
+        "kegncork": 81.96,
+        "kwm": 75.99,
+        "legacyliquor": 84.24,
+        "sierrasprings": 76.09,
+        "tudor": 62.99,
+        "vessel": 64.99,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "ABERFELDY - 12 YEAR OLD",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "773002",
+        "skuKey": "773002",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/aberfeldy-12-year-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/aberfeldy-12-year-ml-420"
+      }
+    },
+    {
       "canonSku": "778827",
       "storeCount": 11,
       "stores": [
@@ -1232,59 +1286,6 @@
         "priceNum": 30.14,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/johnnie-walker-red-ml-380"
-      }
-    },
-    {
-      "canonSku": "001487",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "tudor",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 29.99,
-        "bsw": 27.99,
-        "coop": 36.99,
-        "craftcellars": 37.99,
-        "gull": 32.4,
-        "legacyliquor": 31.99,
-        "sierrasprings": 28.57,
-        "strath": 32.96,
-        "vessel": 31.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "Crown Royal Canadian Whisky 750ml",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bswliquor.com/products/crown-royal-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/crown-royal-whisky"
       }
     },
     {
