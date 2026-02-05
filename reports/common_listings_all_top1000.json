@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-05T17:06:46.813Z",
+  "generatedAt": "2026-02-05T20:12:37.637Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11010,
-    "removedRows": 300,
-    "canonSkus": 5373,
+    "liveRows": 11008,
+    "removedRows": 302,
+    "canonSkus": 5370,
     "outputCount": 1000
   },
   "rows": [
@@ -3421,7 +3421,7 @@
       "storePrices": {
         "bcl": 28.49,
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 30.65,
         "legacyliquor": 30.99,
         "sierrasprings": 26.56,
@@ -7578,7 +7578,7 @@
         "coop": 52.99,
         "gull": 40.49,
         "sierrasprings": 48.32,
-        "tudor": 41.49,
+        "tudor": 61.99,
         "vessel": 41.99
       },
       "representative": {
@@ -9924,7 +9924,7 @@
       ],
       "storePrices": {
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 36.3,
         "legacyliquor": 35.8,
         "tudor": 34.99,
@@ -28279,6 +28279,53 @@
       }
     },
     {
+      "canonSku": "132942",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "bsw",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 359.99,
+        "bsw": 325,
+        "kwm": 374.99,
+        "maltsandgrains": 393.47
+      },
+      "representative": {
+        "name": "The Macallan Harmony Inspired By Phoenix Honey Orchid Tea",
+        "price": "$325.00",
+        "priceNum": 325,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "132942",
+        "skuKey": "132942",
+        "url": "https://www.bswliquor.com/products/macallan-harmony-orchid-tea",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$325.00",
+        "priceNum": 325,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/macallan-harmony-orchid-tea"
+      }
+    },
+    {
       "canonSku": "132943",
       "storeCount": 4,
       "stores": [
@@ -28699,53 +28746,6 @@
         "priceNum": 70.9,
         "storeKey": "maltsandgrains",
         "url": "https://maltsandgrains.store/product/bardstown-kentucky-bourbon-48/"
-      }
-    },
-    {
-      "canonSku": "137250",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "craftcellars": 59.99,
-        "kegncork": 84.96,
-        "maltsandgrains": 89.9
-      },
-      "representative": {
-        "name": "Bardstown Bottled In Bond Wheated Bourbon",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "137250",
-        "skuKey": "137250",
-        "url": "https://craftcellars.ca/products/bardstown-bottled-in-bond-wheated-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bardstown-bottled-in-bond-wheated-bourbon"
       }
     },
     {
@@ -30438,6 +30438,53 @@
         "priceNum": 92.69,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenlivet-founders-l-420"
+      }
+    },
+    {
+      "canonSku": "279500",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 55.99,
+        "coop": 59.99,
+        "craftcellars": 57.99,
+        "tudor": 70.99
+      },
+      "representative": {
+        "name": "Brother's Bond Bourbon",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "873258",
+        "skuKey": "873258",
+        "url": "https://www.bswliquor.com/products/brothers-bond-straight-bourbon-whiskey",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/brothers-bond-straight-bourbon-whiskey"
       }
     },
     {
@@ -44038,52 +44085,6 @@
       }
     },
     {
-      "canonSku": "132942",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 359.99,
-        "kwm": 374.99,
-        "maltsandgrains": 393.47
-      },
-      "representative": {
-        "name": "THE MACALLAN - HARMONY PHOENIX HONEY ORCHID TEA",
-        "price": "$359.99",
-        "priceNum": 359.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "673015",
-        "skuKey": "673015",
-        "url": "https://www.bcliquorstores.com/product/673015",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$359.99",
-        "priceNum": 359.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/673015"
-      }
-    },
-    {
       "canonSku": "133247",
       "storeCount": 3,
       "stores": [
@@ -44725,6 +44726,52 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ardnamurchan-sauternes-cask-peated"
+      }
+    },
+    {
+      "canonSku": "137250",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 82.99,
+        "kegncork": 84.96,
+        "maltsandgrains": 89.9
+      },
+      "representative": {
+        "name": "Bardstown Bottled In Bond Ks Bourbon",
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "137250",
+        "skuKey": "137250",
+        "url": "https://www.bswliquor.com/products/bardstown-bottled-in-bond-ks-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bardstown-bottled-in-bond-ks-bourbon"
       }
     },
     {
@@ -47071,52 +47118,6 @@
         "priceNum": 28.99,
         "storeKey": "legacyliquor",
         "url": "https://www.legacyliquorstore.com/LL/product/spirits/whisky/jp-wisers-10-year-old-whisky-limited-edition-nhl-bottle-1-x-750ml"
-      }
-    },
-    {
-      "canonSku": "279500",
-      "storeCount": 3,
-      "stores": [
-        "coop",
-        "craftcellars",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "coop": 59.99,
-        "craftcellars": 57.99,
-        "tudor": 70.99
-      },
-      "representative": {
-        "name": "Brothers Bond Straight Bourbon Whiskey",
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "873258",
-        "skuKey": "873258",
-        "url": "https://craftcellars.ca/products/brother-s-bond-straight-bourbon-whiskey",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/brother-s-bond-straight-bourbon-whiskey"
       }
     },
     {
