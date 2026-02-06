@@ -598,19 +598,14 @@ export async function renderStore($app, storeLabelRaw) {
       return `<span class="badge badgeBad">+$${esc(abs)}</span>`;
     }
   
-    // Any non-sale sort: still show % off on exclusives/last-stock when applicable.
-    // (% off vs best other store price)
-    const sp = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
-    const other = it && Number.isFinite(it._bestOther) ? it._bestOther : null;
-    if (sp === null || other === null || !(other > 0)) return "";
-    if (!(sp < other - EPS)) return "";
-  
-    const pct = Math.round(((other - sp) / other) * 100);
-    if (!Number.isFinite(pct) || pct <= 0) return "";
-    return `<span class="badge badgeGood">${esc(pct)}% off</span>`;
+    // Any NON-sale sort: still show the % badge (same as Sale %) when there was a change.
+    const p = Number.isFinite(it._salePct) ? it._salePct : 0;
+    if (!p) return "";
+    const abs = Math.abs(p);
+    if (p < 0) return `<span class="badge badgeGood">${esc(abs)}% off</span>`;
+    return `<span class="badge badgeBad">+${esc(abs)}%</span>`;
   }
   
-
   function renderCard(it) {
     const price = listingPriceStr(it);
 
