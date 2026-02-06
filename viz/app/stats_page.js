@@ -782,10 +782,21 @@ export async function renderStats($app) {
             min: yBounds?.min,
             max: yBounds?.max,
             title: { display: true, text: "Avg % vs per-SKU median" },
+          
             ticks: {
-              stepSize: 1,          // <- minimum 1% between ticks
+              stepSize: 1,
               callback: (v) => `${Number(v).toFixed(0)}%`,
               maxTicksLimit: 12,
+            },
+          
+            grid: {
+              drawBorder: false,
+              color: (ctx) => {
+                // Only draw for integer % values
+                if (!Number.isInteger(ctx.tick.value)) return "transparent";
+                return ctx.tick.value === 0 ? "rgba(154,166,178,0.35)" : "rgba(154,166,178,0.18)";
+              },
+              lineWidth: 1,
             },
           },
         },
