@@ -773,6 +773,7 @@ export async function renderStats($app) {
             max: yBounds?.max,
             title: { display: true, text: "Avg % vs per-SKU median" },
             ticks: {
+              stepSize: 1,          // <- minimum 1% between ticks
               callback: (v) => `${Number(v).toFixed(0)}%`,
               maxTicksLimit: 12,
             },
