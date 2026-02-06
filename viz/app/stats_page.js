@@ -452,6 +452,9 @@ function computeYBounds(seriesByStore, minSpan = 6, pad = 1) {
 
   if (mn === Infinity) return { min: -minSpan / 2, max: minSpan / 2 };
 
+  mn = Math.min(mn, 0);
+  mx = Math.max(mx, 0);
+
   // pad a bit so lines aren't glued to edges
   mn = Math.floor(mn - pad);
   mx = Math.ceil(mx + pad);
@@ -785,17 +788,17 @@ export async function renderStats($app) {
           
             ticks: {
               stepSize: 1,
+              precision: 0,
+              autoSkip: false,              // <- don't skip integer ticks
               callback: (v) => `${Number(v).toFixed(0)}%`,
-              maxTicksLimit: 12,
             },
           
             grid: {
               drawBorder: false,
-              color: (ctx) => {
-                // Only draw for integer % values
-                if (!Number.isInteger(ctx.tick.value)) return "transparent";
-                return ctx.tick.value === 0 ? "rgba(154,166,178,0.35)" : "rgba(154,166,178,0.18)";
-              },
+              color: (ctx) =>
+                ctx.tick.value === 0
+                  ? "rgba(154,166,178,0.35)"
+                  : "rgba(154,166,178,0.18)",
               lineWidth: 1,
             },
           },
