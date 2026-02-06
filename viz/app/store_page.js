@@ -580,13 +580,13 @@ export async function renderStore($app, storeLabelRaw) {
   function exclusiveAnnotHtml(it) {
     const mode = String($exSort.value || "priceDesc");
   
-    // If sorting by sale, annotate with sale change ($ / %). If unchanged, show nothing.
+    // Sale sorts: show price change for THIS store (7d recent), unchanged => nothing.
     if (mode === "salePct") {
       const p = Number.isFinite(it._salePct) ? it._salePct : 0;
       if (!p) return "";
       const abs = Math.abs(p);
-      if (p < 0) return `<span class="badge badgeGood">[${esc(abs)}% Off]</span>`;
-      return `<span class="badge badgeBad">[+${esc(abs)}%]</span>`;
+      if (p < 0) return `<span class="badge badgeGood">${esc(abs)}% off</span>`;
+      return `<span class="badge badgeBad">+${esc(abs)}%</span>`;
     }
   
     if (mode === "saleAbs") {
@@ -594,11 +594,12 @@ export async function renderStore($app, storeLabelRaw) {
       if (!d) return "";
       const abs = Math.round(Math.abs(d));
       if (!abs) return "";
-      if (d < 0) return `<span class="badge badgeGood">[-$${esc(abs)}]</span>`;
-      return `<span class="badge badgeBad">[+$${esc(abs)}]</span>`;
+      if (d < 0) return `<span class="badge badgeGood">$${esc(abs)} off</span>`;
+      return `<span class="badge badgeBad">+$${esc(abs)}</span>`;
     }
   
-    // Otherwise: show % off vs best other store (only when actually cheaper).
+    // Any non-sale sort: still show % off on exclusives/last-stock when applicable.
+    // (% off vs best other store price)
     const sp = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
     const other = it && Number.isFinite(it._bestOther) ? it._bestOther : null;
     if (sp === null || other === null || !(other > 0)) return "";
@@ -606,7 +607,7 @@ export async function renderStore($app, storeLabelRaw) {
   
     const pct = Math.round(((other - sp) / other) * 100);
     if (!Number.isFinite(pct) || pct <= 0) return "";
-    return `<span class="badge badgeGood">[${esc(pct)}% Off]</span>`;
+    return `<span class="badge badgeGood">${esc(pct)}% off</span>`;
   }
   
 
