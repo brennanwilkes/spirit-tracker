@@ -508,7 +508,7 @@ export async function renderStats($app) {
   const pref = loadPrefs();
 
   $app.innerHTML = `
-    <div class="container">
+    <div class="container containerFull">
       <div class="header">
         <div class="headerRow1">
           <div class="statsHeaderLeft">
@@ -567,8 +567,8 @@ export async function renderStats($app) {
         </div>
       </div>
 
-      <div class="card">
-        <div style="height:420px;">
+      <div class="card cardFill">
+        <div class="chartFill">
           <canvas id="statsChart" aria-label="Statistics chart" role="img"></canvas>
         </div>
       </div>
@@ -855,6 +855,7 @@ export async function renderStats($app) {
       const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
 
       await drawOrUpdateChart(series, yBounds);
+      _chart?.resize();
 
       const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
       onStatus(short);
@@ -890,6 +891,7 @@ export async function renderStats($app) {
       const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
 
       await drawOrUpdateChart(series, yBounds);
+      _chart?.resize();
 
       const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
       onStatus(short);
