@@ -347,7 +347,7 @@ export function renderSearch($app) {
       typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
 
     const nowMs = Date.now();
-    const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
+    const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
 
     function eventMs(r) {
       const t = String(r?.ts || "");
@@ -420,7 +420,7 @@ export function renderSearch($app) {
     const limited = ranked.slice(0, 140);
 
     $results.innerHTML =
-      `<div class="small">Recently changed (last 24 hours):</div>` +
+      `<div class="small">Recently changed (last 3 days):</div>` +
       limited
         .map(({ r, meta }) => {
           const kindLabel =
