@@ -1,4 +1,4 @@
-import { esc, renderThumbHtml, prettyTs } from "./dom.js";
+import { esc, renderThumbHtml } from "./dom.js";
 import {
   tokenizeQuery,
   matchesAllTokens,
@@ -6,464 +6,536 @@ import {
   keySkuForRow,
   parsePriceToNumber,
 } from "./sku.js";
-import { loadIndex, loadRecent, saveQuery, loadSavedQuery } from "./state.js";
+import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 
-export function renderStore($app, storeLabelParam) {
+function normStoreLabel(s) {
+  return String(s || "").trim().toLowerCase();
+}
+
+function abbrevStoreLabel(s) {
+  const t = String(s || "").trim();
+  if (!t) return "";
+  return t.split(/\s+/)[0] || t;
+}
+
+function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
+  // Prefer the most recent-ish url if multiple exist; stable enough for viz.
+  let bestUrl = "";
+  let bestScore = -1;
+
+  function scoreUrl(u) {
+    if (!u) return -1;
+    let s = u.length;
+    if (/\bproduct\/\d+\//.test(u)) s += 50;
+    if (/[a-z0-9-]{8,}/i.test(u)) s += 10;
+    return s;
+  }
+
+  for (const r of listingsLive) {
+    if (!r || r.removed) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (store !== storeLabelNorm) continue;
+
+    const skuKey = String(
+      rulesCache?.canonicalSku(keySkuForRow(r)) || keySkuForRow(r)
+    );
+    if (skuKey !== canonSku) continue;
+
+    const u = String(r.url || "").trim();
+    const sc = scoreUrl(u);
+    if (sc > bestScore) {
+      bestScore = sc;
+      bestUrl = u;
+    } else if (sc === bestScore && u && bestUrl && u < bestUrl) {
+      bestUrl = u;
+    }
+  }
+  return bestUrl;
+}
+
+// small module-level cache so we can reuse in readLinkHrefForSkuInStore
+let rulesCache = null;
+
+export async function renderStore($app, storeLabelRaw) {
+  const storeLabel = String(storeLabelRaw || "").trim();
+  const storeLabelShort =
+    abbrevStoreLabel(storeLabel) || (storeLabel ? storeLabel : "Store");
+
   $app.innerHTML = `
     <div class="container">
-      <div class="header">
-        <div class="headerRow1">
-          <div class="headerLeft">
-            <h1 class="h1">Store</h1>
-            <div class="small" id="storeSub">Loading…</div>
-          </div>
-
-          <div class="headerRight headerButtons">
-            <a class="btn btnWide" href="#/" style="text-decoration:none;">Search</a>
-            <a class="btn btnWide" href="#/stats" style="text-decoration:none;">Statistics</a>
-            <a class="btn btnWide" href="#/link" style="text-decoration:none;">Link SKUs</a>
-          </div>
-        </div>
+      <div class="topbar">
+        <button id="back" class="btn">← Back</button>
+        <span class="badge">${esc(storeLabelShort || "Store")}</span>
       </div>
 
-      <div class="card" style="display:flex; gap:14px; align-items:flex-start;">
-        <!-- Left: store catalog -->
-        <div style="flex: 1 1 62%; min-width: 360px;">
-          <div style="display:flex; gap:10px; align-items:center; width:100%; margin-bottom:10px;">
-            <input id="q" class="input" placeholder="Filter this store…" autocomplete="off" style="flex: 1 1 auto;" />
+      <div class="card">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div id="priceWrap" style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
+
+            <input
+              id="maxPrice"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="1000"
+              style="
+                flex: 1 1 auto;
+                width: 100%;
+                height: 18px;
+                accent-color: #9aa3b2;
+                opacity: .85;
+              "
+            />
+
+            <div
+              class="badge mono"
+              id="maxPriceLabel"
+              style="
+                width: 120px;
+                text-align: right;
+                white-space: nowrap;
+                opacity: .9;
+                flex: 0 0 auto;
+              "
+            ></div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; width:100%;">
+            <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" style="flex: 1 1 auto;" />
             <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
           </div>
-          <div id="storeResults" class="list"></div>
         </div>
 
-        <!-- Right: exclusives / last stock -->
-        <div style="flex: 0 0 38%; min-width: 320px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
-            <div class="small">Exclusives / Last stock</div>
-            <select id="rightSort" class="input" style="max-width: 160px;">
-              <option value="time">Time</option>
-              <option value="price">Price</option>
-              <option value="sale_pct">Sale %</option>
-              <option value="sale_abs">Sale $</option>
-            </select>
+        <div class="small" id="status" style="margin-top:10px;"></div>
+
+        <div id="results" class="storeGrid">
+          <div class="storeCol">
+            <div class="storeColHeader">
+              <div>
+                <span class="badge badgeExclusive">Exclusive</span>
+                <span class="small">and</span>
+                <span class="badge badgeLastStock">Last Stock</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="small">Sort</span>
+                <select id="exSort" class="selectSmall" aria-label="Sort exclusives">
+                  <option value="priceDesc">Highest Price</option>
+                  <option value="priceAsc">Lowest Price</option>
+                  <option value="dateDesc">Newest</option>
+                  <option value="dateAsc">Oldest</option>
+                </select>
+              </div>
+            </div>
+            <div id="resultsExclusive" class="storeColList"></div>
           </div>
 
-          <div class="small" style="margin: 8px 0 6px;">Exclusives</div>
-          <div id="exclusiveResults" class="list"></div>
-
-          <div class="small" style="margin: 14px 0 6px;">Last stock</div>
-          <div id="lastStockResults" class="list"></div>
+          <div class="storeCol">
+            <div class="storeColHeader">
+              <span class="badge">Price compare</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="small">Comparison</span>
+                <select id="cmpMode" class="selectSmall" aria-label="Comparison technique">
+                  <option value="dollar">Dollar Amount</option>
+                  <option value="percent">Percentage Difference</option>
+                </select>
+              </div>
+            </div>
+            <div id="resultsCompare" class="storeColList"></div>
+          </div>
         </div>
+
+        <div id="sentinel" class="small" style="text-align:center; padding:12px 0;"></div>
       </div>
     </div>
   `;
 
+  document.getElementById("back").addEventListener("click", () => {
+    sessionStorage.setItem("viz:lastRoute", location.hash);
+    location.hash = "#/";
+  });
+
   const $q = document.getElementById("q");
-  const $storeSub = document.getElementById("storeSub");
-  const $storeResults = document.getElementById("storeResults");
-  const $exclusiveResults = document.getElementById("exclusiveResults");
-  const $lastStockResults = document.getElementById("lastStockResults");
+  const $status = document.getElementById("status");
+  const $resultsExclusive = document.getElementById("resultsExclusive");
+  const $resultsCompare = document.getElementById("resultsCompare");
+  const $sentinel = document.getElementById("sentinel");
+  const $resultsWrap = document.getElementById("results");
+
+  const $maxPrice = document.getElementById("maxPrice");
+  const $maxPriceLabel = document.getElementById("maxPriceLabel");
+  const $priceWrap = document.getElementById("priceWrap");
+
   const $clearSearch = document.getElementById("clearSearch");
-  const $rightSort = document.getElementById("rightSort");
+  const $exSort = document.getElementById("exSort");
+  const $cmpMode = document.getElementById("cmpMode");
 
-  // Keep store-page filter consistent with the app's saved query (optional).
-  $q.value = loadSavedQuery() || "";
+  // Persist query per store
+  const storeNorm = normStoreLabel(storeLabel);
+  const LS_KEY = `viz:storeQuery:${storeNorm}`;
+  const savedQ = String(localStorage.getItem(LS_KEY) || "");
+  if (savedQ) $q.value = savedQ;
 
-  const SORT_KEY = "viz:storeRightSort";
-  $rightSort.value = sessionStorage.getItem(SORT_KEY) || "time";
+  // Persist max price per store (clamped later once bounds known)
+  const LS_MAX_PRICE = `viz:storeMaxPrice:${storeNorm}`;
+  const savedMaxPriceRaw = localStorage.getItem(LS_MAX_PRICE);
+  let savedMaxPrice =
+    savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
+  if (!Number.isFinite(savedMaxPrice)) savedMaxPrice = null;
 
-  let indexReady = false;
+  // Persist exclusives sort per store
+  const LS_EX_SORT = `viz:storeExclusiveSort:${storeNorm}`;
+  const savedExSort = String(localStorage.getItem(LS_EX_SORT) || "");
+  if (savedExSort) $exSort.value = savedExSort;
 
-  let STORE_LABEL = String(storeLabelParam || "").trim();
-  let CANON = (x) => x;
+  // Persist comparison technique per store
+  const LS_CMP_MODE = `viz:storeCompareMode:${storeNorm}`;
+  const savedCmpMode = String(localStorage.getItem(LS_CMP_MODE) || "");
+  if (savedCmpMode) $cmpMode.value = savedCmpMode;
 
-  // canonicalSku -> agg
-  let aggBySku = new Map();
-  // canonicalSku -> storeLabel -> { priceNum, priceStr, url }
-  let PRICE_BY_SKU_STORE = new Map();
-  // canonicalSku -> storeLabel -> url (for badge href)
-  let URL_BY_SKU_STORE = new Map();
+  $resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
+  $resultsCompare.innerHTML = ``;
 
-  // canonicalSku -> storeLabel -> most recent recent-row (within 7d)
-  let RECENT_BY_SKU_STORE = new Map();
+  const idx = await loadIndex();
+  rulesCache = await loadSkuRules();
+  const rules = rulesCache;
 
-  // For left list: canonicalSku -> best row for this store (cheapest priceNum; tie -> newest)
-  let STORE_ROW_BY_SKU = new Map();
+  const listingsAll = Array.isArray(idx.items) ? idx.items : [];
+  const liveAll = listingsAll.filter((r) => r && !r.removed);
 
-  // Derived right-side lists
-  let exclusives = [];
-  let lastStock = [];
-  let storeItems = []; // left list items
-
-  function normStoreLabel(s) {
-    return String(s || "").trim().toLowerCase();
-  }
-
-  function resolveStoreLabel(listings, wanted) {
-    const w = normStoreLabel(wanted);
-    if (!w) return "";
-    for (const r of Array.isArray(listings) ? listings : []) {
-      const lab = String(r?.storeLabel || r?.store || "").trim();
-      if (lab && normStoreLabel(lab) === w) return lab;
-    }
-    return wanted;
-  }
-
-  function tsValue(r) {
-    const t = String(r?.ts || "");
+  function dateMsFromRow(r) {
+    const t = String(r?.firstSeenAt || "");
     const ms = t ? Date.parse(t) : NaN;
-    if (Number.isFinite(ms)) return ms;
-    const d = String(r?.date || "");
-    const ms2 = d ? Date.parse(d) : NaN;
-    return Number.isFinite(ms2) ? ms2 : 0;
+    return Number.isFinite(ms) ? ms : null;
   }
 
-  function eventMs(r) {
-    const t = String(r?.ts || "");
-    const ms = t ? Date.parse(t) : NaN;
-    if (Number.isFinite(ms)) return ms;
+  // Build earliest "first in DB (for this store)" timestamp per canonical SKU (includes removed rows)
+  const firstSeenBySkuInStore = new Map(); // sku -> ms
+  for (const r of listingsAll) {
+    if (!r) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (store !== storeNorm) continue;
 
-    const d = String(r?.date || "");
-    const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
-    return Number.isFinite(ms2) ? ms2 : 0;
+    const skuKey = keySkuForRow(r);
+    const sku = String(rules.canonicalSku(skuKey) || skuKey);
+
+    const ms = dateMsFromRow(r);
+    if (ms === null) continue;
+
+    const prev = firstSeenBySkuInStore.get(sku);
+    if (prev === undefined || ms < prev) firstSeenBySkuInStore.set(sku, ms);
   }
 
-  function buildUrlMap(listings, canonicalSkuFn) {
-    const out = new Map();
-    for (const r of Array.isArray(listings) ? listings : []) {
-      if (!r || r.removed) continue;
+  // Build "ever seen" store presence per canonical SKU (includes removed rows)
+  const everStoresBySku = new Map(); // sku -> Set(storeLabelNorm)
+  for (const r of listingsAll) {
+    if (!r) continue;
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (!store) continue;
 
-      const skuKey = String(keySkuForRow(r) || "").trim();
-      if (!skuKey) continue;
+    const skuKey = keySkuForRow(r);
+    const sku = String(rules.canonicalSku(skuKey) || skuKey);
 
-      const sku = String(canonicalSkuFn ? canonicalSkuFn(skuKey) : skuKey).trim();
-      if (!sku) continue;
+    let ss = everStoresBySku.get(sku);
+    if (!ss) everStoresBySku.set(sku, (ss = new Set()));
+    ss.add(store);
+  }
 
-      const storeLabel = String(r.storeLabel || r.store || "").trim();
-      const url = String(r.url || "").trim();
-      if (!storeLabel || !url) continue;
+  // Build global per-canonical-SKU live store presence + min prices
+  const storesBySku = new Map(); // sku -> Set(storeLabelNorm)
+  const minPriceBySkuStore = new Map(); // sku -> Map(storeLabelNorm -> minPrice)
 
-      let m = out.get(sku);
-      if (!m) out.set(sku, (m = new Map()));
-      if (!m.has(storeLabel)) m.set(storeLabel, url);
+  for (const r of liveAll) {
+    const store = normStoreLabel(r.storeLabel || r.store || "");
+    if (!store) continue;
+
+    const skuKey = keySkuForRow(r);
+    const sku = String(rules.canonicalSku(skuKey) || skuKey);
+
+    let ss = storesBySku.get(sku);
+    if (!ss) storesBySku.set(sku, (ss = new Set()));
+    ss.add(store);
+
+    const p = parsePriceToNumber(r.price);
+    if (p !== null) {
+      let m = minPriceBySkuStore.get(sku);
+      if (!m) minPriceBySkuStore.set(sku, (m = new Map()));
+      const prev = m.get(store);
+      if (prev === undefined || p < prev) m.set(store, p);
     }
-    return out;
   }
 
-  function urlForSkuStore(sku, storeLabel) {
-    const s = String(sku || "");
-    const lab = String(storeLabel || "");
-    return URL_BY_SKU_STORE.get(s)?.get(lab) || "";
+  function bestAllPrice(sku) {
+    const m = minPriceBySkuStore.get(sku);
+    if (!m) return null;
+    let best = null;
+    for (const v of m.values()) best = best === null ? v : Math.min(best, v);
+    return best;
   }
 
-  function buildPriceMap(listings, canonicalSkuFn) {
-    const out = new Map();
-    for (const r of Array.isArray(listings) ? listings : []) {
-      if (!r || r.removed) continue;
-
-      const rawSku = String(keySkuForRow(r) || "").trim();
-      if (!rawSku) continue;
-
-      const sku = String(canonicalSkuFn ? canonicalSkuFn(rawSku) : rawSku).trim();
-      if (!sku) continue;
-
-      const storeLabel = String(r.storeLabel || r.store || "").trim();
-      if (!storeLabel) continue;
-
-      const priceStr = String(r.price || "").trim();
-      const priceNum = parsePriceToNumber(priceStr);
-      if (!Number.isFinite(priceNum)) continue;
-
-      const url = String(r.url || "").trim();
-
-      let m = out.get(sku);
-      if (!m) out.set(sku, (m = new Map()));
-
-      const prev = m.get(storeLabel);
-      if (!prev || priceNum < prev.priceNum) {
-        m.set(storeLabel, { priceNum, priceStr, url });
-      }
+  function bestOtherPrice(sku, store) {
+    const m = minPriceBySkuStore.get(sku);
+    if (!m) return null;
+    let best = null;
+    for (const [k, v] of m.entries()) {
+      if (k === store) continue;
+      best = best === null ? v : Math.min(best, v);
     }
-    return out;
+    return best;
   }
 
-  function pickBestStoreRowForSku(listings, canonicalSkuFn, storeLabel) {
-    const out = new Map();
-    const want = normStoreLabel(storeLabel);
+  // Store-specific live rows only (in-stock for that store)
+  const rowsStoreLive = liveAll.filter(
+    (r) => normStoreLabel(r.storeLabel || r.store || "") === storeNorm
+  );
 
-    for (const r of Array.isArray(listings) ? listings : []) {
-      if (!r || r.removed) continue;
+  // Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
+  let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
 
-      const lab = String(r.storeLabel || r.store || "").trim();
-      if (!lab || normStoreLabel(lab) !== want) continue;
+  // Decorate each item with pricing comparisons + exclusivity
+  const EPS = 0.01;
 
-      const rawSku = String(keySkuForRow(r) || "").trim();
-      if (!rawSku) continue;
+  items = items.map((it) => {
+    const sku = String(it.sku || "");
+    const liveStoreSet = storesBySku.get(sku) || new Set([storeNorm]);
+    const everStoreSet = everStoresBySku.get(sku) || liveStoreSet;
 
-      const sku = String(canonicalSkuFn ? canonicalSkuFn(rawSku) : rawSku).trim();
-      if (!sku) continue;
+    const soloLiveHere =
+      liveStoreSet.size === 1 && liveStoreSet.has(storeNorm);
+    const lastStock = soloLiveHere && everStoreSet.size > 1;
+    const exclusive = soloLiveHere && !lastStock;
 
-      const priceStr = String(r.price || "").trim();
-      const priceNum = parsePriceToNumber(priceStr);
-      const ms = tsValue(r);
+    const storePrice = Number.isFinite(it.cheapestPriceNum)
+      ? it.cheapestPriceNum
+      : null;
+    const bestAll = bestAllPrice(sku);
+    const other = bestOtherPrice(sku, storeNorm);
 
-      const prev = out.get(sku);
-      if (!prev) {
-        out.set(sku, { r, priceNum, ms });
-        continue;
-      }
+    const isBest =
+      storePrice !== null && bestAll !== null
+        ? storePrice <= bestAll + EPS
+        : false;
 
-      const prevPrice = prev.priceNum;
-      const prevMs = prev.ms;
+    const diffVsOtherDollar =
+      storePrice !== null && other !== null ? storePrice - other : null;
+    const diffVsOtherPct =
+      storePrice !== null && other !== null && other > 0
+        ? ((storePrice - other) / other) * 100
+        : null;
 
-      const priceOk = Number.isFinite(priceNum);
-      const prevOk = Number.isFinite(prevPrice);
+    const diffVsBestDollar =
+      storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
+    const diffVsBestPct =
+      storePrice !== null && bestAll !== null && bestAll > 0
+        ? ((storePrice - bestAll) / bestAll) * 100
+        : null;
 
-      if (priceOk && !prevOk) out.set(sku, { r, priceNum, ms });
-      else if (priceOk && prevOk && priceNum < prevPrice) out.set(sku, { r, priceNum, ms });
-      else if (
-        (priceOk && prevOk && Math.abs(priceNum - prevPrice) <= 0.01 && ms > prevMs) ||
-        (!priceOk && !prevOk && ms > prevMs)
-      ) {
-        out.set(sku, { r, priceNum, ms });
-      }
-    }
-
-    return out;
-  }
-
-  function buildRecentBySkuStore(recentItems, canonicalSkuFn, days) {
-    const nowMs = Date.now();
-    const cutoffMs = nowMs - days * 24 * 60 * 60 * 1000;
-
-    // sku -> storeLabel -> row
-    const out = new Map();
-
-    for (const r of Array.isArray(recentItems) ? recentItems : []) {
-      const ms = eventMs(r);
-      if (!(ms >= cutoffMs && ms <= nowMs)) continue;
-
-      const rawSku = String(r?.sku || "").trim();
-      if (!rawSku) continue;
-
-      const sku = String(canonicalSkuFn ? canonicalSkuFn(rawSku) : rawSku).trim();
-      if (!sku) continue;
-
-      const storeLabel = String(r?.storeLabel || r?.store || "").trim();
-      if (!storeLabel) continue;
-
-      let storeMap = out.get(sku);
-      if (!storeMap) out.set(sku, (storeMap = new Map()));
-
-      const prev = storeMap.get(storeLabel);
-      if (!prev || eventMs(prev) < ms) storeMap.set(storeLabel, r);
-    }
-
-    return out;
-  }
-
-  function normalizeKindForPrice(r) {
-    let kind = String(r?.kind || "");
-    if (kind === "price_change") {
-      const o = parsePriceToNumber(r?.oldPrice || "");
-      const n = parsePriceToNumber(r?.newPrice || "");
-      if (Number.isFinite(o) && Number.isFinite(n)) {
-        if (n < o) kind = "price_down";
-        else if (n > o) kind = "price_up";
-        else kind = "price_change";
-      }
-    }
-    return kind;
-  }
-
-  function salePctOff(oldRaw, newRaw) {
-    const oldN = parsePriceToNumber(oldRaw);
-    const newN = parsePriceToNumber(newRaw);
-    if (!Number.isFinite(oldN) || !Number.isFinite(newN)) return null;
-    if (!(oldN > 0)) return null;
-    if (!(newN < oldN)) return null;
-    const pct = Math.round(((oldN - newN) / oldN) * 100);
-    return Number.isFinite(pct) && pct > 0 ? pct : null;
-  }
-
-  function pctChange(oldRaw, newRaw) {
-    const oldN = parsePriceToNumber(oldRaw);
-    const newN = parsePriceToNumber(newRaw);
-    if (!Number.isFinite(oldN) || !Number.isFinite(newN)) return null;
-    if (!(oldN > 0)) return null;
-    const pct = Math.round(((newN - oldN) / oldN) * 100);
-    return Number.isFinite(pct) ? pct : null;
-  }
-
-  function fmtUsd(n) {
-    const abs = Math.abs(Number(n) || 0);
-    if (!Number.isFinite(abs)) return "";
-    const s = abs.toFixed(2);
-    return s.endsWith(".00") ? s.slice(0, -3) : s;
-  }
-
-  function recentSaleMetaForSkuStore(sku, storeLabel) {
-    const r = RECENT_BY_SKU_STORE.get(String(sku || ""))?.get(String(storeLabel || ""));
-    if (!r) return null;
-
-    const kind = normalizeKindForPrice(r);
-    if (kind !== "price_down" && kind !== "price_up" && kind !== "price_change") return null;
-
-    const oldStr = String(r?.oldPrice || "").trim();
-    const newStr = String(r?.newPrice || "").trim();
-    const oldN = parsePriceToNumber(oldStr);
-    const newN = parsePriceToNumber(newStr);
-
-    if (!Number.isFinite(oldN) || !Number.isFinite(newN) || !(oldN > 0)) return null;
-
-    // signedPct: down => negative; up => positive; unchanged => 0
-    let signedPct = 0;
-    let signedDelta = newN - oldN; // down => negative
-
-    if (newN < oldN) {
-      const off = salePctOff(oldStr, newStr);
-      signedPct = off !== null ? -off : Math.round(((newN - oldN) / oldN) * 100);
-    } else if (newN > oldN) {
-      const up = pctChange(oldStr, newStr);
-      signedPct = up !== null ? up : Math.round(((newN - oldN) / oldN) * 100);
-    } else {
-      signedPct = 0;
-      signedDelta = 0;
-    }
-
-    const when = r.ts ? prettyTs(r.ts) : r.date || "";
+    const firstSeenMs = firstSeenBySkuInStore.get(sku);
+    const firstSeen = firstSeenMs !== undefined ? firstSeenMs : null;
 
     return {
-      r,
-      kind,
-      oldStr,
-      newStr,
-      oldN,
-      newN,
-      signedPct,
-      signedDelta,
-      when,
+      ...it,
+      _exclusive: exclusive,
+      _lastStock: lastStock,
+      _storePrice: storePrice,
+      _bestAll: bestAll,
+      _bestOther: other,
+      _isBest: isBest,
+      _diffVsOtherDollar: diffVsOtherDollar,
+      _diffVsOtherPct: diffVsOtherPct,
+      _diffVsBestDollar: diffVsBestDollar,
+      _diffVsBestPct: diffVsBestPct,
+      _firstSeenMs: firstSeen,
     };
+  });
+
+  // ---- Max price slider (exponential mapping + clicky rounding) ----
+  const MIN_PRICE = 25;
+
+  function maxStorePriceOnPage() {
+    let mx = null;
+    for (const it of items) {
+      const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+      if (p === null) continue;
+      mx = mx === null ? p : Math.max(mx, p);
+    }
+    return mx;
   }
 
-  function pctOffVsNextBest(sku, storeLabel) {
-    const m = PRICE_BY_SKU_STORE.get(String(sku || ""));
-    if (!m) return null;
+  const pageMax = maxStorePriceOnPage();
+  const boundMax = pageMax !== null ? Math.max(MIN_PRICE, pageMax) : MIN_PRICE;
 
-    const here = m.get(String(storeLabel || ""));
-    if (!here || !Number.isFinite(here.priceNum)) return null;
+  function stepForPrice(p) {
+    const x = Number.isFinite(p) ? p : boundMax;
+    if (x < 120) return 5;
+    if (x < 250) return 10;
+    if (x < 600) return 25;
+    return 100;
+  }
+  function roundToStep(p) {
+    const step = stepForPrice(p);
+    return Math.round(p / step) * step;
+  }
 
-    const prices = [];
-    for (const v of m.values()) {
-      if (Number.isFinite(v?.priceNum)) prices.push(v.priceNum);
+  function priceFromT(t) {
+    t = Math.max(0, Math.min(1, t));
+    if (boundMax <= MIN_PRICE) return MIN_PRICE;
+    const ratio = boundMax / MIN_PRICE;
+    return MIN_PRICE * Math.exp(Math.log(ratio) * t);
+  }
+  function tFromPrice(price) {
+    if (!Number.isFinite(price)) return 1;
+    if (boundMax <= MIN_PRICE) return 1;
+    const p = Math.max(MIN_PRICE, Math.min(boundMax, price));
+    const ratio = boundMax / MIN_PRICE;
+    return Math.log(p / MIN_PRICE) / Math.log(ratio);
+  }
+
+  function clampPrice(p) {
+    if (!Number.isFinite(p)) return boundMax;
+    return Math.max(MIN_PRICE, Math.min(boundMax, p));
+  }
+
+  function clampAndRound(p) {
+    const c = clampPrice(p);
+    const r = roundToStep(c);
+    return clampPrice(r);
+  }
+
+  function formatDollars(p) {
+    if (!Number.isFinite(p)) return "";
+    return `$${Math.round(p)}`;
+  }
+
+  let selectedMaxPrice = clampAndRound(
+    savedMaxPrice !== null ? savedMaxPrice : boundMax
+  );
+
+  function setSliderFromPrice(p) {
+    const t = tFromPrice(p);
+    const v = Math.round(t * 1000);
+    $maxPrice.value = String(v);
+  }
+
+  function getRawPriceFromSlider() {
+    const v = Number($maxPrice.value);
+    const t = Number.isFinite(v) ? v / 1000 : 1;
+    return clampPrice(priceFromT(t));
+  }
+
+  function updateMaxPriceLabel() {
+    if (pageMax === null) {
+      $maxPriceLabel.textContent = "No prices";
+      return;
     }
-    prices.sort((a, b) => a - b);
+    $maxPriceLabel.textContent = `${formatDollars(selectedMaxPrice)}`;
+  }
 
-    if (!prices.length) return null;
+  if (pageMax === null) {
+    $maxPrice.disabled = true;
+    $priceWrap.title = "No priced items in this store.";
+    selectedMaxPrice = boundMax;
+    setSliderFromPrice(boundMax);
+    localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+    updateMaxPriceLabel();
+  } else {
+    selectedMaxPrice = clampAndRound(selectedMaxPrice);
+    localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+    setSliderFromPrice(selectedMaxPrice);
+    updateMaxPriceLabel();
+  }
 
-    const EPS = 0.01;
-    const min = prices[0];
-    if (Math.abs(here.priceNum - min) > EPS) return null;
+  // ---- Listing display price: keep cents (no rounding) ----
+  function listingPriceStr(it) {
+    const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+    if (p === null)
+      return it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
+    return `$${p.toFixed(2)}`;
+  }
 
-    // find second distinct
-    let second = null;
-    for (let i = 1; i < prices.length; i++) {
-      if (Math.abs(prices[i] - min) > EPS) {
-        second = prices[i];
-        break;
+  function compareMode() {
+    return $cmpMode && $cmpMode.value === "percent" ? "percent" : "dollar";
+  }
+
+  function priceBadgeHtml(it) {
+    if (it._exclusive || it._lastStock) return "";
+
+    const mode = compareMode();
+
+    if (mode === "percent") {
+      const d = it._diffVsOtherPct;
+      if (d === null || !Number.isFinite(d)) return "";
+      const abs = Math.abs(d);
+      if (abs <= 5) {
+        return `<span class="badge badgeNeutral">within 5%</span>`;
       }
+      const pct = Math.round(abs);
+      if (d < 0) return `<span class="badge badgeGood">${esc(pct)}% lower</span>`;
+      return `<span class="badge badgeBad">${esc(pct)}% higher</span>`;
     }
-    if (!Number.isFinite(second) || !(second > 0) || !(min < second)) return null;
 
-    const pct = Math.round(((second - min) / second) * 100);
-    return Number.isFinite(pct) && pct > 0 ? pct : null;
+    const d = it._diffVsOtherDollar;
+    if (d === null || !Number.isFinite(d)) return "";
+
+    const abs = Math.abs(d);
+    if (abs <= 5) {
+      return `<span class="badge badgeNeutral">within $5</span>`;
+    }
+
+    const dollars = Math.round(abs);
+    if (d < 0) {
+      return `<span class="badge badgeGood">$${esc(dollars)} lower</span>`;
+    }
+    return `<span class="badge badgeBad">$${esc(dollars)} higher</span>`;
   }
 
-  function badgeHtmlForSale(sortMode, saleMeta) {
-    if (!saleMeta) return "";
-    if (sortMode === "sale_pct") {
-      const v = saleMeta.signedPct;
-      if (!Number.isFinite(v) || v === 0) return "";
-      const isDown = v < 0;
-      const abs = Math.abs(v);
-      const style = isDown
-        ? ` style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
-        : ` style="margin-left:6px; color:rgba(170,40,40,0.95); background:rgba(170,40,40,0.10); border:1px solid rgba(170,40,40,0.20);"`;
-      const txt = isDown ? `[${abs}% Off]` : `[+${abs}%]`;
-      return `<span class="badge"${style}>${esc(txt)}</span>`;
-    }
+  function renderCard(it) {
+    const price = listingPriceStr(it);
+    const href = String(it.sampleUrl || "").trim();
 
-    if (sortMode === "sale_abs") {
-      const d = saleMeta.signedDelta;
-      if (!Number.isFinite(d) || d === 0) return "";
-      const isDown = d < 0;
-      const abs = fmtUsd(d);
-      if (!abs) return "";
-      const style = isDown
-        ? ` style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
-        : ` style="margin-left:6px; color:rgba(170,40,40,0.95); background:rgba(170,40,40,0.10); border:1px solid rgba(170,40,40,0.20);"`;
-      const txt = isDown ? `[$${abs} Off]` : `[+$${abs}]`;
-      return `<span class="badge"${style}>${esc(txt)}</span>`;
-    }
+    const specialBadge = it._lastStock
+      ? `<span class="badge badgeLastStock">Last Stock</span>`
+      : it._exclusive
+      ? `<span class="badge badgeExclusive">Exclusive</span>`
+      : "";
 
-    return "";
-  }
+    const bestBadge =
+      !it._exclusive && !it._lastStock && it._isBest
+        ? `<span class="badge badgeBest">Best Price</span>`
+        : "";
 
-  function badgeHtmlForExclusivePctOff(sku) {
-    const pct = pctOffVsNextBest(sku, STORE_LABEL);
-    if (!Number.isFinite(pct) || pct <= 0) return "";
-    return `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
-      pct
-    )}% Off]</span>`;
-  }
+    const diffBadge = priceBadgeHtml(it);
 
-  function itemCardHtml(it, { annotateMode }) {
-    // annotateMode: "sale_pct" | "sale_abs" | "default"
-    const sku = String(it?.sku || "");
-    const name = String(it?.name || "(no name)");
-    const img = String(it?.img || "");
-    const priceStr = it.priceStr ? it.priceStr : "(no price)";
-
-    const href = urlForSkuStore(sku, STORE_LABEL) || String(it?.url || "").trim();
-    const storeBadge = href
-      ? `<a class="badge" href="${esc(
-          href
-        )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-          STORE_LABEL
-        )}</a>`
-      : `<span class="badge">${esc(STORE_LABEL)}</span>`;
-
-    const skuLink = `#/link/?left=${encodeURIComponent(sku)}`;
-
-    let annot = "";
-    if (annotateMode === "sale_pct" || annotateMode === "sale_abs") {
-      annot = badgeHtmlForSale(annotateMode, it.saleMeta);
-    } else {
-      // default annotation is % off for exclusives only (and only if >0)
-      if (it.isExclusive) annot = badgeHtmlForExclusivePctOff(sku);
-    }
-
+    const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
     return `
-      <div class="item" data-sku="${esc(sku)}">
+      <div class="item" data-sku="${esc(it.sku)}">
         <div class="itemRow">
-          <div class="thumbBox">
-            ${renderThumbHtml(img)}
-          </div>
+          <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
             <div class="itemTop">
-              <div class="itemName">${esc(name)}</div>
-              <a class="badge mono skuLink" href="${esc(
-                skuLink
-              )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-      displaySku(sku)
+              <div class="itemName">${esc(it.name || "(no name)")}</div>
+              <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
+                 href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(
+      displaySku(it.sku)
     )}</a>
             </div>
             <div class="metaRow">
-              <span class="mono price">${esc(priceStr)}</span>
-              ${annot}
-              ${storeBadge}
+              ${specialBadge}
+              ${bestBadge}
+              ${diffBadge}
+              <span class="mono price">${esc(price)}</span>
+              ${
+                href
+                  ? `<a class="badge" href="${esc(
+                      href
+                    )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+                      storeLabelShort
+                    )}</a>`
+                  : ``
+              }
             </div>
           </div>
         </div>
@@ -471,300 +543,242 @@ export function renderStore($app, storeLabelParam) {
     `;
   }
 
-  function renderList($el, items, annotateMode) {
-    if (!items.length) {
-      $el.innerHTML = `<div class="small">No matches.</div>`;
+  // ---- Infinite scroll paging (shared across both columns) ----
+  const PAGE_SIZE = 140;
+  const PAGE_EACH = Math.max(1, Math.floor(PAGE_SIZE / 2));
+
+  let filteredExclusive = [];
+  let filteredCompare = [];
+  let shownExclusive = 0;
+  let shownCompare = 0;
+
+  function totalFiltered() {
+    return filteredExclusive.length + filteredCompare.length;
+  }
+  function totalShown() {
+    return shownExclusive + shownCompare;
+  }
+
+  function setStatus() {
+    const total = totalFiltered();
+    if (!total) {
+      $status.textContent = "No in-stock items for this store.";
       return;
     }
 
-    const limited = items.slice(0, 80);
-    $el.innerHTML = limited.map((it) => itemCardHtml(it, { annotateMode })).join("");
-
-    for (const el of Array.from($el.querySelectorAll(".item"))) {
-      el.addEventListener("click", () => {
-        const sku = el.getAttribute("data-sku") || "";
-        if (!sku) return;
-        saveQuery($q.value);
-        sessionStorage.setItem("viz:lastRoute", location.hash);
-        location.hash = `#/item/${encodeURIComponent(sku)}`;
-      });
-    }
-  }
-
-  function renderStoreCatalog(items) {
-    if (!items.length) {
-      $storeResults.innerHTML = `<div class="small">No matches.</div>`;
+    if (pageMax !== null) {
+      $status.textContent = `In stock: ${total} item(s) (≤ ${formatDollars(
+        selectedMaxPrice
+      )}).`;
       return;
     }
 
-    const limited = items.slice(0, 160);
-    $storeResults.innerHTML = limited
-      .map((it) => {
-        const sku = String(it?.sku || "");
-        const href = urlForSkuStore(sku, STORE_LABEL) || String(it?.url || "").trim();
-        const storeBadge = href
-          ? `<a class="badge" href="${esc(
-              href
-            )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-              STORE_LABEL
-            )}</a>`
-          : `<span class="badge">${esc(STORE_LABEL)}</span>`;
+    $status.textContent = `In stock: ${total} item(s).`;
+  }
 
-        const skuLink = `#/link/?left=${encodeURIComponent(sku)}`;
+  function renderNext(reset) {
+    if (reset) {
+      $resultsExclusive.innerHTML = "";
+      $resultsCompare.innerHTML = "";
+      shownExclusive = 0;
+      shownCompare = 0;
+    }
 
-        return `
-          <div class="item" data-sku="${esc(sku)}">
-            <div class="itemRow">
-              <div class="thumbBox">
-                ${renderThumbHtml(it.img)}
-              </div>
-              <div class="itemBody">
-                <div class="itemTop">
-                  <div class="itemName">${esc(it.name || "(no name)")}</div>
-                  <a class="badge mono skuLink" href="${esc(
-                    skuLink
-                  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-          displaySku(sku)
-        )}</a>
-                </div>
-                <div class="metaRow">
-                  <span class="mono price">${esc(it.priceStr || "(no price)")}</span>
-                  ${storeBadge}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    const sliceEx = filteredExclusive.slice(
+      shownExclusive,
+      shownExclusive + PAGE_EACH
+    );
+    const sliceCo = filteredCompare.slice(
+      shownCompare,
+      shownCompare + PAGE_EACH
+    );
 
-    for (const el of Array.from($storeResults.querySelectorAll(".item"))) {
-      el.addEventListener("click", () => {
-        const sku = el.getAttribute("data-sku") || "";
-        if (!sku) return;
-        saveQuery($q.value);
-        sessionStorage.setItem("viz:lastRoute", location.hash);
-        location.hash = `#/item/${encodeURIComponent(sku)}`;
-      });
+    shownExclusive += sliceEx.length;
+    shownCompare += sliceCo.length;
+
+    if (sliceEx.length)
+      $resultsExclusive.insertAdjacentHTML(
+        "beforeend",
+        sliceEx.map(renderCard).join("")
+      );
+    if (sliceCo.length)
+      $resultsCompare.insertAdjacentHTML(
+        "beforeend",
+        sliceCo.map(renderCard).join("")
+      );
+
+    const total = totalFiltered();
+    const shown = totalShown();
+
+    if (!total) {
+      $sentinel.textContent = "";
+    } else if (shown >= total) {
+      $sentinel.textContent = `Showing ${shown} / ${total}`;
+    } else {
+      $sentinel.textContent = `Showing ${shown} / ${total}…`;
     }
   }
 
-  function sortRightList(items, mode) {
-    const m = String(mode || "time");
-
-    const getTime = (it) => Number(it?.timeMs || 0);
-    const getPrice = (it) => (Number.isFinite(it?.priceNum) ? it.priceNum : Number.POSITIVE_INFINITY);
-
-    const getSignedPct = (it) => {
-      const v = it?.saleMeta?.signedPct;
-      return Number.isFinite(v) ? v : 0; // unchanged/no-event => 0 (middle)
-    };
-
-    const getSignedDelta = (it) => {
-      const v = it?.saleMeta?.signedDelta;
-      return Number.isFinite(v) ? v : 0; // unchanged/no-event => 0 (middle)
-    };
-
-    const out = items.slice();
-
-    if (m === "sale_pct") {
-      out.sort((a, b) => {
-        // deals (negative) first; unchanged (0) middle; increases (+) last
-        const av = getSignedPct(a);
-        const bv = getSignedPct(b);
-        if (av !== bv) return av - bv;
-        const ap = getPrice(a);
-        const bp = getPrice(b);
-        if (ap !== bp) return ap - bp;
-        return String(a.sku || "").localeCompare(String(b.sku || ""));
-      });
-      return out;
-    }
-
-    if (m === "sale_abs") {
-      out.sort((a, b) => {
-        const av = getSignedDelta(a);
-        const bv = getSignedDelta(b);
-        if (av !== bv) return av - bv; // negative (down) first, positive (up) last
-        const ap = getPrice(a);
-        const bp = getPrice(b);
-        if (ap !== bp) return ap - bp;
-        return String(a.sku || "").localeCompare(String(b.sku || ""));
-      });
-      return out;
-    }
-
-    if (m === "price") {
-      out.sort((a, b) => {
-        const ap = getPrice(a);
-        const bp = getPrice(b);
-        if (ap !== bp) return ap - bp;
-        return String(a.sku || "").localeCompare(String(b.sku || ""));
-      });
-      return out;
-    }
-
-    // time (default): newest first
-    out.sort((a, b) => {
-      const at = getTime(a);
-      const bt = getTime(b);
-      if (bt !== at) return bt - at;
-      return String(a.sku || "").localeCompare(String(b.sku || ""));
-    });
-    return out;
-  }
-
-  function rebuildDerivedLists() {
-    const tokens = tokenizeQuery($q.value);
-
-    const filteredStoreItems = !tokens.length
-      ? storeItems
-      : storeItems.filter((it) => matchesAllTokens(it.searchText, tokens));
-
-    renderStoreCatalog(filteredStoreItems);
-
-    const rightSortMode = String($rightSort.value || "time");
-    const annotMode =
-      rightSortMode === "sale_pct"
-        ? "sale_pct"
-        : rightSortMode === "sale_abs"
-        ? "sale_abs"
-        : "default";
-
-    const ex = !tokens.length
-      ? exclusives
-      : exclusives.filter((it) => matchesAllTokens(it.searchText, tokens));
-
-    const ls = !tokens.length
-      ? lastStock
-      : lastStock.filter((it) => matchesAllTokens(it.searchText, tokens));
-
-    renderList($exclusiveResults, sortRightList(ex, rightSortMode), annotMode);
-    renderList($lastStockResults, sortRightList(ls, rightSortMode), annotMode);
-  }
-
-  $storeResults.innerHTML = `<div class="small">Loading…</div>`;
-  $exclusiveResults.innerHTML = `<div class="small">Loading…</div>`;
-  $lastStockResults.innerHTML = `<div class="small">Loading…</div>`;
-
-  Promise.all([loadIndex(), loadSkuRules(), loadRecent()])
-    .then(([idx, rules, recent]) => {
-      const listings = Array.isArray(idx?.items) ? idx.items : [];
-
-      CANON = typeof rules?.canonicalSku === "function" ? rules.canonicalSku : (x) => x;
-
-      STORE_LABEL = resolveStoreLabel(listings, STORE_LABEL);
-      $storeSub.textContent = STORE_LABEL ? `Browsing: ${STORE_LABEL}` : `Browsing store`;
-
-      // Global aggregates (for "exclusive" / "last stock" determination)
-      const allAgg = aggregateBySku(listings, CANON);
-      aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
-
-      URL_BY_SKU_STORE = buildUrlMap(listings, CANON);
-      PRICE_BY_SKU_STORE = buildPriceMap(listings, CANON);
-
-      // Store rows
-      STORE_ROW_BY_SKU = pickBestStoreRowForSku(listings, CANON, STORE_LABEL);
-
-      // Recent (7 days)
-      const recentItems = Array.isArray(recent?.items) ? recent.items : [];
-      RECENT_BY_SKU_STORE = buildRecentBySkuStore(recentItems, CANON, 7);
-
-      // Build store item objects
-      storeItems = [];
-      exclusives = [];
-      lastStock = [];
-
-      for (const [sku, best] of STORE_ROW_BY_SKU.entries()) {
-        const r = best?.r || null;
-        if (!r) continue;
-
-        const global = aggBySku.get(String(sku || "")) || null;
-        const globalStoreCount = global?.stores?.size || 0;
-
-        const storePriceStr = String(r.price || "").trim();
-        const storePriceNum = parsePriceToNumber(storePriceStr);
-
-        const saleMeta = recentSaleMetaForSkuStore(sku, STORE_LABEL);
-
-        const searchText = String(
-          [
-            r.name || global?.name || "",
-            r.url || "",
-            sku,
-            STORE_LABEL,
-          ].join(" ")
-        ).toLowerCase();
-
-        const it = {
-          sku: String(sku || ""),
-          name: r.name || global?.name || "",
-          img: global?.img || r.img || "",
-          url: r.url || "",
-          priceStr: storePriceStr,
-          priceNum: storePriceNum,
-          timeMs: tsValue(r),
-          searchText,
-          saleMeta,
-          isExclusive: false,
-          isLastStock: false,
-          globalStoreCount,
-        };
-
-        // Determine exclusives / last stock
-        const EPS = 0.01;
-        const bestGlobalNum = Number.isFinite(global?.cheapestPriceNum) ? global.cheapestPriceNum : null;
-        const storeIsCheapest =
-          Number.isFinite(storePriceNum) && Number.isFinite(bestGlobalNum)
-            ? Math.abs(storePriceNum - bestGlobalNum) <= EPS
-            : false;
-
-        if (globalStoreCount <= 1) {
-          it.isLastStock = true;
-          lastStock.push(it);
-        } else if (storeIsCheapest) {
-          it.isExclusive = true;
-          exclusives.push(it);
-        }
-
-        storeItems.push(it);
-      }
-
-      // Default sort for store catalog: by name
-      storeItems.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
-      indexReady = true;
-      $q.focus();
-      rebuildDerivedLists();
-    })
-    .catch((e) => {
-      const msg = `Failed to load: ${esc(e?.message || String(e))}`;
-      $storeResults.innerHTML = `<div class="small">${msg}</div>`;
-      $exclusiveResults.innerHTML = `<div class="small">${msg}</div>`;
-      $lastStockResults.innerHTML = `<div class="small">${msg}</div>`;
-    });
-
-  $clearSearch.addEventListener("click", () => {
-    if ($q.value) {
-      $q.value = "";
-      saveQuery("");
-      rebuildDerivedLists();
-    }
-    $q.focus();
+  $resultsWrap.addEventListener("click", (e) => {
+    const el = e.target.closest(".item");
+    if (!el) return;
+    const sku = el.getAttribute("data-sku") || "";
+    if (!sku) return;
+    sessionStorage.setItem("viz:lastRoute", location.hash);
+    location.hash = `#/item/${encodeURIComponent(sku)}`;
   });
+
+  function sortExclusiveInPlace(arr) {
+    const mode = String($exSort.value || "priceDesc");
+    if (mode === "priceAsc" || mode === "priceDesc") {
+      arr.sort((a, b) => {
+        const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
+        const bp = Number.isFinite(b._storePrice) ? b._storePrice : null;
+        const aKey =
+          ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
+        const bKey =
+          bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
+        if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
+        return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+      });
+      return;
+    }
+
+    if (mode === "dateAsc" || mode === "dateDesc") {
+      arr.sort((a, b) => {
+        const ad = Number.isFinite(a._firstSeenMs) ? a._firstSeenMs : null;
+        const bd = Number.isFinite(b._firstSeenMs) ? b._firstSeenMs : null;
+        const aKey =
+          ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
+        const bKey =
+          bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
+        if (aKey !== bKey) return mode === "dateAsc" ? aKey - bKey : bKey - aKey;
+        return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+      });
+    }
+  }
+
+  function sortCompareInPlace(arr) {
+    const mode = compareMode();
+    arr.sort((a, b) => {
+      const da = mode === "percent" ? a._diffVsOtherPct : a._diffVsOtherDollar;
+      const db = mode === "percent" ? b._diffVsOtherPct : b._diffVsOtherDollar;
+
+      const sa = da === null || !Number.isFinite(da) ? 999999 : da;
+      const sb = db === null || !Number.isFinite(db) ? 999999 : db;
+      if (sa !== sb) return sa - sb;
+
+      return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+    });
+  }
+
+  function applyFilter() {
+    const raw = String($q.value || "");
+    localStorage.setItem(LS_KEY, raw);
+
+    const tokens = tokenizeQuery(raw);
+
+    let base = items;
+
+    if (tokens.length) {
+      base = base.filter((it) => matchesAllTokens(it.searchText, tokens));
+    }
+
+    if (pageMax !== null && Number.isFinite(selectedMaxPrice)) {
+      const cap = selectedMaxPrice + 0.0001;
+      base = base.filter((it) => {
+        const p = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+        return p === null ? true : p <= cap;
+      });
+    }
+
+    filteredExclusive = base.filter((it) => it._exclusive || it._lastStock);
+    filteredCompare = base.filter((it) => !it._exclusive && !it._lastStock);
+
+    sortExclusiveInPlace(filteredExclusive);
+    sortCompareInPlace(filteredCompare);
+
+    setStatus();
+    renderNext(true);
+  }
+
+  applyFilter();
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      const hit = entries.some((x) => x.isIntersecting);
+      if (!hit) return;
+      if (totalShown() >= totalFiltered()) return;
+      renderNext(false);
+    },
+    { root: null, rootMargin: "600px 0px", threshold: 0.01 }
+  );
+  io.observe($sentinel);
 
   let t = null;
   $q.addEventListener("input", () => {
-    saveQuery($q.value);
     if (t) clearTimeout(t);
-    t = setTimeout(() => {
-      if (!indexReady) return;
-      rebuildDerivedLists();
-    }, 50);
+    t = setTimeout(applyFilter, 60);
   });
 
-  $rightSort.addEventListener("change", () => {
-    sessionStorage.setItem(SORT_KEY, String($rightSort.value || "time"));
-    if (!indexReady) return;
-    rebuildDerivedLists();
+  $clearSearch.addEventListener("click", () => {
+    let changed = false;
+
+    if ($q.value) {
+      $q.value = "";
+      localStorage.setItem(LS_KEY, "");
+      changed = true;
+    }
+
+    // reset max price too (only if slider is active)
+    if (pageMax !== null) {
+      selectedMaxPrice = clampAndRound(boundMax);
+      localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+      setSliderFromPrice(selectedMaxPrice);
+      updateMaxPriceLabel();
+      changed = true;
+    }
+
+    if (changed) applyFilter();
+    $q.focus();
+  });
+
+  $exSort.addEventListener("change", () => {
+    localStorage.setItem(LS_EX_SORT, String($exSort.value || ""));
+    applyFilter();
+  });
+
+  $cmpMode.addEventListener("change", () => {
+    localStorage.setItem(LS_CMP_MODE, String($cmpMode.value || ""));
+    applyFilter();
+  });
+
+  let tp = null;
+  function setSelectedMaxPriceFromSlider() {
+    const raw = getRawPriceFromSlider();
+    const rounded = clampAndRound(raw);
+    if (Math.abs(rounded - selectedMaxPrice) > 0.001) {
+      selectedMaxPrice = rounded;
+      localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+      updateMaxPriceLabel();
+    } else {
+      updateMaxPriceLabel();
+    }
+  }
+
+  $maxPrice.addEventListener("input", () => {
+    if (pageMax === null) return;
+    setSelectedMaxPriceFromSlider();
+
+    if (tp) clearTimeout(tp);
+    tp = setTimeout(applyFilter, 40);
+  });
+
+  $maxPrice.addEventListener("change", () => {
+    if (pageMax === null) return;
+    setSelectedMaxPriceFromSlider();
+    setSliderFromPrice(selectedMaxPrice);
+    updateMaxPriceLabel();
+    applyFilter();
   });
 }
