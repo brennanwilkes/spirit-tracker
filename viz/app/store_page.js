@@ -6,7 +6,7 @@ import {
   keySkuForRow,
   parsePriceToNumber,
 } from "./sku.js";
-import { loadIndex } from "./state.js";
+import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 
@@ -127,6 +127,8 @@ export async function renderStore($app, storeLabelRaw) {
                   <option value="priceAsc">Lowest Price</option>
                   <option value="dateDesc">Newest</option>
                   <option value="dateAsc">Oldest</option>
+                  <option value="salePct">Sale %</option>
+                  <option value="saleAbs">Sale $</option>
                 </select>
               </div>
             </div>
@@ -202,6 +204,84 @@ export async function renderStore($app, storeLabelRaw) {
   const idx = await loadIndex();
   rulesCache = await loadSkuRules();
   const rules = rulesCache;
+
+  // --- Recent (7d), most-recent per canonicalSku + store ---
+  const recent = await loadRecent().catch(() => null);
+  const recentItems = Array.isArray(recent?.items) ? recent.items : [];
+
+  function eventMs(r) {
+    const t = String(r?.ts || "");
+    const ms = t ? Date.parse(t) : NaN;
+    if (Number.isFinite(ms)) return ms;
+
+    const d = String(r?.date || "");
+    const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
+    return Number.isFinite(ms2) ? ms2 : 0;
+  }
+
+  const RECENT_DAYS = 7;
+  const nowMs = Date.now();
+  const cutoffMs = nowMs - RECENT_DAYS * 24 * 60 * 60 * 1000;
+
+  // canonicalSku -> storeNorm -> recentRow (latest)
+  const recentBySkuStore = new Map();
+
+  for (const r of recentItems) {
+    const ms = eventMs(r);
+    if (!(ms >= cutoffMs && ms <= nowMs)) continue;
+
+    const rawSku = String(r?.sku || "").trim();
+    if (!rawSku) continue;
+    const sku = String(rules.canonicalSku(rawSku) || rawSku);
+
+    const stNorm = normStoreLabel(r?.storeLabel || r?.store || "");
+    if (!stNorm) continue;
+
+    let sm = recentBySkuStore.get(sku);
+    if (!sm) recentBySkuStore.set(sku, (sm = new Map()));
+
+    const prev = sm.get(stNorm);
+    if (!prev || eventMs(prev) < ms) sm.set(stNorm, r);
+  }
+
+  function normalizeKindForPrice(r) {
+    let kind = String(r?.kind || "");
+    if (kind === "price_change") {
+      const o = parsePriceToNumber(r?.oldPrice || "");
+      const n = parsePriceToNumber(r?.newPrice || "");
+      if (Number.isFinite(o) && Number.isFinite(n)) {
+        if (n < o) kind = "price_down";
+        else if (n > o) kind = "price_up";
+        else kind = "price_change";
+      }
+    }
+    return kind;
+  }
+
+  function saleMetaFor(it) {
+    const sku = String(it?.sku || "");
+    const r = recentBySkuStore.get(sku)?.get(storeNorm) || null;
+    if (!r) return null;
+
+    const kind = normalizeKindForPrice(r);
+    if (kind !== "price_down" && kind !== "price_up" && kind !== "price_change")
+      return null;
+
+    const oldStr = String(r?.oldPrice || "").trim();
+    const newStr = String(r?.newPrice || "").trim();
+    const oldN = parsePriceToNumber(oldStr);
+    const newN = parsePriceToNumber(newStr);
+    if (!Number.isFinite(oldN) || !Number.isFinite(newN) || !(oldN > 0))
+      return null;
+
+    const delta = newN - oldN; // negative = down
+    const pct = Math.round(((newN - oldN) / oldN) * 100); // negative = down
+
+    return {
+      _saleDelta: Number.isFinite(delta) ? delta : 0,
+      _salePct: Number.isFinite(pct) ? pct : 0,
+    };
+  }
 
   const listingsAll = Array.isArray(idx.items) ? idx.items : [];
   const liveAll = listingsAll.filter((r) => r && !r.removed);
@@ -336,6 +416,8 @@ export async function renderStore($app, storeLabelRaw) {
     const firstSeenMs = firstSeenBySkuInStore.get(sku);
     const firstSeen = firstSeenMs !== undefined ? firstSeenMs : null;
 
+    const sm = saleMetaFor(it); // { _saleDelta, _salePct } or null
+
     return {
       ...it,
       _exclusive: exclusive,
@@ -349,6 +431,9 @@ export async function renderStore($app, storeLabelRaw) {
       _diffVsBestDollar: diffVsBestDollar,
       _diffVsBestPct: diffVsBestPct,
       _firstSeenMs: firstSeen,
+      _saleDelta: sm ? sm._saleDelta : 0,
+      _salePct: sm ? sm._salePct : 0,
+      _hasSaleMeta: !!sm,
     };
   });
 
@@ -492,9 +577,44 @@ export async function renderStore($app, storeLabelRaw) {
     return `<span class="badge badgeBad">$${esc(dollars)} higher</span>`;
   }
 
+  function exclusiveAnnotHtml(it) {
+    const mode = String($exSort.value || "priceDesc");
+
+    // If sorting by sale, annotate with sale change ($ / %). If unchanged, show nothing.
+    if (mode === "salePct") {
+      const p = Number.isFinite(it._salePct) ? it._salePct : 0;
+      if (!p) return "";
+      const abs = Math.abs(p);
+      if (p < 0) return `<span class="badge badgeGood">${esc(abs)}% off</span>`;
+      return `<span class="badge badgeBad">+${esc(abs)}%</span>`;
+    }
+
+    if (mode === "saleAbs") {
+      const d = Number.isFinite(it._saleDelta) ? it._saleDelta : 0;
+      if (!d) return "";
+      const abs = Math.round(Math.abs(d));
+      if (!abs) return "";
+      if (d < 0) return `<span class="badge badgeGood">$${esc(abs)} off</span>`;
+      return `<span class="badge badgeBad">+$${esc(abs)}</span>`;
+    }
+
+    // Otherwise: show % off vs best other store (only when actually cheaper).
+    const sp = it && Number.isFinite(it._storePrice) ? it._storePrice : null;
+    const other = it && Number.isFinite(it._bestOther) ? it._bestOther : null;
+    if (sp === null || other === null || !(other > 0)) return "";
+    if (!(sp < other - EPS)) return "";
+
+    const pct = Math.round(((other - sp) / other) * 100);
+    if (!Number.isFinite(pct) || pct <= 0) return "";
+    return `<span class="badge badgeGood">${esc(pct)}% off</span>`;
+  }
+
   function renderCard(it) {
     const price = listingPriceStr(it);
-    const href = String(it.sampleUrl || "").trim();
+
+    // Link the store badge consistently (respects SKU linking / canonical SKU)
+    const storeHref = readLinkHrefForSkuInStore(liveAll, String(it.sku || ""), storeNorm);
+    const href = storeHref || String(it.sampleUrl || "").trim();
 
     const specialBadge = it._lastStock
       ? `<span class="badge badgeLastStock">Last Stock</span>`
@@ -508,6 +628,7 @@ export async function renderStore($app, storeLabelRaw) {
         : "";
 
     const diffBadge = priceBadgeHtml(it);
+    const exAnnot = it._exclusive || it._lastStock ? exclusiveAnnotHtml(it) : "";
 
     const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
     return `
@@ -526,6 +647,7 @@ export async function renderStore($app, storeLabelRaw) {
               ${specialBadge}
               ${bestBadge}
               ${diffBadge}
+              ${exAnnot}
               <span class="mono price">${esc(price)}</span>
               ${
                 href
@@ -630,6 +752,31 @@ export async function renderStore($app, storeLabelRaw) {
 
   function sortExclusiveInPlace(arr) {
     const mode = String($exSort.value || "priceDesc");
+
+    if (mode === "salePct") {
+      arr.sort((a, b) => {
+        const ap = Number.isFinite(a._salePct) ? a._salePct : 0; // negative = better
+        const bp = Number.isFinite(b._salePct) ? b._salePct : 0;
+        if (ap !== bp) return ap - bp; // best deal first
+        const an = (String(a.name) + a.sku).toLowerCase();
+        const bn = (String(b.name) + b.sku).toLowerCase();
+        return an.localeCompare(bn);
+      });
+      return;
+    }
+
+    if (mode === "saleAbs") {
+      arr.sort((a, b) => {
+        const ad = Number.isFinite(a._saleDelta) ? a._saleDelta : 0; // negative = better
+        const bd = Number.isFinite(b._saleDelta) ? b._saleDelta : 0;
+        if (ad !== bd) return ad - bd; // best deal first
+        const an = (String(a.name) + a.sku).toLowerCase();
+        const bn = (String(b.name) + b.sku).toLowerCase();
+        return an.localeCompare(bn);
+      });
+      return;
+    }
+
     if (mode === "priceAsc" || mode === "priceDesc") {
       arr.sort((a, b) => {
         const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
@@ -638,7 +785,8 @@ export async function renderStore($app, storeLabelRaw) {
           ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
         const bKey =
           bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
-        if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
+        if (aKey !== bKey)
+          return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
         return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
       });
       return;
@@ -652,7 +800,8 @@ export async function renderStore($app, storeLabelRaw) {
           ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
         const bKey =
           bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
-        if (aKey !== bKey) return mode === "dateAsc" ? aKey - bKey : bKey - aKey;
+        if (aKey !== bKey)
+          return mode === "dateAsc" ? aKey - bKey : bKey - aKey;
         return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
       });
     }
