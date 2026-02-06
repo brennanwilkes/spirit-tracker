@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-05T23:06:28.374Z",
+  "generatedAt": "2026-02-06T02:06:26.589Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7711,
-    "removedRows": 228,
-    "canonSkus": 4524,
+    "liveRows": 7710,
+    "removedRows": 229,
+    "canonSkus": 4522,
     "outputCount": 1000
   },
   "rows": [
@@ -4325,6 +4325,47 @@
         "priceNum": 99.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/dalwhinnie-15-year-old-1"
+      }
+    },
+    {
+      "canonSku": "264232",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "coop": 104.99,
+        "craftcellars": 73.99,
+        "kegncork": 102.96,
+        "maltsandgrains": 104.38
+      },
+      "representative": {
+        "name": "Makers Mark Cask Strength 2023",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "895260",
+        "skuKey": "895260",
+        "url": "https://craftcellars.ca/products/maker-s-mark-cask-strength-2023-55-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/maker-s-mark-cask-strength-2023-55-abv"
       }
     },
     {
@@ -10542,46 +10583,6 @@
         "priceNum": 634.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/the-arran-malt-25-yo-700-ml/"
-      }
-    },
-    {
-      "canonSku": "264232",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "coop": 104.99,
-        "kegncork": 102.96,
-        "maltsandgrains": 104.38
-      },
-      "representative": {
-        "name": "Maker's Mark Cask Strength Bourboun 2023 55.5% ABV",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "895260",
-        "skuKey": "895260",
-        "url": "https://www.bswliquor.com/products/makers-mark-cask-strength-2023",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/makers-mark-cask-strength-2023"
       }
     },
     {
@@ -16956,45 +16957,6 @@
         "priceNum": 81.8,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/world-whisky-whisky/indian-whisky/amrut-peated-indian-single-malt-whisky-46-abv-2/"
-      }
-    },
-    {
-      "canonSku": "072355",
-      "storeCount": 3,
-      "stores": [
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "coop": 85.99,
-        "craftcellars": 86.99,
-        "sierrasprings": 64.76
-      },
-      "representative": {
-        "name": "Woodford Reserve Double Oaked Bourbon (45.2% abv)",
-        "price": "$64.76",
-        "priceNum": 64.76,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "072355",
-        "skuKey": "072355",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-3/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$64.76",
-        "priceNum": 64.76,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-3/"
       }
     },
     {
@@ -33217,6 +33179,44 @@
         "priceNum": 3.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aglc-bacardi-wt-72009"
+      }
+    },
+    {
+      "canonSku": "072355",
+      "storeCount": 2,
+      "stores": [
+        "coop",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "coop": 85.99,
+        "sierrasprings": 64.76
+      },
+      "representative": {
+        "name": "Woodford Reserve Double Oaked Bourbon (45.2% abv)",
+        "price": "$64.76",
+        "priceNum": 64.76,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "072355",
+        "skuKey": "072355",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-3/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$64.76",
+        "priceNum": 64.76,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-3/"
       }
     },
     {

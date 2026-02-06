@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-05T23:06:28.102Z",
+  "generatedAt": "2026-02-06T02:06:26.333Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7711,
-    "removedRows": 228,
-    "canonSkus": 4524,
+    "liveRows": 7710,
+    "removedRows": 229,
+    "canonSkus": 4522,
     "outputCount": 250
   },
   "rows": [
@@ -4325,6 +4325,47 @@
         "priceNum": 99.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/dalwhinnie-15-year-old-1"
+      }
+    },
+    {
+      "canonSku": "264232",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "coop": 104.99,
+        "craftcellars": 73.99,
+        "kegncork": 102.96,
+        "maltsandgrains": 104.38
+      },
+      "representative": {
+        "name": "Makers Mark Cask Strength 2023",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "895260",
+        "skuKey": "895260",
+        "url": "https://craftcellars.ca/products/maker-s-mark-cask-strength-2023-55-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/maker-s-mark-cask-strength-2023-55-abv"
       }
     },
     {
@@ -10222,46 +10263,6 @@
         "priceNum": 160,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/talisker-sr23-59-7-abv"
-      }
-    },
-    {
-      "canonSku": "237950",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 40.99,
-        "coop": 40.99,
-        "craftcellars": 40.99,
-        "sierrasprings": 35.13
-      },
-      "representative": {
-        "name": "BEARFACE 7 YO TRIPLE OAK WHISKY 42.5%",
-        "price": "$35.13",
-        "priceNum": 35.13,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "807202",
-        "skuKey": "807202",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/bearface-7-years-triple-oak-canadian-whisky-42-5-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$35.13",
-        "priceNum": 35.13,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/bearface-7-years-triple-oak-canadian-whisky-42-5-abv/"
       }
     }
   ]
