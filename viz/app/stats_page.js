@@ -438,9 +438,8 @@ function computeSeriesFromRaw(raw, filter) {
 
 /* ---------------- y-axis bounds ---------------- */
 
-function computeYBounds(seriesByStore, defaultAbs) {
-  let mn = Infinity;
-  let mx = -Infinity;
+function computeYBounds(seriesByStore, minSpan = 6, pad = 1) {
+  let mn = Infinity, mx = -Infinity;
 
   for (const arr of Object.values(seriesByStore || {})) {
     if (!Array.isArray(arr)) continue;
@@ -451,12 +450,23 @@ function computeYBounds(seriesByStore, defaultAbs) {
     }
   }
 
-  if (mn === Infinity) return { min: -defaultAbs, max: defaultAbs };
+  if (mn === Infinity) return { min: -minSpan / 2, max: minSpan / 2 };
 
-  const min = Math.min(-defaultAbs, Math.floor(mn));
-  const max = Math.max(defaultAbs, Math.ceil(mx));
-  return { min, max };
+  // pad a bit so lines aren't glued to edges
+  mn = Math.floor(mn - pad);
+  mx = Math.ceil(mx + pad);
+
+  // enforce a minimum visible range so it doesn't get *too* tight
+  const span = mx - mn;
+  if (span < minSpan) {
+    const mid = (mn + mx) / 2;
+    mn = Math.floor(mid - minSpan / 2);
+    mx = Math.ceil(mid + minSpan / 2);
+  }
+
+  return { min: mn, max: mx };
 }
+
 
 /* ---------------- prefs ---------------- */
 
@@ -842,8 +852,7 @@ export async function renderStats($app) {
         maxPrice: selectedMaxPrice,
       });
 
-      const abs = group === "all" ? 12 : 8;
-      const yBounds = computeYBounds(series.seriesByStore, abs);
+      const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
 
       await drawOrUpdateChart(series, yBounds);
 
@@ -878,8 +887,7 @@ export async function renderStats($app) {
         maxPrice: selectedMaxPrice,
       });
 
-      const abs = group === "all" ? 12 : 8;
-      const yBounds = computeYBounds(series.seriesByStore, abs);
+      const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
 
       await drawOrUpdateChart(series, yBounds);
 
