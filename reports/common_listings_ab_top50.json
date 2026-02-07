@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-07T08:14:36.856Z",
+  "generatedAt": "2026-02-07T20:14:41.533Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7684,
-    "removedRows": 284,
-    "canonSkus": 4522,
+    "liveRows": 7678,
+    "removedRows": 294,
+    "canonSkus": 4519,
     "outputCount": 50
   },
   "rows": [
@@ -1213,48 +1213,6 @@
       }
     },
     {
-      "canonSku": "236740",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "coop": 209.99,
-        "kegncork": 199.96,
-        "kwm": 122.99,
-        "maltsandgrains": 129.9,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Craigellachie 17 Year",
-        "price": "$122.99",
-        "priceNum": 122.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "864257",
-        "skuKey": "864257",
-        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$122.99",
-        "priceNum": 122.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year"
-      }
-    },
-    {
       "canonSku": "238725",
       "storeCount": 6,
       "stores": [
@@ -2134,6 +2092,48 @@
         "priceNum": 52.28,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/lowland-scotch-whisky-whisky-2-2/auchentoshan-american-oak-scotch-whisky-40-abv/"
+      }
+    },
+    {
+      "canonSku": "677719",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 34.99,
+        "coop": 39.99,
+        "craftcellars": 39.99,
+        "kwm": 35.99,
+        "sierrasprings": 33.23,
+        "willowpark": 37.99
+      },
+      "representative": {
+        "name": "THE KRAKEN BLACK SPICED RUM 47%",
+        "price": "$33.23",
+        "priceNum": 33.23,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "738786",
+        "skuKey": "738786",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/the-kraken-black-spiced-rum-47-abv/",
+        "categoryLabel": "Spirits / Liquor",
+        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+      },
+      "cheapest": {
+        "price": "$33.23",
+        "priceNum": 33.23,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/the-kraken-black-spiced-rum-47-abv/"
       }
     }
   ]
