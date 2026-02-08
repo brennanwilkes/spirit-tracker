@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-08T17:06:36.116Z",
+  "generatedAt": "2026-02-08T20:14:33.139Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -18,8 +18,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3269,
-    "removedRows": 108,
+    "liveRows": 3268,
+    "removedRows": 109,
     "canonSkus": 1794,
     "outputCount": 250
   },
@@ -2158,13 +2158,13 @@
         "bcl": 53.49,
         "gull": 55.95,
         "legacyliquor": 55.6,
-        "tudor": 33.99,
+        "tudor": 50.99,
         "vessel": 52.49
       },
       "representative": {
         "name": "Alberta Premium Rye Whisky",
-        "price": "$33.99",
-        "priceNum": 33.99,
+        "price": "$50.99",
+        "priceNum": 50.99,
         "storeKey": "tudor",
         "storeLabel": "Tudor House",
         "skuRaw": "054213",
@@ -2174,8 +2174,8 @@
         "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
       },
       "cheapest": {
-        "price": "$33.99",
-        "priceNum": 33.99,
+        "price": "$50.99",
+        "priceNum": 50.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380"
       }
@@ -5201,45 +5201,6 @@
         "priceNum": 52.49,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/canadian-club-whisky-1750-ml"
-      }
-    },
-    {
-      "canonSku": "035238",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 42.99,
-        "gull": 45.05,
-        "tudor": 38.69,
-        "vessel": 44.99
-      },
-      "representative": {
-        "name": "THE FAMOUS GROUSE - MATTHEW GLOAG",
-        "price": "$38.69",
-        "priceNum": 38.69,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "035238",
-        "skuKey": "035238",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/famous-grouse-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$38.69",
-        "priceNum": 38.69,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/famous-grouse-l-380"
       }
     },
     {
@@ -9226,7 +9187,7 @@
       ],
       "storePrices": {
         "bcl": 34.99,
-        "tudor": 53.99,
+        "tudor": 35.49,
         "vessel": 35.99
       },
       "representative": {
@@ -9588,6 +9549,44 @@
         "priceNum": 187.19,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/ancnoc-18-year-ml-420"
+      }
+    },
+    {
+      "canonSku": "035238",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "gull",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 42.99,
+        "gull": 45.05,
+        "vessel": 44.99
+      },
+      "representative": {
+        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "035238",
+        "skuKey": "035238",
+        "url": "https://www.bcliquorstores.com/product/35238",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/35238"
       }
     },
     {

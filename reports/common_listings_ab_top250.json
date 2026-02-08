@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-08T17:06:36.952Z",
+  "generatedAt": "2026-02-08T20:14:33.934Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7649,
-    "removedRows": 326,
-    "canonSkus": 4512,
+    "liveRows": 7635,
+    "removedRows": 340,
+    "canonSkus": 4504,
     "outputCount": 250
   },
   "rows": [
@@ -1504,48 +1504,6 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/canadian-whisky-canadian-whisky/canadian-club-invitation-15-sherry-cask-42-abv/"
-      }
-    },
-    {
-      "canonSku": "370136",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 102,
-        "coop": 99.99,
-        "kwm": 74.89,
-        "maltsandgrains": 106.27,
-        "sierrasprings": 98.94,
-        "willowpark": 99.99
-      },
-      "representative": {
-        "name": "Elements of Islay Sherry Cask",
-        "price": "$74.89",
-        "priceNum": 74.89,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "878391",
-        "skuKey": "878391",
-        "url": "https://kensingtonwinemarket.com/product/878391/elements-of-islay-sherry-cask",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$74.89",
-        "priceNum": 74.89,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/878391/elements-of-islay-sherry-cask"
       }
     },
     {
@@ -4531,6 +4489,47 @@
       }
     },
     {
+      "canonSku": "370136",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kegncork",
+        "kwm"
+      ],
+      "storePrices": {
+        "bsw": 102,
+        "coop": 99.99,
+        "maltsandgrains": 106.27,
+        "sierrasprings": 98.94,
+        "willowpark": 99.99
+      },
+      "representative": {
+        "name": "ELEMENTS OF ISLAY – SHERRY CASK",
+        "price": "$98.94",
+        "priceNum": 98.94,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "878391",
+        "skuKey": "878391",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/elements-of-islay-sherry-cask-54-5-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$98.94",
+        "priceNum": 98.94,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/elements-of-islay-sherry-cask-54-5-abv/"
+      }
+    },
+    {
       "canonSku": "387316",
       "storeCount": 5,
       "stores": [
@@ -5594,47 +5593,6 @@
         "priceNum": 70.54,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/760843/michter-s-kentucky-straight-bourbon"
-      }
-    },
-    {
-      "canonSku": "764490",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "coop": 79.99,
-        "craftcellars": 67.99,
-        "kwm": 72.24,
-        "sierrasprings": 77.04
-      },
-      "representative": {
-        "name": "Michters US1 Sour Mash",
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "764490",
-        "skuKey": "764490",
-        "url": "https://craftcellars.ca/products/michter-s-us-1-sour-mash-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/michter-s-us-1-sour-mash-43-abv"
       }
     },
     {
@@ -10256,6 +10214,46 @@
         "priceNum": 38.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/flor-de-cana-grand-reserve-7yr"
+      }
+    },
+    {
+      "canonSku": "340805",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 200,
+        "craftcellars": 189.99,
+        "kegncork": 179.96,
+        "kwm": 194.99
+      },
+      "representative": {
+        "name": "Nikka The Grain Discovery Edition 2023",
+        "price": "$189.99",
+        "priceNum": 189.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "894184",
+        "skuKey": "894184",
+        "url": "https://craftcellars.ca/products/nikka-the-grain-discovery-edition-2023-48-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$179.96",
+        "priceNum": 179.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/nikka-the-grain-discovery-edition-2023-700-ml/"
       }
     }
   ]

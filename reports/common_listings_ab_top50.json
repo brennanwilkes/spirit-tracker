@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-08T17:06:36.656Z",
+  "generatedAt": "2026-02-08T20:14:33.653Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7649,
-    "removedRows": 326,
-    "canonSkus": 4512,
+    "liveRows": 7635,
+    "removedRows": 340,
+    "canonSkus": 4504,
     "outputCount": 50
   },
   "rows": [
@@ -1507,48 +1507,6 @@
       }
     },
     {
-      "canonSku": "370136",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 102,
-        "coop": 99.99,
-        "kwm": 74.89,
-        "maltsandgrains": 106.27,
-        "sierrasprings": 98.94,
-        "willowpark": 99.99
-      },
-      "representative": {
-        "name": "Elements of Islay Sherry Cask",
-        "price": "$74.89",
-        "priceNum": 74.89,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "878391",
-        "skuKey": "878391",
-        "url": "https://kensingtonwinemarket.com/product/878391/elements-of-islay-sherry-cask",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$74.89",
-        "priceNum": 74.89,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/878391/elements-of-islay-sherry-cask"
-      }
-    },
-    {
       "canonSku": "380717",
       "storeCount": 6,
       "stores": [
@@ -2134,6 +2092,48 @@
         "priceNum": 33.23,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/the-kraken-black-spiced-rum-47-abv/"
+      }
+    },
+    {
+      "canonSku": "730868",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "coop": 109.99,
+        "craftcellars": 113.99,
+        "kwm": 104.39,
+        "sierrasprings": 95.13,
+        "willowpark": 107.99
+      },
+      "representative": {
+        "name": "EL DORADO 21 YR. RUM",
+        "price": "$95.13",
+        "priceNum": 95.13,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "730868",
+        "skuKey": "730868",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/el-dorado-21-years-rum-40-abv/",
+        "categoryLabel": "Spirits / Liquor",
+        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+      },
+      "cheapest": {
+        "price": "$95.13",
+        "priceNum": 95.13,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/el-dorado-21-years-rum-40-abv/"
       }
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-08T17:06:35.663Z",
+  "generatedAt": "2026-02-08T20:14:32.666Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 10918,
-    "removedRows": 434,
-    "canonSkus": 5348,
+    "liveRows": 10903,
+    "removedRows": 449,
+    "canonSkus": 5340,
     "outputCount": 1000
   },
   "rows": [
@@ -7717,26 +7717,26 @@
         "gull": 55.95,
         "legacyliquor": 55.6,
         "sierrasprings": 48.57,
-        "tudor": 33.99,
+        "tudor": 50.99,
         "vessel": 52.49
       },
       "representative": {
-        "name": "Alberta Premium Rye Whisky",
-        "price": "$33.99",
-        "priceNum": 33.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "Alberta Premium Rye 1.75L",
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "054213",
         "skuKey": "054213",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+        "url": "https://www.bswliquor.com/products/alberta-premium-whisky-5",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$33.99",
-        "priceNum": 33.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380"
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/alberta-premium-whisky-5"
       }
     },
     {
@@ -9137,56 +9137,6 @@
         "priceNum": 39.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/appleton-estate-v-x-2"
-      }
-    },
-    {
-      "canonSku": "370136",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bcl",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bsw": 102,
-        "coop": 99.99,
-        "gull": 129.99,
-        "kwm": 74.89,
-        "maltsandgrains": 106.27,
-        "sierrasprings": 98.94,
-        "willowpark": 99.99
-      },
-      "representative": {
-        "name": "Elements of Islay Sherry Cask",
-        "price": "$74.89",
-        "priceNum": 74.89,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "878391",
-        "skuKey": "878391",
-        "url": "https://kensingtonwinemarket.com/product/878391/elements-of-islay-sherry-cask",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$74.89",
-        "priceNum": 74.89,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/878391/elements-of-islay-sherry-cask"
       }
     },
     {
@@ -13920,6 +13870,55 @@
         "priceNum": 32.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/367672"
+      }
+    },
+    {
+      "canonSku": "370136",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "gull",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bcl",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bsw": 102,
+        "coop": 99.99,
+        "gull": 129.99,
+        "maltsandgrains": 106.27,
+        "sierrasprings": 98.94,
+        "willowpark": 99.99
+      },
+      "representative": {
+        "name": "ELEMENTS OF ISLAY – SHERRY CASK",
+        "price": "$98.94",
+        "priceNum": 98.94,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "878391",
+        "skuKey": "878391",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/elements-of-islay-sherry-cask-54-5-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$98.94",
+        "priceNum": 98.94,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/elements-of-islay-sherry-cask-54-5-abv/"
       }
     },
     {
@@ -22258,54 +22257,6 @@
       }
     },
     {
-      "canonSku": "764490",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "coop": 79.99,
-        "craftcellars": 67.99,
-        "kwm": 72.24,
-        "sierrasprings": 77.04
-      },
-      "representative": {
-        "name": "Michters US1 Sour Mash",
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "764490",
-        "skuKey": "764490",
-        "url": "https://craftcellars.ca/products/michter-s-us-1-sour-mash-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/michter-s-us-1-sour-mash-43-abv"
-      }
-    },
-    {
       "canonSku": "772525",
       "storeCount": 5,
       "stores": [
@@ -23669,7 +23620,7 @@
       "storePrices": {
         "bcl": 34.99,
         "bsw": 37.99,
-        "tudor": 53.99,
+        "tudor": 35.49,
         "vessel": 35.99
       },
       "representative": {
@@ -24065,53 +24016,6 @@
         "priceNum": 51.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/wisers-de-luxe-whisky-3"
-      }
-    },
-    {
-      "canonSku": "035238",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 42.99,
-        "gull": 45.05,
-        "tudor": 38.69,
-        "vessel": 44.99
-      },
-      "representative": {
-        "name": "THE FAMOUS GROUSE - MATTHEW GLOAG",
-        "price": "$38.69",
-        "priceNum": 38.69,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "035238",
-        "skuKey": "035238",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/famous-grouse-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$38.69",
-        "priceNum": 38.69,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/famous-grouse-l-380"
       }
     },
     {
@@ -26321,53 +26225,6 @@
         "priceNum": 295,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-octomore-15-3"
-      }
-    },
-    {
-      "canonSku": "112234",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "bsw",
-        "kwm",
-        "tudor"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 178.99,
-        "bsw": 140,
-        "kwm": 115.49,
-        "tudor": 161.09
-      },
-      "representative": {
-        "name": "Highland Park Cask Strength No. 5 2024",
-        "price": "$115.49",
-        "priceNum": 115.49,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "112234",
-        "skuKey": "112234",
-        "url": "https://kensingtonwinemarket.com/product/112234/highland-park-cask-strength-no-5-2024",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$115.49",
-        "priceNum": 115.49,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/112234/highland-park-cask-strength-no-5-2024"
       }
     },
     {
@@ -29874,25 +29731,25 @@
         "bcl": 102.99,
         "bsw": 110,
         "maltsandgrains": 136.55,
-        "tudor": 92.69
+        "tudor": 130.49
       },
       "representative": {
-        "name": "GLENLIVET FOUNDER'S RESERVE",
-        "price": "$92.69",
-        "priceNum": 92.69,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "GLENLIVET - FOUNDER'S RESERVE",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "272369",
         "skuKey": "272369",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenlivet-founders-l-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+        "url": "https://www.bcliquorstores.com/product/272369",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$92.69",
-        "priceNum": 92.69,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenlivet-founders-l-420"
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/272369"
       }
     },
     {
@@ -31444,53 +31301,6 @@
         "priceNum": 91.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/405363"
-      }
-    },
-    {
-      "canonSku": "407390",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "kwm"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 89.99,
-        "bsw": 86.99,
-        "coop": 89.99,
-        "kwm": 66.74
-      },
-      "representative": {
-        "name": "Compass Box Orchard House",
-        "price": "$66.74",
-        "priceNum": 66.74,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "858586",
-        "skuKey": "858586",
-        "url": "https://kensingtonwinemarket.com/product/858586/compass-box-orchard-house",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$66.74",
-        "priceNum": 66.74,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/858586/compass-box-orchard-house"
       }
     },
     {
@@ -33938,6 +33748,53 @@
       }
     },
     {
+      "canonSku": "742539",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 53.99,
+        "coop": 59.99,
+        "craftcellars": 41.99,
+        "sierrasprings": 60.85
+      },
+      "representative": {
+        "name": "Makers Mark 46",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "742539",
+        "skuKey": "742539",
+        "url": "https://craftcellars.ca/products/maker-s-mark-46",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/maker-s-mark-46"
+      }
+    },
+    {
       "canonSku": "742865",
       "storeCount": 4,
       "stores": [
@@ -34311,6 +34168,53 @@
         "priceNum": 81.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-coffey-malt"
+      }
+    },
+    {
+      "canonSku": "764490",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "bcl",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "coop": 79.99,
+        "kwm": 72.24,
+        "sierrasprings": 77.04
+      },
+      "representative": {
+        "name": "Michters Sour Mash Whiskey",
+        "price": "$72.24",
+        "priceNum": 72.24,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "764490",
+        "skuKey": "764490",
+        "url": "https://kensingtonwinemarket.com/product/764490/michter-s-sour-mash-whiskey",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$72.24",
+        "priceNum": 72.24,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/764490/michter-s-sour-mash-whiskey"
       }
     },
     {
@@ -38201,6 +38105,52 @@
       }
     },
     {
+      "canonSku": "035238",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "gull",
+        "vessel"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 42.99,
+        "gull": 45.05,
+        "vessel": 44.99
+      },
+      "representative": {
+        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "035238",
+        "skuKey": "035238",
+        "url": "https://www.bcliquorstores.com/product/35238",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/35238"
+      }
+    },
+    {
       "canonSku": "047290",
       "storeCount": 3,
       "stores": [
@@ -40360,6 +40310,52 @@
         "priceNum": 116.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/rassay-na-sia-unpeat-chinkapin-oak-cask-61-4-abv/"
+      }
+    },
+    {
+      "canonSku": "112234",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "bsw",
+        "tudor"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 178.99,
+        "bsw": 140,
+        "tudor": 161.09
+      },
+      "representative": {
+        "name": "Highland Park Cask Strength No. 5 64.7% ABV",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "112234",
+        "skuKey": "112234",
+        "url": "https://www.bswliquor.com/products/highland-park-cask-strength-n0-5",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/highland-park-cask-strength-n0-5"
       }
     },
     {
@@ -46895,52 +46891,6 @@
       }
     },
     {
-      "canonSku": "306194",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kwm",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "kwm": 74.74,
-        "strath": 94.29
-      },
-      "representative": {
-        "name": "Wolfburn 10 Year Single Malt Scotch",
-        "price": "$74.74",
-        "priceNum": 74.74,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "888182",
-        "skuKey": "888182",
-        "url": "https://kensingtonwinemarket.com/product/888182/wolfburn-10-year-single-malt-scotch",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$74.74",
-        "priceNum": 74.74,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/888182/wolfburn-10-year-single-malt-scotch"
-      }
-    },
-    {
       "canonSku": "306206",
       "storeCount": 3,
       "stores": [
@@ -48088,6 +48038,52 @@
         "priceNum": 89.66,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/blended-scotch-whisky-whisky/the-epicurean-tawny-port-finish-48-abv/"
+      }
+    },
+    {
+      "canonSku": "407390",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 89.99,
+        "bsw": 86.99,
+        "coop": 89.99
+      },
+      "representative": {
+        "name": "Compass Box Orchard House 46% ABV",
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "858586",
+        "skuKey": "858586",
+        "url": "https://www.bswliquor.com/products/compass-box-orchard-box",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/compass-box-orchard-box"
       }
     }
   ]
