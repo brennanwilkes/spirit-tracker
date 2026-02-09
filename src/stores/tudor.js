@@ -103,12 +103,79 @@ function tudorProductUrl(ctx, slug) {
   return new URL(path, BASE).toString();
 }
 
+function parseVolumeMl(v) {
+  const raw = String(v?.volume || v?.shortName || v?.fullName || "").toUpperCase();
+
+  // Match "1.75L", "1L", "750ML", etc.
+  const m = raw.match(/(\d+(?:\.\d+)?)\s*(ML|L)\b/);
+  if (!m) return null;
+
+  const n = Number(m[1]);
+  if (!Number.isFinite(n)) return null;
+
+  return m[2] === "L" ? Math.round(n * 1000) : Math.round(n);
+}
+
 function tudorPickVariant(p) {
   const vs = Array.isArray(p?.variants) ? p.variants : [];
-  // prefer in-stock variant
-  const inStock = vs.find((v) => Number(v?.quantity) > 0);
-  return inStock || vs[0] || null;
+  const inStock = vs.filter((v) => Number(v?.quantity) > 0);
+  const pool = inStock.length ? inStock : vs;
+  if (!pool.length) return null;
+  if (pool.length === 1) return pool[0];
+
+  let best = pool[0];
+  let bestVol = parseVolumeMl(best);
+  let bestPrice = Number(best?.price);
+
+  for (let i = 1; i < pool.length; i++) {
+    const v = pool[i];
+    const vol = parseVolumeMl(v);
+    const price = Number(v?.price);
+
+    const volA = bestVol == null ? -1 : bestVol;
+    const volB = vol == null ? -1 : vol;
+
+    // 1) largest volume wins
+    if (volB > volA) {
+      best = v;
+      bestVol = vol;
+      bestPrice = price;
+      continue;
+    }
+    if (volB < volA) continue;
+
+    // 2) tie-break: higher price wins
+    const priceA = Number.isFinite(bestPrice) ? bestPrice : -1;
+    const priceB = Number.isFinite(price) ? price : -1;
+    if (priceB > priceA) {
+      best = v;
+      bestVol = vol;
+      bestPrice = price;
+    }
+  }
+
+  return best;
 }
+function parseDisplayPriceFromHtml(html) {
+  const s = String(html || "");
+
+  // Narrow to the main price container first (avoid grabbing retail-price)
+  const block =
+    s.match(/<div[^>]*class=["'][^"']*price-container[^"']*["'][^>]*>([\s\S]{0,800})<\/div>/i) ||
+    s.match(/<div[^>]*class=["'][^"']*\bprice\b[^"']*["'][^>]*>([\s\S]{0,800})<\/div>/i);
+
+  const hay = block ? block[1] : s;
+
+  // Remove retail-price spans so we pick the live price first
+  const cleaned = hay.replace(/<span[^>]*class=["'][^"']*retail-price[^"']*["'][^>]*>[\s\S]*?<\/span>/gi, " ");
+
+  const m = cleaned.match(/\$\s*([0-9]+(?:\.[0-9]{2})?)/);
+  if (!m) return null;
+
+  const n = Number(m[1]);
+  return Number.isFinite(n) ? n : null;
+}
+
 
 function pickAnySkuFromProduct(p) {
   const vs = Array.isArray(p?.variants) ? p.variants : [];
@@ -369,7 +436,9 @@ async function tudorDetailFromProductPage(ctx, url) {
       const rawSku = parseSkuFromHtml(r.text);
       const sku = normalizeTudorSku(rawSku);
       const img = normalizeAbsUrl(parseOgImageFromHtml(r.text));
-      out = { sku, img };
+      const priceNum = parseDisplayPriceFromHtml(r.text);
+
+      out = { sku, img, priceNum };
     }
   } catch {
     out = null;
@@ -378,6 +447,7 @@ async function tudorDetailFromProductPage(ctx, url) {
   ctx._tudorHtmlCache.set(url, out);
   return out;
 }
+
 
 /* ---------------- item builder (fast, no extra calls) ---------------- */
 
@@ -392,6 +462,8 @@ function tudorItemFromProductFast(p, ctx) {
   if (v && Number(v?.quantity) <= 0) return null; // only keep in-stock
 
   const url = tudorProductUrl(ctx, slug);
+
+  // NOTE: fast-path price is a best-effort; may be overridden in repair pass for multi-variant products
   const price = money(v?.price ?? p?.priceFrom ?? p?.priceTo);
 
   const skuRaw = String(v?.sku || "").trim() || pickAnySkuFromProduct(p);
@@ -401,20 +473,61 @@ function tudorItemFromProductFast(p, ctx) {
     firstNonEmptyStr(v?.image, p?.gulpImages, p?.posImages, p?.customImages, p?.imageIds)
   );
 
-  return { name, price, url, sku, img, _skuProbe: skuRaw };
+  // NEW: keep lightweight variant snapshot so repair can match HTML SKU -> exact GQL variant price
+  const variants = Array.isArray(p?.variants)
+    ? p.variants.map((x) => ({
+        sku: String(x?.sku || "").trim(),
+        price: x?.price,
+        retailPrice: x?.retailPrice,
+        quantity: x?.quantity,
+      }))
+    : [];
+
+  return { name, price, url, sku, img, _skuProbe: skuRaw, _variants: variants };
 }
 
 /* ---------------- repair (second pass, budgeted) ---------------- */
 
 async function tudorRepairItem(ctx, it) {
-  // 1) Missing or synthetic SKU -> HTML product page (fastest path to real SKU)
-  if (isSyntheticSku(it.sku)) {
+  // Determine if we need HTML for precision:
+  // - Missing/synthetic SKU (existing behavior)
+  // - OR multi-variant product where fast-path may choose the wrong variant for this URL
+  const inStockVariants = Array.isArray(it._variants)
+    ? it._variants.filter((v) => Number(v?.quantity) > 0)
+    : [];
+
+  const hasMultiInStock = inStockVariants.length >= 2;
+
+  // 1) HTML: fix SKU if missing/synthetic, AND fix price for multi-variant URLs
+  if (isSyntheticSku(it.sku) || hasMultiInStock) {
     const d = await tudorDetailFromProductPage(ctx, it.url);
-    if (d?.sku && !isSyntheticSku(d.sku)) it.sku = d.sku;
+
+    // Prefer real SKU from HTML
+    if (d?.sku && !isSyntheticSku(d.sku)) {
+      it.sku = d.sku;
+    }
+
+    // Fill image if missing
     if (!it.img && d?.img) it.img = d.img;
+
+    // Price precision:
+    // - Best: match HTML SKU to a GQL variant sku => exact numeric variant price
+    // - Fallback: use displayed HTML price
+    const htmlSkuDigits = String(d?.sku || "").replace(/^id:/i, "").trim();
+
+    if (htmlSkuDigits && inStockVariants.length) {
+      const match = inStockVariants.find((v) => String(v?.sku || "").trim() === htmlSkuDigits);
+      if (match && Number.isFinite(Number(match.price))) {
+        it.price = money(match.price);
+      } else if (Number.isFinite(d?.priceNum)) {
+        it.price = money(d.priceNum);
+      }
+    } else if (Number.isFinite(d?.priceNum)) {
+      it.price = money(d.priceNum);
+    }
   }
 
-  // 2) Missing image -> if we have a sku probe, do limited productsBySku
+  // 2) Missing image -> limited productsBySku (existing behavior)
   if (!it.img) {
     const skuProbe = String(it._skuProbe || "").trim();
     if (skuProbe) {
@@ -428,6 +541,7 @@ async function tudorRepairItem(ctx, it) {
 
   return it;
 }
+
 
 /* ---------------- scanner ---------------- */
 
