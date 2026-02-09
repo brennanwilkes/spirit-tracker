@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-09T17:37:27.146Z",
+  "generatedAt": "2026-02-09T20:12:17.186Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -18,9 +18,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3258,
-    "removedRows": 119,
-    "canonSkus": 1792,
+    "liveRows": 3274,
+    "removedRows": 120,
+    "canonSkus": 1798,
     "outputCount": 50
   },
   "rows": [
@@ -1981,6 +1981,46 @@
       }
     },
     {
+      "canonSku": "014910",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 36.99,
+        "gull": 36.6,
+        "legacyliquor": 37.99,
+        "tudor": 29.59,
+        "vessel": 37.99
+      },
+      "representative": {
+        "name": "BUSHMILLS IRISH WHISKEY",
+        "price": "$29.59",
+        "priceNum": 29.59,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "014910",
+        "skuKey": "014910",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$29.59",
+        "priceNum": 29.59,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380"
+      }
+    },
+    {
       "canonSku": "021097",
       "storeCount": 5,
       "stores": [
@@ -2018,46 +2058,6 @@
         "priceNum": 69.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenlivet-12-year-old-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "031112",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 27.99,
-        "gull": 30.8,
-        "legacyliquor": 29.99,
-        "tudor": 26.54,
-        "vessel": 28.99
-      },
-      "representative": {
-        "name": "Grants Reserve",
-        "price": "$26.54",
-        "priceNum": 26.54,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "031112",
-        "skuKey": "031112",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-reserve-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$26.54",
-        "priceNum": 26.54,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-reserve-ml-380"
       }
     }
   ]
