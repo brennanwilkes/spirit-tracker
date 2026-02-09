@@ -438,9 +438,8 @@ function computeSeriesFromRaw(raw, filter) {
 
 /* ---------------- y-axis bounds ---------------- */
 
-function computeYBounds(seriesByStore, defaultAbs) {
-  let mn = Infinity;
-  let mx = -Infinity;
+function computeYBounds(seriesByStore, minSpan = 6, pad = 1) {
+  let mn = Infinity, mx = -Infinity;
 
   for (const arr of Object.values(seriesByStore || {})) {
     if (!Array.isArray(arr)) continue;
@@ -451,12 +450,26 @@ function computeYBounds(seriesByStore, defaultAbs) {
     }
   }
 
-  if (mn === Infinity) return { min: -defaultAbs, max: defaultAbs };
+  if (mn === Infinity) return { min: -minSpan / 2, max: minSpan / 2 };
 
-  const min = Math.min(-defaultAbs, Math.floor(mn));
-  const max = Math.max(defaultAbs, Math.ceil(mx));
-  return { min, max };
+  mn = Math.min(mn, 0);
+  mx = Math.max(mx, 0);
+
+  // pad a bit so lines aren't glued to edges
+  mn = Math.floor(mn - pad);
+  mx = Math.ceil(mx + pad);
+
+  // enforce a minimum visible range so it doesn't get *too* tight
+  const span = mx - mn;
+  if (span < minSpan) {
+    const mid = (mn + mx) / 2;
+    mn = Math.floor(mid - minSpan / 2);
+    mx = Math.ceil(mid + minSpan / 2);
+  }
+
+  return { min: mn, max: mx };
 }
+
 
 /* ---------------- prefs ---------------- */
 
@@ -498,7 +511,7 @@ export async function renderStats($app) {
   const pref = loadPrefs();
 
   $app.innerHTML = `
-    <div class="container">
+    <div class="container containerFull">
       <div class="header">
         <div class="headerRow1">
           <div class="statsHeaderLeft">
@@ -557,8 +570,8 @@ export async function renderStats($app) {
         </div>
       </div>
 
-      <div class="card">
-        <div style="height:420px;">
+      <div class="card cardFill">
+        <div class="chartFill">
           <canvas id="statsChart" aria-label="Statistics chart" role="img"></canvas>
         </div>
       </div>
@@ -772,9 +785,21 @@ export async function renderStats($app) {
             min: yBounds?.min,
             max: yBounds?.max,
             title: { display: true, text: "Avg % vs per-SKU median" },
+          
             ticks: {
+              stepSize: 1,
+              precision: 0,
+              autoSkip: false,              // <- don't skip integer ticks
               callback: (v) => `${Number(v).toFixed(0)}%`,
-              maxTicksLimit: 12,
+            },
+          
+            grid: {
+              drawBorder: false,
+              color: (ctx) =>
+                ctx.tick.value === 0
+                  ? "rgba(154,166,178,0.35)"
+                  : "rgba(154,166,178,0.18)",
+              lineWidth: 1,
             },
           },
         },
@@ -841,10 +866,10 @@ export async function renderStats($app) {
         maxPrice: selectedMaxPrice,
       });
 
-      const abs = group === "all" ? 12 : 8;
-      const yBounds = computeYBounds(series.seriesByStore, abs);
+      const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
 
       await drawOrUpdateChart(series, yBounds);
+      _chart?.resize();
 
       const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
       onStatus(short);
@@ -877,10 +902,10 @@ export async function renderStats($app) {
         maxPrice: selectedMaxPrice,
       });
 
-      const abs = group === "all" ? 12 : 8;
-      const yBounds = computeYBounds(series.seriesByStore, abs);
+      const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
 
       await drawOrUpdateChart(series, yBounds);
+      _chart?.resize();
 
       const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
       onStatus(short);

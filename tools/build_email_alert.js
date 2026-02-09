@@ -299,7 +299,7 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
     const name = htmlEscape(it.name || "");
     const store = htmlEscape(it.storeLabel || "");
     const cat = htmlEscape(it.categoryLabel || "");
-    const price = htmlEscape(it.price || it.newPrice || "");
+    const price = htmlEscape(it.price || "");
     const url = htmlEscape(it.url || "");
     return `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:12px;margin:10px 0">
