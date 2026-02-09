@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-08T23:06:31.054Z",
+  "generatedAt": "2026-02-09T08:14:31.221Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -18,10 +18,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3268,
-    "removedRows": 109,
-    "canonSkus": 1794,
-    "outputCount": 718
+    "liveRows": 3259,
+    "removedRows": 118,
+    "canonSkus": 1792,
+    "outputCount": 713
   },
   "rows": [
     {
@@ -2061,46 +2061,6 @@
       }
     },
     {
-      "canonSku": "034672",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.89,
-        "gull": 134.99,
-        "legacyliquor": 137.17,
-        "strath": 137.3,
-        "vessel": 124.99
-      },
-      "representative": {
-        "name": "MACALLAN - DOUBLE CASK 12 YEAR OLD",
-        "price": "$124.89",
-        "priceNum": 124.89,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "034672",
-        "skuKey": "034672",
-        "url": "https://www.bcliquorstores.com/product/34672",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$124.89",
-        "priceNum": 124.89,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/34672"
-      }
-    },
-    {
       "canonSku": "045898",
       "storeCount": 5,
       "stores": [
@@ -2158,13 +2118,13 @@
         "bcl": 53.49,
         "gull": 55.95,
         "legacyliquor": 55.6,
-        "tudor": 50.99,
+        "tudor": 33.99,
         "vessel": 52.49
       },
       "representative": {
         "name": "Alberta Premium Rye Whisky",
-        "price": "$50.99",
-        "priceNum": 50.99,
+        "price": "$33.99",
+        "priceNum": 33.99,
         "storeKey": "tudor",
         "storeLabel": "Tudor House",
         "skuRaw": "054213",
@@ -2174,8 +2134,8 @@
         "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
       },
       "cheapest": {
-        "price": "$50.99",
-        "priceNum": 50.99,
+        "price": "$33.99",
+        "priceNum": 33.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380"
       }
@@ -5204,6 +5164,45 @@
       }
     },
     {
+      "canonSku": "034672",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "gull",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.89,
+        "gull": 134.99,
+        "strath": 137.3,
+        "vessel": 124.99
+      },
+      "representative": {
+        "name": "MACALLAN - DOUBLE CASK 12 YEAR OLD",
+        "price": "$124.89",
+        "priceNum": 124.89,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "034672",
+        "skuKey": "034672",
+        "url": "https://www.bcliquorstores.com/product/34672",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$124.89",
+        "priceNum": 124.89,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/34672"
+      }
+    },
+    {
       "canonSku": "058779",
       "storeCount": 4,
       "stores": [
@@ -5474,45 +5473,6 @@
         "priceNum": 6.79,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/83097"
-      }
-    },
-    {
-      "canonSku": "096685",
-      "storeCount": 4,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 103.6,
-        "legacyliquor": 113.64,
-        "strath": 107.74,
-        "tudor": 96.29
-      },
-      "representative": {
-        "name": "Caol Ila 12 Year Old Islay Single Malt Scotch Whisky",
-        "price": "$96.29",
-        "priceNum": 96.29,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "096685",
-        "skuKey": "096685",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/caol-ila-12yr-old-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$96.29",
-        "priceNum": 96.29,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/caol-ila-12yr-old-ml-420"
       }
     },
     {
@@ -9187,7 +9147,7 @@
       ],
       "storePrices": {
         "bcl": 34.99,
-        "tudor": 35.49,
+        "tudor": 53.99,
         "vessel": 35.99
       },
       "representative": {
@@ -9967,6 +9927,44 @@
         "priceNum": 52.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/85811"
+      }
+    },
+    {
+      "canonSku": "096685",
+      "storeCount": 3,
+      "stores": [
+        "gull",
+        "legacyliquor",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 103.6,
+        "legacyliquor": 113.64,
+        "strath": 107.74
+      },
+      "representative": {
+        "name": "Caol Ila – 12 Year Old 750ml",
+        "price": "$103.60",
+        "priceNum": 103.6,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "096685",
+        "skuKey": "096685",
+        "url": "https://gullliquorstore.com/product/caol-ila-12yr-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$103.60",
+        "priceNum": 103.6,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/caol-ila-12yr-750m/"
       }
     },
     {
@@ -15539,43 +15537,6 @@
       }
     },
     {
-      "canonSku": "015543",
-      "storeCount": 2,
-      "stores": [
-        "gull",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 84.99,
-        "vessel": 99.99
-      },
-      "representative": {
-        "name": "MAKERS MARK 1.75L – 1.75L",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "015543",
-        "skuKey": "015543",
-        "url": "https://gullliquorstore.com/product/makers-mark-large-1-75l/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/makers-mark-large-1-75l/"
-      }
-    },
-    {
       "canonSku": "021378",
       "storeCount": 2,
       "stores": [
@@ -16276,43 +16237,6 @@
         "priceNum": 155.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/91796"
-      }
-    },
-    {
-      "canonSku": "096412",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 112.99,
-        "tudor": 101.69
-      },
-      "representative": {
-        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
-        "price": "$101.69",
-        "priceNum": 101.69,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "096412",
-        "skuKey": "096412",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/johnnie-walker-black-l-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$101.69",
-        "priceNum": 101.69,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/johnnie-walker-black-l-420"
       }
     },
     {
@@ -20423,43 +20347,6 @@
       }
     },
     {
-      "canonSku": "253961",
-      "storeCount": 2,
-      "stores": [
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 154.99,
-        "tudor": 119.99
-      },
-      "representative": {
-        "name": "Smokehead Terminado",
-        "price": "$119.99",
-        "priceNum": 119.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "253961",
-        "skuKey": "253961",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/smokehead-terminado-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$119.99",
-        "priceNum": 119.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/smokehead-terminado-ml-420"
-      }
-    },
-    {
       "canonSku": "254923",
       "storeCount": 2,
       "stores": [
@@ -21070,7 +20957,7 @@
         "strath": 304.26
       },
       "representative": {
-        "name": "KILCHOMAN 15 YEAR ANNIVERSARY – 700M",
+        "name": "KILCHOMAN 15 YEAR AN – 700M",
         "price": "$299.99",
         "priceNum": 299.99,
         "storeKey": "gull",
@@ -25048,43 +24935,6 @@
       }
     },
     {
-      "canonSku": "460249",
-      "storeCount": 2,
-      "stores": [
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "strath": 174.7,
-        "tudor": 143.99
-      },
-      "representative": {
-        "name": "KILCHOMAN CASADO",
-        "price": "$143.99",
-        "priceNum": 143.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "460249",
-        "skuKey": "460249",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/kilchoman-casado-cas-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$143.99",
-        "priceNum": 143.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/kilchoman-casado-cas-ml-420"
-      }
-    },
-    {
       "canonSku": "464222",
       "storeCount": 2,
       "stores": [
@@ -27191,43 +27041,6 @@
         "priceNum": 5.59,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/877654"
-      }
-    },
-    {
-      "canonSku": "893123",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 69.99,
-        "vessel": 64.99
-      },
-      "representative": {
-        "name": "Tomatin - Legacy Single Malt Scotch",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "893123",
-        "skuKey": "893123",
-        "url": "https://vesselliquor.com/products/tomatin-legacy-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/tomatin-legacy-single-malt-scotch"
       }
     },
     {
