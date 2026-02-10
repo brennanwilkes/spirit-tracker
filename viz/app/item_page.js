@@ -117,6 +117,9 @@ const StaticMarkerLinesPlugin = {
     const markers = Array.isArray(opts?.markers) ? opts.markers : [];
     if (!markers.length) return;
 
+    const markerYs = markers.map(m => Number(m.y)).filter(Number.isFinite);
+    const HIDE_TICK_PX = 9; // tweak 6–12 depending on font size
+
     // Find y-scale (v2/v3 tolerant)
     const scalesObj = chart?.scales || {};
     const scales = Object.values(scalesObj);
@@ -993,11 +996,25 @@ export async function renderItem($app, skuInput) {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
         y: {
           ...ySug,
+          
           ticks: {
             stepSize: step,
             maxTicksLimit: MAX_TICKS,
-            callback: (v) => `$${Number(v).toFixed(0)}`,
             padding: 10,
+            callback: function (v) {
+              const val = Number(v);
+              if (!Number.isFinite(val)) return "";
+      
+              // `this` is the y-scale in Chart.js (v2/v3/v4)
+              const py = this.getPixelForValue(val);
+      
+              for (const my of markerYs) {
+                const pmy = this.getPixelForValue(my);
+                if (Math.abs(py - pmy) <= HIDE_TICK_PX) return ""; // hide $ tick label
+              }
+      
+              return `$${val.toFixed(0)}`;
+            },
           },
         },
       },
