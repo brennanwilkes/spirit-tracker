@@ -240,16 +240,13 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
   const discovered = new Map();
 
   const catId = await getWooCategoryIdForCat(ctx);
-
-  // If we can't infer id, do nothing special; let existing DB stay as-is.
-  // (You can remove this fallback if you prefer hard failure.)
   if (!catId) return;
 
   const apiBase = new URL(`https://${ctx.store.host}/wp-json/wc/store/v1/products`);
   apiBase.searchParams.set("per_page", String(perPage));
   apiBase.searchParams.set("category", String(catId));
 
-  const hardCap = 500; // safety
+  const hardCap = 500;
   let page = 1;
 
   while (page <= hardCap) {
@@ -262,32 +259,51 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
       ctx.store.ua
     );
 
-    const itemsRaw = (ctx.store.parseProducts || ctx.config.defaultParseProducts)(text, ctx, finalUrl);
-    const items = [];
+    // IMPORTANT:
+    // Parse WITHOUT allowUrl so pagination is based on real API page size
+    const ctxNoFilter =
+      typeof ctx?.cat?.allowUrl === "function"
+        ? { ...ctx, cat: { ...ctx.cat, allowUrl: null } }
+        : ctx;
 
-    for (const it of itemsRaw) {
-      const allow = ctx?.cat?.allowUrl;
+    const itemsAll =
+      (ctx.store.parseProducts || ctx.config.defaultParseProducts)(text, ctxNoFilter, finalUrl);
+
+    const rawCount = itemsAll.length;
+
+    // Now apply allowUrl AFTER pagination logic
+    const items = [];
+    const allow = ctx?.cat?.allowUrl;
+    for (const it of itemsAll) {
       if (typeof allow === "function" && !allow(it)) continue;
       items.push(it);
     }
 
     logger.ok(
-      `${ctx.catPrefixOut} | Page ${String(page).padStart(3, " ")} | ${String(status).padStart(3, " ")} | items=${String(items.length).padStart(3, " ")} | bytes=${String(bytes || 0).padStart(8, " ")} | ${(ms / 1000).toFixed(1).padStart(6, " ")}s`
+      `${ctx.catPrefixOut} | Page ${String(page).padStart(3, " ")} | ${String(status).padStart(3, " ")} | raw=${String(rawCount).padStart(3, " ")} kept=${String(items.length).padStart(3, " ")} | bytes=${String(bytes || 0).padStart(8, " ")} | ${(ms / 1000).toFixed(1).padStart(6, " ")}s`
     );
 
-    // stop on empty OR short last page (prevents requesting the "[]" next page that triggers Short HTML)
-    if (!items.length) break;
+    // Stop only when the API page itself is empty
+    if (!rawCount) break;
 
     for (const it of items) discovered.set(it.url, it);
 
-    if (items.length < perPage) break;
+    // Last page if API returned fewer than perPage
+    if (rawCount < perPage) break;
+
     page++;
   }
 
   logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
-  const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems } =
-    mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
+  const {
+    merged,
+    newItems,
+    updatedItems,
+    removedItems,
+    restoredItems,
+    metaChangedItems,
+  } = mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
   const dbObj = buildDbObject(ctx, merged);
   writeJsonAtomic(ctx.dbFile, dbObj);
@@ -317,8 +333,18 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
   report.totals.restoredCount += restoredItems.length;
   report.totals.metaChangedCount += metaChangedItems.length;
 
-  addCategoryResultToReport(report, ctx.store.name, ctx.cat.label, newItems, updatedItems, removedItems, restoredItems);
+  addCategoryResultToReport(
+    report,
+    ctx.store.name,
+    ctx.cat.label,
+    newItems,
+    updatedItems,
+    removedItems,
+    restoredItems
+  );
 }
+
+
 
 function createStore(defaultUa) {
   const ua = defaultUa;
