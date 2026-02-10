@@ -944,7 +944,14 @@ export async function renderItem($app, skuInput) {
     const t = (storeMins[0].min + storeMins[1].min + storeMins[2].min) / 3;
     if (Number.isFinite(t)) markers.push({ y: Math.round(t), text: "Target" });
   }
+  const markerYs = markers.map(m => Number(m.y)).filter(Number.isFinite);
 
+  // helper: approximate font px size from a CSS font string (Chart uses one)
+  function fontPx(font) {
+    const m = String(font || "").match(/(\d+(?:\.\d+)?)px/);
+    return m ? Number(m[1]) : 12;
+  }
+  
   const ctx = $canvas.getContext("2d");
   CHART = new Chart(ctx, {
     type: "line",
@@ -993,37 +1000,47 @@ export async function renderItem($app, skuInput) {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
         y: {
           ...ySug,
-          
-          y: {
-            ...ySug,
-            ticks: {
-              stepSize: step,
-              maxTicksLimit: MAX_TICKS,
-              padding: 10,
-              callback: function (v) {
-                const val = Number(v);
-                if (!Number.isFinite(val)) return "";
+          ticks: {
+            stepSize: step,
+            maxTicksLimit: MAX_TICKS,
+            padding: 10,
+            callback: function (v) {
+              const val = Number(v);
+              if (!Number.isFinite(val)) return "";
   
-                // if no markers or scale API missing, just render normally
-                if (!markerYs.length || typeof this.getPixelForValue !== "function") {
-                  return `$${val.toFixed(0)}`;
-                }
-  
-                const py = this.getPixelForValue(val);
-                if (!Number.isFinite(py)) return `$${val.toFixed(0)}`;
-  
-                for (const my of markerYs) {
-                  const pmy = this.getPixelForValue(my);
-                  if (!Number.isFinite(pmy)) continue;
-  
-                  // only consider markers actually in view
-                  if (pmy < this.top || pmy > this.bottom) continue;
-  
-                  if (Math.abs(py - pmy) <= HIDE_TICK_PX) return ""; // hide $ tick label
-                }
-  
+              // if no markers, normal label
+              if (!markerYs.length || typeof this.getPixelForValue !== "function") {
                 return `$${val.toFixed(0)}`;
-              },
+              }
+  
+              const py = this.getPixelForValue(val);
+              if (!Number.isFinite(py)) return `$${val.toFixed(0)}`;
+  
+              // derive a "collision window" from tick label height
+              // Chart.js puts resolved font on ticks.font (v3+), otherwise fall back
+              const tickFont =
+                this?.options?.ticks?.font ||
+                this?.ctx?.font ||
+                "12px system-ui";
+  
+              const h = fontPx(
+                typeof tickFont === "string"
+                  ? tickFont
+                  : `${tickFont?.size || 12}px ${tickFont?.family || "system-ui"}`
+              );
+  
+              // hide if within 55% of label height (tweak 0.45–0.75)
+              const COLLIDE_PX = Math.max(6, h * 0.55);
+  
+              for (const my of markerYs) {
+                const pmy = this.getPixelForValue(my);
+                if (!Number.isFinite(pmy)) continue;
+                if (pmy < this.top || pmy > this.bottom) continue;
+  
+                if (Math.abs(py - pmy) <= COLLIDE_PX) return "";
+              }
+  
+              return `$${val.toFixed(0)}`;
             },
           },
         },
