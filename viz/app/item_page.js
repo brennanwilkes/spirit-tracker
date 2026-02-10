@@ -1030,7 +1030,7 @@ export async function renderItem($app, skuInput) {
               );
   
               // hide if within 55% of label height (tweak 0.45–0.75)
-              const COLLIDE_PX = Math.max(6, h * 0.55);
+              const COLLIDE_PX = Math.max(6, h * 0.75);
   
               for (const my of markerYs) {
                 const pmy = this.getPixelForValue(my);
