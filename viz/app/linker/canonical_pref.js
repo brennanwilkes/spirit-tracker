@@ -24,6 +24,7 @@ function isBCStoreLabel(label) {
     s.includes("legacy") ||
     s.includes("tudor") ||
     s.includes("vessel") ||
+    s.includes("arc") ||
     s.includes("vintagespirits")
   );
 }
