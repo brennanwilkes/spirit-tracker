@@ -283,7 +283,6 @@ function main() {
   const items = [];
 
   const commits = headSha ? logDbCommitsSince(sinceIso) : [];
-
   const pairs = [];
 
   if (commits.length) {
@@ -315,6 +314,18 @@ function main() {
     });
   }
 
+  function isSmwsBottle(storeLabel, it) {
+    const hay = [
+      storeLabel,
+      it?.name,
+      it?.url,
+    ]
+      .map((x) => String(x || ""))
+      .join(" | ")
+      .toLowerCase();
+    return hay.includes("smws") || hay.includes("scotch malt whisky society");
+  }
+
   for (const p of pairs) {
     const fromSha = p.fromSha;
     const toSha = p.toSha;
@@ -336,7 +347,6 @@ function main() {
         nextObj = gitShowJson(toSha, file);
       }
 
-      // NEW: if the DB file itself doesn't exist at "to", skip (prevents mass "removed")
       const nextExists =
         toSha === "WORKTREE"
           ? fs.existsSync(path.join(repoRoot, file))
@@ -345,19 +355,32 @@ function main() {
 
       if (!prevObj && !nextObj) continue;
 
-      const storeLabel = String(nextObj?.storeLabel || nextObj?.store || prevObj?.storeLabel || prevObj?.store || "");
-      const categoryLabel = String(nextObj?.categoryLabel || nextObj?.category || prevObj?.categoryLabel || prevObj?.category || "");
+      const storeLabel = String(
+        nextObj?.storeLabel ||
+          nextObj?.store ||
+          prevObj?.storeLabel ||
+          prevObj?.store ||
+          ""
+      );
+      const categoryLabel = String(
+        nextObj?.categoryLabel ||
+          nextObj?.category ||
+          prevObj?.categoryLabel ||
+          prevObj?.category ||
+          ""
+      );
 
-      // NEW FEATURE:
-      // If this DB file did not exist at fromSha, then treat it as a "new store/category file"
-      // and DO NOT emit its "new"/"restored" items into recent.json (frontpage).
-      // (Report text is unaffected elsewhere.)
       const isNewStoreFile =
         Boolean(fromSha) &&
         !gitFileExistsAtSha(fromSha, file) &&
-        (toSha === "WORKTREE" ? fs.existsSync(path.join(repoRoot, file)) : gitFileExistsAtSha(toSha, file));
+        (toSha === "WORKTREE"
+          ? fs.existsSync(path.join(repoRoot, file))
+          : gitFileExistsAtSha(toSha, file));
 
-      let { newItems, restoredItems, removedItems, priceChanges } = diffDb(prevObj, nextObj);
+      let { newItems, restoredItems, removedItems, priceChanges } = diffDb(
+        prevObj,
+        nextObj
+      );
 
       if (isNewStoreFile) {
         newItems = [];
@@ -365,6 +388,7 @@ function main() {
       }
 
       for (const it of newItems) {
+        if (isSmwsBottle(storeLabel, it)) continue;
         items.push({
           ts,
           date: d,
@@ -433,7 +457,6 @@ function main() {
         });
       }
     }
-
   }
 
   items.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
