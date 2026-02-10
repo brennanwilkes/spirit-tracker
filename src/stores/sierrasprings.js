@@ -56,8 +56,12 @@ function parseWooStoreProductsJson(payload, ctx) {
 
     const price = formatWooStorePrice(p.prices);
 
-    const id = (p && (p.id ?? p.id === 0)) ? String(p.id) : "";
-    const taggedSku = id ? `id:${id}` : "";
+    const rawSku =
+      (typeof p?.sku === "string" && p.sku.trim()) ? p.sku.trim()
+      : (p && (p.id ?? p.id === 0)) ? String(p.id)
+      : "";
+
+    const taggedSku = /^\d{1,11}$/.test(rawSku) ? `id:${rawSku}` : rawSku;
     const sku = normalizeSkuKey(taggedSku, { storeLabel: ctx?.store?.name, url });
 
     const img =
@@ -343,8 +347,6 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
     restoredItems
   );
 }
-
-
 
 function createStore(defaultUa) {
   const ua = defaultUa;
