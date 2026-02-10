@@ -9,6 +9,107 @@ import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./s
 
 let CHART = null;
 
+/* ---------------- Static marker lines ---------------- */
+
+const BC_STORE_KEYS = new Set(["vessel", "tudor", "bcl", "strath", "gull", "vintagespirits", "legacy"]);
+
+function normStoreLabel(s) {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function meanFinite(arr) {
+  if (!Array.isArray(arr)) return null;
+  let sum = 0,
+    n = 0;
+  for (const v of arr) {
+    if (Number.isFinite(v)) {
+      sum += v;
+      n++;
+    }
+  }
+  return n ? sum / n : null;
+}
+
+function minFinite(arr) {
+  if (!Array.isArray(arr)) return null;
+  let m = null;
+  for (const v of arr) {
+    if (Number.isFinite(v)) m = m === null ? v : Math.min(m, v);
+  }
+  return m;
+}
+
+function medianFinite(nums) {
+  const a = (Array.isArray(nums) ? nums : [])
+    .filter((v) => Number.isFinite(v))
+    .slice()
+    .sort((x, y) => x - y);
+  const n = a.length;
+  if (!n) return null;
+  const mid = Math.floor(n / 2);
+  return n % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+}
+
+const StaticMarkerLinesPlugin = {
+  id: "staticMarkerLines",
+  afterDatasetsDraw(chart, _args, opts) {
+    const markers = Array.isArray(opts?.markers) ? opts.markers : [];
+    if (!markers.length) return;
+
+    const y = chart?.scales?.y;
+    const area = chart?.chartArea;
+    if (!y || !area) return;
+
+    const { ctx } = chart;
+    const { left, right, top, bottom } = area;
+
+    ctx.save();
+    ctx.lineWidth = Number.isFinite(opts?.lineWidth) ? opts.lineWidth : 1;
+    ctx.setLineDash(Array.isArray(opts?.dash) ? opts.dash : [6, 6]);
+    ctx.font =
+      opts?.font ||
+      "12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif";
+    ctx.textBaseline = "bottom";
+
+    for (const m of markers) {
+      const yVal = Number(m?.y);
+      if (!Number.isFinite(yVal)) continue;
+
+      const py = y.getPixelForValue(yVal);
+      if (!Number.isFinite(py) || py < top || py > bottom) continue;
+
+      ctx.globalAlpha = Number.isFinite(m?.alpha)
+        ? m.alpha
+        : Number.isFinite(opts?.alpha)
+        ? opts.alpha
+        : 0.35;
+
+      ctx.strokeStyle = String(m?.color || opts?.color || "rgba(0,0,0,0.9)");
+      ctx.beginPath();
+      ctx.moveTo(left, py);
+      ctx.lineTo(right, py);
+      ctx.stroke();
+
+      const text = String(m?.text || "");
+      if (text) {
+        const label = `${text}  $${yVal.toFixed(2)}`;
+        ctx.globalAlpha = Number.isFinite(m?.labelAlpha)
+          ? m.labelAlpha
+          : Number.isFinite(opts?.labelAlpha)
+          ? opts.labelAlpha
+          : 0.55;
+        ctx.fillStyle = String(m?.labelColor || opts?.labelColor || "rgba(0,0,0,0.9)");
+        const w = ctx.measureText(label).width;
+        ctx.fillText(label, Math.max(left + 4, right - 4 - w), py - 3);
+      }
+    }
+
+    ctx.restore();
+  },
+};
+
 export function destroyChart() {
   if (CHART) {
     CHART.destroy();
@@ -244,7 +345,7 @@ export async function renderItem($app, skuInput) {
     if (last && last !== location.hash) location.hash = last;
     else location.hash = "#/";
   });
-  
+
   const $title = document.getElementById("title");
   const $links = document.getElementById("links");
   const $status = document.getElementById("status");
@@ -364,7 +465,7 @@ export async function renderItem($app, skuInput) {
     const p = parsePriceToNumber(r?.price);
     return p === null ? Infinity : p;
   }
-  
+
   const linkRows = Array.from(bestByStore.entries())
     .map(([store, r]) => ({ store, r }))
     .sort((A, B) => {
@@ -372,12 +473,12 @@ export async function renderItem($app, skuInput) {
       const ap = rowMinPrice(A.r);
       const bp = rowMinPrice(B.r);
       if (ap !== bp) return ap - bp;
-  
+
       // 2) live before removed
       const ar = Boolean(A.r?.removed) ? 1 : 0;
       const br = Boolean(B.r?.removed) ? 1 : 0;
       if (ar !== br) return ar - br;
-  
+
       // 3) stable fallback
       return A.store.localeCompare(B.store);
     });
@@ -689,7 +790,7 @@ export async function renderItem($app, skuInput) {
 
   const todayKey = today; // you already computed this earlier
   const labelsLen = labels.length;
-  
+
   const seriesSorted = series
     .map((s) => {
       const todayVal = s.points.has(todayKey) ? s.points.get(todayKey) : null;
@@ -697,7 +798,8 @@ export async function renderItem($app, skuInput) {
       return { s, v: Number.isFinite(lastVal) ? lastVal : null };
     })
     .sort((a, b) => {
-      const av = a.v, bv = b.v;
+      const av = a.v,
+        bv = b.v;
       if (av === null && bv === null) return a.s.label.localeCompare(b.s.label);
       if (av === null) return 1;
       if (bv === null) return -1;
@@ -705,9 +807,9 @@ export async function renderItem($app, skuInput) {
       return a.s.label.localeCompare(b.s.label);
     })
     .map((x) => x.s);
-  
+
   const colorMap = buildStoreColorMap(seriesSorted.map((s) => s.label));
-  
+
   const datasets = seriesSorted.map((s) => {
     const base = storeColor(s.label, colorMap);
     const stroke = lighten(base, 0.25);
@@ -723,17 +825,53 @@ export async function renderItem($app, skuInput) {
       borderWidth: datasetStrokeWidth(base),
     };
   });
-  
-  
+
+  // --- Compute marker values ---
+  // Province medians: per-store mean over time, then median across stores (>=3 stores)
+  const storeMeans = seriesSorted
+    .map((s) => ({ label: s.label, mean: meanFinite(s.values) }))
+    .filter((x) => Number.isFinite(x.mean));
+
+  const bcMeans = storeMeans.filter((x) => BC_STORE_KEYS.has(normStoreLabel(x.label)));
+  const abMeans = storeMeans.filter((x) => !BC_STORE_KEYS.has(normStoreLabel(x.label)));
+
+  const markers = [];
+  if (bcMeans.length >= 3) {
+    const y = medianFinite(bcMeans.map((x) => x.mean));
+    if (Number.isFinite(y)) markers.push({ y, text: "BC median" });
+  }
+  if (abMeans.length >= 3) {
+    const y = medianFinite(abMeans.map((x) => x.mean));
+    if (Number.isFinite(y)) markers.push({ y, text: "AB median" });
+  }
+
+  // Target price: pick 3 lowest per-store mins (distinct stores by construction), then average (>=3 stores)
+  const storeMins = seriesSorted
+    .map((s) => ({ label: s.label, min: minFinite(s.values) }))
+    .filter((x) => Number.isFinite(x.min))
+    .sort((a, b) => a.min - b.min);
+
+  if (storeMins.length >= 3) {
+    const t = (storeMins[0].min + storeMins[1].min + storeMins[2].min) / 3;
+    if (Number.isFinite(t)) markers.push({ y: t, text: "Target" });
+  }
+
   const ctx = $canvas.getContext("2d");
   CHART = new Chart(ctx, {
     type: "line",
     data: { labels, datasets },
+    plugins: [StaticMarkerLinesPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: "nearest", intersect: false },
       plugins: {
+        staticMarkerLines: {
+          markers,
+          dash: [6, 6],
+          alpha: 0.28, // faint lines
+          labelAlpha: 0.55,
+        },
         legend: { display: true },
         tooltip: {
           callbacks: {
