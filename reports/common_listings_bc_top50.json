@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-10T08:49:28.204Z",
+  "generatedAt": "2026-02-10T20:12:27.517Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -18,9 +18,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3290,
+    "liveRows": 3297,
     "removedRows": 121,
-    "canonSkus": 1800,
+    "canonSkus": 1802,
     "outputCount": 50
   },
   "rows": [
@@ -1296,6 +1296,47 @@
       }
     },
     {
+      "canonSku": "530345",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 108.99,
+        "gull": 104.99,
+        "legacyliquor": 111.99,
+        "strath": 116.43,
+        "tudor": 98.09,
+        "vessel": 109.99
+      },
+      "representative": {
+        "name": "GLENFIDDICH - SOLERA RESERVE 15 YEAR OLD",
+        "price": "$98.09",
+        "priceNum": 98.09,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "530345",
+        "skuKey": "530345",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenfidich-15-yr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$98.09",
+        "priceNum": 98.09,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenfidich-15-yr-ml-420"
+      }
+    },
+    {
       "canonSku": "546366",
       "storeCount": 6,
       "stores": [
@@ -1757,7 +1798,7 @@
         "bcl": 35.49,
         "gull": 37.75,
         "legacyliquor": 37.99,
-        "tudor": 35.49,
+        "tudor": 51.99,
         "vessel": 36.99
       },
       "representative": {
@@ -2017,46 +2058,6 @@
         "priceNum": 86.39,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/nikka-yoichi-single-ml-380"
-      }
-    },
-    {
-      "canonSku": "014910",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 36.99,
-        "gull": 36.6,
-        "legacyliquor": 37.99,
-        "tudor": 29.59,
-        "vessel": 37.99
-      },
-      "representative": {
-        "name": "BUSHMILLS IRISH WHISKEY",
-        "price": "$29.59",
-        "priceNum": 29.59,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "014910",
-        "skuKey": "014910",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$29.59",
-        "priceNum": 29.59,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380"
       }
     }
   ]

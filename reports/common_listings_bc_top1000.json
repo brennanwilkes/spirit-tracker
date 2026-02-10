@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-10T08:49:28.726Z",
+  "generatedAt": "2026-02-10T20:12:27.982Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -18,9 +18,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3290,
+    "liveRows": 3297,
     "removedRows": 121,
-    "canonSkus": 1800,
+    "canonSkus": 1802,
     "outputCount": 724
   },
   "rows": [
@@ -1296,6 +1296,47 @@
       }
     },
     {
+      "canonSku": "530345",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 108.99,
+        "gull": 104.99,
+        "legacyliquor": 111.99,
+        "strath": 116.43,
+        "tudor": 98.09,
+        "vessel": 109.99
+      },
+      "representative": {
+        "name": "GLENFIDDICH - SOLERA RESERVE 15 YEAR OLD",
+        "price": "$98.09",
+        "priceNum": 98.09,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "530345",
+        "skuKey": "530345",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenfidich-15-yr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$98.09",
+        "priceNum": 98.09,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenfidich-15-yr-ml-420"
+      }
+    },
+    {
       "canonSku": "546366",
       "storeCount": 6,
       "stores": [
@@ -1757,7 +1798,7 @@
         "bcl": 35.49,
         "gull": 37.75,
         "legacyliquor": 37.99,
-        "tudor": 35.49,
+        "tudor": 51.99,
         "vessel": 36.99
       },
       "representative": {
@@ -3100,6 +3141,46 @@
       }
     },
     {
+      "canonSku": "230987",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 22.99,
+        "gull": 24.85,
+        "legacyliquor": 22.99,
+        "tudor": 22.99,
+        "vessel": 22.99
+      },
+      "representative": {
+        "name": "JAMESON - IRISH",
+        "price": "$22.99",
+        "priceNum": 22.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "230987",
+        "skuKey": "230987",
+        "url": "https://www.bcliquorstores.com/product/230987",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$22.99",
+        "priceNum": 22.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/230987"
+      }
+    },
+    {
       "canonSku": "237950",
       "storeCount": 5,
       "stores": [
@@ -3977,46 +4058,6 @@
         "priceNum": 27.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/woodford-distillers-ml-380"
-      }
-    },
-    {
-      "canonSku": "530345",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 108.99,
-        "gull": 104.99,
-        "legacyliquor": 111.99,
-        "strath": 116.43,
-        "vessel": 109.99
-      },
-      "representative": {
-        "name": "Glenfiddich – Solera Reserve 15 Year Old 750ml",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "530345",
-        "skuKey": "530345",
-        "url": "https://gullliquorstore.com/product/glenfiddich-solera-reserve-15-year-old-750ml/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/glenfiddich-solera-reserve-15-year-old-750ml/"
       }
     },
     {
@@ -6568,45 +6609,6 @@
         "priceNum": 439.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/g-m-speymalt-2005-700m/"
-      }
-    },
-    {
-      "canonSku": "230987",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 22.99,
-        "gull": 24.85,
-        "tudor": 22.99,
-        "vessel": 22.99
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$22.99",
-        "priceNum": 22.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "230987",
-        "skuKey": "230987",
-        "url": "https://www.bcliquorstores.com/product/230987",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$22.99",
-        "priceNum": 22.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/230987"
       }
     },
     {
@@ -10849,6 +10851,44 @@
       }
     },
     {
+      "canonSku": "121211",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "gull",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 69.99,
+        "gull": 67.99,
+        "vessel": 69.99
+      },
+      "representative": {
+        "name": "SHERINGHAM WHISKY – 750M",
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "338994",
+        "skuKey": "338994",
+        "url": "https://gullliquorstore.com/product/sheringham-whisky-750m-2/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/sheringham-whisky-750m-2/"
+      }
+    },
+    {
       "canonSku": "126691",
       "storeCount": 3,
       "stores": [
@@ -13661,6 +13701,44 @@
       }
     },
     {
+      "canonSku": "437795",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 78.99,
+        "gull": 73.99,
+        "tudor": 72.79
+      },
+      "representative": {
+        "name": "GLENDRONACH 10 YEAR OLD",
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "437795",
+        "skuKey": "437795",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glendronach-10-year-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glendronach-10-year-ml-420"
+      }
+    },
+    {
       "canonSku": "442007",
       "storeCount": 3,
       "stores": [
@@ -14953,6 +15031,44 @@
       }
     },
     {
+      "canonSku": "844316",
+      "storeCount": 3,
+      "stores": [
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 115.35,
+        "tudor": 124.99,
+        "vessel": 109.99
+      },
+      "representative": {
+        "name": "Kilchoman - Machir Bay Single Malt Scotch",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "844316",
+        "skuKey": "844316",
+        "url": "https://vesselliquor.com/products/kilchoman-machir-bay-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/kilchoman-machir-bay-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "868901",
       "storeCount": 3,
       "stores": [
@@ -15063,6 +15179,43 @@
         "priceNum": 24.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2063"
+      }
+    },
+    {
+      "canonSku": "002196",
+      "storeCount": 2,
+      "stores": [
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 25.6,
+        "tudor": 23.99
+      },
+      "representative": {
+        "name": "Captain Morgan Dark Rum",
+        "price": "$23.99",
+        "priceNum": 23.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "002196",
+        "skuKey": "002196",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-dark-ml-360",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+      },
+      "cheapest": {
+        "price": "$23.99",
+        "priceNum": 23.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-dark-ml-360"
       }
     },
     {
@@ -16321,43 +16474,6 @@
         "priceNum": 155.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/91796"
-      }
-    },
-    {
-      "canonSku": "096412",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 112.99,
-        "tudor": 101.69
-      },
-      "representative": {
-        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
-        "price": "$101.69",
-        "priceNum": 101.69,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "096412",
-        "skuKey": "096412",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/johnnie-walker-black-l-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$101.69",
-        "priceNum": 101.69,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/johnnie-walker-black-l-420"
       }
     },
     {
@@ -17693,43 +17809,6 @@
       }
     },
     {
-      "canonSku": "121211",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 69.99,
-        "vessel": 69.99
-      },
-      "representative": {
-        "name": "SHERINGHAM DISTILLERY - WHISKY",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "338994",
-        "skuKey": "338994",
-        "url": "https://www.bcliquorstores.com/product/338994",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/338994"
-      }
-    },
-    {
       "canonSku": "121674",
       "storeCount": 2,
       "stores": [
@@ -18174,6 +18253,43 @@
       }
     },
     {
+      "canonSku": "131344",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "gull"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 31.99,
+        "gull": 32.85
+      },
+      "representative": {
+        "name": "CROWN ROYAL - CHOCOLATE",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "271522",
+        "skuKey": "271522",
+        "url": "https://www.bcliquorstores.com/product/271522",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/271522"
+      }
+    },
+    {
       "canonSku": "131831",
       "storeCount": 2,
       "stores": [
@@ -18393,6 +18509,43 @@
         "priceNum": 84.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/stillhead-sherry-cas-ml-380"
+      }
+    },
+    {
+      "canonSku": "136081",
+      "storeCount": 2,
+      "stores": [
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 108.99,
+        "tudor": 99.99
+      },
+      "representative": {
+        "name": "Angels Envy Rye",
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "449585",
+        "skuKey": "449585",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/angels-envy-rye-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/angels-envy-rye-ml-380"
       }
     },
     {
@@ -18985,43 +19138,6 @@
         "priceNum": 263.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/the-arran-malt-18yr-ml-420"
-      }
-    },
-    {
-      "canonSku": "168479",
-      "storeCount": 2,
-      "stores": [
-        "gull",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "bcl",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 33.65,
-        "legacyliquor": 36.99
-      },
-      "representative": {
-        "name": "Old Overholt – Straight Rye 750ml",
-        "price": "$33.65",
-        "priceNum": 33.65,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "168479",
-        "skuKey": "168479",
-        "url": "https://gullliquorstore.com/product/old-overholt-rye-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$33.65",
-        "priceNum": 33.65,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/old-overholt-rye-750m/"
       }
     },
     {
@@ -20394,6 +20510,43 @@
       }
     },
     {
+      "canonSku": "247056",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "tudor"
+      ],
+      "missingStores": [
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 59.99,
+        "tudor": 53.99
+      },
+      "representative": {
+        "name": "Grant's Triple Wood Blended Scotch Whisky",
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "247056",
+        "skuKey": "247056",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-reserve-l-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-reserve-l-380"
+      }
+    },
+    {
       "canonSku": "249505",
       "storeCount": 2,
       "stores": [
@@ -20909,43 +21062,6 @@
         "priceNum": 119.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/glenallachie-7-hunga-700m/"
-      }
-    },
-    {
-      "canonSku": "271522",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "gull"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 31.99,
-        "gull": 32.85
-      },
-      "representative": {
-        "name": "CROWN ROYAL - CHOCOLATE",
-        "price": "$31.99",
-        "priceNum": 31.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "271522",
-        "skuKey": "271522",
-        "url": "https://www.bcliquorstores.com/product/271522",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$31.99",
-        "priceNum": 31.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/271522"
       }
     },
     {
@@ -23187,7 +23303,7 @@
         "strath": 191.22
       },
       "representative": {
-        "name": "Carn Mor Strictly Limited – Williamson 700ml",
+        "name": "Carn Mor Strictly Limited – Williamson 9 Year Old 700ml",
         "price": "$169.99",
         "priceNum": 169.99,
         "storeKey": "gull",
@@ -24501,43 +24617,6 @@
       }
     },
     {
-      "canonSku": "437795",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "gull"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 78.99,
-        "gull": 73.99
-      },
-      "representative": {
-        "name": "Glendronach – 2011 10 Year Old 700ml",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "437795",
-        "skuKey": "437795",
-        "url": "https://gullliquorstore.com/product/glendronach-09-10-yr-700m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/glendronach-09-10-yr-700m/"
-      }
-    },
-    {
       "canonSku": "438724",
       "storeCount": 2,
       "stores": [
@@ -24794,43 +24873,6 @@
         "priceNum": 79.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/447381"
-      }
-    },
-    {
-      "canonSku": "449585",
-      "storeCount": 2,
-      "stores": [
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 108.99,
-        "tudor": 99.99
-      },
-      "representative": {
-        "name": "Angels Envy Rye",
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "449585",
-        "skuKey": "449585",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/angels-envy-rye-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/angels-envy-rye-ml-380"
       }
     },
     {
@@ -27017,6 +27059,43 @@
       }
     },
     {
+      "canonSku": "762651",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "tudor"
+      ],
+      "missingStores": [
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 5.59,
+        "tudor": 5.59
+      },
+      "representative": {
+        "name": "THE KRAKEN - BLACK SPICED",
+        "price": "$5.59",
+        "priceNum": 5.59,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "877654",
+        "skuKey": "877654",
+        "url": "https://www.bcliquorstores.com/product/877654",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$5.59",
+        "priceNum": 5.59,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/877654"
+      }
+    },
+    {
       "canonSku": "765479",
       "storeCount": 2,
       "stores": [
@@ -27239,43 +27318,6 @@
       }
     },
     {
-      "canonSku": "844316",
-      "storeCount": 2,
-      "stores": [
-        "legacyliquor",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 115.35,
-        "vessel": 109.99
-      },
-      "representative": {
-        "name": "Kilchoman - Machir Bay Single Malt Scotch",
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "844316",
-        "skuKey": "844316",
-        "url": "https://vesselliquor.com/products/kilchoman-machir-bay-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/kilchoman-machir-bay-single-malt-scotch"
-      }
-    },
-    {
       "canonSku": "856575",
       "storeCount": 2,
       "stores": [
@@ -27347,43 +27389,6 @@
         "priceNum": 99.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/gosling-family-reser-ml-360"
-      }
-    },
-    {
-      "canonSku": "877654",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 5.59,
-        "tudor": 5.59
-      },
-      "representative": {
-        "name": "THE KRAKEN - BLACK SPICED",
-        "price": "$5.59",
-        "priceNum": 5.59,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "877654",
-        "skuKey": "877654",
-        "url": "https://www.bcliquorstores.com/product/877654",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$5.59",
-        "priceNum": 5.59,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/877654"
       }
     },
     {
