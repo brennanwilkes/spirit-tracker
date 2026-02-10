@@ -117,9 +117,6 @@ const StaticMarkerLinesPlugin = {
     const markers = Array.isArray(opts?.markers) ? opts.markers : [];
     if (!markers.length) return;
 
-    const markerYs = markers.map(m => Number(m.y)).filter(Number.isFinite);
-    const HIDE_TICK_PX = 9; // tweak 6–12 depending on font size
-
     // Find y-scale (v2/v3 tolerant)
     const scalesObj = chart?.scales || {};
     const scales = Object.values(scalesObj);
@@ -997,23 +994,36 @@ export async function renderItem($app, skuInput) {
         y: {
           ...ySug,
           
-          ticks: {
-            stepSize: step,
-            maxTicksLimit: MAX_TICKS,
-            padding: 10,
-            callback: function (v) {
-              const val = Number(v);
-              if (!Number.isFinite(val)) return "";
-      
-              // `this` is the y-scale in Chart.js (v2/v3/v4)
-              const py = this.getPixelForValue(val);
-      
-              for (const my of markerYs) {
-                const pmy = this.getPixelForValue(my);
-                if (Math.abs(py - pmy) <= HIDE_TICK_PX) return ""; // hide $ tick label
-              }
-      
-              return `$${val.toFixed(0)}`;
+          y: {
+            ...ySug,
+            ticks: {
+              stepSize: step,
+              maxTicksLimit: MAX_TICKS,
+              padding: 10,
+              callback: function (v) {
+                const val = Number(v);
+                if (!Number.isFinite(val)) return "";
+  
+                // if no markers or scale API missing, just render normally
+                if (!markerYs.length || typeof this.getPixelForValue !== "function") {
+                  return `$${val.toFixed(0)}`;
+                }
+  
+                const py = this.getPixelForValue(val);
+                if (!Number.isFinite(py)) return `$${val.toFixed(0)}`;
+  
+                for (const my of markerYs) {
+                  const pmy = this.getPixelForValue(my);
+                  if (!Number.isFinite(pmy)) continue;
+  
+                  // only consider markers actually in view
+                  if (pmy < this.top || pmy > this.bottom) continue;
+  
+                  if (Math.abs(py - pmy) <= HIDE_TICK_PX) return ""; // hide $ tick label
+                }
+  
+                return `$${val.toFixed(0)}`;
+              },
             },
           },
         },
