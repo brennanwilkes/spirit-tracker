@@ -20,6 +20,7 @@ const BC_STORE_NAMES = new Set([
   "gullliquor",
   "vintagespirits",
   "legacyliquor",
+  "arc",
 ]);
 
 function normStoreLabel(s) {
@@ -43,6 +44,7 @@ function isBcStoreLabel(label) {
   if (n.includes("gull")) return true;
   if (n.includes("vintagespirits")) return true;
   if (n.includes("legacy")) return true;
+  if (n.includes("arc")) return true;
 
   return false;
 }

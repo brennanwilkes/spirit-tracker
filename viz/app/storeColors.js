@@ -89,6 +89,7 @@ const DEFAULT_UNIVERSE = buildUniverse(Object.keys(OVERRIDES), [
   "vintage",
   "vintagespirits",
   "willowpark",
+  "arc"
 ]);
 
 function isWhiteHex(c) {

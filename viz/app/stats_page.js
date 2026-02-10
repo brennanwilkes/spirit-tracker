@@ -26,6 +26,7 @@ const STORE_LABELS = {
   vessel: "Vessel Liquor",
   vintage: "Vintage Spirits",
   willowpark: "Willow Park",
+  arc: "Arc Liquor",
 };
 
 function displayStoreName(storeKey) {

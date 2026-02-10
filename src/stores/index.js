@@ -15,6 +15,7 @@ const { createStore: createTudor } = require("./tudor");
 const { createStore: createVintage } = require("./vintagespirits");
 const { createStore: createVessel } = require("./vessel");
 const { createStore: createWillowPark } = require("./willowpark");
+const { createStore: createArc } = require("./arc");
 
 function createStores({ defaultUa } = {}) {
   return [
@@ -33,6 +34,7 @@ function createStores({ defaultUa } = {}) {
     createTudor(defaultUa),
     createVintage(defaultUa),
     createLegacy(defaultUa),
+    createArc(defaultUa),
   ];
 }
 

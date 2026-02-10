@@ -111,6 +111,7 @@ const BC_STORE_KEYS = new Set([
   "tudor",
   "vessel",
   "vintage",
+  "arc"
 ]);
 
 function groupAllowsStore(group, storeKey) {
