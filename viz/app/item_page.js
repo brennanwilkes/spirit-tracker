@@ -54,9 +54,7 @@ function medianFinite(nums) {
 
 const StaticMarkerLinesPlugin = {
   id: "staticMarkerLines",
-  // use afterDraw so it works regardless of dataset order / animations
   afterDraw(chart, _args, passedOpts) {
-    // Chart.js v2 vs v3 option plumbing
     const opts =
       (chart?.options?.plugins && chart.options.plugins.staticMarkerLines) ||
       chart?.options?.staticMarkerLines ||
@@ -66,7 +64,7 @@ const StaticMarkerLinesPlugin = {
     const markers = Array.isArray(opts?.markers) ? opts.markers : [];
     if (!markers.length) return;
 
-    // Find a y-scale in a version-tolerant way
+    // Find y-scale (v2/v3 tolerant)
     const scalesObj = chart?.scales || {};
     const scales = Object.values(scalesObj);
     const y =
@@ -81,68 +79,100 @@ const StaticMarkerLinesPlugin = {
     const { ctx } = chart;
     const { left, right, top, bottom } = area;
 
-    const dash = Array.isArray(opts?.dash) ? opts.dash : [6, 6];
-    const lineWidth = Number.isFinite(opts?.lineWidth) ? opts.lineWidth : 1;
-    const baseAlpha = Number.isFinite(opts?.alpha) ? opts.alpha : 0.5; // bump default
-    const labelAlpha = Number.isFinite(opts?.labelAlpha) ? opts.labelAlpha : 0.85;
-    const strokeStyle = String(opts?.color || "rgba(0,0,0,0.95)");
-    const labelColor = String(opts?.labelColor || "rgba(0,0,0,0.95)");
+    const lineWidth = Number.isFinite(opts?.lineWidth) ? opts.lineWidth : 2;
+    const baseAlpha = Number.isFinite(opts?.alpha) ? opts.alpha : 0.22; // faint
+    const labelAlpha = Number.isFinite(opts?.labelAlpha) ? opts.labelAlpha : 0.75;
+    const strokeStyle = String(opts?.color || "#9aa4b2"); // light grey-blue
     const font =
       opts?.font ||
       "12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif";
 
-    ctx.save();
-    ctx.lineWidth = lineWidth;
-    ctx.setLineDash(dash);
-    ctx.font = font;
-    ctx.textBaseline = "bottom";
+    // Put labels "on the Y axis" (left side of plot) with a small background pill
+    const labelPadX = 6;
+    const labelPadY = 3;
+    const labelInset = 4; // from chartArea.left
+    const labelBgAlpha = Number.isFinite(opts?.labelBgAlpha) ? opts.labelBgAlpha : 0.9;
+    const labelBg = String(opts?.labelBg || "rgba(255,255,255,0.92)");
+    const labelBorderAlpha = Number.isFinite(opts?.labelBorderAlpha) ? opts.labelBorderAlpha : 0.25;
 
-    // Optional debug overlay
-    if (opts?.debug) {
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = "rgba(0,0,0,0.9)";
-      ctx.fillText(`markers=${markers.length}`, left + 6, top + 14);
-      ctx.setLineDash(dash);
-    }
+    ctx.save();
+    ctx.setLineDash([]); // SOLID
+    ctx.lineWidth = lineWidth;
+    ctx.font = font;
+    ctx.textBaseline = "middle";
 
     for (const m of markers) {
       const yVal = Number(m?.y);
       if (!Number.isFinite(yVal)) continue;
 
       const py = y.getPixelForValue(yVal);
-      if (!Number.isFinite(py)) continue;
+      if (!Number.isFinite(py) || py < top || py > bottom) continue;
 
-      // draw even if slightly out (clamp visibility)
-      if (py < top - 1 || py > bottom + 1) continue;
-
+      // line
       ctx.globalAlpha = Number.isFinite(m?.alpha) ? m.alpha : baseAlpha;
       ctx.strokeStyle = String(m?.color || strokeStyle);
-
       ctx.beginPath();
       ctx.moveTo(left, py);
       ctx.lineTo(right, py);
       ctx.stroke();
 
+      // label at Y axis (left edge)
       const text = String(m?.text || "");
       if (text) {
-        const label = `${text}  $${yVal.toFixed(2)}`;
-        ctx.globalAlpha = Number.isFinite(m?.labelAlpha) ? m.labelAlpha : labelAlpha;
-        ctx.fillStyle = String(m?.labelColor || labelColor);
-        const w = ctx.measureText(label).width;
-        ctx.fillText(label, Math.max(left + 4, right - 4 - w), py - 3);
-      }
+        const label = `${text}`;
+        const value = `$${yVal.toFixed(2)}`;
 
-      if (opts?.debug) {
-        ctx.globalAlpha = 1;
-        ctx.setLineDash([]);
-        ctx.fillStyle = "rgba(0,0,0,0.9)";
-        ctx.fillText(`y=${yVal.toFixed(2)}`, left + 6, Math.max(top + 28, py + 12));
-        ctx.setLineDash(dash);
+        // two-line label: name + value
+        const line1 = label;
+        const line2 = value;
+
+        const w1 = ctx.measureText(line1).width;
+        const w2 = ctx.measureText(line2).width;
+        const w = Math.max(w1, w2);
+
+        const boxW = w + labelPadX * 2;
+        const boxH = 24; // fits 2 lines at 12px-ish
+        const boxX = left + labelInset;
+        const boxY = py - boxH / 2;
+
+        // keep box within chartArea
+        const clampedY = Math.min(Math.max(boxY, top), bottom - boxH);
+
+        // background pill
+        ctx.save();
+        ctx.globalAlpha = labelBgAlpha;
+        ctx.fillStyle = labelBg;
+        roundRect(ctx, boxX, clampedY, boxW, boxH, 6);
+        ctx.fill();
+
+        // subtle border
+        ctx.globalAlpha = labelBorderAlpha;
+        ctx.strokeStyle = String(m?.color || strokeStyle);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // text
+        ctx.globalAlpha = Number.isFinite(m?.labelAlpha) ? m.labelAlpha : labelAlpha;
+        ctx.fillStyle = String(m?.labelColor || "#2b2f36");
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(line1, boxX + labelPadX, clampedY + 11);
+        ctx.fillText(line2, boxX + labelPadX, clampedY + 22);
+        ctx.restore();
       }
     }
 
     ctx.restore();
+
+    function roundRect(ctx2, x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      ctx2.beginPath();
+      ctx2.moveTo(x + rr, y);
+      ctx2.arcTo(x + w, y, x + w, y + h, rr);
+      ctx2.arcTo(x + w, y + h, x, y + h, rr);
+      ctx2.arcTo(x, y + h, x, y, rr);
+      ctx2.arcTo(x, y, x + w, y, rr);
+      ctx2.closePath();
+    }
   },
 };
 
@@ -905,36 +935,35 @@ export async function renderItem($app, skuInput) {
       maintainAspectRatio: false,
       interaction: { mode: "nearest", intersect: false },
   
-      // v2 fallback: allow options.staticMarkerLines (plugin reads this)
-      staticMarkerLines: {
-        markers,
-        dash: [6, 6],
-        alpha: 0.55,      // make it obvious
-        labelAlpha: 0.9,
-        debug: true,      // <-- remove later
-      },
-  
-      plugins: {
-        // v3+: plugin options live here (plugin reads this too)
-        staticMarkerLines: {
-          markers,
-          dash: [6, 6],
-          alpha: 0.55,      // make it obvious
-          labelAlpha: 0.9,
-          debug: true,      // <-- remove later
-        },
-  
-        legend: { display: true },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const v = ctx.parsed?.y;
-              if (!Number.isFinite(v)) return `${ctx.dataset.label}: (no data)`;
-              return `${ctx.dataset.label}: $${v.toFixed(2)}`;
-            },
-          },
-        },
-      },
+      // v2 fallback (plugin reads this)
+staticMarkerLines: {
+  markers,
+  color: "#9aa4b2",
+  alpha: 0.20,
+  lineWidth: 2,
+  labelAlpha: 0.85,
+  labelBg: "rgba(255,255,255,0.92)",
+  labelBgAlpha: 0.95,
+  labelBorderAlpha: 0.22,
+},
+
+plugins: {
+  // v3+ (plugin reads this too)
+  staticMarkerLines: {
+    markers,
+    color: "#9aa4b2",
+    alpha: 0.20,
+    lineWidth: 2,
+    labelAlpha: 0.85,
+    labelBg: "rgba(255,255,255,0.92)",
+    labelBgAlpha: 0.95,
+    labelBorderAlpha: 0.22,
+  },
+
+  legend: { display: true },
+  tooltip: { /* unchanged */ },
+},
+
       scales: {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
         y: {
