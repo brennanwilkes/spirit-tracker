@@ -977,9 +977,9 @@ export async function renderItem($app, skuInput) {
           },
         },
       },
-      layout: {
-        padding: { right: 18 }
-      },
+      // layout: {
+        // padding: { right: 18 }
+      // },
       scales: {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
         y: {
@@ -988,7 +988,7 @@ export async function renderItem($app, skuInput) {
             stepSize: step,
             maxTicksLimit: MAX_TICKS,
             callback: (v) => `$${Number(v).toFixed(0)}`,
-            padding: 6,
+            padding: 50,
           },
         },
       },
