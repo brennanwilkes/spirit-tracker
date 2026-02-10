@@ -268,13 +268,15 @@ export function recommendSimilar(
   
 
 
+
   export function computeInitialPairsFast(
     allAgg,
     mappedSkus,
     limitPairs,
     isIgnoredPairFn,
     sameStoreFn,
-    sizePenaltyFn, // ✅ NEW: pass sizePenaltyForPair in
+    sameGroupFn,   // ✅ NEW
+    sizePenaltyFn,
     pricePenaltyFn
   ) {
     const itemsAll = allAgg.filter((it) => !!it);
@@ -302,13 +304,17 @@ export function recommendSimilar(
       return stores * 3 + hasPrice * 2 + hasName * 0.5 + unknown * 0.25;
     }
   
-    // --- SMWS exact-code pairs first (kept as-is, but apply sameStore/isIgnored) ---
+    // --- SMWS exact-code pairs first (now blocks sameGroup + mapped) ---
     function smwsPairsFirst(workArr, limit) {
       const buckets = new Map(); // code -> items[]
       for (const it of workArr) {
         if (!it) continue;
         const sku = String(it.sku || "");
         if (!sku) continue;
+  
+        // ✅ NEW: keep SMWS stage unmapped-only
+        if (mappedSkus && mappedSkus.has(sku)) continue;
+  
         const code = smwsKeyFromName(it.name || "");
         if (!code) continue;
         let arr = buckets.get(code);
@@ -326,7 +332,6 @@ export function recommendSimilar(
           .sort((a, b) => itemRank(b) - itemRank(a))
           .slice(0, 80);
   
-        // Prefer an unmapped anchor if possible; otherwise best overall
         const anchor = arr.slice().sort((a, b) => itemRank(b) - itemRank(a))[0];
         if (!anchor) continue;
   
@@ -338,11 +343,14 @@ export function recommendSimilar(
           const bSku = String(b.sku || "");
           if (!aSku || !bSku || aSku === bSku) continue;
   
-          // Only link *unmapped* targets in this stage
-        //   if (mappedSkus && mappedSkus.has(bSku)) continue;
-  
           if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
           if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
+  
+          // ✅ NEW: do not suggest if already linked
+          if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) continue;
+  
+          // ✅ NEW: extra safety (should already be unmapped-only, but keep)
+          if (mappedSkus && (mappedSkus.has(aSku) || mappedSkus.has(bSku))) continue;
   
           const s = 1e9 + itemRank(a) + itemRank(b);
           candPairs.push({ a, b, score: s });
@@ -365,23 +373,24 @@ export function recommendSimilar(
       return { pairs: out0, usedUnmapped };
     }
   
-    const smwsFirst = smwsPairsFirst(workAll, limitPairs);
+    // ✅ CHANGED: SMWS stage now runs on `work` (unmapped-only), not `workAll`
+    const smwsFirst = smwsPairsFirst(work, limitPairs);
     const used = new Set(smwsFirst.usedUnmapped);
     const out = smwsFirst.pairs.slice();
     if (out.length >= limitPairs) return out.slice(0, limitPairs);
   
-    // --- Improved general pairing logic (uses same “good” scoring knobs) ---
+    // --- Improved general pairing logic ---
   
     const seeds = topSuggestions(work, Math.min(220, work.length), "", mappedSkus).filter(
       (it) => !used.has(String(it?.sku || ""))
     );
   
-    // Build token buckets over *normalized* names (better hits)
+    // Build token buckets over normalized names
     const TOKEN_BUCKET_CAP = 700;
-    const tokMap = new Map();        // token -> items[]
-    const itemRawToks = new Map();   // sku -> raw tokens
-    const itemNorm = new Map();      // sku -> norm name
-    const itemFilt = new Map();      // sku -> filtered tokens (for first-token logic)
+    const tokMap = new Map();      // token -> items[]
+    const itemRawToks = new Map(); // sku -> raw tokens
+    const itemNorm = new Map();    // sku -> norm name
+    const itemFilt = new Map();    // sku -> filtered tokens
   
     for (const it of work) {
       const sku = String(it.sku || "");
@@ -395,7 +404,6 @@ export function recommendSimilar(
       itemRawToks.set(sku, raw);
       itemFilt.set(sku, filt);
   
-      // bucket using a handful of filtered tokens (higher signal)
       for (const t of filt.slice(0, 12)) {
         let arr = tokMap.get(t);
         if (!arr) tokMap.set(t, (arr = []));
@@ -405,7 +413,6 @@ export function recommendSimilar(
   
     const bestByPair = new Map();
     const MAX_CAND_TOTAL = 450;
-    const MAX_CHEAP = 40;
     const MAX_FINE = 18;
   
     for (const a of seeds) {
@@ -432,10 +439,12 @@ export function recommendSimilar(
           const bSku = String(b.sku || "");
           if (!bSku || bSku === aSku) continue;
           if (used.has(bSku)) continue;
-        //   if (mappedSkus && mappedSkus.has(bSku)) continue;
   
           if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
           if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
+  
+          // ✅ NEW: block already-linked groups here too
+          if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) continue;
   
           cand.set(bSku, b);
         }
@@ -443,7 +452,7 @@ export function recommendSimilar(
       }
       if (!cand.size) continue;
   
-      // Cheap score stage (fastSimilarity + containment + size + age + first-token mismatch penalty)
+      // Cheap score stage
       const cheap = [];
       for (const b of cand.values()) {
         const bSku = String(b.sku || "");
@@ -467,7 +476,6 @@ export function recommendSimilar(
         }
   
         if (typeof sizePenaltyFn === "function") s *= sizePenaltyFn(aSku, bSku);
-
         if (typeof pricePenaltyFn === "function") s *= pricePenaltyFn(aSku, bSku);
   
         const bAge = extractAgeFromText(bNorm);
@@ -484,7 +492,7 @@ export function recommendSimilar(
       if (!cheap.length) continue;
       cheap.sort((x, y) => y.s - x.s);
   
-      // Fine stage (expensive similarityScore + same penalties again)
+      // Fine stage
       let bestB = null;
       let bestS = 0;
   
@@ -495,7 +503,6 @@ export function recommendSimilar(
         let s = similarityScore(a.name || "", b.name || "");
         if (s <= 0) continue;
   
-        // first-token mismatch soft penalty
         if (!x.firstMatch) {
           const smallN = Math.min(aFilt.length || 0, (x.bFilt || []).length || 0);
           let mult = 0.10 + 0.95 * x.contain;
@@ -508,7 +515,7 @@ export function recommendSimilar(
           s *= sizePenaltyFn(aSku, bSku);
           if (s <= 0) continue;
         }
-
+  
         if (typeof pricePenaltyFn === "function") {
           s *= pricePenaltyFn(aSku, bSku);
           if (s <= 0) continue;
@@ -527,7 +534,6 @@ export function recommendSimilar(
         }
       }
   
-      // Threshold (slightly lower than before, because we now punish mismatches more intelligently)
       if (!bestB || bestS < 0.50) continue;
   
       const bSku = String(bestB.sku || "");
@@ -541,7 +547,7 @@ export function recommendSimilar(
     const pairs = Array.from(bestByPair.values());
     pairs.sort((x, y) => y.score - x.score);
   
-    // ---- light randomness inside a top band (same behavior as before) ----
+    // ---- light randomness inside a top band ----
     const need = Math.max(0, limitPairs - out.length);
     if (!need) return out.slice(0, limitPairs);
   
@@ -561,6 +567,9 @@ export function recommendSimilar(
       if (used.has(aSku) || used.has(bSku)) return false;
       if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return false;
       if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) return false;
+  
+      // ✅ NEW: block already-linked groups here too
+      if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) return false;
   
       used.add(aSku);
       used.add(bSku);
@@ -582,6 +591,7 @@ export function recommendSimilar(
   
     return out.slice(0, limitPairs);
   }
+  
   
 
 
