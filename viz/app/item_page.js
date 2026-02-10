@@ -189,11 +189,11 @@ if (text) {
   ctx.fillText(text, Math.max(0, axisX - axisInset), py);
 
   // DEBUG: show axis anchor point (remove later)
-  // ctx.save();
-  // ctx.globalAlpha = 0.9;
-  // ctx.fillStyle = "red";
-  // ctx.fillRect(axisX - 1, py - 1, 2, 2);
-  // ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = "red";
+  ctx.fillRect(axisX - 1, py - 1, 2, 2);
+  ctx.restore();
 }
     }
 
