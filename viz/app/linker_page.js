@@ -161,12 +161,15 @@ export async function renderSkuLinker($app) {
       28,
       isIgnoredPair,
       sameStoreCanon,
-      sizePenaltyForPair, // ✅ NEW
-      pricePenaltyForPair // ✅ NEW
+      sameGroup, // ✅ NEW: hard-block already-linked pairs (incl SMWS stage)
+      sizePenaltyForPair,
+      pricePenaltyForPair
     );
   
     return initialPairs;
   }
+  
+  
   
 
 
@@ -748,7 +751,7 @@ export async function renderSkuLinker($app) {
 
   function buildMappedSkuSet(links, rules0) {
     const s = new Set();
-
+  
     function add(k) {
       const x = String(k || "").trim();
       if (!x) return;
@@ -758,12 +761,21 @@ export async function renderSkuLinker($app) {
         if (c) s.add(c);
       }
     }
-
-    for (const x of Array.isArray(links) ? links : []) {
+  
+    // ✅ NEW: always include rules.links (meta can be incomplete)
+    const merged = [
+      ...((rules0 && Array.isArray(rules0.links)) ? rules0.links : []),
+      ...(Array.isArray(links) ? links : []),
+    ];
+  
+    for (const x of merged) {
       add(x?.fromSku);
       add(x?.toSku);
     }
-
+  
     return s;
   }
+  
+
+  
 }
