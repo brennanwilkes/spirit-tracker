@@ -47,6 +47,31 @@ function isBcStoreLabel(label) {
   return false;
 }
 
+function weightedMeanByDuration(pointsMap, sortedDates) {
+  // pointsMap: Map(dateStr -> number|null)
+  // sortedDates: ["YYYY-MM-DD", ...] sorted asc
+  let wsum = 0;
+  let wtot = 0;
+
+  for (let i = 0; i < sortedDates.length; i++) {
+    const d0 = sortedDates[i];
+    const v = pointsMap.get(d0);
+    if (!Number.isFinite(v)) continue;
+
+    const t0 = Date.parse(d0 + "T00:00:00Z");
+    const d1 = sortedDates[i + 1];
+    const t1 = d1 ? Date.parse(d1 + "T00:00:00Z") : t0 + 24 * 3600 * 1000;
+
+    // weight in days (min 1 day)
+    const w = Math.max(1, Math.round((t1 - t0) / (24 * 3600 * 1000)));
+    wsum += v * w;
+    wtot += w;
+  }
+
+  return wtot ? wsum / wtot : null;
+}
+
+
 function meanFinite(arr) {
   if (!Array.isArray(arr)) return null;
   let sum = 0,
@@ -879,8 +904,11 @@ export async function renderItem($app, skuInput) {
   // --- Compute marker values ---
   // Province medians: per-store mean over time, then median across stores (>=3 stores)
   const storeMeans = seriesSorted
-    .map((s) => ({ label: s.label, mean: meanFinite(s.values) }))
-    .filter((x) => Number.isFinite(x.mean));
+  .map((s) => ({
+    label: s.label,
+    mean: weightedMeanByDuration(s.points, labels), // duration-weighted
+  }))
+  .filter((x) => Number.isFinite(x.mean));
 
   const bcMeans = storeMeans.filter((x) => isBcStoreLabel(x.label));
   const abMeans = storeMeans.filter((x) => !isBcStoreLabel(x.label));
@@ -889,12 +917,12 @@ export async function renderItem($app, skuInput) {
 
   if (bcMeans.length >= 3) {
     const y = medianFinite(bcMeans.map((x) => x.mean));
-    if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "BC Median" });
+    if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "BC" });
   }
 
   if (abMeans.length >= 3) {
     const y = medianFinite(abMeans.map((x) => x.mean));
-    if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "AB Median" });
+    if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
   }
 
   // Target price: pick 3 lowest per-store mins (distinct stores), then average (>=3 stores)
