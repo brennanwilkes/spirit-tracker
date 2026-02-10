@@ -87,28 +87,50 @@ function isInStock(p) {
   return Boolean(p?.available_for_sale);
 }
 
-function arcItemToTracked(p, ctx) {
-  if (!p) return null;
-  if (!isInStock(p)) return null;
-
-  const url = normAbsUrl(p.url, `https://${ctx.store.host}/`);
-  if (!url) return null;
-
-  const name = cleanText(p.description || p.name || "");
-  if (!name) return null;
-
-  const price = pickBestPrice(p);
-
-  const cspc = normalizeCspc(p.cspcid || "");
-  const id = Number(p.id);
-  const taggedSku = cspc ? cspc : Number.isFinite(id) ? `id:${id}` : "";
-  const sku = normalizeSkuKey(taggedSku, { storeLabel: ctx?.store?.name, url }) || taggedSku || "";
-
-  const imgRaw = p.image || p.image_url || p.img || "";
-  const img = imgRaw ? normAbsUrl(imgRaw, `https://${ctx.store.host}/`) : "";
-
-  return { name, price, url, sku, img };
-}
+function arcNormalizeImg(raw) {
+    const s = String(raw || "").trim();
+    if (!s) return "";
+  
+    // already public
+    if (/^https?:\/\/s\.barnetnetwork\.com\/img\/m\//i.test(s)) return s;
+  
+    // site-relative -> public CDN
+    const noProto = s.replace(/^https?:\/\/[^/]+/i, "");
+    const rel = noProto.replace(/^\/+/, "");
+  
+    // common case: "custom/all/BC398280.png" OR "bc_lrs/000046/0000466854.jpg"
+    if (/^(custom\/|bc_lrs\/)/i.test(rel)) {
+      return `https://s.barnetnetwork.com/img/m/${rel}`;
+    }
+  
+    // fallback: if it's any path, still try the CDN
+    if (rel && !/^data:/i.test(rel)) return `https://s.barnetnetwork.com/img/m/${rel}`;
+  
+    return "";
+  }
+  
+  function arcItemToTracked(p, ctx) {
+    if (!p) return null;
+    if (!isInStock(p)) return null;
+  
+    const url = normAbsUrl(p.url, `https://${ctx.store.host}/`);
+    if (!url) return null;
+  
+    const name = cleanText(p.description || p.name || "");
+    if (!name) return null;
+  
+    const price = pickBestPrice(p);
+  
+    const cspc = normalizeCspc(p.cspcid || "");
+    const id = Number(p.id);
+    const taggedSku = cspc ? cspc : Number.isFinite(id) ? `id:${id}` : "";
+    const sku = normalizeSkuKey(taggedSku, { storeLabel: ctx?.store?.name, url }) || taggedSku || "";
+  
+    const img = arcNormalizeImg(p.image || p.image_url || p.img || "");
+  
+    return { name, price, url, sku, img };
+  }
+  
 
 function parseCategoryParamsFromStartUrl(startUrl) {
   try {
