@@ -176,8 +176,14 @@ const StaticMarkerLinesPlugin = {
         ctx.globalAlpha = 0.95;
         ctx.fillStyle = String(m?.labelColor || labelColor);
         ctx.textBaseline = "middle";
+
+        const axisX = y.left; // actual y-axis pixel
+
         ctx.textAlign = "right";
-        ctx.fillText(text, left - axisInset, py);
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, axisX - axisInset, py);
+        
+
       }
     }
 
