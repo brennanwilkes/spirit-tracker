@@ -978,7 +978,7 @@ export async function renderItem($app, skuInput) {
         },
       },
       layout: {
-        padding: { left: 18 }
+        padding: { right: 18 }
       },
       scales: {
         x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
