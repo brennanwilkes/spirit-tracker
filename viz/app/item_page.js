@@ -164,37 +164,30 @@ const StaticMarkerLinesPlugin = {
       ctx.lineTo(right, py);
       ctx.stroke();
 
-// Compute a safe "axis x" (works across Chart.js versions)
-const axisXRaw =
-  (Number.isFinite(y?.left) && y.left) ||
-  (Number.isFinite(y?.right) && y.right) ||
-  left;
-
-// clamp inside canvas so it never disappears off-screen
-const axisX = Math.max(0, Math.min(axisXRaw, chart.width));
-
 // tiny tick mark starting at axisX
+// y scale box: [y.left .. y.right], where y.right is usually chartArea.left
+const yLeft = Number.isFinite(y?.left) ? y.left : left;
+const yRight = Number.isFinite(y?.right) ? y.right : left;
+
+// center of the y-axis box (clamped)
+const axisCenterX = Math.max(0, Math.min((yLeft + yRight) / 2, chart.width));
+
+// draw the little tick at the chart edge (right edge of y-axis box)
 ctx.beginPath();
-ctx.moveTo(axisX, py);
-ctx.lineTo(axisX + 6, py);
+ctx.moveTo(yRight, py);
+ctx.lineTo(yRight + 6, py);
 ctx.stroke();
 
-// label anchored to axisX (no background)
+// label centered in the y-axis box
 const text = String(m?.text || "");
 if (text) {
   ctx.globalAlpha = 0.95;
   ctx.fillStyle = String(m?.labelColor || labelColor);
   ctx.textBaseline = "middle";
-  ctx.textAlign = "right";
-  ctx.fillText(text, Math.max(0, axisX - axisInset), py);
-
-  // DEBUG: show axis anchor point (remove later)
-  ctx.save();
-  ctx.globalAlpha = 0.9;
-  ctx.fillStyle = "red";
-  ctx.fillRect(axisX - 1, py - 1, 2, 2);
-  ctx.restore();
+  ctx.textAlign = "center";
+  ctx.fillText(text, axisCenterX, py);
 }
+
     }
 
     ctx.restore();
