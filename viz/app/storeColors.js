@@ -5,46 +5,65 @@ function normalizeId(s) {
 }
 
 const ALIASES = {
-	// labels -> keys
-	strathliquor: "strath",
-	strath: "strath",
+	// ----- ARC -----
+	arcliquor: "arc",
+	arc: "arc",
 
-	vesselliquor: "vessel",
-	vessel: "vessel",
+	// ----- BCL -----
+	bcl: "bcl",
 
-	tudorhouse: "tudor",
-	tudor: "tudor",
+	// ----- BSW -----
+	bsw: "bsw",
 
+	// ----- Co-op World of Whisky -----
 	coopworldofwhisky: "coop",
 	coop: "coop",
 
+	// ----- Craft Cellars -----
 	craftcellars: "craftcellars",
 
-	// Gull Liquor variants
+	// ----- Gull Liquor -----
 	gullliquor: "gull",
 	gull: "gull",
 
-	// KWM variants
+	// ----- Keg N Cork -----
+	kegncork: "kegncork",
+
+	// ----- Kensington Wine Market -----
 	kensingtonwinemarket: "kwm",
 	kwm: "kwm",
 
-	// Legacy Liquor variants
+	// ----- Legacy Liquor -----
 	legacyliquor: "legacyliquor",
 	legacy: "legacyliquor",
 
-	// Vintage Spirits variants
+	// ----- Malts & Grains -----
+	maltsgrains: "maltsandgrains",
+	maltsandgrains: "maltsandgrains",
+
+	// ----- Sierra Springs -----
+	sierrasprings: "sierrasprings",
+
+	// ----- Strath Liquor -----
+	strathliquor: "strath",
+	strath: "strath",
+
+	// ----- Tudor House -----
+	tudorhouse: "tudor",
+	tudor: "tudor",
+
+	// ----- Vessel Liquor -----
+	vesselliquor: "vessel",
+	vessel: "vessel",
+
+	// ----- Vintage Spirits -----
 	vintagespirits: "vintage",
 	vintage: "vintage",
 
-	// others already match keys
-	bcl: "bcl",
-	bsw: "bsw",
-	kegncork: "kegncork",
-	maltsandgrains: "maltsandgrains",
-	sierrasprings: "sierrasprings",
+	// ----- Willow Park -----
 	willowpark: "willowpark",
-	arc: "arc",
 };
+
 
 const OVERRIDES = {
 	// keep your existing pins (moved onto store keys)
