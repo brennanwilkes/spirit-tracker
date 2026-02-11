@@ -2,7 +2,7 @@
 "use strict";
 
 const { cleanText } = require("../utils/html");
-const { normalizeCspc, normalizeSkuKey } = require("../utils/sku");
+const { normalizeSkuKey } = require("../utils/sku");
 const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
 
@@ -121,10 +121,18 @@ function arcNormalizeImg(raw) {
   
     const price = pickBestPrice(p);
   
-    const cspc = normalizeCspc(p.cspcid || "");
-    const id = Number(p.id);
-    const taggedSku = cspc ? cspc : Number.isFinite(id) ? `id:${id}` : "";
-    const sku = normalizeSkuKey(taggedSku, { storeLabel: ctx?.store?.name, url }) || taggedSku || "";
+    const rawCspcId = String(p?.cspcid ?? "").trim();
+const hasCspcId = /^\d{1,11}$/.test(rawCspcId);
+
+const id = Number(p?.id);
+const rawSku =
+  hasCspcId ? `id:${rawCspcId}` :
+  Number.isFinite(id) ? `id:${id}` :
+  "";
+
+const sku =
+  normalizeSkuKey(rawSku, { storeLabel: ctx?.store?.name, url }) || rawSku || "";
+
   
     const img = arcNormalizeImg(p.image || p.image_url || p.img || "");
   
@@ -244,8 +252,11 @@ async function scanCategoryArcApi(ctx, prevDb, report) {
       if (!pageSize) pageSize = rawCount;
   
       // Detect wrap/repeat: fingerprint by ids+urls (stable enough)
-      const fp = arr.map((p) => `${p?.id || ""}:${p?.url || ""}`).join("|");
-      if (fp && seenPageFingerprints.has(fp)) {
+      const fp = arr
+        .map((p) => `${p?.id || ""}:${p?.url || ""}`)
+        .sort()
+        .join("|");
+            if (fp && seenPageFingerprints.has(fp)) {
         ctx.logger.warn(`${ctx.catPrefixOut} | ARC pagination repeated at p=${page}; stopping.`);
         break;
       }
