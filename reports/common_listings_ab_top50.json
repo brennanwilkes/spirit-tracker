@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-11T17:05:48.582Z",
+  "generatedAt": "2026-02-11T20:12:28.049Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7454,
-    "removedRows": 567,
-    "canonSkus": 4408,
+    "liveRows": 7468,
+    "removedRows": 560,
+    "canonSkus": 4407,
     "outputCount": 50
   },
   "rows": [
@@ -1632,6 +1632,48 @@
       }
     },
     {
+      "canonSku": "736561",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "coop": 109.99,
+        "kegncork": 112.96,
+        "kwm": 114.99,
+        "maltsandgrains": 116.9,
+        "willowpark": 107.49
+      },
+      "representative": {
+        "name": "The Dalmore 12 Year Old",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "736561",
+        "skuKey": "736561",
+        "url": "https://www.bswliquor.com/products/the-dalmore-12-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/the-dalmore-12-year-old"
+      }
+    },
+    {
       "canonSku": "741699",
       "storeCount": 6,
       "stores": [
@@ -2091,48 +2133,6 @@
         "priceNum": 54.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bridgeland-taber-corn-berbon"
-      }
-    },
-    {
-      "canonSku": "836474",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "coop": 72.99,
-        "kegncork": 70.96,
-        "kwm": 72.99,
-        "sierrasprings": 69.99,
-        "willowpark": 72.49
-      },
-      "representative": {
-        "name": "Bunnahabhain Stiuireadair",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "836474",
-        "skuKey": "836474",
-        "url": "https://www.bswliquor.com/products/bunnahabhain-stuiereadair",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bunnahabhain-stuiereadair"
       }
     }
   ]
