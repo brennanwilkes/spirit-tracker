@@ -4,46 +4,70 @@ function normalizeId(s) {
 		.replace(/[^a-z0-9]+/g, "");
 }
 
-// Map normalized store *labels* to canonical ids used by OVERRIDES
 const ALIASES = {
+	// labels -> keys
 	strathliquor: "strath",
+	strath: "strath",
+
 	vesselliquor: "vessel",
+	vessel: "vessel",
+
 	tudorhouse: "tudor",
+	tudor: "tudor",
+
 	coopworldofwhisky: "coop",
+	coop: "coop",
 
-	kensingtonwinemarket: "kensingtonwinemarket",
-	gullliquor: "gullliquor",
+	craftcellars: "craftcellars",
+
+	// Gull Liquor variants
+	gullliquor: "gull",
+	gull: "gull",
+
+	// KWM variants
+	kensingtonwinemarket: "kwm",
+	kwm: "kwm",
+
+	// Legacy Liquor variants
 	legacyliquor: "legacyliquor",
-	vintagespirits: "vintagespirits",
-	kegncork: "kegncork",
-
-	// short forms
-	gull: "gullliquor",
 	legacy: "legacyliquor",
-	vintage: "vintagespirits",
-	kwm: "kensingtonwinemarket",
+
+	// Vintage Spirits variants
+	vintagespirits: "vintage",
+	vintage: "vintage",
+
+	// others already match keys
+	bcl: "bcl",
+	bsw: "bsw",
+	kegncork: "kegncork",
+	maltsandgrains: "maltsandgrains",
+	sierrasprings: "sierrasprings",
+	willowpark: "willowpark",
+	arc: "arc",
 };
 
-// Your pinned colors
 const OVERRIDES = {
+	// keep your existing pins (moved onto store keys)
 	strath: "#76B7FF",
 	bsw: "#E9DF7A",
-	kensingtonwinemarket: "#F2C200",
+	kwm: "#F2C200",
 	vessel: "#FFFFFF",
-	gullliquor: "#6B0F1A",
+	gull: "#6B0F1A",
 	kegncork: "#111111",
 	legacyliquor: "#7B4A12",
-	vintagespirits: "#E34A2C",
-
+	vintage: "#E34A2C",
 	craftcellars: "#E31B23",
 	maltsandgrains: "#A67C52",
 
-	// aliases
-	gull: "#6B0F1A",
-	legacy: "#7B4A12",
-	vintage: "#E34A2C",
-	kwm: "#F2C200",
+	// assign the remaining stores (distinct / balanced)
+	bcl: "#1F77B4",
+	coop: "#2CA02C",
+	sierrasprings: "#17BECF",
+	willowpark: "#BCBD22",
+	arc: "#9467BD",
+	tudor: "#FF7F0E",
 };
+
 
 // High-contrast qualitative palette
 const PALETTE = [
