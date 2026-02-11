@@ -914,11 +914,8 @@ export async function renderItem($app, skuInput) {
 	// --- Compute marker values ---
 	// Province medians: per-store mean over time, then median across stores (>=3 stores)
 	const storeMeans = seriesSorted
-		.map((s) => ({
-			label: s.label,
-			mean: weightedMeanByDuration(s.points, labels), // duration-weighted
-		}))
-		.filter((x) => Number.isFinite(x.mean));
+	.map((s) => ({ label: s.label, mean: weightedMeanByDuration(s.points, labels) }))
+	.filter((x) => Number.isFinite(x.mean));
 
 	const bcMeans = storeMeans.filter((x) => isBcStoreLabel(x.label));
 	const abMeans = storeMeans.filter((x) => !isBcStoreLabel(x.label));
@@ -926,25 +923,34 @@ export async function renderItem($app, skuInput) {
 	const markers = [];
 
 	if (bcMeans.length >= 3) {
-		const y = medianFinite(bcMeans.map((x) => x.mean));
-		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "BC" });
+	const y = medianFinite(bcMeans.map((x) => x.mean));
+	if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "BC" });
 	}
 
 	if (abMeans.length >= 3) {
-		const y = medianFinite(abMeans.map((x) => x.mean));
-		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
+	const y = medianFinite(abMeans.map((x) => x.mean));
+	if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
 	}
 
 	// Target price: pick 3 lowest per-store mins (distinct stores), then average (>=3 stores)
-	const storeMins = seriesSorted
-		.map((s) => ({ label: s.label, min: minFinite(s.values) }))
-		.filter((x) => Number.isFinite(x.min))
-		.sort((a, b) => a.min - b.min);
+	// Only show if there are at least 6 total unique price points (finite) across the chart.
+	const uniquePricePoints = new Set(
+	allVals
+		.filter((v) => Number.isFinite(v))
+		.map((v) => Math.round(v * 100)) // cents to avoid float noise
+	);
+	const hasEnoughUniquePoints = uniquePricePoints.size >= 6;
 
-	if (storeMins.length >= 3) {
-		const t = (storeMins[0].min + storeMins[1].min + storeMins[2].min) / 3;
-		if (Number.isFinite(t)) markers.push({ y: Math.round(t), text: "Target" });
+	const storeMins = seriesSorted
+	.map((s) => ({ label: s.label, min: minFinite(s.values) }))
+	.filter((x) => Number.isFinite(x.min))
+	.sort((a, b) => a.min - b.min);
+
+	if (hasEnoughUniquePoints && storeMins.length >= 3) {
+	const t = (storeMins[0].min + storeMins[1].min + storeMins[2].min) / 3;
+	if (Number.isFinite(t)) markers.push({ y: Math.round(t), text: "Target" });
 	}
+
 	const markerYs = markers.map((m) => Number(m.y)).filter(Number.isFinite);
 
 	// helper: approximate font px size from a CSS font string (Chart uses one)
