@@ -22,320 +22,310 @@ const path = require("path");
 /* ---------------- helpers ---------------- */
 
 function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
+	fs.mkdirSync(dir, { recursive: true });
 }
 
 function readJson(p) {
-  try {
-    return JSON.parse(fs.readFileSync(p, "utf8"));
-  } catch {
-    return null;
-  }
+	try {
+		return JSON.parse(fs.readFileSync(p, "utf8"));
+	} catch {
+		return null;
+	}
 }
 
 function listDbFiles() {
-  const dir = path.join(process.cwd(), "data", "db");
-  try {
-    return fs
-      .readdirSync(dir, { withFileTypes: true })
-      .filter((e) => e.isFile() && e.name.endsWith(".json"))
-      .map((e) => path.join(dir, e.name));
-  } catch {
-    return [];
-  }
+	const dir = path.join(process.cwd(), "data", "db");
+	try {
+		return fs
+			.readdirSync(dir, { withFileTypes: true })
+			.filter((e) => e.isFile() && e.name.endsWith(".json"))
+			.map((e) => path.join(dir, e.name));
+	} catch {
+		return [];
+	}
 }
 
 function priceToNumber(v) {
-  const s = String(v ?? "").replace(/[^0-9.]/g, "");
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
+	const s = String(v ?? "").replace(/[^0-9.]/g, "");
+	const n = Number(s);
+	return Number.isFinite(n) ? n : null;
 }
 
 function hasRealSku6(s) {
-  return /\b\d{6}\b/.test(String(s || ""));
+	return /\b\d{6}\b/.test(String(s || ""));
 }
 
 function isSyntheticSkuKey(k) {
-  return String(k || "").startsWith("u:");
+	return String(k || "").startsWith("u:");
 }
 
 function storeKeyFromDbPath(abs) {
-  const base = path.basename(abs);
-  const m = base.match(/^([^_]+)__.+\.json$/i);
-  const k = m ? m[1] : base.replace(/\.json$/i, "");
-  return String(k || "").toLowerCase();
+	const base = path.basename(abs);
+	const m = base.match(/^([^_]+)__.+\.json$/i);
+	const k = m ? m[1] : base.replace(/\.json$/i, "");
+	return String(k || "").toLowerCase();
 }
 
 /* ---------------- sku helpers ---------------- */
 
 function loadSkuMapOrNull() {
-  try {
-    // eslint-disable-next-line node/no-missing-require
-    const { loadSkuMap } = require(path.join(process.cwd(), "src/utils/sku_map"));
-    return loadSkuMap({ dbDir: path.join(process.cwd(), "data/db") });
-  } catch {
-    return null;
-  }
+	try {
+		// eslint-disable-next-line node/no-missing-require
+		const { loadSkuMap } = require(path.join(process.cwd(), "src/utils/sku_map"));
+		return loadSkuMap({ dbDir: path.join(process.cwd(), "data/db") });
+	} catch {
+		return null;
+	}
 }
 
 function normalizeSkuKeyOrEmpty({ skuRaw, storeLabel, url }) {
-  try {
-    // eslint-disable-next-line node/no-missing-require
-    const { normalizeSkuKey } = require(path.join(process.cwd(), "src/utils/sku"));
-    const k = normalizeSkuKey(skuRaw, { storeLabel, url });
-    return k ? String(k) : "";
-  } catch {
-    const m = String(skuRaw ?? "").match(/\b(\d{6})\b/);
-    if (m) return m[1];
-    if (url) return `u:${storeLabel}:${url}`;
-    return "";
-  }
+	try {
+		// eslint-disable-next-line node/no-missing-require
+		const { normalizeSkuKey } = require(path.join(process.cwd(), "src/utils/sku"));
+		const k = normalizeSkuKey(skuRaw, { storeLabel, url });
+		return k ? String(k) : "";
+	} catch {
+		const m = String(skuRaw ?? "").match(/\b(\d{6})\b/);
+		if (m) return m[1];
+		if (url) return `u:${storeLabel}:${url}`;
+		return "";
+	}
 }
 
 function canonicalize(k, skuMap) {
-  if (!k) return "";
-  if (skuMap && typeof skuMap.canonicalSku === "function") {
-    return String(skuMap.canonicalSku(k) || k);
-  }
-  return k;
+	if (!k) return "";
+	if (skuMap && typeof skuMap.canonicalSku === "function") {
+		return String(skuMap.canonicalSku(k) || k);
+	}
+	return k;
 }
 
 /* ---------------- grouping ---------------- */
 
-const BC_STORE_KEYS = new Set([
-  "gull",
-  "strath",
-  "bcl",
-  "legacy",
-  "legacyliquor",
-  "tudor",
-  "vessel",
-  "vintage",
-  "arc"
-]);
+const BC_STORE_KEYS = new Set(["gull", "strath", "bcl", "legacy", "legacyliquor", "tudor", "vessel", "vintage", "arc"]);
 
 function groupAllowsStore(group, storeKey) {
-  const k = String(storeKey || "").toLowerCase();
-  if (group === "bc") return BC_STORE_KEYS.has(k);
-  if (group === "ab") return !BC_STORE_KEYS.has(k);
-  return true; // all
+	const k = String(storeKey || "").toLowerCase();
+	if (group === "bc") return BC_STORE_KEYS.has(k);
+	if (group === "ab") return !BC_STORE_KEYS.has(k);
+	return true; // all
 }
 
 /* ---------------- args ---------------- */
 
 function parseArgs(argv) {
-  const out = { top: 50, minStores: 2, requireAll: false, group: "all", out: "" };
-  for (let i = 0; i < argv.length; i++) {
-    const a = argv[i];
-    if (a === "--top" && argv[i + 1]) out.top = Number(argv[++i]) || 50;
-    else if (a === "--min-stores" && argv[i + 1]) out.minStores = Number(argv[++i]) || 2;
-    else if (a === "--require-all") out.requireAll = true;
-    else if (a === "--group" && argv[i + 1]) out.group = String(argv[++i] || "all").toLowerCase();
-    else if (a === "--out" && argv[i + 1]) out.out = String(argv[++i] || "");
-  }
-  if (out.group !== "all" && out.group !== "bc" && out.group !== "ab") out.group = "all";
-  return out;
+	const out = { top: 50, minStores: 2, requireAll: false, group: "all", out: "" };
+	for (let i = 0; i < argv.length; i++) {
+		const a = argv[i];
+		if (a === "--top" && argv[i + 1]) out.top = Number(argv[++i]) || 50;
+		else if (a === "--min-stores" && argv[i + 1]) out.minStores = Number(argv[++i]) || 2;
+		else if (a === "--require-all") out.requireAll = true;
+		else if (a === "--group" && argv[i + 1]) out.group = String(argv[++i] || "all").toLowerCase();
+		else if (a === "--out" && argv[i + 1]) out.out = String(argv[++i] || "");
+	}
+	if (out.group !== "all" && out.group !== "bc" && out.group !== "ab") out.group = "all";
+	return out;
 }
 
 /* ---------------- main ---------------- */
 
 function main() {
-  const args = parseArgs(process.argv.slice(2));
-  const repoRoot = process.cwd();
-  const reportsDir = path.join(repoRoot, "reports");
-  ensureDir(reportsDir);
+	const args = parseArgs(process.argv.slice(2));
+	const repoRoot = process.cwd();
+	const reportsDir = path.join(repoRoot, "reports");
+	ensureDir(reportsDir);
 
-  const outPath = args.out ? path.join(repoRoot, args.out) : path.join(reportsDir, "common_listings.json");
-  ensureDir(path.dirname(outPath));
+	const outPath = args.out ? path.join(repoRoot, args.out) : path.join(reportsDir, "common_listings.json");
+	ensureDir(path.dirname(outPath));
 
-  const dbFiles = listDbFiles();
-  if (!dbFiles.length) {
-    console.error("No DB files found");
-    process.exitCode = 2;
-    return;
-  }
+	const dbFiles = listDbFiles();
+	if (!dbFiles.length) {
+		console.error("No DB files found");
+		process.exitCode = 2;
+		return;
+	}
 
-  const skuMap = loadSkuMapOrNull();
-  console.log(`[debug] skuMap: ${skuMap ? "loaded" : "missing"}`);
-  console.log(`[debug] scanning ${dbFiles.length} db files`);
+	const skuMap = loadSkuMapOrNull();
+	console.log(`[debug] skuMap: ${skuMap ? "loaded" : "missing"}`);
+	console.log(`[debug] scanning ${dbFiles.length} db files`);
 
-  const storeToCanon = new Map(); // storeKey -> Set(canonSku)
-  const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest, storeMin:Map }
+	const storeToCanon = new Map(); // storeKey -> Set(canonSku)
+	const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest, storeMin:Map }
 
-  let liveRows = 0;
-  let removedRows = 0;
+	let liveRows = 0;
+	let removedRows = 0;
 
-  for (const abs of dbFiles.sort()) {
-    const obj = readJson(abs);
-    if (!obj) continue;
+	for (const abs of dbFiles.sort()) {
+		const obj = readJson(abs);
+		if (!obj) continue;
 
-    const storeLabel = String(obj.storeLabel || obj.store || "").trim();
-    if (!storeLabel) continue;
+		const storeLabel = String(obj.storeLabel || obj.store || "").trim();
+		if (!storeLabel) continue;
 
-    const storeKey = storeKeyFromDbPath(abs);
-    if (!groupAllowsStore(args.group, storeKey)) continue;
+		const storeKey = storeKeyFromDbPath(abs);
+		if (!groupAllowsStore(args.group, storeKey)) continue;
 
-    if (!storeToCanon.has(storeKey)) {
-      storeToCanon.set(storeKey, new Set());
-    }
+		if (!storeToCanon.has(storeKey)) {
+			storeToCanon.set(storeKey, new Set());
+		}
 
-    const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
-    const items = Array.isArray(obj.items) ? obj.items : [];
+		const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
+		const items = Array.isArray(obj.items) ? obj.items : [];
 
-    console.log(`[debug] ${rel} storeKey="${storeKey}" storeLabel="${storeLabel}" items=${items.length}`);
+		console.log(`[debug] ${rel} storeKey="${storeKey}" storeLabel="${storeLabel}" items=${items.length}`);
 
-    for (const it of items) {
-      if (!it) continue;
-      if (it.removed) {
-        removedRows++;
-        continue;
-      }
-      liveRows++;
+		for (const it of items) {
+			if (!it) continue;
+			if (it.removed) {
+				removedRows++;
+				continue;
+			}
+			liveRows++;
 
-      const skuKey = normalizeSkuKeyOrEmpty({
-        skuRaw: it.sku,
-        storeLabel,
-        url: it.url,
-      });
-      if (!skuKey) continue;
+			const skuKey = normalizeSkuKeyOrEmpty({
+				skuRaw: it.sku,
+				storeLabel,
+				url: it.url,
+			});
+			if (!skuKey) continue;
 
-      const canonSku = canonicalize(skuKey, skuMap);
-      if (!canonSku) continue;
+			const canonSku = canonicalize(skuKey, skuMap);
+			if (!canonSku) continue;
 
-      storeToCanon.get(storeKey).add(canonSku);
+			storeToCanon.get(storeKey).add(canonSku);
 
-      let agg = canonAgg.get(canonSku);
-      if (!agg) {
-        agg = { stores: new Set(), listings: [], cheapest: null, storeMin: new Map() };
-        canonAgg.set(canonSku, agg);
-      }
+			let agg = canonAgg.get(canonSku);
+			if (!agg) {
+				agg = { stores: new Set(), listings: [], cheapest: null, storeMin: new Map() };
+				canonAgg.set(canonSku, agg);
+			}
 
-      agg.stores.add(storeKey);
+			agg.stores.add(storeKey);
 
-      const priceNum = priceToNumber(it.price);
-      if (priceNum !== null) {
-        const prev = agg.storeMin.get(storeKey);
-        if (prev === undefined || priceNum < prev) agg.storeMin.set(storeKey, priceNum);
-      }
+			const priceNum = priceToNumber(it.price);
+			if (priceNum !== null) {
+				const prev = agg.storeMin.get(storeKey);
+				if (prev === undefined || priceNum < prev) agg.storeMin.set(storeKey, priceNum);
+			}
 
-      const listing = {
-        canonSku,
-        skuKey,
-        skuRaw: String(it.sku || ""),
-        name: String(it.name || ""),
-        price: String(it.price || ""),
-        priceNum,
-        url: String(it.url || ""),
-        storeKey,
-        storeLabel,
-        categoryLabel: String(obj.categoryLabel || obj.category || ""),
-        dbFile: rel,
-        hasRealSku6: hasRealSku6(it.sku) && !isSyntheticSkuKey(skuKey),
-      };
+			const listing = {
+				canonSku,
+				skuKey,
+				skuRaw: String(it.sku || ""),
+				name: String(it.name || ""),
+				price: String(it.price || ""),
+				priceNum,
+				url: String(it.url || ""),
+				storeKey,
+				storeLabel,
+				categoryLabel: String(obj.categoryLabel || obj.category || ""),
+				dbFile: rel,
+				hasRealSku6: hasRealSku6(it.sku) && !isSyntheticSkuKey(skuKey),
+			};
 
-      agg.listings.push(listing);
+			agg.listings.push(listing);
 
-      if (priceNum !== null) {
-        if (!agg.cheapest || priceNum < agg.cheapest.priceNum) {
-          agg.cheapest = { priceNum, item: listing };
-        }
-      }
-    }
-  }
+			if (priceNum !== null) {
+				if (!agg.cheapest || priceNum < agg.cheapest.priceNum) {
+					agg.cheapest = { priceNum, item: listing };
+				}
+			}
+		}
+	}
 
-  const stores = [...storeToCanon.keys()].sort();
-  const storeCount = stores.length;
+	const stores = [...storeToCanon.keys()].sort();
+	const storeCount = stores.length;
 
-  console.log(`[debug] group="${args.group}" stores(${storeCount}): ${stores.join(", ")}`);
-  console.log(`[debug] liveRows=${liveRows} removedRows=${removedRows} canonSkus=${canonAgg.size}`);
+	console.log(`[debug] group="${args.group}" stores(${storeCount}): ${stores.join(", ")}`);
+	console.log(`[debug] liveRows=${liveRows} removedRows=${removedRows} canonSkus=${canonAgg.size}`);
 
-  function pickRepresentative(agg) {
-    const preferred = agg.listings
-      .filter((l) => l.hasRealSku6)
-      .sort((a, b) => (a.priceNum ?? Infinity) - (b.priceNum ?? Infinity));
+	function pickRepresentative(agg) {
+		const preferred = agg.listings
+			.filter((l) => l.hasRealSku6)
+			.sort((a, b) => (a.priceNum ?? Infinity) - (b.priceNum ?? Infinity));
 
-    if (preferred.length) return preferred[0];
-    if (agg.cheapest) return agg.cheapest.item;
-    return agg.listings[0] || null;
-  }
+		if (preferred.length) return preferred[0];
+		if (agg.cheapest) return agg.cheapest.item;
+		return agg.listings[0] || null;
+	}
 
-  const rows = [];
+	const rows = [];
 
-  for (const [canonSku, agg] of canonAgg.entries()) {
-    const rep = pickRepresentative(agg);
-    const missingStores = stores.filter((s) => !agg.stores.has(s));
+	for (const [canonSku, agg] of canonAgg.entries()) {
+		const rep = pickRepresentative(agg);
+		const missingStores = stores.filter((s) => !agg.stores.has(s));
 
-    const storePrices = {};
-    for (const s of stores) {
-      const p = agg.storeMin.get(s);
-      if (Number.isFinite(p)) storePrices[s] = p;
-    }
+		const storePrices = {};
+		for (const s of stores) {
+			const p = agg.storeMin.get(s);
+			if (Number.isFinite(p)) storePrices[s] = p;
+		}
 
-    rows.push({
-      canonSku,
-      storeCount: agg.stores.size,
-      stores: [...agg.stores].sort(),
-      missingStores,
-      storePrices, // { [storeKey]: number } min live price per store
-      representative: rep
-        ? {
-            name: rep.name,
-            price: rep.price,
-            priceNum: rep.priceNum,
-            storeKey: rep.storeKey,
-            storeLabel: rep.storeLabel,
-            skuRaw: rep.skuRaw,
-            skuKey: rep.skuKey,
-            url: rep.url,
-            categoryLabel: rep.categoryLabel,
-            dbFile: rep.dbFile,
-          }
-        : null,
-      cheapest: agg.cheapest
-        ? {
-            price: agg.cheapest.item.price,
-            priceNum: agg.cheapest.priceNum,
-            storeKey: agg.cheapest.item.storeKey,
-            url: agg.cheapest.item.url,
-          }
-        : null,
-    });
-  }
+		rows.push({
+			canonSku,
+			storeCount: agg.stores.size,
+			stores: [...agg.stores].sort(),
+			missingStores,
+			storePrices, // { [storeKey]: number } min live price per store
+			representative: rep
+				? {
+						name: rep.name,
+						price: rep.price,
+						priceNum: rep.priceNum,
+						storeKey: rep.storeKey,
+						storeLabel: rep.storeLabel,
+						skuRaw: rep.skuRaw,
+						skuKey: rep.skuKey,
+						url: rep.url,
+						categoryLabel: rep.categoryLabel,
+						dbFile: rep.dbFile,
+					}
+				: null,
+			cheapest: agg.cheapest
+				? {
+						price: agg.cheapest.item.price,
+						priceNum: agg.cheapest.priceNum,
+						storeKey: agg.cheapest.item.storeKey,
+						url: agg.cheapest.item.url,
+					}
+				: null,
+		});
+	}
 
-  // Stable-ish sort: storeCount desc, then canonSku asc (stable diffs over time)
-  rows.sort((a, b) => {
-    if (b.storeCount !== a.storeCount) return b.storeCount - a.storeCount;
-    return String(a.canonSku).localeCompare(String(b.canonSku));
-  });
+	// Stable-ish sort: storeCount desc, then canonSku asc (stable diffs over time)
+	rows.sort((a, b) => {
+		if (b.storeCount !== a.storeCount) return b.storeCount - a.storeCount;
+		return String(a.canonSku).localeCompare(String(b.canonSku));
+	});
 
-  const filtered = args.requireAll
-    ? rows.filter((r) => r.storeCount === storeCount)
-    : rows.filter((r) => r.storeCount >= args.minStores);
+	const filtered = args.requireAll
+		? rows.filter((r) => r.storeCount === storeCount)
+		: rows.filter((r) => r.storeCount >= args.minStores);
 
-  const top = filtered.slice(0, args.top);
+	const top = filtered.slice(0, args.top);
 
-  const payload = {
-    generatedAt: new Date().toISOString(),
-    args: {
-      top: args.top,
-      minStores: args.minStores,
-      requireAll: args.requireAll,
-      group: args.group,
-      out: path.relative(repoRoot, outPath).replace(/\\/g, "/"),
-    },
-    storeCount,
-    stores,
-    totals: {
-      liveRows,
-      removedRows,
-      canonSkus: canonAgg.size,
-      outputCount: top.length,
-    },
-    rows: top,
-  };
+	const payload = {
+		generatedAt: new Date().toISOString(),
+		args: {
+			top: args.top,
+			minStores: args.minStores,
+			requireAll: args.requireAll,
+			group: args.group,
+			out: path.relative(repoRoot, outPath).replace(/\\/g, "/"),
+		},
+		storeCount,
+		stores,
+		totals: {
+			liveRows,
+			removedRows,
+			canonSkus: canonAgg.size,
+			outputCount: top.length,
+		},
+		rows: top,
+	};
 
-  fs.writeFileSync(outPath, JSON.stringify(payload, null, 2) + "\n", "utf8");
-  console.log(`Wrote ${path.relative(repoRoot, outPath)} (${top.length} rows)`);
+	fs.writeFileSync(outPath, JSON.stringify(payload, null, 2) + "\n", "utf8");
+	console.log(`Wrote ${path.relative(repoRoot, outPath)} (${top.length} rows)`);
 }
 
 main();

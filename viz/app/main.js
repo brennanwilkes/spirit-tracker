@@ -15,23 +15,23 @@ import { renderStore } from "./store_page.js";
 import { renderStats, destroyStatsChart } from "./stats_page.js";
 
 function route() {
-  const $app = document.getElementById("app");
-  if (!$app) return;
+	const $app = document.getElementById("app");
+	if (!$app) return;
 
-  // always clean up chart when navigating
-  destroyChart();
-  destroyStatsChart();
+	// always clean up chart when navigating
+	destroyChart();
+	destroyStatsChart();
 
-  const h = location.hash || "#/";
-  const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
+	const h = location.hash || "#/";
+	const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
 
-  if (parts.length === 0) return renderSearch($app);
-  if (parts[0] === "item" && parts[1]) return renderItem($app, decodeURIComponent(parts[1]));
-  if (parts[0] === "store" && parts[1]) return renderStore($app, decodeURIComponent(parts[1]));
-  if (parts[0] === "link") return renderSkuLinker($app);
-  if (parts[0] === "stats") return renderStats($app);
+	if (parts.length === 0) return renderSearch($app);
+	if (parts[0] === "item" && parts[1]) return renderItem($app, decodeURIComponent(parts[1]));
+	if (parts[0] === "store" && parts[1]) return renderStore($app, decodeURIComponent(parts[1]));
+	if (parts[0] === "link") return renderSkuLinker($app);
+	if (parts[0] === "stats") return renderStats($app);
 
-  return renderSearch($app);
+	return renderSearch($app);
 }
 
 window.addEventListener("hashchange", route);

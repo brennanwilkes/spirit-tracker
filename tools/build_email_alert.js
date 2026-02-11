@@ -30,278 +30,278 @@ const fs = require("fs");
 const path = require("path");
 
 function runGit(args) {
-  return execFileSync("git", args, { encoding: "utf8" }).trimEnd();
+	return execFileSync("git", args, { encoding: "utf8" }).trimEnd();
 }
 
 function gitShowJson(sha, filePath) {
-  try {
-    const txt = execFileSync("git", ["show", `${sha}:${filePath}`], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    return JSON.parse(txt);
-  } catch {
-    return null;
-  }
+	try {
+		const txt = execFileSync("git", ["show", `${sha}:${filePath}`], {
+			encoding: "utf8",
+			stdio: ["ignore", "pipe", "pipe"],
+		});
+		return JSON.parse(txt);
+	} catch {
+		return null;
+	}
 }
 
 function gitFileExistsAtSha(sha, filePath) {
-  if (!sha) return false;
-  try {
-    execFileSync("git", ["cat-file", "-e", `${sha}:${filePath}`], {
-      stdio: ["ignore", "ignore", "ignore"],
-    });
-    return true;
-  } catch {
-    return false;
-  }
+	if (!sha) return false;
+	try {
+		execFileSync("git", ["cat-file", "-e", `${sha}:${filePath}`], {
+			stdio: ["ignore", "ignore", "ignore"],
+		});
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function readJson(filePath) {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch {
-    return null;
-  }
+	try {
+		return JSON.parse(fs.readFileSync(filePath, "utf8"));
+	} catch {
+		return null;
+	}
 }
 
 function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
+	fs.mkdirSync(dir, { recursive: true });
 }
 
 function priceToNumber(v) {
-  const s = String(v ?? "").replace(/[^0-9.]/g, "");
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
+	const s = String(v ?? "").replace(/[^0-9.]/g, "");
+	const n = Number(s);
+	return Number.isFinite(n) ? n : null;
 }
 
 function pctOff(oldStr, newStr) {
-  const a = priceToNumber(oldStr);
-  const b = priceToNumber(newStr);
-  if (a === null || b === null) return null;
-  if (a <= 0) return null;
-  if (b >= a) return 0;
-  return Math.round(((a - b) / a) * 100);
+	const a = priceToNumber(oldStr);
+	const b = priceToNumber(newStr);
+	if (a === null || b === null) return null;
+	if (a <= 0) return null;
+	if (b >= a) return 0;
+	return Math.round(((a - b) / a) * 100);
 }
 
 function htmlEscape(s) {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+	return String(s ?? "")
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
 }
 
 function normToken(s) {
-  return String(s || "")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, " ")
-    .replace(/[^\w:./-]+/g, "");
+	return String(s || "")
+		.toLowerCase()
+		.trim()
+		.replace(/\s+/g, " ")
+		.replace(/[^\w:./-]+/g, "");
 }
 
 function getFirstParentSha(headSha) {
-  try {
-    const out = runGit(["rev-list", "--parents", "-n", "1", headSha]);
-    const parts = out.split(/\s+/).filter(Boolean);
-    return parts.length >= 2 ? parts[1] : "";
-  } catch {
-    return "";
-  }
+	try {
+		const out = runGit(["rev-list", "--parents", "-n", "1", headSha]);
+		const parts = out.split(/\s+/).filter(Boolean);
+		return parts.length >= 2 ? parts[1] : "";
+	} catch {
+		return "";
+	}
 }
 
 function listChangedDbFiles(fromSha, toSha) {
-  try {
-    const out = runGit(["diff", "--name-only", fromSha, toSha, "--", "data/db"]);
-    return out
-      .split(/\r?\n/)
-      .map((s) => s.trim())
-      .filter((s) => s && s.endsWith(".json"));
-  } catch {
-    return [];
-  }
+	try {
+		const out = runGit(["diff", "--name-only", fromSha, toSha, "--", "data/db"]);
+		return out
+			.split(/\r?\n/)
+			.map((s) => s.trim())
+			.filter((s) => s && s.endsWith(".json"));
+	} catch {
+		return [];
+	}
 }
 
 function listDbFilesOnDisk() {
-  const dir = path.join(process.cwd(), "data", "db");
-  try {
-    return fs
-      .readdirSync(dir, { withFileTypes: true })
-      .filter((e) => e.isFile() && e.name.endsWith(".json"))
-      .map((e) => path.posix.join("data/db", e.name));
-  } catch {
-    return [];
-  }
+	const dir = path.join(process.cwd(), "data", "db");
+	try {
+		return fs
+			.readdirSync(dir, { withFileTypes: true })
+			.filter((e) => e.isFile() && e.name.endsWith(".json"))
+			.map((e) => path.posix.join("data/db", e.name));
+	} catch {
+		return [];
+	}
 }
 
 // We reuse your existing canonical SKU mapping logic.
 function loadSkuMapOrNull() {
-  try {
-    // eslint-disable-next-line node/no-missing-require
-    const { loadSkuMap } = require(path.join(process.cwd(), "src", "utils", "sku_map"));
-    return loadSkuMap({ dbDir: path.join(process.cwd(), "data", "db") });
-  } catch {
-    return null;
-  }
+	try {
+		// eslint-disable-next-line node/no-missing-require
+		const { loadSkuMap } = require(path.join(process.cwd(), "src", "utils", "sku_map"));
+		return loadSkuMap({ dbDir: path.join(process.cwd(), "data", "db") });
+	} catch {
+		return null;
+	}
 }
 
 function normalizeSkuKeyOrEmpty({ skuRaw, storeLabel, url }) {
-  try {
-    // eslint-disable-next-line node/no-missing-require
-    const { normalizeSkuKey } = require(path.join(process.cwd(), "src", "utils", "sku"));
-    const k = normalizeSkuKey(skuRaw, { storeLabel, url });
-    return k ? String(k) : "";
-  } catch {
-    const m = String(skuRaw ?? "").match(/\b(\d{6})\b/);
-    if (m) return m[1];
-    if (url) return `u:${normToken(storeLabel)}:${normToken(url)}`;
-    return "";
-  }
+	try {
+		// eslint-disable-next-line node/no-missing-require
+		const { normalizeSkuKey } = require(path.join(process.cwd(), "src", "utils", "sku"));
+		const k = normalizeSkuKey(skuRaw, { storeLabel, url });
+		return k ? String(k) : "";
+	} catch {
+		const m = String(skuRaw ?? "").match(/\b(\d{6})\b/);
+		if (m) return m[1];
+		if (url) return `u:${normToken(storeLabel)}:${normToken(url)}`;
+		return "";
+	}
 }
 
 function canonicalize(skuKey, skuMap) {
-  if (!skuKey) return "";
-  if (skuMap && typeof skuMap.canonicalSku === "function") return String(skuMap.canonicalSku(skuKey) || skuKey);
-  return skuKey;
+	if (!skuKey) return "";
+	if (skuMap && typeof skuMap.canonicalSku === "function") return String(skuMap.canonicalSku(skuKey) || skuKey);
+	return skuKey;
 }
 
 function mapDbItems(obj, skuMap, { includeRemoved }) {
-  const storeLabel = String(obj?.storeLabel || obj?.store || "");
-  const categoryLabel = String(obj?.categoryLabel || obj?.category || "");
-  const items = Array.isArray(obj?.items) ? obj.items : [];
+	const storeLabel = String(obj?.storeLabel || obj?.store || "");
+	const categoryLabel = String(obj?.categoryLabel || obj?.category || "");
+	const items = Array.isArray(obj?.items) ? obj.items : [];
 
-  const m = new Map(); // canonSku -> item (for this store+category db)
-  for (const it of items) {
-    if (!it) continue;
-    const removed = Boolean(it.removed);
-    if (!includeRemoved && removed) continue;
+	const m = new Map(); // canonSku -> item (for this store+category db)
+	for (const it of items) {
+		if (!it) continue;
+		const removed = Boolean(it.removed);
+		if (!includeRemoved && removed) continue;
 
-    const skuKey = normalizeSkuKeyOrEmpty({ skuRaw: it.sku, storeLabel, url: it.url });
-    const canon = canonicalize(skuKey, skuMap);
-    if (!canon) continue;
+		const skuKey = normalizeSkuKeyOrEmpty({ skuRaw: it.sku, storeLabel, url: it.url });
+		const canon = canonicalize(skuKey, skuMap);
+		if (!canon) continue;
 
-    m.set(canon, {
-      canonSku: canon,
-      skuRaw: String(it.sku || ""),
-      name: String(it.name || ""),
-      price: String(it.price || ""),
-      url: String(it.url || ""),
-      img: String(it.img || it.image || it.thumb || ""),
-      removed,
-      storeLabel,
-      categoryLabel,
-    });
-  }
-  return m;
+		m.set(canon, {
+			canonSku: canon,
+			skuRaw: String(it.sku || ""),
+			name: String(it.name || ""),
+			price: String(it.price || ""),
+			url: String(it.url || ""),
+			img: String(it.img || it.image || it.thumb || ""),
+			removed,
+			storeLabel,
+			categoryLabel,
+		});
+	}
+	return m;
 }
 
 function diffDb(prevObj, nextObj, skuMap) {
-  const prevAll = mapDbItems(prevObj, skuMap, { includeRemoved: true });
-  const nextAll = mapDbItems(nextObj, skuMap, { includeRemoved: true });
-  const prevLive = mapDbItems(prevObj, skuMap, { includeRemoved: false });
-  const nextLive = mapDbItems(nextObj, skuMap, { includeRemoved: false });
+	const prevAll = mapDbItems(prevObj, skuMap, { includeRemoved: true });
+	const nextAll = mapDbItems(nextObj, skuMap, { includeRemoved: true });
+	const prevLive = mapDbItems(prevObj, skuMap, { includeRemoved: false });
+	const nextLive = mapDbItems(nextObj, skuMap, { includeRemoved: false });
 
-  const newItems = [];
-  const priceDown = [];
+	const newItems = [];
+	const priceDown = [];
 
-  for (const [canon, now] of nextLive.entries()) {
-    const had = prevAll.get(canon);
-    if (!had) {
-      newItems.push(now);
-      continue;
-    }
-  }
+	for (const [canon, now] of nextLive.entries()) {
+		const had = prevAll.get(canon);
+		if (!had) {
+			newItems.push(now);
+			continue;
+		}
+	}
 
-  for (const [canon, now] of nextLive.entries()) {
-    const was = prevLive.get(canon);
-    if (!was) continue;
+	for (const [canon, now] of nextLive.entries()) {
+		const was = prevLive.get(canon);
+		if (!was) continue;
 
-    const a = String(was.price || "");
-    const b = String(now.price || "");
-    if (a === b) continue;
+		const a = String(was.price || "");
+		const b = String(now.price || "");
+		if (a === b) continue;
 
-    const aN = priceToNumber(a);
-    const bN = priceToNumber(b);
-    if (aN === null || bN === null) continue;
-    if (bN >= aN) continue;
+		const aN = priceToNumber(a);
+		const bN = priceToNumber(b);
+		if (aN === null || bN === null) continue;
+		if (bN >= aN) continue;
 
-    priceDown.push({
-      ...now,
-      oldPrice: a,
-      newPrice: b,
-      pct: pctOff(a, b),
-    });
-  }
+		priceDown.push({
+			...now,
+			oldPrice: a,
+			newPrice: b,
+			pct: pctOff(a, b),
+		});
+	}
 
-  return { newItems, priceDown };
+	return { newItems, priceDown };
 }
 
 function buildCurrentIndexes(skuMap) {
-  const files = listDbFilesOnDisk();
-  const availability = new Map(); // canonSku -> Set(storeLabel)
-  const cheapest = new Map(); // canonSku -> { priceNum, stores:Set, example:{name,url,img,categoryLabel} }
-  const byStoreCanon = new Map(); // storeLabel -> Map(canonSku -> item)
+	const files = listDbFilesOnDisk();
+	const availability = new Map(); // canonSku -> Set(storeLabel)
+	const cheapest = new Map(); // canonSku -> { priceNum, stores:Set, example:{name,url,img,categoryLabel} }
+	const byStoreCanon = new Map(); // storeLabel -> Map(canonSku -> item)
 
-  for (const file of files) {
-    const obj = readJson(file);
-    if (!obj) continue;
-    const storeLabel = String(obj.storeLabel || obj.store || "");
-    if (!storeLabel) continue;
+	for (const file of files) {
+		const obj = readJson(file);
+		if (!obj) continue;
+		const storeLabel = String(obj.storeLabel || obj.store || "");
+		if (!storeLabel) continue;
 
-    const live = mapDbItems(obj, skuMap, { includeRemoved: false });
-    if (!byStoreCanon.has(storeLabel)) byStoreCanon.set(storeLabel, new Map());
+		const live = mapDbItems(obj, skuMap, { includeRemoved: false });
+		if (!byStoreCanon.has(storeLabel)) byStoreCanon.set(storeLabel, new Map());
 
-    for (const it of live.values()) {
-      if (!availability.has(it.canonSku)) availability.set(it.canonSku, new Set());
-      availability.get(it.canonSku).add(storeLabel);
+		for (const it of live.values()) {
+			if (!availability.has(it.canonSku)) availability.set(it.canonSku, new Set());
+			availability.get(it.canonSku).add(storeLabel);
 
-      byStoreCanon.get(storeLabel).set(it.canonSku, it);
+			byStoreCanon.get(storeLabel).set(it.canonSku, it);
 
-      const p = priceToNumber(it.price);
-      if (p === null) continue;
+			const p = priceToNumber(it.price);
+			if (p === null) continue;
 
-      const cur = cheapest.get(it.canonSku);
-      if (!cur) {
-        cheapest.set(it.canonSku, {
-          priceNum: p,
-          stores: new Set([storeLabel]),
-          example: { name: it.name, url: it.url, img: it.img, categoryLabel: it.categoryLabel },
-        });
-      } else if (p < cur.priceNum) {
-        cheapest.set(it.canonSku, {
-          priceNum: p,
-          stores: new Set([storeLabel]),
-          example: { name: it.name, url: it.url, img: it.img, categoryLabel: it.categoryLabel },
-        });
-      } else if (p === cur.priceNum) {
-        cur.stores.add(storeLabel);
-      }
-    }
-  }
+			const cur = cheapest.get(it.canonSku);
+			if (!cur) {
+				cheapest.set(it.canonSku, {
+					priceNum: p,
+					stores: new Set([storeLabel]),
+					example: { name: it.name, url: it.url, img: it.img, categoryLabel: it.categoryLabel },
+				});
+			} else if (p < cur.priceNum) {
+				cheapest.set(it.canonSku, {
+					priceNum: p,
+					stores: new Set([storeLabel]),
+					example: { name: it.name, url: it.url, img: it.img, categoryLabel: it.categoryLabel },
+				});
+			} else if (p === cur.priceNum) {
+				cur.stores.add(storeLabel);
+			}
+		}
+	}
 
-  return { availability, cheapest, byStoreCanon };
+	return { availability, cheapest, byStoreCanon };
 }
 
 function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl }) {
-  const now = new Date().toISOString();
+	const now = new Date().toISOString();
 
-  function section(titleText, rowsHtml) {
-    return `
+	function section(titleText, rowsHtml) {
+		return `
       <div style="margin:16px 0 6px 0;font-weight:700;font-size:16px">${htmlEscape(titleText)}</div>
       ${rowsHtml || `<div style="color:#666">None</div>`}
     `;
-  }
+	}
 
-  function card(it, extraHtml) {
-    const img = it.img
-      ? `<img src="${htmlEscape(it.img)}" width="84" height="84" style="object-fit:contain;border-radius:8px;border:1px solid #eee;background:#fff" />`
-      : "";
-    const name = htmlEscape(it.name || "");
-    const store = htmlEscape(it.storeLabel || "");
-    const cat = htmlEscape(it.categoryLabel || "");
-    const price = htmlEscape(it.price || "");
-    const url = htmlEscape(it.url || "");
-    return `
+	function card(it, extraHtml) {
+		const img = it.img
+			? `<img src="${htmlEscape(it.img)}" width="84" height="84" style="object-fit:contain;border-radius:8px;border:1px solid #eee;background:#fff" />`
+			: "";
+		const name = htmlEscape(it.name || "");
+		const store = htmlEscape(it.storeLabel || "");
+		const cat = htmlEscape(it.categoryLabel || "");
+		const price = htmlEscape(it.price || "");
+		const url = htmlEscape(it.url || "");
+		return `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:12px;margin:10px 0">
         <tr>
           <td style="padding:12px;vertical-align:top;width:96px">${img || ""}</td>
@@ -315,15 +315,15 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
         </tr>
       </table>
     `;
-  }
+	}
 
-  const uniqueHtml = uniqueNews.map((it) => card(it)).join("");
-  const salesHtml = bigSales
-    .map((it) => {
-      const pct = Number.isFinite(it.pct) ? it.pct : null;
-      const oldP = htmlEscape(it.oldPrice || "");
-      const newP = htmlEscape(it.newPrice || "");
-      const extra = `
+	const uniqueHtml = uniqueNews.map((it) => card(it)).join("");
+	const salesHtml = bigSales
+		.map((it) => {
+			const pct = Number.isFinite(it.pct) ? it.pct : null;
+			const oldP = htmlEscape(it.oldPrice || "");
+			const newP = htmlEscape(it.newPrice || "");
+			const extra = `
         <div style="margin-top:6px;font-size:13px">
           <span style="color:#b00020;text-decoration:line-through">${oldP}</span>
           <span style="margin:0 6px;color:#666">→</span>
@@ -331,11 +331,11 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
           ${pct !== null ? `<span style="margin-left:8px;color:#137333;font-weight:700">(${pct}% off)</span>` : ""}
         </div>
       `;
-      return card({ ...it, price: "" }, extra);
-    })
-    .join("");
+			return card({ ...it, price: "" }, extra);
+		})
+		.join("");
 
-  const links = `
+	const links = `
     <div style="margin-top:10px;font-size:12px;color:#666">
       ${commitUrl ? `Commit: <a href="${htmlEscape(commitUrl)}" style="color:#0b57d0;text-decoration:none">${htmlEscape(commitUrl)}</a><br/>` : ""}
       ${pagesUrl ? `Visualizer: <a href="${htmlEscape(pagesUrl)}" style="color:#0b57d0;text-decoration:none">${htmlEscape(pagesUrl)}</a>` : ""}
@@ -343,7 +343,7 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
     </div>
   `;
 
-  return `<!doctype html>
+	return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -365,137 +365,137 @@ function renderHtml({ title, subtitle, uniqueNews, bigSales, commitUrl, pagesUrl
 }
 
 function writeGithubOutput(kv) {
-  const outPath = process.env.GITHUB_OUTPUT;
-  if (!outPath) return;
-  const lines = [];
-  for (const [k, v] of Object.entries(kv)) lines.push(`${k}=${String(v)}`);
-  fs.appendFileSync(outPath, lines.join("\n") + "\n", "utf8");
+	const outPath = process.env.GITHUB_OUTPUT;
+	if (!outPath) return;
+	const lines = [];
+	for (const [k, v] of Object.entries(kv)) lines.push(`${k}=${String(v)}`);
+	fs.appendFileSync(outPath, lines.join("\n") + "\n", "utf8");
 }
 
 function main() {
-  const repoRoot = process.cwd();
-  const reportsDir = path.join(repoRoot, "reports");
-  ensureDir(reportsDir);
+	const repoRoot = process.cwd();
+	const reportsDir = path.join(repoRoot, "reports");
+	ensureDir(reportsDir);
 
-  const headSha = runGit(["rev-parse", "HEAD"]);
-  const parentSha = getFirstParentSha(headSha);
-  if (!parentSha) {
-    fs.writeFileSync(path.join(reportsDir, "alert_should_send.txt"), "0\n", "utf8");
-    writeGithubOutput({ should_send: 0 });
-    return;
-  }
+	const headSha = runGit(["rev-parse", "HEAD"]);
+	const parentSha = getFirstParentSha(headSha);
+	if (!parentSha) {
+		fs.writeFileSync(path.join(reportsDir, "alert_should_send.txt"), "0\n", "utf8");
+		writeGithubOutput({ should_send: 0 });
+		return;
+	}
 
-  const skuMap = loadSkuMapOrNull();
+	const skuMap = loadSkuMapOrNull();
 
-  const changed = listChangedDbFiles(parentSha, headSha);
-  if (!changed.length) {
-    fs.writeFileSync(path.join(reportsDir, "alert_should_send.txt"), "0\n", "utf8");
-    writeGithubOutput({ should_send: 0 });
-    return;
-  }
+	const changed = listChangedDbFiles(parentSha, headSha);
+	if (!changed.length) {
+		fs.writeFileSync(path.join(reportsDir, "alert_should_send.txt"), "0\n", "utf8");
+		writeGithubOutput({ should_send: 0 });
+		return;
+	}
 
-  const { availability, cheapest, byStoreCanon } = buildCurrentIndexes(skuMap);
+	const { availability, cheapest, byStoreCanon } = buildCurrentIndexes(skuMap);
 
-  const uniqueNews = [];
-  const bigSales = [];
+	const uniqueNews = [];
+	const bigSales = [];
 
-  for (const file of changed) {
-    const existedBefore = gitFileExistsAtSha(parentSha, file);
-    const existsNow = gitFileExistsAtSha(headSha, file);
+	for (const file of changed) {
+		const existedBefore = gitFileExistsAtSha(parentSha, file);
+		const existsNow = gitFileExistsAtSha(headSha, file);
 
-    // NEW FEATURE: if this DB file is brand new, ignore its "new items" for alert.
-    if (!existedBefore && existsNow) {
-      continue;
-    }
+		// NEW FEATURE: if this DB file is brand new, ignore its "new items" for alert.
+		if (!existedBefore && existsNow) {
+			continue;
+		}
 
-    const prevObj = gitShowJson(parentSha, file);
-    const nextObj = gitShowJson(headSha, file);
-    if (!prevObj && !nextObj) continue;
+		const prevObj = gitShowJson(parentSha, file);
+		const nextObj = gitShowJson(headSha, file);
+		if (!prevObj && !nextObj) continue;
 
-    const { newItems, priceDown } = diffDb(prevObj, nextObj, skuMap);
+		const { newItems, priceDown } = diffDb(prevObj, nextObj, skuMap);
 
-    for (const it of newItems) {
-      const stores = availability.get(it.canonSku);
-      const storeCount = stores ? stores.size : 0;
-      if (storeCount !== 1) continue;
-      if (!stores.has(it.storeLabel)) continue;
+		for (const it of newItems) {
+			const stores = availability.get(it.canonSku);
+			const storeCount = stores ? stores.size : 0;
+			if (storeCount !== 1) continue;
+			if (!stores.has(it.storeLabel)) continue;
 
-      const cur = (byStoreCanon.get(it.storeLabel) || new Map()).get(it.canonSku) || it;
-      uniqueNews.push(cur);
-    }
+			const cur = (byStoreCanon.get(it.storeLabel) || new Map()).get(it.canonSku) || it;
+			uniqueNews.push(cur);
+		}
 
-    for (const it of priceDown) {
-      const pct = it.pct;
-      if (!Number.isFinite(pct) || pct < 20) continue;
+		for (const it of priceDown) {
+			const pct = it.pct;
+			if (!Number.isFinite(pct) || pct < 20) continue;
 
-      const best = cheapest.get(it.canonSku);
-      if (!best) continue;
+			const best = cheapest.get(it.canonSku);
+			if (!best) continue;
 
-      const newN = priceToNumber(it.newPrice);
-      if (newN === null) continue;
+			const newN = priceToNumber(it.newPrice);
+			if (newN === null) continue;
 
-      if (best.priceNum !== newN) continue;
-      if (!best.stores.has(it.storeLabel)) continue;
+			if (best.priceNum !== newN) continue;
+			if (!best.stores.has(it.storeLabel)) continue;
 
-      const cur = (byStoreCanon.get(it.storeLabel) || new Map()).get(it.canonSku) || it;
+			const cur = (byStoreCanon.get(it.storeLabel) || new Map()).get(it.canonSku) || it;
 
-      bigSales.push({
-        ...cur,
-        oldPrice: it.oldPrice,
-        newPrice: it.newPrice,
-        pct,
-      });
-    }
-  }
+			bigSales.push({
+				...cur,
+				oldPrice: it.oldPrice,
+				newPrice: it.newPrice,
+				pct,
+			});
+		}
+	}
 
-  function dedupe(arr) {
-    const out = [];
-    const seen = new Set();
-    for (const it of arr) {
-      const k = `${it.canonSku}|${it.storeLabel}`;
-      if (seen.has(k)) continue;
-      seen.add(k);
-      out.push(it);
-    }
-    return out;
-  }
+	function dedupe(arr) {
+		const out = [];
+		const seen = new Set();
+		for (const it of arr) {
+			const k = `${it.canonSku}|${it.storeLabel}`;
+			if (seen.has(k)) continue;
+			seen.add(k);
+			out.push(it);
+		}
+		return out;
+	}
 
-  const uniqueFinal = dedupe(uniqueNews).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  const salesFinal = dedupe(bigSales).sort((a, b) => (b.pct || 0) - (a.pct || 0));
+	const uniqueFinal = dedupe(uniqueNews).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+	const salesFinal = dedupe(bigSales).sort((a, b) => (b.pct || 0) - (a.pct || 0));
 
-  const shouldSend = uniqueFinal.length > 0 || salesFinal.length > 0;
+	const shouldSend = uniqueFinal.length > 0 || salesFinal.length > 0;
 
-  const subject = shouldSend
-    ? `Spirit Tracker: ${uniqueFinal.length} unique new · ${salesFinal.length} big sales`
-    : `Spirit Tracker: (no alert)`;
+	const subject = shouldSend
+		? `Spirit Tracker: ${uniqueFinal.length} unique new · ${salesFinal.length} big sales`
+		: `Spirit Tracker: (no alert)`;
 
-  const ghRepo = process.env.GITHUB_REPOSITORY || "";
-  const ghUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-  const commitUrl = ghRepo ? `${ghUrl}/${ghRepo}/commit/${headSha}` : "";
-  const pagesUrl = process.env.PAGES_URL || "";
+	const ghRepo = process.env.GITHUB_REPOSITORY || "";
+	const ghUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+	const commitUrl = ghRepo ? `${ghUrl}/${ghRepo}/commit/${headSha}` : "";
+	const pagesUrl = process.env.PAGES_URL || "";
 
-  const html = renderHtml({
-    title: "Spirit Tracker Alert",
-    subtitle: subject,
-    uniqueNews: uniqueFinal,
-    bigSales: salesFinal,
-    commitUrl,
-    pagesUrl,
-  });
+	const html = renderHtml({
+		title: "Spirit Tracker Alert",
+		subtitle: subject,
+		uniqueNews: uniqueFinal,
+		bigSales: salesFinal,
+		commitUrl,
+		pagesUrl,
+	});
 
-  const htmlPath = path.join(reportsDir, "alert.html");
-  const subjPath = path.join(reportsDir, "alert_subject.txt");
-  const sendPath = path.join(reportsDir, "alert_should_send.txt");
+	const htmlPath = path.join(reportsDir, "alert.html");
+	const subjPath = path.join(reportsDir, "alert_subject.txt");
+	const sendPath = path.join(reportsDir, "alert_should_send.txt");
 
-  fs.writeFileSync(htmlPath, html, "utf8");
-  fs.writeFileSync(subjPath, subject + "\n", "utf8");
-  fs.writeFileSync(sendPath, (shouldSend ? "1\n" : "0\n"), "utf8");
+	fs.writeFileSync(htmlPath, html, "utf8");
+	fs.writeFileSync(subjPath, subject + "\n", "utf8");
+	fs.writeFileSync(sendPath, shouldSend ? "1\n" : "0\n", "utf8");
 
-  writeGithubOutput({
-    should_send: shouldSend ? 1 : 0,
-    subject,
-    html_path: htmlPath,
-  });
+	writeGithubOutput({
+		should_send: shouldSend ? 1 : 0,
+		subject,
+		html_path: htmlPath,
+	});
 }
 
 main();

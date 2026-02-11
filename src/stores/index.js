@@ -18,24 +18,24 @@ const { createStore: createWillowPark } = require("./willowpark");
 const { createStore: createArc } = require("./arc");
 
 function createStores({ defaultUa } = {}) {
-  return [
-    createKWM(defaultUa),
-    createCraftCellars(defaultUa),
-    createSierra(defaultUa),
-    createGull(defaultUa),
-    createCoop(defaultUa),
-    createStrath(defaultUa),
-    createBCL(defaultUa),
-    createBSW(defaultUa),
-    createWillowPark(defaultUa),
-    createVessel(defaultUa),
-    createMaltsAndGrains(defaultUa), 
-    createKegNCork(defaultUa),
-    createTudor(defaultUa),
-    createVintage(defaultUa),
-    createLegacy(defaultUa),
-    createArc(defaultUa),
-  ];
+	return [
+		createKWM(defaultUa),
+		createCraftCellars(defaultUa),
+		createSierra(defaultUa),
+		createGull(defaultUa),
+		createCoop(defaultUa),
+		createStrath(defaultUa),
+		createBCL(defaultUa),
+		createBSW(defaultUa),
+		createWillowPark(defaultUa),
+		createVessel(defaultUa),
+		createMaltsAndGrains(defaultUa),
+		createKegNCork(defaultUa),
+		createTudor(defaultUa),
+		createVintage(defaultUa),
+		createLegacy(defaultUa),
+		createArc(defaultUa),
+	];
 }
 
 module.exports = { createStores, parseProductsSierra };
