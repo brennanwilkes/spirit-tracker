@@ -247,11 +247,7 @@ function makeLimiter(max) {
 		});
 }
 
-/* ---------------- History helpers ---------------- */
-
-// Returns BOTH mins, so we can show a dot on removal day using removed price.
-// Optimized: pass prebuilt wantRealSkus Set + skuKeys. Keeps behavior identical.
-function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
+function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, wantUrls) {
 	const items = Array.isArray(obj?.items) ? obj.items : [];
 	let liveMin = null;
 	let removedMin = null;
@@ -263,35 +259,41 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
 		else removedMin = removedMin === null ? p : Math.min(removedMin, p);
 	};
 
+	const urlSet = wantUrls instanceof Set ? wantUrls : new Set();
+	const skuKeySet = new Set((Array.isArray(skuKeys) ? skuKeys : []).map((s) => String(s || "")));
+
 	for (const it of items) {
 		if (!it) continue;
 
 		const isRemoved = Boolean(it.removed);
+		const url = String(it.url || "");
 
-		const real = String(it.sku || "").trim();
-		if (real && wantRealSkus.has(real)) {
+		// 0) URL match (critical for u: keys when storeLabel changes over time)
+		if (url && urlSet.size && urlSet.has(url)) {
 			consider(isRemoved, it.price);
 			continue;
 		}
 
-		// synthetic match (only relevant if a caller passes u: keys)
-		if (!real) {
-			const url = String(it.url || "");
-			for (const skuKey of skuKeys) {
-				const k = String(skuKey || "");
-				if (!k.startsWith("u:")) continue;
-				const row = { sku: "", url, storeLabel: storeLabel || "", store: "" };
-				const kk = keySkuForRow(row);
-				if (kk === k) {
-					consider(isRemoved, it.price);
-					break;
-				}
+		// 1) Real SKU match (fast path)
+		const real = String(it.sku || "").trim();
+		if (real && wantRealSkus && wantRealSkus.has(real)) {
+			consider(isRemoved, it.price);
+			continue;
+		}
+
+		// 2) Fallback: keySkuForRow match (still useful for real SKUs and stable labels)
+		if (skuKeySet.size) {
+			const row = { sku: real, url, storeLabel: storeLabel || "", store: "" };
+			const kk = keySkuForRow(row);
+			if (skuKeySet.has(String(kk || ""))) {
+				consider(isRemoved, it.price);
 			}
 		}
 	}
 
 	return { liveMin, removedMin };
 }
+
 
 function lastFiniteFromEnd(arr) {
 	if (!Array.isArray(arr)) return null;
@@ -638,6 +640,17 @@ export async function renderItem($app, skuInput) {
 			),
 		).sort();
 
+		const wantUrlsByVar = new Map(); // vk -> Set(urls)
+		for (const vk of variantKeys) wantUrlsByVar.set(vk, new Set());
+
+		for (const r of rowsAll) {
+			const vk = String(keySkuForRow(r) || "").trim();
+			if (!vk || !wantUrlsByVar.has(vk)) continue;
+			const u = String(r?.url || "").trim();
+			if (u) wantUrlsByVar.get(vk).add(u);
+		}
+
+
 		// Split rows by variant for "today" point
 		const rowsLiveByVar = new Map();
 		for (const r of rowsAll) {
@@ -801,7 +814,8 @@ export async function renderItem($app, skuInput) {
 				const wantRealSkus = new Set([vk].filter((x) => x && !String(x).startsWith("u:")));
 				const skuKeysOne = [vk];
 
-				const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeysOne, storeLabel);
+				const wantUrls = wantUrlsByVar.get(vk) || new Set();
+				const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
 				const lastLive = lastMin.liveMin;
 				const lastRemoved = lastMin.removedMin;
 
@@ -815,7 +829,7 @@ export async function renderItem($app, skuInput) {
 					if (firstSha) {
 						try {
 							const objFirst = await loadAtSha(firstSha);
-							const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeysOne, storeLabel);
+							const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
 							if (firstMin.liveMin !== null) {
 								const candidates = [];
 								for (let i = 0; i < dayCommits.length - 1; i++) {
@@ -829,7 +843,7 @@ export async function renderItem($app, skuInput) {
 									if (!sha) continue;
 									try {
 										const obj = await loadAtSha(sha);
-										const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeysOne, storeLabel);
+										const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
 										if (m.liveMin !== null) {
 											sameDayLastLive = m.liveMin;
 											break;
