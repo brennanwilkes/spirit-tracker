@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-12T08:12:26.948Z",
+  "generatedAt": "2026-02-12T20:13:46.231Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -19,8 +19,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3752,
-    "removedRows": 115,
+    "liveRows": 3755,
+    "removedRows": 119,
     "canonSkus": 1914,
     "outputCount": 250
   },
@@ -413,6 +413,49 @@
       }
     },
     {
+      "canonSku": "001487",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "tudor"
+      ],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 29.99,
+        "gull": 32.4,
+        "legacyliquor": 31.99,
+        "strath": 32.96,
+        "vessel": 31.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "CROWN ROYAL 750ML",
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586638-crown-royal-750ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586638-crown-royal-750ml"
+      }
+    },
+    {
       "canonSku": "001610",
       "storeCount": 7,
       "stores": [
@@ -797,6 +840,49 @@
         "priceNum": 70.39,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/laphroaig-10-yr-ml-420"
+      }
+    },
+    {
+      "canonSku": "177808",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 27.49,
+        "bcl": 28.49,
+        "gull": 30.65,
+        "legacyliquor": 30.99,
+        "strath": 30.35,
+        "tudor": 28.49,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "APPLETON ESTATE 750ML",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "177808",
+        "skuKey": "177808",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586999-appleton-estate-750ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586999-appleton-estate-750ml"
       }
     },
     {
@@ -1439,48 +1525,6 @@
         "priceNum": 34.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1412"
-      }
-    },
-    {
-      "canonSku": "001487",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 28.99,
-        "bcl": 29.99,
-        "gull": 32.4,
-        "strath": 32.96,
-        "vessel": 31.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "CROWN ROYAL 750ML",
-        "price": "$28.99",
-        "priceNum": 28.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586638-crown-royal-750ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$28.99",
-        "priceNum": 28.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586638-crown-royal-750ml"
       }
     },
     {
@@ -2405,48 +2449,6 @@
         "priceNum": 98.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4724975-caribou-crossing-single-barrel"
-      }
-    },
-    {
-      "canonSku": "177808",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 27.49,
-        "bcl": 28.49,
-        "gull": 30.65,
-        "legacyliquor": 30.99,
-        "tudor": 28.49,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "APPLETON ESTATE 750ML",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "177808",
-        "skuKey": "177808",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586999-appleton-estate-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586999-appleton-estate-750ml"
       }
     },
     {
@@ -4260,7 +4262,7 @@
         "gull": 39.95,
         "legacyliquor": 42.99,
         "tudor": 33.59,
-        "vessel": 42.99
+        "vessel": 38.99
       },
       "representative": {
         "name": "BUSHMILLS - BLACK BUSH",
@@ -10000,6 +10002,46 @@
       }
     },
     {
+      "canonSku": "298667",
+      "storeCount": 4,
+      "stores": [
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 111.28,
+        "strath": 116.43,
+        "tudor": 98.99,
+        "vessel": 119.99
+      },
+      "representative": {
+        "name": "WRITER'S TEARS RED HEAD SINGLE MALT IRISH WHISKEY",
+        "price": "$98.99",
+        "priceNum": 98.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "298667",
+        "skuKey": "298667",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/writers-tears-red-h-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$98.99",
+        "priceNum": 98.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/writers-tears-red-h-ml-420"
+      }
+    },
+    {
       "canonSku": "330665",
       "storeCount": 4,
       "stores": [
@@ -10277,46 +10319,6 @@
         "priceNum": 239.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/black-tot-master-ble-ml-360"
-      }
-    },
-    {
-      "canonSku": "426896",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 92.99,
-        "legacyliquor": 101.52,
-        "strath": 98.17,
-        "tudor": 79.19
-      },
-      "representative": {
-        "name": "GLEN GRANT 15 YEAR OLD",
-        "price": "$79.19",
-        "priceNum": 79.19,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "426896",
-        "skuKey": "426896",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glen-grant-15-year-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$79.19",
-        "priceNum": 79.19,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glen-grant-15-year-ml-420"
       }
     }
   ]
