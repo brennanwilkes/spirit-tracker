@@ -247,11 +247,7 @@ function makeLimiter(max) {
 		});
 }
 
-/* ---------------- History helpers ---------------- */
-
-// Returns BOTH mins, so we can show a dot on removal day using removed price.
-// Optimized: pass prebuilt wantRealSkus Set + skuKeys. Keeps behavior identical.
-function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
+function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, wantUrls) {
 	const items = Array.isArray(obj?.items) ? obj.items : [];
 	let liveMin = null;
 	let removedMin = null;
@@ -263,35 +259,42 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
 		else removedMin = removedMin === null ? p : Math.min(removedMin, p);
 	};
 
+	const urlSet = wantUrls instanceof Set ? wantUrls : new Set();
+	const skuKeySet = new Set((Array.isArray(skuKeys) ? skuKeys : []).map((s) => String(s || "")));
+
 	for (const it of items) {
 		if (!it) continue;
 
 		const isRemoved = Boolean(it.removed);
+		const url = String(it.url || "");
 
-		const real = String(it.sku || "").trim();
-		if (real && wantRealSkus.has(real)) {
+		// 0) URL match (critical for u: keys when storeLabel changes over time)
+		if (url && urlSet.size && urlSet.has(url)) {
 			consider(isRemoved, it.price);
 			continue;
 		}
 
-		// synthetic match (only relevant if a caller passes u: keys)
-		if (!real) {
-			const url = String(it.url || "");
-			for (const skuKey of skuKeys) {
-				const k = String(skuKey || "");
-				if (!k.startsWith("u:")) continue;
-				const row = { sku: "", url, storeLabel: storeLabel || "", store: "" };
-				const kk = keySkuForRow(row);
-				if (kk === k) {
-					consider(isRemoved, it.price);
-					break;
-				}
+		// 1) Real SKU match (fast path)
+		const real = String(it.sku || "").trim();
+		if (real && wantRealSkus && wantRealSkus.has(real)) {
+			consider(isRemoved, it.price);
+			continue;
+		}
+
+		// 2) Fallback: keySkuForRow match (still useful for real SKUs and stable labels)
+		if (skuKeySet.size) {
+			const row = { sku: real, url, storeLabel: storeLabel || "", store: "" };
+			const kk = keySkuForRow(row);
+			if (skuKeySet.has(String(kk || ""))) {
+				consider(isRemoved, it.price);
 			}
 		}
 	}
 
 	return { liveMin, removedMin };
 }
+
+
 function lastFiniteFromEnd(arr) {
 	if (!Array.isArray(arr)) return null;
 	for (let i = arr.length - 1; i >= 0; i--) {
@@ -334,13 +337,15 @@ function computeSuggestedY(values, minRange) {
 	return { suggestedMin, suggestedMax };
 }
 
-function cacheKeySeries(sku, dbFile, cacheBust) {
-	return `stviz:v5:series:${cacheBust}:${sku}:${dbFile}`;
+/* ---------------- Series cache (per dbFile + per skuKey) ---------------- */
+
+function cacheKeySeries(sku, dbFile, cacheBust, variantKey) {
+	return `stviz:v6:series:${cacheBust}:${sku}:${dbFile}:${variantKey || ""}`;
 }
 
-function loadSeriesCache(sku, dbFile, cacheBust) {
+function loadSeriesCache(sku, dbFile, cacheBust, variantKey) {
 	try {
-		const raw = localStorage.getItem(cacheKeySeries(sku, dbFile, cacheBust));
+		const raw = localStorage.getItem(cacheKeySeries(sku, dbFile, cacheBust, variantKey));
 		if (!raw) return null;
 		const obj = JSON.parse(raw);
 		if (!obj || !Array.isArray(obj.points)) return null;
@@ -352,9 +357,12 @@ function loadSeriesCache(sku, dbFile, cacheBust) {
 	}
 }
 
-function saveSeriesCache(sku, dbFile, cacheBust, points) {
+function saveSeriesCache(sku, dbFile, cacheBust, variantKey, points) {
 	try {
-		localStorage.setItem(cacheKeySeries(sku, dbFile, cacheBust), JSON.stringify({ savedAt: Date.now(), points }));
+		localStorage.setItem(
+			cacheKeySeries(sku, dbFile, cacheBust, variantKey),
+			JSON.stringify({ savedAt: Date.now(), points }),
+		);
 	} catch {}
 }
 
@@ -605,8 +613,6 @@ export async function renderItem($app, skuInput) {
 	const fileJsonCache = new Map(); // ck(sha|path) -> parsed JSON
 	const inflightFetch = new Map(); // ck -> Promise
 	const today = dateOnly(idx.generatedAt || new Date().toISOString());
-	const skuKeys = [...skuGroup];
-	const wantRealSkus = new Set(skuKeys.map((s) => String(s || "").trim()).filter((x) => x));
 
 	// Tuning knobs:
 	// - keep compute modest: only a few stores processed simultaneously
@@ -617,10 +623,44 @@ export async function renderItem($app, skuInput) {
 
 	const MAX_POINTS = 260;
 
+	// process ONE dbFile, but return MULTIPLE series: one per skuKey that exists in this file
 	async function processDbFile(dbFile) {
 		const rowsAll = byDbFileAll.get(dbFile) || [];
-		const rowsLive = rowsAll.filter((r) => !Boolean(r?.removed));
+		if (!rowsAll.length) return [];
+
 		const storeLabel = String(rowsAll[0]?.storeLabel || rowsAll[0]?.store || dbFile);
+
+		// Variant keys in this store/dbFile (e.g. ["805160","141495"])
+		const variantKeys = Array.from(
+			new Set(
+				rowsAll
+					.map((r) => String(keySkuForRow(r) || "").trim())
+					.filter(Boolean)
+					.filter((k) => skuGroup.has(k)),
+			),
+		).sort();
+
+		const wantUrlsByVar = new Map(); // vk -> Set(urls)
+		for (const vk of variantKeys) wantUrlsByVar.set(vk, new Set());
+
+		for (const r of rowsAll) {
+			const vk = String(keySkuForRow(r) || "").trim();
+			if (!vk || !wantUrlsByVar.has(vk)) continue;
+			const u = String(r?.url || "").trim();
+			if (u) wantUrlsByVar.get(vk).add(u);
+		}
+
+
+		// Split rows by variant for "today" point
+		const rowsLiveByVar = new Map();
+		for (const r of rowsAll) {
+			const k = String(keySkuForRow(r) || "").trim();
+			if (!k || !variantKeys.includes(k)) continue;
+			if (!Boolean(r?.removed)) {
+				if (!rowsLiveByVar.has(k)) rowsLiveByVar.set(k, []);
+				rowsLiveByVar.get(k).push(r);
+			}
+		}
 
 		// Build commits list (prefer manifest)
 		let commits = [];
@@ -643,7 +683,7 @@ export async function renderItem($app, skuInput) {
 			}
 		}
 
-		// Chronological sort (handles either manifest or API fallback)
+		// Chronological sort
 		commits = commits
 			.slice()
 			.filter((c) => c && c.date && c.sha)
@@ -655,10 +695,17 @@ export async function renderItem($app, skuInput) {
 				return ta - tb;
 			});
 
-		// Per-dbFile cache bust by latest sha, so we don't invalidate everything on each publish.
 		const cacheBust = cacheBustForDbFile(manifest, dbFile, commits);
-		const cached = loadSeriesCache(sku, dbFile, cacheBust);
-		if (cached && Array.isArray(cached.points) && cached.points.length) {
+
+		// If all variants cached, return cached series
+		const cachedOut = [];
+		let missing = 0;
+		for (const vk of variantKeys) {
+			const cached = loadSeriesCache(sku, dbFile, cacheBust, vk);
+			if (!cached?.points?.length) {
+				missing++;
+				continue;
+			}
 			const points = new Map();
 			const values = [];
 			const dates = [];
@@ -671,8 +718,9 @@ export async function renderItem($app, skuInput) {
 				if (vv !== null) values.push(vv);
 				dates.push(d);
 			}
-			return { label: storeLabel, points, values, dates };
+			cachedOut.push({ label: storeLabel, variantKey: vk, points, values, dates });
 		}
+		if (missing === 0) return cachedOut;
 
 		// Group commits by day (keep ALL commits per day; needed for add+remove same day)
 		const byDay = new Map(); // date -> commits[]
@@ -730,13 +778,21 @@ export async function renderItem($app, skuInput) {
 			await Promise.all(shas.map((sha) => loadAtSha(sha).catch(() => null)));
 		}
 
-		const points = new Map();
-		const values = [];
-		const compactPoints = [];
-		const dates = [];
+		// Build series for variants missing from cache
+		const out = cachedOut.slice();
 
-		let removedStreak = false;
-		let prevLive = null;
+		const state = new Map(); // vk -> { points, values, dates, compactPoints, removedStreak, prevLive }
+		for (const vk of variantKeys) {
+			if (out.some((s) => s.variantKey === vk)) continue;
+			state.set(vk, {
+				points: new Map(),
+				values: [],
+				dates: [],
+				compactPoints: [],
+				removedStreak: false,
+				prevLive: null,
+			});
+		}
 
 		for (const day of dayEntries) {
 			const d = String(day.date || "");
@@ -754,106 +810,118 @@ export async function renderItem($app, skuInput) {
 				continue;
 			}
 
-			const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeys, storeLabel);
-			const lastLive = lastMin.liveMin;
-			const lastRemoved = lastMin.removedMin;
+			for (const [vk, st] of state.entries()) {
+				const wantRealSkus = new Set([vk].filter((x) => x && !String(x).startsWith("u:")));
+				const skuKeysOne = [vk];
 
-			// end-of-day removed state: no live but removed exists
-			const endIsRemoved = lastLive === null && lastRemoved !== null;
+				const wantUrls = wantUrlsByVar.get(vk) || new Set();
+				const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
+				const lastLive = lastMin.liveMin;
+				const lastRemoved = lastMin.removedMin;
 
-			// If end-of-day is removed, find the LAST live price earlier the same day
-			let sameDayLastLive = null;
-			if (endIsRemoved && dayCommits.length > 1) {
-				// fast reject: if earliest commit already has no live, no need to scan
-				const firstSha = String(dayCommits[0]?.sha || "");
-				if (firstSha) {
-					try {
-						const objFirst = await loadAtSha(firstSha);
-						const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeys, storeLabel);
-						if (firstMin.liveMin !== null) {
-							// Fire off loads for candidates (throttled) then scan backwards
-							const candidates = [];
-							for (let i = 0; i < dayCommits.length - 1; i++) {
-								const sha = String(dayCommits[i]?.sha || "");
-								if (sha) candidates.push(sha);
+				// end-of-day removed state: no live but removed exists
+				const endIsRemoved = lastLive === null && lastRemoved !== null;
+
+				// If end-of-day is removed, find the LAST live price earlier the same day
+				let sameDayLastLive = null;
+				if (endIsRemoved && dayCommits.length > 1) {
+					const firstSha = String(dayCommits[0]?.sha || "");
+					if (firstSha) {
+						try {
+							const objFirst = await loadAtSha(firstSha);
+							const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
+							if (firstMin.liveMin !== null) {
+								const candidates = [];
+								for (let i = 0; i < dayCommits.length - 1; i++) {
+									const sha = String(dayCommits[i]?.sha || "");
+									if (sha) candidates.push(sha);
+								}
+								await Promise.all(candidates.map((sha) => loadAtSha(sha).catch(() => null)));
+
+								for (let i = dayCommits.length - 2; i >= 0; i--) {
+									const sha = String(dayCommits[i]?.sha || "");
+									if (!sha) continue;
+									try {
+										const obj = await loadAtSha(sha);
+										const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
+										if (m.liveMin !== null) {
+											sameDayLastLive = m.liveMin;
+											break;
+										}
+									} catch {}
+								}
 							}
-							await Promise.all(candidates.map((sha) => loadAtSha(sha).catch(() => null)));
-
-							for (let i = dayCommits.length - 2; i >= 0; i--) {
-								const sha = String(dayCommits[i]?.sha || "");
-								if (!sha) continue;
-								try {
-									const obj = await loadAtSha(sha);
-									const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel);
-									if (m.liveMin !== null) {
-										sameDayLastLive = m.liveMin;
-										break;
-									}
-								} catch {}
-							}
-						}
-					} catch {}
+						} catch {}
+					}
 				}
-			}
 
-			let v = null;
+				let v = null;
 
-			if (lastLive !== null) {
-				// live at end-of-day
-				v = lastLive;
-				removedStreak = false;
-				prevLive = lastLive;
-			} else if (endIsRemoved) {
-				// first removed day => show dot (prefer removed price; else last live earlier that day; else prev live)
-				if (!removedStreak) {
-					v = lastRemoved !== null ? lastRemoved : sameDayLastLive !== null ? sameDayLastLive : prevLive;
-					removedStreak = true;
+				if (lastLive !== null) {
+					// live at end-of-day
+					v = lastLive;
+					st.removedStreak = false;
+					st.prevLive = lastLive;
+				} else if (endIsRemoved) {
+					// first removed day => show dot (prefer removed price; else last live earlier that day; else prev live)
+					if (!st.removedStreak) {
+						v = lastRemoved !== null ? lastRemoved : sameDayLastLive !== null ? sameDayLastLive : st.prevLive;
+						st.removedStreak = true;
+					} else {
+						v = null; // days AFTER removal: no dot
+					}
 				} else {
-					v = null; // days AFTER removal: no dot
+					v = null;
 				}
-			} else {
-				v = null;
-			}
 
-			points.set(d, v);
-			if (v !== null) values.push(v);
-			compactPoints.push({ date: d, price: v });
-			dates.push(d);
-		}
-
-		// Add "today" point ONLY if listing currently exists in this store/dbFile (live rows present)
-		if (rowsLive.length) {
-			let curMin = null;
-			for (const r of rowsLive) {
-				const p = parsePriceToNumber(r.price);
-				if (p !== null) curMin = curMin === null ? p : Math.min(curMin, p);
-			}
-			if (curMin !== null) {
-				points.set(today, curMin);
-				values.push(curMin);
-				compactPoints.push({ date: today, price: curMin });
-				dates.push(today);
+				st.points.set(d, v);
+				if (v !== null) st.values.push(v);
+				st.compactPoints.push({ date: d, price: v });
+				st.dates.push(d);
 			}
 		}
 
-		saveSeriesCache(sku, dbFile, cacheBust, compactPoints);
-		return { label: storeLabel, points, values, dates };
+		// Add "today" point per variant ONLY if listing currently exists for that variant in this store/dbFile
+		for (const [vk, st] of state.entries()) {
+			const rowsLive = rowsLiveByVar.get(vk) || [];
+			if (rowsLive.length) {
+				let curMin = null;
+				for (const r of rowsLive) {
+					const p = parsePriceToNumber(r.price);
+					if (p !== null) curMin = curMin === null ? p : Math.min(curMin, p);
+				}
+				if (curMin !== null) {
+					st.points.set(today, curMin);
+					st.values.push(curMin);
+					st.compactPoints.push({ date: today, price: curMin });
+					st.dates.push(today);
+				}
+			}
+
+			saveSeriesCache(sku, dbFile, cacheBust, vk, st.compactPoints);
+			out.push({ label: storeLabel, variantKey: vk, points: st.points, values: st.values, dates: st.dates });
+		}
+
+		return out;
 	}
 
 	const results = await mapLimit(dbFiles, DBFILE_CONCURRENCY, async (dbFile) => {
 		try {
-			return await processDbFile(dbFile);
+			return await processDbFile(dbFile); // array
 		} catch {
-			return null;
+			return [];
 		}
 	});
 
 	const allDatesSet = new Set();
-	const series = [];
-	for (const r of results) {
-		if (!r) continue;
-		series.push({ label: r.label, points: r.points, values: r.values });
-		for (const d of r.dates) allDatesSet.add(d);
+	const series = []; // per (store, variant)
+
+	for (const arr of results) {
+		for (const r of Array.isArray(arr) ? arr : []) {
+			if (!r) continue;
+			series.push(r);
+			for (const d of r.dates) allDatesSet.add(d);
+		}
 	}
 
 	const labels = [...allDatesSet].sort();
@@ -862,8 +930,102 @@ export async function renderItem($app, skuInput) {
 		return;
 	}
 
+	// Group variants by store
+	const variantsByStore = new Map(); // storeLabel -> series[]
+	for (const s of series) {
+		const k = String(s.label || "Store");
+		if (!variantsByStore.has(k)) variantsByStore.set(k, []);
+		variantsByStore.get(k).push(s);
+	}
+
+	// Merge per-store (min across variants) for sorting + markers
+	function mergeStorePoints(vars) {
+		const points = new Map();
+		const values = [];
+		for (const d of labels) {
+			let v = null;
+			for (const s of vars) {
+				const vv = s.points.has(d) ? s.points.get(d) : null;
+				if (Number.isFinite(vv)) v = v === null ? vv : Math.min(v, vv);
+			}
+			points.set(d, v);
+			if (v !== null) values.push(v);
+		}
+		return { points, values };
+	}
+
+	const todayKey = today;
+
+	const storeSeries = Array.from(variantsByStore.entries()).map(([label, vars]) => {
+		const merged = mergeStorePoints(vars);
+		const todayVal = merged.points.has(todayKey) ? merged.points.get(todayKey) : null;
+		const lastVal = todayVal !== null ? todayVal : lastFiniteFromEnd(labels.map((d) => merged.points.get(d)));
+		return { label, vars, merged, sortVal: Number.isFinite(lastVal) ? lastVal : null };
+	});
+
+	const storeSeriesSorted = storeSeries
+		.slice()
+		.sort((a, b) => {
+			const av = a.sortVal,
+				bv = b.sortVal;
+			if (av === null && bv === null) return a.label.localeCompare(b.label);
+			if (av === null) return 1;
+			if (bv === null) return -1;
+			if (av !== bv) return av - bv;
+			return a.label.localeCompare(b.label);
+		});
+
+	const colorMap = buildStoreColorMap(storeSeriesSorted.map((x) => x.label));
+
+	// Build datasets: multiple lines per store, same label, same color, same stroke
+	const datasets = [];
+	for (const st of storeSeriesSorted) {
+		const base = storeColor(st.label, colorMap);
+		const stroke = lighten(base, 0.25);
+
+		// stable ordering within store so colors don't flicker
+		const vars = st.vars.slice().sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
+
+		for (const s of vars) {
+			datasets.push({
+				label: st.label, // IMPORTANT: no SKU in label
+				data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
+				spanGaps: false,
+				tension: 0.15,
+				backgroundColor: base,
+				borderColor: stroke,
+				pointBackgroundColor: base,
+				pointBorderColor: stroke,
+				borderWidth: datasetStrokeWidth(base),
+			});
+		}
+	}
+
+	// --- Compute marker values (use merged per-store series) ---
+	const storeMeans = storeSeriesSorted
+		.map((st) => ({ label: st.label, mean: weightedMeanByDuration(st.merged.points, labels) }))
+		.filter((x) => Number.isFinite(x.mean));
+
+	const bcMeans = storeMeans.filter((x) => isBcStoreLabel(x.label));
+	const abMeans = storeMeans.filter((x) => !isBcStoreLabel(x.label));
+
+	const markers = [];
+
+	if (bcMeans.length >= 3) {
+		const y = medianFinite(bcMeans.map((x) => x.mean));
+		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "BC" });
+	}
+
+	if (abMeans.length >= 3) {
+		const y = medianFinite(abMeans.map((x) => x.mean));
+		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
+	}
+
+	// Collect all finite values across ALL lines for y-scale + uniqueness check
 	const allVals = [];
-	for (const s of series) for (const v of s.values) allVals.push(v);
+	for (const ds of datasets) {
+		for (const v of ds.data) if (Number.isFinite(v)) allVals.push(v);
+	}
 
 	const ySug = computeSuggestedY(allVals);
 
@@ -873,82 +1035,19 @@ export async function renderItem($app, skuInput) {
 	const span = (ySug.suggestedMax ?? 0) - (ySug.suggestedMin ?? 0);
 	const step = niceStepAtLeast(MIN_STEP, span, MAX_TICKS);
 
-	const todayKey = today; // you already computed this earlier
-	const labelsLen = labels.length;
-
-	const seriesSorted = series
-		.map((s) => {
-			const todayVal = s.points.has(todayKey) ? s.points.get(todayKey) : null;
-			const lastVal = todayVal !== null ? todayVal : lastFiniteFromEnd(labels.map((d) => s.points.get(d)));
-			return { s, v: Number.isFinite(lastVal) ? lastVal : null };
-		})
-		.sort((a, b) => {
-			const av = a.v,
-				bv = b.v;
-			if (av === null && bv === null) return a.s.label.localeCompare(b.s.label);
-			if (av === null) return 1;
-			if (bv === null) return -1;
-			if (av !== bv) return av - bv;
-			return a.s.label.localeCompare(b.s.label);
-		})
-		.map((x) => x.s);
-
-	const colorMap = buildStoreColorMap(seriesSorted.map((s) => s.label));
-
-	const datasets = seriesSorted.map((s) => {
-		const base = storeColor(s.label, colorMap);
-		const stroke = lighten(base, 0.25);
-		return {
-			label: s.label,
-			data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
-			spanGaps: false,
-			tension: 0.15,
-			backgroundColor: base,
-			borderColor: stroke,
-			pointBackgroundColor: base,
-			pointBorderColor: stroke,
-			borderWidth: datasetStrokeWidth(base),
-		};
-	});
-
-	// --- Compute marker values ---
-	// Province medians: per-store mean over time, then median across stores (>=3 stores)
-	const storeMeans = seriesSorted
-	.map((s) => ({ label: s.label, mean: weightedMeanByDuration(s.points, labels) }))
-	.filter((x) => Number.isFinite(x.mean));
-
-	const bcMeans = storeMeans.filter((x) => isBcStoreLabel(x.label));
-	const abMeans = storeMeans.filter((x) => !isBcStoreLabel(x.label));
-
-	const markers = [];
-
-	if (bcMeans.length >= 3) {
-	const y = medianFinite(bcMeans.map((x) => x.mean));
-	if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "BC" });
-	}
-
-	if (abMeans.length >= 3) {
-	const y = medianFinite(abMeans.map((x) => x.mean));
-	if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
-	}
-
 	// Target price: pick 3 lowest per-store mins (distinct stores), then average (>=3 stores)
 	// Only show if there are at least 6 total unique price points (finite) across the chart.
-	const uniquePricePoints = new Set(
-	allVals
-		.filter((v) => Number.isFinite(v))
-		.map((v) => Math.round(v * 100)) // cents to avoid float noise
-	);
+	const uniquePricePoints = new Set(allVals.filter((v) => Number.isFinite(v)).map((v) => Math.round(v * 100)));
 	const hasEnoughUniquePoints = uniquePricePoints.size >= 6;
 
-	const storeMins = seriesSorted
-	.map((s) => ({ label: s.label, min: minFinite(s.values) }))
-	.filter((x) => Number.isFinite(x.min))
-	.sort((a, b) => a.min - b.min);
+	const storeMins = storeSeriesSorted
+		.map((st) => ({ label: st.label, min: minFinite(st.merged.values) }))
+		.filter((x) => Number.isFinite(x.min))
+		.sort((a, b) => a.min - b.min);
 
 	if (hasEnoughUniquePoints && storeMins.length >= 3) {
-	const t = (storeMins[0].min + storeMins[1].min + storeMins[2].min) / 3;
-	if (Number.isFinite(t)) markers.push({ y: Math.round(t), text: "Target" });
+		const t = (storeMins[0].min + storeMins[1].min + storeMins[2].min) / 3;
+		if (Number.isFinite(t)) markers.push({ y: Math.round(t), text: "Target" });
 	}
 
 	const markerYs = markers.map((m) => Number(m.y)).filter(Number.isFinite);
@@ -989,7 +1088,49 @@ export async function renderItem($app, skuInput) {
 					labelColor: "#556274",
 					axisInset: 2,
 				},
-				legend: { display: true },
+
+				// De-dupe legend items by label WITHOUT changing legend styling.
+				legend: {
+					display: true,
+					labels: {
+						generateLabels: (chart) => {
+							const gen = Chart?.defaults?.plugins?.legend?.labels?.generateLabels;
+							const items = typeof gen === "function" ? gen(chart) : [];
+
+							const seen = new Map(); // text -> { item, idxs }
+							for (const it of items) {
+								const t = String(it.text || "");
+								if (!seen.has(t)) {
+									seen.set(t, { item: { ...it, _group: [it.datasetIndex] } });
+								} else {
+									seen.get(t).item._group.push(it.datasetIndex);
+								}
+							}
+
+							// make "hidden" reflect ALL datasets in the group
+							const out = [];
+							for (const { item } of seen.values()) {
+								const idxs = item._group || [item.datasetIndex];
+								const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
+								out.push({ ...item, hidden: allHidden, datasetIndex: idxs[0], _group: idxs });
+							}
+							return out;
+						},
+					},
+					onClick: (_e, legendItem, legend) => {
+						const chart = legend.chart;
+						const idxs = legendItem._group || [legendItem.datasetIndex];
+
+						// toggle all as a group
+						const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
+						for (const j of idxs) {
+							if (typeof chart.setDatasetVisibility === "function") chart.setDatasetVisibility(j, !anyVisible);
+							else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
+						}
+						chart.update();
+					},
+				},
+
 				tooltip: {
 					callbacks: {
 						label: (ctx) => {
