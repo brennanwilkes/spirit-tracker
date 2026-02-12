@@ -1074,7 +1074,49 @@ export async function renderItem($app, skuInput) {
 					labelColor: "#556274",
 					axisInset: 2,
 				},
-				legend: { display: true },
+
+				// De-dupe legend items by label WITHOUT changing legend styling.
+				legend: {
+					display: true,
+					labels: {
+						generateLabels: (chart) => {
+							const gen = Chart?.defaults?.plugins?.legend?.labels?.generateLabels;
+							const items = typeof gen === "function" ? gen(chart) : [];
+
+							const seen = new Map(); // text -> { item, idxs }
+							for (const it of items) {
+								const t = String(it.text || "");
+								if (!seen.has(t)) {
+									seen.set(t, { item: { ...it, _group: [it.datasetIndex] } });
+								} else {
+									seen.get(t).item._group.push(it.datasetIndex);
+								}
+							}
+
+							// make "hidden" reflect ALL datasets in the group
+							const out = [];
+							for (const { item } of seen.values()) {
+								const idxs = item._group || [item.datasetIndex];
+								const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
+								out.push({ ...item, hidden: allHidden, datasetIndex: idxs[0], _group: idxs });
+							}
+							return out;
+						},
+					},
+					onClick: (_e, legendItem, legend) => {
+						const chart = legend.chart;
+						const idxs = legendItem._group || [legendItem.datasetIndex];
+
+						// toggle all as a group
+						const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
+						for (const j of idxs) {
+							if (typeof chart.setDatasetVisibility === "function") chart.setDatasetVisibility(j, !anyVisible);
+							else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
+						}
+						chart.update();
+					},
+				},
+
 				tooltip: {
 					callbacks: {
 						label: (ctx) => {
