@@ -292,6 +292,7 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel) {
 
 	return { liveMin, removedMin };
 }
+
 function lastFiniteFromEnd(arr) {
 	if (!Array.isArray(arr)) return null;
 	for (let i = arr.length - 1; i >= 0; i--) {
@@ -334,12 +335,7 @@ function computeSuggestedY(values, minRange) {
 	return { suggestedMin, suggestedMax };
 }
 
-/* ---------------- Variant dash patterns (same store color, multiple lines) ---------------- */
-
-const DASH_PATTERNS = [[], [6, 4], [2, 2], [10, 3, 2, 3]];
-function dashForVariant(i) {
-	return DASH_PATTERNS[i % DASH_PATTERNS.length];
-}
+/* ---------------- Series cache (per dbFile + per skuKey) ---------------- */
 
 function cacheKeySeries(sku, dbFile, cacheBust, variantKey) {
 	return `stviz:v6:series:${cacheBust}:${sku}:${dbFile}:${variantKey || ""}`;
@@ -615,7 +611,6 @@ export async function renderItem($app, skuInput) {
 	const fileJsonCache = new Map(); // ck(sha|path) -> parsed JSON
 	const inflightFetch = new Map(); // ck -> Promise
 	const today = dateOnly(idx.generatedAt || new Date().toISOString());
-	const skuKeys = [...skuGroup];
 
 	// Tuning knobs:
 	// - keep compute modest: only a few stores processed simultaneously
@@ -626,7 +621,7 @@ export async function renderItem($app, skuInput) {
 
 	const MAX_POINTS = 260;
 
-	// process ONE dbFile, but return MULTIPLE series: one per (storeLabel, skuKey) that exists in this file
+	// process ONE dbFile, but return MULTIPLE series: one per skuKey that exists in this file
 	async function processDbFile(dbFile) {
 		const rowsAll = byDbFileAll.get(dbFile) || [];
 		if (!rowsAll.length) return [];
@@ -710,7 +705,7 @@ export async function renderItem($app, skuInput) {
 				if (vv !== null) values.push(vv);
 				dates.push(d);
 			}
-			cachedOut.push({ storeLabel, variantKey: vk, points, values, dates });
+			cachedOut.push({ label: storeLabel, variantKey: vk, points, values, dates });
 		}
 		if (missing === 0) return cachedOut;
 
@@ -890,7 +885,7 @@ export async function renderItem($app, skuInput) {
 			}
 
 			saveSeriesCache(sku, dbFile, cacheBust, vk, st.compactPoints);
-			out.push({ storeLabel, variantKey: vk, points: st.points, values: st.values, dates: st.dates });
+			out.push({ label: storeLabel, variantKey: vk, points: st.points, values: st.values, dates: st.dates });
 		}
 
 		return out;
@@ -921,21 +916,19 @@ export async function renderItem($app, skuInput) {
 		return;
 	}
 
-	const yLabels = labels; // alias for readability below
-	const todayKey = today;
-
 	// Group variants by store
 	const variantsByStore = new Map(); // storeLabel -> series[]
 	for (const s of series) {
-		const k = String(s.storeLabel || "Store");
+		const k = String(s.label || "Store");
 		if (!variantsByStore.has(k)) variantsByStore.set(k, []);
 		variantsByStore.get(k).push(s);
 	}
 
+	// Merge per-store (min across variants) for sorting + markers
 	function mergeStorePoints(vars) {
 		const points = new Map();
 		const values = [];
-		for (const d of yLabels) {
+		for (const d of labels) {
 			let v = null;
 			for (const s of vars) {
 				const vv = s.points.has(d) ? s.points.get(d) : null;
@@ -947,10 +940,12 @@ export async function renderItem($app, skuInput) {
 		return { points, values };
 	}
 
+	const todayKey = today;
+
 	const storeSeries = Array.from(variantsByStore.entries()).map(([label, vars]) => {
 		const merged = mergeStorePoints(vars);
 		const todayVal = merged.points.has(todayKey) ? merged.points.get(todayKey) : null;
-		const lastVal = todayVal !== null ? todayVal : lastFiniteFromEnd(yLabels.map((d) => merged.points.get(d)));
+		const lastVal = todayVal !== null ? todayVal : lastFiniteFromEnd(labels.map((d) => merged.points.get(d)));
 		return { label, vars, merged, sortVal: Number.isFinite(lastVal) ? lastVal : null };
 	});
 
@@ -968,23 +963,19 @@ export async function renderItem($app, skuInput) {
 
 	const colorMap = buildStoreColorMap(storeSeriesSorted.map((x) => x.label));
 
+	// Build datasets: multiple lines per store, same label, same color, same stroke
 	const datasets = [];
 	for (const st of storeSeriesSorted) {
 		const base = storeColor(st.label, colorMap);
 		const stroke = lighten(base, 0.25);
 
-		// stable variant ordering within store (by skuKey string)
+		// stable ordering within store so colors don't flicker
 		const vars = st.vars.slice().sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
 
-		for (let i = 0; i < vars.length; i++) {
-			const s = vars[i];
-			const variantLabel = displaySku(s.variantKey);
-
+		for (const s of vars) {
 			datasets.push({
-				label: `${st.label} • ${variantLabel}`,
-				_storeLabel: st.label,
-				_variantLabel: variantLabel,
-				data: yLabels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
+				label: st.label, // IMPORTANT: no SKU in label
+				data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
 				spanGaps: false,
 				tension: 0.15,
 				backgroundColor: base,
@@ -992,54 +983,13 @@ export async function renderItem($app, skuInput) {
 				pointBackgroundColor: base,
 				pointBorderColor: stroke,
 				borderWidth: datasetStrokeWidth(base),
-				borderDash: dashForVariant(i),
 			});
 		}
 	}
 
-	// Legend: one item per store toggles all variants
-	function groupedLegendConfig() {
-		return {
-			display: true,
-			labels: {
-				generateLabels: (chart) => {
-					const ds = chart.data.datasets || [];
-					const groups = new Map(); // storeLabel -> indices[]
-					for (let i = 0; i < ds.length; i++) {
-						const store = ds[i]._storeLabel || ds[i].label;
-						if (!groups.has(store)) groups.set(store, []);
-						groups.get(store).push(i);
-					}
-					const items = [];
-					for (const [store, idxs] of groups.entries()) {
-						const first = ds[idxs[0]];
-						const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
-						items.push({
-							text: store,
-							fillStyle: first.backgroundColor,
-							strokeStyle: first.borderColor,
-							lineWidth: first.borderWidth,
-							hidden: allHidden,
-							datasetIndex: idxs[0],
-							_group: idxs,
-						});
-					}
-					return items;
-				},
-			},
-			onClick: (_e, item, legend) => {
-				const chart = legend.chart;
-				const idxs = item._group || [item.datasetIndex];
-				const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
-				for (const j of idxs) chart.getDatasetMeta(j).hidden = !allHidden;
-				chart.update();
-			},
-		};
-	}
-
-	// --- Marker computation uses merged per-store series (avoid double counting variants) ---
+	// --- Compute marker values (use merged per-store series) ---
 	const storeMeans = storeSeriesSorted
-		.map((st) => ({ label: st.label, mean: weightedMeanByDuration(st.merged.points, yLabels) }))
+		.map((st) => ({ label: st.label, mean: weightedMeanByDuration(st.merged.points, labels) }))
 		.filter((x) => Number.isFinite(x.mean));
 
 	const bcMeans = storeMeans.filter((x) => isBcStoreLabel(x.label));
@@ -1057,7 +1007,7 @@ export async function renderItem($app, skuInput) {
 		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
 	}
 
-	// Collect all finite values across ALL variant datasets for y-scale + target computations
+	// Collect all finite values across ALL lines for y-scale + uniqueness check
 	const allVals = [];
 	for (const ds of datasets) {
 		for (const v of ds.data) if (Number.isFinite(v)) allVals.push(v);
@@ -1097,7 +1047,7 @@ export async function renderItem($app, skuInput) {
 	const ctx = $canvas.getContext("2d");
 	CHART = new Chart(ctx, {
 		type: "line",
-		data: { labels: yLabels, datasets },
+		data: { labels, datasets },
 		plugins: [StaticMarkerLinesPlugin],
 		options: {
 			responsive: true,
@@ -1124,16 +1074,13 @@ export async function renderItem($app, skuInput) {
 					labelColor: "#556274",
 					axisInset: 2,
 				},
-				legend: groupedLegendConfig(),
+				legend: { display: true },
 				tooltip: {
 					callbacks: {
 						label: (ctx) => {
 							const v = ctx.parsed?.y;
-							const store = ctx.dataset?._storeLabel || ctx.dataset.label;
-							const variant = ctx.dataset?._variantLabel || "";
-							if (!Number.isFinite(v))
-								return variant ? `${store} (${variant}): (no data)` : `${store}: (no data)`;
-							return variant ? `${store} (${variant}): $${v.toFixed(2)}` : `${store}: $${v.toFixed(2)}`;
+							if (!Number.isFinite(v)) return `${ctx.dataset.label}: (no data)`;
+							return `${ctx.dataset.label}: $${v.toFixed(2)}`;
 						},
 					},
 				},
@@ -1206,9 +1153,9 @@ export async function renderItem($app, skuInput) {
 
 	$status.textContent = manifest
 		? isRemovedEverywhere
-			? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${yLabels.length}.`
-			: `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${yLabels.length}.`
+			? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
+			: `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${labels.length}.`
 		: isRemovedEverywhere
-			? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${yLabels.length}.`
-			: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${yLabels.length}.`;
+			? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
+			: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`;
 }
