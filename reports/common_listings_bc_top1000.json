@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-13T11:01:12.190Z",
+  "generatedAt": "2026-02-13T20:12:28.698Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -20,9 +20,9 @@
   ],
   "totals": {
     "liveRows": 3764,
-    "removedRows": 119,
-    "canonSkus": 1915,
-    "outputCount": 817
+    "removedRows": 120,
+    "canonSkus": 1916,
+    "outputCount": 816
   },
   "rows": [
     {
@@ -4203,6 +4203,47 @@
       }
     },
     {
+      "canonSku": "034672",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.89,
+        "gull": 134.99,
+        "legacyliquor": 137.17,
+        "strath": 137.3,
+        "vessel": 124.99
+      },
+      "representative": {
+        "name": "MACALLAN - DOUBLE CASK 12 YEAR OLD",
+        "price": "$124.89",
+        "priceNum": 124.89,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "034672",
+        "skuKey": "034672",
+        "url": "https://www.bcliquorstores.com/product/34672",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$124.89",
+        "priceNum": 124.89,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/34672"
+      }
+    },
+    {
       "canonSku": "045898",
       "storeCount": 5,
       "stores": [
@@ -6499,47 +6540,6 @@
       }
     },
     {
-      "canonSku": "488236",
-      "storeCount": 5,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 89.45,
-        "legacyliquor": 97.99,
-        "strath": 92.96,
-        "tudor": 80.99,
-        "vessel": 89.99
-      },
-      "representative": {
-        "name": "SHELTER SMOKE POINT #3",
-        "price": "$80.99",
-        "priceNum": 80.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "488236",
-        "skuKey": "488236",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/shelter-smoke-pt-3-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$80.99",
-        "priceNum": 80.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/shelter-smoke-pt-3-ml-380"
-      }
-    },
-    {
       "canonSku": "497206",
       "storeCount": 5,
       "stores": [
@@ -8242,46 +8242,6 @@
         "priceNum": 35.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/canadian-club-l-380"
-      }
-    },
-    {
-      "canonSku": "034672",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "gull",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "legacyliquor",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.89,
-        "gull": 134.99,
-        "strath": 137.3,
-        "vessel": 124.99
-      },
-      "representative": {
-        "name": "MACALLAN - DOUBLE CASK 12 YEAR OLD",
-        "price": "$124.89",
-        "priceNum": 124.89,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "034672",
-        "skuKey": "034672",
-        "url": "https://www.bcliquorstores.com/product/34672",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$124.89",
-        "priceNum": 124.89,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/34672"
       }
     },
     {
@@ -10722,6 +10682,46 @@
         "priceNum": 34.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/bacardi-white-rum-750-ml"
+      }
+    },
+    {
+      "canonSku": "488236",
+      "storeCount": 4,
+      "stores": [
+        "gull",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 89.45,
+        "strath": 92.96,
+        "tudor": 80.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "SHELTER SMOKE POINT #3",
+        "price": "$80.99",
+        "priceNum": 80.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "488236",
+        "skuKey": "488236",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/shelter-smoke-pt-3-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$80.99",
+        "priceNum": 80.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/shelter-smoke-pt-3-ml-380"
       }
     },
     {
@@ -14992,6 +14992,45 @@
       }
     },
     {
+      "canonSku": "324566",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "legacyliquor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 11.99,
+        "legacyliquor": 12.72,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "JAMESON - IRISH WHISKEY",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "324566",
+        "skuKey": "324566",
+        "url": "https://www.bcliquorstores.com/product/324566",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/324566"
+      }
+    },
+    {
       "canonSku": "330660",
       "storeCount": 3,
       "stores": [
@@ -17254,45 +17293,6 @@
       }
     },
     {
-      "canonSku": "537589",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 57.99,
-        "strath": 61.65,
-        "tudor": 52.19
-      },
-      "representative": {
-        "name": "DEANSTON VIRGIN OAK SINGLE MALT WHISKY",
-        "price": "$52.19",
-        "priceNum": 52.19,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "537589",
-        "skuKey": "537589",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/deanston-virgin-oak-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$52.19",
-        "priceNum": 52.19,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/deanston-virgin-oak-ml-420"
-      }
-    },
-    {
       "canonSku": "557975",
       "storeCount": 3,
       "stores": [
@@ -18604,44 +18604,6 @@
       }
     },
     {
-      "canonSku": "015008",
-      "storeCount": 2,
-      "stores": [
-        "gull",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 38.85,
-        "tudor": 34.19
-      },
-      "representative": {
-        "name": "Bell's Original Scotch Whisky",
-        "price": "$34.19",
-        "priceNum": 34.19,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "015008",
-        "skuKey": "015008",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bells-extra-special-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$34.19",
-        "priceNum": 34.19,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bells-extra-special-l-380"
-      }
-    },
-    {
       "canonSku": "015228",
       "storeCount": 2,
       "stores": [
@@ -19475,6 +19437,44 @@
         "priceNum": 37.65,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/resurrection-spirits-rye-whisky-750ml/"
+      }
+    },
+    {
+      "canonSku": "096412",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 112.99,
+        "tudor": 101.69
+      },
+      "representative": {
+        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
+        "price": "$101.69",
+        "priceNum": 101.69,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "096412",
+        "skuKey": "096412",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/johnnie-walker-black-l-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$101.69",
+        "priceNum": 101.69,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/johnnie-walker-black-l-420"
       }
     },
     {
@@ -26090,44 +26090,6 @@
       }
     },
     {
-      "canonSku": "324566",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "JAMESON - IRISH WHISKEY",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "324566",
-        "skuKey": "324566",
-        "url": "https://www.bcliquorstores.com/product/324566",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/324566"
-      }
-    },
-    {
       "canonSku": "328094",
       "storeCount": 2,
       "stores": [
@@ -30460,6 +30422,44 @@
       }
     },
     {
+      "canonSku": "537589",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "strath"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 57.99,
+        "strath": 61.65
+      },
+      "representative": {
+        "name": "DEANSTON - VIRGIN OAK",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "537589",
+        "skuKey": "537589",
+        "url": "https://www.bcliquorstores.com/product/537589",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/537589"
+      }
+    },
+    {
       "canonSku": "547778",
       "storeCount": 2,
       "stores": [
@@ -31635,44 +31635,6 @@
         "priceNum": 75.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/paul-john-bold-india-ml-420"
-      }
-    },
-    {
-      "canonSku": "768532",
-      "storeCount": 2,
-      "stores": [
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "strath": 107.7,
-        "tudor": 95.99
-      },
-      "representative": {
-        "name": "GLENGOYNE 12 YEAR OLD",
-        "price": "$95.99",
-        "priceNum": 95.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "845143",
-        "skuKey": "845143",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glengoyne-12-year-ol-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$95.99",
-        "priceNum": 95.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glengoyne-12-year-ol-ml-420"
       }
     },
     {
