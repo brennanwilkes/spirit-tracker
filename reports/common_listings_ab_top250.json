@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-13T20:12:29.259Z",
+  "generatedAt": "2026-02-13T23:01:26.034Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7845,
-    "removedRows": 604,
-    "canonSkus": 4462,
+    "liveRows": 7847,
+    "removedRows": 605,
+    "canonSkus": 4461,
     "outputCount": 250
   },
   "rows": [
@@ -9835,6 +9835,46 @@
       }
     },
     {
+      "canonSku": "109448",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 136,
+        "craftcellars": 139.99,
+        "kegncork": 138.96,
+        "kwm": 139.99
+      },
+      "representative": {
+        "name": "Old Pulteney Pineau Des Charentes",
+        "price": "$136.00",
+        "priceNum": 136,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "109448",
+        "skuKey": "109448",
+        "url": "https://www.bswliquor.com/products/old-pulteney-pineau-des-charentes",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$136.00",
+        "priceNum": 136,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-pulteney-pineau-des-charentes"
+      }
+    },
+    {
       "canonSku": "109632",
       "storeCount": 4,
       "stores": [
@@ -10312,46 +10352,6 @@
         "priceNum": 79.99,
         "storeKey": "coop",
         "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/worldofwhisky#/product/2055"
-      }
-    },
-    {
-      "canonSku": "116752",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 49.99,
-        "kegncork": 50.96,
-        "sierrasprings": 44.99,
-        "willowpark": 47.99
-      },
-      "representative": {
-        "name": "PLANTATION PINEAPPLE RUM",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "774462",
-        "skuKey": "774462",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/plantation-pineapple-rum-40-abv/",
-        "categoryLabel": "Spirits / Liquor",
-        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/plantation-pineapple-rum-40-abv/"
       }
     }
   ]
