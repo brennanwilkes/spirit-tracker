@@ -39,7 +39,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"  # built-in dependency caching
 
       - name: Install dependencies
         shell: bash
