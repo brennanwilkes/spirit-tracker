@@ -1,0 +1,141 @@
+name: Tracker cron (updates data branch)
+
+on:
+  schedule:
+    # GitHub cron is UTC.
+    - cron: "0 0,12 * * *"          # big
+    - cron: "0 3,6,9,15,18,21 * * *" # small
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "auto|big|small"
+        type: choice
+        required: false
+        default: auto
+        options: [auto, big, small]
+      stores:
+        description: "Override STORES (comma-separated). Used for small runs if set."
+        type: string
+        required: false
+
+permissions:
+  contents: write   # needed to push to data
+  actions: write    # needed to workflow_dispatch the deploy workflow
+
+concurrency:
+  group: tracker-cron
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch (code)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"  # built-in dependency caching
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f package-lock.json ]]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Configure git author (for commits made by scripts/run_daily.sh)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Ensure local data branch exists (required by scripts/run_daily.sh)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "+refs/heads/data:refs/remotes/origin/data"
+          git branch -f data origin/data
+
+      - name: Decide big vs small (matches your local cron)
+        id: plan
+        shell: bash
+        env:
+          CRON_BIG: "0 0,12 * * *"
+          CRON_SMALL: "0 3,6,9,15,18,21 * * *"
+          STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars"
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_STORES: ${{ inputs.stores }}
+          FIRED_SCHEDULE: ${{ github.event.schedule }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          mode="${INPUT_MODE:-auto}"
+          stores="${INPUT_STORES:-}"
+
+          if [[ "$mode" == "auto" || -z "$mode" ]]; then
+            if [[ "$EVENT_NAME" == "schedule" && "$FIRED_SCHEDULE" == "$CRON_SMALL" ]]; then
+              mode="small"
+            else
+              mode="big"
+            fi
+          fi
+
+          if [[ -z "$stores" && "$mode" == "small" ]]; then
+            stores="$STORES_SMALL_DEFAULT"
+          fi
+
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "stores=$stores" >> "$GITHUB_OUTPUT"
+
+      - name: Capture data SHA before
+        id: before
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin data
+          echo "sha=$(git rev-parse origin/data)" >> "$GITHUB_OUTPUT"
+
+      - name: Run your existing cron script (writes + pushes to data)
+        shell: bash
+        env:
+          MAIN_BRANCH: main
+          DATA_BRANCH: data
+          STORES: ${{ steps.plan.outputs.stores }}
+        run: |
+          set -euo pipefail
+          bash scripts/run_daily.sh
+
+      - name: Detect whether data changed
+        id: changed
+        shell: bash
+        env:
+          BEFORE: ${{ steps.before.outputs.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin data
+          after="$(git rev-parse origin/data)"
+          if [[ "$after" != "$BEFORE" ]]; then
+            echo "data_changed=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "data_changed=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Important: pushes made with GITHUB_TOKEN won't trigger push-based workflows.
+      - name: Trigger Pages deploy + email workflow
+        if: steps.changed.outputs.data_changed == '1'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run "Deploy visualizer to GitHub Pages" --ref main
