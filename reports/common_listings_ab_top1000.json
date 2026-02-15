@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-15T20:12:29.882Z",
+  "generatedAt": "2026-02-15T22:33:02.657Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7825,
-    "removedRows": 632,
-    "canonSkus": 4451,
+    "liveRows": 7822,
+    "removedRows": 635,
+    "canonSkus": 4449,
     "outputCount": 1000
   },
   "rows": [
@@ -22304,45 +22304,6 @@
       }
     },
     {
-      "canonSku": "131101",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "craftcellars": 82.99,
-        "kegncork": 81.96
-      },
-      "representative": {
-        "name": "Ardnamurchan The Midgie",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "131101",
-        "skuKey": "131101",
-        "url": "https://www.bswliquor.com/products/ardnamurchan-the-midgie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardnamurchan-the-midgie"
-      }
-    },
-    {
       "canonSku": "131336",
       "storeCount": 3,
       "stores": [
@@ -39615,6 +39576,44 @@
         "priceNum": 57.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/planteray-sealander-rum"
+      }
+    },
+    {
+      "canonSku": "116564",
+      "storeCount": 2,
+      "stores": [
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "kegncork": 99.96,
+        "kwm": 99.99
+      },
+      "representative": {
+        "name": "Field & Sound BIB Wheated Bourbon",
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "116564",
+        "skuKey": "116564",
+        "url": "https://kensingtonwinemarket.com/product/116564/field-sound-bib-wheated-bourbon",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$99.96",
+        "priceNum": 99.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/field-sound-bib-wheated-bourbon-750-ml/"
       }
     }
   ]
