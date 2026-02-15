@@ -40,16 +40,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ -f package-lock.json ]]; then
-            npm ci
-          else
-            npm install
-          fi
-
       - name: Configure git author (for commits made by scripts/run_daily.sh)
         shell: bash
         run: |
