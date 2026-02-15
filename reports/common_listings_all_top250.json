@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-15T14:01:13.884Z",
+  "generatedAt": "2026-02-15T20:12:27.956Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -27,9 +27,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11577,
-    "removedRows": 768,
-    "canonSkus": 5286,
+    "liveRows": 11569,
+    "removedRows": 776,
+    "canonSkus": 5283,
     "outputCount": 250
   },
   "rows": [
@@ -1923,7 +1923,7 @@
       "storePrices": {
         "bcl": 200.99,
         "bsw": 140,
-        "craftcellars": 165.99,
+        "craftcellars": 115.99,
         "kegncork": 164.96,
         "kwm": 164.99,
         "legacyliquor": 199,
@@ -1935,21 +1935,21 @@
       },
       "representative": {
         "name": "Bowmore 18 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "price": "$115.99",
+        "priceNum": 115.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "805160",
         "skuKey": "805160",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
+        "price": "$115.99",
+        "priceNum": 115.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv"
       }
     },
     {
@@ -6884,58 +6884,6 @@
       }
     },
     {
-      "canonSku": "003517",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "bsw": 15.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "sierrasprings": 15.13,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
       "canonSku": "012385",
       "storeCount": 8,
       "stores": [
@@ -10097,6 +10045,57 @@
         "priceNum": 64.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/shelter-point-cask-strength-single-malt-whisky-58-7-abv"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "sierrasprings",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "bsw": 15.99,
+        "gull": 13.05,
+        "sierrasprings": 15.13,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {

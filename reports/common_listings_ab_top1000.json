@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-15T14:01:15.789Z",
+  "generatedAt": "2026-02-15T20:12:29.882Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7829,
-    "removedRows": 628,
-    "canonSkus": 4452,
+    "liveRows": 7825,
+    "removedRows": 632,
+    "canonSkus": 4451,
     "outputCount": 1000
   },
   "rows": [
@@ -2003,7 +2003,7 @@
       ],
       "storePrices": {
         "bsw": 140,
-        "craftcellars": 165.99,
+        "craftcellars": 115.99,
         "kegncork": 164.96,
         "kwm": 164.99,
         "sierrasprings": 163.7,
@@ -2011,21 +2011,21 @@
       },
       "representative": {
         "name": "Bowmore 18 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "price": "$115.99",
+        "priceNum": 115.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "805160",
         "skuKey": "805160",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
+        "price": "$115.99",
+        "priceNum": 115.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv"
       }
     },
     {
@@ -3496,48 +3496,6 @@
         "priceNum": 160,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/highland-park-15-year-old"
-      }
-    },
-    {
-      "canonSku": "753890",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 98.99,
-        "craftcellars": 79.99,
-        "kegncork": 104.96,
-        "kwm": 99.99,
-        "maltsandgrains": 100.46
-      },
-      "representative": {
-        "name": "Longrow Peated Single Malt NV",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "753890",
-        "skuKey": "753890",
-        "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv"
       }
     },
     {
@@ -7568,6 +7526,47 @@
       }
     },
     {
+      "canonSku": "753890",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 98.99,
+        "kegncork": 104.96,
+        "kwm": 99.99,
+        "maltsandgrains": 100.46
+      },
+      "representative": {
+        "name": "Longrow Peated",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "753890",
+        "skuKey": "753890",
+        "url": "https://www.bswliquor.com/products/longrow-peated-single-malt",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/longrow-peated-single-malt"
+      }
+    },
+    {
       "canonSku": "766905",
       "storeCount": 5,
       "stores": [
@@ -11009,28 +11008,28 @@
         "willowpark"
       ],
       "storePrices": {
-        "craftcellars": 159.99,
+        "craftcellars": 131.99,
         "kegncork": 157.96,
         "kwm": 159.99,
         "sierrasprings": 133.99
       },
       "representative": {
-        "name": "Kavalan Triple Sherry Cask Taiwanese Single Malt Whisky Year of The Horse Gift Pack",
-        "price": "$133.99",
-        "priceNum": 133.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Kavalan Triple Sherry Year of the Horse",
+        "price": "$131.99",
+        "priceNum": 131.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "135602",
         "skuKey": "135602",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/kavalan-triple-sherry-cask-taiwanese-single-malt-whisky-year-of-the-horse-gift-pack/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+        "url": "https://craftcellars.ca/products/kavalan-triple-sherry-year-of-the-horse",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$133.99",
-        "priceNum": 133.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/kavalan-triple-sherry-cask-taiwanese-single-malt-whisky-year-of-the-horse-gift-pack/"
+        "price": "$131.99",
+        "priceNum": 131.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/kavalan-triple-sherry-year-of-the-horse"
       }
     },
     {
@@ -15351,46 +15350,6 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/the-dalmore-port-wood-reserve"
-      }
-    },
-    {
-      "canonSku": "804421",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 575,
-        "craftcellars": 799.99,
-        "kwm": 599.99,
-        "willowpark": 799.99
-      },
-      "representative": {
-        "name": "Bowmore 25 Year Old",
-        "price": "$575.00",
-        "priceNum": 575,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "804421",
-        "skuKey": "804421",
-        "url": "https://www.bswliquor.com/products/bowmore-25-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$575.00",
-        "priceNum": 575,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bowmore-25-year-old-1"
       }
     },
     {
@@ -22985,13 +22944,13 @@
       ],
       "storePrices": {
         "bsw": 375,
-        "craftcellars": 374.99,
+        "craftcellars": 299.99,
         "maltsandgrains": 386.72
       },
       "representative": {
         "name": "Nikka From the Barrel 40th Anniversary Assorted Box",
-        "price": "$374.99",
-        "priceNum": 374.99,
+        "price": "$299.99",
+        "priceNum": 299.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "133853",
@@ -23001,8 +22960,8 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$374.99",
-        "priceNum": 374.99,
+        "price": "$299.99",
+        "priceNum": 299.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/nikka-from-the-barrel-40th-anniversary-assorted-box"
       }
@@ -28816,6 +28775,45 @@
         "priceNum": 52.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/tyrconnell-single-malt"
+      }
+    },
+    {
+      "canonSku": "804421",
+      "storeCount": 3,
+      "stores": [
+        "craftcellars",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "craftcellars": 799.99,
+        "kwm": 599.99,
+        "willowpark": 799.99
+      },
+      "representative": {
+        "name": "Bowmore 25 Year Old Small Batch Release",
+        "price": "$799.99",
+        "priceNum": 799.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "804421",
+        "skuKey": "804421",
+        "url": "https://craftcellars.ca/products/bowmore-25-year-old-small-batch-release-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$599.99",
+        "priceNum": 599.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/56069/bowmore-25-year"
       }
     },
     {
@@ -37340,44 +37338,6 @@
       }
     },
     {
-      "canonSku": "109719",
-      "storeCount": 2,
-      "stores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "coop": 209.99,
-        "sierrasprings": 104.76
-      },
-      "representative": {
-        "name": "DEVERON 18 YEAR OLD 40%",
-        "price": "$104.76",
-        "priceNum": 104.76,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "776416",
-        "skuKey": "776416",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/the-deveron-18-years-40-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$104.76",
-        "priceNum": 104.76,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/the-deveron-18-years-40-abv/"
-      }
-    },
-    {
       "canonSku": "109726",
       "storeCount": 2,
       "stores": [
@@ -39617,6 +39577,44 @@
         "priceNum": 130,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/millstone-single-malt-whisky-peated-palo"
+      }
+    },
+    {
+      "canonSku": "116535",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 57.99,
+        "kegncork": 60.96
+      },
+      "representative": {
+        "name": "Plantation - Planteray 'Sealander' Barbados - Mauritius - Fiji Islands Rum",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "116535",
+        "skuKey": "116535",
+        "url": "https://www.bswliquor.com/products/planteray-sealander-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+      },
+      "cheapest": {
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/planteray-sealander-rum"
       }
     }
   ]

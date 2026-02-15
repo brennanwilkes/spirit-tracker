@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-15T14:01:14.441Z",
+  "generatedAt": "2026-02-15T20:12:28.518Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3748,
-    "removedRows": 140,
-    "canonSkus": 1916,
+    "liveRows": 3744,
+    "removedRows": 144,
+    "canonSkus": 1914,
     "outputCount": 50
   },
   "rows": [
@@ -1653,48 +1653,6 @@
       }
     },
     {
-      "canonSku": "003517",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
       "canonSku": "004465",
       "storeCount": 6,
       "stores": [
@@ -2154,6 +2112,48 @@
         "priceNum": 109.79,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/dalmore-12-year-ml-420"
+      }
+    },
+    {
+      "canonSku": "101967",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 174.79,
+        "bcl": 175.99,
+        "gull": 170.05,
+        "legacyliquor": 198.67,
+        "strath": 191.22,
+        "tudor": 159.99
+      },
+      "representative": {
+        "name": "BOWMORE VAULT EDITION FIRST RELEASE",
+        "price": "$159.99",
+        "priceNum": 159.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "101967",
+        "skuKey": "101967",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/bowmore-vault-ed-1-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$159.99",
+        "priceNum": 159.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/bowmore-vault-ed-1-ml-420"
       }
     }
   ]
