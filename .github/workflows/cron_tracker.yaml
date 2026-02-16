@@ -2,9 +2,9 @@ name: Tracker cron (updates data branch)
 
 on:
   schedule:
-    # GitHub cron is UTC.
-    - cron: "0 0,12 * * *"          # big
-    - cron: "0 3,6,9,15,18,21 * * *" # small
+    # 15 minutes BEFORE the hour (UTC)
+    - cron: "45 6,18 * * *"           # big
+    - cron: "45 0,3,9,12,15,21 * * *" # small
   workflow_dispatch:
     inputs:
       mode:
@@ -58,8 +58,8 @@ jobs:
         id: plan
         shell: bash
         env:
-          CRON_BIG: "0 0,12 * * *"
-          CRON_SMALL: "0 3,6,9,15,18,21 * * *"
+          CRON_BIG: "45 6,18 * * *"
+          CRON_SMALL: "45 0,3,9,12,15,21 * * *"
           STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars"
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_STORES: ${{ inputs.stores }}
