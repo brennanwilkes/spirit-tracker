@@ -312,14 +312,6 @@ export function renderOauth($app) {
 	$app.innerHTML = `
     <div class="authWrap">
       <div class="card authCard">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom: 12px;">
-          <div class="brandMark" aria-hidden="true"></div>
-          <div style="min-width:0;">
-            <h1 class="authTitle">Brennan’s Spirit Tracker</h1>
-            <div class="authSub">Finishing sign-in…</div>
-          </div>
-        </div>
-
         <div id="oauthStatus" style="margin-bottom:10px;"></div>
         <div style="padding: 6px 0;">${spinnerHtml("Just a moment…")}</div>
         <div class="small" style="margin-top: 10px; color: var(--muted);">
