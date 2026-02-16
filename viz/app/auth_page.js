@@ -3,6 +3,8 @@ import { esc } from "./dom.js";
 import {
 	login,
 	signup,
+	requestPasswordReset,
+	confirmPasswordReset,
 	startOauthGoogle,
 	startOauthGithub,
 	consumeOauthCallbackHash,
@@ -157,6 +159,17 @@ function ensureCssOnce() {
 	  gap: 10px;
 	  margin-top: 10px;
 	}
+
+	.miniLink{
+	  background: none;
+	  border: none;
+	  padding: 0;
+	  color: var(--muted);
+	  text-decoration: underline;
+	  cursor: pointer;
+	  font-size: 12px;
+	}
+	.miniLink:hover{ color: #E7EDF3; }
 	`;
 	
 	document.head.appendChild(css);
@@ -167,11 +180,13 @@ function goAfterLogin() {
 	location.hash = last;
 }
 
-function renderAuth($app, { mode }) {
+function renderAuth($app, { mode, flash = {} }) {
 	ensureCssOnce();
 
 	const isLogin = mode === "login";
-	const title = isLogin ? "Log in" : "Create account";
+	const isSignup = mode === "signup";
+
+	const title = isLogin ? "Log in" : isSignup ? "Create account" : "Account";
 
 	$app.innerHTML = `
     <div class="authWrap">
@@ -187,14 +202,18 @@ function renderAuth($app, { mode }) {
 
           <div>
             <div class="small" style="margin: 0 0 6px;">Password</div>
-            <input id="pw" class="input" type="password" autocomplete="${
-							isLogin ? "current-password" : "new-password"
-						}" placeholder="Minimum 8 characters" />
+            <input id="pw" class="input" type="password" autocomplete="${isLogin ? "current-password" : "new-password"}" placeholder="Minimum 8 characters" />
           </div>
 
           <!-- stacked primary actions -->
           <button id="loginBtn" class="btn btnWide primaryBtn" type="button">Log in</button>
           <button id="signupBtn" class="btn btnWide secondaryBtn" type="button">Sign up</button>
+
+          <div class="miniLinkRow">
+            <button id="forgotBtn" class="miniLink" type="button">Forgot your password?</button>
+            <button id="toSignupBtn" class="miniLink" type="button">Create account</button>
+            <button id="toLoginBtn" class="miniLink" type="button">Back to login</button>
+          </div>
 
           <div style="display:flex; gap:10px; align-items:center; margin: 6px 0 2px;">
             <div style="flex:1; height:1px; background: var(--border);"></div>
@@ -234,7 +253,19 @@ function renderAuth($app, { mode }) {
 	const $signupBtn = document.getElementById("signupBtn");
 	const $google = document.getElementById("googleBtn");
 	const $github = document.getElementById("githubBtn");
-	const $logout = document.getElementById("logoutBtn");
+
+	const $forgotBtn = document.getElementById("forgotBtn");
+	const $toSignupBtn = document.getElementById("toSignupBtn");
+	const $toLoginBtn = document.getElementById("toLoginBtn");
+
+	// Link visibility per mode
+	$forgotBtn.style.display = isLogin ? "" : "none";
+	$toSignupBtn.style.display = isLogin ? "" : "none";
+	$toLoginBtn.style.display = isSignup ? "" : "none";
+
+	$forgotBtn.addEventListener("click", () => (location.hash = "#/forgot"));
+	$toSignupBtn.addEventListener("click", () => (location.hash = "#/signup"));
+	$toLoginBtn.addEventListener("click", () => (location.hash = "#/login"));
 
 	function setBusy(busy, label) {
 		$loginBtn.disabled = busy;
@@ -247,6 +278,11 @@ function renderAuth($app, { mode }) {
 		$loginBtn.innerHTML = busy && label ? spinnerHtml(label) : "Log in";
 		$signupBtn.textContent = "Sign up";
 	}
+
+	// flash badges
+	if (flash?.verified === "1") setStatus($statusRow, "Email verified. Please log in.", "good");
+	else if (flash?.verify_sent === "1") setStatus($statusRow, "Check your email for a verification link.", "neutral");
+	else if (flash?.reset === "1") setStatus($statusRow, "Password updated. Please log in.", "good");
 
 	async function doLogin() {
 		setStatus($statusRow, "");
@@ -266,7 +302,12 @@ function renderAuth($app, { mode }) {
 		setStatus($statusRow, "");
 		setBusy(true, "Creating account…");
 		try {
-			await signup(String($email.value || "").trim(), String($pw.value || ""));
+			const res = await signup(String($email.value || "").trim(), String($pw.value || ""));
+			if (res?.requiresVerify) {
+				// Do not log in yet
+				location.hash = "#/login?verify_sent=1";
+				return;
+			}
 			setStatus($statusRow, "Success. Redirecting…", "good");
 			goAfterLogin();
 		} catch (e) {
@@ -278,7 +319,6 @@ function renderAuth($app, { mode }) {
 
 	$pw.addEventListener("keydown", (ev) => {
 		if (ev.key === "Enter") {
-			// enter submits the current mode's primary
 			if (isLogin) doLogin();
 			else doSignup();
 		}
@@ -296,19 +336,6 @@ function renderAuth($app, { mode }) {
 		setStatus($statusRow, "Redirecting…", "neutral");
 		startOauthGithub();
 	});
-
-	// show logout only if already authed
-	try {
-		const hasToken = !!localStorage.getItem("st:cloud:v1:token");
-		if (hasToken) {
-			$logout.style.display = "";
-			$logout.addEventListener("click", () => {
-				clearAuth();
-				setStatus($statusRow, "Logged out", "neutral");
-				$logout.style.display = "none";
-			});
-		}
-	} catch {}
 
 	// subtle emphasis: highlight current mode
 	if (isLogin) {
@@ -357,10 +384,139 @@ export function renderOauth($app) {
 	}
 }
 
-export function renderLogin($app) {
-	return renderAuth($app, { mode: "login" });
+export function renderForgot($app) {
+	ensureCssOnce();
+
+	$app.innerHTML = `
+    <div class="authWrap">
+      <div class="card authCard">
+        <div id="statusRow" style="margin-bottom: 10px;"></div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="small" style="color:var(--muted); margin-bottom: 2px;">
+            Enter your email and we’ll send a password reset link.
+          </div>
+
+          <div>
+            <div class="small" style="margin: 0 0 6px;">Email</div>
+            <input id="email" class="input" type="email" autocomplete="email" placeholder="you@example.com" />
+          </div>
+
+          <button id="sendBtn" class="btn btnWide primaryBtn" type="button">Send reset link</button>
+
+          <div class="miniLinkRow">
+            <button id="backBtn" class="miniLink" type="button">Back to login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+	const $statusRow = document.getElementById("statusRow");
+	const $email = document.getElementById("email");
+	const $sendBtn = document.getElementById("sendBtn");
+	const $backBtn = document.getElementById("backBtn");
+
+	$backBtn.addEventListener("click", () => (location.hash = "#/login"));
+
+	function setBusy(busy, label) {
+		$sendBtn.disabled = busy;
+		$email.disabled = busy;
+		$sendBtn.innerHTML = busy && label ? spinnerHtml(label) : "Send reset link";
+	}
+
+	async function doSend() {
+		setStatus($statusRow, "");
+		setBusy(true, "Sending…");
+		try {
+			await requestPasswordReset(String($email.value || "").trim());
+			setStatus($statusRow, "If an account exists, you’ll receive an email shortly.", "good");
+		} catch (e) {
+			setStatus($statusRow, safeMsg(e), "bad");
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	$sendBtn.addEventListener("click", doSend);
+	setTimeout(() => $email.focus(), 0);
 }
 
-export function renderSignup($app) {
-	return renderAuth($app, { mode: "signup" });
+export function renderReset($app, { token }) {
+	ensureCssOnce();
+
+	const t = String(token || "").trim();
+
+	$app.innerHTML = `
+    <div class="authWrap">
+      <div class="card authCard">
+        <div id="statusRow" style="margin-bottom: 10px;"></div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="small" style="color:var(--muted); margin-bottom: 2px;">
+            Set a new password.
+          </div>
+
+          <div>
+            <div class="small" style="margin: 0 0 6px;">New password</div>
+            <input id="pw" class="input" type="password" autocomplete="new-password" placeholder="Minimum 8 characters" />
+          </div>
+
+          <button id="saveBtn" class="btn btnWide primaryBtn" type="button">Update password</button>
+
+          <div class="miniLinkRow">
+            <button id="backBtn" class="miniLink" type="button">Back to login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+	const $statusRow = document.getElementById("statusRow");
+	const $pw = document.getElementById("pw");
+	const $saveBtn = document.getElementById("saveBtn");
+	const $backBtn = document.getElementById("backBtn");
+
+	$backBtn.addEventListener("click", () => (location.hash = "#/login"));
+
+	if (!t) {
+		setStatus($statusRow, "Reset link is missing or invalid. Please request a new one.", "bad");
+		$saveBtn.disabled = true;
+		$pw.disabled = true;
+		return;
+	}
+
+	function setBusy(busy, label) {
+		$saveBtn.disabled = busy;
+		$pw.disabled = busy;
+		$saveBtn.innerHTML = busy && label ? spinnerHtml(label) : "Update password";
+	}
+
+	async function doSave() {
+		setStatus($statusRow, "");
+		setBusy(true, "Updating…");
+		try {
+			await confirmPasswordReset(t, String($pw.value || ""));
+			location.hash = "#/login?reset=1";
+		} catch (e) {
+			setStatus($statusRow, safeMsg(e), "bad");
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	$pw.addEventListener("keydown", (ev) => {
+		if (ev.key === "Enter") doSave();
+	});
+
+	$saveBtn.addEventListener("click", doSave);
+	setTimeout(() => $pw.focus(), 0);
+}
+
+export function renderLogin($app, opts = {}) {
+	return renderAuth($app, { mode: "login", flash: opts.flash || {} });
+}
+
+export function renderSignup($app, opts = {}) {
+	return renderAuth($app, { mode: "signup", flash: opts.flash || {} });
 }

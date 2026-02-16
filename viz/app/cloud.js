@@ -165,6 +165,12 @@ function assertEmailPassword(email, password) {
 	return { email: e, password: p };
 }
 
+function assertEmailOnly(email) {
+	const e = String(email || "").trim().toLowerCase();
+	if (!e || !e.includes("@")) throw new TypeError("Invalid email");
+	return { email: e };
+}
+
 function validateStringArray(arr, name) {
 	if (!Array.isArray(arr)) throw new TypeError(`${name} must be an array`);
 	for (const v of arr) {
@@ -196,7 +202,7 @@ function validateScoreMap(obj) {
 		const kk = assertSmallStringKey(k, "score key");
 		const n = Number(v);
 		if (!Number.isFinite(n)) throw new TypeError("score values must be numbers");
-		out[kk] = n;
+		out[k] = n;
 	}
 	return out;
 }
@@ -271,6 +277,12 @@ export async function signup(email, password) {
 	const creds = assertEmailPassword(email, password);
 	const j = await requestJson("/signup", { method: "POST", body: creds, auth: false });
 
+	// New flow: email verification required, no token returned.
+	if (j && typeof j === "object" && j.requiresVerify) {
+		return { requiresVerify: true };
+	}
+
+	// Backward-compatible: if backend returns token, store it.
 	const token = String(j?.token || "");
 	const userId = String(j?.userId || "");
 	if (!token) throw new ApiError("Signup did not return token", { body: j });
@@ -283,7 +295,7 @@ export async function signup(email, password) {
 
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
-	return { token, userId };
+	return { token, userId, requiresVerify: false };
 }
 
 export async function login(email, password) {
@@ -302,6 +314,19 @@ export async function login(email, password) {
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
 	return { token, userId };
+}
+
+export async function requestPasswordReset(email) {
+	const e = assertEmailOnly(email);
+	return await requestJson("/password-reset/request", { method: "POST", body: e, auth: false });
+}
+
+export async function confirmPasswordReset(token, password) {
+	const p = String(password || "");
+	if (p.length < 8) throw new TypeError("Invalid password");
+	const t = String(token || "").trim();
+	if (!t) throw new TypeError("Invalid token");
+	return await requestJson("/password-reset/confirm", { method: "POST", body: { token: t, password: p }, auth: false });
 }
 
 export async function ping() {
@@ -389,7 +414,6 @@ export function consumeOauthCallbackHash({
 
 	return { token, userId, payload };
 }
-
 
 /* ---------------- Account resources ---------------- */
 
