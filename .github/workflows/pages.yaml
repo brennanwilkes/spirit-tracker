@@ -75,7 +75,7 @@ jobs:
           echo "subject=$(cat reports/alert_subject.txt || true)"
 
       - name: Send email alert
-        if: steps.alert.outputs.should_send == '1'
+        if: steps.alert.outputs.should_send == '1' && github.event_name == 'workflow_dispatch'
         uses: dawidd6/action-send-mail@v7
         with:
           server_address: smtp.gmail.com
