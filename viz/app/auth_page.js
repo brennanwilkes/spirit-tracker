@@ -1,18 +1,6 @@
 import { esc } from "./dom.js";
 import { login, signup, getAuthStatus } from "./cloud.js";
 
-function hashQuery() {
-	const h = String(location.hash || "");
-	const i = h.indexOf("?");
-	return new URLSearchParams(i >= 0 ? h.slice(i + 1) : "");
-}
-
-function getNextHash() {
-	const next = hashQuery().get("next") || "#/";
-	// allow internal hash routes only
-	return next.startsWith("#/") ? next : "#/";
-}
-
 function setText(id, text) {
 	const el = document.getElementById(id);
 	if (el) el.textContent = String(text || "");
@@ -56,7 +44,7 @@ export function renderLogin($app) {
 
 			<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
 				<button id="submit" class="btn btnWide" type="button">Login</button>
-				<a class="btn btnWide" href="#/signup?next=${encodeURIComponent(getNextHash())}" style="text-decoration:none;">Create account</a>
+				<a class="btn btnWide" href="/signup style="text-decoration:none;">Create account</a>
 			</div>
 
 			<div class="small">Token is stored locally in your browser after login.</div>
@@ -79,7 +67,7 @@ export function renderLogin($app) {
 		setBusy(true);
 		try {
 			await login($email.value, $password.value);
-			location.hash = getNextHash();
+			location = "/"
 		} catch (e) {
 			setText("status", String(e?.message || e));
 		} finally {
@@ -104,7 +92,7 @@ export function renderSignup($app) {
 
 			<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
 				<button id="submit" class="btn btnWide" type="button">Create account</button>
-				<a class="btn btnWide" href="#/login?next=${encodeURIComponent(getNextHash())}" style="text-decoration:none;">Have an account?</a>
+				<a class="btn btnWide" href="/login style="text-decoration:none;">Have an account?</a>
 			</div>
 
 			<div class="small">Your account is created on the cloud backend; your token is saved locally.</div>
@@ -132,7 +120,7 @@ export function renderSignup($app) {
 		setBusy(true);
 		try {
 			await signup($email.value, p1);
-			location.hash = getNextHash();
+			location = "/";
 		} catch (e) {
 			setText("status", String(e?.message || e));
 		} finally {
