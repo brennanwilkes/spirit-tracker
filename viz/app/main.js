@@ -13,7 +13,7 @@ import { renderItem } from "./item_page.js";
 import { renderSkuLinker } from "./linker_page.js";
 import { renderStore } from "./store_page.js";
 import { renderStats, destroyStatsChart } from "./stats_page.js";
-import { renderLogin, renderSignup } from "./auth_page.js";
+import { renderLogin, renderSignup, renderOauth } from "./auth_page.js";
 
 function route() {
 	const $app = document.getElementById("app");
@@ -33,6 +33,7 @@ function route() {
 	if (parts[0] === "stats") return renderStats($app);
 	if (parts[0] === "login") return renderLogin($app);
 	if (parts[0] === "signup") return renderSignup($app);
+	if (parts[0] === "oauth") return renderOauth($app);
 	
 	return renderSearch($app);
 }
