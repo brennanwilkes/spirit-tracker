@@ -161,13 +161,6 @@ function renderAuth($app, { mode }) {
 	$app.innerHTML = `
     <div class="authWrap">
       <div class="card authCard">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom: 12px;">
-          <div class="brandMark" aria-hidden="true"></div>
-          <div style="min-width:0;">
-            <h1 class="authTitle">Brennan’s Spirit Tracker</h1>
-            <div class="authSub">Sign in to save favourites, sampling, and scores.</div>
-          </div>
-        </div>
 
         <div id="statusRow" style="margin-bottom: 10px;"></div>
 
@@ -214,11 +207,6 @@ function renderAuth($app, { mode }) {
             </span>
             Continue with GitHub
           </button>
-
-          <div class="miniLinkRow">
-            <a href="#/" class="small" style="color:var(--muted);">Back to search</a>
-            <button id="logoutBtn" class="btn btnSm" type="button" style="display:none;">Log out</button>
-          </div>
         </div>
       </div>
     </div>
