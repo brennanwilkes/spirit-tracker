@@ -204,7 +204,7 @@ function renderAuth($app, { mode, flash = {} }) {
             <div class="small" style="margin: 0 0 6px;">Password</div>
             <input id="pw" class="input" type="password" autocomplete="${isLogin ? "current-password" : "new-password"}" placeholder="Minimum 8 characters" />
 
-            <div style="margin-top: 8px;">
+            <div style="margin-top: 16px; margin-bottom: 12px;">
               <button id="forgotBtn" class="miniLink" type="button">Forgot your password?</button>
             </div>
           </div>
