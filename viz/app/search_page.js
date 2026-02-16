@@ -58,7 +58,7 @@ export function renderSearch($app) {
 				renderAuthSlot();
 			});
 		} else {
-			$authSlot.innerHTML = `<a class="btn btnWide" href="#/login?next=${encodeURIComponent(location.hash || "#/")}" style="text-decoration:none;">Login</a>`;
+			$authSlot.innerHTML = `<a class="btn btnWide" href="/login style="text-decoration:none;">Login</a>`;
 		}
 	}
 	renderAuthSlot();
