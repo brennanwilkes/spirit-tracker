@@ -1,132 +1,285 @@
+// viz/app/auth_page.js
 import { esc } from "./dom.js";
-import { login, signup, getAuthStatus } from "./cloud.js";
+import {
+	login,
+	signup,
+	startOauthGoogle,
+	startOauthGithub,
+	consumeOauthCallbackHash,
+	isOauthCallbackHash,
+	getAuthStatus,
+	clearAuth,
+	AuthError,
+	ApiError,
+} from "./cloud.js";
 
-function setText(id, text) {
-	const el = document.getElementById(id);
-	if (el) el.textContent = String(text || "");
+function safeMsg(e) {
+	const msg = String(e?.message || "Something went wrong").trim();
+	// keep it short + safe
+	return msg.length > 220 ? msg.slice(0, 220) + "…" : msg;
 }
 
-function setBusy(isBusy) {
-	for (const el of Array.from(document.querySelectorAll("input,button"))) {
-		if (el.id === "backBtn") continue;
-		el.disabled = !!isBusy;
+function setStatus($el, text, kind = "neutral") {
+	if (!$el) return;
+	const cls = kind === "good" ? "badge badgeGood" : kind === "bad" ? "badge badgeBad" : "badge badgeNeutral";
+	$el.innerHTML = text ? `<span class="${cls}">${esc(text)}</span>` : "";
+}
+
+function spinnerHtml(label = "Working…") {
+	return `
+    <span style="display:inline-flex; gap:10px; align-items:center;">
+      <span style="
+        width:16px;height:16px;border-radius:999px;
+        border:2px solid var(--border);
+        border-top-color:#37566b;
+        animation: stSpin 0.8s linear infinite;
+        display:inline-block;
+      "></span>
+      <span class="small" style="color:var(--muted)">${esc(label)}</span>
+    </span>
+  `;
+}
+
+function ensureSpinCss() {
+	if (document.getElementById("stSpinCss")) return;
+	const css = document.createElement("style");
+	css.id = "stSpinCss";
+	css.textContent = `@keyframes stSpin { to { transform: rotate(360deg); } }`;
+	document.head.appendChild(css);
+}
+
+function goAfterLogin() {
+	const last = sessionStorage.getItem("viz:lastRoute") || "#/";
+	location.hash = last;
+}
+
+function renderHeaderButtons(isAuthed) {
+	if (!isAuthed) {
+		return `
+      <a class="btn btnWide" href="#/" style="text-decoration:none;">Continue as guest</a>
+    `;
 	}
+	return `
+    <a class="btn btnWide" href="#/" style="text-decoration:none;">Search</a>
+    <button id="logoutBtn" class="btn btnWide" type="button">Log out</button>
+  `;
 }
 
-function renderShell($app, title, bodyHtml) {
+function renderAuthShell($app, { mode }) {
+	ensureSpinCss();
+
+	const isLogin = mode === "login";
+	const title = isLogin ? "Log in" : "Create account";
+	const sub = isLogin ? "Email + password or OAuth" : "Email + password or OAuth";
+
 	$app.innerHTML = `
-		<div class="container">
-			<div class="topbar">
-				<a id="backBtn" class="btn" href="#/" style="text-decoration:none;">← Back</a>
-				<span class="badge mono">${esc(title)}</span>
-			</div>
+    <div class="container">
+      <div class="header">
+        <div class="headerRow1">
+          <div class="headerLeft">
+            <h1 class="h1">Brennan's Spirit Tracker</h1>
+            <div class="small">${esc(title)} · ${esc(sub)}</div>
+          </div>
 
-			<div class="card">
-				<div class="h1" style="margin-bottom:6px;">${esc(title)}</div>
-				<div class="small" id="status" style="margin-bottom:12px;"></div>
+          <div class="headerRight headerButtons" id="hdrBtns">
+            ${renderHeaderButtons(false)}
+          </div>
+        </div>
 
-				${bodyHtml}
-			</div>
-		</div>
-	`;
-}
+        <div class="headerRow2">
+          <div class="links">
+            <a class="btn btnSm" href="#/">← Back to search</a>
+            ${
+							isLogin
+								? `<a class="btn btnSm" href="#/signup" style="text-decoration:none;">Need an account?</a>`
+								: `<a class="btn btnSm" href="#/login" style="text-decoration:none;">Have an account?</a>`
+						}
+          </div>
+        </div>
+      </div>
 
-export function renderLogin($app) {
-	const s = getAuthStatus();
+      <div class="card" style="max-width: 520px; margin: 0 auto;">
+        <div id="statusRow" style="margin-bottom: 10px;"></div>
 
-	renderShell(
-		$app,
-		"Login",
-		`
-		<div style="display:flex; flex-direction:column; gap:10px; max-width:420px;">
-			<input id="email" class="input" type="email" autocomplete="email" placeholder="Email" />
-			<input id="password" class="input" type="password" autocomplete="current-password" placeholder="Password" />
+        <div style="display:flex; gap:10px; flex-direction:column;">
+          <div>
+            <div class="small" style="margin: 0 0 6px;">Email</div>
+            <input id="email" class="input" type="email" autocomplete="email" placeholder="you@example.com" />
+          </div>
 
-			<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-				<button id="submit" class="btn btnWide" type="button">Login</button>
-				<a class="btn btnWide" href="/signup style="text-decoration:none;">Create account</a>
-			</div>
+          <div>
+            <div class="small" style="margin: 0 0 6px;">Password</div>
+            <input id="pw" class="input" type="password" autocomplete="${
+							isLogin ? "current-password" : "new-password"
+						}" placeholder="Minimum 8 characters" />
+          </div>
 
-			<div class="small">Token is stored locally in your browser after login.</div>
-		</div>
-	`,
-	);
+          <button id="submitBtn" class="btn btnWide" type="button" style="
+            width: 100%;
+            padding-top: 13px;
+            padding-bottom: 13px;
+            border-radius: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+          ">
+            ${esc(title)}
+          </button>
 
-	if (s.ok) {
-		setText("status", "You’re already logged in. You can re-login to refresh your token.");
-	} else {
-		setText("status", "Enter your credentials.");
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div style="flex:1; height:1px; background: var(--border);"></div>
+            <div class="small">or</div>
+            <div style="flex:1; height:1px; background: var(--border);"></div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button id="googleBtn" class="btn btnWide" type="button" style="flex:1;">
+              Continue with Google
+            </button>
+            <button id="githubBtn" class="btn btnWide" type="button" style="flex:1;">
+              Continue with GitHub
+            </button>
+          </div>
+
+          <div class="small" style="margin-top: 2px;">
+            OAuth opens a new login flow and returns you to <span class="mono">#/oauth</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+	const $statusRow = document.getElementById("statusRow");
+	const $email = document.getElementById("email");
+	const $pw = document.getElementById("pw");
+	const $submit = document.getElementById("submitBtn");
+	const $google = document.getElementById("googleBtn");
+	const $github = document.getElementById("githubBtn");
+	const $hdrBtns = document.getElementById("hdrBtns");
+
+	function refreshHeader() {
+		const s = getAuthStatus();
+		$hdrBtns.innerHTML = renderHeaderButtons(s.ok);
+		const $logout = document.getElementById("logoutBtn");
+		if ($logout) {
+			$logout.addEventListener("click", () => {
+				clearAuth();
+				setStatus($statusRow, "Logged out", "neutral");
+				refreshHeader();
+			});
+		}
 	}
 
-	const $email = document.getElementById("email");
-	const $password = document.getElementById("password");
-	const $submit = document.getElementById("submit");
+	function setBusy(busy, label) {
+		$submit.disabled = busy;
+		$google.disabled = busy;
+		$github.disabled = busy;
+		$email.disabled = busy;
+		$pw.disabled = busy;
 
-	$submit.addEventListener("click", async () => {
-		setText("status", "Logging in…");
-		setBusy(true);
+		$submit.innerHTML = busy ? spinnerHtml(label || "Working…") : esc(title);
+	}
+
+	async function doEmailPw() {
+		const email = String($email.value || "").trim();
+		const pw = String($pw.value || "");
+
+		setStatus($statusRow, "");
+		setBusy(true, isLogin ? "Logging in…" : "Creating account…");
+
 		try {
-			await login($email.value, $password.value);
-			location = "/"
+			if (isLogin) await login(email, pw);
+			else await signup(email, pw);
+
+			setStatus($statusRow, "Success. Redirecting…", "good");
+			sessionStorage.setItem("viz:lastRoute", sessionStorage.getItem("viz:lastRoute") || "#/");
+			goAfterLogin();
 		} catch (e) {
-			setText("status", String(e?.message || e));
+			const kind = e instanceof AuthError ? "bad" : e instanceof ApiError ? "bad" : "bad";
+			setStatus($statusRow, safeMsg(e), kind);
 		} finally {
 			setBusy(false);
 		}
+	}
+
+	// enter to submit
+	$pw.addEventListener("keydown", (ev) => {
+		if (ev.key === "Enter") doEmailPw();
 	});
 
-	$email.focus();
+	$submit.addEventListener("click", doEmailPw);
+
+	$google.addEventListener("click", () => {
+		setStatus($statusRow, "Redirecting to Google…", "neutral");
+		startOauthGoogle();
+	});
+
+	$github.addEventListener("click", () => {
+		setStatus($statusRow, "Redirecting to GitHub…", "neutral");
+		startOauthGithub();
+	});
+
+	refreshHeader();
+
+	// focus
+	setTimeout(() => ($email.value ? $pw.focus() : $email.focus()), 0);
 }
 
-export function renderSignup($app) {
-	const s = getAuthStatus();
+/**
+ * Route: #/oauth
+ * Consumes token from location.hash (fragment) and redirects back.
+ */
+export function renderOauth($app) {
+	ensureSpinCss();
 
-	renderShell(
-		$app,
-		"Sign up",
-		`
-		<div style="display:flex; flex-direction:column; gap:10px; max-width:420px;">
-			<input id="email" class="input" type="email" autocomplete="email" placeholder="Email" />
-			<input id="password" class="input" type="password" autocomplete="new-password" placeholder="Password (min 8 chars)" />
-			<input id="password2" class="input" type="password" autocomplete="new-password" placeholder="Confirm password" />
+	$app.innerHTML = `
+    <div class="container">
+      <div class="header">
+        <div class="headerRow1">
+          <div class="headerLeft">
+            <h1 class="h1">Brennan's Spirit Tracker</h1>
+            <div class="small">Finishing sign-in…</div>
+          </div>
+          <div class="headerRight headerButtons">
+            <a class="btn btnWide" href="#/" style="text-decoration:none;">Back to search</a>
+          </div>
+        </div>
+      </div>
 
-			<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-				<button id="submit" class="btn btnWide" type="button">Create account</button>
-				<a class="btn btnWide" href="/login style="text-decoration:none;">Have an account?</a>
-			</div>
+      <div class="card" style="max-width: 520px; margin: 0 auto;">
+        <div id="oauthStatus" style="margin-bottom:10px;"></div>
+        <div id="oauthSpinner" style="padding: 6px 0;">${spinnerHtml("Completing OAuth…")}</div>
+        <div class="small" style="margin-top: 10px; color: var(--muted);">
+          If this doesn’t finish, go back and try again.
+        </div>
+      </div>
+    </div>
+  `;
 
-			<div class="small">Your account is created on the cloud backend; your token is saved locally.</div>
-		</div>
-	`,
-	);
+	const $status = document.getElementById("oauthStatus");
 
-	if (s.ok) setText("status", "You’re already logged in. You can still create another account if you want.");
-	else setText("status", "Create an account.");
-
-	const $email = document.getElementById("email");
-	const $password = document.getElementById("password");
-	const $password2 = document.getElementById("password2");
-	const $submit = document.getElementById("submit");
-
-	$submit.addEventListener("click", async () => {
-		const p1 = String($password.value || "");
-		const p2 = String($password2.value || "");
-		if (p1 !== p2) {
-			setText("status", "Passwords do not match.");
+	try {
+		if (!isOauthCallbackHash(window.location.hash)) {
+			setStatus($status, "No OAuth token found in URL.", "bad");
 			return;
 		}
 
-		setText("status", "Creating account…");
-		setBusy(true);
-		try {
-			await signup($email.value, p1);
-			location = "/";
-		} catch (e) {
-			setText("status", String(e?.message || e));
-		} finally {
-			setBusy(false);
+		const consumed = consumeOauthCallbackHash({ clearHash: true });
+		if (!consumed?.token) {
+			setStatus($status, "OAuth callback did not include a token.", "bad");
+			return;
 		}
-	});
 
-	$email.focus();
+		setStatus($status, "Signed in. Redirecting…", "good");
+		goAfterLogin();
+	} catch (e) {
+		setStatus($status, safeMsg(e), "bad");
+	}
+}
+
+export function renderLogin($app) {
+	return renderAuthShell($app, { mode: "login" });
+}
+
+export function renderSignup($app) {
+	return renderAuthShell($app, { mode: "signup" });
 }

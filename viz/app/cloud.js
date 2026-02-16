@@ -308,6 +308,89 @@ export async function ping() {
 	return await requestJson("/", { method: "GET", auth: false });
 }
 
+/* ---------------- OAuth (Google/GitHub) ---------------- */
+
+function oauthStartPath(provider) {
+	const p = String(provider || "").toLowerCase();
+	if (p !== "google" && p !== "github") throw new TypeError("Invalid oauth provider");
+	return `/oauth/${p}/start`;
+}
+
+export function getOauthStartUrl(provider) {
+	return joinUrl(CLOUD_BASE_URL, oauthStartPath(provider));
+}
+
+/**
+ * Redirects the browser to the Worker OAuth start endpoint.
+ * (Call this from a button click handler.)
+ */
+export function startOauth(provider) {
+	if (typeof window === "undefined") throw new Error("startOauth requires a browser");
+	window.location.assign(getOauthStartUrl(provider));
+}
+
+export function startOauthGoogle() {
+	return startOauth("google");
+}
+
+export function startOauthGithub() {
+	return startOauth("github");
+}
+
+function parseHashParams(hash) {
+	const h = String(hash || "");
+	if (!h || h === "#") return new URLSearchParams("");
+	return new URLSearchParams(h.startsWith("#") ? h.slice(1) : h);
+}
+
+export function isOauthCallbackHash(hash = (typeof window !== "undefined" ? window.location.hash : "")) {
+	const params = parseHashParams(hash);
+	return !!params.get("token");
+}
+
+/**
+ * Call this once on your SPA /oauth page load.
+ * If the hash contains a token, it stores token+userId in localStorage and optionally clears the hash.
+ *
+ * Returns { token, userId, payload } if it consumed OAuth data, otherwise null.
+ */
+export function consumeOauthCallbackHash({
+	hash = (typeof window !== "undefined" ? window.location.hash : ""),
+	clearHash = true,
+} = {}) {
+	const params = parseHashParams(hash);
+	const token = String(params.get("token") || "");
+	const userIdParam = String(params.get("userId") || "");
+
+	if (!token) return null;
+
+	const payload = decodeJwtPayload(token);
+	const sub = String(payload?.sub || "");
+	const exp = Number(payload?.exp);
+
+	if (!payload || !UUID_RE.test(sub) || !Number.isFinite(exp)) {
+		throw new AuthError("OAuth returned invalid token", { reason: "invalid", token });
+	}
+
+	if (userIdParam && UUID_RE.test(userIdParam) && userIdParam !== sub) {
+		throw new ApiError("Token subject mismatch", { userId: userIdParam, sub });
+	}
+
+	const userId = sub;
+
+	lsSet(LS_TOKEN, token);
+	lsSet(LS_USERID, userId);
+
+	if (clearHash && typeof window !== "undefined") {
+		// remove token from URL
+		const clean = window.location.pathname + window.location.search;
+		window.history.replaceState(null, document.title, clean);
+	}
+
+	return { token, userId, payload };
+}
+
+
 /* ---------------- Account resources ---------------- */
 
 function acctPath(userId, resource) {
