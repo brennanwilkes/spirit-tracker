@@ -4,7 +4,6 @@ import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
-import { getAuthStatus, clearAuth } from "./cloud.js";
 
 export function renderSearch($app) {
 	$app.innerHTML = `
@@ -20,7 +19,7 @@ export function renderSearch($app) {
           <div class="headerRight headerButtons">
             <a class="btn btnWide" href="#/stats" style="text-decoration:none;">Statistics</a>
             <a class="btn btnWide" href="#/link" style="text-decoration:none;">Link SKUs</a>
-			<span id="authSlot"></span>
+            <button class="btn btnWide" type="button" disabled>Email Notifications</button>
           </div>
         </div>
 
@@ -46,22 +45,6 @@ export function renderSearch($app) {
 	const $results = document.getElementById("results");
 	const $stores = document.getElementById("stores");
 	const $clearSearch = document.getElementById("clearSearch");
-
-	const $authSlot = document.getElementById("authSlot");
-
-	function renderAuthSlot() {
-		const s = getAuthStatus();
-		if (s.ok) {
-			$authSlot.innerHTML = `<button id="logoutBtn" class="btn btnWide" type="button">Logout</button>`;
-			document.getElementById("logoutBtn").addEventListener("click", () => {
-				clearAuth();
-				renderAuthSlot();
-			});
-		} else {
-			$authSlot.innerHTML = `<a class="btn btnWide" href="/login style="text-decoration:none;">Login</a>`;
-		}
-	}
-	renderAuthSlot();
 
 	$q.value = loadSavedQuery();
 
