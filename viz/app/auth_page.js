@@ -203,17 +203,15 @@ function renderAuth($app, { mode, flash = {} }) {
           <div>
             <div class="small" style="margin: 0 0 6px;">Password</div>
             <input id="pw" class="input" type="password" autocomplete="${isLogin ? "current-password" : "new-password"}" placeholder="Minimum 8 characters" />
+
+            <div style="margin-top: 8px;">
+              <button id="forgotBtn" class="miniLink" type="button">Forgot your password?</button>
+            </div>
           </div>
 
           <!-- stacked primary actions -->
           <button id="loginBtn" class="btn btnWide primaryBtn" type="button">Log in</button>
           <button id="signupBtn" class="btn btnWide secondaryBtn" type="button">Sign up</button>
-
-          <div class="miniLinkRow">
-            <button id="forgotBtn" class="miniLink" type="button">Forgot your password?</button>
-            <button id="toSignupBtn" class="miniLink" type="button">Create account</button>
-            <button id="toLoginBtn" class="miniLink" type="button">Back to login</button>
-          </div>
 
           <div style="display:flex; gap:10px; align-items:center; margin: 6px 0 2px;">
             <div style="flex:1; height:1px; background: var(--border);"></div>
@@ -255,17 +253,11 @@ function renderAuth($app, { mode, flash = {} }) {
 	const $github = document.getElementById("githubBtn");
 
 	const $forgotBtn = document.getElementById("forgotBtn");
-	const $toSignupBtn = document.getElementById("toSignupBtn");
-	const $toLoginBtn = document.getElementById("toLoginBtn");
 
 	// Link visibility per mode
 	$forgotBtn.style.display = isLogin ? "" : "none";
-	$toSignupBtn.style.display = isLogin ? "" : "none";
-	$toLoginBtn.style.display = isSignup ? "" : "none";
 
 	$forgotBtn.addEventListener("click", () => (location.hash = "#/forgot"));
-	$toSignupBtn.addEventListener("click", () => (location.hash = "#/signup"));
-	$toLoginBtn.addEventListener("click", () => (location.hash = "#/login"));
 
 	function setBusy(busy, label) {
 		$loginBtn.disabled = busy;
