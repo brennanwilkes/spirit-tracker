@@ -157,110 +157,50 @@ function sleep(ms) {
 	return new Promise((r) => setTimeout(r, ms));
 }
 
-// Throttle per tab: at most once per 2 minutes
+// Throttle per tab: at most once per 30 seconds
 function shouldShowRateLimitModal() {
 	try {
 		const k = "st:rl:lastShown";
 		const last = Number(sessionStorage.getItem(k) || 0);
 		const now = Date.now();
-		if (now - last < 2 * 60 * 1000) return false;
+		if (now - last < 30 * 1000) return false;
 		sessionStorage.setItem(k, String(now));
 		return true;
 	} catch {
 		return true;
 	}
 }
-
-function ensureRateLimitModal() {
-	if (typeof document === "undefined") return null;
-
-	let wrap = document.getElementById("stRateLimitModal");
-	if (wrap) return wrap;
-
-	wrap = document.createElement("div");
-	wrap.id = "stRateLimitModal";
-	wrap.style.cssText = `
-		position: fixed; inset: 0; z-index: 999999;
-		display: none; align-items: center; justify-content: center;
-		background: rgba(0,0,0,.45); padding: 18px;
-	`;
-	wrap.innerHTML = `
-		<div style="
-			max-width: 520px; width: 100%;
-			background: #fff; color: #111;
-			border-radius: 14px;
-			box-shadow: 0 10px 40px rgba(0,0,0,.25);
-			padding: 16px 16px 14px 16px;
-			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-		">
-			<div style="font-weight: 700; font-size: 16px; margin-bottom: 6px;">
-				Heads up — saving is temporarily rate limited
-			</div>
-			<div id="stRateLimitBody" style="font-size: 13px; line-height: 1.35; color:#2a2a2a; margin-bottom: 12px;">
-				The free Cloudflare KV tier sometimes rate limits writes. Your change may not have saved.
-				Please try again in a moment.
-			</div>
-			<div style="display:flex; gap:10px; justify-content:flex-end; align-items:center;">
-				<button id="stRateLimitClose" type="button" style="
-					border: 1px solid #d0d0d0; background: #f6f6f6;
-					border-radius: 10px; padding: 8px 10px; cursor: pointer;
-					font-size: 13px;
-				">OK</button>
-				<a id="stRateLimitSupport" style="
-					display:none;
-					border: 1px solid #111; background: #111; color: #fff;
-					border-radius: 10px; padding: 8px 10px; text-decoration:none;
-					font-size: 13px;
-				">Buy Brennan a bottle 🍾</a> (Kidding)
-			</div>
-		</div>
-	`;
-
-	document.body.appendChild(wrap);
-
-	const close = wrap.querySelector("#stRateLimitClose");
-	close?.addEventListener("click", () => {
-		wrap.style.display = "none";
-	});
-
-	// click outside closes
-	wrap.addEventListener("click", (e) => {
-		if (e.target === wrap) wrap.style.display = "none";
-	});
-
-	return wrap;
-}
-
-function showRateLimitModal({ retryAfterMs = null } = {}) {
+  function showRateLimitModal({ retryAfterMs = null } = {}) {
 	if (typeof document === "undefined") return;
 	if (!shouldShowRateLimitModal()) return;
-
-	const wrap = ensureRateLimitModal();
-	if (!wrap) return;
-
-	const body = wrap.querySelector("#stRateLimitBody");
-	const support = wrap.querySelector("#stRateLimitSupport");
-
+  
+	const Swal = (typeof window !== "undefined" && window.Swal) ? window.Swal : null;
+	if (!Swal) return;
+  
 	const secs = retryAfterMs ? Math.max(1, Math.round(retryAfterMs / 1000)) : null;
-
-	if (body) {
-		body.textContent =
-			`The free Cloudflare KV tier sometimes rate limits writes. ` +
-			`Your change may not have saved. ` +
-			(secs ? `Try again in ~${secs}s.` : `Please try again in a moment.`) +
-			` If you get value from this, buy Brennan a bottle and he might pay for higher cloudflare rate limits.`;
-	}
-
-	if (support && SUPPORT_URL) {
-		support.href = SUPPORT_URL;
-		support.style.display = "inline-block";
-	} else if (support) {
-		support.style.display = "none";
-	}
-
-	wrap.style.display = "flex";
-}
-
+  
+	const msg =
+	  `The free Cloudflare KV tier sometimes rate limits writes. Your change may not have saved. ` +
+	  (secs ? `Try again in ~${secs}s.` : `Please try again in a moment.`);
+  
+	Swal.fire({
+	  icon: "warning",
+	  title: "Saving is temporarily rate limited",
+	  text: msg,
+	  footer: "If you get value from the site, buy Brennan a bottle and he'll pay more for Cloudflare.",
+	  confirmButtonText: "OK",
+	  customClass: {
+		popup: "stSwalPopup",
+		title: "stSwalTitle",
+		htmlContainer: "stSwalHtml",
+		confirmButton: "stSwalConfirm",
+		footer: "stSwalFooter",
+	  },
+	  buttonsStyling: false,
+	});
+  }
+  
+  
 /* ---------------- Errors ---------------- */
 
 export class AuthError extends Error {

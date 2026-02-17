@@ -945,3 +945,27 @@ html { overflow-y: scroll; }
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+
+/* SweetAlert2 theme */
+.stSwalPopup{
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+}
+.stSwalTitle{ color: var(--text) !important; }
+.stSwalHtml{ color: var(--muted) !important; }
+.stSwalConfirm{
+  background: #0f1318 !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+}
+.stSwalConfirm:focus{ box-shadow: 0 0 0 2px #37566b !important; }
+.stSwalFooter{
+  border-top: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+}
+.stSwalFooter a{ color: var(--accent) !important; }
