@@ -397,113 +397,142 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   display: block;
 }
 /* Sampled pill button */
+/* ---- Item page: top area split (left = title+links, right = fav+cloud) ---- */
+.detailTopRow{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+
+.detailLeft{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.detailRight{
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
+
+/* make links wrap earlier but stay in left column */
+.links{ min-width:0; }
+.links a{ min-width:0; max-width:100%; overflow-wrap:anywhere; }
+
+/* ---- Cloud panel ---- */
+.detailCloudPanel{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
+
+/* ---- Sampled pill ---- */
 .pillBtn{
-  border: 1px solid var(--border);
-  background: #0f1318;
-  color: var(--muted);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
+  border:1px solid var(--border);
+  background:#0f1318;
+  color:var(--muted);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  user-select:none;
 }
 
 .pillBtn:hover{
-  border-color: #2f3a46;
-  color: var(--text);
-  background: rgba(255,255,255,0.03);
+  border-color:#2f3a46;
+  color:var(--text);
+  background:rgba(255,255,255,0.03);
 }
 
-.pillBtn:disabled{
-  opacity: 0.55;
-  cursor: not-allowed;
+.pillBtn:disabled{ opacity:0.55; cursor:not-allowed; }
+
+.pillMark{
+  width:16px;
+  height:16px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  line-height:1;
+  color:var(--muted);
 }
 
-.pillIcon{
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  opacity: 0.0; /* hidden until on */
-}
+.pillMarkOn{ display:none; }
+.pillMarkOff{ display:inline-flex; opacity:0.65; }
 
+/* ON = green */
 .pillBtn.isOn{
-  color: rgba(210, 170, 60, 0.95);
-  border-color: rgba(210, 170, 60, 0.35);
-  background: rgba(210, 170, 60, 0.10);
+  color:rgba(90, 200, 120, 0.95);
+  border-color:rgba(90, 200, 120, 0.35);
+  background:rgba(90, 200, 120, 0.10);
+}
+.pillBtn.isOn .pillMark{
+  border-color:rgba(90, 200, 120, 0.45);
+  color:rgba(90, 200, 120, 0.95);
+}
+.pillBtn.isOn .pillMarkOn{ display:inline-flex; }
+.pillBtn.isOn .pillMarkOff{ display:none; }
+
+/* ---- Score pill (same vibe as sampled) ---- */
+.pillInput{
+  border:1px solid var(--border);
+  background:#0f1318;
+  color:var(--muted);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
 }
 
-.pillBtn.isOn .pillIcon{
-  opacity: 1;
-  border-color: rgba(210, 170, 60, 0.45);
+.pillInput:hover{ border-color:#2f3a46; }
+.pillInput:focus-within{
+  border-color:#37566b;
+  outline:1px solid #37566b;
+  color:var(--text);
 }
 
-/* Score row: label + input (looks clickable) */
-.scoreRow{
-  display: grid;
-  grid-template-columns: auto 72px;
-  align-items: center;
-  gap: 8px;
+.pillMarkNum{
+  width:16px;
+  height:16px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  opacity:0.8;
 }
 
-.scoreLabel{
-  font-size: 12px;
-  color: var(--muted);
+.pillNumber{
+  width:64px;
+  border:0;
+  background:transparent;
+  color:var(--text);
+  font-size:12px;
+  outline:none;
+  text-align:right;
+  padding:0;
 }
 
-.scoreInput{
-  width: 72px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #0f1318;
-  color: var(--text);
-  font-size: 12px;
-  text-align: right;
-  outline: none;
-}
+.pillNumber::placeholder{ color:var(--muted); opacity:0.85; }
 
-.scoreInput::placeholder{
-  color: var(--muted);
-}
-
-.scoreInput:hover{
-  border-color: #2f3a46;
-}
-
-.scoreInput:focus{
-  border-color: #37566b;
-  outline: 1px solid #37566b;
-}
-
-/* status under controls, right aligned */
-.detailCloudMetaStatus{
-  max-width: 18ch;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* mobile: stack controls under title */
-@media (max-width: 640px){
-  .detailHeader{ flex-wrap: wrap; }
-  .detailCloudPanel{
-    width: 100%;
-    align-items: flex-start;
-    min-width: 0;
-  }
-  .scoreRow{ grid-template-columns: auto 1fr; }
-  .scoreInput{ width: 100%; max-width: 120px; }
-}
+/* remove ugly number spinners */
+.pillNumber::-webkit-outer-spin-button,
+.pillNumber::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.pillNumber{ -mo
 
 
 /* Chart fills most of viewport, but stays usable on mobile */
