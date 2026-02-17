@@ -712,7 +712,6 @@ export async function renderShortlist($app, accountUuidRaw) {
                         <div class="itemTop" style="display:flex; align-items:center; gap:8px;">
                             <div class="itemName" style="flex:1 1 auto;">${esc(it.name || "(no name)")}</div>
                         
-                            ${sampledPill}
                             ${scorePill}
                                                   
                             <a class="badge mono skuLink"
@@ -725,7 +724,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 						<div class="metaRow">
 							${stockBadge}
 							${specialBadge}
-							${sampledBadge}
+                            ${sampledPill}
 							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
 							${saleBadge}
 							${storeBadge}
