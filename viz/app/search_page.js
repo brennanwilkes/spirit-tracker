@@ -534,8 +534,11 @@ export function renderSearch($app) {
 	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet()])
 		.then(([idx, rules, fav]) => {
 			favSet.clear();
-			for (const k of fav.set) favSet.add(String(k));
-
+			for (const k of fav.set) {
+				const raw = String(k || "");
+				favSet.add(String(rules.canonicalSku(raw) || raw));
+			}
+			
 			const listings = Array.isArray(idx.items) ? idx.items : [];
 
 			renderStoreButtons(listings);

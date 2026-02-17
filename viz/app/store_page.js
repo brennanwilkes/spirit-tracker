@@ -205,8 +205,11 @@ export async function renderStore($app, storeLabelRaw) {
 	rulesCache = rulesLoaded;
 	const rules = rulesCache;
 	
-	for (const k of fav.set) favSet.add(String(k));
-	
+	for (const k of fav.set) {
+		const raw = String(k || "");
+		favSet.add(String(rules.canonicalSku(raw) || raw));
+	}
+		
 	// --- Recent (7d), most-recent per canonicalSku + store ---
 	const recent = await loadRecent().catch(() => null);
 	const recentItems = Array.isArray(recent?.items) ? recent.items : [];

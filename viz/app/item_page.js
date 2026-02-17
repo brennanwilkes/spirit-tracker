@@ -417,8 +417,12 @@ export async function renderItem($app, skuInput) {
 	]);
 	
 	const sku = rules.canonicalSku(String(skuInput || ""));
-	const favSet = new Set(fav.set);
-	
+	const favSet = new Set();
+	for (const k of fav.set) {
+		const raw = String(k || "");
+		favSet.add(String(rules.canonicalSku(raw) || raw));
+	}
+		
 	$app.innerHTML = `
     <div class="container">
       <div class="topbar">
