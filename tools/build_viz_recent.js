@@ -89,11 +89,26 @@ function makeSyntheticSku(storeLabel, url) {
 	return `u:${fnv1a32(`${store}|${u}`)}`;
 }
 
-function keySkuForItem(it, storeLabel) {
-	const real = normalizeCspc(it?.sku);
-	if (real) return real;
+function normalizeImplicitSkuKey(k) {
+	const s = String(k ?? "").trim();
+  
+	const idm = s.match(/^id:(\d{1,6})$/i);
+	if (idm) return String(idm[1]).padStart(6, "0");
+  
+	// fallback: grab a digit run (supports 6-8+ digit SKUs)
+	const m = s.match(/\b(\d{6,10})\b/);
+	if (m) return m[1];
+  
+	return s;
+  }
+  
+  
+  function keySkuForItem(it, storeLabel) {
+	const real0 = String(it?.sku ?? "").trim();
+	if (real0) return normalizeImplicitSkuKey(real0);
 	return makeSyntheticSku(storeLabel, it?.url);
-}
+  }
+  
 
 function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
 	const m = new Map();
