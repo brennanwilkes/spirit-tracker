@@ -3,14 +3,265 @@
 // Cloudflare backend client for spirit-tracker-api.
 // - Handles auth (login/signup), token storage, expiry checks
 // - Provides helpers for GET/PUT (full replace) and POST (merge/patch) endpoints
-//
-// Backend base URL:
+// - Adds a small cross-tab localStorage cache for GETs (default 5 minutes)
+// - Shows a friendly modal on 429 (KV free-tier write rate limiting) for POST/PUT
+
+/* ---------------- Config ---------------- */
+
 let CLOUD_BASE_URL = "https://spirit-tracker-api.brennan-a53.workers.dev";
 
 const LS_TOKEN = "st:cloud:v1:token";
 const LS_USERID = "st:cloud:v1:userId";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/* ---------------- Support link (optional) ---------------- */
+
+let SUPPORT_URL = ""; // e.g. "https://buymeacoffee.com/..."
+export function setSupportUrl(url) {
+	SUPPORT_URL = String(url || "").trim();
+	return SUPPORT_URL;
+}
+
+/* ---------------- Cross-tab GET cache ---------------- */
+
+let DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+export function setCloudCacheTtlMs(ms) {
+	const n = Number(ms);
+	if (Number.isFinite(n) && n >= 0) DEFAULT_CACHE_TTL_MS = Math.floor(n);
+	return DEFAULT_CACHE_TTL_MS;
+}
+export function getCloudCacheTtlMs() {
+	return DEFAULT_CACHE_TTL_MS;
+}
+
+const CACHE_PREFIX = "st:cloud:cache:v2:";
+const _memCache = new Map();
+
+function canUseStorage() {
+	try {
+		return typeof localStorage !== "undefined" && typeof localStorage.getItem === "function";
+	} catch {
+		return false;
+	}
+}
+
+function cacheKey(scope, method, path) {
+	// Include base URL so switching environments doesn't collide.
+	return `${CACHE_PREFIX}${CLOUD_BASE_URL}|${scope}|${method}|${path}`;
+}
+
+function readCacheRaw(key) {
+	// in-mem first
+	if (_memCache.has(key)) return _memCache.get(key);
+
+	if (!canUseStorage()) return null;
+	try {
+		const raw = localStorage.getItem(key);
+		if (!raw) return null;
+		_memCache.set(key, raw);
+		return raw;
+	} catch {
+		return null;
+	}
+}
+
+function writeCacheRaw(key, raw) {
+	_memCache.set(key, raw);
+	if (!canUseStorage()) return;
+	try {
+		localStorage.setItem(key, raw);
+	} catch {}
+}
+
+function delCacheKey(key) {
+	_memCache.delete(key);
+	if (!canUseStorage()) return;
+	try {
+		localStorage.removeItem(key);
+	} catch {}
+}
+
+function cacheGet(scope, method, path) {
+	const key = cacheKey(scope, method, path);
+	const raw = readCacheRaw(key);
+	if (!raw) return null;
+
+	try {
+		const rec = JSON.parse(raw);
+		if (!rec || typeof rec !== "object") return null;
+		const savedAt = Number(rec.savedAt || 0);
+		const ttlMs = Number(rec.ttlMs || 0);
+		if (!Number.isFinite(savedAt) || !Number.isFinite(ttlMs) || ttlMs <= 0) return null;
+
+		const age = Date.now() - savedAt;
+		if (age < 0 || age > ttlMs) {
+			delCacheKey(key);
+			return null;
+		}
+		return rec.value;
+	} catch {
+		delCacheKey(key);
+		return null;
+	}
+}
+
+function cacheSet(scope, method, path, value, ttlMs) {
+	const ms = Number.isFinite(Number(ttlMs)) ? Math.max(0, Number(ttlMs)) : DEFAULT_CACHE_TTL_MS;
+	if (!ms) return;
+	const key = cacheKey(scope, method, path);
+	const rec = { savedAt: Date.now(), ttlMs: ms, value };
+	writeCacheRaw(key, JSON.stringify(rec));
+}
+
+function cacheDel(scope, method, path) {
+	delCacheKey(cacheKey(scope, method, path));
+}
+
+export function clearCloudCache() {
+	_memCache.clear();
+	if (!canUseStorage()) return;
+	try {
+		const keys = [];
+		for (let i = 0; i < localStorage.length; i++) {
+			const k = localStorage.key(i);
+			if (k && k.startsWith(CACHE_PREFIX) && k.includes(`${CLOUD_BASE_URL}|`)) keys.push(k);
+		}
+		for (const k of keys) localStorage.removeItem(k);
+	} catch {}
+}
+
+// Keep in-mem cache coherent across tabs
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+	window.addEventListener("storage", (e) => {
+		const k = String(e?.key || "");
+		if (!k || !k.startsWith(CACHE_PREFIX)) return;
+		_memCache.delete(k);
+	});
+}
+
+/* ---------------- Rate-limit modal (429 on writes) ---------------- */
+
+function parseRetryAfterMs(res) {
+	const ra = String(res?.headers?.get?.("retry-after") || "").trim();
+	if (!ra) return null;
+
+	const n = Number(ra);
+	if (Number.isFinite(n) && n >= 0) return Math.round(n * 1000);
+
+	const ms = Date.parse(ra) - Date.now();
+	return Number.isFinite(ms) && ms > 0 ? ms : null;
+}
+
+function sleep(ms) {
+	return new Promise((r) => setTimeout(r, ms));
+}
+
+// Throttle per tab: at most once per 2 minutes
+function shouldShowRateLimitModal() {
+	try {
+		const k = "st:rl:lastShown";
+		const last = Number(sessionStorage.getItem(k) || 0);
+		const now = Date.now();
+		if (now - last < 2 * 60 * 1000) return false;
+		sessionStorage.setItem(k, String(now));
+		return true;
+	} catch {
+		return true;
+	}
+}
+
+function ensureRateLimitModal() {
+	if (typeof document === "undefined") return null;
+
+	let wrap = document.getElementById("stRateLimitModal");
+	if (wrap) return wrap;
+
+	wrap = document.createElement("div");
+	wrap.id = "stRateLimitModal";
+	wrap.style.cssText = `
+		position: fixed; inset: 0; z-index: 999999;
+		display: none; align-items: center; justify-content: center;
+		background: rgba(0,0,0,.45); padding: 18px;
+	`;
+	wrap.innerHTML = `
+		<div style="
+			max-width: 520px; width: 100%;
+			background: #fff; color: #111;
+			border-radius: 14px;
+			box-shadow: 0 10px 40px rgba(0,0,0,.25);
+			padding: 16px 16px 14px 16px;
+			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+		">
+			<div style="font-weight: 700; font-size: 16px; margin-bottom: 6px;">
+				Heads up — saving is temporarily rate limited
+			</div>
+			<div id="stRateLimitBody" style="font-size: 13px; line-height: 1.35; color:#2a2a2a; margin-bottom: 12px;">
+				The free Cloudflare KV tier sometimes rate limits writes. Your change may not have saved.
+				Please try again in a moment.
+			</div>
+			<div style="display:flex; gap:10px; justify-content:flex-end; align-items:center;">
+				<button id="stRateLimitClose" type="button" style="
+					border: 1px solid #d0d0d0; background: #f6f6f6;
+					border-radius: 10px; padding: 8px 10px; cursor: pointer;
+					font-size: 13px;
+				">OK</button>
+				<a id="stRateLimitSupport" style="
+					display:none;
+					border: 1px solid #111; background: #111; color: #fff;
+					border-radius: 10px; padding: 8px 10px; text-decoration:none;
+					font-size: 13px;
+				">Buy Brennan a bottle 🍾</a> (Kidding)
+			</div>
+		</div>
+	`;
+
+	document.body.appendChild(wrap);
+
+	const close = wrap.querySelector("#stRateLimitClose");
+	close?.addEventListener("click", () => {
+		wrap.style.display = "none";
+	});
+
+	// click outside closes
+	wrap.addEventListener("click", (e) => {
+		if (e.target === wrap) wrap.style.display = "none";
+	});
+
+	return wrap;
+}
+
+function showRateLimitModal({ retryAfterMs = null } = {}) {
+	if (typeof document === "undefined") return;
+	if (!shouldShowRateLimitModal()) return;
+
+	const wrap = ensureRateLimitModal();
+	if (!wrap) return;
+
+	const body = wrap.querySelector("#stRateLimitBody");
+	const support = wrap.querySelector("#stRateLimitSupport");
+
+	const secs = retryAfterMs ? Math.max(1, Math.round(retryAfterMs / 1000)) : null;
+
+	if (body) {
+		body.textContent =
+			`The free Cloudflare KV tier sometimes rate limits writes. ` +
+			`Your change may not have saved. ` +
+			(secs ? `Try again in ~${secs}s.` : `Please try again in a moment.`) +
+			` If you get value from this, buy Brennan a bottle and he might pay for higher cloudflare rate limits.`;
+	}
+
+	if (support && SUPPORT_URL) {
+		support.href = SUPPORT_URL;
+		support.style.display = "inline-block";
+	} else if (support) {
+		support.style.display = "none";
+	}
+
+	wrap.style.display = "flex";
+}
+
+/* ---------------- Errors ---------------- */
 
 export class AuthError extends Error {
 	constructor(message, info) {
@@ -28,6 +279,8 @@ export class ApiError extends Error {
 	}
 }
 
+/* ---------------- Base URL ---------------- */
+
 export function setCloudBaseUrl(url) {
 	CLOUD_BASE_URL = String(url || "").replace(/\/+$/g, "");
 	return CLOUD_BASE_URL;
@@ -41,6 +294,8 @@ export function getCloudBaseUrl() {
 
 export function logoutAndReload() {
 	clearAuth();
+	// Optionally wipe cache on logout to avoid showing stale private data in shared browsers
+	clearCloudCache();
 	if (typeof window !== "undefined") window.location.reload();
 }
 
@@ -93,6 +348,19 @@ export function getStoredToken() {
 
 export function getStoredUserId() {
 	return lsGet(LS_USERID) || null;
+}
+
+function scopeFromToken(token) {
+	const t = String(token || "").trim();
+	if (!t) return "anon";
+	const p = decodeJwtPayload(t);
+	const sub = String(p?.sub || getStoredUserId() || "").trim();
+	return sub && UUID_RE.test(sub) ? `sub:${sub}` : "token";
+}
+
+function currentScope() {
+	const t = getStoredToken();
+	return t ? scopeFromToken(t) : "anon";
 }
 
 /**
@@ -207,9 +475,36 @@ function validateScoreMap(obj) {
 		const kk = assertSmallStringKey(k, "score key");
 		const n = Number(v);
 		if (!Number.isFinite(n)) throw new TypeError("score values must be numbers");
-		out[k] = n;
+		out[kk] = n;
 	}
 	return out;
+}
+
+/* ---------------- Local cache merge helpers (for write-through) ---------------- */
+
+function mergeBoolMapIntoStringArray(existing, patch) {
+	const cur = Array.isArray(existing) ? existing.filter((x) => typeof x === "string") : [];
+	const set = new Set(cur);
+	for (const [k, v] of Object.entries(patch || {})) {
+		if (v) set.add(k);
+		else set.delete(k);
+	}
+	return Array.from(set);
+}
+
+function mergeScore(existing, patch) {
+	const cur = {};
+	if (existing && typeof existing === "object" && !Array.isArray(existing)) {
+		for (const [k, v] of Object.entries(existing)) {
+			if (typeof k !== "string" || k.length > 256) continue;
+			if (typeof v === "number" && Number.isFinite(v)) cur[k] = v;
+		}
+	}
+	for (const [k, v] of Object.entries(patch || {})) {
+		if (v === null) delete cur[k];
+		else cur[k] = Number(v);
+	}
+	return cur;
 }
 
 /* ---------------- HTTP core ---------------- */
@@ -233,7 +528,17 @@ async function readResponseBody(res) {
 	return { kind: "text", value: text };
 }
 
-async function requestJson(path, { method = "GET", body = undefined, auth = false, token = null } = {}) {
+async function requestJson(
+	path,
+	{
+		method = "GET",
+		body = undefined,
+		auth = false,
+		token = null,
+		cache = undefined, // default: GETs cached
+		cacheTtlMs = undefined,
+	} = {},
+) {
 	const url = joinUrl(CLOUD_BASE_URL, path);
 
 	let authToken = token;
@@ -250,12 +555,34 @@ async function requestJson(path, { method = "GET", body = undefined, auth = fals
 	if (body !== undefined) headers.set("content-type", "application/json");
 	if (authToken) headers.set("authorization", `Bearer ${authToken}`);
 
-	const res = await fetch(url, {
-		method,
-		headers,
-		cache: "no-store",
-		body: body === undefined ? undefined : JSON.stringify(body),
-	});
+	const isGet = method === "GET";
+	const isWrite = method === "POST" || method === "PUT";
+	const scope = authToken ? scopeFromToken(authToken) : "anon";
+
+	const wantCache = cache === undefined ? isGet : !!cache;
+	const ttlMs = cacheTtlMs === undefined ? DEFAULT_CACHE_TTL_MS : Math.max(0, Number(cacheTtlMs) || 0);
+
+	if (wantCache && isGet && ttlMs > 0) {
+		const hit = cacheGet(scope, method, path);
+		if (hit !== null) return hit;
+	}
+
+	const doFetch = () =>
+		fetch(url, {
+			method,
+			headers,
+			cache: "no-store",
+			body: body === undefined ? undefined : JSON.stringify(body),
+		});
+
+	let res = await doFetch();
+
+	// Optional: auto-retry once for writes on 429 using Retry-After (capped)
+	if (res.status === 429 && isWrite) {
+		const retryAfterMs = parseRetryAfterMs(res) ?? 1200;
+		await sleep(Math.min(5000, retryAfterMs));
+		res = await doFetch();
+	}
 
 	if (res.status === 204) return null;
 
@@ -267,6 +594,10 @@ async function requestJson(path, { method = "GET", body = undefined, auth = fals
 		`HTTP ${res.status}`;
 
 	if (!res.ok) {
+		if (res.status === 429 && isWrite) {
+			showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
+		}
+
 		if (res.status === 401 || res.status === 403) {
 			throw new AuthError(msg, {
 				reason: res.status === 401 ? "unauthorized" : "forbidden",
@@ -276,18 +607,24 @@ async function requestJson(path, { method = "GET", body = undefined, auth = fals
 				userId: authUserId,
 			});
 		}
-			
+
 		throw new ApiError(msg, { status: res.status, url, body: payload });
 	}
 
-	return payload;
+	const out = payload;
+
+	if (wantCache && isGet && ttlMs > 0) {
+		cacheSet(scope, method, path, out, ttlMs);
+	}
+
+	return out;
 }
 
 /* ---------------- Auth endpoints ---------------- */
 
 export async function signup(email, password) {
 	const creds = assertEmailPassword(email, password);
-	const j = await requestJson("/signup", { method: "POST", body: creds, auth: false });
+	const j = await requestJson("/signup", { method: "POST", body: creds, auth: false, cache: false });
 
 	// New flow: email verification required, no token returned.
 	if (j && typeof j === "object" && j.requiresVerify) {
@@ -307,12 +644,15 @@ export async function signup(email, password) {
 
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
+	// Fresh auth context => drop old cache for this base URL
+	clearCloudCache();
+
 	return { token, userId, requiresVerify: false };
 }
 
 export async function login(email, password) {
 	const creds = assertEmailPassword(email, password);
-	const j = await requestJson("/login", { method: "POST", body: creds, auth: false });
+	const j = await requestJson("/login", { method: "POST", body: creds, auth: false, cache: false });
 
 	const token = String(j?.token || "");
 	const userId = String(j?.userId || "");
@@ -325,12 +665,14 @@ export async function login(email, password) {
 
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
+	clearCloudCache();
+
 	return { token, userId };
 }
 
 export async function requestPasswordReset(email) {
 	const e = assertEmailOnly(email);
-	return await requestJson("/password-reset/request", { method: "POST", body: e, auth: false });
+	return await requestJson("/password-reset/request", { method: "POST", body: e, auth: false, cache: false });
 }
 
 export async function confirmPasswordReset(token, password) {
@@ -338,7 +680,7 @@ export async function confirmPasswordReset(token, password) {
 	if (p.length < 8) throw new TypeError("Invalid password");
 	const t = String(token || "").trim();
 	if (!t) throw new TypeError("Invalid token");
-	return await requestJson("/password-reset/confirm", { method: "POST", body: { token: t, password: p }, auth: false });
+	return await requestJson("/password-reset/confirm", { method: "POST", body: { token: t, password: p }, auth: false, cache: false });
 }
 
 export async function ping() {
@@ -417,9 +759,9 @@ export function consumeOauthCallbackHash({
 
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
+	clearCloudCache();
 
 	if (clearHash && typeof window !== "undefined") {
-		// remove token from URL
 		const clean = window.location.pathname + window.location.search;
 		window.history.replaceState(null, document.title, clean);
 	}
@@ -434,6 +776,33 @@ function acctPath(userId, resource) {
 	const r = String(resource || "").trim();
 	if (!["details", "favourites", "sampled", "score"].includes(r)) throw new TypeError("Invalid resource");
 	return `/u/${encodeURIComponent(uid)}/${encodeURIComponent(r)}`;
+}
+
+function acctGetCacheUpdate(userId, resource, nextValue) {
+	const scope = currentScope();
+	const path = acctPath(userId, resource);
+	cacheSet(scope, "GET", path, nextValue, DEFAULT_CACHE_TTL_MS);
+}
+
+function acctGetCachePatch(userId, resource, patchObj) {
+	const scope = currentScope();
+	const path = acctPath(userId, resource);
+	const cur = cacheGet(scope, "GET", path);
+
+	if (resource === "favourites" || resource === "sampled") {
+		const merged = mergeBoolMapIntoStringArray(cur ?? [], patchObj);
+		cacheSet(scope, "GET", path, merged, DEFAULT_CACHE_TTL_MS);
+		return;
+	}
+
+	if (resource === "score") {
+		const merged = mergeScore(cur ?? {}, patchObj);
+		cacheSet(scope, "GET", path, merged, DEFAULT_CACHE_TTL_MS);
+		return;
+	}
+
+	// details or unknown: invalidate
+	cacheDel(scope, "GET", path);
 }
 
 /* ---- GET ---- */
@@ -479,25 +848,33 @@ export async function getMyScore() {
 export async function putDetails(userId, detailsObj) {
 	const uid = assertUuid(userId);
 	const body = validateDetails(detailsObj);
-	return await requestJson(acctPath(uid, "details"), { method: "PUT", body, auth: true });
+	const r = await requestJson(acctPath(uid, "details"), { method: "PUT", body, auth: true, cache: false });
+	acctGetCacheUpdate(uid, "details", body);
+	return r;
 }
 
 export async function putFavourites(userId, favouritesArray) {
 	const uid = assertUuid(userId);
 	const body = validateStringArray(favouritesArray, "favourites");
-	return await requestJson(acctPath(uid, "favourites"), { method: "PUT", body, auth: true });
+	const r = await requestJson(acctPath(uid, "favourites"), { method: "PUT", body, auth: true, cache: false });
+	acctGetCacheUpdate(uid, "favourites", body);
+	return r;
 }
 
 export async function putSampled(userId, sampledArray) {
 	const uid = assertUuid(userId);
 	const body = validateStringArray(sampledArray, "sampled");
-	return await requestJson(acctPath(uid, "sampled"), { method: "PUT", body, auth: true });
+	const r = await requestJson(acctPath(uid, "sampled"), { method: "PUT", body, auth: true, cache: false });
+	acctGetCacheUpdate(uid, "sampled", body);
+	return r;
 }
 
 export async function putScore(userId, scoreMap) {
 	const uid = assertUuid(userId);
 	const body = validateScoreMap(scoreMap);
-	return await requestJson(acctPath(uid, "score"), { method: "PUT", body, auth: true });
+	const r = await requestJson(acctPath(uid, "score"), { method: "PUT", body, auth: true, cache: false });
+	acctGetCacheUpdate(uid, "score", body);
+	return r;
 }
 
 /* ---- POST (merge/patch) ---- */
@@ -505,19 +882,25 @@ export async function putScore(userId, scoreMap) {
 export async function patchFavourites(userId, boolMap) {
 	const uid = assertUuid(userId);
 	const body = validateBoolMap(boolMap, "favourites");
-	return await requestJson(acctPath(uid, "favourites"), { method: "POST", body, auth: true });
+	const r = await requestJson(acctPath(uid, "favourites"), { method: "POST", body, auth: true, cache: false });
+	acctGetCachePatch(uid, "favourites", body);
+	return r;
 }
 
 export async function patchSampled(userId, boolMap) {
 	const uid = assertUuid(userId);
 	const body = validateBoolMap(boolMap, "sampled");
-	return await requestJson(acctPath(uid, "sampled"), { method: "POST", body, auth: true });
+	const r = await requestJson(acctPath(uid, "sampled"), { method: "POST", body, auth: true, cache: false });
+	acctGetCachePatch(uid, "sampled", body);
+	return r;
 }
 
 export async function patchScore(userId, scorePatchMap) {
 	const uid = assertUuid(userId);
 	const body = validateScorePatchMap(scorePatchMap);
-	return await requestJson(acctPath(uid, "score"), { method: "POST", body, auth: true });
+	const r = await requestJson(acctPath(uid, "score"), { method: "POST", body, auth: true, cache: false });
+	acctGetCachePatch(uid, "score", body);
+	return r;
 }
 
 /* Single-item helpers */
