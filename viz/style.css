@@ -385,7 +385,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   display: block;
 }
 
-/* ---------------- Item page: top row layout (links aligned with controls) ---------------- */
+/* ---------------- Item page: top row layout ---------------- */
 .detailTopRow{
   display:flex;
   gap:12px;
@@ -404,44 +404,27 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   display:grid;
   grid-template-columns: max-content max-content;
   grid-auto-rows: min-content;
-  gap:8px 10px; /* row gap, col gap */
+  gap:8px 10px;
   align-items:start;
   justify-items:end;
 }
 
-/* make score span both columns so width == (star + sampled + gap) */
+/* make score span both columns */
 .detailRight .pillInput{
   grid-column: 1 / -1;
   width: 100%;
 }
 
-/* ensure star behaves like a normal button (not absolutely pinned) on item page */
+/* item page star: NOT pinned */
 .detailRight .favStarBtn{
   position: static;
-  right:auto; bottom:auto; top:auto;
+  right:auto;
+  bottom:auto;
+  top:auto;
   transform:none;
 }
 
-/* make the whole score pill feel clickable */
-.pillInput{
-  cursor: text;
-  user-select: none;
-}
-.pillInput *{
-  user-select: none;
-}
-.pillNumber{
-  user-select: text; /* allow selecting/editing once focused */
-}
-
-/* optional: a tiny hint when unauthenticated (still clickable) */
-.pillInput.isLoginGate,
-.pillBtn.isLoginGate{
-  opacity: 0.92;
-}
-
-
-/* title + right column align nicely */
+/* title row */
 .detailTitleRow{
   display:flex;
   align-items:flex-start;
@@ -451,14 +434,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .detailTitleRow #title{
   flex:1 1 auto;
   min-width:0;
-}
-
-/* right rail inside detailRight */
-.detailCloudPanel{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:8px;
 }
 
 /* ---- Sampled pill ---- */
@@ -514,7 +489,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .pillBtn.isOn .pillMarkOn{ display:inline-flex; }
 .pillBtn.isOn .pillMarkOff{ display:none; }
 
-/* ---- Score pill (same vibe as sampled) ---- */
+/* ---- Score pill ---- */
 .pillInput{
   border:1px solid var(--border);
   background:#0f1318;
@@ -526,7 +501,11 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   display:inline-flex;
   align-items:center;
   gap:8px;
+
+  cursor: text;
+  user-select:none;
 }
+.pillInput *{ user-select:none; }
 
 .pillInput:hover{ border-color:#2f3a46; }
 .pillInput:focus-within{
@@ -556,6 +535,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   outline:none;
   text-align:right;
   padding:0;
+
+  user-select:text;
 }
 
 .pillNumber::placeholder{ color:var(--muted); opacity:0.85; }
@@ -565,13 +546,10 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .pillNumber::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
 .pillNumber{ -moz-appearance:textfield; appearance:textfield; }
 
-/* Ensure fav star doesn't get "pinned" like list items when used in item page rail */
-.detailRight .favStarBtn{
-  position: static;
-  right: auto;
-  bottom: auto;
-  top: auto;
-  transform: none;
+/* login-gated styling (still clickable) */
+.pillInput.isLoginGate,
+.pillBtn.isLoginGate{
+  opacity: 0.92;
 }
 
 /* Chart fills most of viewport, but stays usable on mobile */
@@ -632,7 +610,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   min-width: 0;
 }
 
-/* --- Store page: two-column results (new; isolated to store page) --- */
+/* --- Store page: two-column results --- */
 .storeGrid {
   margin-top: 12px;
   display: grid;
@@ -641,7 +619,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   align-items: start;
 }
 
-/* --- Store page: slightly wider layout --- */
 .containerStoreWide { max-width: 1180px; }
 @media (min-width: 1200px) {
   .containerStoreWide { max-width: 1240px; }
@@ -679,7 +656,7 @@ html { overflow-y: scroll; }
   text-overflow: ellipsis;
 }
 
-/* --- Stats dual range slider: custom track + fill (no native progress) --- */
+/* --- Stats dual range slider: custom track + fill --- */
 .rangeDual {
   position: relative;
   flex: 1 1 auto;
@@ -708,7 +685,6 @@ html { overflow-y: scroll; }
   background: #37566b;
 }
 
-/* Hide native track/progress; keep thumbs clickable */
 .rangeDual input[type="range"] {
   position: absolute;
   left: 0;
@@ -777,24 +753,20 @@ html { overflow-y: scroll; }
   padding-right: 0;
 }
 
-/* make the title row a positioning context */
 .itemHasStar .itemTop{
   position: relative;
 }
 
-/* reserve space ONLY for the name so it won't sit under the right rail */
 .itemHasStar .itemName{
   padding-right: 52px;
 }
 
-/* pin SKU top-right */
 .itemHasStar .skuLink{
   position: absolute;
   right: 10px;
   top: 0;
 }
 
-/* pin star bottom-right */
 .itemHasStar .favStarBtn{
   position: absolute;
   right: 10px;
