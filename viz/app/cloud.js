@@ -441,11 +441,11 @@ export async function getFavourites(userId) {
 }
 
 export async function getSampled(userId) {
-	return await requestJson(acctPath(userId, "sampled"), { method: "GET", auth: true });
+	return await requestJson(acctPath(userId, "sampled"), { method: "GET", auth: false, token: getStoredToken() });
 }
 
 export async function getScore(userId) {
-	return await requestJson(acctPath(userId, "score"), { method: "GET", auth: true });
+	return await requestJson(acctPath(userId, "score"), { method: "GET", auth: false, token: getStoredToken() });
 }
 
 /* Convenience: current user (from stored auth) */
