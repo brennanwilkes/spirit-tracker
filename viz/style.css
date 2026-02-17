@@ -228,6 +228,12 @@ button.badge.badgeBtn:hover{
   border-color: #2f3a46;
   color: var(--text);
 }
+.badgeClick{ cursor:pointer; user-select:none; }
+.badgeClick:hover{
+  border-color:#2f3a46;
+  color:var(--text);
+  background: rgba(255,255,255,0.03);
+}
 
 
 
@@ -840,15 +846,16 @@ html { overflow-y: scroll; }
   position: relative;
 }
 
-.itemHasStar .itemName{
-  padding-right: 52px;
+.itemHasStar .skuLink{
+  position: static;
+  right: auto;
+  top: auto;
 }
 
-.itemHasStar .skuLink{
-  position: absolute;
-  right: 10px;
-  top: 0;
+.itemHasStar .itemName{
+  padding-right: 0;
 }
+
 
 .itemHasStar .favStarBtn{
   position: absolute;
