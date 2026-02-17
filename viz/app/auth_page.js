@@ -176,7 +176,7 @@ function ensureCssOnce() {
 }
 
 function goAfterLogin() {
-	const last = sessionStorage.getItem("viz:lastRoute") || "#/";
+	const last = "#/";
 	location.hash = last;
 }
 
