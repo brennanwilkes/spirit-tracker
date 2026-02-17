@@ -565,12 +565,11 @@ export async function renderItem($app, skuInput) {
 			  const currentlyOn = $sampledBtn.classList.contains("isOn");
 			  const next = !currentlyOn;
 		  
-			  setCloudUi({ enabled: false, msg: "Saving…" });
 			  try {
 				await setMySampled(cloudKey, next);
 				setCloudUi({ enabled: true, msg: "", sampled: next });
 			  } catch {
-				setCloudUi({ enabled: true, msg: "Save failed.", sampled: currentlyOn });
+				setCloudUi({ enabled: true, msg: "Save failed!", sampled: currentlyOn });
 			  }
 			});
 		  }
