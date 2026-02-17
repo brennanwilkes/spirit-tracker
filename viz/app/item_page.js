@@ -443,19 +443,24 @@ export async function renderItem($app, skuInput) {
 	$app.innerHTML = `
 		<div class="container">
 			<div class="topbar">
-			<button id="back" class="btn">← Back</button>
-			<span class="badge mono">${esc(displaySku(sku))}</span>
-		</div>
+				<button id="back" class="btn">← Back</button>
+				<span class="badge mono">${esc(displaySku(sku))}</span>
+			</div>
 
-		<div class="card detailCard">
-			<div class="detailHeader">
+			<div class="card detailCard">
+				<div class="detailHeader">
 				<div id="thumbBox" class="detailThumbBox"></div>
 
 				<div class="detailHeaderText">
+					<div class="detailTopRow">
 					<div class="detailLeft">
 						<div class="detailTitleRow">
 						<div id="title" class="h1">Loading…</div>
 						</div>
+
+						<!-- DESKTOP links/status stay here -->
+						<div id="links" class="links"></div>
+						<div class="small" id="status"></div>
 					</div>
 
 					<div class="detailRight">
@@ -464,6 +469,7 @@ export async function renderItem($app, skuInput) {
 						<span class="pillMark pillMarkOn">✓</span>
 						<span>Sampled</span>
 						</button>
+
 						${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
 
 						<div id="scoreWrap" class="pillInput" role="button" tabindex="0" aria-label="Score">
@@ -480,20 +486,23 @@ export async function renderItem($app, skuInput) {
 						/>
 						</div>
 					</div>
-
-					<div class="detailLinksRow">
-						<div id="links" class="links"></div>
-						<div class="small" id="status"></div>
 					</div>
+				</div>
+				</div>
+
+				<!-- MOBILE full-width links/status (different ids, no collisions) -->
+				<div class="detailMobileLinks">
+				<div id="linksMobile" class="links"></div>
+				<div class="small" id="statusMobile"></div>
 				</div>
 
 				<div class="chartBox">
-					<canvas id="chart"></canvas>
+				<canvas id="chart"></canvas>
 				</div>
 			</div>
-		</div>
-	`;
-
+			</div>
+		`;
+  
   
 	installFavStars($app, favSet);
 
@@ -508,6 +517,20 @@ export async function renderItem($app, skuInput) {
 	const $status = document.getElementById("status");
 	const $canvas = document.getElementById("chart");
 	const $thumbBox = document.getElementById("thumbBox");
+
+	const $linksMobile = document.getElementById("linksMobile");
+	const $statusMobile = document.getElementById("statusMobile");
+
+	const setLinksHtml = (html) => {
+	if ($links) $links.innerHTML = html;
+	if ($linksMobile) $linksMobile.innerHTML = html;
+	};
+
+	const setStatusText = (txt) => {
+	if ($status) setStatusText(txt);
+	if ($statusMobile) $statusMobile.textContent = txt;
+	};
+
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
@@ -670,7 +693,7 @@ export async function renderItem($app, skuInput) {
 
 	if (!allRows.length) {
 		$title.textContent = "Item not found";
-		$status.textContent = "No matching SKU in index.";
+		setStatusText("No matching SKU in index.");
 		if ($thumbBox) $thumbBox.innerHTML = `<div class="thumbPlaceholder"></div>`;
 		return;
 	}
@@ -789,13 +812,13 @@ export async function renderItem($app, skuInput) {
 			return A.store.localeCompare(B.store);
 		});
 
-	$links.innerHTML = linkRows
+	setLinksHtml(linkRows
 		.map(({ store, r }) => {
 			const href = String(r.url || "").trim();
 			const suffix = Boolean(r?.removed) ? " (removed)" : "";
 			return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
 		})
-		.join("");
+		.join(""));
 
 	const gh = inferGithubOwnerRepo();
 	const owner = gh.owner;
@@ -812,9 +835,9 @@ export async function renderItem($app, skuInput) {
 	}
 	const dbFiles = [...byDbFileAll.keys()].sort();
 
-	$status.textContent = isRemovedEverywhere
+	setStatusText(isRemovedEverywhere
 		? `Item is removed everywhere (showing historical chart across ${dbFiles.length} store file(s))…`
-		: `Loading history for ${dbFiles.length} store file(s)…`;
+		: `Loading history for ${dbFiles.length} store file(s)...`);
 
 	const manifest = await loadDbCommitsManifest();
 
@@ -1135,7 +1158,7 @@ export async function renderItem($app, skuInput) {
 
 	const labels = [...allDatesSet].sort();
 	if (!labels.length || !series.length) {
-		$status.textContent = "No historical points found.";
+		setStatusText("No historical points found.");
 		return;
 	}
 
@@ -1416,11 +1439,11 @@ export async function renderItem($app, skuInput) {
 		CHART.update();
 	}
 
-	$status.textContent = manifest
+	setStatusText(manifest
 		? isRemovedEverywhere
 			? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
 			: `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${labels.length}.`
 		: isRemovedEverywhere
 			? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
-			: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`;
+			: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`);
 }
