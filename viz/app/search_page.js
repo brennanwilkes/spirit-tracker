@@ -9,8 +9,10 @@ import { getAuthStatus, logoutAndReload } from "./cloud.js";
 
 export function renderSearch($app) {
 
-	const authed = getAuthStatus().ok;
-
+	const auth = getAuthStatus();
+	const authed = auth.ok;
+	const shortlistHref = authed ? `#/shortlist/${encodeURIComponent(auth.userId)}` : "#/login";
+	
 	$app.innerHTML = `
     <div class="container">
       <div class="header">
@@ -34,7 +36,7 @@ export function renderSearch($app) {
 			${
 				authed
 					? `
-	  <a class="btn btnWide" href="#/shortlist" style="text-decoration:none;">My Shortlist</a>
+		<a class="btn btnWide" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
 	  <a class="btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
 		<i class="fa-solid fa-gear" aria-hidden="true"></i>
 		<span class="srOnly">Settings</span>

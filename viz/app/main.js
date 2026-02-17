@@ -18,6 +18,8 @@ import { renderSkuLinker } from "./linker_page.js";
 import { renderStore } from "./store_page.js";
 import { renderStats, destroyStatsChart } from "./stats_page.js";
 import { renderLogin, renderSignup, renderOauth, renderForgot, renderReset } from "./auth_page.js";
+import { renderShortlist } from "./shortlist_page.js";
+import { getAuthStatus } from "./cloud.js";
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");
@@ -78,6 +80,21 @@ function route() {
 	if (parts[0] === "forgot") return renderForgot($app, { flash: params });
 	if (parts[0] === "reset") return renderReset($app, { token: params.token || "" });
 	if (parts[0] === "oauth") return renderOauth($app);
+
+	if (parts[0] === "shortlist") {
+		// Preferred: #/shortlist/<uuid>
+		if (parts[1]) return renderShortlist($app, decodeURIComponent(parts[1]));
+
+		// Back-compat: redirect #/shortlist -> #/shortlist/<my uuid>
+		const a = getAuthStatus();
+		if (a.ok && a.userId) {
+			location.hash = `#/shortlist/${encodeURIComponent(a.userId)}`;
+			return;
+		}
+
+		// Not authed -> login
+		return renderLogin($app, { flash: params });
+	}
 
 	return renderSearch($app);
 }
