@@ -39,7 +39,7 @@ export function renderSearch($app) {
 		<i class="fa-solid fa-gear" aria-hidden="true"></i>
 		<span class="srOnly">Settings</span>
 	  </a>
-	  <button id="logoutBtn" class="btn btnWide" type="button">Logout</button>
+	  <a id="logoutBtn" class="btn btnWide" type="button">Logout</a>
 	`
 					: `
 	  <a class="btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
