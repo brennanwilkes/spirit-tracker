@@ -595,9 +595,36 @@ html { overflow-y: scroll; }
 
 /* --- Favourite star --- */
 
-.itemHasStar {
-	position: relative;
-	padding-right: 46px;
+.itemHasStar{
+  position: relative;
+  padding-right: 0;
+}
+
+/* make the title row a positioning context */
+.itemHasStar .itemTop{
+  position: relative;
+}
+
+/* reserve space ONLY for the name so it won't sit under the right rail */
+.itemHasStar .itemName{
+  padding-right: 52px; /* >= star width + gap; tweak if needed */
+}
+
+/* pin SKU top-right */
+.itemHasStar .skuLink{
+  position: absolute;
+  right: 10px;
+  top: 0;            /* or 2px if you want it a hair lower */
+}
+
+/* pin star bottom-right */
+.itemHasStar .favStarBtn{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  top: auto;
+  transform: none;
+  z-index: 2;
 }
 
 .favStarBtn {
@@ -611,15 +638,6 @@ html { overflow-y: scroll; }
 	justify-content: center;
 	cursor: pointer;
 	line-height: 1;
-}
-
-.itemHasStar .favStarBtn {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  top: auto;
-  transform: none;
-  z-index: 2;
 }
 
 .favStarBtn:hover {
