@@ -425,56 +425,63 @@ export async function renderItem($app, skuInput) {
 	}
 		
 	$app.innerHTML = `
-    <div class="container">
-      <div class="topbar">
-        <button id="back" class="btn">← Back</button>
-        <span class="badge mono">${esc(displaySku(sku))}</span>
-        </div>
-
-      <div class="card detailCard">
-        <div class="detailHeader">
-          <div id="thumbBox" class="detailThumbBox"></div>
-		  <div class="detailHeaderText">
-		  <div class="detailTitleRow">
-			<div id="title" class="h1">Loading…</div>
-		
-			<div class="detailRightRail">
-			  ${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
-		
-			  <div class="detailCloudMeta" id="cloudMeta">
-				<label class="cloudToggle" title="Mark as sampled">
-				  <input id="sampledToggle" type="checkbox" />
-				  <span>Sampled</span>
-				</label>
-		
-				<label class="cloudScore" title="Score (0-100)">
-				  <input
+		<div class="container">
+		<div class="topbar">
+			<button id="back" class="btn">← Back</button>
+			<span class="badge mono">${esc(displaySku(sku))}</span>
+		</div>
+	
+		<div class="card detailCard">
+			<div class="detailHeader">
+			<div id="thumbBox" class="detailThumbBox"></div>
+	
+			<div class="detailHeaderText">
+				<div class="detailTitleRow">
+				<div id="title" class="h1">Loading…</div>
+				${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
+				</div>
+	
+				<div class="detailCloudPanel" id="cloudMeta">
+				<button
+					id="sampledBtn"
+					class="pillBtn"
+					type="button"
+					aria-pressed="false"
+					title="Mark as sampled"
+				>
+					<span class="pillIcon" aria-hidden="true">✓</span>
+					<span>Sampled</span>
+				</button>
+	
+				<label class="scoreRow" title="Score (0-100)">
+					<span class="scoreLabel">Score</span>
+					<input
 					id="scoreInput"
+					class="scoreInput"
 					type="number"
 					min="0"
 					max="100"
 					step="1"
 					inputmode="numeric"
-					placeholder="Score"
-				  />
+					placeholder="—"
+					/>
 				</label>
-			  </div>
-		
-			  <div class="detailCloudMetaStatus small" id="cloudMetaStatus"></div>
+	
+				<div class="detailCloudMetaStatus small" id="cloudMetaStatus"></div>
+				</div>
+	
+				<div id="links" class="links"></div>
+				<div class="small" id="status"></div>
 			</div>
-		  </div>
-		
-		  <div id="links" class="links"></div>
-		  <div class="small" id="status"></div>
+			</div>
+	
+			<div class="chartBox">
+			<canvas id="chart"></canvas>
+			</div>
 		</div>
 		</div>
-
-        <div class="chartBox">
-          <canvas id="chart"></canvas>
-        </div>
-      </div>
-    </div>
-  `;
+	`;
+  
 	installFavStars($app, favSet);
 
 	document.getElementById("back").addEventListener("click", () => {
@@ -490,25 +497,28 @@ export async function renderItem($app, skuInput) {
 	const $thumbBox = document.getElementById("thumbBox");
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
-	const $sampled = document.getElementById("sampledToggle");
+	const $sampledBtn = document.getElementById("sampledBtn");
 	const $score = document.getElementById("scoreInput");
 	const $cloudMetaStatus = document.getElementById("cloudMetaStatus");
-
+	
 	function setCloudUi(opts = {}) {
 		const { enabled, msg, sampled, score } = opts;
-
+	  
 		if (typeof enabled === "boolean") {
-			if ($sampled) $sampled.disabled = !enabled;
-			if ($score) $score.disabled = !enabled;
+		  if ($sampledBtn) $sampledBtn.disabled = !enabled;
+		  if ($score) $score.disabled = !enabled;
 		}
-
-		if ($sampled && sampled !== undefined) $sampled.checked = !!sampled;
-
+	  
+		if ($sampledBtn && sampled !== undefined) {
+		  $sampledBtn.classList.toggle("isOn", !!sampled);
+		  $sampledBtn.setAttribute("aria-pressed", sampled ? "true" : "false");
+		}
+	  
 		if ($score && score !== undefined) {
-			if (score === null) $score.value = "";
-			else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
+		  if (score === null) $score.value = "";
+		  else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
 		}
-
+	  
 		if ($cloudMetaStatus && msg !== undefined) $cloudMetaStatus.textContent = String(msg || "");
 	}
 
@@ -541,21 +551,21 @@ export async function renderItem($app, skuInput) {
 			}
 		})();
 
-		if ($sampled) {
-			$sampled.addEventListener("change", async () => {
-				const next = !!$sampled.checked;
-				const prev = !next;
-
-				setCloudUi({ enabled: false, msg: "Saving…" });
-				try {
-					await setMySampled(cloudKey, next);
-					setCloudUi({ enabled: true, msg: "" });
-				} catch {
-					$sampled.checked = prev;
-					setCloudUi({ enabled: true, msg: "Save failed." });
-				}
+		if ($sampledBtn) {
+			$sampledBtn.addEventListener("click", async () => {
+			  const currentlyOn = $sampledBtn.classList.contains("isOn");
+			  const next = !currentlyOn;
+		  
+			  setCloudUi({ enabled: false, msg: "Saving…" });
+			  try {
+				await setMySampled(cloudKey, next);
+				setCloudUi({ enabled: true, msg: "", sampled: next });
+			  } catch {
+				setCloudUi({ enabled: true, msg: "Save failed.", sampled: currentlyOn });
+			  }
 			});
-		}
+		  }
+		  
 
 		if ($score) {
 			const saveScore = async () => {
