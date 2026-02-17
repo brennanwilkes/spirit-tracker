@@ -529,36 +529,35 @@ async function requestJson(
 	const parsed = await readResponseBody(res);
 	const payload = parsed.kind === "json" ? parsed.value : null;
 	const msg =
-		(payload && typeof payload === "object" && typeof payload.error === "string" && payload.error) ||
-		(parsed.kind === "text" && String(parsed.value || "").trim()) ||
-		`HTTP ${res.status}`;
-
-		if (!res.ok) {
-			const isKvWriteLimit =
-				typeof msg === "string" &&
-				(/kv\s*put\(\)\s*limit exceeded/i.test(msg) ||
-				 /put\(\)\s*limit exceeded/i.test(msg) ||
-				 /kv.*limit exceeded/i.test(msg) ||
-				 /rate limit/i.test(msg));
-		
-			if (isWrite && (res.status === 429 || isKvWriteLimit)) {
-				showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
-			}
-		}
-
-		if (res.status === 401 || res.status === 403) {
-			throw new AuthError(msg, {
-				reason: res.status === 401 ? "unauthorized" : "forbidden",
-				status: res.status,
-				url,
-				body: payload,
-				userId: authUserId,
-			});
-		}
-
-		throw new ApiError(msg, { status: res.status, url, body: payload });
+	  (payload && typeof payload === "object" && typeof payload.error === "string" && payload.error) ||
+	  (parsed.kind === "text" && String(parsed.value || "").trim()) ||
+	  `HTTP ${res.status}`;
+	
+	if (!res.ok) {
+	  const isKvWriteLimit =
+		typeof msg === "string" &&
+		(/kv\s*put\(\)\s*limit exceeded/i.test(msg) ||
+		  /put\(\)\s*limit exceeded/i.test(msg) ||
+		  /kv.*limit exceeded/i.test(msg) ||
+		  /rate limit/i.test(msg));
+	
+	  if (isWrite && (res.status === 429 || isKvWriteLimit)) {
+		showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
+	  }
+	
+	  if (res.status === 401 || res.status === 403) {
+		throw new AuthError(msg, {
+		  reason: res.status === 401 ? "unauthorized" : "forbidden",
+		  status: res.status,
+		  url,
+		  body: payload,
+		  userId: authUserId,
+		});
+	  }
+	
+	  throw new ApiError(msg, { status: res.status, url, body: payload });
 	}
-
+	
 	const out = payload;
 
 	if (wantCache && isGet && ttlMs > 0) {
