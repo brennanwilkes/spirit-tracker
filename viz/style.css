@@ -452,6 +452,16 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   align-items: start;
 }
 
+/* --- Store page: slightly wider layout --- */
+.containerStoreWide {
+  max-width: 1180px; /* bump from 980 */
+}
+
+/* Optional: keep full-bleed-ish padding behavior on big screens */
+@media (min-width: 1200px) {
+  .containerStoreWide { max-width: 1240px; }
+}
+
 .storeCol {
   min-width: 0;
 }
