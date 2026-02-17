@@ -106,16 +106,15 @@ export async function renderShortlist($app, accountUuidRaw) {
 
             <div style="display:flex; flex-direction:column; gap:4px; margin-left:10px;">
                 <div class="h1" style="margin:0;">Shortlist</div>
-
-                    <button
+                    <span
                         id="copyLink"
-                        class="badge mono badgeBtn"
-                        type="button"
+                        class="badge mono badgeClick"
+                        role="button"
+                        tabindex="0"
                         title="Copy page link"
-                        style="cursor:pointer; width:fit-content;"
                     >
                         ${esc(accountUuid)}
-                    </button>
+                    </span>
                 </div>
             </div>
 
@@ -172,11 +171,21 @@ export async function renderShortlist($app, accountUuidRaw) {
 		</div>
 	`;
 
-    document.getElementById("copyLink").addEventListener("click", async () => {
+    const copy = document.getElementById("copyLink");
+    const doCopy = async () => {
         await navigator.clipboard.writeText(window.location.href);
         const $status = document.getElementById("status");
         if ($status) $status.textContent = "Copied page link to clipboard.";
+    };
+
+    copy.addEventListener("click", doCopy);
+    copy.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            doCopy();
+        }
     });
+
 
 	document.getElementById("back").addEventListener("click", () => {
 		const last = sessionStorage.getItem("viz:lastRoute");
@@ -665,20 +674,34 @@ export async function renderShortlist($app, accountUuidRaw) {
 			? `<span class="badge mono">Score ${esc(Math.round(it._score))}</span>`
 			: "";
 		const wBadge = Number.isFinite(it._weighted) ? `<span class="badge mono">W ${esc(it._weighted)}</span>` : "";
-        const sampledBadge = it._outOfStock
-        ? "" // optional: still allow toggling even if OOS; remove this if you want it always available
-        : `<button class="badge ${it._sampled ? "badgeGood" : ""} sampledBtn"
-            type="button"
-            data-sku="${esc(it.sku)}"
-            title="Toggle sampled"
-         >${it._sampled ? "Sampled" : "Not sampled"}</button>`;
-        const scoreNum = Number.isFinite(it._score) ? Math.round(it._score) : null;
-
-        const scoreHtml =
-            scoreNum === null
-                ? `<button class="badge mono scoreBtn" type="button" data-sku="${esc(it.sku)}" title="Set score">Score -</button>`
-                : `<button class="badge mono scoreBtn" type="button" data-sku="${esc(it.sku)}" title="Edit score">Score ${esc(scoreNum)}</button>`;
-        
+        const sampledPill = it._outOfStock
+        ? ""
+        : `<button
+              class="pillBtn sampledBtn ${it._sampled ? "isOn" : ""}"
+              type="button"
+              data-sku="${esc(it.sku)}"
+              aria-pressed="${it._sampled ? "true" : "false"}"
+              title="Toggle sampled"
+           >
+              <span class="pillMark pillMarkOff">×</span>
+              <span class="pillMark pillMarkOn">✓</span>
+              <span>Sampled</span>
+           </button>`;
+      
+      const scoreNum = Number.isFinite(it._score) ? Math.round(it._score) : null;
+      
+      const scorePill = `
+        <button
+          class="pillInput scoreBtn"
+          type="button"
+          data-sku="${esc(it.sku)}"
+          title="${scoreNum === null ? "Set score" : "Edit score"}"
+        >
+          <span class="pillMarkNum">#</span>
+          <span class="pillNumberText">${scoreNum === null ? "Score" : String(scoreNum)}</span>
+        </button>
+      `;
+              
         
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
@@ -689,8 +712,9 @@ export async function renderShortlist($app, accountUuidRaw) {
                         <div class="itemTop" style="display:flex; align-items:center; gap:8px;">
                             <div class="itemName" style="flex:1 1 auto;">${esc(it.name || "(no name)")}</div>
                         
-                            ${scoreHtml}
-                        
+                            ${sampledPill}
+                            ${scorePill}
+                                                  
                             <a class="badge mono skuLink"
                             href="${esc(skuLink)}"
                             target="_blank"
