@@ -486,7 +486,7 @@ export async function renderStats($app) {
           <div class="statsHeaderLeft">
             <button id="back" class="btn">← Back</button>
             <div class="statsTitleStack">
-              <h1 class="h1">Store Price Index</h1>
+              <h1 class="h1">Price % Difference for Common Bottles</h1>
               <div class="small" id="statsStatus">Loading…</div>
             </div>
           </div>
@@ -503,8 +503,8 @@ export async function renderStats($app) {
               </label>
 
               <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Index Size
-                <select id="statsSize" class="selectSmall" aria-label="Index size">
+                Sample Size (Top XXX most common bottles)
+                <select id="statsSize" class="selectSmall" aria-label="Sample size">
                   <option value="50">50</option>
                   <option value="250">250</option>
                   <option value="1000">1000</option>

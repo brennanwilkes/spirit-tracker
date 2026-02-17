@@ -17,8 +17,8 @@ export function renderSearch($app) {
           </div>
 
           <div class="headerRight headerButtons">
-            <a class="btn btnWide" href="#/stats" style="text-decoration:none;">Statistics</a>
-            <a class="btn btnWide" href="#/link" style="text-decoration:none;">Link SKUs</a>
+            <a class="btn btnWide" href="#/stats" style="text-decoration:none;"><i class="fa-solid fa-chart-line"></i></a>
+            <a class="btn btnWide" href="#/link" style="text-decoration:none;"><i class="fa-solid fa-link"></i></a>
             <button class="btn btnWide" type="button" disabled>Email Notifications</button>
           </div>
         </div>
