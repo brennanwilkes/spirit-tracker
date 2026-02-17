@@ -556,7 +556,7 @@ async function requestJson(
 	if (authToken) headers.set("authorization", `Bearer ${authToken}`);
 
 	const isGet = method === "GET";
-	const isWrite = method === "POST" || method === "PUT";
+	const isWrite = method === "POST" || method === "PUT" || method === "PATCH";
 	const scope = authToken ? scopeFromToken(authToken) : "anon";
 
 	const wantCache = cache === undefined ? isGet : !!cache;
@@ -593,9 +593,17 @@ async function requestJson(
 		(parsed.kind === "text" && String(parsed.value || "").trim()) ||
 		`HTTP ${res.status}`;
 
-	if (!res.ok) {
-		if (res.status === 429 && isWrite) {
-			showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
+		if (!res.ok) {
+			const isKvWriteLimit =
+				typeof msg === "string" &&
+				(/kv\s*put\(\)\s*limit exceeded/i.test(msg) ||
+				 /put\(\)\s*limit exceeded/i.test(msg) ||
+				 /kv.*limit exceeded/i.test(msg) ||
+				 /rate limit/i.test(msg));
+		
+			if (isWrite && (res.status === 429 || isKvWriteLimit)) {
+				showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
+			}
 		}
 
 		if (res.status === 401 || res.status === 403) {
