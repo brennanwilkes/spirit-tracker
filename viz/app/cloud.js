@@ -39,6 +39,11 @@ export function getCloudBaseUrl() {
 
 /* ---------------- Storage ---------------- */
 
+export function logoutAndReload() {
+	clearAuth();
+	if (typeof window !== "undefined") window.location.reload();
+}
+
 function lsGet(k) {
 	try {
 		return localStorage.getItem(k);

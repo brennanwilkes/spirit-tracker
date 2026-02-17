@@ -5,8 +5,12 @@ import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
+import { getAuthStatus, logoutAndReload } from "./cloud.js";
 
 export function renderSearch($app) {
+
+	const authed = getAuthStatus().ok;
+
 	$app.innerHTML = `
     <div class="container">
       <div class="header">
@@ -26,8 +30,23 @@ export function renderSearch($app) {
 				<i class="fa-solid fa-link" aria-hidden="true"></i>
 				<span class="srOnly">Link SKUs</span>
 			</a>
-            <button class="btn btnWide" type="button" disabled>Email Notifications</button>
-          </div>
+
+			${
+				authed
+					? `
+	  <a class="btn btnWide" href="#/shortlist" style="text-decoration:none;">My Shortlist</a>
+	  <a class="btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
+		<i class="fa-solid fa-gear" aria-hidden="true"></i>
+		<span class="srOnly">Settings</span>
+	  </a>
+	  <button id="logoutBtn" class="btn btnWide" type="button">Logout</button>
+	`
+					: `
+	  <a class="btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
+	  <a class="btn btnWide" href="#/signup" style="text-decoration:none;">Signup</a>
+	`
+			}
+		</div>
         </div>
 
         <!-- Row 2 -->
@@ -54,6 +73,15 @@ export function renderSearch($app) {
 	const $clearSearch = document.getElementById("clearSearch");
 	const favSet = new Set();
 	installFavStars($results, favSet);
+
+	const $logoutBtn = document.getElementById("logoutBtn");
+	if ($logoutBtn) {
+		$logoutBtn.addEventListener("click", (e) => {
+			e.preventDefault();
+			logoutAndReload();
+		});
+	}
+
 
 	$q.value = loadSavedQuery();
 
