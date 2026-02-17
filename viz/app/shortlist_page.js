@@ -247,11 +247,17 @@ export async function renderShortlist($app, accountUuidRaw) {
     
 
 	// Canonicalize favourites
+    const favArr =
+        Array.isArray(fav) ? fav :
+        Array.isArray(fav?.set) ? fav.set :
+        [];
+    
     favSet.clear();
-    for (const k of (fav && fav.set) ? fav.set : []) {
-      const raw = String(k || "");
-      favSet.add(String(rules.canonicalSku(raw) || raw));
+    for (const k of favArr) {
+        const raw = String(k || "");
+        favSet.add(String(rules.canonicalSku(raw) || raw));
     }
+  
     
 
 	const sampledSet = new Set(
