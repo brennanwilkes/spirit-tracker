@@ -673,9 +673,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 			? `<span class="badge mono">Score ${esc(Math.round(it._score))}</span>`
 			: "";
 		const wBadge = Number.isFinite(it._weighted) ? `<span class="badge mono">W ${esc(it._weighted)}</span>` : "";
-        const sampledPill = it._outOfStock
-			? ""
-			: `<button
+        const sampledPill = `<button
 					class="pillBtn sampledBtn ${it._sampled ? "isOn" : ""}"
 					type="button"
 					data-sku="${esc(it.sku)}"
@@ -689,9 +687,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 				</button>`;
 
 		const scoreVal = Number.isFinite(it._score) ? String(Math.round(it._score)) : "";
-		const scorePill = it._outOfStock
-			? ""
-			: `<div
+		const scorePill = `<div
 					class="pillInput scoreWrap"
 					role="button"
 					tabindex="0"
@@ -719,25 +715,29 @@ export async function renderShortlist($app, accountUuidRaw) {
 				${favStarHtml(it.sku, favSet.has(it.sku))}
 				<div class="itemRow">
 					<div class="thumbBox">${renderThumbHtml(it.img)}</div>
-					<div class="itemBody">
-                        <div class="itemTop" style="display:flex; align-items:center; gap:8px;">
-                            <div class="itemName" style="flex:1 1 auto;">${esc(it.name || "(no name)")}</div>
-                        
+                        <div class="itemBody" style="min-width:0;">
+                            <div class="itemTop" style="display:flex; align-items:center; gap:8px; min-width:0;">
+                                <div class="itemName" style="flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    ${esc(it.name || "(no name)")}
+                                </div>
+                                                
                             ${sampledPill}
                             ${scorePill}
-                                                  
-                            <a class="badge mono skuLink"
-                            href="${esc(skuLink)}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onclick="event.stopPropagation()"
-                            >${esc(displaySku(it.sku))}</a>
+                                                    
+                            <a class="badge mono skuLink" style="flex:0 0 auto;"
+                                href="${esc(skuLink)}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onclick="event.stopPropagation()"
+                            >
+                                ${esc(displaySku(it.sku))}
+                            </a>
                         </div>
 						<div class="metaRow">
 							${stockBadge}
-							${specialBadge}
 							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
 							${saleBadge}
+							${specialBadge}
 							${storeBadge}
 						</div>
 					</div>
@@ -969,6 +969,24 @@ export async function renderShortlist($app, accountUuidRaw) {
 			if (inp) inp.focus();
 		}
 	});
+
+    // Auto-select score on focus (and keep selection after mouseup)
+    $results.addEventListener("focusin", (e) => {
+        const inp = e.target.closest(".scoreInput");
+        if (!inp) return;
+        setTimeout(() => {
+            try {
+                inp.select();
+            } catch {}
+        }, 0);
+    });
+
+    $results.addEventListener("mouseup", (e) => {
+        const inp = e.target.closest(".scoreInput");
+        if (!inp) return;
+        e.preventDefault(); // prevents mouseup from clearing the selection
+    });
+
 
 	async function saveScore(sku, wrap, inp) {
 		const raw = String(inp?.value || "").trim();
