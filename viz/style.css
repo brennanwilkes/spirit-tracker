@@ -391,16 +391,13 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   gap:12px;
   align-items:flex-start;
   justify-content:space-between;
+  width: 100%;
 }
+
 /* make the text column take all remaining width */
 .detailHeaderText{
   flex: 1 1 auto;
   min-width: 0;
-}
-
-/* ensure the row spans full width so space-between works */
-.detailTopRow{
-  width: 100%;
 }
 
 .detailLeft{
@@ -562,39 +559,58 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   opacity: 0.92;
 }
 
-/* --- Subtle save feedback (no text) --- */
-@keyframes pillSaving {
-  0%   { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.00); border-color: rgba(125, 211, 252, 0.22); }
-  50%  { box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.18); border-color: rgba(125, 211, 252, 0.38); }
-  100% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.00); border-color: rgba(125, 211, 252, 0.22); }
+/* --- Save feedback: animated sheen + success pulse (no text) --- */
+.pillBtn, .pillInput { position: relative; overflow: hidden; }
+
+/* sheen overlay */
+.pillBtn::after,
+.pillInput::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  pointer-events:none;
+  opacity:0;
+  background: linear-gradient(
+    120deg,
+    rgba(125,211,252,0.00) 0%,
+    rgba(125,211,252,0.10) 35%,
+    rgba(125,211,252,0.00) 70%
+  );
+  transform: translateX(-60%);
 }
 
+@keyframes pillSheen {
+  0%   { opacity: 0; transform: translateX(-70%); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(70%); }
+}
+
+.pillBtn.isSaving::after,
+.pillInput.isSaving::after{
+  animation: pillSheen 800ms ease-in-out infinite;
+}
+
+/* brighten border while saving */
 .pillBtn.isSaving,
 .pillInput.isSaving{
-  animation: pillSaving 820ms ease-in-out infinite;
-}
-@keyframes markShimmer {
-  0%   { opacity: 0.65; transform: scale(1); }
-  50%  { opacity: 1.00; transform: scale(1.08); }
-  100% { opacity: 0.65; transform: scale(1); }
+  border-color: rgba(125,211,252,0.38);
 }
 
-/* only sampled gets the mark shimmer */
-#sampledBtn.isSaving .pillMark{
-  animation: markShimmer 620ms ease-in-out infinite;
-  border-color: rgba(125, 211, 252, 0.45);
-  color: rgba(125, 211, 252, 0.95);
+/* success pulse */
+@keyframes pillSaved {
+  0%   { box-shadow: 0 0 0 0 rgba(90,200,120,0.00); }
+  35%  { box-shadow: 0 0 0 4px rgba(90,200,120,0.18); }
+  100% { box-shadow: 0 0 0 0 rgba(90,200,120,0.00); }
 }
 
 .pillBtn.isSaved,
-.pillInput.isSaved {
+.pillInput.isSaved{
   animation: pillSaved 520ms ease-out 1;
 }
 
-/* Optional: make cursor show "busy" without disabling */
+/* Optional: make cursor show "busy" */
 .pillBtn.isSaving { cursor: wait; }
 .pillInput.isSaving { cursor: wait; }
-
 
 /* Chart fills most of viewport, but stays usable on mobile */
 .chartBox {

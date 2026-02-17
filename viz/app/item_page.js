@@ -551,42 +551,26 @@ export async function renderItem($app, skuInput) {
 	const cloudKey = sku;
 
 	if (!auth.ok) {
-		// Not disabled — clicking opens login
 		if ($sampledBtn) $sampledBtn.classList.add("isLoginGate");
 		if ($scoreWrap) $scoreWrap.classList.add("isLoginGate");
 		if ($score) $score.readOnly = true;
-
+	  
 		if ($sampledBtn) {
-			$sampledBtn.addEventListener("click", async () => {
-				const next = !$sampledBtn.classList.contains("isOn");
-				setSampledUi(next);
-		
-				setSaving($sampledBtn, true);
-				try {
-					await setMySampled(cloudKey, next);
-					flashSaved($sampledBtn);
-				} catch {
-					setSampledUi(!next);
-				} finally {
-					setSaving($sampledBtn, false);
-				}
-			});
+		  $sampledBtn.addEventListener("click", (e) => {
+			e.preventDefault();
+			openLogin();
+		  });
 		}
-		
-
+	  
 		if ($scoreWrap) {
-			$scoreWrap.addEventListener("click", (e) => {
-				e.preventDefault();
-				openLogin();
-			});
+		  $scoreWrap.addEventListener("click", (e) => {
+			e.preventDefault();
+			openLogin();
+		  });
 		}
-
-		if ($score) {
-			$score.addEventListener("focus", () => {
-				$score.blur();
-			});
-		}
-	} else {
+	  
+		if ($score) $score.addEventListener("focus", () => $score.blur());
+	  } else {
 		// Auth ok: load initial values
 		(async () => {
 			try {
@@ -610,17 +594,21 @@ export async function renderItem($app, skuInput) {
 		// Sampled toggle
 		if ($sampledBtn) {
 			$sampledBtn.addEventListener("click", async () => {
-				const next = !$sampledBtn.classList.contains("isOn");
-				setSampledUi(next);
-
-				try {
-					await setMySampled(cloudKey, next);
-				} catch {
-					setSampledUi(!next);
-				}
+			  const next = !$sampledBtn.classList.contains("isOn");
+			  setSampledUi(next);
+		
+			  setSaving($sampledBtn, true);
+			  try {
+				await setMySampled(cloudKey, next);
+				flashSaved($sampledBtn);
+			  } catch {
+				setSampledUi(!next);
+			  } finally {
+				setSaving($sampledBtn, false);
+			  }
 			});
 		}
-
+		
 		// Score save
 		if ($score) {
 			const saveScore = async () => {
