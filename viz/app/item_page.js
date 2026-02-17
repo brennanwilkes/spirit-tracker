@@ -5,6 +5,7 @@ import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJso
 import { loadSkuRules } from "./mapping.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
+import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
@@ -435,9 +436,36 @@ export async function renderItem($app, skuInput) {
           <div id="thumbBox" class="detailThumbBox"></div>
           <div class="detailHeaderText">
 		  <div class="detailTitleRow">
-			<div id="title" class="h1">Loading…</div>
+		  <div class="detailTitleRow">
+		  <div id="title" class="h1">Loading…</div>
+		
+		  <div class="detailRightRail">
 			${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
+		
+			<div class="detailCloudMeta" id="cloudMeta">
+			  <label class="cloudToggle" title="Mark as sampled">
+				<input id="sampledToggle" type="checkbox" />
+				<span>Sampled</span>
+			  </label>
+		
+			  <label class="cloudScore" title="Score (0-100)">
+				<input
+				  id="scoreInput"
+				  type="number"
+				  min="0"
+				  max="100"
+				  step="1"
+				  inputmode="numeric"
+				  placeholder="Score"
+				/>
+			  </label>
 			</div>
+		
+			<div class="detailCloudMetaStatus small" id="cloudMetaStatus"></div>
+		  </div>
+		</div>
+		
+
 					<div id="links" class="links"></div>
             <div class="small" id="status"></div>
           </div>
@@ -462,6 +490,113 @@ export async function renderItem($app, skuInput) {
 	const $status = document.getElementById("status");
 	const $canvas = document.getElementById("chart");
 	const $thumbBox = document.getElementById("thumbBox");
+
+	// ---- Cloud: sampled + score (per canonical SKU) ----
+	const $sampled = document.getElementById("sampledToggle");
+	const $score = document.getElementById("scoreInput");
+	const $cloudMetaStatus = document.getElementById("cloudMetaStatus");
+
+	function setCloudUi(opts = {}) {
+		const { enabled, msg, sampled, score } = opts;
+
+		if (typeof enabled === "boolean") {
+			if ($sampled) $sampled.disabled = !enabled;
+			if ($score) $score.disabled = !enabled;
+		}
+
+		if ($sampled && sampled !== undefined) $sampled.checked = !!sampled;
+
+		if ($score && score !== undefined) {
+			if (score === null) $score.value = "";
+			else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
+		}
+
+		if ($cloudMetaStatus && msg !== undefined) $cloudMetaStatus.textContent = String(msg || "");
+	}
+
+	setCloudUi({ enabled: false, msg: "" });
+
+	const cloudKey = sku; // canonical SKU key for cloud maps
+	const auth = getAuthStatus();
+
+	if (!auth.ok) {
+		setCloudUi({ enabled: false, msg: "Sign in to sync." });
+	} else {
+		setCloudUi({ enabled: true, msg: "Syncing…" });
+
+		(async () => {
+			try {
+				const [sampledArr, scoreMap] = await Promise.all([getMySampled(), getMyScore()]);
+
+				const sampled = Array.isArray(sampledArr) && sampledArr.includes(cloudKey);
+
+				let score = null;
+				if (scoreMap && typeof scoreMap === "object") {
+					const raw = scoreMap[cloudKey];
+					const n = Number(raw);
+					if (Number.isFinite(n)) score = n;
+				}
+
+				setCloudUi({ enabled: true, msg: "", sampled, score });
+			} catch {
+				setCloudUi({ enabled: false, msg: "Cloud unavailable." });
+			}
+		})();
+
+		if ($sampled) {
+			$sampled.addEventListener("change", async () => {
+				const next = !!$sampled.checked;
+				const prev = !next;
+
+				setCloudUi({ enabled: false, msg: "Saving…" });
+				try {
+					await setMySampled(cloudKey, next);
+					setCloudUi({ enabled: true, msg: "" });
+				} catch {
+					$sampled.checked = prev;
+					setCloudUi({ enabled: true, msg: "Save failed." });
+				}
+			});
+		}
+
+		if ($score) {
+			const saveScore = async () => {
+				const raw = String($score.value || "").trim();
+
+				// blank => delete score in cloud
+				let toSend = null;
+
+				if (raw !== "") {
+					const n = Number(raw);
+					if (Number.isFinite(n)) {
+						toSend = Math.max(0, Math.min(100, Math.round(n)));
+						$score.value = String(toSend); // reflect clamp immediately
+					} else {
+						$score.value = ""; // invalid => treat as delete
+					}
+				}
+
+				setCloudUi({ enabled: false, msg: "Saving…" });
+				try {
+					await setMyScore(cloudKey, toSend);
+					setCloudUi({ enabled: true, msg: "" });
+				} catch {
+					setCloudUi({ enabled: true, msg: "Save failed." });
+				}
+			};
+
+			// "change" fires on blur / enter for number inputs (nice + compact)
+			$score.addEventListener("change", saveScore);
+
+			$score.addEventListener("keydown", (e) => {
+				if (e.key === "Enter") {
+					e.preventDefault();
+					$score.blur();
+				}
+			});
+		}
+	}
+
 
 	const idx = await loadIndex();
 	const all = Array.isArray(idx.items) ? idx.items : [];
