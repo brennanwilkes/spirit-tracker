@@ -724,7 +724,7 @@ export async function renderShortlist($app, accountUuidRaw) {
                             ${sampledPill}
                             ${scorePill}
                                                     
-                            <a class="badge mono skuLink" style="flex:0 0 auto;"
+                            <a class="badge mono skuLink" style="flex:0 0 auto; margin-right: 18px;"
                                 href="${esc(skuLink)}"
                                 target="_blank"
                                 rel="noopener noreferrer"

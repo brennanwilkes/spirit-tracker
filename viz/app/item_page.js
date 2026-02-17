@@ -536,14 +536,29 @@ export async function renderItem($app, skuInput) {
 
 	// Make the WHOLE score pill clickable -> focuses input
 	if ($scoreWrap && $score) {
+		const focusAndSelectScore = () => {
+			$score.focus();
+			// defer so selection sticks (esp. when focus came from a click)
+			setTimeout(() => {
+				try { $score.select(); } catch {}
+			}, 0);
+		};
+
+			
 		$scoreWrap.addEventListener("click", (e) => {
-			if (e.target !== $score) $score.focus();
+			if (e.target !== $score) focusAndSelectScore();
 		});
 		$scoreWrap.addEventListener("keydown", (e) => {
 			if (e.key === "Enter" || e.key === " ") {
 				e.preventDefault();
-				$score.focus();
+				focusAndSelectScore();
 			}
+		});
+		// Tab focus into the input -> select current value for quick replace
+		$score.addEventListener("focus", () => {
+			setTimeout(() => {
+				try { $score.select(); } catch {}
+			}, 0);
 		});
 	}
 
