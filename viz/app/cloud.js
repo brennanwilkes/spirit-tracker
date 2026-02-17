@@ -267,9 +267,16 @@ async function requestJson(path, { method = "GET", body = undefined, auth = fals
 		`HTTP ${res.status}`;
 
 	if (!res.ok) {
-		if (res.status === 401) {
-			throw new AuthError(msg, { reason: "unauthorized", status: res.status, url, body: payload, userId: authUserId });
+		if (res.status === 401 || res.status === 403) {
+			throw new AuthError(msg, {
+				reason: res.status === 401 ? "unauthorized" : "forbidden",
+				status: res.status,
+				url,
+				body: payload,
+				userId: authUserId,
+			});
 		}
+			
 		throw new ApiError(msg, { status: res.status, url, body: payload });
 	}
 
