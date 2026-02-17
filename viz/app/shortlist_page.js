@@ -5,7 +5,7 @@ import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-import { AuthError, getAuthStatus, getDetails, getScore, getSampled, setScore, setSampled } from "./cloud.js";
+import { AuthError, getAuthStatus, getStoredToken, getDetails, getScore, getSampled, setScore, setSampled } from "./cloud.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -105,14 +105,14 @@ export async function renderShortlist($app, accountUuidRaw) {
             <button id="back" class="btn">← Back</button>
 
             <div style="display:flex; flex-direction:column; gap:4px; margin-left:10px;">
-                <div class="h1" style="margin:0;">My shortlist</div>
+                <div class="h1" style="margin:0;">Shortlist</div>
 
                     <button
                         id="copyLink"
                         class="badge mono"
                         type="button"
                         title="Copy page link"
-                        style="cursor:pointer; width:fit-content;"
+                        style="cursor:pointer; width:fit-content; background:inherit; color:inherit; border:none; padding:0;"
                     >
                         ${esc(accountUuid)}
                     </button>
@@ -219,10 +219,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	$results.innerHTML = `<div class="small">Loading…</div>`;
 
+    const token = getStoredToken(); // may be null
     const [idx, rules, details, scoreMap, sampledArr, recent] = await Promise.all([
-		loadIndex(),
+        loadIndex(),
 		loadSkuRules(),
-        getDetails(accountUuid).catch((e) => e),
+        getDetails(accountUuid, { token }).catch((e) => e),
         getScore(accountUuid).catch((e) => e),
         getSampled(accountUuid).catch((e) => e),
         loadRecent().catch(() => null),
