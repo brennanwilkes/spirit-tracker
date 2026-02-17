@@ -209,13 +209,20 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 .badgeBtn{
-  background: none;
-  border: 0;
-  padding: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;          /* remove native button border */
+  background: unset;     /* don't force white; let .badge win */
   color: inherit;
   font: inherit;
+  cursor: pointer;
+  line-height: inherit;
 }
-.badgeBtn:focus{ outline: none; }
+
+/* keep the badge visuals from .badge (padding/bg/radius/etc) */
+.badgeBtn.badge{
+  background: var(--btnBg, inherit); /* optional: only if your .badge bg got overridden elsewhere */
+}
 
 
 .metaRow {
