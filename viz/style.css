@@ -564,20 +564,26 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 /* --- Subtle save feedback (no text) --- */
 @keyframes pillSaving {
-  0%   { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.00); border-color: var(--border); }
-  50%  { box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.10); border-color: rgba(125, 211, 252, 0.22); }
-  100% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.00); border-color: var(--border); }
-}
-
-@keyframes pillSaved {
-  0%   { box-shadow: 0 0 0 0 rgba(90, 200, 120, 0.00); }
-  35%  { box-shadow: 0 0 0 2px rgba(90, 200, 120, 0.12); }
-  100% { box-shadow: 0 0 0 0 rgba(90, 200, 120, 0.00); }
+  0%   { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.00); border-color: rgba(125, 211, 252, 0.22); }
+  50%  { box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.18); border-color: rgba(125, 211, 252, 0.38); }
+  100% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.00); border-color: rgba(125, 211, 252, 0.22); }
 }
 
 .pillBtn.isSaving,
-.pillInput.isSaving {
-  animation: pillSaving 900ms ease-in-out infinite;
+.pillInput.isSaving{
+  animation: pillSaving 820ms ease-in-out infinite;
+}
+@keyframes markShimmer {
+  0%   { opacity: 0.65; transform: scale(1); }
+  50%  { opacity: 1.00; transform: scale(1.08); }
+  100% { opacity: 0.65; transform: scale(1); }
+}
+
+/* only sampled gets the mark shimmer */
+#sampledBtn.isSaving .pillMark{
+  animation: markShimmer 620ms ease-in-out infinite;
+  border-color: rgba(125, 211, 252, 0.45);
+  color: rgba(125, 211, 252, 0.95);
 }
 
 .pillBtn.isSaved,
