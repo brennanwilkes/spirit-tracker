@@ -5,7 +5,7 @@ import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-import { getAuthStatus, getMyScore, getMySampled } from "./cloud.js";
+import { AuthError, getAuthStatus, getDetails, getScore, getSampled, setScore, setSampled } from "./cloud.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -13,8 +13,6 @@ const MEDIAN_PRICE = 202.74;
 const LOG_PENALTY = 7;
 const LOG_SAMPLE_BONUS = 0.1;
 
-// NOTE: user said "O5 can be ignored" -> we ignore the O5/L2 multiplier term.
-// WeightedScore = round( score*(1+sampleBonus) - logPenalty*ln(max(price,1)/median) )
 function weightedScore({ priceNum, scoreNum, sampled }) {
 	if (!Number.isFinite(scoreNum)) return null;
 	if (!Number.isFinite(priceNum)) return null;
@@ -89,23 +87,6 @@ function minFinite(vals) {
 export async function renderShortlist($app, accountUuidRaw) {
 	const accountUuid = String(accountUuidRaw || "").trim();
 
-	const auth = getAuthStatus();
-	if (!auth.ok) {
-		$app.innerHTML = `
-			<div class="container">
-				<div class="card">
-					<div class="h1">Shortlist</div>
-					<div class="small" style="margin-top:8px;">Login required.</div>
-					<div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-						<a class="btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
-						<a class="btn btnWide" href="#/signup" style="text-decoration:none;">Signup</a>
-					</div>
-				</div>
-			</div>
-		`;
-		return;
-	}
-
 	if (!UUID_RE.test(accountUuid)) {
 		$app.innerHTML = `
 			<div class="container">
@@ -118,26 +99,26 @@ export async function renderShortlist($app, accountUuidRaw) {
 		return;
 	}
 
-	// (Simple) enforce “my shortlist” semantics
-	if (String(auth.userId || "") !== accountUuid) {
-		$app.innerHTML = `
-			<div class="container">
-				<div class="card">
-					<div class="h1">Shortlist</div>
-					<div class="small" style="margin-top:8px;">Not authorized for this account.</div>
-				</div>
-			</div>
-		`;
-		return;
-	}
-
 	$app.innerHTML = `
-		<div class="container">
-			<div class="topbar">
-				<button id="back" class="btn">← Back</button>
-				<span class="badge">My Shortlist</span>
-				<span class="badge mono">${esc(accountUuid)}</span>
-			</div>
+        <div class="container">
+            <div class="topbar">
+            <button id="back" class="btn">← Back</button>
+
+            <div style="display:flex; flex-direction:column; gap:4px; margin-left:10px;">
+                <div class="h1" style="margin:0;">My shortlist</div>
+
+                    <button
+                        id="copyLink"
+                        class="badge mono"
+                        type="button"
+                        title="Copy page link"
+                        style="cursor:pointer; width:fit-content;"
+                    >
+                        ${esc(accountUuid)}
+                    </button>
+                </div>
+            </div>
+
 
 			<div class="card">
 				<div style="display:flex; flex-direction:column; gap:10px;">
@@ -191,6 +172,12 @@ export async function renderShortlist($app, accountUuidRaw) {
 		</div>
 	`;
 
+    document.getElementById("copyLink").addEventListener("click", async () => {
+        await navigator.clipboard.writeText(window.location.href);
+        const $status = document.getElementById("status");
+        if ($status) $status.textContent = "Copied page link to clipboard.";
+    });
+
 	document.getElementById("back").addEventListener("click", () => {
 		const last = sessionStorage.getItem("viz:lastRoute");
 		if (last && last !== location.hash) location.hash = last;
@@ -232,19 +219,36 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	$results.innerHTML = `<div class="small">Loading…</div>`;
 
-	const [idx, rules, fav, scoreMap, sampledArr, recent] = await Promise.all([
+    const [idx, rules, details, scoreMap, sampledArr, recent] = await Promise.all([
 		loadIndex(),
 		loadSkuRules(),
-		loadMyFavouritesSet(),
-		getMyScore().catch(() => ({})),
-		getMySampled().catch(() => []),
-		loadRecent().catch(() => null),
+        getDetails(accountUuid).catch((e) => e),
+        getScore(accountUuid).catch((e) => e),
+        getSampled(accountUuid).catch((e) => e),
+        loadRecent().catch(() => null),
 	]);
 
+    function isAuthErr(e) {
+        return e && (e.name === "AuthError" || e instanceof AuthError);
+    }
+    
+    // backend decides if this page is public/private
+    if (isAuthErr(details) || isAuthErr(scoreMap) || isAuthErr(sampledArr)) {
+        location.hash = "#/login";
+        return;
+    }
+    if (!(details && typeof details === "object")) details = { public: false };
+    
+    // normalize
+    const scoreObj = scoreMap && typeof scoreMap === "object" ? scoreMap : {};
+    const sampledList = Array.isArray(sampledArr) ? sampledArr : [];
+    
+
 	// Canonicalize favourites
-	favSet.clear();
-	for (const k of fav.set) {
-		const raw = String(k || "");
+    const favArr = Array.isArray(details?.favourites) ? details.favourites : [];
+    favSet.clear();
+    for (const k of favArr) {
+        const raw = String(k || "");
 		favSet.add(String(rules.canonicalSku(raw) || raw));
 	}
 
@@ -616,7 +620,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	function priceStr(it) {
 		const p = it && Number.isFinite(it._priceNum) ? it._priceNum : null;
-		if (p === null) return "(no stock)";
+		if (p === null) return "";
 		return `$${p.toFixed(2)}`;
 	}
 
@@ -624,6 +628,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const storeCount = it._storeCount || 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = priceStr(it);
+        const saleBadge = saleBadgeHtml(it);
 
 		const storeLabel = String(it._bestStoreLabel || "").trim();
 		const href = String(it._bestUrl || "").trim() || String(it.sampleUrl || "").trim();
@@ -652,31 +657,45 @@ export async function renderShortlist($app, accountUuidRaw) {
 			? `<span class="badge mono">Score ${esc(Math.round(it._score))}</span>`
 			: "";
 		const wBadge = Number.isFinite(it._weighted) ? `<span class="badge mono">W ${esc(it._weighted)}</span>` : "";
-		const sampledBadge = it._sampled ? `<span class="badge badgeGood">Sampled</span>` : "";
-		const saleBadge = saleBadgeHtml(it);
+        const sampledBadge = it._outOfStock
+        ? "" // optional: still allow toggling even if OOS; remove this if you want it always available
+        : `<button class="badge ${it._sampled ? "badgeGood" : ""} sampledBtn"
+            type="button"
+            data-sku="${esc(it.sku)}"
+            title="Toggle sampled"
+         >${it._sampled ? "Sampled" : "Not sampled"}</button>`;
+        const scoreNum = Number.isFinite(it._score) ? Math.round(it._score) : null;
 
+        const scoreHtml =
+            scoreNum === null
+                ? `<button class="badge mono scoreBtn" type="button" data-sku="${esc(it.sku)}" title="Set score">Score -</button>`
+                : `<button class="badge mono scoreBtn" type="button" data-sku="${esc(it.sku)}" title="Edit score">Score ${esc(scoreNum)}</button>`;
+        
+        
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
 				${favStarHtml(it.sku, favSet.has(it.sku))}
 				<div class="itemRow">
 					<div class="thumbBox">${renderThumbHtml(it.img)}</div>
 					<div class="itemBody">
-						<div class="itemTop">
-							<div class="itemName">${esc(it.name || "(no name)")}</div>
-							<a class="badge mono skuLink" href="${esc(
-								skuLink,
-							)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-								displaySku(it.sku),
-							)}</a>
-						</div>
+                        <div class="itemTop" style="display:flex; align-items:center; gap:8px;">
+                            <div class="itemName" style="flex:1 1 auto;">${esc(it.name || "(no name)")}</div>
+                        
+                            ${scoreHtml}
+                        
+                            <a class="badge mono skuLink"
+                            href="${esc(skuLink)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onclick="event.stopPropagation()"
+                            >${esc(displaySku(it.sku))}</a>
+                        </div>
 						<div class="metaRow">
 							${stockBadge}
 							${specialBadge}
 							${sampledBadge}
-							${wBadge}
-							${scoreBadge}
+							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
 							${saleBadge}
-							<span class="mono price">${esc(price)}</span>
 							${storeBadge}
 						</div>
 					</div>
@@ -836,6 +855,80 @@ export async function renderShortlist($app, accountUuidRaw) {
 	}
 
 	applyFilter();
+
+    async function refreshAfterEdit() {
+        // re-decorate score/sample only and re-sort
+        for (const sku of favSet) {
+            const it = decoratedBySku.get(sku);
+            if (!it) continue;
+    
+            const raw = scoreMap && typeof scoreMap === "object" ? Number(scoreMap[sku]) : NaN;
+            it._score = Number.isFinite(raw) ? raw : null;
+            it._sampled = sampledSet.has(sku);
+        }
+        applyFilter();
+    }
+    
+    // SCORE edit
+    $results.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".scoreBtn");
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+    
+        const sku = btn.getAttribute("data-sku") || "";
+        if (!sku) return;
+    
+        const cur = decoratedBySku.get(sku)?._score;
+        const nextRaw = window.prompt(
+            `Set score for ${sku} (blank to clear):`,
+            cur === null || cur === undefined ? "" : String(Math.round(cur)),
+        );
+    
+        if (nextRaw === null) return; // cancelled
+    
+        const trimmed = String(nextRaw).trim();
+        try {
+            if (!trimmed) {
+                // clear
+                await setScore(accountUuid, sku, null);
+                if (scoreMap && typeof scoreMap === "object") delete scoreMap[sku];
+            } else {
+                const n = Number(trimmed);
+                if (!Number.isFinite(n)) return;
+                await setScore(accountUuid, sku, n);
+                if (scoreMap && typeof scoreMap === "object") scoreMap[sku] = n;
+            }
+            await refreshAfterEdit();
+        } catch {
+            location.hash = "#/login";
+        }
+    });
+    
+    // SAMPLED toggle
+    $results.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".sampledBtn");
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+    
+        const sku = btn.getAttribute("data-sku") || "";
+        if (!sku) return;
+    
+        const next = !sampledSet.has(sku);
+    
+        try {
+            await setSampled(accountUuid, sku, next);
+            if (next) sampledSet.add(sku);
+            else sampledSet.delete(sku);
+    
+            await refreshAfterEdit();
+        } catch (e) {
+            if (isAuthErr(e)) location.hash = "#/login";
+            else throw e;
+        }
+    });
+    
 
 	// Click -> item page (ignore fav star / links)
 	$results.addEventListener("click", (e) => {

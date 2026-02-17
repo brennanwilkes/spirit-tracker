@@ -93,7 +93,8 @@ function route() {
 		}
 
 		// Not authed -> login
-		return renderLogin($app, { flash: params });
+		location.hash = "#/login";
+		return;
 	}
 
 	return renderSearch($app);
