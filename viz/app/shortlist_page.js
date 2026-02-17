@@ -109,10 +109,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 
                     <button
                         id="copyLink"
-                        class="badge mono"
+                        class="badge mono badgeBtn"
                         type="button"
                         title="Copy page link"
-                        style="cursor:pointer; width:fit-content; background:inherit; color:inherit; border:none; padding:0;"
+                        style="cursor:pointer; width:fit-content;"
                     >
                         ${esc(accountUuid)}
                     </button>
