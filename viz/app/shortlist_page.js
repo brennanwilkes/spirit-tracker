@@ -89,7 +89,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	if (!UUID_RE.test(accountUuid)) {
 		$app.innerHTML = `
-			<div class="container">
+			<div class="container shortlistPage">
 				<div class="card">
 					<div class="h1">Shortlist</div>
 					<div class="small" style="margin-top:8px;">Invalid account UUID.</div>
@@ -99,8 +99,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 		return;
 	}
 
+    const isSmall = !!window.matchMedia?.("(max-width: 640px)")?.matches;
+	const uuidLabel = isSmall ? `${(accountUuid.split("-")[0] || accountUuid)}…` : accountUuid;
+    
 	$app.innerHTML = `
-        <div class="container">
+        <div class="container shortlistPage">
             <div class="topbar">
                 <button id="back" class="btn">← Back</button>
 
@@ -113,7 +116,7 @@ export async function renderShortlist($app, accountUuidRaw) {
                         tabindex="0"
                         title="Copy page link"
                     >
-                        ${esc(accountUuid)}
+                        ${esc(uuidLabel)}
                     </span>
                 </div>
             </div>
@@ -125,6 +128,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 						<select id="storeFilter" class="selectSmall" aria-label="Store filter">
 							<option value="">-</option>
 						</select>
+
+						<span class="mobileBreak" aria-hidden="true"></span>
 
 						<span class="small" style="opacity:.8;">Sort</span>
 						<select id="sort" class="selectSmall" aria-label="Shortlist sort">

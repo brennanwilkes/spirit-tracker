@@ -423,10 +423,30 @@ button.badge.badgeBtn:hover{
   width: 100%;
 }
 
-/* make the text column take all remaining width */
+/* Detail header layout: desktop stays the same; mobile can span links full width */
 .detailHeaderText{
   flex: 1 1 auto;
   min-width: 0;
+
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  grid-template-areas:
+    "left  right"
+    "links right";
+  column-gap: 12px;
+  align-items: start;
+}
+
+.detailLeft{ grid-area: left; min-width: 0; }
+.detailRight{ grid-area: right; }
+.detailLinksRow{ grid-area: links; min-width: 0; }
+
+@media (max-width: 640px) {
+  .detailHeaderText{
+    grid-template-areas:
+      "left  right"
+      "links links"; /* links + debug span full width on small screens */
+  }
 }
 
 .detailLeft{
@@ -652,7 +672,25 @@ button.badge.badgeBtn:hover{
   padding: 10px;
 }
 
+
+/* mobile-only break to stack controls */
+.mobileBreak { display: none; flex-basis: 100%; width: 0; height: 0; }
+
 @media (max-width: 640px) {
+
+  .mobileBreak { display: block; }
+
+  /* shortlist: simplify rows for small screens */
+  .shortlistPage .sampledBtn,
+  .shortlistPage .scoreWrap,
+  .shortlistPage .skuLink,
+  .shortlistPage .favStarBtn{
+    display: none !important;
+  }
+
+  /* optional: keep the sort select from feeling cramped */
+  .shortlistPage #sort { margin-top: 2px; }
+
   .container { padding: 14px; }
   .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
   .item { min-height: 0; }

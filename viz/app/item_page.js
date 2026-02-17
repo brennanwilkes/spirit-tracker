@@ -445,55 +445,51 @@ export async function renderItem($app, skuInput) {
 			<div class="topbar">
 			<button id="back" class="btn">← Back</button>
 			<span class="badge mono">${esc(displaySku(sku))}</span>
-			</div>
+		</div>
 
-			<div class="card detailCard">
+		<div class="card detailCard">
 			<div class="detailHeader">
 				<div id="thumbBox" class="detailThumbBox"></div>
 
 				<div class="detailHeaderText">
-				<div class="detailTopRow">
 					<div class="detailLeft">
 						<div class="detailTitleRow">
 						<div id="title" class="h1">Loading…</div>
 						</div>
-
-						<div id="links" class="links"></div>
-						<div class="small" id="status"></div>
 					</div>
 
 					<div class="detailRight">
-
 						<button id="sampledBtn" class="pillBtn" type="button" aria-pressed="false">
-							<span class="pillMark pillMarkOff">×</span>
-							<span class="pillMark pillMarkOn">✓</span>
-							<span>Sampled</span>
+						<span class="pillMark pillMarkOff">×</span>
+						<span class="pillMark pillMarkOn">✓</span>
+						<span>Sampled</span>
 						</button>
 						${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
 
-
 						<div id="scoreWrap" class="pillInput" role="button" tabindex="0" aria-label="Score">
-							<span class="pillMarkNum">#</span>
-							<input
-								id="scoreInput"
-								class="pillNumber"
-								type="number"
-								min="0"
-								max="100"
-								step="1"
-								inputmode="numeric"
-								placeholder="Score"
-							/>
-							</div>
+						<span class="pillMarkNum">#</span>
+						<input
+							id="scoreInput"
+							class="pillNumber"
+							type="number"
+							min="0"
+							max="100"
+							step="1"
+							inputmode="numeric"
+							placeholder="Score"
+						/>
 						</div>
 					</div>
 
+					<div class="detailLinksRow">
+						<div id="links" class="links"></div>
+						<div class="small" id="status"></div>
+					</div>
 				</div>
-			</div>
 
-			<div class="chartBox">
-				<canvas id="chart"></canvas>
-			</div>
+				<div class="chartBox">
+					<canvas id="chart"></canvas>
+				</div>
 			</div>
 		</div>
 	`;
