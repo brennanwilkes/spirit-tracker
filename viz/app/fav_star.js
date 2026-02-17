@@ -1,5 +1,13 @@
+// favourites.js (or wherever your first snippet lives)
 import { esc } from "./dom.js";
-import { AuthError, getAuthStatus, getMyFavourites, setMyFavourite } from "./cloud.js";
+import {
+	AuthError,
+	getAuthStatus,
+	getMyFavourites,
+	setMyFavourite,
+	patchMyFavourites, // <-- add
+} from "./cloud.js";
+import { loadSkuRules } from "./mapping.js"; // <-- add
 
 function cssEscape(s) {
 	const v = String(s ?? "");
@@ -91,6 +99,32 @@ export function setFavStarsForSku(root, sku, on) {
 	}
 }
 
+function setFavStarsForGroup(root, groupSet, on) {
+	for (const sku of groupSet) setFavStarsForSku(root, sku, on);
+}
+
+function getButtonsForGroup(root, groupSet) {
+	const out = new Set();
+	for (const sku of groupSet) {
+		const key = String(sku || "").trim();
+		if (!key) continue;
+		const sel = `.favStarBtn[data-sku="${cssEscape(key)}"]`;
+		for (const btn of Array.from(root.querySelectorAll(sel))) out.add(btn);
+	}
+	return Array.from(out);
+}
+
+let _rulesPromise = null;
+async function getSkuRulesSafe() {
+	if (!_rulesPromise) _rulesPromise = loadSkuRules().catch(() => null);
+	return await _rulesPromise;
+}
+
+function anyFavInGroup(set, groupSet) {
+	for (const sku of groupSet) if (set.has(sku)) return true;
+	return false;
+}
+
 export function installFavStars(root, favSet) {
 	const set = favSet instanceof Set ? favSet : new Set();
 	const inflight = new Set();
@@ -102,8 +136,8 @@ export function installFavStars(root, favSet) {
 		e.preventDefault();
 		e.stopPropagation();
 
-		const sku = String(btn.getAttribute("data-sku") || "").trim();
-		if (!sku) return;
+		const rawSku = String(btn.getAttribute("data-sku") || "").trim();
+		if (!rawSku) return;
 
 		const auth = getAuthStatus();
 		if (!auth.ok) {
@@ -111,29 +145,54 @@ export function installFavStars(root, favSet) {
 			return;
 		}
 
-		if (inflight.has(sku)) return;
-		inflight.add(sku);
+		const rules = await getSkuRulesSafe();
+		const canon = rules ? rules.canonicalSku(rawSku) : rawSku;
+		const group = rules ? rules.groupForCanonical(rawSku) : new Set([rawSku]);
 
-		const currentlyOn = btn.classList.contains("favOn");
-		const desired = !currentlyOn;
+		const inflightKey = canon || rawSku;
+		if (inflight.has(inflightKey)) return;
+		inflight.add(inflightKey);
 
-		btn.classList.add("favBusy");
-		btn.disabled = true;
+		const beforeOn = anyFavInGroup(set, group) || set.has(canon);
+		const desired = !beforeOn;
+
+		const btns = getButtonsForGroup(root, group);
+		for (const b of btns) {
+			b.classList.add("favBusy");
+			b.disabled = true;
+		}
 
 		try {
-			await setMyFavourite(sku, desired);
-			if (desired) set.add(sku);
-			else set.delete(sku);
-			setFavStarsForSku(root, sku, desired);
+			if (desired) {
+				// store canon on "add" to avoid duplicates
+				await setMyFavourite(canon, true);
+				set.add(canon);
+				// optional cleanup of legacy mapped keys in local set
+				for (const s of group) if (s !== canon) set.delete(s);
+			} else {
+				// IMPORTANT: remove *all mapped SKUs* (and canon) together
+				const boolMap = {};
+				for (const s of group) boolMap[s] = false;
+				boolMap[canon] = false;
+				await patchMyFavourites(boolMap);
+
+				for (const s of group) set.delete(s);
+				set.delete(canon);
+			}
+
+			setFavStarsForGroup(root, group, desired);
 		} catch (err) {
 			if (err && (err.name === "AuthError" || err instanceof AuthError)) {
 				openLoginNewTab("#/login");
 			}
-			setFavStarEl(btn, set.has(sku));
+			// revert UI to prior state for whole group
+			setFavStarsForGroup(root, group, beforeOn);
 		} finally {
-			btn.classList.remove("favBusy");
-			btn.disabled = false;
-			inflight.delete(sku);
+			for (const b of btns) {
+				b.classList.remove("favBusy");
+				b.disabled = false;
+			}
+			inflight.delete(inflightKey);
 		}
 	}
 
