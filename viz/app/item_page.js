@@ -498,218 +498,124 @@ export async function renderItem($app, skuInput) {
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
+	const $scoreWrap = document.getElementById("scoreWrap");
 	const $score = document.getElementById("scoreInput");
-	const $cloudMetaStatus = document.getElementById("cloudMetaStatus");
-	
 
-	
-	function setCloudUi(opts = {}) {
-		const { enabled, msg, sampled, score } = opts;
-	  
-		if (typeof enabled === "boolean") {
-		  if ($sampledBtn) $sampledBtn.disabled = !enabled;
-		  if ($score) $score.disabled = !enabled;
-		}
-	  
-		if ($sampledBtn && sampled !== undefined) {
-		  $sampledBtn.classList.toggle("isOn", !!sampled);
-		  $sampledBtn.setAttribute("aria-pressed", sampled ? "true" : "false");
-		}
-	  
-		if ($score && score !== undefined) {
-		  if (score === null) $score.value = "";
-		  else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
-		}
-	  
-		if ($cloudMetaStatus && msg !== undefined) $cloudMetaStatus.textContent = String(msg || "");
-	}
-
-	setCloudUi({ enabled: false, msg: "" });
 	const loginUrl = "#/login";
 	const openLogin = () => window.open(loginUrl, "_blank", "noopener,noreferrer");
-	
-	function setSampledUi(isOn){
-	  const on = !!isOn;
-	  $sampledBtn.classList.toggle("isOn", on);
-	  $sampledBtn.setAttribute("aria-pressed", on ? "true" : "false");
+
+	function setSampledUi(isOn) {
+		const on = !!isOn;
+		if (!$sampledBtn) return;
+		$sampledBtn.classList.toggle("isOn", on);
+		$sampledBtn.setAttribute("aria-pressed", on ? "true" : "false");
 	}
-	
-	function setScoreUi(score){
-	  if (score === null || score === undefined) $score.value = "";
-	  else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
+
+	function setScoreUi(score) {
+		if (!$score) return;
+		if (score === null || score === undefined) $score.value = "";
+		else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
 	}
-	
+
 	// Make the WHOLE score pill clickable -> focuses input
 	if ($scoreWrap && $score) {
-	  $scoreWrap.addEventListener("click", (e) => {
-		// if click wasn't directly on input, focus it
-		if (e.target !== $score) $score.focus();
-	  });
-	  $scoreWrap.addEventListener("keydown", (e) => {
-		if (e.key === "Enter" || e.key === " ") {
-		  e.preventDefault();
-		  $score.focus();
-		}
-	  });
+		$scoreWrap.addEventListener("click", (e) => {
+			if (e.target !== $score) $score.focus();
+		});
+		$scoreWrap.addEventListener("keydown", (e) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				$score.focus();
+			}
+		});
 	}
-	
+
 	const auth = getAuthStatus();
 	const cloudKey = sku;
-	
-	if (!auth.ok) {
-	  // Not disabled — clicking opens login
-	  $sampledBtn.classList.add("isLoginGate");
-	  $scoreWrap.classList.add("isLoginGate");
-	  $score.readOnly = true;
-	
-	  $sampledBtn.addEventListener("click", (e) => {
-		e.preventDefault();
-		openLogin();
-	  });
-	
-	  $scoreWrap.addEventListener("click", (e) => {
-		e.preventDefault();
-		openLogin();
-	  });
-	
-	  $score.addEventListener("focus", () => {
-		// prevent wonky partial-edit state when readOnly
-		$score.blur();
-	  });
-	} else {
-	  // Auth ok: load initial values, then enable saves
-	  (async () => {
-		try {
-		  const [sampledArr, scoreMap] = await Promise.all([getMySampled(), getMyScore()]);
-		  const sampled = Array.isArray(sampledArr) && sampledArr.includes(cloudKey);
-	
-		  let score = null;
-		  if (scoreMap && typeof scoreMap === "object") {
-			const n = Number(scoreMap[cloudKey]);
-			if (Number.isFinite(n)) score = n;
-		  }
-	
-		  setSampledUi(sampled);
-		  setScoreUi(score);
-		} catch {
-		  // leave empty; still usable
-		  setSampledUi(false);
-		  setScoreUi(null);
-		}
-	  })();
-	
-	  // Sampled toggle
-	  $sampledBtn.addEventListener("click", async () => {
-		const next = !$sampledBtn.classList.contains("isOn");
-		setSampledUi(next);
-	
-		try {
-		  await setMySampled(cloudKey, next);
-		} catch {
-		  // revert on failure
-		  setSampledUi(!next);
-		}
-	  });
-	
-	  // Score save (blur/change)
-	  const saveScore = async () => {
-		const raw = String($score.value || "").trim();
-		let toSend = null;
-	
-		if (raw !== "") {
-		  const n = Number(raw);
-		  if (Number.isFinite(n)) {
-			toSend = Math.max(0, Math.min(100, Math.round(n)));
-			$score.value = String(toSend);
-		  } else {
-			$score.value = "";
-			toSend = null;
-		  }
-		}
-	
-		try {
-		  await setMyScore(cloudKey, toSend);
-		} catch {
-		  // no toast; just leave value
-		}
-	  };
-	
-	  $score.addEventListener("change", saveScore);
-	  $score.addEventListener("keydown", (e) => {
-		if (e.key === "Enter") {
-		  e.preventDefault();
-		  $score.blur();
-		}
-	  });
-	}
-	
-	if (!auth.ok) {
-		setCloudUi({ enabled: false, msg: "" });
-	} else {
-		setCloudUi({ enabled: true, msg: "Syncing..." });
 
+	if (!auth.ok) {
+		// Not disabled — clicking opens login
+		if ($sampledBtn) $sampledBtn.classList.add("isLoginGate");
+		if ($scoreWrap) $scoreWrap.classList.add("isLoginGate");
+		if ($score) $score.readOnly = true;
+
+		if ($sampledBtn) {
+			$sampledBtn.addEventListener("click", (e) => {
+				e.preventDefault();
+				openLogin();
+			});
+		}
+
+		if ($scoreWrap) {
+			$scoreWrap.addEventListener("click", (e) => {
+				e.preventDefault();
+				openLogin();
+			});
+		}
+
+		if ($score) {
+			$score.addEventListener("focus", () => {
+				$score.blur();
+			});
+		}
+	} else {
+		// Auth ok: load initial values
 		(async () => {
 			try {
 				const [sampledArr, scoreMap] = await Promise.all([getMySampled(), getMyScore()]);
-
 				const sampled = Array.isArray(sampledArr) && sampledArr.includes(cloudKey);
 
 				let score = null;
 				if (scoreMap && typeof scoreMap === "object") {
-					const raw = scoreMap[cloudKey];
-					const n = Number(raw);
+					const n = Number(scoreMap[cloudKey]);
 					if (Number.isFinite(n)) score = n;
 				}
 
-				setCloudUi({ enabled: true, msg: "", sampled, score });
+				setSampledUi(sampled);
+				setScoreUi(score);
 			} catch {
-				setCloudUi({ enabled: false, msg: "Cloud unavailable." });
+				setSampledUi(false);
+				setScoreUi(null);
 			}
 		})();
 
+		// Sampled toggle
 		if ($sampledBtn) {
 			$sampledBtn.addEventListener("click", async () => {
-			  const currentlyOn = $sampledBtn.classList.contains("isOn");
-			  const next = !currentlyOn;
-		  
-			  try {
-				await setMySampled(cloudKey, next);
-				setCloudUi({ enabled: true, msg: "", sampled: next });
-			  } catch {
-				setCloudUi({ enabled: true, msg: "Save failed!", sampled: currentlyOn });
-			  }
-			});
-		  }
-		  
+				const next = !$sampledBtn.classList.contains("isOn");
+				setSampledUi(next);
 
+				try {
+					await setMySampled(cloudKey, next);
+				} catch {
+					setSampledUi(!next);
+				}
+			});
+		}
+
+		// Score save
 		if ($score) {
 			const saveScore = async () => {
 				const raw = String($score.value || "").trim();
-
-				// blank => delete score in cloud
 				let toSend = null;
 
 				if (raw !== "") {
 					const n = Number(raw);
 					if (Number.isFinite(n)) {
 						toSend = Math.max(0, Math.min(100, Math.round(n)));
-						$score.value = String(toSend); // reflect clamp immediately
+						$score.value = String(toSend);
 					} else {
-						$score.value = ""; // invalid => treat as delete
+						$score.value = "";
+						toSend = null;
 					}
 				}
 
 				try {
 					await setMyScore(cloudKey, toSend);
-					setCloudUi({ enabled: true, msg: "" });
-				} catch {
-					setCloudUi({ enabled: true, msg: "Save failed." });
-				}
+				} catch {}
 			};
 
-			// "change" fires on blur / enter for number inputs (nice + compact)
 			$score.addEventListener("change", saveScore);
-
 			$score.addEventListener("keydown", (e) => {
 				if (e.key === "Enter") {
 					e.preventDefault();
@@ -718,7 +624,6 @@ export async function renderItem($app, skuInput) {
 			});
 		}
 	}
-
 
 	const idx = await loadIndex();
 	const all = Array.isArray(idx.items) ? idx.items : [];
