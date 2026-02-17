@@ -434,42 +434,40 @@ export async function renderItem($app, skuInput) {
       <div class="card detailCard">
         <div class="detailHeader">
           <div id="thumbBox" class="detailThumbBox"></div>
-          <div class="detailHeaderText">
+		  <div class="detailHeaderText">
 		  <div class="detailTitleRow">
-		  <div class="detailTitleRow">
-		  <div id="title" class="h1">Loading…</div>
+			<div id="title" class="h1">Loading…</div>
 		
-		  <div class="detailRightRail">
-			${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
+			<div class="detailRightRail">
+			  ${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
 		
-			<div class="detailCloudMeta" id="cloudMeta">
-			  <label class="cloudToggle" title="Mark as sampled">
-				<input id="sampledToggle" type="checkbox" />
-				<span>Sampled</span>
-			  </label>
+			  <div class="detailCloudMeta" id="cloudMeta">
+				<label class="cloudToggle" title="Mark as sampled">
+				  <input id="sampledToggle" type="checkbox" />
+				  <span>Sampled</span>
+				</label>
 		
-			  <label class="cloudScore" title="Score (0-100)">
-				<input
-				  id="scoreInput"
-				  type="number"
-				  min="0"
-				  max="100"
-				  step="1"
-				  inputmode="numeric"
-				  placeholder="Score"
-				/>
-			  </label>
+				<label class="cloudScore" title="Score (0-100)">
+				  <input
+					id="scoreInput"
+					type="number"
+					min="0"
+					max="100"
+					step="1"
+					inputmode="numeric"
+					placeholder="Score"
+				  />
+				</label>
+			  </div>
+		
+			  <div class="detailCloudMetaStatus small" id="cloudMetaStatus"></div>
 			</div>
-		
-			<div class="detailCloudMetaStatus small" id="cloudMetaStatus"></div>
 		  </div>
-		</div>
 		
-
-					<div id="links" class="links"></div>
-            <div class="small" id="status"></div>
-          </div>
-        </div>
+		  <div id="links" class="links"></div>
+		  <div class="small" id="status"></div>
+		</div>
+		</div>
 
         <div class="chartBox">
           <canvas id="chart"></canvas>

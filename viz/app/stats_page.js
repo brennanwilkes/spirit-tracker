@@ -745,16 +745,21 @@ export async function renderStats($app) {
 			const base = storeColor(s, colorMap);
 			const stroke = lighten(base, 0.25);
 			return {
-				label: displayStoreName(s),
-				data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
-				spanGaps: false,
-				tension: 0.15,
-				backgroundColor: base,
-				borderColor: stroke,
-				pointBackgroundColor: base,
-				pointBorderColor: stroke,
+			  label: displayStoreName(s),
+			  data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
+			  spanGaps: false,
+			  tension: 0.15,
+			  backgroundColor: base,
+			  borderColor: stroke,
+			  pointBackgroundColor: base,
+			  pointBorderColor: stroke,
+			  pointRadius: 0,
+			  pointHoverRadius: 0,
+			  pointHitRadius: 6,
+			  borderWidth: 1.25,
 			};
-		});
+		  });
+		  
 
 		if (_chart) {
 			_chart.data.labels = labels;
