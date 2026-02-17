@@ -1186,7 +1186,7 @@ export async function renderItem($app, skuInput) {
 
 		for (const s of vars) {
 			datasets.push({
-				label: st.label, // IMPORTANT: no SKU in label
+				label: st.label,
 				data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
 				spanGaps: false,
 				tension: 0.15,
@@ -1195,6 +1195,11 @@ export async function renderItem($app, skuInput) {
 				pointBackgroundColor: base,
 				pointBorderColor: stroke,
 				borderWidth: datasetStrokeWidth(base),
+			
+				// only show dots on change
+				pointRadius: (ctx) => changedPointRadius(ctx, 3),
+				pointHoverRadius: 4,
+				pointHitRadius: 8,
 			});
 		}
 	}
@@ -1255,6 +1260,35 @@ export async function renderItem($app, skuInput) {
 		const m = String(font || "").match(/(\d+(?:\.\d+)?)px/);
 		return m ? Number(m[1]) : 12;
 	}
+
+	function lastFiniteBefore(arr, i) {
+		for (let j = i - 1; j >= 0; j--) if (Number.isFinite(arr[j])) return arr[j];
+		return null;
+	}
+	function nextFiniteAfter(arr, i) {
+		for (let j = i + 1; j < arr.length; j++) if (Number.isFinite(arr[j])) return arr[j];
+		return null;
+	}
+	
+	function changedPointRadius(ctx, baseRadius = 3, eps = 0.000001) {
+		const data = ctx?.dataset?.data || [];
+		const i = ctx.dataIndex;
+		const v = data[i];
+		if (!Number.isFinite(v)) return 0;
+	
+		const prev = lastFiniteBefore(data, i);
+		const next = nextFiniteAfter(data, i);
+	
+		// show if first finite point, or value differs from prev, or value differs from next
+		// (the next check makes sure a "flat run" still shows a dot at its start)
+		const isChange =
+			prev === null ||
+			Math.abs(v - prev) > eps ||
+			(next !== null && Math.abs(v - next) > eps);
+	
+		return isChange ? baseRadius : 0;
+	}
+	
 
 	const ctx = $canvas.getContext("2d");
 	CHART = new Chart(ctx, {
