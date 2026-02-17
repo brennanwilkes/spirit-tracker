@@ -3,6 +3,7 @@ import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceTo
 import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
+import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 
 function normStoreLabel(s) {
 	return String(s || "")
@@ -159,6 +160,8 @@ export async function renderStore($app, storeLabelRaw) {
 	const $resultsCompare = document.getElementById("resultsCompare");
 	const $sentinel = document.getElementById("sentinel");
 	const $resultsWrap = document.getElementById("results");
+	const favSet = new Set();
+	installFavStars($resultsWrap, favSet);
 
 	const $maxPrice = document.getElementById("maxPrice");
 	const $maxPriceLabel = document.getElementById("maxPriceLabel");
@@ -193,10 +196,17 @@ export async function renderStore($app, storeLabelRaw) {
 	$resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
 	$resultsCompare.innerHTML = ``;
 
-	const idx = await loadIndex();
-	rulesCache = await loadSkuRules();
+	const [idx, rulesLoaded, fav] = await Promise.all([
+		loadIndex(),
+		loadSkuRules(),
+		loadMyFavouritesSet()
+	]);
+	
+	rulesCache = rulesLoaded;
 	const rules = rulesCache;
-
+	
+	for (const k of fav.set) favSet.add(String(k));
+	
 	// --- Recent (7d), most-recent per canonicalSku + store ---
 	const recent = await loadRecent().catch(() => null);
 	const recentItems = Array.isArray(recent?.items) ? recent.items : [];
@@ -600,8 +610,9 @@ export async function renderStore($app, storeLabelRaw) {
 
 		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 		return `
-      <div class="item" data-sku="${esc(it.sku)}">
-        <div class="itemRow">
+		<div class="item itemHasStar" data-sku="${esc(it.sku)}">
+		${favStarHtml(it.sku, favSet.has(it.sku))}
+			<div class="itemRow">
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
             <div class="itemTop">
@@ -692,6 +703,7 @@ export async function renderStore($app, storeLabelRaw) {
 	}
 
 	$resultsWrap.addEventListener("click", (e) => {
+		if (e.target.closest(".favStarBtn")) return;
 		const el = e.target.closest(".item");
 		if (!el) return;
 		const sku = el.getAttribute("data-sku") || "";

@@ -52,6 +52,43 @@ function ensureChartJs() {
 
 /* ---------------- helpers ---------------- */
 
+function rowKey(r) {
+	const rep = r?.representative || {};
+	return String(r?.canonSku || rep?.skuKey || rep?.skuRaw || rep?.sku || "").trim();
+}
+
+// Baseline for each SKU = median(storePrices) on the *first report* where the SKU has any prices.
+function buildSkuBaselinesFromRaw(raw) {
+	const stores = Array.isArray(raw?.stores) ? raw.stores.map(String) : [];
+	const reportsByIdx = Array.isArray(raw?.reportsByIdx) ? raw.reportsByIdx : [];
+	const baselines = new Map();
+
+	for (let i = 0; i < reportsByIdx.length; i++) {
+		const rep = reportsByIdx[i];
+		const rows = Array.isArray(rep?.rows) ? rep.rows : [];
+		for (const r of rows) {
+			const k = rowKey(r);
+			if (!k || baselines.has(k)) continue;
+
+			const sp = r?.storePrices;
+			if (!sp || typeof sp !== "object") continue;
+
+			const prices = [];
+			for (const s of stores) {
+				const p = sp[s];
+				if (Number.isFinite(p)) prices.push(p);
+			}
+			prices.sort((a, b) => a - b);
+
+			const med = medianOfSorted(prices);
+			if (isFinitePos(med)) baselines.set(k, med);
+		}
+	}
+
+	return baselines;
+}
+
+
 function dateOnly(iso) {
 	const m = String(iso ?? "").match(/^(\d{4}-\d{2}-\d{2})/);
 	return m ? m[1] : "";
@@ -169,8 +206,9 @@ function formatDollars(p) {
 
 /* ---------------- report filtering + series ---------------- */
 
-// avg over SKUs that store has a price for: ((storePrice - medianPrice) / medianPrice) * 100
-function computeDailyStoreSeriesFromReport(report, filter) {
+// avg over SKUs that store has a price for: ((storePrice - skuBaseline) / skuBaseline) * 100
+// where skuBaseline is the SKU's median price on its first-ever day in the dataset.
+function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 	const stores = Array.isArray(filter?.stores)
 		? filter.stores.map(String)
 		: Array.isArray(report?.stores)
@@ -207,28 +245,25 @@ function computeDailyStoreSeriesFromReport(report, filter) {
 			}
 		}
 
+		const k = rowKey(r);
+		const base = k ? skuBaselines?.get(k) : null;
+		if (!isFinitePos(base)) continue;
+
 		const sp = r.storePrices;
 		if (!sp || typeof sp !== "object") continue;
 
-		const prices = [];
-		for (const s of stores) {
-			const p = sp[s];
-			if (Number.isFinite(p)) prices.push(p);
-		}
-		prices.sort((a, b) => a - b);
-
-		const med = medianOfSorted(prices);
-		if (!isFinitePos(med)) continue;
-
-		usedRows++;
+		let contributed = false;
 
 		for (const s of stores) {
 			const p = sp[s];
 			if (!Number.isFinite(p)) continue;
-			const pct = ((p - med) / med) * 100;
+			const pct = ((p - base) / base) * 100;
 			sum.set(s, (sum.get(s) || 0) + pct);
 			cnt.set(s, (cnt.get(s) || 0) + 1);
+			contributed = true;
 		}
+
+		if (contributed) usedRows++;
 	}
 
 	const out = {};
@@ -376,6 +411,9 @@ function computeSeriesFromRaw(raw, filter) {
 	const stores = raw.stores;
 	const reportsByIdx = raw.reportsByIdx;
 
+	// compute once per raw (and keep it across filter changes)
+	if (!raw.skuBaselines) raw.skuBaselines = buildSkuBaselinesFromRaw(raw);
+
 	const seriesByStore = {};
 	for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
 
@@ -386,10 +424,14 @@ function computeSeriesFromRaw(raw, filter) {
 		const rep = reportsByIdx[i];
 		if (!rep) continue;
 
-		const daily = computeDailyStoreSeriesFromReport(rep, {
-			...filter,
-			stores,
-		});
+		const daily = computeDailyStoreSeriesFromReport(
+			rep,
+			{
+				...filter,
+				stores,
+			},
+			raw.skuBaselines,
+		);
 
 		for (const s of stores) {
 			const v = daily.valuesByStore[s];
@@ -404,6 +446,8 @@ function computeSeriesFromRaw(raw, filter) {
 
 	return { labels, stores, seriesByStore, newestUsed, newestTotal };
 }
+
+
 
 /* ---------------- y-axis bounds ---------------- */
 

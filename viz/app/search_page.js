@@ -4,6 +4,7 @@ import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
+import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 
 export function renderSearch($app) {
 	$app.innerHTML = `
@@ -51,6 +52,8 @@ export function renderSearch($app) {
 	const $results = document.getElementById("results");
 	const $stores = document.getElementById("stores");
 	const $clearSearch = document.getElementById("clearSearch");
+	const favSet = new Set();
+	installFavStars($results, favSet);
 
 	$q.value = loadSavedQuery();
 
@@ -158,8 +161,9 @@ export function renderSearch($app) {
 				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
 				return `
-          <div class="item" data-sku="${esc(it.sku)}">
-            <div class="itemRow">
+			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
+				${favStarHtml(it.sku, favSet.has(it.sku))}
+				<div class="itemRow">
               <div class="thumbBox">
                 ${renderThumbHtml(it.img)}
               </div>
@@ -184,7 +188,8 @@ export function renderSearch($app) {
 			.join("");
 
 		for (const el of Array.from($results.querySelectorAll(".item"))) {
-			el.addEventListener("click", () => {
+			el.addEventListener("click", (e) => {
+				if (e.target.closest(".favStarBtn")) return;
 				const sku = el.getAttribute("data-sku") || "";
 				if (!sku) return;
 				saveQuery($q.value);
@@ -454,8 +459,9 @@ export function renderSearch($app) {
 					const skuLink = `#/link/?left=${encodeURIComponent(String(sku || ""))}`;
 
 					return `
-            <div class="item" data-sku="${esc(sku)}">
-              <div class="itemRow">
+					<div class="item itemHasStar" data-sku="${esc(sku)}">
+					${favStarHtml(sku, favSet.has(sku))}
+								<div class="itemRow">
                 <div class="thumbBox">
                   ${renderThumbHtml(img)}
                 </div>
@@ -483,7 +489,8 @@ export function renderSearch($app) {
 				.join("");
 
 		for (const el of Array.from($results.querySelectorAll(".item"))) {
-			el.addEventListener("click", () => {
+			el.addEventListener("click", (e) => {
+				if (e.target.closest(".favStarBtn")) return;
 				const sku = el.getAttribute("data-sku") || "";
 				if (!sku) return;
 				saveQuery($q.value);
@@ -524,8 +531,11 @@ export function renderSearch($app) {
 
 	$results.innerHTML = `<div class="small">Loading index…</div>`;
 
-	Promise.all([loadIndex(), loadSkuRules()])
-		.then(([idx, rules]) => {
+	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet()])
+		.then(([idx, rules, fav]) => {
+			favSet.clear();
+			for (const k of fav.set) favSet.add(String(k));
+
 			const listings = Array.isArray(idx.items) ? idx.items : [];
 
 			renderStoreButtons(listings);
