@@ -596,9 +596,11 @@ html { overflow-y: scroll; }
 /* --- Favourite star --- */
 
 .itemHasStar {
-	position: relative;
-	padding-right: 46px;
+  position: relative;
+  padding-right: 46px;
+  padding-bottom: 40px; /* tweak as needed */
 }
+
 
 .favStarBtn {
 	border: 1px solid transparent;
@@ -614,12 +616,14 @@ html { overflow-y: scroll; }
 }
 
 .itemHasStar .favStarBtn {
-	position: absolute;
-	right: 10px;
-	top: 50%;
-	transform: translateY(-50%);
-	z-index: 2;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  top: auto;
+  transform: none;
+  z-index: 2;
 }
+
 
 .favStarBtn:hover {
 	border-color: #2f3a46;
