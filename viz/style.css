@@ -592,3 +592,74 @@ html { overflow-y: scroll; }
   font-size:18px;
   line-height:1;
 }
+
+/* --- Favourite star --- */
+
+.itemHasStar {
+	position: relative;
+	padding-right: 46px;
+}
+
+.favStarBtn {
+	border: 1px solid transparent;
+	background: transparent;
+	color: var(--muted);
+	border-radius: 10px;
+	padding: 6px 8px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	line-height: 1;
+}
+
+.itemHasStar .favStarBtn {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+}
+
+.favStarBtn:hover {
+	border-color: #2f3a46;
+	color: var(--text);
+	background: rgba(255,255,255,0.03);
+}
+
+.favStarBtn:disabled {
+	cursor: wait;
+	opacity: 0.75;
+}
+
+.favStarIcon {
+	font-size: 18px;
+	transition: transform 140ms ease, color 140ms ease, opacity 140ms ease;
+}
+
+.favStarBtn.favOn {
+	color: rgba(210, 170, 60, 0.95);
+}
+
+.favStarBtn.favBusy .favStarIcon {
+	animation: favStarSpin 0.55s linear infinite;
+}
+
+@keyframes favStarSpin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(360deg); }
+}
+
+/* Item page title row */
+
+.detailTitleRow {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.detailTitleRow #title {
+	flex: 1 1 auto;
+	min-width: 0;
+}

@@ -4,6 +4,7 @@ import { loadIndex } from "./state.js";
 import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
+import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
@@ -410,9 +411,14 @@ function cacheBustForDbFile(manifest, dbFile, commits) {
 export async function renderItem($app, skuInput) {
 	destroyChart();
 
-	const rules = await loadSkuRules();
+	const [rules, fav] = await Promise.all([
+		loadSkuRules(),
+		loadMyFavouritesSet()
+	]);
+	
 	const sku = rules.canonicalSku(String(skuInput || ""));
-
+	const favSet = new Set(fav.set);
+	
 	$app.innerHTML = `
     <div class="container">
       <div class="topbar">
@@ -424,8 +430,11 @@ export async function renderItem($app, skuInput) {
         <div class="detailHeader">
           <div id="thumbBox" class="detailThumbBox"></div>
           <div class="detailHeaderText">
-            <div id="title" class="h1">Loading…</div>
-            <div id="links" class="links"></div>
+		  <div class="detailTitleRow">
+			<div id="title" class="h1">Loading…</div>
+			${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
+			</div>
+					<div id="links" class="links"></div>
             <div class="small" id="status"></div>
           </div>
         </div>
@@ -436,6 +445,7 @@ export async function renderItem($app, skuInput) {
       </div>
     </div>
   `;
+	installFavStars($app, favSet);
 
 	document.getElementById("back").addEventListener("click", () => {
 		const last = sessionStorage.getItem("viz:lastRoute");
