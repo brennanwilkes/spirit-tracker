@@ -503,7 +503,7 @@ export async function renderStats($app) {
               </label>
 
               <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Sample Size (Top XXX most common bottles)
+                Sample Size
                 <select id="statsSize" class="selectSmall" aria-label="Sample size">
                   <option value="50">50</option>
                   <option value="250">250</option>
