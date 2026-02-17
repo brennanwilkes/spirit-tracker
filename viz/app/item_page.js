@@ -407,6 +407,7 @@ function cacheBustForDbFile(manifest, dbFile, commits) {
 	return "no-sha";
 }
 
+
 /* ---------------- Page ---------------- */
 
 export async function renderItem($app, skuInput) {
@@ -423,6 +424,21 @@ export async function renderItem($app, skuInput) {
 		const raw = String(k || "");
 		favSet.add(String(rules.canonicalSku(raw) || raw));
 	}
+
+	function setSaving(el, on) {
+		if (!el) return;
+		el.classList.toggle("isSaving", !!on);
+	}
+	
+	function flashSaved(el) {
+		if (!el) return;
+		el.classList.remove("isSaved");
+		// restart animation
+		void el.offsetWidth;
+		el.classList.add("isSaved");
+		setTimeout(() => el && el.classList.remove("isSaved"), 650);
+	}
+	
 		
 	$app.innerHTML = `
 		<div class="container">
@@ -541,11 +557,22 @@ export async function renderItem($app, skuInput) {
 		if ($score) $score.readOnly = true;
 
 		if ($sampledBtn) {
-			$sampledBtn.addEventListener("click", (e) => {
-				e.preventDefault();
-				openLogin();
+			$sampledBtn.addEventListener("click", async () => {
+				const next = !$sampledBtn.classList.contains("isOn");
+				setSampledUi(next);
+		
+				setSaving($sampledBtn, true);
+				try {
+					await setMySampled(cloudKey, next);
+					flashSaved($sampledBtn);
+				} catch {
+					setSampledUi(!next);
+				} finally {
+					setSaving($sampledBtn, false);
+				}
 			});
 		}
+		
 
 		if ($scoreWrap) {
 			$scoreWrap.addEventListener("click", (e) => {
@@ -599,7 +626,7 @@ export async function renderItem($app, skuInput) {
 			const saveScore = async () => {
 				const raw = String($score.value || "").trim();
 				let toSend = null;
-
+			
 				if (raw !== "") {
 					const n = Number(raw);
 					if (Number.isFinite(n)) {
@@ -610,10 +637,16 @@ export async function renderItem($app, skuInput) {
 						toSend = null;
 					}
 				}
-
+			
+				setSaving($scoreWrap, true);
 				try {
 					await setMyScore(cloudKey, toSend);
-				} catch {}
+					flashSaved($scoreWrap);
+				} catch {
+					// keep silent like now
+				} finally {
+					setSaving($scoreWrap, false);
+				}
 			};
 
 			$score.addEventListener("change", saveScore);
