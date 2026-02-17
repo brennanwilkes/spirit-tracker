@@ -360,6 +360,23 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   align-items: flex-start;
 }
 
+.detailHeaderText{
+  flex: 1;
+  min-width: 0;
+}
+
+/* right-side control column */
+.detailCloudPanel{
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 2px; /* aligns visually with title */
+  min-width: 160px;
+}
+
+
 .detailThumbBox {
   width: 96px;
   height: 96px;
@@ -379,11 +396,115 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   object-fit: cover;
   display: block;
 }
-
-.detailHeaderText {
-  flex: 1;
-  min-width: 0;
+/* Sampled pill button */
+.pillBtn{
+  border: 1px solid var(--border);
+  background: #0f1318;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
 }
+
+.pillBtn:hover{
+  border-color: #2f3a46;
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
+}
+
+.pillBtn:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pillIcon{
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  opacity: 0.0; /* hidden until on */
+}
+
+.pillBtn.isOn{
+  color: rgba(210, 170, 60, 0.95);
+  border-color: rgba(210, 170, 60, 0.35);
+  background: rgba(210, 170, 60, 0.10);
+}
+
+.pillBtn.isOn .pillIcon{
+  opacity: 1;
+  border-color: rgba(210, 170, 60, 0.45);
+}
+
+/* Score row: label + input (looks clickable) */
+.scoreRow{
+  display: grid;
+  grid-template-columns: auto 72px;
+  align-items: center;
+  gap: 8px;
+}
+
+.scoreLabel{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.scoreInput{
+  width: 72px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0f1318;
+  color: var(--text);
+  font-size: 12px;
+  text-align: right;
+  outline: none;
+}
+
+.scoreInput::placeholder{
+  color: var(--muted);
+}
+
+.scoreInput:hover{
+  border-color: #2f3a46;
+}
+
+.scoreInput:focus{
+  border-color: #37566b;
+  outline: 1px solid #37566b;
+}
+
+/* status under controls, right aligned */
+.detailCloudMetaStatus{
+  max-width: 18ch;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* mobile: stack controls under title */
+@media (max-width: 640px){
+  .detailHeader{ flex-wrap: wrap; }
+  .detailCloudPanel{
+    width: 100%;
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .scoreRow{ grid-template-columns: auto 1fr; }
+  .scoreInput{ width: 100%; max-width: 120px; }
+}
+
 
 /* Chart fills most of viewport, but stays usable on mobile */
 .chartBox {
