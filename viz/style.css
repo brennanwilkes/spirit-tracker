@@ -211,18 +211,24 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .badgeBtn{
   -webkit-appearance: none;
   appearance: none;
-  border: none;          /* remove native button border */
-  background: unset;     /* don't force white; let .badge win */
-  color: inherit;
   font: inherit;
+  color: inherit;
+  padding: 0;          /* let .badge handle padding */
+  border: 0;           /* let .badge handle border */
+  background: none;    /* let .badge handle bg */
   cursor: pointer;
-  line-height: inherit;
 }
 
-/* keep the badge visuals from .badge (padding/bg/radius/etc) */
-.badgeBtn.badge{
-  background: var(--btnBg, inherit); /* optional: only if your .badge bg got overridden elsewhere */
+/* force it to look like the back button */
+button.badge.badgeBtn{
+  background: #0f1318;
 }
+
+button.badge.badgeBtn:hover{
+  border-color: #2f3a46;
+  color: var(--text);
+}
+
 
 
 .metaRow {
