@@ -447,13 +447,14 @@ export async function renderItem($app, skuInput) {
 					</div>
 
 					<div class="detailRight">
-						${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
 
 						<button id="sampledBtn" class="pillBtn" type="button" aria-pressed="false">
-						<span class="pillMark pillMarkOff">×</span>
-						<span class="pillMark pillMarkOn">✓</span>
-						<span>Sampled</span>
+							<span class="pillMark pillMarkOff">×</span>
+							<span class="pillMark pillMarkOn">✓</span>
+							<span>Sampled</span>
 						</button>
+						${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
+
 
 						<div id="scoreWrap" class="pillInput" role="button" tabindex="0" aria-label="Score">
 							<span class="pillMarkNum">#</span>
