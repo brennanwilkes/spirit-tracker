@@ -102,21 +102,21 @@ export async function renderShortlist($app, accountUuidRaw) {
 	$app.innerHTML = `
         <div class="container">
             <div class="topbar">
-            <button id="back" class="btn">← Back</button>
+                <button id="back" class="btn">← Back</button>
 
-            <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
-                <div class="h1" style="margin:0;">Shortlist</div>
-                <span
-                    id="copyLink"
-                    class="badge mono badgeClick"
-                    role="button"
-                    tabindex="0"
-                    title="Copy page link"
-                >
-                    ${esc(accountUuid)}
-                </span>
+                <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
+                    <div class="h1" style="margin:0;">Shortlist</div>
+                    <span
+                        id="copyLink"
+                        class="badge mono badgeClick"
+                        role="button"
+                        tabindex="0"
+                        title="Copy page link"
+                    >
+                        ${esc(accountUuid)}
+                    </span>
+                </div>
             </div>
-        
 
 			<div class="card">
 				<div style="display:flex; flex-direction:column; gap:10px;">
@@ -933,7 +933,7 @@ export async function renderShortlist($app, accountUuidRaw) {
         applyFilter();
     }
     
-    +	function setSampledUi(btn, isOn) {
+	function setSampledUi(btn, isOn) {
 		if (!btn) return;
 		const on = !!isOn;
 		btn.classList.toggle("isOn", on);
