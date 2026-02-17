@@ -398,13 +398,48 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   min-width:0;
 }
 
+/* ---- Item page: right controls layout (star + sampled on one row, score under) ---- */
 .detailRight{
   flex:0 0 auto;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:8px;
+  display:grid;
+  grid-template-columns: max-content max-content;
+  grid-auto-rows: min-content;
+  gap:8px 10px; /* row gap, col gap */
+  align-items:start;
+  justify-items:end;
 }
+
+/* make score span both columns so width == (star + sampled + gap) */
+.detailRight .pillInput{
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* ensure star behaves like a normal button (not absolutely pinned) on item page */
+.detailRight .favStarBtn{
+  position: static;
+  right:auto; bottom:auto; top:auto;
+  transform:none;
+}
+
+/* make the whole score pill feel clickable */
+.pillInput{
+  cursor: text;
+  user-select: none;
+}
+.pillInput *{
+  user-select: none;
+}
+.pillNumber{
+  user-select: text; /* allow selecting/editing once focused */
+}
+
+/* optional: a tiny hint when unauthenticated (still clickable) */
+.pillInput.isLoginGate,
+.pillBtn.isLoginGate{
+  opacity: 0.92;
+}
+
 
 /* title + right column align nicely */
 .detailTitleRow{
