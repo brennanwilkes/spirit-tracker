@@ -48,9 +48,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   flex-wrap: wrap;
 }
 
-.headerRow2 {
-  width: 100%;
-}
+.headerRow2 { width: 100%; }
 
 .headerButtons {
   display: flex;
@@ -64,7 +62,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   opacity: 0.45;
   cursor: not-allowed;
 }
-
 
 .h1 {
   font-size: 18px;
@@ -88,7 +85,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   color: var(--text);
   outline: none;
 }
-
 .input:focus { border-color: #37566b; }
 
 .list {
@@ -106,7 +102,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   cursor: pointer;
   min-height: 92px; /* keep results uniform */
 }
-
 .item:hover { border-color: #2f3a46; }
 
 .itemRow {
@@ -118,7 +113,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 .thumbBox {
   width: 64px;
-  height: 64px;          /* fixed thumb height */
+  height: 64px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -161,7 +156,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   font-weight: 700;
   font-size: 14px;
   min-width: 0;
-  white-space: nowrap;      /* lock to one line */
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -201,11 +196,23 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   border-color: rgba(210, 170, 60, 0.26);
 }
 
+.badgeExclusive {
+  color: rgba(20, 140, 140, 0.95);
+  background: rgba(20, 140, 140, 0.12);
+  border-color: rgba(20, 140, 140, 0.28);
+}
+
+.badgeLastStock {
+  color: rgba(200, 120, 20, 0.95);
+  background: rgba(200, 120, 20, 0.12);
+  border-color: rgba(200, 120, 20, 0.28);
+}
+
 .metaRow {
   margin-top: 8px;
   display: flex;
   gap: 10px;
-  flex-wrap: nowrap;      /* keep single row (desktop) */
+  flex-wrap: nowrap;
   align-items: center;
   overflow: hidden;
   color: var(--muted);
@@ -217,7 +224,9 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   color: var(--text);
 }
 
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
 
 .topbar {
   display: flex;
@@ -234,7 +243,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   padding: 10px 10px;
   cursor: pointer;
 }
-
 .btn:hover { border-color: #2f3a46; }
 
 .btnWide {
@@ -248,16 +256,19 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   padding: 10px 12px;
   color: var(--muted);
 }
-
-.btnSm:hover {
-  color: var(--text);
-}
+.btnSm:hover { color: var(--text); }
 
 .links {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin: 8px 0 14px;
+  min-width: 0;
+}
+.links a{
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .small {
@@ -272,7 +283,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   color: var(--muted);
   border-radius: 999px;
 
-  /* custom arrow (puts it a bit left from the edge) */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -281,19 +291,17 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   background-position: right 10px center;
   background-size: 12px 12px;
 
-  padding: 6px 28px 6px 10px; /* right padding reserves room for arrow */
+  padding: 6px 28px 6px 10px;
   font-size: 12px;
   line-height: 1;
   outline: none;
 }
-
 
 .selectSmall:hover {
   border-color: #2f3a46;
   color: var(--text);
   cursor: pointer;
 }
-
 .selectSmall:focus {
   border-color: #37566b;
   outline: 1px solid #37566b;
@@ -301,16 +309,14 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 /* --- Store selector (top of search page) --- */
-.storeBarWrap {
-  margin-top: 12px; /* slightly more gap from the top text */
-}
+.storeBarWrap { margin-top: 12px; }
 
 .storeBar{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
   width:100%;
-  justify-content: space-between; /* spread each row to fill */
+  justify-content: space-between;
 }
 
 .storeBtn {
@@ -324,13 +330,12 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   display: inline-flex;
   align-items: center;
 }
+
 .storeBreak {
   flex-basis: 100%;
   width: 0;
   height: 0;
 }
-
-/* let mobile wrap naturally */
 @media (max-width: 640px) {
   .storeBreak { display: none; }
 }
@@ -360,23 +365,6 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   align-items: flex-start;
 }
 
-.detailHeaderText{
-  flex: 1;
-  min-width: 0;
-}
-
-/* right-side control column */
-.detailCloudPanel{
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  padding-top: 2px; /* aligns visually with title */
-  min-width: 160px;
-}
-
-
 .detailThumbBox {
   width: 96px;
   height: 96px;
@@ -396,8 +384,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   object-fit: cover;
   display: block;
 }
-/* Sampled pill button */
-/* ---- Item page: top area split (left = title+links, right = fav+cloud) ---- */
+
+/* ---------------- Item page: top row layout (links aligned with controls) ---------------- */
 .detailTopRow{
   display:flex;
   gap:12px;
@@ -418,11 +406,19 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   gap:8px;
 }
 
-/* make links wrap earlier but stay in left column */
-.links{ min-width:0; }
-.links a{ min-width:0; max-width:100%; overflow-wrap:anywhere; }
+/* title + right column align nicely */
+.detailTitleRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.detailTitleRow #title{
+  flex:1 1 auto;
+  min-width:0;
+}
 
-/* ---- Cloud panel ---- */
+/* right rail inside detailRight */
 .detailCloudPanel{
   display:flex;
   flex-direction:column;
@@ -468,17 +464,17 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 .pillMarkOn{ display:none; }
-.pillMarkOff{ display:inline-flex; opacity:0.65; }
+.pillMarkOff{ display:inline-flex; opacity:0.65; } /* pale X */
 
 /* ON = green */
 .pillBtn.isOn{
-  color:rgba(90, 200, 120, 0.95);
-  border-color:rgba(90, 200, 120, 0.35);
-  background:rgba(90, 200, 120, 0.10);
+  color: rgba(90, 200, 120, 0.95);
+  border-color: rgba(90, 200, 120, 0.35);
+  background: rgba(90, 200, 120, 0.10);
 }
 .pillBtn.isOn .pillMark{
-  border-color:rgba(90, 200, 120, 0.45);
-  color:rgba(90, 200, 120, 0.95);
+  border-color: rgba(90, 200, 120, 0.45);
+  color: rgba(90, 200, 120, 0.95);
 }
 .pillBtn.isOn .pillMarkOn{ display:inline-flex; }
 .pillBtn.isOn .pillMarkOff{ display:none; }
@@ -532,8 +528,16 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 /* remove ugly number spinners */
 .pillNumber::-webkit-outer-spin-button,
 .pillNumber::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
-.pillNumber{ -mo
+.pillNumber{ -moz-appearance:textfield; appearance:textfield; }
 
+/* Ensure fav star doesn't get "pinned" like list items when used in item page rail */
+.detailRight .favStarBtn{
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  transform: none;
+}
 
 /* Chart fills most of viewport, but stays usable on mobile */
 .chartBox {
@@ -549,8 +553,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 @media (max-width: 640px) {
   .container { padding: 14px; }
   .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
-  .item { min-height: 0; }        /* allow natural height on small screens */
-  .metaRow { flex-wrap: wrap; }   /* wrapping is fine on mobile */
+  .item { min-height: 0; }
+  .metaRow { flex-wrap: wrap; }
 
   .detailThumbBox { width: 84px; height: 84px; flex: 0 0 84px; }
 
@@ -603,18 +607,12 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 /* --- Store page: slightly wider layout --- */
-.containerStoreWide {
-  max-width: 1180px; /* bump from 980 */
-}
-
-/* Optional: keep full-bleed-ish padding behavior on big screens */
+.containerStoreWide { max-width: 1180px; }
 @media (min-width: 1200px) {
   .containerStoreWide { max-width: 1240px; }
 }
 
-.storeCol {
-  min-width: 0;
-}
+.storeCol { min-width: 0; }
 
 .storeColHeader {
   display: flex;
@@ -631,21 +629,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 @media (max-width: 640px) {
-  .storeGrid {
-    grid-template-columns: 1fr; /* stack columns */
-  }
-}
-
-.badgeExclusive {
-  color: rgba(20, 140, 140, 0.95);
-  background: rgba(20, 140, 140, 0.12);
-  border-color: rgba(20, 140, 140, 0.28);
-}
-
-.badgeLastStock {
-  color: rgba(200, 120, 20, 0.95);
-  background: rgba(200, 120, 20, 0.12);
-  border-color: rgba(200, 120, 20, 0.28);
+  .storeGrid { grid-template-columns: 1fr; }
 }
 
 /* Prevent layout width shift when scrollbar appears/disappears */
@@ -686,7 +670,7 @@ html { overflow-y: scroll; }
 .rangeDual .rangeFill {
   left: 0;
   right: 0;
-  background: #37566b; /* matches your focus outline color */
+  background: #37566b;
 }
 
 /* Hide native track/progress; keep thumbs clickable */
@@ -710,7 +694,6 @@ html { overflow-y: scroll; }
 .rangeDual input[type="range"]::-moz-range-progress { background: transparent; }
 .rangeDual input[type="range"]::-moz-range-thumb { pointer-events: all; }
 
-
 /* Stats page: make chart fill remaining viewport height */
 .containerFull{
   min-height: 100vh;
@@ -720,13 +703,13 @@ html { overflow-y: scroll; }
 
 .cardFill{
   flex: 1 1 auto;
-  min-height: 320px; /* safety */
+  min-height: 320px;
   display: flex;
 }
 
 .chartFill{
   flex: 1 1 auto;
-  min-height: 0; /* IMPORTANT so flex children can actually shrink/grow */
+  min-height: 0;
 }
 
 .chartFill canvas{
@@ -753,8 +736,7 @@ html { overflow-y: scroll; }
   line-height:1;
 }
 
-/* --- Favourite star --- */
-
+/* --- Favourite star (list cards) --- */
 .itemHasStar{
   position: relative;
   padding-right: 0;
@@ -767,14 +749,14 @@ html { overflow-y: scroll; }
 
 /* reserve space ONLY for the name so it won't sit under the right rail */
 .itemHasStar .itemName{
-  padding-right: 52px; /* >= star width + gap; tweak if needed */
+  padding-right: 52px;
 }
 
 /* pin SKU top-right */
 .itemHasStar .skuLink{
   position: absolute;
   right: 10px;
-  top: 0;            /* or 2px if you want it a hair lower */
+  top: 0;
 }
 
 /* pin star bottom-right */
@@ -788,123 +770,43 @@ html { overflow-y: scroll; }
 }
 
 .favStarBtn {
-	border: 1px solid transparent;
-	background: transparent;
-	color: var(--muted);
-	border-radius: 10px;
-	padding: 6px 8px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	line-height: 1;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 6px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
 }
 
 .favStarBtn:hover {
-	border-color: #2f3a46;
-	color: var(--text);
-	background: rgba(255,255,255,0.03);
+  border-color: #2f3a46;
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
 }
 
 .favStarBtn:disabled {
-	cursor: wait;
-	opacity: 0.75;
+  cursor: wait;
+  opacity: 0.75;
 }
 
 .favStarIcon {
-	font-size: 18px;
-	transition: transform 140ms ease, color 140ms ease, opacity 140ms ease;
+  font-size: 18px;
+  transition: transform 140ms ease, color 140ms ease, opacity 140ms ease;
 }
 
 .favStarBtn.favOn {
-	color: rgba(210, 170, 60, 0.95);
+  color: rgba(210, 170, 60, 0.95);
 }
 
 .favStarBtn.favBusy .favStarIcon {
-	animation: favStarSpin 0.55s linear infinite;
+  animation: favStarSpin 0.55s linear infinite;
 }
 
 @keyframes favStarSpin {
-	from { transform: rotate(0deg); }
-	to   { transform: rotate(360deg); }
-}
-
-/* Item page title row */
-
-.detailTitleRow {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 10px;
-}
-
-.detailTitleRow #title {
-	flex: 1 1 auto;
-	min-width: 0;
-}
-
-/* ---- Item page: right-rail controls (fav + sampled + score) ---- */
-.detailRightRail{
-	display:flex;
-	flex-direction:column;
-	align-items:flex-end;
-	gap:6px;
-	flex:0 0 auto;
-}
-
-.detailCloudMeta{
-	display:flex;
-	align-items:center;
-	gap:10px;
-}
-
-.cloudToggle{
-	display:inline-flex;
-	align-items:center;
-	gap:6px;
-	font-size:12px;
-	color:var(--muted);
-	user-select:none;
-}
-
-.cloudToggle input{
-	width:14px;
-	height:14px;
-}
-
-.cloudScore input{
-	width:62px;
-	padding:4px 8px;
-	border-radius:999px;
-	border:1px solid var(--border);
-	background:#0f1318;
-	color:var(--muted);
-	font-size:12px;
-	text-align:right;
-	outline:none;
-}
-
-.cloudScore input:focus{
-	border-color:#37566b;
-	outline:1px solid #37566b;
-	color:var(--text);
-}
-
-.detailCloudMetaStatus{
-	max-width:22ch;
-	text-align:right;
-	white-space:nowrap;
-	overflow:hidden;
-	text-overflow:ellipsis;
-}
-
-/* ---- Item page: store links wrap better (long labels/URLs) ---- */
-.links{
-	min-width:0;
-}
-
-.links a{
-	min-width:0;
-	max-width:100%;
-	overflow-wrap:anywhere;
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
