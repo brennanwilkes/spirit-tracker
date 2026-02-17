@@ -58,7 +58,7 @@ export async function renderStore($app, storeLabelRaw) {
 	const storeLabelShort = abbrevStoreLabel(storeLabel) || (storeLabel ? storeLabel : "Store");
 
 	$app.innerHTML = `
-    <div class="container">
+    <div class="container containerStoreWide">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
         <span class="badge">${esc(storeLabelShort || "Store")}</span>
