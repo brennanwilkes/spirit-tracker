@@ -5,7 +5,7 @@ import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-import { AuthError, getAuthStatus, getStoredToken, getDetails, getScore, getSampled, setScore, setSampled } from "./cloud.js";
+import { AuthError, getAuthStatus, getStoredToken, getDetails, getScore, getSampled, setScore, setSampled, getFavourites } from "./cloud.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -220,10 +220,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 	$results.innerHTML = `<div class="small">Loading…</div>`;
 
     const token = getStoredToken(); // may be null
-    const [idx, rules, details, scoreMap, sampledArr, recent] = await Promise.all([
+    const [idx, rules, details, fav, scoreMap, sampledArr, recent] = await Promise.all([
         loadIndex(),
 		loadSkuRules(),
         getDetails(accountUuid, { token }).catch((e) => e),
+        getFavourites(accountUuid).catch((e) => e),
         getScore(accountUuid).catch((e) => e),
         getSampled(accountUuid).catch((e) => e),
         loadRecent().catch(() => null),
@@ -234,7 +235,7 @@ export async function renderShortlist($app, accountUuidRaw) {
     }
     
     // backend decides if this page is public/private
-    if (isAuthErr(details) || isAuthErr(scoreMap) || isAuthErr(sampledArr)) {
+    if (isAuthErr(details) || isAuthErr(fav) || isAuthErr(scoreMap) || isAuthErr(sampledArr)) {
         location.hash = "#/login";
         return;
     }
@@ -246,12 +247,12 @@ export async function renderShortlist($app, accountUuidRaw) {
     
 
 	// Canonicalize favourites
-    const favArr = Array.isArray(details?.favourites) ? details.favourites : [];
     favSet.clear();
-    for (const k of favArr) {
-        const raw = String(k || "");
-		favSet.add(String(rules.canonicalSku(raw) || raw));
-	}
+    for (const k of (fav && fav.set) ? fav.set : []) {
+      const raw = String(k || "");
+      favSet.add(String(rules.canonicalSku(raw) || raw));
+    }
+    
 
 	const sampledSet = new Set(
 		(Array.isArray(sampledArr) ? sampledArr : []).map((k) => String(rules.canonicalSku(k) || k)),
