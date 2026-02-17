@@ -666,6 +666,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 				: "";
 
 		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
+        const skuDisp = displaySku(it.sku);
 
 		const stockBadge = it._outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
 		const specialBadge = it._lastStock
@@ -729,14 +730,28 @@ export async function renderShortlist($app, accountUuidRaw) {
                             ${sampledPill}
                             ${scorePill}
                                                     
-                            <a class="badge mono skuLink" style="flex:0 0 auto; margin-right: 18px;"
+                            <a
+                                class="badge mono skuLink"
+                                style="
+                                    flex: 0 0 9ch;
+                                    width: 9ch;
+                                    min-width: 9ch;
+                                    max-width: 9ch;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                    display: inline-block;
+                                    margin-right: 18px;
+                                "
+                                title="${esc(skuDisp)}"
                                 href="${esc(skuLink)}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onclick="event.stopPropagation()"
-                            >
-                                ${esc(displaySku(it.sku))}
-                            </a>
+                                >
+                                ${esc(skuDisp)}
+                                </a>
+
                         </div>
 						<div class="metaRow">
 							${stockBadge}
