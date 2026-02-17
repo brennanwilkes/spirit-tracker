@@ -94,6 +94,12 @@ export function renderSearch($app) {
 	// canonicalSku -> storeLabel -> url
 	let URL_BY_SKU_STORE = new Map();
 
+	// sku -> Set(storeNorm) / etc (LIVE = !removed)
+	let liveStoresBySku = new Map();
+	let everStoresBySku = new Map();
+	let storeDisplayByNorm = new Map(); // norm -> display label
+	let liveMinPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> min price)
+
 	function buildUrlMap(listings, canonicalSkuFn) {
 		const out = new Map();
 		for (const r of Array.isArray(listings) ? listings : []) {
@@ -121,6 +127,46 @@ export function renderSearch($app) {
 		const s = String(storeLabel || "");
 		return URL_BY_SKU_STORE.get(sku)?.get(s) || "";
 	}
+
+	function normStoreKey(s) {
+		return String(s || "")
+			.trim()
+			.toLowerCase();
+	}
+
+	function stockMetaForSku(sku) {
+		const live = liveStoresBySku.get(sku) || new Set();
+		const ever = everStoresBySku.get(sku) || new Set();
+		const storeCount = live.size || 0;
+		const outOfStock = storeCount === 0;
+		const soloLive = storeCount === 1;
+		const lastStock = !outOfStock && soloLive && ever.size > 1;
+		const exclusive = !outOfStock && soloLive && !lastStock;
+		return { storeCount, outOfStock, lastStock, exclusive };
+	}
+
+	function bestLiveStoreForSku(sku) {
+		const m = liveMinPriceBySkuStore.get(sku);
+		if (!m) return { storeNorm: "", storeLabel: "", priceNum: null };
+
+		const EPS = 0.01;
+		let best = null;
+		let bestStore = "";
+		for (const [st, p] of m.entries()) {
+			if (!Number.isFinite(p)) continue;
+			if (best === null || p < best - EPS || (Math.abs(p - best) <= EPS && st < bestStore)) {
+				best = p;
+				bestStore = st;
+			}
+		}
+		const storeLabel = bestStore ? storeDisplayByNorm.get(bestStore) || "" : "";
+		return { storeNorm: bestStore, storeLabel, priceNum: best };
+	}
+
+	function priceStrFromNum(n) {
+		return Number.isFinite(n) ? `$${n.toFixed(2)}` : "";
+	}
+		
 
 	function normStoreLabel(s) {
 		return String(s || "").trim();
@@ -173,21 +219,39 @@ export function renderSearch($app) {
 		const limited = items.slice(0, 80);
 		$results.innerHTML = limited
 			.map((it) => {
-				const storeCount = it.stores.size || 0;
-				const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
-				const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
-				const store = it.cheapestStoreLabel || [...it.stores][0] || "Store";
+				const sku = String(it?.sku || "");
+				const stock = stockMetaForSku(sku);
+				const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
 
+				const best = bestLiveStoreForSku(sku);
+				const store = !stock.outOfStock
+					? (best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store")
+					: "";
+
+				const price =
+					(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
+					(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
+
+				const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
+				const specialBadge = stock.lastStock
+					? `<span class="badge badgeLastStock">Last Stock</span>`
+					: stock.exclusive
+						? `<span class="badge badgeExclusive">Exclusive</span>`
+						: "";
+				
 				// link must match the displayed store label
-				const href = urlForAgg(it, store) || String(it.sampleUrl || "").trim();
-				const storeBadge = href
-					? `<a class="badge" href="${esc(
-							href,
-						)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-							store,
-						)}${esc(plus)}</a>`
-					: `<span class="badge">${esc(store)}${esc(plus)}</span>`;
-
+				const href = store ? (urlForAgg(it, store) || String(it.sampleUrl || "").trim()) : "";
+				const storeBadge =
+					store && !stock.outOfStock
+						? href
+							? `<a class="badge" href="${esc(
+									href,
+								)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+									store,
+								)}${esc(plus)}</a>`
+							: `<span class="badge">${esc(store)}${esc(plus)}</span>`
+						: "";
+				
 				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
 				return `
@@ -207,8 +271,10 @@ export function renderSearch($app) {
 					)}</a>
                 </div>
                 <div class="metaRow">
-                  <span class="mono price">${esc(price)}</span>
-                  ${storeBadge}
+					${stockBadge}
+					<span class="mono price">${esc(price)}</span>
+					${specialBadge}
+					${storeBadge}
                 </div>
               </div>
             </div>
@@ -461,8 +527,16 @@ export function renderSearch($app) {
 					const img = agg?.img || "";
 
 					const storeCount = agg?.stores?.size || 0;
-					const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
+					const stock = stockMetaForSku(sku);
+					const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
 
+					const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
+					const specialBadge = stock.lastStock
+						? `<span class="badge badgeLastStock">Last Stock</span>`
+						: stock.exclusive
+							? `<span class="badge badgeExclusive">Exclusive</span>`
+							: "";
+					
 					const href = String(r.url || "").trim();
 					const storeBadge = href
 						? `<a class="badge" href="${esc(
@@ -506,6 +580,8 @@ export function renderSearch($app) {
                   </div>
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
+					${stockBadge}
+					${specialBadge}
                     <span class="mono price">${esc(priceLine)}</span>
                     ${offBadge}
                     ${storeBadge}
@@ -570,6 +646,54 @@ export function renderSearch($app) {
 			}
 			
 			const listings = Array.isArray(idx.items) ? idx.items : [];
+
+			// Build stock + display maps (LIVE vs EVER)
+			liveStoresBySku = new Map();
+			everStoresBySku = new Map();
+			storeDisplayByNorm = new Map();
+			liveMinPriceBySkuStore = new Map();
+
+			for (const r of listings) {
+				if (!r) continue;
+
+				const storeLabel = String(r.storeLabel || r.store || "").trim();
+				const stNorm = normStoreKey(storeLabel);
+				if (!stNorm) continue;
+
+				const skuKey = String(keySkuForRow(r) || "").trim();
+				if (!skuKey) continue;
+				const sku = String(rules.canonicalSku(skuKey) || skuKey);
+				if (!sku) continue;
+
+				// ever stores includes removed
+				{
+					let ss = everStoresBySku.get(sku);
+					if (!ss) everStoresBySku.set(sku, (ss = new Set()));
+					ss.add(stNorm);
+				}
+
+				if (r.removed) continue;
+
+				// display label for store
+				if (!storeDisplayByNorm.has(stNorm)) storeDisplayByNorm.set(stNorm, storeLabel);
+
+				// live stores
+				{
+					let ss = liveStoresBySku.get(sku);
+					if (!ss) liveStoresBySku.set(sku, (ss = new Set()));
+					ss.add(stNorm);
+				}
+
+				// per-store live min price
+				const p = parsePriceToNumber(r.price);
+				if (p !== null) {
+					let m = liveMinPriceBySkuStore.get(sku);
+					if (!m) liveMinPriceBySkuStore.set(sku, (m = new Map()));
+					const prev = m.get(stNorm);
+					if (prev === undefined || p < prev) m.set(stNorm, p);
+				}
+			}
+			
 
 			renderStoreButtons(listings);
 
