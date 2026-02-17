@@ -522,15 +522,15 @@ export async function renderItem($app, skuInput) {
 	const $statusMobile = document.getElementById("statusMobile");
 
 	const setLinksHtml = (html) => {
-	if ($links) $links.innerHTML = html;
-	if ($linksMobile) $linksMobile.innerHTML = html;
+		if ($links) $links.innerHTML = html;
+		if ($linksMobile) $linksMobile.innerHTML = html;
 	};
 
 	const setStatusText = (txt) => {
-	if ($status) setStatusText(txt);
-	if ($statusMobile) $statusMobile.textContent = txt;
+		if ($status) $status.textContent = txt;
+		if ($statusMobile) $statusMobile.textContent = txt;
 	};
-
+	  
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
