@@ -104,20 +104,19 @@ export async function renderShortlist($app, accountUuidRaw) {
             <div class="topbar">
             <button id="back" class="btn">← Back</button>
 
-            <div style="display:flex; flex-direction:column; gap:4px; margin-left:10px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
                 <div class="h1" style="margin:0;">Shortlist</div>
-                    <span
-                        id="copyLink"
-                        class="badge mono badgeClick"
-                        role="button"
-                        tabindex="0"
-                        title="Copy page link"
-                    >
-                        ${esc(accountUuid)}
-                    </span>
-                </div>
+                <span
+                    id="copyLink"
+                    class="badge mono badgeClick"
+                    role="button"
+                    tabindex="0"
+                    title="Copy page link"
+                >
+                    ${esc(accountUuid)}
+                </span>
             </div>
-
+        
 
 			<div class="card">
 				<div style="display:flex; flex-direction:column; gap:10px;">
@@ -675,33 +674,45 @@ export async function renderShortlist($app, accountUuidRaw) {
 			: "";
 		const wBadge = Number.isFinite(it._weighted) ? `<span class="badge mono">W ${esc(it._weighted)}</span>` : "";
         const sampledPill = it._outOfStock
-        ? ""
-        : `<button
-              class="pillBtn sampledBtn ${it._sampled ? "isOn" : ""}"
-              type="button"
-              data-sku="${esc(it.sku)}"
-              aria-pressed="${it._sampled ? "true" : "false"}"
-              title="Toggle sampled"
-           >
-              <span class="pillMark pillMarkOff">×</span>
-              <span class="pillMark pillMarkOn">✓</span>
-              <span>Sampled</span>
-           </button>`;
-      
-      const scoreNum = Number.isFinite(it._score) ? Math.round(it._score) : null;
-      
-      const scorePill = `
-        <button
-          class="pillInput scoreBtn"
-          type="button"
-          data-sku="${esc(it.sku)}"
-          title="${scoreNum === null ? "Set score" : "Edit score"}"
-        >
-          <span class="pillMarkNum">#</span>
-          <span class="pillNumberText">${scoreNum === null ? "Score" : String(scoreNum)}</span>
-        </button>
-      `;
-              
+			? ""
+			: `<button
+					class="pillBtn sampledBtn ${it._sampled ? "isOn" : ""}"
+					type="button"
+					data-sku="${esc(it.sku)}"
+					aria-pressed="${it._sampled ? "true" : "false"}"
+					title="Toggle sampled"
+					style="flex:0 0 auto;"
+				>
+					<span class="pillMark pillMarkOff">×</span>
+					<span class="pillMark pillMarkOn">✓</span>
+					<span>Sampled</span>
+				</button>`;
+
+		const scoreVal = Number.isFinite(it._score) ? String(Math.round(it._score)) : "";
+		const scorePill = it._outOfStock
+			? ""
+			: `<div
+					class="pillInput scoreWrap"
+					role="button"
+					tabindex="0"
+					data-sku="${esc(it.sku)}"
+					aria-label="Score"
+					style="flex:0 0 auto; min-width:108px;"
+				>
+					<span class="pillMarkNum">#</span>
+					<input
+						class="pillNumber scoreInput"
+						type="number"
+						min="0"
+						max="100"
+						step="1"
+						inputmode="numeric"
+						placeholder="Score"
+						value="${esc(scoreVal)}"
+						data-sku="${esc(it.sku)}"
+						style="width:64px;"
+					/>
+				</div>`;
         
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
@@ -712,6 +723,7 @@ export async function renderShortlist($app, accountUuidRaw) {
                         <div class="itemTop" style="display:flex; align-items:center; gap:8px;">
                             <div class="itemName" style="flex:1 1 auto;">${esc(it.name || "(no name)")}</div>
                         
+                            ${sampledPill}
                             ${scorePill}
                                                   
                             <a class="badge mono skuLink"
@@ -724,7 +736,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 						<div class="metaRow">
 							${stockBadge}
 							${specialBadge}
-                            ${sampledPill}
 							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
 							${saleBadge}
 							${storeBadge}
@@ -887,6 +898,27 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	applyFilter();
 
+	function setSaving(el, on) {
+		if (!el) return;
+		el.classList.toggle("isSaving", !!on);
+	}
+
+	function flashSaved(el) {
+		if (!el) return;
+		el.classList.remove("isSaved");
+		// restart animation
+		void el.offsetWidth;
+		el.classList.add("isSaved");
+		setTimeout(() => el && el.classList.remove("isSaved"), 650);
+	}
+
+	let refreshAfterFlashT = null;
+	function refreshAfterFlash() {
+		if (refreshAfterFlashT) clearTimeout(refreshAfterFlashT);
+		refreshAfterFlashT = setTimeout(refreshAfterEdit, 680);
+	}
+        
+
     async function refreshAfterEdit() {
         // re-decorate score/sample only and re-sort
         for (const sku of favSet) {
@@ -896,73 +928,136 @@ export async function renderShortlist($app, accountUuidRaw) {
             const raw = scoreMap && typeof scoreMap === "object" ? Number(scoreMap[sku]) : NaN;
             it._score = Number.isFinite(raw) ? raw : null;
             it._sampled = sampledSet.has(sku);
+			it._weighted = weightedScore({ priceNum: it._priceNum, scoreNum: it._score, sampled: it._sampled });
         }
         applyFilter();
     }
     
-    // SCORE edit
-    $results.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".scoreBtn");
-        if (!btn) return;
-        e.preventDefault();
-        e.stopPropagation();
-    
-        const sku = btn.getAttribute("data-sku") || "";
-        if (!sku) return;
-    
-        const cur = decoratedBySku.get(sku)?._score;
-        const nextRaw = window.prompt(
-            `Set score for ${sku} (blank to clear):`,
-            cur === null || cur === undefined ? "" : String(Math.round(cur)),
-        );
-    
-        if (nextRaw === null) return; // cancelled
-    
-        const trimmed = String(nextRaw).trim();
-        try {
-            if (!trimmed) {
-                // clear
-                await setScore(accountUuid, sku, null);
-                if (scoreMap && typeof scoreMap === "object") delete scoreMap[sku];
-            } else {
-                const n = Number(trimmed);
-                if (!Number.isFinite(n)) return;
-                await setScore(accountUuid, sku, n);
-                if (scoreMap && typeof scoreMap === "object") scoreMap[sku] = n;
-            }
-            await refreshAfterEdit();
-        } catch {
-            location.hash = "#/login";
-        }
-    });
-    
-    // SAMPLED toggle
-    $results.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".sampledBtn");
-        if (!btn) return;
-        e.preventDefault();
-        e.stopPropagation();
-    
-        const sku = btn.getAttribute("data-sku") || "";
-        if (!sku) return;
-    
-        const next = !sampledSet.has(sku);
-    
-        try {
-            await setSampled(accountUuid, sku, next);
-            if (next) sampledSet.add(sku);
-            else sampledSet.delete(sku);
-    
-            await refreshAfterEdit();
-        } catch (e) {
-            if (isAuthErr(e)) location.hash = "#/login";
-            else throw e;
-        }
-    });
-    
+    +	function setSampledUi(btn, isOn) {
+		if (!btn) return;
+		const on = !!isOn;
+		btn.classList.toggle("isOn", on);
+		btn.setAttribute("aria-pressed", on ? "true" : "false");
+	}
+
+	// Score pill: click focuses input (and MUST NOT trigger row navigation)
+	$results.addEventListener("click", (e) => {
+		const wrap = e.target.closest(".scoreWrap");
+		if (!wrap) return;
+
+		// Stop the row click handler (same element) from running
+		e.stopImmediatePropagation();
+
+		const inp = wrap.querySelector(".scoreInput");
+		if (!inp) return;
+
+		// Don't break normal input focusing/caret
+		const isInput = e.target === inp;
+		if (!isInput) {
+			e.preventDefault();
+			inp.focus();
+		}
+	});
+
+	$results.addEventListener("keydown", (e) => {
+		const wrap = e.target.closest(".scoreWrap");
+		if (!wrap) return;
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			const inp = wrap.querySelector(".scoreInput");
+			if (inp) inp.focus();
+		}
+	});
+
+	async function saveScore(sku, wrap, inp) {
+		const raw = String(inp?.value || "").trim();
+		let toSend = null;
+
+		if (raw !== "") {
+			const n = Number(raw);
+			if (Number.isFinite(n)) {
+				toSend = Math.max(0, Math.min(100, Math.round(n)));
+				inp.value = String(toSend);
+			} else {
+				inp.value = "";
+				toSend = null;
+			}
+		}
+
+		setSaving(wrap, true);
+		try {
+			await setScore(accountUuid, sku, toSend);
+			if (scoreMap && typeof scoreMap === "object") {
+				if (toSend === null) delete scoreMap[sku];
+				else scoreMap[sku] = toSend;
+			}
+			flashSaved(wrap);
+			refreshAfterFlash();
+		} catch (err) {
+			if (isAuthErr(err)) location.hash = "#/login";
+		} finally {
+			setSaving(wrap, false);
+		}
+	}
+
+	$results.addEventListener("change", (e) => {
+		const inp = e.target.closest(".scoreInput");
+		if (!inp) return;
+		e.stopImmediatePropagation();
+
+		const sku = String(inp.getAttribute("data-sku") || "");
+		if (!sku) return;
+		const wrap = inp.closest(".scoreWrap");
+		if (!wrap) return;
+		saveScore(sku, wrap, inp);
+	});
+
+	$results.addEventListener("keydown", (e) => {
+		const inp = e.target.closest(".scoreInput");
+		if (!inp) return;
+		if (e.key === "Enter") {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			inp.blur(); // triggers change
+		}
+	});
+
+	// Sampled toggle (with saving + saved flash) and MUST NOT trigger row navigation
+	$results.addEventListener("click", async (e) => {
+		const btn = e.target.closest(".sampledBtn");
+		if (!btn) return;
+		e.preventDefault();
+		e.stopImmediatePropagation();
+
+		const sku = String(btn.getAttribute("data-sku") || "");
+		if (!sku) return;
+
+		const next = !btn.classList.contains("isOn");
+		setSampledUi(btn, next);
+
+		setSaving(btn, true);
+		try {
+			await setSampled(accountUuid, sku, next);
+			if (next) sampledSet.add(sku);
+			else sampledSet.delete(sku);
+			flashSaved(btn);
+			refreshAfterFlash();
+		} catch (err) {
+			setSampledUi(btn, !next);
+			if (isAuthErr(err)) location.hash = "#/login";
+		} finally {
+			setSaving(btn, false);
+		}
+	});
+        
+
+
 
 	// Click -> item page (ignore fav star / links)
 	$results.addEventListener("click", (e) => {
+		if (e.defaultPrevented) return;
+		if (e.target.closest(".sampledBtn") || e.target.closest(".scoreWrap") || e.target.closest(".scoreInput")) return;
 		if (e.target.closest(".favStarBtn")) {
 			// allow fav_star.js to update, then re-filter to remove unfavourited rows
 			setTimeout(applyFilter, 550);
