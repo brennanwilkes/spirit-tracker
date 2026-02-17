@@ -438,48 +438,39 @@ export async function renderItem($app, skuInput) {
 				<div class="detailHeaderText">
 				<div class="detailTopRow">
 					<div class="detailLeft">
-					<div class="detailTitleRow">
+						<div class="detailTitleRow">
 						<div id="title" class="h1">Loading…</div>
-					</div>
+						</div>
 
-					<div id="links" class="links"></div>
-					<div class="small" id="status"></div>
+						<div id="links" class="links"></div>
+						<div class="small" id="status"></div>
 					</div>
 
 					<div class="detailRight">
-					${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
+						${favStarHtml(sku, favSet.has(sku), { cls: "favStarItem" })}
 
-					<div class="detailCloudPanel" id="cloudMeta">
-						<button
-						id="sampledBtn"
-						class="pillBtn"
-						type="button"
-						aria-pressed="false"
-						title="Mark as sampled"
-						>
-						<span class="pillMark pillMarkOff" aria-hidden="true">×</span>
-						<span class="pillMark pillMarkOn" aria-hidden="true">✓</span>
+						<button id="sampledBtn" class="pillBtn" type="button" aria-pressed="false">
+						<span class="pillMark pillMarkOff">×</span>
+						<span class="pillMark pillMarkOn">✓</span>
 						<span>Sampled</span>
 						</button>
 
-						<label class="pillInput" title="Score (0–100)">
-						<span class="pillMarkNum" aria-hidden="true">#</span>
-						<input
-							id="scoreInput"
-							class="pillNumber"
-							type="number"
-							min="0"
-							max="100"
-							step="1"
-							inputmode="numeric"
-							placeholder="Score"
-						/>
-						</label>
+						<div id="scoreWrap" class="pillInput" role="button" tabindex="0" aria-label="Score">
+							<span class="pillMarkNum">#</span>
+							<input
+								id="scoreInput"
+								class="pillNumber"
+								type="number"
+								min="0"
+								max="100"
+								step="1"
+								inputmode="numeric"
+								placeholder="Score"
+							/>
+							</div>
+						</div>
+					</div>
 
-						<div class="detailCloudMetaStatus small" id="cloudMetaStatus"></div>
-					</div>
-					</div>
-				</div>
 				</div>
 			</div>
 
@@ -510,6 +501,8 @@ export async function renderItem($app, skuInput) {
 	const $score = document.getElementById("scoreInput");
 	const $cloudMetaStatus = document.getElementById("cloudMetaStatus");
 	
+
+	
 	function setCloudUi(opts = {}) {
 		const { enabled, msg, sampled, score } = opts;
 	  
@@ -532,10 +525,124 @@ export async function renderItem($app, skuInput) {
 	}
 
 	setCloudUi({ enabled: false, msg: "" });
-
-	const cloudKey = sku; // canonical SKU key for cloud maps
+	const loginUrl = "#/login";
+	const openLogin = () => window.open(loginUrl, "_blank", "noopener,noreferrer");
+	
+	function setSampledUi(isOn){
+	  const on = !!isOn;
+	  $sampledBtn.classList.toggle("isOn", on);
+	  $sampledBtn.setAttribute("aria-pressed", on ? "true" : "false");
+	}
+	
+	function setScoreUi(score){
+	  if (score === null || score === undefined) $score.value = "";
+	  else if (Number.isFinite(Number(score))) $score.value = String(Math.round(Number(score)));
+	}
+	
+	// Make the WHOLE score pill clickable -> focuses input
+	if ($scoreWrap && $score) {
+	  $scoreWrap.addEventListener("click", (e) => {
+		// if click wasn't directly on input, focus it
+		if (e.target !== $score) $score.focus();
+	  });
+	  $scoreWrap.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" || e.key === " ") {
+		  e.preventDefault();
+		  $score.focus();
+		}
+	  });
+	}
+	
 	const auth = getAuthStatus();
-
+	const cloudKey = sku;
+	
+	if (!auth.ok) {
+	  // Not disabled — clicking opens login
+	  $sampledBtn.classList.add("isLoginGate");
+	  $scoreWrap.classList.add("isLoginGate");
+	  $score.readOnly = true;
+	
+	  $sampledBtn.addEventListener("click", (e) => {
+		e.preventDefault();
+		openLogin();
+	  });
+	
+	  $scoreWrap.addEventListener("click", (e) => {
+		e.preventDefault();
+		openLogin();
+	  });
+	
+	  $score.addEventListener("focus", () => {
+		// prevent wonky partial-edit state when readOnly
+		$score.blur();
+	  });
+	} else {
+	  // Auth ok: load initial values, then enable saves
+	  (async () => {
+		try {
+		  const [sampledArr, scoreMap] = await Promise.all([getMySampled(), getMyScore()]);
+		  const sampled = Array.isArray(sampledArr) && sampledArr.includes(cloudKey);
+	
+		  let score = null;
+		  if (scoreMap && typeof scoreMap === "object") {
+			const n = Number(scoreMap[cloudKey]);
+			if (Number.isFinite(n)) score = n;
+		  }
+	
+		  setSampledUi(sampled);
+		  setScoreUi(score);
+		} catch {
+		  // leave empty; still usable
+		  setSampledUi(false);
+		  setScoreUi(null);
+		}
+	  })();
+	
+	  // Sampled toggle
+	  $sampledBtn.addEventListener("click", async () => {
+		const next = !$sampledBtn.classList.contains("isOn");
+		setSampledUi(next);
+	
+		try {
+		  await setMySampled(cloudKey, next);
+		} catch {
+		  // revert on failure
+		  setSampledUi(!next);
+		}
+	  });
+	
+	  // Score save (blur/change)
+	  const saveScore = async () => {
+		const raw = String($score.value || "").trim();
+		let toSend = null;
+	
+		if (raw !== "") {
+		  const n = Number(raw);
+		  if (Number.isFinite(n)) {
+			toSend = Math.max(0, Math.min(100, Math.round(n)));
+			$score.value = String(toSend);
+		  } else {
+			$score.value = "";
+			toSend = null;
+		  }
+		}
+	
+		try {
+		  await setMyScore(cloudKey, toSend);
+		} catch {
+		  // no toast; just leave value
+		}
+	  };
+	
+	  $score.addEventListener("change", saveScore);
+	  $score.addEventListener("keydown", (e) => {
+		if (e.key === "Enter") {
+		  e.preventDefault();
+		  $score.blur();
+		}
+	  });
+	}
+	
 	if (!auth.ok) {
 		setCloudUi({ enabled: false, msg: "" });
 	} else {
@@ -592,7 +699,6 @@ export async function renderItem($app, skuInput) {
 					}
 				}
 
-				setCloudUi({ enabled: false, msg: "Saving…" });
 				try {
 					await setMyScore(cloudKey, toSend);
 					setCloudUi({ enabled: true, msg: "" });
