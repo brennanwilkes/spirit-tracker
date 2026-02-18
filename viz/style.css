@@ -680,7 +680,34 @@ button.badge.badgeBtn:hover{
 .mobileBreak { display: none; flex-basis: 100%; width: 0; height: 0; }
 
 @media (max-width: 640px) {
-  /* Put thumb + controls on row 1, title on row 2 (full width) */
+
+  .mobileBreak { display: block; }
+
+  /* shortlist: simplify rows for small screens */
+  .shortlistPage .sampledBtn,
+  .shortlistPage .scoreWrap,
+  .shortlistPage .skuLink,
+  .shortlistPage .favStarBtn,
+  .shortlistPage .starDock{
+    display: none !important;
+  }
+
+  .container { padding: 14px; }
+  .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
+  .item { min-height: 0; }
+  .metaRow { flex-wrap: wrap; }
+
+  .detailThumbBox { width: 84px; height: 84px; flex: 0 0 84px; }
+
+  .chartBox {
+    height: 58vh;
+    min-height: 260px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Item page: put thumb + controls on first row, title on its own full-width line */
   .detailHeader{
     display: grid;
     grid-template-columns: 84px 1fr;
@@ -691,7 +718,7 @@ button.badge.badgeBtn:hover{
     align-items: start;
   }
 
-  /* Let nested wrappers not affect layout (so children become grid items) */
+  /* Flatten wrappers so #title can be positioned by the grid */
   .detailHeaderText,
   .detailTopRow,
   .detailLeft,
@@ -911,6 +938,27 @@ html { overflow-y: scroll; }
   transform: none;
   z-index: 2;
 }
+
+/* --- Shortlist only: dock Weighted badge next to star (doesn't affect other pages) --- */
+.shortlistPage .starDock{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+
+/* on shortlist, the star lives inside the dock, so it must NOT be absolutely positioned */
+.shortlistPage .itemHasStar .favStarBtn{
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  transform: none;
+}
+
 
 .favStarBtn {
   border: 1px solid transparent;
