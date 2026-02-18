@@ -34,6 +34,16 @@ export async function renderSkuLinker($app) {
 	const localWrite = isLocalWriteMode();
 	let rules = await loadSkuRules();
 
+	const PAGE_SEED = (() => {
+		try {
+			const u = new Uint32Array(1);
+			crypto.getRandomValues(u);
+			return u[0] >>> 0;
+		} catch {
+			return (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
+		}
+	})();
+
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
       <div class="topbar">
@@ -154,6 +164,7 @@ export async function renderSkuLinker($app) {
 			sameGroup, // ✅ NEW: hard-block already-linked pairs (incl SMWS stage)
 			sizePenaltyForPair,
 			pricePenaltyForPair,
+			PAGE_SEED,
 		);
 
 		return initialPairs;

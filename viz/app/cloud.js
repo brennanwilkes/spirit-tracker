@@ -180,8 +180,8 @@ function shouldShowRateLimitModal() {
 	const secs = retryAfterMs ? Math.max(1, Math.round(retryAfterMs / 1000)) : null;
   
 	const msg =
-	  `The free Cloudflare KV tier sometimes rate limits writes. Your change may not have saved. ` +
-	  (secs ? `Try again in ~${secs}s.` : `Please try again in a moment.`);
+	  `Cloudflare Key/Value writes are being rate limited. Your change has not saved. ` +
+	  (secs ? `Try again in ~${secs}s.` : `Try again after 4:00pm Pacific Time`);
   
 	Swal.fire({
 	  icon: "warning",
