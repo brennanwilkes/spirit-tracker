@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-17T21:58:55.450Z",
+  "generatedAt": "2026-02-18T01:11:41.257Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -21,7 +21,7 @@
   "totals": {
     "liveRows": 3743,
     "removedRows": 150,
-    "canonSkus": 1909,
+    "canonSkus": 1908,
     "outputCount": 250
   },
   "rows": [
@@ -3950,6 +3950,47 @@
         "priceNum": 74.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfiddich-12-year-old-single-malt-scotch-750-ml"
+      }
+    },
+    {
+      "canonSku": "021758",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 182.59,
+        "strath": 202.52,
+        "tudor": 188.99,
+        "vessel": 199.99,
+        "vintage": 179.04
+      },
+      "representative": {
+        "name": "ARDBEG CORRYVRECKAN",
+        "price": "$182.59",
+        "priceNum": 182.59,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "021758",
+        "skuKey": "021758",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587428-ardbeg-corryvreckan",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$179.04",
+        "priceNum": 179.04,
+        "storeKey": "vintage",
+        "url": "https://shop.vintagespirits.ca/products/4859198-ardbeg-corryvreckan"
       }
     },
     {
@@ -10275,46 +10316,6 @@
         "priceNum": 26.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/655266"
-      }
-    },
-    {
-      "canonSku": "405630",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "gull",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 134.19,
-        "gull": 139.1,
-        "strath": 146,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "GLENDRONACH PORTWOOD",
-        "price": "$134.19",
-        "priceNum": 134.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "405630",
-        "skuKey": "405630",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589226-glendronach-portwood",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$134.19",
-        "priceNum": 134.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589226-glendronach-portwood"
       }
     }
   ]
