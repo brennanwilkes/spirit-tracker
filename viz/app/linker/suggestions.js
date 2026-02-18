@@ -261,6 +261,7 @@ export function recommendSimilar(
 	return fallback.slice(0, limit).map((x) => x.it);
 }
 
+
 export function computeInitialPairsFast(
 	allAgg,
 	mappedSkus,
@@ -271,11 +272,16 @@ export function computeInitialPairsFast(
 	sizePenaltyFn,
 	pricePenaltyFn,
 	seed,
+	opts,
 ) {
 	const itemsAll = allAgg.filter((it) => !!it);
 	if (!itemsAll.length) return [];
 
-	// ---- RNG (stable per page-load seed) ----
+	// -------- temperature (0..1) --------
+	const TEMP = Math.max(0, Math.min(1, Number(opts?.temp ?? 0.22)));
+	const lerp = (a, b, t) => a + (b - a) * t;
+
+	// -------- RNG (stable per load) --------
 	let s0 = seed;
 	if (s0 == null) {
 		try {
@@ -287,55 +293,25 @@ export function computeInitialPairsFast(
 		}
 	}
 	const rnd = mulberry32((s0 >>> 0) || 1);
+	const randInt = (n) => (n <= 1 ? 0 : ((rnd() * n) | 0));
 
-	function randInt(n) {
-		return n <= 1 ? 0 : ((rnd() * n) | 0);
+	function blocked(aSku, bSku) {
+		if (!aSku || !bSku || aSku === bSku) return true;
+		if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return true;
+		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) return true;
+		if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) return true;
+		return false;
 	}
 
-	function weightedSampleWithoutReplacement(arr, k, weightFn) {
-		// Efraimidis–Spirakis: key = U^(1/w), pick largest keys
-		const tmp = [];
-		for (const it of arr) {
-			const w0 = weightFn(it);
-			const w = Math.max(1e-6, Number.isFinite(w0) ? w0 : 1e-6);
-			let u = rnd();
-			if (u <= 0) u = 1e-12;
-			const key = Math.pow(u, 1 / w);
-			tmp.push({ it, key });
-		}
-		tmp.sort((a, b) => b.key - a.key);
-		const out = [];
-		const n = Math.min(k, tmp.length);
-		for (let i = 0; i < n; i++) out.push(tmp[i].it);
-		return out;
+	function itemRank(it) {
+		const stores = it.stores ? it.stores.size : 0;
+		const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
+		const hasName = it.name ? 1 : 0;
+		const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
+		return stores * 3 + hasPrice * 2 + hasName * 0.6 + unknown * 0.4;
 	}
 
-	function pickFromTopByScore(scored, topN, power) {
-		const n = Math.min(topN, scored.length);
-		if (!n) return null;
-		if (n === 1) return scored[0];
-
-		const best = Math.max(1e-12, scored[0].s);
-		const w = new Array(n);
-		let sum = 0;
-
-		for (let i = 0; i < n; i++) {
-			const s = Math.max(1e-12, scored[i].s);
-			const rel = s / best; // <= 1 typically
-			const wi = Math.pow(rel, power); // closer to 1 => higher chance
-			w[i] = wi;
-			sum += wi;
-		}
-
-		let r = rnd() * sum;
-		for (let i = 0; i < n; i++) {
-			r -= w[i];
-			if (r <= 0) return scored[i];
-		}
-		return scored[n - 1];
-	}
-
-	// Randomize catalog view, but keep bounded
+	// Randomized catalog view (helps variety), but bounded
 	const itemsShuf = itemsAll.slice();
 	shuffleInPlace(itemsShuf, rnd);
 
@@ -346,23 +322,6 @@ export function computeInitialPairsFast(
 	const work = workAll.filter((it) => it && !(mappedSkus && mappedSkus.has(String(it.sku || ""))));
 	if (!work.length) return [];
 
-	function itemRank(it) {
-		const stores = it.stores ? it.stores.size : 0;
-		const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-		const hasName = it.name ? 1 : 0;
-		const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
-		return stores * 3 + hasPrice * 2 + hasName * 0.6 + unknown * 0.4;
-	}
-
-	// Helpers for hard blocks
-	function blocked(aSku, bSku) {
-		if (!aSku || !bSku || aSku === bSku) return true;
-		if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return true;
-		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) return true;
-		if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) return true;
-		return false;
-	}
-
 	const used = new Set();
 	const out = [];
 
@@ -372,16 +331,14 @@ export function computeInitialPairsFast(
 		if (!aSku || !bSku) return false;
 		if (used.has(aSku) || used.has(bSku)) return false;
 		if (blocked(aSku, bSku)) return false;
-
 		used.add(aSku);
 		used.add(bSku);
 		out.push({ a, b, score: score || 0 });
 		return true;
 	}
 
-	// ---------------- SMWS stage (random per load) ----------------
-	// Build buckets on UNMAPPED-ONLY work, then pick random bucket order,
-	// random anchor among top few, random partner among top few.
+	// ---------------- SMWS stage (DETERMINISTIC + PRECISE) ----------------
+	// Exact code buckets, pick top-ranked anchor + top-ranked valid partner.
 	{
 		const buckets = new Map(); // code -> items[]
 		for (const it of work) {
@@ -394,35 +351,41 @@ export function computeInitialPairsFast(
 			arr.push(it);
 		}
 
-		const codes = Array.from(buckets.keys());
-		shuffleInPlace(codes, rnd);
+		const smwsPairs = [];
+		for (const [code, arr0] of buckets.entries()) {
+			if (!arr0 || arr0.length < 2) continue;
 
-		for (const code of codes) {
-			if (out.length >= limitPairs) break;
-			const arr0 = buckets.get(code) || [];
-			if (arr0.length < 2) continue;
+			// deterministic: sort by rank desc, then sku asc
+			const arr = arr0.slice().sort((a, b) => {
+				const dr = itemRank(b) - itemRank(a);
+				if (dr) return dr;
+				const as = String(a?.sku || "");
+				const bs = String(b?.sku || "");
+				return as < bs ? -1 : as > bs ? 1 : 0;
+			});
 
-			// rank within bucket
-			const arr = arr0.slice().sort((a, b) => itemRank(b) - itemRank(a));
-			const ANCHOR_TOP = Math.min(6, arr.length);
-			const PARTNER_TOP = Math.min(45, arr.length);
-
-			const anchor = arr[randInt(ANCHOR_TOP)];
+			const anchor = arr[0];
 			const aSku = String(anchor?.sku || "");
-			if (!aSku || used.has(aSku)) continue;
+			if (!aSku) continue;
 
-			// try a few random partners
-			let added = false;
-			for (let t = 0; t < 10 && !added; t++) {
-				const j = randInt(PARTNER_TOP);
-				const partner = arr[j];
-				if (!partner || partner === anchor) continue;
+			for (let i = 1; i < arr.length; i++) {
+				const partner = arr[i];
 				const bSku = String(partner?.sku || "");
-				if (!bSku || used.has(bSku)) continue;
+				if (!bSku) continue;
 				if (blocked(aSku, bSku)) continue;
 
-				added = tryAddPair(anchor, partner, 1e9 + itemRank(anchor) + itemRank(partner));
+				const sc = 1e9 + itemRank(anchor) + itemRank(partner);
+				smwsPairs.push({ a: anchor, b: partner, score: sc });
+				break;
 			}
+		}
+
+		// deterministic: best SMWS pairs first
+		smwsPairs.sort((x, y) => y.score - x.score);
+
+		for (const p of smwsPairs) {
+			if (out.length >= limitPairs) break;
+			tryAddPair(p.a, p.b, p.score);
 		}
 	}
 
@@ -431,9 +394,9 @@ export function computeInitialPairsFast(
 		return out.slice(0, limitPairs);
 	}
 
-	// ---------------- General stage (random anchors + random best-of-top partner) ----------------
+	// ---------------- General stage (temperature controls randomness) ----------------
 
-	// Token buckets (as before)
+	// Token buckets
 	const TOKEN_BUCKET_CAP = 800;
 	const tokMap = new Map(); // token -> items[]
 	const itemRawToks = new Map(); // sku -> raw tokens
@@ -459,15 +422,30 @@ export function computeInitialPairsFast(
 		}
 	}
 
-	// Pick truly different anchors each load:
-	// weighted sample across whole pool (not “topSuggestions” deterministic set).
-	const SEED_N = Math.min(420, work.length);
-	const seeds = weightedSampleWithoutReplacement(work, SEED_N, (it) => 1 + Math.max(0.1, itemRank(it)));
-	shuffleInPlace(seeds, rnd);
+	// knobs: lower TEMP => smaller pools, more greedy
+	const SEED_N = Math.min(work.length, Math.round(lerp(220, 520, TEMP)));
+	const MAX_CAND_TOTAL = Math.round(lerp(420, 900, TEMP));
+	const CHEAP_TOP = Math.round(lerp(24, 70, TEMP));
+	const FINE_TOP = Math.round(lerp(6, 22, TEMP));
+	const EPS = TEMP; // probability to not pick the top-1 partner
 
-	const MAX_CAND_TOTAL = 750;
-	const CHEAP_TOP = 60; // widen variety
-	const FINE_TOP = 20;
+	// seeds: deterministic when TEMP=0, otherwise sampled/shuffled
+	let seeds;
+	if (TEMP <= 0) {
+		seeds = topSuggestions(work, Math.min(SEED_N, work.length), "", mappedSkus);
+	} else {
+		seeds = work.slice();
+		shuffleInPlace(seeds, rnd);
+		seeds.length = SEED_N;
+		// bias toward higher-rank items but still varied:
+		seeds.sort((a, b) => {
+			const dr = itemRank(b) - itemRank(a);
+			if (dr) return dr;
+			return String(a?.sku || "") < String(b?.sku || "") ? -1 : 1;
+		});
+		// then scramble again so we don't always start with the same best ones
+		shuffleInPlace(seeds, rnd);
+	}
 
 	for (const a of seeds) {
 		if (out.length >= limitPairs) break;
@@ -483,7 +461,7 @@ export function computeInitialPairsFast(
 		const aBrand = aFilt[0] || "";
 		const aAge = extractAgeFromText(aNorm);
 
-		// Gather candidates from token buckets
+		// candidates from buckets
 		const cand = new Map();
 		for (const t of aFilt.slice(0, 10)) {
 			const arr = tokMap.get(t);
@@ -501,7 +479,7 @@ export function computeInitialPairsFast(
 		}
 		if (!cand.size) continue;
 
-		// Cheap stage for many options
+		// cheap stage
 		const cheap = [];
 		for (const b of cand.values()) {
 			const bSku = String(b.sku || "");
@@ -541,7 +519,7 @@ export function computeInitialPairsFast(
 
 		cheap.sort((x, y) => y.s - x.s);
 
-		// Fine stage on a wider top set, then RANDOMLY choose among top results
+		// fine stage
 		const fine = [];
 		for (const x of cheap.slice(0, CHEAP_TOP)) {
 			const b = x.b;
@@ -577,25 +555,44 @@ export function computeInitialPairsFast(
 
 			fine.push({ b, s });
 		}
-
 		if (!fine.length) continue;
-		fine.sort((x, y) => y.s - x.s);
 
-		// ✅ THIS is the key: pick partner probabilistically, not always the max.
-		const picked = pickFromTopByScore(fine, FINE_TOP, 2.0); // power↑ => more greedy
-		if (!picked) continue;
+		fine.sort((x, y) => y.s - x.s);
+		const top = fine.slice(0, FINE_TOP);
+		if (!top.length) continue;
+
+		// pick partner: greedy when TEMP low, more varied when TEMP high
+		let picked = top[0];
+		if (TEMP > 0 && rnd() < EPS && top.length > 1) {
+			// weighted pick among topN: lower TEMP => sharper bias to best
+			const best = Math.max(1e-12, top[0].s);
+			const power = lerp(8.0, 2.2, TEMP);
+			let sum = 0;
+			const w = [];
+			for (let i = 0; i < top.length; i++) {
+				const rel = Math.max(1e-12, top[i].s) / best;
+				const wi = Math.pow(rel, power);
+				w[i] = wi;
+				sum += wi;
+			}
+			let r = rnd() * sum;
+			for (let i = 0; i < top.length; i++) {
+				r -= w[i];
+				if (r <= 0) {
+					picked = top[i];
+					break;
+				}
+			}
+		}
 
 		if (picked.s < 0.45) continue;
-
-		if (tryAddPair(a, picked.b, picked.s)) {
-			// added
-		}
+		tryAddPair(a, picked.b, picked.s);
 	}
 
-	// Final scramble + trim
 	shuffleInPlace(out, rnd);
 	return out.slice(0, limitPairs);
 }
+
 
 function fnv1a32u(str) {
 	let h = 0x811c9dc5;
