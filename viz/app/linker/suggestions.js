@@ -282,14 +282,17 @@ export function computeInitialPairsFast(
 	const lerp = (a, b, t) => a + (b - a) * t;
 
 	// -------- RNG (stable per load) --------
-	let s0 = seed;
-	if (s0 == null) {
-		try {
-			const u = new Uint32Array(1);
-			crypto.getRandomValues(u);
-			s0 = u[0] >>> 0;
-		} catch {
-			s0 = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
+	let s0 = 1; // fixed seed for deterministic mode
+	if (!DETERMINISTIC) {
+		s0 = seed;
+		if (s0 == null) {
+			try {
+				const u = new Uint32Array(1);
+				crypto.getRandomValues(u);
+				s0 = u[0] >>> 0;
+			} catch {
+				s0 = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
+			}
 		}
 	}
 	const rnd = mulberry32((s0 >>> 0) || 1);
@@ -316,8 +319,23 @@ export function computeInitialPairsFast(
 	shuffleInPlace(itemsShuf, rnd);
 
 	const WORK_CAP = Math.min(12000, itemsShuf.length);
-	const workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
+	let workAll;
 
+	if (DETERMINISTIC) {
+		// stable order: sku asc (or whatever stable key you want)
+		workAll = itemsAll.slice().sort((a, b) => {
+			const as = String(a?.sku || "");
+			const bs = String(b?.sku || "");
+			return as < bs ? -1 : as > bs ? 1 : 0;
+		});
+	} else {
+		const itemsShuf = itemsAll.slice();
+		shuffleInPlace(itemsShuf, rnd);
+	
+		const WORK_CAP = Math.min(12000, itemsShuf.length);
+		workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
+	}
+	
 	// Unmapped-only pool for initial suggestions
 	const work = workAll.filter((it) => it && !(mappedSkus && mappedSkus.has(String(it.sku || ""))));
 	if (!work.length) return [];
@@ -589,7 +607,7 @@ export function computeInitialPairsFast(
 		tryAddPair(a, picked.b, picked.s);
 	}
 
-	shuffleInPlace(out, rnd);
+	if (!DETERMINISTIC) shuffleInPlace(out, rnd);
 	return out.slice(0, limitPairs);
 }
 
