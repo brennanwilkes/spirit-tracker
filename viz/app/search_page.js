@@ -271,8 +271,8 @@ export function renderSearch($app) {
 					)}</a>
                 </div>
                 <div class="metaRow">
-					${stockBadge}
 					<span class="mono price">${esc(price)}</span>
+					${stockBadge}
 					${specialBadge}
 					${storeBadge}
                 </div>
@@ -580,10 +580,10 @@ export function renderSearch($app) {
                   </div>
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
-					${stockBadge}
-					${specialBadge}
                     <span class="mono price">${esc(priceLine)}</span>
                     ${offBadge}
+					${stockBadge}
+					${specialBadge}
                     ${storeBadge}
                     ${dateBadge}
                   </div>
