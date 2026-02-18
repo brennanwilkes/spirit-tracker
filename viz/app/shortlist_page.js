@@ -668,9 +668,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const price = priceStr(it);
         const saleBadge = saleBadgeHtml(it);
 		const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
-		const wInline = showWInline && Number.isFinite(it._viewWeighted)
-			? `<span class="badge mono badgeNeutral">W ${esc(it._viewWeighted)}</span>`
-			: "";
+        const wDock = showWInline && Number.isFinite(it._viewWeighted)
+            ? `<span class="badge mono badgeNeutral">Weighted: ${esc(it._viewWeighted)}</span>`
+					: "";
 
 		const storeLabel = String(it._viewStoreLabel || it._bestStoreLabel || "").trim();
 		const href = String(it._viewUrl || it._bestUrl || "").trim() || String(it.sampleUrl || "").trim();
@@ -739,7 +739,10 @@ export async function renderShortlist($app, accountUuidRaw) {
         
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
-				${favStarHtml(it.sku, favSet.has(it.sku))}
+				<div class="starDock">
+					${wDock}
+					${favStarHtml(it.sku, favSet.has(it.sku))}
+				</div>
 				<div class="itemRow">
 					<div class="thumbBox">${renderThumbHtml(it.img)}</div>
                         <div class="itemBody" style="min-width:0;">
@@ -777,7 +780,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 						<div class="metaRow">
 							${stockBadge}
 							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
-							${wInline}
 							${saleBadge}
 							${specialBadge}
 							${storeBadge}
