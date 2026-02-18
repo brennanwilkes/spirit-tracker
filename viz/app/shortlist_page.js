@@ -152,16 +152,21 @@ export async function renderShortlist($app, accountUuidRaw) {
 							max="1000"
 							step="1"
 							value="1000"
-							style="flex:1 1 auto; min-width:0; height:18px; width:auto; accent-color:#9aa3b2; opacity:.85;"
-						>
+							style="
+							flex: 1 1 0;      /* key: basis 0 so it doesn't claim 100% */
+							width: 0;         /* key: let flex sizing control it */
+							min-width: 0;     /* key: allow shrinking */
+							height: 18px;
+							accent-color: #9aa3b2;
+							opacity: .85;
+							"
+						/>
 
 						<div
 							class="badge mono"
 							id="maxPriceLabel"
-							style="flex:0 0 auto; width:120px; white-space:nowrap; text-align:right; opacity:.9;"
-						>
-							$120
-						</div>
+							style="flex:0 0 120px; width:120px; text-align:right; white-space:nowrap; opacity:.9;"
+						>$120</div>
 					</div>
 
 
