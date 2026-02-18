@@ -261,6 +261,7 @@ export function recommendSimilar(
 	return fallback.slice(0, limit).map((x) => x.it);
 }
 
+// viz/app/linker/suggestions.js
 export function computeInitialPairsFast(
 	allAgg,
 	mappedSkus,
@@ -270,11 +271,23 @@ export function computeInitialPairsFast(
 	sameGroupFn, // ✅ NEW
 	sizePenaltyFn,
 	pricePenaltyFn,
+	seed, // ✅ NEW (passed from page)
 ) {
 	const itemsAll = allAgg.filter((it) => !!it);
 
-	const seed = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
-	const rnd = mulberry32(seed);
+	// ✅ per-load seed (stable for this page load), used everywhere below
+	let s0 = seed;
+	if (s0 == null) {
+		try {
+			const u = new Uint32Array(1);
+			crypto.getRandomValues(u);
+			s0 = u[0] >>> 0;
+		} catch {
+			s0 = (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
+		}
+	}
+	const rnd = mulberry32((s0 >>> 0) || 1);
+
 	const itemsShuf = itemsAll.slice();
 	shuffleInPlace(itemsShuf, rnd);
 
@@ -304,7 +317,7 @@ export function computeInitialPairsFast(
 			const sku = String(it.sku || "");
 			if (!sku) continue;
 
-			// ✅ NEW: keep SMWS stage unmapped-only
+			// ✅ keep SMWS stage unmapped-only
 			if (mappedSkus && mappedSkus.has(sku)) continue;
 
 			const code = smwsKeyFromName(it.name || "");
@@ -338,10 +351,10 @@ export function computeInitialPairsFast(
 				if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
 				if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
 
-				// ✅ NEW: do not suggest if already linked
+				// ✅ do not suggest if already linked
 				if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) continue;
 
-				// ✅ NEW: extra safety (should already be unmapped-only, but keep)
+				// ✅ extra safety
 				if (mappedSkus && (mappedSkus.has(aSku) || mappedSkus.has(bSku))) continue;
 
 				const s = 1e9 + itemRank(a) + itemRank(b);
@@ -349,11 +362,20 @@ export function computeInitialPairsFast(
 			}
 		}
 
+		// Instead of always taking the very top pairs (deterministic),
+		// sample from a top band with jitter so each load picks different pairs.
 		candPairs.sort((x, y) => y.score - x.score);
+		const TOP = Math.min(candPairs.length, Math.max(240, limit * 40));
+		const band = candPairs.slice(0, TOP).map((p) => ({
+			p,
+			j: p.score * (1 + (rnd() - 0.5) * 0.35),
+		}));
+		band.sort((a, b) => b.j - a.j);
 
 		const usedUnmapped = new Set();
 		const out0 = [];
-		for (const p of candPairs) {
+		for (const x of band) {
+			const p = x.p;
 			const bSku = String(p.b.sku || "");
 			if (!bSku) continue;
 			if (usedUnmapped.has(bSku)) continue;
@@ -365,17 +387,23 @@ export function computeInitialPairsFast(
 		return { pairs: out0, usedUnmapped };
 	}
 
-	// ✅ CHANGED: SMWS stage now runs on `work` (unmapped-only), not `workAll`
+	// ✅ SMWS stage runs on `work` (unmapped-only)
 	const smwsFirst = smwsPairsFirst(work, limitPairs);
 	const used = new Set(smwsFirst.usedUnmapped);
 	const out = smwsFirst.pairs.slice();
-	if (out.length >= limitPairs) return out.slice(0, limitPairs);
+	if (out.length >= limitPairs) {
+		shuffleInPlace(out, rnd);
+		return out.slice(0, limitPairs);
+	}
 
 	// --- Improved general pairing logic ---
 
-	const seeds = topSuggestions(work, Math.min(220, work.length), "", mappedSkus).filter(
+	// seeds were previously deterministic top list; shuffle so explored anchors differ each load
+	let seeds = topSuggestions(work, Math.min(220, work.length), "", mappedSkus).filter(
 		(it) => !used.has(String(it?.sku || "")),
 	);
+	shuffleInPlace(seeds, rnd);
+	if (seeds.length > 160) seeds.length = 160;
 
 	// Build token buckets over normalized names
 	const TOKEN_BUCKET_CAP = 700;
@@ -435,7 +463,7 @@ export function computeInitialPairsFast(
 				if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
 				if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
 
-				// ✅ NEW: block already-linked groups here too
+				// ✅ block already-linked groups here too
 				if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) continue;
 
 				cand.set(bSku, b);
@@ -541,10 +569,13 @@ export function computeInitialPairsFast(
 
 	// ---- light randomness inside a top band ----
 	const need = Math.max(0, limitPairs - out.length);
-	if (!need) return out.slice(0, limitPairs);
+	if (!need) {
+		shuffleInPlace(out, rnd);
+		return out.slice(0, limitPairs);
+	}
 
 	const TOP_BAND = Math.min(700, pairs.length);
-	const JITTER = 0.08;
+	const JITTER = 0.22;
 
 	const band = pairs.slice(0, TOP_BAND).map((p) => {
 		const jitter = (rnd() - 0.5) * JITTER;
@@ -560,7 +591,7 @@ export function computeInitialPairsFast(
 		if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return false;
 		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) return false;
 
-		// ✅ NEW: block already-linked groups here too
+		// ✅ block already-linked groups here too
 		if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) return false;
 
 		used.add(aSku);
@@ -580,6 +611,9 @@ export function computeInitialPairsFast(
 			tryTake(pairs[i]);
 		}
 	}
+
+	// ✅ final scramble so the “first page” doesn’t look identical
+	shuffleInPlace(out, rnd);
 
 	return out.slice(0, limitPairs);
 }
