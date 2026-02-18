@@ -406,7 +406,19 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (!m) return null;
 		return minFinite(m.values());
 	}
-
+	function bestOtherPrice(sku, storeNorm) {
+		if (!storeNorm) return null;
+		const m = liveMinPriceBySkuStore.get(sku);
+		if (!m) return null;
+		let best = null;
+		for (const [st, p] of m.entries()) {
+			if (st === storeNorm) continue;
+			if (!Number.isFinite(p)) continue;
+			best = best === null ? p : Math.min(best, p);
+		}
+		return best;
+	}
+		
 	function bestStoreForSku(sku) {
 		const m = liveMinPriceBySkuStore.get(sku);
 		if (!m) return { storeNorm: "", price: null };
@@ -642,14 +654,14 @@ export async function renderShortlist($app, accountUuidRaw) {
 		return "dollar";
 	}
 
-	function diffVsBestBadgeHtml(it) {
+	function diffVsOtherBadgeHtml(it) {
 		// Match store page behavior: no compare badge for Exclusive/Last Stock.
 		if (it._exclusive || it._lastStock) return "";
 
 		const mode = compareModeForShortlist();
 
 		if (mode === "percent") {
-			const d = it._diffVsBestPct;
+			const d = it._diffVsOtherPct;
 			if (d === null || !Number.isFinite(d)) return "";
 			const abs = Math.abs(d);
 			if (abs <= 5) return `<span class="badge badgeNeutral">within 5%</span>`;
@@ -658,7 +670,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 			return `<span class="badge badgeBad">${esc(pct)}% higher</span>`;
 		}
 
-		const d = it._diffVsBestDollar;
+		const d = it._diffVsOtherDollar;
 		if (d === null || !Number.isFinite(d)) return "";
 		const abs = Math.abs(d);
 		if (abs <= 5) return `<span class="badge badgeNeutral">within $5</span>`;
@@ -705,7 +717,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		// When store-filtered: hide sale badges, show compare-vs-best badge instead.
 		const saleBadge =
 			storeNeed
-				? diffVsBestBadgeHtml(it)
+				? diffVsOtherBadgeHtml(it)
 				: saleBadgeHtml(it);
 				const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
         const wDock = showWInline && Number.isFinite(it._viewWeighted)
@@ -918,8 +930,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (mode === "salePct") {
 			arr.sort((a, b) => {
 				if (storeFiltered) {
-					const ap = Number.isFinite(a._diffVsBestPct) ? a._diffVsBestPct : 999999;
-					const bp = Number.isFinite(b._diffVsBestPct) ? b._diffVsBestPct : 999999;
+					const ap = Number.isFinite(a._diffVsOtherPct) ? a._diffVsOtherPct : 999999;
+					const bp = Number.isFinite(b._diffVsOtherPct) ? b._diffVsOtherPct : 999999;
 					if (ap !== bp) return ap - bp; // smallest difference (best) first
 					return nameKey(a).localeCompare(nameKey(b));
 				}
@@ -939,8 +951,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (mode === "saleAbs") {
 			arr.sort((a, b) => {
 				if (storeFiltered) {
-					const ad = Number.isFinite(a._diffVsBestDollar) ? a._diffVsBestDollar : 999999;
-					const bd = Number.isFinite(b._diffVsBestDollar) ? b._diffVsBestDollar : 999999;
+					const ad = Number.isFinite(a._diffVsOtherDollar) ? a._diffVsOtherDollar : 999999;
+					const bd = Number.isFinite(b._diffVsOtherDollar) ? b._diffVsOtherDollar : 999999;
 					if (ad !== bd) return ad - bd; // smallest difference (best) first
 					return nameKey(a).localeCompare(nameKey(b));
 				}
@@ -994,14 +1006,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 			it._viewUrl = activeStore ? (urlForSkuStore(sku, activeStore) || it._bestUrl || it.sampleUrl || "") : (it._bestUrl || it.sampleUrl || "");
 			it._viewPriceNum = Number.isFinite(viewPrice) ? viewPrice : null;
 
-			// When store-filtered, compute compare vs global cheapest price (best across stores)
-			const bestAll = Number.isFinite(it._priceNum) ? it._priceNum : null;
+			// When store-filtered, compare vs cheapest OTHER store (matches store page)
 			const vp = it._viewPriceNum;
-			it._diffVsBestDollar =
-				vp !== null && bestAll !== null ? (vp - bestAll) : null;
-			it._diffVsBestPct =
-				vp !== null && bestAll !== null && bestAll > 0 ? (((vp - bestAll) / bestAll) * 100) : null;
-			
+			const other = storeNeed ? bestOtherPrice(sku, storeNeed) : null;
+			it._diffVsOtherDollar = (vp !== null && other !== null) ? (vp - other) : null;
+			it._diffVsOtherPct =
+				(vp !== null && other !== null && other > 0) ? (((vp - other) / other) * 100) : null;
+						
 			it._viewWeighted = weightedScore({
 				priceNum: it._viewPriceNum,
 				scoreNum: it._score,
