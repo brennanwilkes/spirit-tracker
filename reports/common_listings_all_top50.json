@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-18T04:31:16.398Z",
+  "generatedAt": "2026-02-18T07:21:43.991Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -27,15 +27,15 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11576,
-    "removedRows": 809,
-    "canonSkus": 5245,
+    "liveRows": 11566,
+    "removedRows": 824,
+    "canonSkus": 5237,
     "outputCount": 50
   },
   "rows": [
     {
       "canonSku": "249680",
-      "storeCount": 15,
+      "storeCount": 16,
       "stores": [
         "arc",
         "bcl",
@@ -43,6 +43,7 @@
         "coop",
         "craftcellars",
         "gull",
+        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -53,9 +54,7 @@
         "vintage",
         "willowpark"
       ],
-      "missingStores": [
-        "kegncork"
-      ],
+      "missingStores": [],
       "storePrices": {
         "arc": 110.99,
         "bcl": 115.99,
@@ -63,6 +62,7 @@
         "coop": 109.99,
         "craftcellars": 122.99,
         "gull": 125.99,
+        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -532,25 +532,25 @@
         "strath": 94.7,
         "tudor": 70.39,
         "vessel": 76.99,
-        "willowpark": 82.99
+        "willowpark": 51.49
       },
       "representative": {
-        "name": "Laphroaig 10 Year Old",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Laphroaig 10 Year Old Single Malt Whisky",
+        "price": "$51.49",
+        "priceNum": 51.49,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
         "skuRaw": "739119",
         "skuKey": "739119",
-        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.willowpark.net/products/aglc-laphroaig-10yr-739119",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
       },
       "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
+        "price": "$51.49",
+        "priceNum": 51.49,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/aglc-laphroaig-10yr-739119"
       }
     },
     {
@@ -1428,7 +1428,7 @@
       "storePrices": {
         "arc": 34.89,
         "bcl": 34.49,
-        "bsw": 34.49,
+        "bsw": 34.99,
         "craftcellars": 34.99,
         "gull": 36.35,
         "maltsandgrains": 33.67,

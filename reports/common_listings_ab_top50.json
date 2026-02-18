@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-18T04:31:17.278Z",
+  "generatedAt": "2026-02-18T07:21:44.890Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -19,9 +19,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7833,
-    "removedRows": 659,
-    "canonSkus": 4420,
+    "liveRows": 7831,
+    "removedRows": 664,
+    "canonSkus": 4419,
     "outputCount": 50
   },
   "rows": [
@@ -66,6 +66,49 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 94.99,
+        "coop": 109.99,
+        "craftcellars": 122.99,
+        "kegncork": 109.96,
+        "kwm": 109.99,
+        "maltsandgrains": 114.62,
+        "sierrasprings": 98.94,
+        "willowpark": 103.49
+      },
+      "representative": {
+        "name": "Talisker 10 Year Old",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -496,49 +539,6 @@
         "priceNum": 185,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-grant-18-year-old-2020-release"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 94.99,
-        "coop": 109.99,
-        "craftcellars": 122.99,
-        "kwm": 109.99,
-        "maltsandgrains": 114.62,
-        "sierrasprings": 98.94,
-        "willowpark": 103.49
-      },
-      "representative": {
-        "name": "Talisker 10 Year Old",
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -2134,25 +2134,25 @@
         "craftcellars": 62.99,
         "kwm": 88.99,
         "sierrasprings": 75.13,
-        "willowpark": 82.99
+        "willowpark": 51.49
       },
       "representative": {
-        "name": "Laphroaig 10 Year Old",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Laphroaig 10 Year Old Single Malt Whisky",
+        "price": "$51.49",
+        "priceNum": 51.49,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
         "skuRaw": "739119",
         "skuKey": "739119",
-        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.willowpark.net/products/aglc-laphroaig-10yr-739119",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
       },
       "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
+        "price": "$51.49",
+        "priceNum": 51.49,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/aglc-laphroaig-10yr-739119"
       }
     }
   ]
