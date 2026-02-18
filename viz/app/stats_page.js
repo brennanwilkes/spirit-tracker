@@ -476,7 +476,20 @@ function computeSeriesFromRaw(raw, filter) {
 		}
 	}
 
-	const marketTrend = movingAverage(marketSeries, 5);
+	// Re-anchor so first visible day = 0
+	let first = null;
+	for (const v of marketSeries) {
+		if (Number.isFinite(v)) {
+			first = v;
+			break;
+		}
+	}
+
+	const marketSeriesAnchored = marketSeries.map(v =>
+		Number.isFinite(v) && Number.isFinite(first) ? v - first : v
+	);
+
+	const marketTrend = movingAverage(marketSeriesAnchored, 5);
 
 	return { labels, stores, seriesByStore, marketTrend, newestUsed, newestTotal };
 }
