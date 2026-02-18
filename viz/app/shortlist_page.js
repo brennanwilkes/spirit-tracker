@@ -152,15 +152,18 @@ export async function renderShortlist($app, accountUuidRaw) {
 							max="1000"
 							step="1"
 							value="1000"
-							style="flex: 1 1 auto; width: 100%; height: 18px; accent-color: #9aa3b2; opacity: .85;"
-						/>
+							style="flex:1 1 auto; min-width:0; height:18px; width:auto; accent-color:#9aa3b2; opacity:.85;"
+						>
 
 						<div
 							class="badge mono"
 							id="maxPriceLabel"
-							style="width: 120px; text-align: right; white-space: nowrap; opacity: .9; flex: 0 0 auto;"
-						></div>
+							style="flex:0 0 auto; width:120px; white-space:nowrap; text-align:right; opacity:.9;"
+						>
+							$120
+						</div>
 					</div>
+
 
 					<div style="display:flex; gap:10px; align-items:center; width:100%;">
 						<input id="q" class="input" placeholder="Search shortlist..." autocomplete="off" style="flex: 1 1 auto;" />
