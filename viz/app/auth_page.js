@@ -273,7 +273,7 @@ function renderAuth($app, { mode, flash = {} }) {
 
 	// flash badges
 	if (flash?.verified === "1") setStatus($statusRow, "Email verified. Please log in.", "good");
-	else if (flash?.verify_sent === "1") setStatus($statusRow, "Check your email for a verification link. (Check your spam, this is a hobby project!)", "neutral");
+	else if (flash?.verify_sent === "1") setStatus($statusRow, "Check your email for a verification link. (Check your spam!)", "neutral");
 	else if (flash?.reset === "1") setStatus($statusRow, "Password updated. Please log in.", "good");
 
 	async function doLogin() {
