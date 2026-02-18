@@ -680,30 +680,38 @@ button.badge.badgeBtn:hover{
 .mobileBreak { display: none; flex-basis: 100%; width: 0; height: 0; }
 
 @media (max-width: 640px) {
-
-  .mobileBreak { display: block; }
-
-  /* shortlist: simplify rows for small screens */
-  .shortlistPage .sampledBtn,
-  .shortlistPage .scoreWrap,
-  .shortlistPage .skuLink,
-  .shortlistPage .favStarBtn{
-    display: none !important;
+  /* Put thumb + controls on row 1, title on row 2 (full width) */
+  .detailHeader{
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    grid-template-areas:
+      "thumb controls"
+      "title title";
+    gap: 10px 12px;
+    align-items: start;
   }
 
-  .container { padding: 14px; }
-  .thumbBox { width: 56px; height: 56px; flex: 0 0 56px; }
-  .item { min-height: 0; }
-  .metaRow { flex-wrap: wrap; }
+  /* Let nested wrappers not affect layout (so children become grid items) */
+  .detailHeaderText,
+  .detailTopRow,
+  .detailLeft,
+  .detailTitleRow{
+    display: contents;
+  }
 
-  .detailThumbBox { width: 84px; height: 84px; flex: 0 0 84px; }
+  #thumbBox{ grid-area: thumb; }
 
-  .chartBox {
-    height: 58vh;
-    min-height: 260px;
-    padding: 8px;
+  .detailRight{
+    grid-area: controls;
+    justify-self: end;
+  }
+
+  #title{
+    grid-area: title;
+    margin-top: 2px;
   }
 }
+
 
 .chartBox canvas {
   width: 100% !important;
