@@ -971,6 +971,23 @@ export async function renderShortlist($app, accountUuidRaw) {
 	}
 
 	function applyFilter() {
+
+		// Empty-state: no favourites at all (not just "no matches" after filtering)
+		if (!favSet || favSet.size === 0) {
+			$status.textContent = "No favourites yet.";
+			$results.innerHTML = `
+				<div class="small" style="padding:10px 0; opacity:.9;">
+					You don't have any favourites yet — go click the <span class="favStarIcon">☆</span> on some bottle listings to add them here.
+				</div>
+			`;
+			$sentinel.textContent = "";
+			if ($priceWrap) $priceWrap.style.display = "none";
+			return;
+		} else {
+			if ($priceWrap) $priceWrap.style.display = "";
+		}
+				
+
 		localStorage.setItem(LS_Q, String($q.value || ""));
 		localStorage.setItem(LS_SORT, String($sort.value || ""));
 		localStorage.setItem(LS_STORE, String($storeFilter.value || ""));
