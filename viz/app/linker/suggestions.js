@@ -280,6 +280,7 @@ export function computeInitialPairsFast(
 	// -------- temperature (0..1) --------
 	const TEMP = Math.max(0, Math.min(1, Number(opts?.temp ?? 0.22)));
 	const lerp = (a, b, t) => a + (b - a) * t;
+	const DETERMINISTIC = TEMP <= 0;
 
 	// -------- RNG (stable per load) --------
 	let s0 = 1; // fixed seed for deterministic mode
