@@ -1066,3 +1066,20 @@ html { overflow-y: scroll; }
   min-width: 96px;
   white-space: nowrap;   /* never wrap */
 }
+#priceWrap{
+  display: grid !important;
+  grid-template-columns: max-content 1fr 120px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+#priceWrap #maxPrice{
+  width: 100%;
+  min-width: 0;
+}
+
+#priceWrap #maxPriceLabel{
+  justify-self: end;
+  white-space: nowrap;
+}
