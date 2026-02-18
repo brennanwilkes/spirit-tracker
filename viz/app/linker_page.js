@@ -81,7 +81,15 @@ export async function renderSkuLinker($app) {
         <button id="back" class="btn">← Back</button>
 		<div style="display:flex; align-items:center; gap:8px;">
 			<span class="badge">Temp</span>
-			<input id="tempSlider" type="range" min="0" max="1" step="0.01" value="${currentTemp.toFixed(2)}" />
+			<input
+				id="tempSlider"
+				type="range"
+				min="0"
+				max="1"
+				step="0.01"
+				value="${currentTemp.toFixed(2)}"
+				style="height:18px; accent-color:#9aa3b2; opacity:.85;"
+			/>
 			<span id="tempVal" class="badge mono">${currentTemp.toFixed(2)}</span>
 		</div>
 
@@ -143,23 +151,47 @@ export async function renderSkuLinker($app) {
 	const $tempSlider = document.getElementById("tempSlider");
 	const $tempVal = document.getElementById("tempVal");
 	
+	let tempDebounceT = null;
+	
+	function applyTempFromSlider() {
+		if (!$tempSlider || !$tempVal) return;
+	
+		const v = clamp01(parseFloat($tempSlider.value));
+		currentTemp = v;
+		$tempVal.textContent = currentTemp.toFixed(2);
+		saveTemp(currentTemp);
+	
+		// force new initial suggestions
+		initialPairs = null;
+		$status.textContent = "";
+		updateAll();
+	}
+	
 	if ($tempSlider && $tempVal) {
-		// make sure it matches cached value
 		$tempSlider.value = String(currentTemp.toFixed(2));
 		$tempVal.textContent = currentTemp.toFixed(2);
 	
+		// immediate label update while dragging, but delayed recompute
 		$tempSlider.addEventListener("input", () => {
 			const v = clamp01(parseFloat($tempSlider.value));
-			currentTemp = v;
-			$tempVal.textContent = currentTemp.toFixed(2);
-			saveTemp(currentTemp);
+			$tempVal.textContent = v.toFixed(2);
+			saveTemp(v);
 	
-			// force new initial suggestions (set changes, not just order)
-			initialPairs = null;
-			$status.textContent = "";
-			updateAll();
+			if (tempDebounceT) clearTimeout(tempDebounceT);
+			tempDebounceT = setTimeout(() => {
+				tempDebounceT = null;
+				applyTempFromSlider();
+			}, 220);
+		});
+	
+		// also commit quickly on release
+		$tempSlider.addEventListener("change", () => {
+			if (tempDebounceT) clearTimeout(tempDebounceT);
+			tempDebounceT = null;
+			applyTempFromSlider();
 		});
 	}
+	
 	
 
 	$listL.innerHTML = `<div class="small">Loading index…</div>`;
