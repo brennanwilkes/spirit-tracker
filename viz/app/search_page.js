@@ -572,7 +572,7 @@ export function renderSearch($app) {
                 <div class="itemBody">
                   <div class="itemTop">
                     <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <a class="badge mono skuLink" href="${esc(
+                    <a style="margin-right: 18px;" class="badge mono skuLink" href="${esc(
 						skuLink,
 					)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
 						displaySku(sku),
