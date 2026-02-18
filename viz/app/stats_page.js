@@ -88,7 +88,6 @@ function buildSkuBaselinesFromRaw(raw) {
 	return baselines;
 }
 
-
 function dateOnly(iso) {
 	const m = String(iso ?? "").match(/^(\d{4}-\d{2}-\d{2})/);
 	return m ? m[1] : "";
@@ -227,6 +226,10 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 		cnt.set(s, 0);
 	}
 
+	// Market = avg across ALL store price points (same per-SKU baseline % logic)
+	let marketSum = 0;
+	let marketCnt = 0;
+
 	let usedRows = 0;
 
 	for (const r of rows) {
@@ -260,6 +263,10 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 			const pct = ((p - base) / base) * 100;
 			sum.set(s, (sum.get(s) || 0) + pct);
 			cnt.set(s, (cnt.get(s) || 0) + 1);
+
+			marketSum += pct;
+			marketCnt += 1;
+
 			contributed = true;
 		}
 
@@ -271,7 +278,10 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 		const c = cnt.get(s) || 0;
 		out[s] = c > 0 ? (sum.get(s) || 0) / c : null;
 	}
-	return { stores, valuesByStore: out, usedRows, totalRows: rows.length };
+
+	const marketValue = marketCnt > 0 ? marketSum / marketCnt : null;
+
+	return { stores, valuesByStore: out, marketValue, usedRows, totalRows: rows.length };
 }
 
 function relReportPath(group, size) {
@@ -406,6 +416,24 @@ function computePriceBoundsFromReport(report, stores) {
 	return { min: mn, max: mx };
 }
 
+function movingAverage(arr, window = 5) {
+	const out = new Array(Array.isArray(arr) ? arr.length : 0).fill(null);
+	for (let i = 0; i < out.length; i++) {
+		let sum = 0;
+		let cnt = 0;
+		const j0 = Math.max(0, i - window + 1);
+		for (let j = j0; j <= i; j++) {
+			const v = arr[j];
+			if (Number.isFinite(v)) {
+				sum += v;
+				cnt++;
+			}
+		}
+		out[i] = cnt ? sum / cnt : null;
+	}
+	return out;
+}
+
 function computeSeriesFromRaw(raw, filter) {
 	const labels = raw.labels;
 	const stores = raw.stores;
@@ -416,6 +444,8 @@ function computeSeriesFromRaw(raw, filter) {
 
 	const seriesByStore = {};
 	for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
+
+	const marketSeries = new Array(labels.length).fill(null);
 
 	let newestUsed = 0;
 	let newestTotal = 0;
@@ -438,24 +468,48 @@ function computeSeriesFromRaw(raw, filter) {
 			seriesByStore[s][i] = Number.isFinite(v) ? v : null;
 		}
 
+		marketSeries[i] = Number.isFinite(daily.marketValue) ? daily.marketValue : null;
+
 		if (i === reportsByIdx.length - 1) {
 			newestUsed = daily.usedRows;
 			newestTotal = daily.totalRows;
 		}
 	}
 
-	return { labels, stores, seriesByStore, newestUsed, newestTotal };
+	const marketTrend = movingAverage(marketSeries, 5);
+
+	return { labels, stores, seriesByStore, marketTrend, newestUsed, newestTotal };
 }
-
-
 
 /* ---------------- y-axis bounds ---------------- */
 
-function computeYBounds(seriesByStore, minSpan = 6, pad = 1) {
+function computeYBounds(seriesByStore, arg2, arg3, arg4) {
+	let extra = [];
+	let minSpan = 6;
+	let pad = 1;
+
+	if (Array.isArray(arg2)) {
+		extra = arg2;
+		minSpan = Number.isFinite(arg3) ? arg3 : 6;
+		pad = Number.isFinite(arg4) ? arg4 : 1;
+	} else {
+		minSpan = Number.isFinite(arg2) ? arg2 : 6;
+		pad = Number.isFinite(arg3) ? arg3 : 1;
+	}
+
 	let mn = Infinity,
 		mx = -Infinity;
 
 	for (const arr of Object.values(seriesByStore || {})) {
+		if (!Array.isArray(arr)) continue;
+		for (const v of arr) {
+			if (!Number.isFinite(v)) continue;
+			mn = Math.min(mn, v);
+			mx = Math.max(mx, v);
+		}
+	}
+
+	for (const arr of extra || []) {
 		if (!Array.isArray(arr)) continue;
 		for (const v of arr) {
 			if (!Number.isFinite(v)) continue;
@@ -720,7 +774,7 @@ export async function renderStats($app) {
 	}
 
 	async function drawOrUpdateChart(series, yBounds) {
-		const { labels, stores, seriesByStore } = series;
+		const { labels, stores, seriesByStore, marketTrend } = series;
 
 		const Chart = await ensureChartJs();
 		const canvas = document.getElementById("statsChart");
@@ -745,21 +799,34 @@ export async function renderStats($app) {
 			const base = storeColor(s, colorMap);
 			const stroke = lighten(base, 0.25);
 			return {
-			  label: displayStoreName(s),
-			  data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
-			  spanGaps: false,
-			  tension: 0.15,
-			  backgroundColor: base,
-			  borderColor: stroke,
-			  pointBackgroundColor: base,
-			  pointBorderColor: stroke,
-			  pointRadius: 0,
-			  pointHoverRadius: 0,
-			  pointHitRadius: 6,
-			  borderWidth: 1.25,
+				label: displayStoreName(s),
+				data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
+				spanGaps: false,
+				tension: 0.15,
+				backgroundColor: base,
+				borderColor: stroke,
+				pointBackgroundColor: base,
+				pointBorderColor: stroke,
+				pointRadius: 0,
+				pointHoverRadius: 0,
+				pointHitRadius: 6,
+				borderWidth: 1.25,
 			};
-		  });
-		  
+		});
+
+		datasets.push({
+			label: "Market Trend",
+			data: Array.isArray(marketTrend) ? marketTrend : labels.map(() => null),
+			spanGaps: false,
+			tension: 0.15,
+			backgroundColor: "rgba(160,160,160,0.9)",
+			borderColor: "rgba(160,160,160,0.9)",
+			borderDash: [6, 4],
+			pointRadius: 0,
+			pointHoverRadius: 0,
+			pointHitRadius: 6,
+			borderWidth: 1.75,
+		});
 
 		if (_chart) {
 			_chart.data.labels = labels;
@@ -879,7 +946,7 @@ export async function renderStats($app) {
 				maxPrice: selectedMaxPrice,
 			});
 
-			const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
+			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], group === "all" ? 8 : 6, 1);
 
 			await drawOrUpdateChart(series, yBounds);
 			_chart?.resize();
@@ -915,7 +982,7 @@ export async function renderStats($app) {
 				maxPrice: selectedMaxPrice,
 			});
 
-			const yBounds = computeYBounds(series.seriesByStore, group === "all" ? 8 : 6, 1);
+			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], group === "all" ? 8 : 6, 1);
 
 			await drawOrUpdateChart(series, yBounds);
 			_chart?.resize();
