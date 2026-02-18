@@ -8,12 +8,24 @@
   - Includes per-store numeric price (min live price per store for that SKU).
   - Writes one output file (see --out).
 
+  Stability upgrade (default ON):
+  - Uses a persisted "cohort" file to keep the TOP-N membership stable across days,
+    so bottles near the cutoff don't churn and make downstream charts bumpy.
+  - Default hysteresis margin = 1 storeCount.
+    (A SKU from yesterday stays in the cohort as long as it is within 1 store of today's cutoff.)
+
   Flags:
     --top N
     --min-stores N
     --require-all
     --group all|bc|ab
     --out path
+
+    Cohort / stability:
+    --no-cohort              Disable cohort stabilization (old behavior)
+    --cohort path            Cohort file path (default: reports/common_listings_cohort_<group>_top<top>.json)
+    --margin N               Hysteresis margin in storeCount (default: 1)
+    --include-ties           Include all SKUs tied at the cutoff (size may exceed --top)
 */
 
 const fs = require("fs");
@@ -66,6 +78,12 @@ function storeKeyFromDbPath(abs) {
 	return String(k || "").toLowerCase();
 }
 
+function stableRowSort(a, b) {
+	// storeCount desc, then canonSku asc (stable diffs over time)
+	if (b.storeCount !== a.storeCount) return b.storeCount - a.storeCount;
+	return String(a.canonSku).localeCompare(String(b.canonSku));
+}
+
 /* ---------------- sku helpers ---------------- */
 
 function loadSkuMapOrNull() {
@@ -102,7 +120,17 @@ function canonicalize(k, skuMap) {
 
 /* ---------------- grouping ---------------- */
 
-const BC_STORE_KEYS = new Set(["gull", "strath", "bcl", "legacy", "legacyliquor", "tudor", "vessel", "vintage", "arc"]);
+const BC_STORE_KEYS = new Set([
+	"gull",
+	"strath",
+	"bcl",
+	"legacy",
+	"legacyliquor",
+	"tudor",
+	"vessel",
+	"vintage",
+	"arc",
+]);
 
 function groupAllowsStore(group, storeKey) {
 	const k = String(storeKey || "").toLowerCase();
@@ -114,17 +142,115 @@ function groupAllowsStore(group, storeKey) {
 /* ---------------- args ---------------- */
 
 function parseArgs(argv) {
-	const out = { top: 50, minStores: 2, requireAll: false, group: "all", out: "" };
+	const out = {
+		top: 50,
+		minStores: 2,
+		requireAll: false,
+		group: "all",
+		out: "",
+
+		// stability defaults (best defaults)
+		useCohort: true,
+		cohort: "",
+		margin: 1, // hysteresis
+		includeTies: false,
+	};
+
 	for (let i = 0; i < argv.length; i++) {
 		const a = argv[i];
+
 		if (a === "--top" && argv[i + 1]) out.top = Number(argv[++i]) || 50;
 		else if (a === "--min-stores" && argv[i + 1]) out.minStores = Number(argv[++i]) || 2;
 		else if (a === "--require-all") out.requireAll = true;
 		else if (a === "--group" && argv[i + 1]) out.group = String(argv[++i] || "all").toLowerCase();
 		else if (a === "--out" && argv[i + 1]) out.out = String(argv[++i] || "");
+
+		// stability flags
+		else if (a === "--no-cohort") out.useCohort = false;
+		else if (a === "--cohort" && argv[i + 1]) out.cohort = String(argv[++i] || "");
+		else if (a === "--margin" && argv[i + 1]) out.margin = Number(argv[++i]) || 0;
+		else if (a === "--include-ties") out.includeTies = true;
 	}
+
 	if (out.group !== "all" && out.group !== "bc" && out.group !== "ab") out.group = "all";
+	out.top = Number.isFinite(out.top) && out.top > 0 ? Math.floor(out.top) : 50;
+	out.minStores = Number.isFinite(out.minStores) && out.minStores > 0 ? Math.floor(out.minStores) : 2;
+	out.margin = Number.isFinite(out.margin) && out.margin >= 0 ? Math.floor(out.margin) : 1;
+
 	return out;
+}
+
+/* ---------------- cohort selection (stable membership) ---------------- */
+
+function loadPrevCohortList(cohortPath) {
+	if (!cohortPath) return [];
+	const prev = readJson(cohortPath);
+	if (!prev) return [];
+	if (Array.isArray(prev?.canonSkus)) return prev.canonSkus.map(String).filter(Boolean);
+	if (Array.isArray(prev)) return prev.map(String).filter(Boolean);
+	return [];
+}
+
+function pickStableMembership(rowsSorted, topN, { useCohort, cohortPath, margin, includeTies }) {
+	const rows = Array.isArray(rowsSorted) ? rowsSorted : [];
+	if (!rows.length) return { membership: new Set(), cutoff: 0, wroteCohort: false };
+
+	const idx = Math.min(Math.max(topN - 1, 0), rows.length - 1);
+	const cutoff = Number(rows[idx]?.storeCount || 0);
+
+	// Option: include everyone tied at cutoff storeCount (size can exceed N)
+	if (includeTies) {
+		const membership = new Set(
+			rows.filter((r) => Number(r?.storeCount || 0) >= cutoff).map((r) => String(r.canonSku)),
+		);
+		return { membership, cutoff, wroteCohort: false };
+	}
+
+	const membership = new Set();
+
+	if (useCohort && cohortPath) {
+		const prevList = loadPrevCohortList(cohortPath);
+		const bySku = new Map(rows.map((r) => [String(r.canonSku), r]));
+
+		// Keep previous cohort SKUs if still within hysteresis of cutoff
+		for (const sku of prevList) {
+			const r = bySku.get(sku);
+			if (!r) continue;
+			if (Number(r.storeCount || 0) >= cutoff - margin) {
+				membership.add(sku);
+				if (membership.size >= topN) break;
+			}
+		}
+	}
+
+	// Fill remaining slots from today's ranking
+	for (const r of rows) {
+		if (membership.size >= topN) break;
+		membership.add(String(r.canonSku));
+	}
+
+	return { membership, cutoff, wroteCohort: false };
+}
+
+function writeCohortFile(cohortPath, { group, top, cutoff, margin, canonSkus }) {
+	if (!cohortPath) return;
+	ensureDir(path.dirname(cohortPath));
+	fs.writeFileSync(
+		cohortPath,
+		JSON.stringify(
+			{
+				generatedAt: new Date().toISOString(),
+				group,
+				top,
+				cutoffStoreCount: cutoff,
+				margin,
+				canonSkus,
+			},
+			null,
+			2,
+		) + "\n",
+		"utf8",
+	);
 }
 
 /* ---------------- main ---------------- */
@@ -137,6 +263,10 @@ function main() {
 
 	const outPath = args.out ? path.join(repoRoot, args.out) : path.join(reportsDir, "common_listings.json");
 	ensureDir(path.dirname(outPath));
+
+	const cohortPath = args.cohort
+		? path.join(repoRoot, args.cohort)
+		: path.join(reportsDir, `common_listings_cohort_${args.group}_top${args.top}.json`);
 
 	const dbFiles = listDbFiles();
 	if (!dbFiles.length) {
@@ -165,9 +295,7 @@ function main() {
 		const storeKey = storeKeyFromDbPath(abs);
 		if (!groupAllowsStore(args.group, storeKey)) continue;
 
-		if (!storeToCanon.has(storeKey)) {
-			storeToCanon.set(storeKey, new Set());
-		}
+		if (!storeToCanon.has(storeKey)) storeToCanon.set(storeKey, new Set());
 
 		const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
 		const items = Array.isArray(obj.items) ? obj.items : [];
@@ -292,17 +420,56 @@ function main() {
 		});
 	}
 
-	// Stable-ish sort: storeCount desc, then canonSku asc (stable diffs over time)
-	rows.sort((a, b) => {
-		if (b.storeCount !== a.storeCount) return b.storeCount - a.storeCount;
-		return String(a.canonSku).localeCompare(String(b.canonSku));
-	});
+	// Base stable sort
+	rows.sort(stableRowSort);
 
 	const filtered = args.requireAll
 		? rows.filter((r) => r.storeCount === storeCount)
 		: rows.filter((r) => r.storeCount >= args.minStores);
 
-	const top = filtered.slice(0, args.top);
+	// Ensure filtered stays in stable order
+	filtered.sort(stableRowSort);
+
+	// Pick stable membership and then output rows in stable order
+	let top = [];
+	let cohortSkus = [];
+	let cutoff = 0;
+
+	if (!filtered.length) {
+		top = [];
+		cohortSkus = [];
+		cutoff = 0;
+	} else if (args.includeTies) {
+		const idx = Math.min(Math.max(args.top - 1, 0), filtered.length - 1);
+		cutoff = Number(filtered[idx]?.storeCount || 0);
+		top = filtered.filter((r) => Number(r?.storeCount || 0) >= cutoff);
+		top.sort(stableRowSort);
+		cohortSkus = top.map((r) => String(r.canonSku));
+	} else {
+		const sel = pickStableMembership(filtered, args.top, {
+			useCohort: args.useCohort,
+			cohortPath: args.useCohort ? cohortPath : "",
+			margin: args.margin,
+			includeTies: false,
+		});
+		cutoff = sel.cutoff;
+
+		top = filtered.filter((r) => sel.membership.has(String(r.canonSku)));
+		top.sort(stableRowSort);
+
+		// Persist cohort as the stable-sorted output order (min diffs, deterministic)
+		cohortSkus = top.map((r) => String(r.canonSku));
+
+		if (args.useCohort) {
+			writeCohortFile(cohortPath, {
+				group: args.group,
+				top: args.top,
+				cutoff,
+				margin: args.margin,
+				canonSkus: cohortSkus,
+			});
+		}
+	}
 
 	const payload = {
 		generatedAt: new Date().toISOString(),
@@ -312,6 +479,15 @@ function main() {
 			requireAll: args.requireAll,
 			group: args.group,
 			out: path.relative(repoRoot, outPath).replace(/\\/g, "/"),
+
+			// extra info (non-breaking)
+			stability: {
+				enabled: !!args.useCohort && !args.includeTies,
+				includeTies: !!args.includeTies,
+				margin: args.margin,
+				cohortFile: args.useCohort ? path.relative(repoRoot, cohortPath).replace(/\\/g, "/") : "",
+				cutoffStoreCount: cutoff,
+			},
 		},
 		storeCount,
 		stores,
