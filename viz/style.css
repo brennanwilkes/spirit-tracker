@@ -1025,3 +1025,28 @@ html { overflow-y: scroll; }
   color: var(--muted) !important;
 }
 .stSwalFooter a{ color: var(--accent) !important; }
+
+
+@media (max-width: 640px) {
+  /* 1) Hide favourite star everywhere on mobile */
+  .favStarBtn,
+  .starDock {
+    display: none !important;
+  }
+
+  /* 2) Top nav buttons fill width; icons stay fixed; "My Shortlist" expands */
+  .headerRight.headerButtons {
+    width: 100%;
+  }
+
+  /* keep icon buttons fixed-size */
+  .headerRight.headerButtons .btnIcon {
+    flex: 0 0 40px;
+  }
+
+  /* let wide button (My Shortlist / Login / Signup) expand */
+  .headerRight.headerButtons .btnWide {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}

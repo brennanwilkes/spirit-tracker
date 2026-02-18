@@ -634,6 +634,41 @@ export async function renderShortlist($app, accountUuidRaw) {
 		updateMaxPriceLabel();
 	}
 
+	function compareModeForShortlist() {
+		// When store-filtered, reuse Sale % / Sale $ as the compare-mode selector.
+		const mode = String($sort.value || "");
+		if (mode === "salePct") return "percent";
+		if (mode === "saleAbs") return "dollar";
+		return "dollar";
+	}
+
+	function diffVsBestBadgeHtml(it) {
+		// Match store page behavior: no compare badge for Exclusive/Last Stock.
+		if (it._exclusive || it._lastStock) return "";
+
+		const mode = compareModeForShortlist();
+
+		if (mode === "percent") {
+			const d = it._diffVsBestPct;
+			if (d === null || !Number.isFinite(d)) return "";
+			const abs = Math.abs(d);
+			if (abs <= 5) return `<span class="badge badgeNeutral">within 5%</span>`;
+			const pct = Math.round(abs);
+			if (d < 0) return `<span class="badge badgeGood">${esc(pct)}% lower</span>`;
+			return `<span class="badge badgeBad">${esc(pct)}% higher</span>`;
+		}
+
+		const d = it._diffVsBestDollar;
+		if (d === null || !Number.isFinite(d)) return "";
+		const abs = Math.abs(d);
+		if (abs <= 5) return `<span class="badge badgeNeutral">within $5</span>`;
+		const dollars = Math.round(abs);
+		if (d < 0) return `<span class="badge badgeGood">$${esc(dollars)} lower</span>`;
+		return `<span class="badge badgeBad">$${esc(dollars)} higher</span>`;
+	}
+
+		
+
 	function saleBadgeHtml(it) {
 		if (!it._hasSaleMeta) return "";
 
@@ -666,8 +701,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const storeCount = it._storeCount || 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = priceStr(it);
-        const saleBadge = saleBadgeHtml(it);
-		const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
+		const storeNeed = String($storeFilter.value || "");
+		// When store-filtered: hide sale badges, show compare-vs-best badge instead.
+		const saleBadge =
+			storeNeed
+				? diffVsBestBadgeHtml(it)
+				: saleBadgeHtml(it);
+				const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
         const wDock = showWInline && Number.isFinite(it._viewWeighted)
             ? `<span class="badge mono badgeNeutral">Weighted: ${esc(it._viewWeighted)}</span>`
 					: "";
@@ -828,7 +868,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	function sortInPlace(arr) {
 		const mode = String($sort.value || "weightedDesc");
-
+		const storeNeed = String($storeFilter.value || "");
+		const storeFiltered = !!storeNeed;
+		
 		function nameKey(x) {
 			return (String(x.name || "") + "|" + String(x.sku || "")).toLowerCase();
 		}
@@ -875,6 +917,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		if (mode === "salePct") {
 			arr.sort((a, b) => {
+				if (storeFiltered) {
+					const ap = Number.isFinite(a._diffVsBestPct) ? a._diffVsBestPct : 999999;
+					const bp = Number.isFinite(b._diffVsBestPct) ? b._diffVsBestPct : 999999;
+					if (ap !== bp) return ap - bp; // smallest difference (best) first
+					return nameKey(a).localeCompare(nameKey(b));
+				}
+
 				const ah = a._hasSaleMeta ? 0 : 1;
 				const bh = b._hasSaleMeta ? 0 : 1;
 				if (ah !== bh) return ah - bh;
@@ -889,6 +938,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		if (mode === "saleAbs") {
 			arr.sort((a, b) => {
+				if (storeFiltered) {
+					const ad = Number.isFinite(a._diffVsBestDollar) ? a._diffVsBestDollar : 999999;
+					const bd = Number.isFinite(b._diffVsBestDollar) ? b._diffVsBestDollar : 999999;
+					if (ad !== bd) return ad - bd; // smallest difference (best) first
+					return nameKey(a).localeCompare(nameKey(b));
+				}
+
 				const ah = a._hasSaleMeta ? 0 : 1;
 				const bh = b._hasSaleMeta ? 0 : 1;
 				if (ah !== bh) return ah - bh;
@@ -896,7 +952,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 				const ad = Number.isFinite(a._saleDelta) ? a._saleDelta : 999999;
 				const bd = Number.isFinite(b._saleDelta) ? b._saleDelta : 999999;
 				if (ad !== bd) return ad - bd; // most negative (best) first
-				return nameKey(a).localeCompare(nameKey(b));
+									return nameKey(a).localeCompare(nameKey(b));
 			});
 			return;
 		}
@@ -921,6 +977,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		}
 
 		// Compute "view" fields based on store filter
+		const EPS = 0.01;
 		for (const it of base) {
 			const sku = String(it.sku || "");
 
@@ -937,6 +994,14 @@ export async function renderShortlist($app, accountUuidRaw) {
 			it._viewUrl = activeStore ? (urlForSkuStore(sku, activeStore) || it._bestUrl || it.sampleUrl || "") : (it._bestUrl || it.sampleUrl || "");
 			it._viewPriceNum = Number.isFinite(viewPrice) ? viewPrice : null;
 
+			// When store-filtered, compute compare vs global cheapest price (best across stores)
+			const bestAll = Number.isFinite(it._priceNum) ? it._priceNum : null;
+			const vp = it._viewPriceNum;
+			it._diffVsBestDollar =
+				vp !== null && bestAll !== null ? (vp - bestAll) : null;
+			it._diffVsBestPct =
+				vp !== null && bestAll !== null && bestAll > 0 ? (((vp - bestAll) / bestAll) * 100) : null;
+			
 			it._viewWeighted = weightedScore({
 				priceNum: it._viewPriceNum,
 				scoreNum: it._score,
