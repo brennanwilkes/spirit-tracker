@@ -43,7 +43,7 @@ export async function renderSkuLinker($app) {
 			return (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
 		}
 	})();
-
+	
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
       <div class="topbar">

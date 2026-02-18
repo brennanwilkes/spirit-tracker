@@ -261,21 +261,21 @@ export function recommendSimilar(
 	return fallback.slice(0, limit).map((x) => x.it);
 }
 
-// viz/app/linker/suggestions.js
 export function computeInitialPairsFast(
 	allAgg,
 	mappedSkus,
 	limitPairs,
 	isIgnoredPairFn,
 	sameStoreFn,
-	sameGroupFn, // ✅ NEW
+	sameGroupFn,
 	sizePenaltyFn,
 	pricePenaltyFn,
-	seed, // ✅ NEW (passed from page)
+	seed,
 ) {
 	const itemsAll = allAgg.filter((it) => !!it);
+	if (!itemsAll.length) return [];
 
-	// ✅ per-load seed (stable for this page load), used everywhere below
+	// ---- RNG (stable per page-load seed) ----
 	let s0 = seed;
 	if (s0 == null) {
 		try {
@@ -288,38 +288,105 @@ export function computeInitialPairsFast(
 	}
 	const rnd = mulberry32((s0 >>> 0) || 1);
 
+	function randInt(n) {
+		return n <= 1 ? 0 : ((rnd() * n) | 0);
+	}
+
+	function weightedSampleWithoutReplacement(arr, k, weightFn) {
+		// Efraimidis–Spirakis: key = U^(1/w), pick largest keys
+		const tmp = [];
+		for (const it of arr) {
+			const w0 = weightFn(it);
+			const w = Math.max(1e-6, Number.isFinite(w0) ? w0 : 1e-6);
+			let u = rnd();
+			if (u <= 0) u = 1e-12;
+			const key = Math.pow(u, 1 / w);
+			tmp.push({ it, key });
+		}
+		tmp.sort((a, b) => b.key - a.key);
+		const out = [];
+		const n = Math.min(k, tmp.length);
+		for (let i = 0; i < n; i++) out.push(tmp[i].it);
+		return out;
+	}
+
+	function pickFromTopByScore(scored, topN, power) {
+		const n = Math.min(topN, scored.length);
+		if (!n) return null;
+		if (n === 1) return scored[0];
+
+		const best = Math.max(1e-12, scored[0].s);
+		const w = new Array(n);
+		let sum = 0;
+
+		for (let i = 0; i < n; i++) {
+			const s = Math.max(1e-12, scored[i].s);
+			const rel = s / best; // <= 1 typically
+			const wi = Math.pow(rel, power); // closer to 1 => higher chance
+			w[i] = wi;
+			sum += wi;
+		}
+
+		let r = rnd() * sum;
+		for (let i = 0; i < n; i++) {
+			r -= w[i];
+			if (r <= 0) return scored[i];
+		}
+		return scored[n - 1];
+	}
+
+	// Randomize catalog view, but keep bounded
 	const itemsShuf = itemsAll.slice();
 	shuffleInPlace(itemsShuf, rnd);
 
-	// Bigger cap is fine; still bounded
-	const WORK_CAP = Math.min(9000, itemsShuf.length);
+	const WORK_CAP = Math.min(12000, itemsShuf.length);
 	const workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 
-	// Unmapped-only view for normal similarity stage
-	const work = workAll.filter((it) => {
-		if (!it) return false;
-		return !(mappedSkus && mappedSkus.has(String(it.sku)));
-	});
+	// Unmapped-only pool for initial suggestions
+	const work = workAll.filter((it) => it && !(mappedSkus && mappedSkus.has(String(it.sku || ""))));
+	if (!work.length) return [];
 
 	function itemRank(it) {
 		const stores = it.stores ? it.stores.size : 0;
 		const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
 		const hasName = it.name ? 1 : 0;
 		const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
-		return stores * 3 + hasPrice * 2 + hasName * 0.5 + unknown * 0.25;
+		return stores * 3 + hasPrice * 2 + hasName * 0.6 + unknown * 0.4;
 	}
 
-	// --- SMWS exact-code pairs first (now blocks sameGroup + mapped) ---
-	function smwsPairsFirst(workArr, limit) {
+	// Helpers for hard blocks
+	function blocked(aSku, bSku) {
+		if (!aSku || !bSku || aSku === bSku) return true;
+		if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return true;
+		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) return true;
+		if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) return true;
+		return false;
+	}
+
+	const used = new Set();
+	const out = [];
+
+	function tryAddPair(a, b, score) {
+		const aSku = String(a?.sku || "");
+		const bSku = String(b?.sku || "");
+		if (!aSku || !bSku) return false;
+		if (used.has(aSku) || used.has(bSku)) return false;
+		if (blocked(aSku, bSku)) return false;
+
+		used.add(aSku);
+		used.add(bSku);
+		out.push({ a, b, score: score || 0 });
+		return true;
+	}
+
+	// ---------------- SMWS stage (random per load) ----------------
+	// Build buckets on UNMAPPED-ONLY work, then pick random bucket order,
+	// random anchor among top few, random partner among top few.
+	{
 		const buckets = new Map(); // code -> items[]
-		for (const it of workArr) {
-			if (!it) continue;
-			const sku = String(it.sku || "");
+		for (const it of work) {
+			const sku = String(it?.sku || "");
 			if (!sku) continue;
-
-			// ✅ keep SMWS stage unmapped-only
-			if (mappedSkus && mappedSkus.has(sku)) continue;
-
 			const code = smwsKeyFromName(it.name || "");
 			if (!code) continue;
 			let arr = buckets.get(code);
@@ -327,86 +394,47 @@ export function computeInitialPairsFast(
 			arr.push(it);
 		}
 
-		const candPairs = [];
+		const codes = Array.from(buckets.keys());
+		shuffleInPlace(codes, rnd);
 
-		for (const arr0 of buckets.values()) {
-			if (!arr0 || arr0.length < 2) continue;
+		for (const code of codes) {
+			if (out.length >= limitPairs) break;
+			const arr0 = buckets.get(code) || [];
+			if (arr0.length < 2) continue;
 
-			const arr = arr0
-				.slice()
-				.sort((a, b) => itemRank(b) - itemRank(a))
-				.slice(0, 80);
+			// rank within bucket
+			const arr = arr0.slice().sort((a, b) => itemRank(b) - itemRank(a));
+			const ANCHOR_TOP = Math.min(6, arr.length);
+			const PARTNER_TOP = Math.min(45, arr.length);
 
-			const anchor = arr.slice().sort((a, b) => itemRank(b) - itemRank(a))[0];
-			if (!anchor) continue;
+			const anchor = arr[randInt(ANCHOR_TOP)];
+			const aSku = String(anchor?.sku || "");
+			if (!aSku || used.has(aSku)) continue;
 
-			for (const u of arr) {
-				if (u === anchor) continue;
-				const a = anchor;
-				const b = u;
-				const aSku = String(a.sku || "");
-				const bSku = String(b.sku || "");
-				if (!aSku || !bSku || aSku === bSku) continue;
+			// try a few random partners
+			let added = false;
+			for (let t = 0; t < 10 && !added; t++) {
+				const j = randInt(PARTNER_TOP);
+				const partner = arr[j];
+				if (!partner || partner === anchor) continue;
+				const bSku = String(partner?.sku || "");
+				if (!bSku || used.has(bSku)) continue;
+				if (blocked(aSku, bSku)) continue;
 
-				if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
-				if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
-
-				// ✅ do not suggest if already linked
-				if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) continue;
-
-				// ✅ extra safety
-				if (mappedSkus && (mappedSkus.has(aSku) || mappedSkus.has(bSku))) continue;
-
-				const s = 1e9 + itemRank(a) + itemRank(b);
-				candPairs.push({ a, b, score: s });
+				added = tryAddPair(anchor, partner, 1e9 + itemRank(anchor) + itemRank(partner));
 			}
 		}
-
-		// Instead of always taking the very top pairs (deterministic),
-		// sample from a top band with jitter so each load picks different pairs.
-		candPairs.sort((x, y) => y.score - x.score);
-		const TOP = Math.min(candPairs.length, Math.max(240, limit * 40));
-		const band = candPairs.slice(0, TOP).map((p) => ({
-			p,
-			j: p.score * (1 + (rnd() - 0.5) * 0.35),
-		}));
-		band.sort((a, b) => b.j - a.j);
-
-		const usedUnmapped = new Set();
-		const out0 = [];
-		for (const x of band) {
-			const p = x.p;
-			const bSku = String(p.b.sku || "");
-			if (!bSku) continue;
-			if (usedUnmapped.has(bSku)) continue;
-			usedUnmapped.add(bSku);
-			out0.push(p);
-			if (out0.length >= limit) break;
-		}
-
-		return { pairs: out0, usedUnmapped };
 	}
 
-	// ✅ SMWS stage runs on `work` (unmapped-only)
-	const smwsFirst = smwsPairsFirst(work, limitPairs);
-	const used = new Set(smwsFirst.usedUnmapped);
-	const out = smwsFirst.pairs.slice();
 	if (out.length >= limitPairs) {
 		shuffleInPlace(out, rnd);
 		return out.slice(0, limitPairs);
 	}
 
-	// --- Improved general pairing logic ---
+	// ---------------- General stage (random anchors + random best-of-top partner) ----------------
 
-	// seeds were previously deterministic top list; shuffle so explored anchors differ each load
-	let seeds = topSuggestions(work, Math.min(220, work.length), "", mappedSkus).filter(
-		(it) => !used.has(String(it?.sku || "")),
-	);
-	shuffleInPlace(seeds, rnd);
-	if (seeds.length > 160) seeds.length = 160;
-
-	// Build token buckets over normalized names
-	const TOKEN_BUCKET_CAP = 700;
+	// Token buckets (as before)
+	const TOKEN_BUCKET_CAP = 800;
 	const tokMap = new Map(); // token -> items[]
 	const itemRawToks = new Map(); // sku -> raw tokens
 	const itemNorm = new Map(); // sku -> norm name
@@ -431,12 +459,20 @@ export function computeInitialPairsFast(
 		}
 	}
 
-	const bestByPair = new Map();
-	const MAX_CAND_TOTAL = 450;
-	const MAX_FINE = 18;
+	// Pick truly different anchors each load:
+	// weighted sample across whole pool (not “topSuggestions” deterministic set).
+	const SEED_N = Math.min(420, work.length);
+	const seeds = weightedSampleWithoutReplacement(work, SEED_N, (it) => 1 + Math.max(0.1, itemRank(it)));
+	shuffleInPlace(seeds, rnd);
+
+	const MAX_CAND_TOTAL = 750;
+	const CHEAP_TOP = 60; // widen variety
+	const FINE_TOP = 20;
 
 	for (const a of seeds) {
-		const aSku = String(a.sku || "");
+		if (out.length >= limitPairs) break;
+
+		const aSku = String(a?.sku || "");
 		if (!aSku || used.has(aSku)) continue;
 
 		const aNorm = itemNorm.get(aSku) || normSearchText(a.name || "");
@@ -455,24 +491,17 @@ export function computeInitialPairsFast(
 
 			for (let i = 0; i < arr.length && cand.size < MAX_CAND_TOTAL; i++) {
 				const b = arr[i];
-				if (!b) continue;
-				const bSku = String(b.sku || "");
+				const bSku = String(b?.sku || "");
 				if (!bSku || bSku === aSku) continue;
 				if (used.has(bSku)) continue;
-
-				if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) continue;
-				if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) continue;
-
-				// ✅ block already-linked groups here too
-				if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) continue;
-
+				if (blocked(aSku, bSku)) continue;
 				cand.set(bSku, b);
 			}
 			if (cand.size >= MAX_CAND_TOTAL) break;
 		}
 		if (!cand.size) continue;
 
-		// Cheap score stage
+		// Cheap stage for many options
 		const cheap = [];
 		for (const b of cand.values()) {
 			const bSku = String(b.sku || "");
@@ -490,7 +519,7 @@ export function computeInitialPairsFast(
 
 			if (!firstMatch) {
 				const smallN = Math.min(aFilt.length || 0, bFilt.length || 0);
-				let mult = 0.1 + 0.95 * contain;
+				let mult = 0.12 + 0.9 * contain;
 				if (smallN <= 3 && contain < 0.78) mult *= 0.22;
 				s *= Math.min(1.0, mult);
 			}
@@ -500,23 +529,21 @@ export function computeInitialPairsFast(
 
 			const bAge = extractAgeFromText(bNorm);
 			if (aAge && bAge) {
-				if (aAge === bAge) s *= 1.6;
+				if (aAge === bAge) s *= 1.5;
 				else s *= 0.22;
 			}
 
-			if (String(aSku).startsWith("u:") || String(bSku).startsWith("u:")) s *= 1.06;
+			if (String(aSku).startsWith("u:") || String(bSku).startsWith("u:")) s *= 1.07;
 
 			if (s > 0) cheap.push({ b, s, bNorm, bRaw, bFilt, contain, firstMatch, bAge });
 		}
-
 		if (!cheap.length) continue;
+
 		cheap.sort((x, y) => y.s - x.s);
 
-		// Fine stage
-		let bestB = null;
-		let bestS = 0;
-
-		for (const x of cheap.slice(0, MAX_FINE)) {
+		// Fine stage on a wider top set, then RANDOMLY choose among top results
+		const fine = [];
+		for (const x of cheap.slice(0, CHEAP_TOP)) {
 			const b = x.b;
 			const bSku = String(b.sku || "");
 
@@ -525,7 +552,7 @@ export function computeInitialPairsFast(
 
 			if (!x.firstMatch) {
 				const smallN = Math.min(aFilt.length || 0, (x.bFilt || []).length || 0);
-				let mult = 0.1 + 0.95 * x.contain;
+				let mult = 0.12 + 0.9 * x.contain;
 				if (smallN <= 3 && x.contain < 0.78) mult *= 0.22;
 				s *= Math.min(1.0, mult);
 				if (s <= 0) continue;
@@ -542,79 +569,31 @@ export function computeInitialPairsFast(
 			}
 
 			if (aAge && x.bAge) {
-				if (aAge === x.bAge) s *= 2.0;
+				if (aAge === x.bAge) s *= 1.9;
 				else s *= 0.15;
 			}
 
-			if (String(aSku).startsWith("u:") || String(bSku).startsWith("u:")) s *= 1.1;
+			if (String(aSku).startsWith("u:") || String(bSku).startsWith("u:")) s *= 1.12;
 
-			if (s > bestS) {
-				bestS = s;
-				bestB = b;
-			}
+			fine.push({ b, s });
 		}
 
-		if (!bestB || bestS < 0.5) continue;
+		if (!fine.length) continue;
+		fine.sort((x, y) => y.s - x.s);
 
-		const bSku = String(bestB.sku || "");
-		if (!bSku || used.has(bSku)) continue;
+		// ✅ THIS is the key: pick partner probabilistically, not always the max.
+		const picked = pickFromTopByScore(fine, FINE_TOP, 2.0); // power↑ => more greedy
+		if (!picked) continue;
 
-		const key = aSku < bSku ? `${aSku}|${bSku}` : `${bSku}|${aSku}`;
-		const prev = bestByPair.get(key);
-		if (!prev || bestS > prev.score) bestByPair.set(key, { a, b: bestB, score: bestS });
-	}
+		if (picked.s < 0.45) continue;
 
-	const pairs = Array.from(bestByPair.values());
-	pairs.sort((x, y) => y.score - x.score);
-
-	// ---- light randomness inside a top band ----
-	const need = Math.max(0, limitPairs - out.length);
-	if (!need) {
-		shuffleInPlace(out, rnd);
-		return out.slice(0, limitPairs);
-	}
-
-	const TOP_BAND = Math.min(700, pairs.length);
-	const JITTER = 0.22;
-
-	const band = pairs.slice(0, TOP_BAND).map((p) => {
-		const jitter = (rnd() - 0.5) * JITTER;
-		return { ...p, _rank: p.score * (1 + jitter) };
-	});
-	band.sort((a, b) => b._rank - a._rank);
-
-	function tryTake(p) {
-		const aSku = String(p.a.sku || "");
-		const bSku = String(p.b.sku || "");
-		if (!aSku || !bSku || aSku === bSku) return false;
-		if (used.has(aSku) || used.has(bSku)) return false;
-		if (typeof sameStoreFn === "function" && sameStoreFn(aSku, bSku)) return false;
-		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(aSku, bSku)) return false;
-
-		// ✅ block already-linked groups here too
-		if (typeof sameGroupFn === "function" && sameGroupFn(aSku, bSku)) return false;
-
-		used.add(aSku);
-		used.add(bSku);
-		out.push({ a: p.a, b: p.b, score: p.score });
-		return true;
-	}
-
-	for (const p of band) {
-		if (out.length >= limitPairs) break;
-		tryTake(p);
-	}
-
-	if (out.length < limitPairs) {
-		for (let i = TOP_BAND; i < pairs.length; i++) {
-			if (out.length >= limitPairs) break;
-			tryTake(pairs[i]);
+		if (tryAddPair(a, picked.b, picked.s)) {
+			// added
 		}
 	}
 
-	// ✅ final scramble so the “first page” doesn’t look identical
+	// Final scramble + trim
 	shuffleInPlace(out, rnd);
-
 	return out.slice(0, limitPairs);
 }
 
