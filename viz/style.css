@@ -1028,11 +1028,12 @@ html { overflow-y: scroll; }
 
 
 @media (max-width: 640px) {
-  /* 1) Hide favourite star everywhere on mobile */
-  .favStarBtn,
-  .starDock {
-    display: none !important;
-  }
+    /* hide on list cards only */
+    .itemHasStar .favStarBtn,
+    .shortlistPage .starDock {
+      display: none !important;
+    }
+  
 
   /* 2) Top nav buttons fill width; icons stay fixed; "My Shortlist" expands */
   .headerRight.headerButtons {
@@ -1049,4 +1050,19 @@ html { overflow-y: scroll; }
     flex: 1 1 auto;
     min-width: 0;
   }
+}
+
+/* shortlist max price row: keep the $ label from wrapping */
+#priceWrap { flex-wrap: nowrap; }
+
+#priceWrap #maxPrice {
+  flex: 1 1 auto;
+  min-width: 0;          /* key: allow it to shrink */
+}
+
+#priceWrap #maxPriceLabel {
+  flex: 0 0 auto;
+  width: 96px;           /* or keep 120px, but 96 fits better */
+  min-width: 96px;
+  white-space: nowrap;   /* never wrap */
 }
