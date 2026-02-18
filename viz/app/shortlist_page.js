@@ -143,31 +143,27 @@ export async function renderShortlist($app, accountUuidRaw) {
 					</div>
 
 					<div id="priceWrap" style="display:flex; align-items:center; gap:10px; width:100%;">
-						<div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
+  <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
 
-						<input
-							id="maxPrice"
-							type="range"
-							min="0"
-							max="1000"
-							step="1"
-							value="1000"
-							style="
-							flex: 1 1 0;      /* key: basis 0 so it doesn't claim 100% */
-							width: 0;         /* key: let flex sizing control it */
-							min-width: 0;     /* key: allow shrinking */
-							height: 18px;
-							accent-color: #9aa3b2;
-							opacity: .85;
-							"
-						/>
+  <div style="flex:1 1 0; min-width:0;">
+    <input
+      id="maxPrice"
+      type="range"
+      min="0"
+      max="1000"
+      step="1"
+      value="1000"
+      style="width:100%; min-width:0; height:18px; accent-color:#9aa3b2; opacity:.85;"
+    />
+  </div>
 
-						<div
-							class="badge mono"
-							id="maxPriceLabel"
-							style="flex:0 0 120px; width:120px; text-align:right; white-space:nowrap; opacity:.9;"
-						>$120</div>
-					</div>
+  <div
+    class="badge mono"
+    id="maxPriceLabel"
+    style="flex:0 0 120px; width:120px; text-align:right; white-space:nowrap; opacity:.9;"
+  >$120</div>
+</div>
+
 
 
 					<div style="display:flex; gap:10px; align-items:center; width:100%;">
