@@ -1,11 +1,18 @@
 {
-  "generatedAt": "2026-02-18T07:21:44.504Z",
+  "generatedAt": "2026-02-18T19:20:50.978Z",
   "args": {
     "top": 50,
     "minStores": 2,
     "requireAll": false,
     "group": "bc",
-    "out": "reports/common_listings_bc_top50.json"
+    "out": "reports/common_listings_bc_top50.json",
+    "stability": {
+      "enabled": true,
+      "includeTies": false,
+      "margin": 1,
+      "cohortFile": "reports/common_listings_cohort_bc_top50.json",
+      "cutoffStoreCount": 6
+    }
   },
   "storeCount": 8,
   "stores": [
@@ -19,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3735,
-    "removedRows": 160,
-    "canonSkus": 1905,
+    "liveRows": 3756,
+    "removedRows": 148,
+    "canonSkus": 1907,
     "outputCount": 50
   },
   "rows": [
@@ -66,6 +73,49 @@
         "priceNum": 36.89,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/jameson-irish-whisky-ml-380"
+      }
+    },
+    {
+      "canonSku": "057706",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 75.49,
+        "bcl": 79.99,
+        "gull": 83.45,
+        "legacyliquor": 83.51,
+        "strath": 85.13,
+        "tudor": 71.99,
+        "vessel": 79.99,
+        "vintage": 75.57
+      },
+      "representative": {
+        "name": "Ardbeg Wee Beastie",
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "057706",
+        "skuKey": "057706",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/ardbeg-wee-beastie-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/ardbeg-wee-beastie-ml-420"
       }
     },
     {
@@ -238,6 +288,49 @@
         "priceNum": 102.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
+      }
+    },
+    {
+      "canonSku": "000042",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 22.99,
+        "bcl": 22.49,
+        "gull": 23.8,
+        "legacyliquor": 24.99,
+        "strath": 25.13,
+        "tudor": 23.49,
+        "vessel": 22.49
+      },
+      "representative": {
+        "name": "CANADIAN CLUB - PREMIUM",
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000042",
+        "skuKey": "000042",
+        "url": "https://www.bcliquorstores.com/product/42",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/42"
       }
     },
     {
@@ -496,49 +589,6 @@
         "priceNum": 26.54,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/famous-grouse-ml-380"
-      }
-    },
-    {
-      "canonSku": "057706",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 75.49,
-        "bcl": 79.99,
-        "gull": 83.45,
-        "legacyliquor": 83.51,
-        "strath": 85.13,
-        "vessel": 79.99,
-        "vintage": 75.57
-      },
-      "representative": {
-        "name": "ARDBEG WEE BEASTIE 5YO",
-        "price": "$75.49",
-        "priceNum": 75.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "057706",
-        "skuKey": "057706",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590771-ardbeg-wee-beastie-5yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$75.49",
-        "priceNum": 75.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590771-ardbeg-wee-beastie-5yo"
       }
     },
     {
@@ -926,6 +976,49 @@
         "priceNum": 80.79,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/fettercairn-12-year-ml-420"
+      }
+    },
+    {
+      "canonSku": "222554",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc"
+      ],
+      "storePrices": {
+        "bcl": 28.49,
+        "gull": 30.65,
+        "legacyliquor": 29.85,
+        "strath": 31.22,
+        "tudor": 28.49,
+        "vessel": 29.99,
+        "vintage": 32.09
+      },
+      "representative": {
+        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "222554",
+        "skuKey": "222554",
+        "url": "https://www.bcliquorstores.com/product/222554",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -1356,48 +1449,6 @@
         "priceNum": 58.49,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/suntory-whisky-toki-ml-420"
-      }
-    },
-    {
-      "canonSku": "000042",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 22.99,
-        "bcl": 22.49,
-        "legacyliquor": 24.99,
-        "strath": 25.13,
-        "tudor": 23.49,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "CANADIAN CLUB - PREMIUM",
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "000042",
-        "skuKey": "000042",
-        "url": "https://www.bcliquorstores.com/product/42",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/42"
       }
     },
     {
@@ -2112,48 +2163,6 @@
         "priceNum": 26.54,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-reserve-ml-380"
-      }
-    },
-    {
-      "canonSku": "054213",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 54.79,
-        "bcl": 53.49,
-        "gull": 55.95,
-        "legacyliquor": 55.6,
-        "tudor": 50.99,
-        "vessel": 52.49
-      },
-      "representative": {
-        "name": "Alberta Premium Rye Whisky",
-        "price": "$50.99",
-        "priceNum": 50.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "054213",
-        "skuKey": "054213",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$50.99",
-        "priceNum": 50.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380"
       }
     }
   ]
