@@ -620,7 +620,7 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="itemBody">
             <div class="itemTop">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
+              <a style="margin-right: 18px;" class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
                  href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
             </div>
             <div class="metaRow">
