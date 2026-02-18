@@ -386,6 +386,21 @@ export async function renderShortlist($app, accountUuidRaw) {
 		arr.push({ ms, storeNorm, kind, oldNum, newNum, priceNum });
 	}
 
+	function storeMinPrice(sku, storeNorm) {
+		if (!storeNorm) return null;
+		const m = liveMinPriceBySkuStore.get(sku);
+		if (!m) return null;
+		const p = m.get(storeNorm);
+		return Number.isFinite(p) ? p : null;
+	}
+
+	function urlForSkuStore(sku, storeNorm) {
+		const label = storeNorm ? (storeDisplayByNorm.get(storeNorm) || "") : "";
+		if (!label) return "";
+		const u = URL_BY_SKU_STORE.get(sku)?.get(label) || "";
+		return String(u || "");
+	}
+
 	function bestAllPrice(sku) {
 		const m = liveMinPriceBySkuStore.get(sku);
 		if (!m) return null;
@@ -516,6 +531,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 			_exclusive: exclusive,
 			_lastStock: lastStock,
 
+			_bestStoreNorm: bestStoreNorm,
+
 			_score: scoreNum,
 			_sampled: sampled,
 			_weighted: wScore,
@@ -640,7 +657,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	}
 
 	function priceStr(it) {
-		const p = it && Number.isFinite(it._priceNum) ? it._priceNum : null;
+		const p = it && Number.isFinite(it._viewPriceNum) ? it._viewPriceNum : null;
 		if (p === null) return "";
 		return `$${p.toFixed(2)}`;
 	}
@@ -650,9 +667,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = priceStr(it);
         const saleBadge = saleBadgeHtml(it);
+		const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
+		const wInline = showWInline && Number.isFinite(it._viewWeighted)
+			? `<span class="badge mono badgeNeutral">W ${esc(it._viewWeighted)}</span>`
+			: "";
 
-		const storeLabel = String(it._bestStoreLabel || "").trim();
-		const href = String(it._bestUrl || "").trim() || String(it.sampleUrl || "").trim();
+		const storeLabel = String(it._viewStoreLabel || it._bestStoreLabel || "").trim();
+		const href = String(it._viewUrl || it._bestUrl || "").trim() || String(it.sampleUrl || "").trim();
 
 		const storeBadge =
 			storeLabel && !it._outOfStock
@@ -756,6 +777,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 						<div class="metaRow">
 							${stockBadge}
 							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
+							${wInline}
 							${saleBadge}
 							${specialBadge}
 							${storeBadge}
@@ -824,8 +846,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		if (mode === "weightedDesc") {
 			arr.sort((a, b) => {
-				const av = Number.isFinite(a._weighted) ? a._weighted : null;
-				const bv = Number.isFinite(b._weighted) ? b._weighted : null;
+				const av = Number.isFinite(a._viewWeighted) ? a._viewWeighted : null;
+				const bv = Number.isFinite(b._viewWeighted) ? b._viewWeighted : null;
 				if (av === null && bv === null) return nameKey(a).localeCompare(nameKey(b));
 				if (av === null) return 1;
 				if (bv === null) return -1;
@@ -837,8 +859,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		if (mode === "priceAsc" || mode === "priceDesc") {
 			arr.sort((a, b) => {
-				const ap = Number.isFinite(a._priceNum) ? a._priceNum : null;
-				const bp = Number.isFinite(b._priceNum) ? b._priceNum : null;
+				const ap = Number.isFinite(a._viewPriceNum) ? a._viewPriceNum : null;
+				const bp = Number.isFinite(b._viewPriceNum) ? b._viewPriceNum : null;
 
 				const aKey = ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
 				const bKey = bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
@@ -896,15 +918,40 @@ export async function renderShortlist($app, accountUuidRaw) {
 			base = base.filter((it) => it && it._liveStoreNorms && it._liveStoreNorms.has(storeNeed));
 		}
 
+		// Compute "view" fields based on store filter
+		for (const it of base) {
+			const sku = String(it.sku || "");
+
+			const activeStore = storeNeed || String(it._bestStoreNorm || "");
+			const storePrice = storeNeed ? storeMinPrice(sku, storeNeed) : null;
+
+			const viewPrice =
+				storeNeed && Number.isFinite(storePrice)
+					? storePrice
+					: (Number.isFinite(it._priceNum) ? it._priceNum : null);
+
+			it._viewStoreNorm = activeStore;
+			it._viewStoreLabel = activeStore ? (storeDisplayByNorm.get(activeStore) || it._bestStoreLabel || "") : (it._bestStoreLabel || "");
+			it._viewUrl = activeStore ? (urlForSkuStore(sku, activeStore) || it._bestUrl || it.sampleUrl || "") : (it._bestUrl || it.sampleUrl || "");
+			it._viewPriceNum = Number.isFinite(viewPrice) ? viewPrice : null;
+
+			it._viewWeighted = weightedScore({
+				priceNum: it._viewPriceNum,
+				scoreNum: it._score,
+				sampled: it._sampled,
+			});
+		}
+		
+
 		// Search tokens
 		const tokens = tokenizeQuery($q.value);
 		if (tokens.length) base = base.filter((it) => matchesAllTokens(it.searchText || "", tokens));
 
-		// Max price (based on global lowest in-stock price)
+		// Max price (based on VIEW price: store price when filtered, else global lowest)
 		if (pageMax !== null && Number.isFinite(selectedMaxPrice)) {
 			const cap = selectedMaxPrice + 0.0001;
 			base = base.filter((it) => {
-				const p = it && Number.isFinite(it._priceNum) ? it._priceNum : null;
+				const p = it && Number.isFinite(it._viewPriceNum) ? it._viewPriceNum : null;
 				return p === null ? true : p <= cap;
 			});
 		}
