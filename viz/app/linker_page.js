@@ -43,11 +43,48 @@ export async function renderSkuLinker($app) {
 			return (Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0;
 		}
 	})();
+
+	const TEMP_KEY = "stviz_linker_temp_v1";
+
+	function clamp01(x) {
+		x = Number(x);
+		if (!Number.isFinite(x)) return 0.2;
+		if (x < 0) return 0;
+		if (x > 1) return 1;
+		return x;
+	}
+
+	function loadTemp() {
+		try {
+			const raw = localStorage.getItem(TEMP_KEY);
+			if (raw == null) return 0.2;
+			return clamp01(parseFloat(raw));
+		} catch {
+			return 0.2;
+		}
+	}
+
+	function saveTemp(x) {
+		try {
+			localStorage.setItem(TEMP_KEY, String(clamp01(x)));
+		} catch {
+			// ignore
+		}
+	}
+
+	let currentTemp = loadTemp();
+
 	
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
       <div class="topbar">
         <button id="back" class="btn">← Back</button>
+		<div style="display:flex; align-items:center; gap:8px;">
+			<span class="badge">Temp</span>
+			<input id="tempSlider" type="range" min="0" max="1" step="0.01" value="${currentTemp.toFixed(2)}" />
+			<span id="tempVal" class="badge mono">${currentTemp.toFixed(2)}</span>
+		</div>
+
         <div style="flex:1"></div>
         ${!localWrite ? `<span id="pendingTop" class="badge mono" style="display:none;"></span>` : ``}
         ${
@@ -102,6 +139,28 @@ export async function renderSkuLinker($app) {
 	const $status = document.getElementById("status");
 	const $pendingTop = !localWrite ? document.getElementById("pendingTop") : null;
 	const $clearPendingBtn = !localWrite ? document.getElementById("clearPendingBtn") : null;
+
+	const $tempSlider = document.getElementById("tempSlider");
+	const $tempVal = document.getElementById("tempVal");
+	
+	if ($tempSlider && $tempVal) {
+		// make sure it matches cached value
+		$tempSlider.value = String(currentTemp.toFixed(2));
+		$tempVal.textContent = currentTemp.toFixed(2);
+	
+		$tempSlider.addEventListener("input", () => {
+			const v = clamp01(parseFloat($tempSlider.value));
+			currentTemp = v;
+			$tempVal.textContent = currentTemp.toFixed(2);
+			saveTemp(currentTemp);
+	
+			// force new initial suggestions (set changes, not just order)
+			initialPairs = null;
+			$status.textContent = "";
+			updateAll();
+		});
+	}
+	
 
 	$listL.innerHTML = `<div class="small">Loading index…</div>`;
 	$listR.innerHTML = `<div class="small">Loading index…</div>`;
@@ -165,7 +224,7 @@ export async function renderSkuLinker($app) {
 			sizePenaltyForPair,
 			pricePenaltyForPair,
 			PAGE_SEED,
-			{ temp: 0.20 }, // 0.00 = deterministic, 0.15–0.30 = mild variety, 0.50+ = very diverse
+			{ temp: currentTemp }, // 0.00 = deterministic, 0.15–0.30 = mild variety, 0.50+ = very diverse
 		);
 
 		return initialPairs;
