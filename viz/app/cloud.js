@@ -736,6 +736,12 @@ function acctGetCachePatch(userId, resource, patchObj) {
 	const path = acctPath(userId, resource);
 	const cur = cacheGet(scope, "GET", path);
 
+	// No baseline cached => don't create a partial cache entry from a patch.
+	if (cur === null) {
+		cacheDel(scope, "GET", path);
+		return;
+	}
+
 	if (resource === "favourites" || resource === "sampled") {
 		const merged = mergeBoolMapIntoStringArray(cur ?? [], patchObj);
 		cacheSet(scope, "GET", path, merged, DEFAULT_CACHE_TTL_MS);
@@ -764,11 +770,11 @@ export async function getFavourites(userId) {
 }
 
 export async function getSampled(userId) {
-	return await requestJson(acctPath(userId, "sampled"), { method: "GET", auth: false, token: getStoredToken() });
+	return await requestJson(acctPath(userId, "sampled"), { method: "GET", auth: false, token: getStoredToken(), cache: false });
 }
 
 export async function getScore(userId) {
-	return await requestJson(acctPath(userId, "score"), { method: "GET", auth: false, token: getStoredToken() });
+	return await requestJson(acctPath(userId, "score"), { method: "GET", auth: false, token: getStoredToken(), cache: false });
 }
 
 /* Convenience: current user (from stored auth) */
