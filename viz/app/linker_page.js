@@ -536,7 +536,7 @@ export async function renderSkuLinker($app) {
 		if (sameGroup(a, b)) {
 			$linkBtn.disabled = true;
 			$ignoreBtn.disabled = true;
-			_status.textContent = "Already linked: both SKUs are in the same group.";
+			$status.textContent = "Already linked: both SKUs are in the same group.";
 			return;
 		}
 
@@ -544,9 +544,9 @@ export async function renderSkuLinker($app) {
 		$ignoreBtn.disabled = false;
 
 		if (isIgnoredPair(a, b)) {
-			_status.textContent = "This pair is already ignored.";
-		} else if (_status.textContent === "Pin one item on each side to enable linking / ignoring.") {
-			_status.textContent = "";
+			$status.textContent = "This pair is already ignored.";
+		} else if ($status.textContent === "Pin one item on each side to enable linking / ignoring.") {
+			$status.textContent = "";
 		}
 
 		if ($pr) {
@@ -737,7 +737,7 @@ export async function renderSkuLinker($app) {
 
 		const preferred = pickPreferredCanonical(allRows, [a, b, aCanon, bCanon]);
 		if (!preferred) {
-			_status.textContent = "Write failed: could not choose a canonical SKU.";
+			$status.textContent = "Write failed: could not choose a canonical SKU.";
 			return;
 		}
 
@@ -778,7 +778,7 @@ export async function renderSkuLinker($app) {
 			for (const x of rebuilt) mappedSkus.add(x);
 
 			const c = pendingCounts();
-			_status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
+			$status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
 
 			const $pr = document.getElementById("createPrBtn");
 			if ($pr) $pr.disabled = c.total === 0;
@@ -791,12 +791,12 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		_status.textContent = `Writing ${uniq.length} link(s) to canonical ${displaySku(preferred)} …`;
+		$status.textContent = `Writing ${uniq.length} link(s) to canonical ${displaySku(preferred)} …`;
 
 		try {
 			for (let i = 0; i < uniq.length; i++) {
 				const w = uniq[i];
-				_status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(
+				$status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(
 					w.fromSku,
 				)} → ${displaySku(w.toSku)} …`;
 				await apiWriteSkuLink(w.fromSku, w.toSku);
@@ -813,14 +813,14 @@ export async function renderSkuLinker($app) {
 			mappedSkus.clear();
 			for (const x of rebuilt) mappedSkus.add(x);
 
-			_status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
+			$status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
 			pinnedL = null;
 			pinnedR = null;
 			updateAll();
 
 			location.reload();
 		} catch (e) {
-			_status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
+			$status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
 		}
 	}
 
@@ -834,28 +834,28 @@ export async function renderSkuLinker($app) {
 		const b = String(pinnedR.sku || "");
 
 		if (!a || !b) {
-			_status.textContent = "Not allowed: missing SKU.";
+			$status.textContent = "Not allowed: missing SKU.";
 			return;
 		}
 		if (a === b) {
-			_status.textContent = "Not allowed: both sides cannot be the same SKU.";
+			$status.textContent = "Not allowed: both sides cannot be the same SKU.";
 			return;
 		}
 		if (sameStoreCanon(a, b)) {
-			_status.textContent = "Not allowed: both items belong to the same store.";
+			$status.textContent = "Not allowed: both items belong to the same store.";
 			return;
 		}
 		if (sameGroup(a, b)) {
-			_status.textContent = "Already linked: both SKUs are in the same group.";
+			$status.textContent = "Already linked: both SKUs are in the same group.";
 			return;
 		}
 		if (isIgnoredPair(a, b)) {
-			_status.textContent = "This pair is already ignored.";
+			$status.textContent = "This pair is already ignored.";
 			return;
 		}
 
 		if (!localWrite) {
-			_status.textContent = `Staging ignore: ${displaySku(a)} × ${displaySku(b)} …`;
+			$status.textContent = `Staging ignore: ${displaySku(a)} × ${displaySku(b)} …`;
 
 			addPendingIgnore(a, b);
 
@@ -870,7 +870,7 @@ export async function renderSkuLinker($app) {
 			for (const x of rebuilt) mappedSkus.add(x);
 
 			const c = pendingCounts();
-			_status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
+			$status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
 
 			const $pr = document.getElementById("createPrBtn");
 			if ($pr) $pr.disabled = c.total === 0;
@@ -883,18 +883,18 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		_status.textContent = `Ignoring: ${displaySku(a)} × ${displaySku(b)} …`;
+		$status.textContent = `Ignoring: ${displaySku(a)} × ${displaySku(b)} …`;
 
 		try {
 			const out = await apiWriteSkuIgnore(a, b);
 			ignoreSet.add(rules.canonicalPairKey(a, b));
-			_status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
+			$status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
 			pinnedL = null;
 			pinnedR = null;
 			updateAll();
 			location.reload();
 		} catch (e) {
-			_status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
+			$status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
 		}
 	});
 
