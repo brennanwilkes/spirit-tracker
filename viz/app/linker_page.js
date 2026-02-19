@@ -24,7 +24,7 @@ import { buildUrlBySkuStore } from "./linker/url_map.js";
 import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker/store_cache.js";
 import { buildSizePenaltyForPair } from "./linker/size.js";
 import { pickPreferredCanonical } from "./linker/canonical_pref.js";
-import { smwsKeyFromName } from "./linker/similarity.js";
+import { smwsKeyFromName, similarityScore } from "./linker/similarity.js"; // ✅ CHANGED: import similarityScore too
 import { buildPricePenaltyForPair } from "./linker/price.js";
 import { topSuggestions, recommendSimilar, computeInitialPairsFast } from "./linker/suggestions.js";
 
@@ -74,7 +74,6 @@ export async function renderSkuLinker($app) {
 
 	let currentTemp = loadTemp();
 
-	
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
       <div class="topbar">
@@ -130,6 +129,7 @@ export async function renderSkuLinker($app) {
 
       <div class="card linkBar" style="padding:10px;">
         <button id="linkBtn" class="btn" style="width:100%;" disabled>LINK SKU</button>
+        <button id="forceLinkBtn" class="btn" style="width:100%; margin-top:8px;" disabled>LINK SAME-STORE</button> <!-- ✅ NEW -->
         <button id="ignoreBtn" class="btn" style="width:100%; margin-top:8px;" disabled>IGNORE PAIR</button>
         <div id="status" class="small" style="margin-top:8px;"></div>
       </div>
@@ -143,6 +143,7 @@ export async function renderSkuLinker($app) {
 	const $listL = document.getElementById("listL");
 	const $listR = document.getElementById("listR");
 	const $linkBtn = document.getElementById("linkBtn");
+	const $forceLinkBtn = document.getElementById("forceLinkBtn"); // ✅ NEW
 	const $ignoreBtn = document.getElementById("ignoreBtn");
 	const $status = document.getElementById("status");
 	const $pendingTop = !localWrite ? document.getElementById("pendingTop") : null;
@@ -150,40 +151,40 @@ export async function renderSkuLinker($app) {
 
 	const $tempSlider = document.getElementById("tempSlider");
 	const $tempVal = document.getElementById("tempVal");
-	
+
 	let tempDebounceT = null;
-	
+
 	function applyTempFromSlider() {
 		if (!$tempSlider || !$tempVal) return;
-	
+
 		const v = clamp01(parseFloat($tempSlider.value));
 		currentTemp = v;
 		$tempVal.textContent = currentTemp.toFixed(2);
 		saveTemp(currentTemp);
-	
+
 		// force new initial suggestions
 		initialPairs = null;
 		$status.textContent = "";
 		updateAll();
 	}
-	
+
 	if ($tempSlider && $tempVal) {
 		$tempSlider.value = String(currentTemp.toFixed(2));
 		$tempVal.textContent = currentTemp.toFixed(2);
-	
+
 		// immediate label update while dragging, but delayed recompute
 		$tempSlider.addEventListener("input", () => {
 			const v = clamp01(parseFloat($tempSlider.value));
 			$tempVal.textContent = v.toFixed(2);
 			saveTemp(v);
-	
+
 			if (tempDebounceT) clearTimeout(tempDebounceT);
 			tempDebounceT = setTimeout(() => {
 				tempDebounceT = null;
 				applyTempFromSlider();
 			}, 220);
 		});
-	
+
 		// also commit quickly on release
 		$tempSlider.addEventListener("change", () => {
 			if (tempDebounceT) clearTimeout(tempDebounceT);
@@ -191,8 +192,6 @@ export async function renderSkuLinker($app) {
 			applyTempFromSlider();
 		});
 	}
-	
-	
 
 	$listL.innerHTML = `<div class="small">Loading index…</div>`;
 	$listR.innerHTML = `<div class="small">Loading index…</div>`;
@@ -233,6 +232,43 @@ export async function renderSkuLinker($app) {
 	function sameGroup(aSku, bSku) {
 		if (!aSku || !bSku) return false;
 		return String(rules.canonicalSku(aSku)) === String(rules.canonicalSku(bSku));
+	}
+
+	// ✅ NEW: helpers for same-store override gating
+	const EMPTY_SET = new Set();
+
+	function canonStoresForSkuKey(skuKey) {
+		const s = String(skuKey || "").trim();
+		if (!s) return EMPTY_SET;
+		const canon = String(rules.canonicalSku(s) || s);
+		return CANON_STORE_CACHE.get(canon) || EMPTY_SET;
+	}
+
+	function sameStoreOverrideAllowed(aIt, bIt) {
+		const aSku = String(aIt?.sku || "");
+		const bSku = String(bIt?.sku || "");
+		if (!aSku || !bSku) return false;
+		if (!sameStoreCanon(aSku, bSku)) return false;
+
+		const A = canonStoresForSkuKey(aSku);
+		const B = canonStoresForSkuKey(bSku);
+
+		// keep this tight: only allow when each side is basically “this store only”
+		if (A.size > 2 || B.size > 2) return false;
+
+		let ov = 0;
+		for (const s of A) if (B.has(s)) ov++;
+
+		const overlapRatio = ov / Math.max(1, Math.min(A.size, B.size));
+		if (overlapRatio < 1.0) return false;
+
+		// SMWS exact code is a slam-dunk
+		const ka = smwsKeyFromName(aIt?.name || "");
+		const kb = smwsKeyFromName(bIt?.name || "");
+		if (ka && kb && ka === kb) return true;
+
+		// otherwise require strong name similarity
+		return similarityScore(aIt?.name || "", bIt?.name || "") >= 3.1;
 	}
 
 	let initialPairs = null;
@@ -323,7 +359,14 @@ export async function renderSkuLinker($app) {
 			if (otherPinned) {
 				const oSku = String(otherPinned.sku || "");
 				out = out.filter((it) => !isIgnoredPair(oSku, String(it.sku || "")));
-				out = out.filter((it) => !sameStoreCanon(oSku, String(it.sku || "")));
+
+				// ✅ CHANGED: allow same-store items only if they pass the override gate
+				out = out.filter((it) => {
+					const sSku = String(it?.sku || "");
+					if (!sameStoreCanon(oSku, sSku)) return true;
+					return sameStoreOverrideAllowed(otherPinned, it);
+				});
+
 				out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
 			}
 
@@ -385,11 +428,8 @@ export async function renderSkuLinker($app) {
 					return;
 				}
 
-				// HARD BLOCK: store overlap (canonical-group)
-				if (other && sameStoreCanon(String(other.sku || ""), String(it.sku || ""))) {
-					$status.textContent = "Not allowed: both items belong to the same store.";
-					return;
-				}
+				// ✅ CHANGED: remove hard-block on same-store here (allow pinning);
+				//           linking is still blocked unless override passes.
 
 				// HARD BLOCK: already linked group
 				if (other && sameGroup(String(other.sku || ""), String(it.sku || ""))) {
@@ -443,6 +483,7 @@ export async function renderSkuLinker($app) {
 
 		if (!(pinnedL && pinnedR)) {
 			$linkBtn.disabled = true;
+			$forceLinkBtn.disabled = true; // ✅ NEW
 			$ignoreBtn.disabled = true;
 
 			if (isPages) {
@@ -462,22 +503,33 @@ export async function renderSkuLinker($app) {
 
 		if (a === b) {
 			$linkBtn.disabled = true;
+			$forceLinkBtn.disabled = true;
 			$ignoreBtn.disabled = true;
 			$status.textContent = "Not allowed: both sides cannot be the same SKU.";
 			return;
 		}
 
+		// ✅ CHANGED: same-store blocks normal link/ignore, but may enable LINK SAME-STORE
 		if (sameStoreCanon(a, b)) {
 			$linkBtn.disabled = true;
 			$ignoreBtn.disabled = true;
-			$status.textContent = "Not allowed: both items belong to the same store.";
+
+			const ok = sameStoreOverrideAllowed(pinnedL, pinnedR);
+			$forceLinkBtn.disabled = !ok;
+
+			$status.textContent = ok
+				? "Same-store duplicate candidate. Use LINK SAME-STORE to merge."
+				: "Not allowed: both items belong to the same store.";
 			return;
 		}
+
+		// not same-store
+		$forceLinkBtn.disabled = true;
 
 		if (sameGroup(a, b)) {
 			$linkBtn.disabled = true;
 			$ignoreBtn.disabled = true;
-			$status.textContent = "Already linked: both SKUs are in the same group.";
+			_status.textContent = "Already linked: both SKUs are in the same group.";
 			return;
 		}
 
@@ -485,9 +537,9 @@ export async function renderSkuLinker($app) {
 		$ignoreBtn.disabled = false;
 
 		if (isIgnoredPair(a, b)) {
-			$status.textContent = "This pair is already ignored.";
-		} else if ($status.textContent === "Pin one item on each side to enable linking / ignoring.") {
-			$status.textContent = "";
+			_status.textContent = "This pair is already ignored.";
+		} else if (_status.textContent === "Pin one item on each side to enable linking / ignoring.") {
+			_status.textContent = "";
 		}
 
 		if ($pr) {
@@ -638,7 +690,8 @@ export async function renderSkuLinker($app) {
 		}, 60);
 	});
 
-	$linkBtn.addEventListener("click", async () => {
+	// ✅ NEW: unified link runner (normal + same-store override)
+	async function runLink({ forceSameStore }) {
 		if (!(pinnedL && pinnedR)) return;
 
 		const a = String(pinnedL.sku || "");
@@ -652,10 +705,6 @@ export async function renderSkuLinker($app) {
 			$status.textContent = "Not allowed: both sides cannot be the same SKU.";
 			return;
 		}
-		if (sameStoreCanon(a, b)) {
-			$status.textContent = "Not allowed: both items belong to the same store.";
-			return;
-		}
 		if (sameGroup(a, b)) {
 			$status.textContent = "Already linked: both SKUs are in the same group.";
 			return;
@@ -665,12 +714,23 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
+		if (sameStoreCanon(a, b)) {
+			if (!forceSameStore) {
+				$status.textContent = "Not allowed: both items belong to the same store.";
+				return;
+			}
+			if (!sameStoreOverrideAllowed(pinnedL, pinnedR)) {
+				$status.textContent = "Not allowed: same-store override gate failed.";
+				return;
+			}
+		}
+
 		const aCanon = rules.canonicalSku(a);
 		const bCanon = rules.canonicalSku(b);
 
 		const preferred = pickPreferredCanonical(allRows, [a, b, aCanon, bCanon]);
 		if (!preferred) {
-			$status.textContent = "Write failed: could not choose a canonical SKU.";
+			_status.textContent = "Write failed: could not choose a canonical SKU.";
 			return;
 		}
 
@@ -711,7 +771,7 @@ export async function renderSkuLinker($app) {
 			for (const x of rebuilt) mappedSkus.add(x);
 
 			const c = pendingCounts();
-			$status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
+			_status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
 
 			const $pr = document.getElementById("createPrBtn");
 			if ($pr) $pr.disabled = c.total === 0;
@@ -724,12 +784,12 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		$status.textContent = `Writing ${uniq.length} link(s) to canonical ${displaySku(preferred)} …`;
+		_status.textContent = `Writing ${uniq.length} link(s) to canonical ${displaySku(preferred)} …`;
 
 		try {
 			for (let i = 0; i < uniq.length; i++) {
 				const w = uniq[i];
-				$status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(
+				_status.textContent = `Writing (${i + 1}/${uniq.length}): ${displaySku(
 					w.fromSku,
 				)} → ${displaySku(w.toSku)} …`;
 				await apiWriteSkuLink(w.fromSku, w.toSku);
@@ -746,16 +806,19 @@ export async function renderSkuLinker($app) {
 			mappedSkus.clear();
 			for (const x of rebuilt) mappedSkus.add(x);
 
-			$status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
+			_status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
 			pinnedL = null;
 			pinnedR = null;
 			updateAll();
 
 			location.reload();
 		} catch (e) {
-			$status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
+			_status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
 		}
-	});
+	}
+
+	$linkBtn.addEventListener("click", () => runLink({ forceSameStore: false }));
+	$forceLinkBtn.addEventListener("click", () => runLink({ forceSameStore: true })); // ✅ NEW
 
 	$ignoreBtn.addEventListener("click", async () => {
 		if (!(pinnedL && pinnedR)) return;
@@ -764,28 +827,28 @@ export async function renderSkuLinker($app) {
 		const b = String(pinnedR.sku || "");
 
 		if (!a || !b) {
-			$status.textContent = "Not allowed: missing SKU.";
+			_status.textContent = "Not allowed: missing SKU.";
 			return;
 		}
 		if (a === b) {
-			$status.textContent = "Not allowed: both sides cannot be the same SKU.";
+			_status.textContent = "Not allowed: both sides cannot be the same SKU.";
 			return;
 		}
 		if (sameStoreCanon(a, b)) {
-			$status.textContent = "Not allowed: both items belong to the same store.";
+			_status.textContent = "Not allowed: both items belong to the same store.";
 			return;
 		}
 		if (sameGroup(a, b)) {
-			$status.textContent = "Already linked: both SKUs are in the same group.";
+			_status.textContent = "Already linked: both SKUs are in the same group.";
 			return;
 		}
 		if (isIgnoredPair(a, b)) {
-			$status.textContent = "This pair is already ignored.";
+			_status.textContent = "This pair is already ignored.";
 			return;
 		}
 
 		if (!localWrite) {
-			$status.textContent = `Staging ignore: ${displaySku(a)} × ${displaySku(b)} …`;
+			_status.textContent = `Staging ignore: ${displaySku(a)} × ${displaySku(b)} …`;
 
 			addPendingIgnore(a, b);
 
@@ -800,7 +863,7 @@ export async function renderSkuLinker($app) {
 			for (const x of rebuilt) mappedSkus.add(x);
 
 			const c = pendingCounts();
-			$status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
+			_status.textContent = `Staged locally. Pending: ${c.links} link(s), ${c.ignores} ignore(s).`;
 
 			const $pr = document.getElementById("createPrBtn");
 			if ($pr) $pr.disabled = c.total === 0;
@@ -813,18 +876,18 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		$status.textContent = `Ignoring: ${displaySku(a)} × ${displaySku(b)} …`;
+		_status.textContent = `Ignoring: ${displaySku(a)} × ${displaySku(b)} …`;
 
 		try {
 			const out = await apiWriteSkuIgnore(a, b);
 			ignoreSet.add(rules.canonicalPairKey(a, b));
-			$status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
+			_status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
 			pinnedL = null;
 			pinnedR = null;
 			updateAll();
 			location.reload();
 		} catch (e) {
-			$status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
+			_status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
 		}
 	});
 
