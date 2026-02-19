@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-19T07:21:28.804Z",
+  "generatedAt": "2026-02-19T19:18:28.132Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11697,
-    "removedRows": 822,
-    "canonSkus": 5303,
+    "liveRows": 11701,
+    "removedRows": 825,
+    "canonSkus": 5306,
     "outputCount": 50
   },
   "rows": [
@@ -1748,61 +1748,6 @@
       }
     },
     {
-      "canonSku": "000984",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 23.99,
-        "bcl": 23.49,
-        "bsw": 22.99,
-        "coop": 27.99,
-        "craftcellars": 28.99,
-        "gull": 25,
-        "kwm": 27.99,
-        "legacyliquor": 24.99,
-        "sierrasprings": 19.04,
-        "tudor": 21.99,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "Alberta Premium (40% abv)",
-        "price": "$19.04",
-        "priceNum": 19.04,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "000984",
-        "skuKey": "000984",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$19.04",
-        "priceNum": 19.04,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/"
-      }
-    },
-    {
       "canonSku": "001099",
       "storeCount": 11,
       "stores": [
@@ -2845,6 +2790,60 @@
         "priceNum": 82.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
+      }
+    },
+    {
+      "canonSku": "000984",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 23.99,
+        "bcl": 23.49,
+        "bsw": 22.99,
+        "coop": 27.99,
+        "gull": 25,
+        "kwm": 27.99,
+        "legacyliquor": 24.99,
+        "sierrasprings": 19.04,
+        "tudor": 21.99,
+        "vessel": 22.49
+      },
+      "representative": {
+        "name": "Alberta Premium (40% abv)",
+        "price": "$19.04",
+        "priceNum": 19.04,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "000984",
+        "skuKey": "000984",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$19.04",
+        "priceNum": 19.04,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/"
       }
     }
   ]
