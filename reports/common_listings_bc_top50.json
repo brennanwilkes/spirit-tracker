@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-19T04:30:05.321Z",
+  "generatedAt": "2026-02-19T07:21:29.300Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3756,
-    "removedRows": 148,
-    "canonSkus": 1907,
+    "liveRows": 3744,
+    "removedRows": 162,
+    "canonSkus": 1902,
     "outputCount": 50
   },
   "rows": [
@@ -1662,48 +1662,6 @@
       }
     },
     {
-      "canonSku": "002478",
-      "storeCount": 6,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 37.99,
-        "gull": 42,
-        "legacyliquor": 40.88,
-        "strath": 42.52,
-        "tudor": 39.99,
-        "vessel": 37.99
-      },
-      "representative": {
-        "name": "HAVANA CLUB - 7 YEAR OLD",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "053140",
-        "skuKey": "053140",
-        "url": "https://www.bcliquorstores.com/product/53140",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/53140"
-      }
-    },
-    {
       "canonSku": "002838",
       "storeCount": 6,
       "stores": [
@@ -2163,6 +2121,47 @@
         "priceNum": 26.54,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-reserve-ml-380"
+      }
+    },
+    {
+      "canonSku": "002478",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 37.99,
+        "legacyliquor": 40.88,
+        "strath": 42.52,
+        "tudor": 39.99,
+        "vessel": 37.99
+      },
+      "representative": {
+        "name": "HAVANA CLUB - 7 YEAR OLD",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "053140",
+        "skuKey": "053140",
+        "url": "https://www.bcliquorstores.com/product/53140",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/53140"
       }
     }
   ]
