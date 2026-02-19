@@ -249,25 +249,34 @@ export async function renderSkuLinker($app) {
 		const bSku = String(bIt?.sku || "");
 		if (!aSku || !bSku) return false;
 		if (!sameStoreCanon(aSku, bSku)) return false;
-
+	  
 		const A = canonStoresForSkuKey(aSku);
 		const B = canonStoresForSkuKey(bSku);
-
-		// keep this tight: only allow when each side is basically “this store only”
-		if (A.size > 2 || B.size > 2) return false;
-
-		let ov = 0;
-		for (const s of A) if (B.has(s)) ov++;
-
-		const overlapRatio = ov / Math.max(1, Math.min(A.size, B.size));
-		if (overlapRatio < 1.0) return false;
-
+		if (!A.size || !B.size) return false;
+	  
+		// Prefer overlap on the user-visible “selected” store label (cheapest)
+		const aPrimary = String(aIt?.cheapestStoreLabel || "").trim();
+		const bPrimary = String(bIt?.cheapestStoreLabel || "").trim();
+	  
+		// Determine overlap
+		let anyOverlap = false;
+		let primaryOverlap = false;
+		for (const s of A) {
+		  if (!B.has(s)) continue;
+		  anyOverlap = true;
+		  if ((aPrimary && s === aPrimary) || (bPrimary && s === bPrimary)) primaryOverlap = true;
+		}
+		if (!anyOverlap) return false;
+	  
+		// If we know a primary store, require overlap on it (tightens to “this looks like a relist on that store”)
+		if ((aPrimary || bPrimary) && !primaryOverlap) return false;
+	  
 		// SMWS exact code is a slam-dunk
 		const ka = smwsKeyFromName(aIt?.name || "");
 		const kb = smwsKeyFromName(bIt?.name || "");
 		if (ka && kb && ka === kb) return true;
-
-		// otherwise require strong name similarity
+	  
+		// Otherwise require strong name similarity
 		return similarityScore(aIt?.name || "", bIt?.name || "") >= 3.1;
 	}
 
