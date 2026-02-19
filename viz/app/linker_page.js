@@ -360,12 +360,10 @@ export async function renderSkuLinker($app) {
 				const oSku = String(otherPinned.sku || "");
 				out = out.filter((it) => !isIgnoredPair(oSku, String(it.sku || "")));
 
-				// ✅ CHANGED: allow same-store items only if they pass the override gate
 				out = out.filter((it) => {
 					const sSku = String(it?.sku || "");
-					if (!sameStoreCanon(oSku, sSku)) return true;
-					return sameStoreOverrideAllowed(otherPinned, it);
-				});
+					return !sameStoreCanon(oSku, sSku) || true;
+				  });
 
 				out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
 			}
