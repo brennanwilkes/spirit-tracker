@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-19T22:02:31.582Z",
+  "generatedAt": "2026-02-19T23:45:33.811Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11670,
-    "removedRows": 856,
-    "canonSkus": 5297,
+    "liveRows": 11685,
+    "removedRows": 853,
+    "canonSkus": 5287,
     "outputCount": 1000
   },
   "rows": [
@@ -5378,6 +5378,59 @@
         "priceNum": 105,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/redbreast-12-year-old-cask-strength"
+      }
+    },
+    {
+      "canonSku": "139388",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 39.69,
+        "bcl": 38.99,
+        "bsw": 36.99,
+        "gull": 41.05,
+        "legacyliquor": 47.27,
+        "sierrasprings": 28.47,
+        "strath": 47.74,
+        "tudor": 44.99,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "PLANTATION ORIGINAL DARK 40%",
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "760296",
+        "skuKey": "760296",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/plantation-original-dark-40-abv/",
+        "categoryLabel": "Spirits / Liquor",
+        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+      },
+      "cheapest": {
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/plantation-original-dark-40-abv/"
       }
     },
     {
@@ -13403,57 +13456,6 @@
       }
     },
     {
-      "canonSku": "699116",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 39.69,
-        "bcl": 38.99,
-        "gull": 41.05,
-        "legacyliquor": 47.27,
-        "strath": 47.74,
-        "tudor": 44.99,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "PLANTATION - ORIGINAL DARK",
-        "price": "$38.99",
-        "priceNum": 38.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "699116",
-        "skuKey": "699116",
-        "url": "https://www.bcliquorstores.com/product/699116",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$38.99",
-        "priceNum": 38.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/699116"
-      }
-    },
-    {
       "canonSku": "730008",
       "storeCount": 7,
       "stores": [
@@ -21379,6 +21381,55 @@
       }
     },
     {
+      "canonSku": "109890",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 2250,
+        "bsw": 1925,
+        "coop": 2399.99,
+        "kwm": 1949.99,
+        "willowpark": 2292.99
+      },
+      "representative": {
+        "name": "Laphroaig 30 Yo 2024 Release",
+        "price": "$1,925.00",
+        "priceNum": 1925,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "115434",
+        "skuKey": "115434",
+        "url": "https://www.bswliquor.com/products/laphroaig-30-yo-2024-release",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$1,925.00",
+        "priceNum": 1925,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/laphroaig-30-yo-2024-release"
+      }
+    },
+    {
       "canonSku": "110291",
       "storeCount": 5,
       "stores": [
@@ -28925,6 +28976,55 @@
       }
     },
     {
+      "canonSku": "814653",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "strath",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bsw": 140,
+        "kegncork": 143.96,
+        "kwm": 144.99,
+        "strath": 166.87,
+        "willowpark": 145.49
+      },
+      "representative": {
+        "name": "Jura 18 Year Old",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "814653",
+        "skuKey": "814653",
+        "url": "https://www.bswliquor.com/products/jura-18-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/jura-18-year-old-1"
+      }
+    },
+    {
       "canonSku": "816185",
       "storeCount": 5,
       "stores": [
@@ -31869,54 +31969,6 @@
         "priceNum": 499.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/kavalan-px-sherry-tm-5th-anniversary-750-ml/"
-      }
-    },
-    {
-      "canonSku": "109890",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "coop",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 2250,
-        "coop": 2399.99,
-        "kwm": 1949.99,
-        "willowpark": 2292.99
-      },
-      "representative": {
-        "name": "Laphroaig 30 Year 2024",
-        "price": "$1949.99",
-        "priceNum": 1949.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "123776",
-        "skuKey": "123776",
-        "url": "https://kensingtonwinemarket.com/product/123776/laphroaig-30-year-2024",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$1949.99",
-        "priceNum": 1949.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/123776/laphroaig-30-year-2024"
       }
     },
     {
@@ -41229,54 +41281,6 @@
         "priceNum": 28.47,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/goslings-black-seal-bermuda-black-rum-40-abv/"
-      }
-    },
-    {
-      "canonSku": "814653",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "strath",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bsw": 140,
-        "kegncork": 143.96,
-        "strath": 166.87,
-        "willowpark": 145.49
-      },
-      "representative": {
-        "name": "Jura 18 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "814653",
-        "skuKey": "814653",
-        "url": "https://www.bswliquor.com/products/jura-18-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/jura-18-year-old-1"
       }
     },
     {
