@@ -64,7 +64,7 @@ function ensureSettingsCssOnce() {
 
 	/* Make Public + Name blocks match height */
 	.nameBlock .input{ height: 50px; }
-	.switchWrap{ display:flex; flex-direction:column; gap: 6px; padding-top: 2px; }
+	.switchWrap{ display:flex; flex-direction:column; padding-top: 2px; }
 
 	/* Toggle container (same height as input) */
 	.switch{
@@ -154,6 +154,7 @@ function ensureSettingsCssOnce() {
 	  flex-direction: column;
 	  gap: 8px;
 	  padding: 0;
+      margin-top: 20px;
 	}
 	.linkRow{
 	  display:flex;
