@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-20T07:15:57.551Z",
+  "generatedAt": "2026-02-20T19:12:23.728Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11729,
-    "removedRows": 827,
-    "canonSkus": 5306,
+    "liveRows": 11730,
+    "removedRows": 829,
+    "canonSkus": 5305,
     "outputCount": 250
   },
   "rows": [
@@ -757,7 +757,7 @@
       ],
       "storePrices": {
         "bcl": 116.99,
-        "bsw": 89.99,
+        "bsw": 79.99,
         "coop": 104.99,
         "craftcellars": 72.99,
         "gull": 123.25,
@@ -1412,62 +1412,6 @@
       }
     },
     {
-      "canonSku": "118775",
-      "storeCount": 12,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "kegncork",
-        "maltsandgrains",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 89.99,
-        "bsw": 67.99,
-        "coop": 79.99,
-        "craftcellars": 79.99,
-        "gull": 91.99,
-        "kwm": 79.99,
-        "legacyliquor": 90.99,
-        "sierrasprings": 76.09,
-        "strath": 92.09,
-        "tudor": 80.99,
-        "vessel": 89.99,
-        "willowpark": 80.49
-      },
-      "representative": {
-        "name": "Glenfiddich 14 Year Old Bourbon Barrel",
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "813356",
-        "skuKey": "813356",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
-      }
-    },
-    {
       "canonSku": "123422",
       "storeCount": 12,
       "stores": [
@@ -1521,6 +1465,62 @@
         "priceNum": 28.47,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/mount-gay-eclipse-amber-rum-40-abv/"
+      }
+    },
+    {
+      "canonSku": "202028",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "gull",
+        "maltsandgrains",
+        "sierrasprings",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 146.99,
+        "bcl": 159.99,
+        "bsw": 110,
+        "coop": 134.99,
+        "craftcellars": 104.99,
+        "kegncork": 129.96,
+        "kwm": 133.99,
+        "legacyliquor": 166.4,
+        "strath": 170.35,
+        "tudor": 143.99,
+        "vessel": 154.99,
+        "willowpark": 131.49
+      },
+      "representative": {
+        "name": "Ardbeg Uigeadail",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "717559",
+        "skuKey": "717559",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
       }
     },
     {
@@ -2243,6 +2243,61 @@
       }
     },
     {
+      "canonSku": "118775",
+      "storeCount": 11,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 89.99,
+        "bsw": 67.99,
+        "craftcellars": 79.99,
+        "gull": 91.99,
+        "kwm": 79.99,
+        "legacyliquor": 90.99,
+        "sierrasprings": 76.09,
+        "strath": 92.09,
+        "tudor": 80.99,
+        "vessel": 89.99,
+        "willowpark": 80.49
+      },
+      "representative": {
+        "name": "Glenfiddich 14 Year Old Bourbon Barrel",
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "813356",
+        "skuKey": "813356",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
+      }
+    },
+    {
       "canonSku": "134692",
       "storeCount": 11,
       "stores": [
@@ -2570,61 +2625,6 @@
         "priceNum": 111.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/benromach-15-year-ml-420"
-      }
-    },
-    {
-      "canonSku": "202028",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "gull",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 146.99,
-        "bcl": 159.99,
-        "bsw": 110,
-        "coop": 134.99,
-        "craftcellars": 104.99,
-        "kegncork": 129.96,
-        "kwm": 133.99,
-        "legacyliquor": 166.4,
-        "strath": 170.35,
-        "tudor": 143.99,
-        "willowpark": 131.49
-      },
-      "representative": {
-        "name": "Ardbeg Uigeadail",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "717559",
-        "skuKey": "717559",
-        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
       }
     },
     {
@@ -4877,7 +4877,7 @@
         "vintage"
       ],
       "storePrices": {
-        "bsw": 160,
+        "bsw": 180,
         "coop": 209.99,
         "craftcellars": 159.99,
         "gull": 231.45,
@@ -8919,7 +8919,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 49.99,
+        "bsw": 42.99,
         "coop": 56.99,
         "craftcellars": 41.99,
         "kegncork": 58.96,
@@ -10830,7 +10830,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 62.99,
+        "bsw": 56.99,
         "coop": 69.99,
         "craftcellars": 74.99,
         "kegncork": 69.96,
@@ -10840,8 +10840,8 @@
       },
       "representative": {
         "name": "Old Forester 1870 Original Batch",
-        "price": "$62.99",
-        "priceNum": 62.99,
+        "price": "$56.99",
+        "priceNum": 56.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "834326",
@@ -10851,8 +10851,8 @@
         "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
+        "price": "$56.99",
+        "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/old-forester-1870"
       }
