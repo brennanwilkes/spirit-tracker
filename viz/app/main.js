@@ -92,7 +92,8 @@ function route() {
 		}
 		return renderSettings($app);
 	}
-
+	if (parts[0] === "shortlists") return renderPublicShortlists($app);
+	
 	if (parts[0] === "shortlist") {
 		// Preferred: #/shortlist/<uuid>
 		if (parts[1]) return renderShortlist($app, decodeURIComponent(parts[1]));
