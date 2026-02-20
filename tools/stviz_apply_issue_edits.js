@@ -1,7 +1,7 @@
 // tools/stviz_apply_issue_edits.js
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
 function die(msg) {
@@ -11,6 +11,10 @@ function die(msg) {
 
 function sh(cmd) {
 	return execSync(cmd, { stdio: "pipe", encoding: "utf8" }).trim();
+}
+
+function ghRun(args) {
+	return execFileSync("gh", args, { stdio: "pipe", encoding: "utf8" }).trim();
 }
 
 /* ---------------- PR visualization helpers ---------------- */
@@ -30,7 +34,6 @@ function spiritItemUrl(skuKey) {
 }
 
 async function loadNormalizeSkuKeyOrNull() {
-	// Best-effort: if your repo exposes normalizeSkuKey, use it so "u:..." keys resolve.
 	const candidates = [
 		path.join(process.cwd(), "src", "utils", "sku.js"),
 		path.join(process.cwd(), "src", "utils", "sku"),
@@ -41,9 +44,7 @@ async function loadNormalizeSkuKeyOrNull() {
 			const modPath = fs.existsSync(p) ? p : `${p}.js`;
 			const mod = await import(pathToFileURL(modPath).href);
 			if (typeof mod?.normalizeSkuKey === "function") return mod.normalizeSkuKey;
-		} catch {
-			// ignore
-		}
+		} catch {}
 	}
 	return null;
 }
@@ -70,7 +71,7 @@ function readJsonFile(p) {
 
 async function collectSkuInfo(neededSkuKeys) {
 	const need = new Set([...neededSkuKeys].map((x) => String(x || "").trim()).filter(Boolean));
-	const out = new Map(); // skuKey -> info
+	const out = new Map();
 	if (!need.size) return out;
 
 	const normalizeSkuKey = await loadNormalizeSkuKeyOrNull();
@@ -93,16 +94,13 @@ async function collectSkuInfo(neededSkuKeys) {
 			if (normalizeSkuKey) {
 				try {
 					key = String(normalizeSkuKey(skuRaw, { storeLabel, url }) || "");
-				} catch {
-					key = "";
-				}
+				} catch {}
 			}
 
 			const candidates = new Set([skuRaw, key].filter(Boolean));
 			for (const cand of candidates) {
 				if (!need.has(cand)) continue;
 
-				// Prefer an entry with an image; otherwise first hit wins.
 				const prev = out.get(cand);
 				const img = String(it.img || it.image || it.thumb || "");
 				if (prev && prev.img) continue;
@@ -120,7 +118,6 @@ async function collectSkuInfo(neededSkuKeys) {
 			}
 		}
 	}
-
 	return out;
 }
 
@@ -196,329 +193,59 @@ function linkKeyFrom(a, b) {
 	return x && y && x !== y ? `${x}→${y}` : "";
 }
 
-function linkKey(x) {
-	return linkKeyFrom(x?.fromSku, x?.toSku);
-}
-
 function pairKey(a, b) {
-	const x = normSku(a),
-		y = normSku(b);
+	const x = normSku(a);
+	const y = normSku(b);
 	if (!x || !y || x === y) return "";
 	return x < y ? `${x}|${y}` : `${y}|${x}`;
 }
 
-/* ---------------- Minimal, merge-friendly JSON array insertion ---------------- */
-
-function findJsonArraySpan(src, propName) {
-	// Finds the [ ... ] span for `"propName": [ ... ]` and returns { start, end, open, close, fieldIndent }
-	const re = new RegExp(`(^[ \\t]*)"${propName}"\\s*:\\s*\\[`, "m");
-	const mm = src.match(re);
-	if (!mm) return null;
-
-	const fieldIndent = mm[1] || "";
-	const at = mm.index || 0;
-	const open = src.indexOf("[", at);
-	if (open < 0) return null;
-
-	// scan to matching ']'
-	let i = open;
-	let depth = 0;
-	let inStr = false;
-	let esc = false;
-
-	for (; i < src.length; i++) {
-		const ch = src[i];
-
-		if (inStr) {
-			if (esc) {
-				esc = false;
-			} else if (ch === "\\") {
-				esc = true;
-			} else if (ch === '"') {
-				inStr = false;
-			}
-			continue;
-		}
-
-		if (ch === '"') {
-			inStr = true;
-			continue;
-		}
-
-		if (ch === "[") depth++;
-		else if (ch === "]") {
-			depth--;
-			if (depth === 0) {
-				const close = i;
-				return { start: at, open, close, end: close + 1, fieldIndent };
-			}
-		}
-	}
-
-	return null;
-}
-
-function splitArrayObjectBlocks(arrayInnerText) {
-	// arrayInnerText is text between '[' and ']' (can include whitespace/newlines/commas)
-	// returns raw blocks (each block is the exact text for a JSON object, preserving formatting)
-	const blocks = [];
-
-	let i = 0;
-	const s = arrayInnerText;
-
-	function skipWsAndCommas() {
-		while (i < s.length) {
-			const ch = s[i];
-			if (ch === "," || ch === " " || ch === "\t" || ch === "\n" || ch === "\r") i++;
-			else break;
-		}
-	}
-
-	skipWsAndCommas();
-
-	while (i < s.length) {
-		if (s[i] !== "{") {
-			// if something unexpected, advance a bit
-			i++;
-			skipWsAndCommas();
-			continue;
-		}
-
-		const start = i;
-		let depth = 0;
-		let inStr = false;
-		let esc = false;
-
-		for (; i < s.length; i++) {
-			const ch = s[i];
-
-			if (inStr) {
-				if (esc) {
-					esc = false;
-				} else if (ch === "\\") {
-					esc = true;
-				} else if (ch === '"') {
-					inStr = false;
-				}
-				continue;
-			}
-
-			if (ch === '"') {
-				inStr = true;
-				continue;
-			}
-
-			if (ch === "{") depth++;
-			else if (ch === "}") {
-				depth--;
-				if (depth === 0) {
-					i++; // include '}'
-					const raw = s.slice(start, i);
-					blocks.push(raw);
-					break;
-				}
-			}
-		}
-
-		skipWsAndCommas();
-	}
-
-	return blocks;
-}
-
-function detectItemIndent(arrayInnerText, fieldIndent) {
-	// Try to infer indentation for the '{' line inside the array.
-	// If empty array, default to fieldIndent + 2 spaces.
-	const m = arrayInnerText.match(/\n([ \t]*)\{/);
-	if (m) return m[1];
-	return fieldIndent + "  ";
-}
-
-function makePrettyObjBlock(objIndent, obj) {
-	// Match JSON.stringify(..., 2) object formatting inside arrays
-	const a = objIndent;
-	const b = objIndent + "  ";
-	const fromSku = normSku(obj?.fromSku);
-	const toSku = normSku(obj?.toSku);
-	const skuA = normSku(obj?.skuA);
-	const skuB = normSku(obj?.skuB);
-
-	if (fromSku && toSku) {
-		return (
-			`${a}{\n` +
-			`${b}"fromSku": ${JSON.stringify(fromSku)},\n` +
-			`${b}"toSku": ${JSON.stringify(toSku)}\n` +
-			`${a}}`
-		);
-	}
-
-	if (skuA && skuB) {
-		return `${a}{\n` + `${b}"skuA": ${JSON.stringify(skuA)},\n` + `${b}"skuB": ${JSON.stringify(skuB)}\n` + `${a}}`;
-	}
-
-	return `${a}{}`;
-}
-
-function applyInsertionsToArrayText({ src, propName, incoming, keyFn, normalizeFn }) {
-	const span = findJsonArraySpan(src, propName);
-	if (!span) die(`Could not find "${propName}" array in ${filePath}`);
-
-	const before = src.slice(0, span.open + 1); // includes '['
-	const inner = src.slice(span.open + 1, span.close); // between [ and ]
-	const after = src.slice(span.close); // starts with ']'
-
-	const itemIndent = detectItemIndent(inner, span.fieldIndent);
-
-	// Parse existing objects to build a dedupe set (does NOT modify inner text)
-	const rawBlocks = splitArrayObjectBlocks(inner);
-	const seen = new Set();
-	for (const raw of rawBlocks) {
-		try {
-			const obj = JSON.parse(raw);
-			const k = keyFn(obj);
-			if (k) seen.add(k);
-		} catch {
-			// ignore unparsable blocks for dedupe purposes
-		}
-	}
-
-	const toAdd = [];
-	for (const x of incoming) {
-		const nx = normalizeFn(x);
-		const k = keyFn(nx);
-		if (!k || seen.has(k)) continue;
-		seen.add(k);
-		toAdd.push(nx);
-	}
-
-	if (!toAdd.length) return src;
-
-	// Deterministic order for new items only (doesn't reorder existing)
-	const addBlocks = toAdd
-		.map((obj) => ({ obj, key: keyFn(obj) }))
-		.sort((a, b) => String(a.key).localeCompare(String(b.key)))
-		.map((x) => makePrettyObjBlock(itemIndent, x.obj));
-
-	const wasInlineEmpty = /^\s*$/.test(inner);
-
-	let newInner;
-	if (wasInlineEmpty) {
-		// "links": []  -> pretty multiline
-		newInner = "\n" + addBlocks.join(",\n") + "\n" + span.fieldIndent;
-	} else {
-		// Keep existing whitespace EXACTLY; append before trailing whitespace
-		const m = inner.match(/\s*$/);
-		const tail = m ? m[0] : "";
-		const body = inner.slice(0, inner.length - tail.length).replace(/\s*$/, ""); // end at last non-ws
-
-		newInner = body + ",\n" + addBlocks.join(",\n") + tail;
-	}
-
-	return before + newInner + after;
-}
-
-/* ---------------- Apply edits ---------------- */
+/* ---------------- Apply edits (simple JSON merge) ---------------- */
 
 const filePath = path.join("data", "sku_links.json");
 
-function ensureFileExists() {
-	if (fs.existsSync(filePath)) return;
+if (!fs.existsSync(filePath)) {
 	fs.mkdirSync(path.dirname(filePath), { recursive: true });
-	// Create with stable formatting; generatedAt intentionally blank (we do not mutate it later)
-	const seed = { generatedAt: "", links: [], ignores: [] };
-	fs.writeFileSync(filePath, JSON.stringify(seed, null, 2) + "\n", "utf8");
+	fs.writeFileSync(filePath, JSON.stringify({ generatedAt: "", links: [], ignores: [] }, null, 2) + "\n");
 }
 
-ensureFileExists();
+const beforeObj = JSON.parse(fs.readFileSync(filePath, "utf8"));
+const afterObj = JSON.parse(JSON.stringify(beforeObj));
 
-let text = fs.readFileSync(filePath, "utf8");
-let beforeObj = null;
-try {
-	beforeObj = JSON.parse(text);
-} catch {
-	beforeObj = { links: [], ignores: [] };
+const beforeLinks = new Set((beforeObj.links || []).map((o) => linkKeyFrom(o.fromSku, o.toSku)));
+const beforeIgnores = new Set((beforeObj.ignores || []).map((o) => pairKey(o.skuA, o.skuB)));
+
+for (const l of linksIn) {
+	const k = linkKeyFrom(l.fromSku, l.toSku);
+	if (k && !beforeLinks.has(k)) afterObj.links.push({ fromSku: normSku(l.fromSku), toSku: normSku(l.toSku) });
 }
 
-// IMPORTANT: do NOT touch generatedAt at all.
-// Also: do NOT re-stringify entire JSON; we only surgically insert into arrays.
-
-const normLinksIn = linksIn.map((x) => ({
-	fromSku: normSku(x?.fromSku),
-	toSku: normSku(x?.toSku),
-}));
-
-const normIgnoresIn = ignoresIn.map((x) => {
-	const a = normSku(x?.skuA);
-	const b = normSku(x?.skuB);
-	const k = pairKey(a, b);
-	if (!k) return { skuA: "", skuB: "" };
-	const [p, q] = k.split("|");
-	return { skuA: p, skuB: q };
-});
-
-// Insert links (sorted by from→to)
-text = applyInsertionsToArrayText({
-	src: text,
-	propName: "links",
-	incoming: normLinksIn,
-	keyFn: (o) => linkKeyFrom(o?.fromSku, o?.toSku),
-	normalizeFn: (o) => ({ fromSku: normSku(o?.fromSku), toSku: normSku(o?.toSku) }),
-});
-
-// Insert ignores (sorted by canonical pair)
-text = applyInsertionsToArrayText({
-	src: text,
-	propName: "ignores",
-	incoming: normIgnoresIn,
-	keyFn: (o) => pairKey(o?.skuA, o?.skuB),
-	normalizeFn: (o) => {
-		const a = normSku(o?.skuA);
-		const b = normSku(o?.skuB);
-		const k = pairKey(a, b);
-		if (!k) return { skuA: "", skuB: "" };
-		const [p, q] = k.split("|");
-		return { skuA: p, skuB: q };
-	},
-});
-
-fs.writeFileSync(filePath, text, "utf8");
-
-// Compute which pairs were actually added (for the PR preview)
-let afterObj = null;
-try {
-	afterObj = JSON.parse(text);
-} catch {
-	afterObj = { links: [], ignores: [] };
+for (const i of ignoresIn) {
+	const k = pairKey(i.skuA, i.skuB);
+	if (k && !beforeIgnores.has(k)) {
+		const [a, b] = k.split("|");
+		afterObj.ignores.push({ skuA: a, skuB: b });
+	}
 }
 
-const beforeLinks = new Set((beforeObj?.links || []).map((o) => linkKeyFrom(o?.fromSku, o?.toSku)).filter(Boolean));
-const beforeIgnores = new Set((beforeObj?.ignores || []).map((o) => pairKey(o?.skuA, o?.skuB)).filter(Boolean));
+fs.writeFileSync(filePath, JSON.stringify(afterObj, null, 2) + "\n");
 
-const addedLinks = (afterObj?.links || [])
-	.map((o) => ({ fromSku: normSku(o?.fromSku), toSku: normSku(o?.toSku) }))
-	.filter((o) => {
-		const k = linkKeyFrom(o.fromSku, o.toSku);
-		return k && !beforeLinks.has(k);
-	});
+/* ---------------- Build visualization ---------------- */
 
-const addedIgnores = (afterObj?.ignores || [])
-	.map((o) => ({ skuA: normSku(o?.skuA), skuB: normSku(o?.skuB) }))
-	.filter((o) => {
-		const k = pairKey(o.skuA, o.skuB);
-		return k && !beforeIgnores.has(k);
-	});
+const addedLinks = afterObj.links.filter((o) => !beforeLinks.has(linkKeyFrom(o.fromSku, o.toSku)));
+const addedIgnores = afterObj.ignores.filter((o) => !beforeIgnores.has(pairKey(o.skuA, o.skuB)));
 
-const neededSkuKeys = new Set();
+const needed = new Set();
 for (const x of addedLinks) {
-	neededSkuKeys.add(x.fromSku);
-	neededSkuKeys.add(x.toSku);
+	needed.add(x.fromSku);
+	needed.add(x.toSku);
 }
 for (const x of addedIgnores) {
-	neededSkuKeys.add(x.skuA);
-	neededSkuKeys.add(x.skuB);
+	needed.add(x.skuA);
+	needed.add(x.skuB);
 }
 
-const skuInfo = await collectSkuInfo(neededSkuKeys);
+const skuInfo = await collectSkuInfo(needed);
 
 const vizLinks = renderPairsTable({
 	title: `Requested links (${addedLinks.length})`,
@@ -540,15 +267,10 @@ const vizBlock =
 	vizIgnores +
 	`\n</details>\n`;
 
-/* ---------------- Git ops + PR + close issue ---------------- */
+/* ---------------- Git + PR ---------------- */
 
-// Ensure git identity is set for commit (Actions runners often lack it)
-try {
-	sh(`git config user.name "github-actions[bot]"`);
-	sh(`git config user.email "41898282+github-actions[bot]@users.noreply.github.com"`);
-} catch {
-	// ignore
-}
+sh(`git config user.name "github-actions[bot]"`);
+sh(`git config user.email "41898282+github-actions[bot]@users.noreply.github.com"`);
 
 const ts = new Date().toISOString().replace(/[:.]/g, "-");
 const branch = `stviz/issue-${ISSUE_NUMBER}-${ts}`;
@@ -556,10 +278,8 @@ const branch = `stviz/issue-${ISSUE_NUMBER}-${ts}`;
 sh(`git checkout -b "${branch}"`);
 sh(`git add "${filePath}"`);
 
-// If no diffs (all edits were duplicates), don't create PR or close issue.
-const diff = sh(`git status --porcelain "${filePath}"`);
-if (!diff) {
-	console.log("No changes to commit (all edits already present). Leaving issue open.");
+if (!sh(`git status --porcelain "${filePath}"`)) {
+	console.log("No changes to commit.");
 	process.exit(0);
 }
 
@@ -571,21 +291,35 @@ const prBody = capBody(
 	`Automated PR created from issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}\n\nIssue: #${ISSUE_NUMBER}${vizBlock}`,
 );
 
-function extractPrUrl(out) {
-	// gh pr create usually prints the PR URL to stdout; be robust in case extra text appears.
-	const m = String(out || "").match(/https?:\/\/\S+\/pull\/\d+\S*/);
-	if (!m) die(`Could not find PR URL in gh output:\n${out}`);
-	return m[0];
-}
+const prBodyPath = path.join(process.cwd(), ".stviz_pr_body.md");
+fs.writeFileSync(prBodyPath, prBody, "utf8");
 
-// Create PR and capture URL/number without relying on unsupported flags
-const prCreateOut = sh(
-	`gh -R "${REPO}" pr create --base data --head "${branch}" --title "${prTitle}" --body "${prBody}"`,
-);
-const prUrl = extractPrUrl(prCreateOut);
+const prCreateOut = ghRun([
+	"-R",
+	REPO,
+	"pr",
+	"create",
+	"--base",
+	"data",
+	"--head",
+	branch,
+	"--title",
+	prTitle,
+	"--body-file",
+	prBodyPath,
+]);
 
-const prNumber = sh(`gh -R "${REPO}" pr view "${prUrl}" --json number --jq .number`);
+const prUrl = prCreateOut.match(/https?:\/\/\S+\/pull\/\d+/)?.[0];
+if (!prUrl) die("Could not extract PR URL");
 
-sh(
-	`gh -R "${REPO}" issue close "${ISSUE_NUMBER}" -c "Processed by STVIZ automation. Opened PR #${prNumber}: ${prUrl}"`,
-);
+const prNumber = ghRun(["-R", REPO, "pr", "view", prUrl, "--json", "number", "--jq", ".number"]);
+
+ghRun([
+	"-R",
+	REPO,
+	"issue",
+	"close",
+	ISSUE_NUMBER,
+	"-c",
+	`Processed by STVIZ automation. Opened PR #${prNumber}: ${prUrl}`,
+]);
