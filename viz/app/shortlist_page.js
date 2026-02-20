@@ -224,27 +224,25 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	$results.innerHTML = `<div class="small">Loading…</div>`;
 
-    const token = getStoredToken(); // may be null
-    const [idx, rules, details, fav, scoreMap, sampledArr, recent] = await Promise.all([
-        loadIndex(),
+	const [idx, rules, fav, scoreMap, sampledArr, recent] = await Promise.all([
+		loadIndex(),
 		loadSkuRules(),
-        getDetails(accountUuid, { token }).catch((e) => e),
-        getFavourites(accountUuid).catch((e) => e),
-        getScore(accountUuid).catch((e) => e),
-        getSampled(accountUuid).catch((e) => e),
-        loadRecent().catch(() => null),
-	]);
-
+		getFavourites(accountUuid).catch((e) => e),
+		getScore(accountUuid).catch((e) => e),
+		getSampled(accountUuid).catch((e) => e),
+		loadRecent().catch(() => null),
+	  ]);
+	
     function isAuthErr(e) {
         return e && (e.name === "AuthError" || e instanceof AuthError);
     }
     
-    // backend decides if this page is public/private
-    if (isAuthErr(details) || isAuthErr(fav) || isAuthErr(scoreMap) || isAuthErr(sampledArr)) {
-        location.hash = "#/login";
+	// backend decides if this page is public/private
+	// (public pages will allow GET on favourites/score/sampled without auth)
+	if (isAuthErr(fav) || isAuthErr(scoreMap) || isAuthErr(sampledArr)) {
+		location.hash = "#/login";
         return;
     }
-    if (!(details && typeof details === "object")) details = { public: false };
     
     // normalize
     const scoreObj = scoreMap && typeof scoreMap === "object" ? scoreMap : {};
