@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-19T23:45:34.321Z",
+  "generatedAt": "2026-02-20T01:11:26.910Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7941,
-    "removedRows": 691,
-    "canonSkus": 4478,
+    "liveRows": 7979,
+    "removedRows": 654,
+    "canonSkus": 4489,
     "outputCount": 50
   },
   "rows": [
@@ -444,7 +444,7 @@
         "sierrasprings": 74.18
       },
       "representative": {
-        "name": "Benromach 10 Year Old Speyside Single Ma",
+        "name": "Benromach 10 Year Old Speyside Single Malt",
         "price": "$59.99",
         "priceNum": 59.99,
         "storeKey": "craftcellars",
@@ -702,7 +702,7 @@
         "sierrasprings": 57.04
       },
       "representative": {
-        "name": "Knob Creek 9Yr Old Small Batch Bourbon",
+        "name": "Knob Creek 9 Year Old Small Batch Bourbon",
         "price": "$41.99",
         "priceNum": 41.99,
         "storeKey": "craftcellars",
@@ -1003,7 +1003,7 @@
         "willowpark": 224.99
       },
       "representative": {
-        "name": "Dalmore 15 Year Single Malt Scotch Whisk",
+        "name": "Dalmore 15 Year Single Malt Scotch Whisky",
         "price": "$163.99",
         "priceNum": 163.99,
         "storeKey": "craftcellars",
@@ -1388,7 +1388,7 @@
         "willowpark": 59.99
       },
       "representative": {
-        "name": "Diplomatico Exclusive Reserve",
+        "name": "Diplomatico Exclusive Reserve Rum",
         "price": "$42.99",
         "priceNum": 42.99,
         "storeKey": "craftcellars",
@@ -1430,7 +1430,7 @@
         "willowpark": 149.99
       },
       "representative": {
-        "name": "Ardbeg Corryvreckan (57.1 abv)",
+        "name": "Ardbeg Corryvreckan",
         "price": "$123.99",
         "priceNum": 123.99,
         "storeKey": "craftcellars",
@@ -1995,6 +1995,48 @@
       }
     },
     {
+      "canonSku": "124194",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 140,
+        "coop": 159.99,
+        "craftcellars": 154.99,
+        "kegncork": 151.96,
+        "kwm": 154.99,
+        "willowpark": 154.99
+      },
+      "representative": {
+        "name": "Ardbeg Smokiverse 48.3% ABV",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "124194",
+        "skuKey": "124194",
+        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse"
+      }
+    },
+    {
       "canonSku": "125930",
       "storeCount": 6,
       "stores": [
@@ -2118,47 +2160,6 @@
         "priceNum": 61.49,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/133963/angel-s-envy-bourbon"
-      }
-    },
-    {
-      "canonSku": "124194",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 140,
-        "coop": 159.99,
-        "kegncork": 151.96,
-        "kwm": 154.99,
-        "willowpark": 154.99
-      },
-      "representative": {
-        "name": "Ardbeg Smokiverse 48.3% ABV",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "124194",
-        "skuKey": "124194",
-        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse"
       }
     }
   ]
