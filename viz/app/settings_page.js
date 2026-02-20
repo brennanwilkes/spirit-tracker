@@ -26,9 +26,17 @@ function ensureSettingsCssOnce() {
 	.settingsWrap textarea{ font: inherit; }
 
 	.settingsCard{ padding: 16px; border-radius: 14px; }
-	.settingsTitle{ font-size: 18px; font-weight: 900; letter-spacing: 0.2px; }
 
+	/* Bump Settings title */
+	.settingsTitle{
+	  font-size: 19px;
+	  font-weight: 900;
+	  letter-spacing: 0.2px;
+	}
+
+	/* Bump section titles */
 	.settingsSectionTitle{
+	  font-size: 16px;
 	  font-weight: 900;
 	  letter-spacing: 0.2px;
 	  margin: 0 0 10px;
@@ -54,15 +62,18 @@ function ensureSettingsCssOnce() {
 
 	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
 
-	/* Toggle container */
+	/* Make Public + Name blocks match height */
+	.nameBlock .input{ height: 50px; }
 	.switchWrap{ display:flex; flex-direction:column; gap: 6px; padding-top: 2px; }
 
+	/* Toggle container (same height as input) */
 	.switch{
 	  display:flex;
-	  align-items:flex-start;
+	  align-items:center;            /* vertically center the inner text/pill */
 	  justify-content: space-between;
 	  gap: 12px;
-	  padding: 12px 12px;
+	  padding: 0 12px;               /* remove vertical padding so height is exact */
+	  height: 50px;                  /* match .input feel */
 	  border-radius: 12px;
 	  border: 1px solid var(--border);
 	  background: #0f1318;
@@ -76,22 +87,25 @@ function ensureSettingsCssOnce() {
 
 	.switchLabel{
 	  display:flex;
-	  flex-direction: column;
-	  gap: 6px;
+	  align-items:center;            /* center status text vertically */
 	  min-width: 0;
-	  padding-top: 2px;
+	  height: 100%;
 	}
 	.switchStatus{
 	  font-size: 14px;
-	  line-height: 1.25;
+	  line-height: 1.2;
 	  color: var(--text);
 	  opacity: 0.92;
-	  font-weight: 700;
+	  font-weight: 750;
+	  white-space: nowrap;
+	  overflow: hidden;
+	  text-overflow: ellipsis;
+	  max-width: 100%;
 	}
 	.switchStatus.muted{
 	  color: var(--muted);
 	  opacity: 1;
-	  font-weight: 700;
+	  font-weight: 750;
 	}
 
 	/* More visible toggle */
@@ -104,7 +118,6 @@ function ensureSettingsCssOnce() {
 	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.07) inset;
 	  position: relative;
 	  flex: 0 0 auto;
-	  margin-top: 2px;
 	}
 	.switchKnob{
 	  width: 22px;
@@ -135,7 +148,7 @@ function ensureSettingsCssOnce() {
 
 	.nameBlock{ padding-top: 2px; }
 
-	/* Public link section: tighten vertical space */
+	/* Public link section: tight */
 	.linkSection{
 	  display:flex;
 	  flex-direction: column;
@@ -166,8 +179,19 @@ function ensureSettingsCssOnce() {
 	  cursor: not-allowed;
 	}
 
-	/* Save area: reduce top margin/padding */
-	.saveArea{ display:flex; flex-direction:column; gap: 8px; }
+	/* Save area: remove "fake margin" from status */
+	.saveArea{
+	  display:flex;
+	  flex-direction:column;
+	  gap: 8px;
+	}
+	.saveStatus{
+	  margin-top: -2px;  /* optically pulls it closer to preceding hr */
+	  margin-bottom: -2px; /* optically reduces perceived padding above button */
+	  min-height: 0;     /* don't reserve space when empty */
+	  display: none;     /* shown only when text exists */
+	}
+	.saveStatus.isOn{ display: block; }
 
 	.saveBtn{
 	  width: 100%;
@@ -261,7 +285,7 @@ export async function renderSettings($app) {
 					<hr class="hrClean" />
 
 					<div class="saveArea">
-						<div class="small" id="status" style="min-height:16px;"></div>
+						<div class="small saveStatus" id="status"></div>
 						<button id="save" class="btn saveBtn" type="button">Save</button>
 					</div>
 
@@ -284,6 +308,12 @@ export async function renderSettings($app) {
 	const $save = document.getElementById("save");
 	const $copy = document.getElementById("copyLink");
 	const $copyStatus = document.getElementById("copyStatus");
+
+	function setStatusText(t) {
+		const text = String(t || "").trim();
+		$status.textContent = text;
+		$status.classList.toggle("isOn", !!text);
+	}
 
 	function setUiForPublic(on) {
 		$switch.classList.toggle("isOn", !!on);
@@ -351,7 +381,7 @@ export async function renderSettings($app) {
 	});
 
 	async function doSave() {
-		$status.textContent = "";
+		setStatusText("");
 		$save.disabled = true;
 
 		const nextPublic = !!$isPublic.checked;
@@ -359,14 +389,14 @@ export async function renderSettings($app) {
 
 		try {
 			await putDetails(auth.userId, { public: nextPublic, shortlistName: nextName });
-			$status.textContent = "Saved. Reloading…";
+			setStatusText("Saved. Reloading…");
 			setTimeout(() => location.reload(), 150);
 		} catch (e) {
 			if (isAuthErr(e)) {
 				location.hash = "#/login";
 				return;
 			}
-			$status.textContent = `Save failed: ${String(e?.message || e)}`;
+			setStatusText(`Save failed: ${String(e?.message || e)}`);
 		} finally {
 			$save.disabled = false;
 		}
