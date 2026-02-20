@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-20T04:26:20.537Z",
+  "generatedAt": "2026-02-20T07:15:57.863Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3744,
-    "removedRows": 162,
-    "canonSkus": 1902,
+    "liveRows": 3747,
+    "removedRows": 166,
+    "canonSkus": 1906,
     "outputCount": 50
   },
   "rows": [
@@ -1872,48 +1872,6 @@
       }
     },
     {
-      "canonSku": "010108",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 44.49,
-        "bcl": 41.49,
-        "gull": 40.49,
-        "legacyliquor": 45.68,
-        "tudor": 61.99,
-        "vessel": 41.99
-      },
-      "representative": {
-        "name": "Crown Royal 1.14l",
-        "price": "$40.49",
-        "priceNum": 40.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "010108",
-        "skuKey": "010108",
-        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$40.49",
-        "priceNum": 40.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/"
-      }
-    },
-    {
       "canonSku": "011130",
       "storeCount": 6,
       "stores": [
@@ -2162,6 +2120,47 @@
         "priceNum": 37.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/53140"
+      }
+    },
+    {
+      "canonSku": "010108",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 44.49,
+        "bcl": 41.49,
+        "gull": 40.49,
+        "tudor": 61.99,
+        "vessel": 41.99
+      },
+      "representative": {
+        "name": "Crown Royal 1.14l",
+        "price": "$40.49",
+        "priceNum": 40.49,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "010108",
+        "skuKey": "010108",
+        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$40.49",
+        "priceNum": 40.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/"
       }
     }
   ]
