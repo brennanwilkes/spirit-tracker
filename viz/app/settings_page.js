@@ -38,7 +38,7 @@ function ensureSettingsCssOnce() {
 	  height: 1px;
 	  border: 0;
 	  background: var(--border);
-	  margin: 14px 0;
+	  margin: 12px 0;
 	}
 
 	/* Two columns (mobile stacks) */
@@ -46,16 +46,20 @@ function ensureSettingsCssOnce() {
 	  display: grid;
 	  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
 	  gap: 14px;
-	  align-items: start; /* top align columns */
+	  align-items: start;
 	}
 	@media (max-width: 640px){
 	  .switchRow{ grid-template-columns: 1fr; }
 	}
 
-	/* Toggle switch container */
+	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
+
+	/* Toggle container */
+	.switchWrap{ display:flex; flex-direction:column; gap: 6px; padding-top: 2px; }
+
 	.switch{
 	  display:flex;
-	  align-items:flex-start; /* top align contents */
+	  align-items:flex-start;
 	  justify-content: space-between;
 	  gap: 12px;
 	  padding: 12px 12px;
@@ -70,10 +74,6 @@ function ensureSettingsCssOnce() {
 	  pointer-events:none;
 	}
 
-	/* Match "Shortlist name" label styling */
-	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
-
-	/* Switch label block */
 	.switchLabel{
 	  display:flex;
 	  flex-direction: column;
@@ -81,10 +81,6 @@ function ensureSettingsCssOnce() {
 	  min-width: 0;
 	  padding-top: 2px;
 	}
-	.switchLabel .fieldTitle{
-	  margin: 0; /* already has spacing */
-	}
-	/* Make status bigger / more prominent */
 	.switchStatus{
 	  font-size: 14px;
 	  line-height: 1.25;
@@ -98,7 +94,7 @@ function ensureSettingsCssOnce() {
 	  font-weight: 700;
 	}
 
-	/* More visible toggle: colored track + glow when on */
+	/* More visible toggle */
 	.switchPill{
 	  width: 46px;
 	  height: 28px;
@@ -137,20 +133,19 @@ function ensureSettingsCssOnce() {
 	    0 1px 0 rgba(0,0,0,0.28);
 	}
 
-	/* Align the name field block visually with the switch card */
 	.nameBlock{ padding-top: 2px; }
 
-	/* Public link section: bigger and centered */
+	/* Public link section: tighten vertical space */
 	.linkSection{
 	  display:flex;
 	  flex-direction: column;
-	  gap: 10px;
-	  padding: 2px 0;
+	  gap: 8px;
+	  padding: 0;
 	}
 	.linkRow{
 	  display:flex;
 	  gap: 10px;
-	  align-items: center; /* vertical center */
+	  align-items: center;
 	  flex-wrap: wrap;
 	}
 	.linkBadge{
@@ -162,8 +157,8 @@ function ensureSettingsCssOnce() {
 	  text-overflow: ellipsis;
 	  white-space: nowrap;
 
-	  font-size: 14px;     /* bigger */
-	  padding: 6px 12px;   /* a bit more comfy */
+	  font-size: 14px;
+	  padding: 6px 12px;
 	  line-height: 1.2;
 	}
 	.linkBadgeDisabled{
@@ -171,7 +166,9 @@ function ensureSettingsCssOnce() {
 	  cursor: not-allowed;
 	}
 
-	/* Save button full width */
+	/* Save area: reduce top margin/padding */
+	.saveArea{ display:flex; flex-direction:column; gap: 8px; }
+
 	.saveBtn{
 	  width: 100%;
 	  padding: 14px 12px;
@@ -208,19 +205,22 @@ export async function renderSettings($app) {
 				<div style="display:flex; flex-direction:column; gap:14px;">
 
 					<div>
-						<div class="settingsSectionTitle">Shortlist settings</div>
+						<div class="settingsSectionTitle">Shortlist</div>
 
 						<div class="switchRow">
-							<label id="publicSwitch" class="switch" style="cursor:pointer;">
-								<input id="isPublic" type="checkbox" />
-								<div class="switchLabel">
-									<div class="fieldTitle">Public link</div>
-									<div id="publicSub" class="switchStatus muted">Private (only you can view it).</div>
-								</div>
-								<div class="switchPill" aria-hidden="true">
-									<div class="switchKnob"></div>
-								</div>
-							</label>
+
+							<div class="switchWrap">
+								<div class="fieldTitle">Public link</div>
+								<label id="publicSwitch" class="switch" style="cursor:pointer;">
+									<input id="isPublic" type="checkbox" />
+									<div class="switchLabel">
+										<div id="publicSub" class="switchStatus muted">Private (only you can view it).</div>
+									</div>
+									<div class="switchPill" aria-hidden="true">
+										<div class="switchKnob"></div>
+									</div>
+								</label>
+							</div>
 
 							<div class="nameBlock">
 								<div class="fieldTitle">Shortlist name</div>
@@ -260,7 +260,7 @@ export async function renderSettings($app) {
 
 					<hr class="hrClean" />
 
-					<div style="display:flex; flex-direction:column; gap:10px;">
+					<div class="saveArea">
 						<div class="small" id="status" style="min-height:16px;"></div>
 						<button id="save" class="btn saveBtn" type="button">Save</button>
 					</div>
