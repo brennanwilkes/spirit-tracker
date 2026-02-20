@@ -9,6 +9,7 @@
  *   #/signup          auth
  *   #/forgot          password reset request
  *   #/reset?token=... password reset confirm
+ *   #/settings        settings
  */
 
 import { destroyChart } from "./item_page.js";
@@ -20,6 +21,7 @@ import { renderStats, destroyStatsChart } from "./stats_page.js";
 import { renderLogin, renderSignup, renderOauth, renderForgot, renderReset } from "./auth_page.js";
 import { renderShortlist } from "./shortlist_page.js";
 import { getAuthStatus } from "./cloud.js";
+import { renderSettings } from "./settings_page.js";
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");
@@ -80,7 +82,15 @@ function route() {
 	if (parts[0] === "forgot") return renderForgot($app, { flash: params });
 	if (parts[0] === "reset") return renderReset($app, { token: params.token || "" });
 	if (parts[0] === "oauth") return renderOauth($app);
-
+	if (parts[0] === "settings") {
+		const a = getAuthStatus();
+		if (!a.ok || !a.token) {
+			location.hash = "#/login";
+			return;
+		}
+		return renderSettings($app);
+	}
+	
 	if (parts[0] === "shortlist") {
 		// Preferred: #/shortlist/<uuid>
 		if (parts[1]) return renderShortlist($app, decodeURIComponent(parts[1]));
