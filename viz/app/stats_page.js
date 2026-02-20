@@ -489,7 +489,7 @@ function computeSeriesFromRaw(raw, filter) {
 		Number.isFinite(v) && Number.isFinite(first) ? v - first : v
 	);
 
-	const marketTrend = movingAverage(marketSeriesAnchored, 5);
+	const marketTrend = movingAverage(marketSeriesAnchored, 1);
 
 	return { labels, stores, seriesByStore, marketTrend, newestUsed, newestTotal };
 }
