@@ -32,6 +32,10 @@ export function renderSearch($app) {
 				<i class="fa-solid fa-link" aria-hidden="true"></i>
 				<span class="srOnly">Link SKUs</span>
 			</a>
+			<a class="btn btnIcon" href="#/shortlists" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Public shortlists">
+				<i class="fa-solid fa-people-group" aria-hidden="true"></i>
+				<span class="srOnly">Public Shortlists</span>
+			</a>
 
 			${
 				authed
