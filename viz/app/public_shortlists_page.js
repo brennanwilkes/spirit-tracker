@@ -1,3 +1,4 @@
+// viz/app/public_shortlists_page.js
 import { esc } from "./dom.js";
 import { getShortlists } from "./cloud.js";
 
@@ -15,6 +16,7 @@ function ensureCssOnce() {
 	  border:1px solid var(--border);
 	  border-radius:12px;
 	  background:#0f1318;
+	  cursor:pointer;
 	}
 	.shortlistsPage .row:hover{ border-color:#2f3a46; }
 	.shortlistsPage .name{
@@ -25,7 +27,7 @@ function ensureCssOnce() {
 	  overflow:hidden;
 	  text-overflow:ellipsis;
 	}
-	.shortlistsPage .openBtn{
+	.shortlistsPage .openPill{
 	  flex:0 0 auto;
 	  border:1px solid var(--border);
 	  background: rgba(255,255,255,0.02);
@@ -33,11 +35,16 @@ function ensureCssOnce() {
 	  border-radius: 999px;
 	  padding: 6px 10px;
 	  font-size: 12px;
-	  cursor: pointer;
+	  pointer-events: none; /* <-- key: row handles click */
+	  user-select: none;
 	}
-	.shortlistsPage .openBtn:hover{ border-color:#2f3a46; }
 	`;
 	document.head.appendChild(css);
+}
+
+function goTo(uuid) {
+	sessionStorage.setItem("viz:lastRoute", location.hash);
+	location.hash = `#/shortlist/${encodeURIComponent(uuid)}`;
 }
 
 export async function renderPublicShortlists($app) {
@@ -66,7 +73,7 @@ export async function renderPublicShortlists($app) {
 
 	let rows = [];
 	try {
-		const data = await getShortlists({ cacheTtlMs: 6 * 60 * 60 * 1000 }); // 6h cache
+		const data = await getShortlists({ cacheTtlMs: 6 * 60 * 60 * 1000 });
 		rows = Array.isArray(data) ? data : [];
 	} catch (e) {
 		$list.innerHTML = `<div class="small">${esc(String(e?.message || "Failed to load shortlists"))}</div>`;
@@ -83,20 +90,30 @@ export async function renderPublicShortlists($app) {
 			const uuid = String(r?.uuid || "");
 			const name = String(r?.shortlistName || "").trim() || "(Unnamed)";
 			return `
-				<div class="row">
+				<div class="row" role="button" tabindex="0" data-uuid="${esc(uuid)}">
 					<div class="name">${esc(name)}</div>
-					<button class="openBtn" type="button" data-uuid="${esc(uuid)}">Open →</button>
+					<span class="openPill">Open →</span>
 				</div>
 			`;
 		})
 		.join("");
 
 	$list.addEventListener("click", (e) => {
-		const btn = e.target.closest(".openBtn");
-		if (!btn) return;
-		const uuid = String(btn.getAttribute("data-uuid") || "");
+		const row = e.target.closest(".row");
+		if (!row) return;
+		const uuid = String(row.getAttribute("data-uuid") || "");
 		if (!uuid) return;
-		sessionStorage.setItem("viz:lastRoute", location.hash);
-		location.hash = `#/shortlist/${encodeURIComponent(uuid)}`;
+		goTo(uuid);
+	});
+
+	$list.addEventListener("keydown", (e) => {
+		const row = e.target.closest(".row");
+		if (!row) return;
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			const uuid = String(row.getAttribute("data-uuid") || "");
+			if (!uuid) return;
+			goTo(uuid);
+		}
 	});
 }
