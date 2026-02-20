@@ -392,12 +392,32 @@ function validateStringArray(arr, name) {
 	return arr;
 }
 
+function sanitizeUserText(s, maxLen) {
+	let out = String(s ?? "");
+	out = out.normalize("NFKC");
+	out = out.replace(/[\u0000-\u001F\u007F]/g, "");
+	out = out.trim().replace(/\s+/g, " ");
+	return out.slice(0, maxLen);
+}
+
 function validateDetails(obj) {
 	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError("details must be an object");
 	if (typeof obj.public !== "boolean") throw new TypeError("details.public must be boolean");
+
+	if (Object.prototype.hasOwnProperty.call(obj, "shortlistName")) {
+		if (obj.shortlistName == null) {
+			delete obj.shortlistName;
+		} else if (typeof obj.shortlistName !== "string") {
+			throw new TypeError("details.shortlistName must be a string");
+		} else {
+			const clean = sanitizeUserText(obj.shortlistName, 64);
+			if (!clean) delete obj.shortlistName;
+			else obj.shortlistName = clean;
+		}
+	}
+
 	return obj;
 }
-
 function validateBoolMap(obj, name) {
 	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError(`${name} must be an object`);
 	const out = {};
