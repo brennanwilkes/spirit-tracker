@@ -761,12 +761,20 @@ function acctGetCachePatch(userId, resource, patchObj) {
 /* ---- GET ---- */
 
 export async function getDetails(userId, { token = null } = {}) {
-	// details may be public; allow optional token for private reads
-	return await requestJson(acctPath(userId, "details"), { method: "GET", auth: false, token });
+	// details now always require valid auth
+	if (token) {
+		return await requestJson(acctPath(userId, "details"), { method: "GET", auth: false, token });
+	}
+	return await requestJson(acctPath(userId, "details"), { method: "GET", auth: true });
 }
 
 export async function getFavourites(userId) {
-	return await requestJson(acctPath(userId, "favourites"), { method: "GET", auth: true });
+	// favourites can now be read publicly when details.public === true
+	return await requestJson(acctPath(userId, "favourites"), {
+		method: "GET",
+		auth: false,
+		token: getStoredToken(),
+	});
 }
 
 export async function getSampled(userId) {
