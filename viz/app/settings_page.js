@@ -52,7 +52,7 @@ function ensureSettingsCssOnce() {
 	  .switchRow{ grid-template-columns: 1fr; }
 	}
 
-	/* Toggle switch */
+	/* Toggle switch container */
 	.switch{
 	  display:flex;
 	  align-items:flex-start; /* top align contents */
@@ -64,22 +64,38 @@ function ensureSettingsCssOnce() {
 	  background: #0f1318;
 	  user-select: none;
 	}
-
-	/* make both columns feel same vertical rhythm */
-	.switchLabel{
-	  display:flex;
-	  flex-direction: column;
-	  gap: 4px;
-	  min-width: 0;
-	  padding-top: 1px; /* tiny nudge to align baselines nicely */
-	}
-	.switchLabel b{ font-weight: 800; line-height: 1.2; }
-	.switchLabel span{ color: var(--muted); font-size: 12px; line-height: 1.25; }
-
 	.switch input{
 	  position:absolute;
 	  opacity:0;
 	  pointer-events:none;
+	}
+
+	/* Match "Shortlist name" label styling */
+	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
+
+	/* Switch label block */
+	.switchLabel{
+	  display:flex;
+	  flex-direction: column;
+	  gap: 6px;
+	  min-width: 0;
+	  padding-top: 2px;
+	}
+	.switchLabel .fieldTitle{
+	  margin: 0; /* already has spacing */
+	}
+	/* Make status bigger / more prominent */
+	.switchStatus{
+	  font-size: 14px;
+	  line-height: 1.25;
+	  color: var(--text);
+	  opacity: 0.92;
+	  font-weight: 700;
+	}
+	.switchStatus.muted{
+	  color: var(--muted);
+	  opacity: 1;
+	  font-weight: 700;
 	}
 
 	/* More visible toggle: colored track + glow when on */
@@ -92,7 +108,7 @@ function ensureSettingsCssOnce() {
 	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.07) inset;
 	  position: relative;
 	  flex: 0 0 auto;
-	  margin-top: 2px; /* align with label block */
+	  margin-top: 2px;
 	}
 	.switchKnob{
 	  width: 22px;
@@ -106,7 +122,6 @@ function ensureSettingsCssOnce() {
 	  transition: left 160ms ease, background 160ms ease, box-shadow 160ms ease;
 	  box-shadow: 0 1px 0 rgba(0,0,0,0.35);
 	}
-
 	.switch.isOn .switchPill{
 	  border-color: rgba(125, 211, 252, 0.55);
 	  background: rgba(125, 211, 252, 0.22);
@@ -122,15 +137,20 @@ function ensureSettingsCssOnce() {
 	    0 1px 0 rgba(0,0,0,0.28);
 	}
 
-	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
 	/* Align the name field block visually with the switch card */
 	.nameBlock{ padding-top: 2px; }
 
-	/* Public link row */
+	/* Public link section: bigger and centered */
+	.linkSection{
+	  display:flex;
+	  flex-direction: column;
+	  gap: 10px;
+	  padding: 2px 0;
+	}
 	.linkRow{
 	  display:flex;
 	  gap: 10px;
-	  align-items: center;
+	  align-items: center; /* vertical center */
 	  flex-wrap: wrap;
 	}
 	.linkBadge{
@@ -141,6 +161,10 @@ function ensureSettingsCssOnce() {
 	  overflow: hidden;
 	  text-overflow: ellipsis;
 	  white-space: nowrap;
+
+	  font-size: 14px;     /* bigger */
+	  padding: 6px 12px;   /* a bit more comfy */
+	  line-height: 1.2;
 	}
 	.linkBadgeDisabled{
 	  opacity: 0.55;
@@ -190,8 +214,8 @@ export async function renderSettings($app) {
 							<label id="publicSwitch" class="switch" style="cursor:pointer;">
 								<input id="isPublic" type="checkbox" />
 								<div class="switchLabel">
-									<b>Public link</b>
-									<span id="publicSub">Private (only you can view it).</span>
+									<div class="fieldTitle">Public link</div>
+									<div id="publicSub" class="switchStatus muted">Private (only you can view it).</div>
 								</div>
 								<div class="switchPill" aria-hidden="true">
 									<div class="switchKnob"></div>
@@ -212,7 +236,7 @@ export async function renderSettings($app) {
 
 						<hr class="hrClean" />
 
-						<div>
+						<div class="linkSection">
 							<div class="fieldTitle">Your shortlist link</div>
 							<div class="linkRow">
 								<span
@@ -264,9 +288,13 @@ export async function renderSettings($app) {
 	function setUiForPublic(on) {
 		$switch.classList.toggle("isOn", !!on);
 
-		$sub.textContent = on
-			? "Anyone with the link can view."
-			: "Private (only you can view it).";
+		if (on) {
+			$sub.textContent = "Anyone with the link can view.";
+			$sub.classList.remove("muted");
+		} else {
+			$sub.textContent = "Private (only you can view it).";
+			$sub.classList.add("muted");
+		}
 
 		$name.disabled = !on;
 		$name.style.opacity = on ? "1" : "0.55";
