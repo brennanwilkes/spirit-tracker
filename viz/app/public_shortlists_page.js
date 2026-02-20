@@ -18,6 +18,21 @@ function ensureCssOnce() {
 	  background:#0f1318;
 	  cursor:pointer;
 	}
+    .shortlistsPage .list{
+        margin-top: 0;
+      }
+    
+      .shortlistsPage .row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        padding:12px;
+        border:1px solid var(--border);
+        border-radius:12px;
+        background:#0f1318;
+        cursor:pointer;
+      }
 	.shortlistsPage .row:hover{ border-color:#2f3a46; }
 	.shortlistsPage .name{
 	  font-weight:800;
