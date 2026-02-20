@@ -939,3 +939,13 @@ export async function patchMyScore(scoreMap) {
 	const { userId } = requireAuth();
 	return await patchScore(userId, scoreMap);
 }
+
+
+export async function getShortlists({ cacheTtlMs = 60 * 60 * 1000 } = {}) { // 1 hour
+	return await requestJson("/shortlists", {
+	  method: "GET",
+	  auth: false,
+	  cache: true,
+	  cacheTtlMs,
+	});
+  }

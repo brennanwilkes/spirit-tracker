@@ -10,6 +10,7 @@
  *   #/forgot          password reset request
  *   #/reset?token=... password reset confirm
  *   #/settings        settings
+ *   #/shortlists       public shortlists directory
  */
 
 import { destroyChart } from "./item_page.js";
@@ -22,6 +23,7 @@ import { renderLogin, renderSignup, renderOauth, renderForgot, renderReset } fro
 import { renderShortlist } from "./shortlist_page.js";
 import { getAuthStatus } from "./cloud.js";
 import { renderSettings } from "./settings_page.js";
+import { renderPublicShortlists } from "./public_shortlists_page.js";
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");
@@ -90,7 +92,7 @@ function route() {
 		}
 		return renderSettings($app);
 	}
-	
+
 	if (parts[0] === "shortlist") {
 		// Preferred: #/shortlist/<uuid>
 		if (parts[1]) return renderShortlist($app, decodeURIComponent(parts[1]));
