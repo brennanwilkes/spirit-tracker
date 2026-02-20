@@ -39,23 +39,23 @@ function ensureSettingsCssOnce() {
 	  border: 0;
 	  background: var(--border);
 	  margin: 14px 0;
-	  opacity: 1;
 	}
 
-	/* Toggle switch */
+	/* Two columns (mobile stacks) */
 	.switchRow{
 	  display: grid;
-	  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1fr);
+	  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
 	  gap: 14px;
-	  align-items: start;
+	  align-items: start; /* top align columns */
 	}
 	@media (max-width: 640px){
 	  .switchRow{ grid-template-columns: 1fr; }
 	}
 
+	/* Toggle switch */
 	.switch{
 	  display:flex;
-	  align-items:center;
+	  align-items:flex-start; /* top align contents */
 	  justify-content: space-between;
 	  gap: 12px;
 	  padding: 12px 12px;
@@ -64,51 +64,67 @@ function ensureSettingsCssOnce() {
 	  background: #0f1318;
 	  user-select: none;
 	}
+
+	/* make both columns feel same vertical rhythm */
 	.switchLabel{
 	  display:flex;
 	  flex-direction: column;
-	  gap: 2px;
+	  gap: 4px;
 	  min-width: 0;
+	  padding-top: 1px; /* tiny nudge to align baselines nicely */
 	}
-	.switchLabel b{ font-weight: 800; }
-	.switchLabel span{ color: var(--muted); font-size: 12px; }
+	.switchLabel b{ font-weight: 800; line-height: 1.2; }
+	.switchLabel span{ color: var(--muted); font-size: 12px; line-height: 1.25; }
 
 	.switch input{
 	  position:absolute;
 	  opacity:0;
 	  pointer-events:none;
 	}
+
+	/* More visible toggle: colored track + glow when on */
 	.switchPill{
-	  width: 44px;
-	  height: 26px;
+	  width: 46px;
+	  height: 28px;
 	  border-radius: 999px;
-	  border: 1px solid var(--border);
-	  background: rgba(255,255,255,0.03);
+	  border: 1px solid rgba(125, 211, 252, 0.22);
+	  background: rgba(125, 211, 252, 0.10);
+	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.07) inset;
 	  position: relative;
 	  flex: 0 0 auto;
+	  margin-top: 2px; /* align with label block */
 	}
 	.switchKnob{
-	  width: 20px;
-	  height: 20px;
+	  width: 22px;
+	  height: 22px;
 	  border-radius: 999px;
-	  background: var(--muted);
+	  background: rgba(154, 166, 178, 0.95);
 	  position: absolute;
 	  top: 50%;
 	  left: 3px;
 	  transform: translateY(-50%);
-	  transition: left 160ms ease, background 160ms ease;
+	  transition: left 160ms ease, background 160ms ease, box-shadow 160ms ease;
+	  box-shadow: 0 1px 0 rgba(0,0,0,0.35);
 	}
+
 	.switch.isOn .switchPill{
-	  border-color: rgba(125, 211, 252, 0.45);
-	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.12) inset;
+	  border-color: rgba(125, 211, 252, 0.55);
+	  background: rgba(125, 211, 252, 0.22);
+	  box-shadow:
+	    0 0 0 1px rgba(125, 211, 252, 0.12) inset,
+	    0 0 0 4px rgba(125, 211, 252, 0.07);
 	}
 	.switch.isOn .switchKnob{
 	  left: 21px;
-	  background: var(--accent);
+	  background: rgba(125, 211, 252, 0.98);
+	  box-shadow:
+	    0 0 0 3px rgba(125, 211, 252, 0.16),
+	    0 1px 0 rgba(0,0,0,0.28);
 	}
 
 	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
-	.fieldHint{ color: var(--muted); font-size: 12px; opacity: .9; margin-top: 6px; }
+	/* Align the name field block visually with the switch card */
+	.nameBlock{ padding-top: 2px; }
 
 	/* Public link row */
 	.linkRow{
@@ -182,7 +198,7 @@ export async function renderSettings($app) {
 								</div>
 							</label>
 
-							<div>
+							<div class="nameBlock">
 								<div class="fieldTitle">Shortlist name</div>
 								<input
 									id="shortlistName"
@@ -191,7 +207,6 @@ export async function renderSettings($app) {
 									placeholder="My Bottle Shortlist"
 									autocomplete="off"
 								/>
-								<div class="fieldHint" id="publicHint"></div>
 							</div>
 						</div>
 
@@ -209,7 +224,6 @@ export async function renderSettings($app) {
 								>${esc(publicUrl)}</span>
 								<span class="small" id="copyStatus"></span>
 							</div>
-							<div class="fieldHint">Only works when Public link is enabled.</div>
 						</div>
 					</div>
 
@@ -242,23 +256,21 @@ export async function renderSettings($app) {
 	const $isPublic = document.getElementById("isPublic");
 	const $name = document.getElementById("shortlistName");
 	const $sub = document.getElementById("publicSub");
-	const $hint = document.getElementById("publicHint");
 	const $status = document.getElementById("status");
 	const $save = document.getElementById("save");
 	const $copy = document.getElementById("copyLink");
 	const $copyStatus = document.getElementById("copyStatus");
 
-	function setNameEnabled(on) {
-		$name.disabled = !on;
-		$name.style.opacity = on ? "1" : "0.55";
-		$hint.textContent = on
-			? "Anyone with your link can view your shortlist."
-			: "Private (only you can view it).";
+	function setUiForPublic(on) {
+		$switch.classList.toggle("isOn", !!on);
+
 		$sub.textContent = on
 			? "Anyone with the link can view."
 			: "Private (only you can view it).";
 
-		$switch.classList.toggle("isOn", !!on);
+		$name.disabled = !on;
+		$name.style.opacity = on ? "1" : "0.55";
+
 		$copy.classList.toggle("linkBadgeDisabled", !on);
 		$copy.setAttribute("aria-disabled", on ? "false" : "true");
 		$copy.tabIndex = on ? 0 : -1;
@@ -270,7 +282,7 @@ export async function renderSettings($app) {
 			await navigator.clipboard.writeText(publicUrl);
 			$copyStatus.textContent = "Copied.";
 			setTimeout(() => ($copyStatus.textContent = ""), 1200);
-		} catch (e) {
+		} catch {
 			$copyStatus.textContent = "Copy failed.";
 			setTimeout(() => ($copyStatus.textContent = ""), 1200);
 		}
@@ -300,11 +312,10 @@ export async function renderSettings($app) {
 
 	$isPublic.checked = initialPublic;
 	$name.value = initialName;
-	setNameEnabled(initialPublic);
+	setUiForPublic(initialPublic);
 
-	// Make the whole switch clickable (label already does it, but keep state UI synced)
 	$isPublic.addEventListener("change", () => {
-		setNameEnabled($isPublic.checked);
+		setUiForPublic($isPublic.checked);
 		if ($isPublic.checked) {
 			$name.focus();
 			$name.select?.();
