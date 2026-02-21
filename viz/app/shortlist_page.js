@@ -106,13 +106,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 
                 <div style="display:flex; align-items:center; gap:10px; margin-left:10px; min-width:0;">
                     <div id="slTitle" class="h1" style="margin:0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Shortlist</div>
-
-                    <a class="btn btnIcon" href="#/shortlists"
-                        style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;"
-                        aria-label="Public shortlists">
-                        <i class="fa-solid fa-people-group" aria-hidden="true"></i>
-                        <span class="srOnly">Public Shortlists</span>
-                    </a>
                 </div>
             </div>
 
