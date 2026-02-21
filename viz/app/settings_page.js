@@ -541,7 +541,8 @@ export async function renderSettings($app) {
 
 	let emailNotifications = getEmailNotifications(details);
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
-
+    rules = rules.map(normalizeRule);
+    
 	function ensureFilters(r) {
 		return (r && r.filters && typeof r.filters === "object") ? { ...r.filters } : {};
 	}
@@ -601,7 +602,7 @@ export async function renderSettings($app) {
 		return normalizeRule({
 			id,
 			enabled: true,
-			scope: "shortlist",
+			scope: "all",
 			eventType: "GLOBAL_NEW",
 			filters: { acrossMarket: true },
 		});
@@ -645,11 +646,23 @@ export async function renderSettings($app) {
 
 			const storeSel = useStore ? String(f.storeId) : (STORES[0] ? STORES[0].id : "");
 
-			const acrossTitle = "Same SKU across all stores";
-			const acrossHelp =
-				r.eventType === "GLOBAL_NEW"
-					? "On = only alert when this SKU is brand new to the whole market. Off = alert when any store adds the SKU."
-					: "On = treat listings as the same bottle when their SKU matches across stores.";
+            let acrossTitle = "Across market (same SKU)";
+            let acrossHelp = "";
+            
+            if (r.eventType === "GLOBAL_NEW") {
+                acrossHelp =
+                    "On = alert only when this SKU is brand new to the market (no store had it). " +
+                    "Off = alert when any store adds it.";
+            } else if (r.eventType === "GLOBAL_RETURN") {
+                acrossHelp =
+                    "On = alert only when this SKU returns to the market (was out everywhere). " +
+                    "Off = alert when a store restocks it.";
+            } else if (r.eventType === "OUT_OF_STOCK") {
+                acrossHelp =
+                    "On = alert only when this SKU disappears from the market (no store has it). " +
+                    "Off = alert when a store goes out of stock.";
+            }
+
 
 			return `
 				<div class="card stRuleCard" data-rule="${esc(r.id)}">
@@ -661,8 +674,8 @@ export async function renderSettings($app) {
 						</select>
 
 						<select data-i="${i}" data-k="scope" class="stSelect stRuleScope" aria-label="Scope">
-							<option value="shortlist" ${r.scope === "shortlist" ? "selected" : ""}>Shortlist only</option>
 							<option value="all" ${r.scope === "all" ? "selected" : ""}>All bottles</option>
+							<option value="shortlist" ${r.scope === "shortlist" ? "selected" : ""}>Shortlist only</option>
 						</select>
 
 						<button data-i="${i}" data-k="delete" class="favStarBtn ruleTrashBtn" type="button" title="Delete rule" aria-label="Delete rule">
