@@ -279,9 +279,22 @@ export async function renderSettings($app) {
 					<hr class="hrClean" />
 
 					<div>
-						<div class="settingsSectionTitle">Email notifications</div>
-						<div class="small">Coming soon.</div>
-					</div>
+                        <div class="settingsSectionTitle">Email notifications</div>
+
+                        <div class="small" style="margin-bottom:10px; color:var(--muted);">
+                            Add rules to get email alerts (ASAP). Saved on the same Settings “Save” button below.
+                        </div>
+
+                        <div id="rulesWrap" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+                        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                            <button id="addRule" class="btn" type="button">+ Add rule</button>
+                        </div>
+
+                        <div class="subtleNote" style="margin-top:8px;">
+                            Keywords are optional. Separate with commas.
+                        </div>
+                    </div>
 
 					<hr class="hrClean" />
 
@@ -373,6 +386,186 @@ export async function renderSettings($app) {
 	$name.value = initialName;
 	setUiForPublic(initialPublic);
 
+
+    const $rulesWrap = document.getElementById("rulesWrap");
+	const $addRule = document.getElementById("addRule");
+
+	function getEmailNotifications(detailsObj) {
+		const n = detailsObj?.emailNotifications;
+		if (n && typeof n === "object" && Number(n.version) === 1 && Array.isArray(n.rules)) return n;
+		return { version: 1, rules: [] };
+	}
+
+	function parseCsvKeywords(s) {
+		return String(s || "")
+			.split(",")
+			.map((x) => x.trim())
+			.filter(Boolean);
+	}
+
+	function csvKeywords(arr) {
+		return Array.isArray(arr) ? arr.join(", ") : "";
+	}
+
+	let emailNotifications = getEmailNotifications(details);
+	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
+
+	function renderRules() {
+		if (!rules.length) {
+			$rulesWrap.innerHTML = `<div class="small" style="color:var(--muted);">No rules yet.</div>`;
+			return;
+		}
+
+		$rulesWrap.innerHTML = rules.map((r, i) => {
+			const isDrop = r.eventType === "PRICE_DROP";
+			const f = r.filters || {};
+			return `
+				<div class="card" style="padding:12px; border-radius:12px;">
+					<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+						<label class="small" style="display:flex; align-items:center; gap:8px;">
+							<input data-i="${i}" data-k="enabled" type="checkbox" ${r.enabled ? "checked" : ""}/>
+							Enabled
+						</label>
+
+						<select data-i="${i}" data-k="scope" class="input" style="height:38px; max-width:160px;">
+							<option value="all" ${r.scope === "all" ? "selected" : ""}>All bottles</option>
+							<option value="shortlist" ${r.scope === "shortlist" ? "selected" : ""}>Shortlist only</option>
+						</select>
+
+						<select data-i="${i}" data-k="eventType" class="input" style="height:38px; max-width:180px;">
+							<option value="IN_STOCK" ${r.eventType === "IN_STOCK" ? "selected" : ""}>In stock</option>
+							<option value="OUT_OF_STOCK" ${r.eventType === "OUT_OF_STOCK" ? "selected" : ""}>Out of stock</option>
+							<option value="PRICE_DROP" ${r.eventType === "PRICE_DROP" ? "selected" : ""}>Price drop</option>
+							<option value="GLOBAL_NEW" ${r.eventType === "GLOBAL_NEW" ? "selected" : ""}>Global new SKU</option>
+							<option value="GLOBAL_RETURN" ${r.eventType === "GLOBAL_RETURN" ? "selected" : ""}>Global return</option>
+						</select>
+
+						<button data-i="${i}" data-k="delete" class="btn" type="button">Delete</button>
+					</div>
+
+					<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+						<div>
+							<div class="fieldTitle">Keywords include</div>
+							<input data-i="${i}" data-k="keywordsAny" class="input" style="height:40px;"
+								value="${esc(csvKeywords(f.keywordsAny))}" placeholder="e.g. Springbank, Benromach" />
+						</div>
+						<div>
+							<div class="fieldTitle">Keywords exclude</div>
+							<input data-i="${i}" data-k="keywordsNone" class="input" style="height:40px;"
+								value="${esc(csvKeywords(f.keywordsNone))}" placeholder="e.g. 50ml, mini" />
+						</div>
+					</div>
+
+					${isDrop ? `
+					<div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px;">
+						<div>
+							<div class="fieldTitle">Min $ drop</div>
+							<input data-i="${i}" data-k="minDropAbs" class="input" style="height:40px;" type="number" min="0" step="0.01"
+								value="${Number.isFinite(Number(f.minDropAbs)) ? String(f.minDropAbs) : ""}" placeholder="0" />
+						</div>
+						<div>
+							<div class="fieldTitle">Min % drop</div>
+							<input data-i="${i}" data-k="minDropPct" class="input" style="height:40px;" type="number" min="0" max="100" step="0.1"
+								value="${Number.isFinite(Number(f.minDropPct)) ? String(f.minDropPct) : ""}" placeholder="0" />
+						</div>
+						<div style="display:flex; align-items:end;">
+							<label class="small" style="display:flex; gap:8px; align-items:center;">
+								<input data-i="${i}" data-k="requireCheapestNow" type="checkbox" ${f.requireCheapestNow ? "checked" : ""}/>
+								Cheapest now
+							</label>
+						</div>
+					</div>
+					` : ""}
+				</div>
+			`;
+		}).join("");
+	}
+
+	function newRule() {
+		const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+		return {
+			id,
+			enabled: true,
+			scope: "shortlist",
+			eventType: "IN_STOCK",
+			filters: { keywordsAny: [], keywordsNone: [] },
+		};
+	}
+
+	function normalizeRule(r) {
+		const out = { ...r };
+		out.enabled = !!out.enabled;
+		out.scope = out.scope === "all" ? "all" : "shortlist";
+		const et = String(out.eventType || "IN_STOCK");
+		out.eventType = ["IN_STOCK","OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"].includes(et) ? et : "IN_STOCK";
+
+		const f = out.filters && typeof out.filters === "object" ? { ...out.filters } : {};
+		f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
+		f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
+
+		if (out.eventType === "PRICE_DROP") {
+			if (f.minDropAbs != null && f.minDropAbs !== "") f.minDropAbs = Number(f.minDropAbs);
+			else delete f.minDropAbs;
+			if (f.minDropPct != null && f.minDropPct !== "") f.minDropPct = Number(f.minDropPct);
+			else delete f.minDropPct;
+			f.requireCheapestNow = !!f.requireCheapestNow;
+		} else {
+			delete f.minDropAbs;
+			delete f.minDropPct;
+			delete f.requireCheapestNow;
+		}
+
+		// drop empty filters
+		if (!f.keywordsAny.length) delete f.keywordsAny;
+		if (!f.keywordsNone.length) delete f.keywordsNone;
+		if (Object.keys(f).length) out.filters = f;
+		else delete out.filters;
+
+		return out;
+	}
+
+	$addRule.addEventListener("click", () => {
+		rules = rules.concat([newRule()]);
+		renderRules();
+	});
+
+	$rulesWrap.addEventListener("input", (e) => {
+		const el = e.target;
+		const i = Number(el?.dataset?.i);
+		const k = String(el?.dataset?.k || "");
+		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+
+		const r = { ...rules[i] };
+		r.filters = r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
+
+		if (k === "enabled") r.enabled = !!el.checked;
+		else if (k === "scope") r.scope = String(el.value || "");
+		else if (k === "eventType") r.eventType = String(el.value || "");
+		else if (k === "keywordsAny") r.filters.keywordsAny = parseCsvKeywords(el.value);
+		else if (k === "keywordsNone") r.filters.keywordsNone = parseCsvKeywords(el.value);
+		else if (k === "minDropAbs") r.filters.minDropAbs = el.value === "" ? undefined : Number(el.value);
+		else if (k === "minDropPct") r.filters.minDropPct = el.value === "" ? undefined : Number(el.value);
+		else if (k === "requireCheapestNow") r.filters.requireCheapestNow = !!el.checked;
+
+		rules[i] = normalizeRule(r);
+		// eventType switch affects visible fields
+		if (k === "eventType") renderRules();
+	});
+
+	$rulesWrap.addEventListener("click", (e) => {
+		const el = e.target;
+		const i = Number(el?.dataset?.i);
+		const k = String(el?.dataset?.k || "");
+		if (k !== "delete") return;
+		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+		rules = rules.filter((_, idx) => idx !== i);
+		renderRules();
+	});
+
+	renderRules();
+
+
+
 	let prevPublic = initialPublic;
 
     $isPublic.addEventListener("change", () => {
@@ -391,15 +584,22 @@ export async function renderSettings($app) {
         }
     });
 
-	async function doSave() {
+    async function doSave() {
 		setStatusText("");
 		$save.disabled = true;
 
 		const nextPublic = !!$isPublic.checked;
 		const nextName = nextPublic ? normText($name.value) : "";
 
+		const nextDetails = {
+			...details,
+			public: nextPublic,
+			shortlistName: nextName,
+			emailNotifications: { version: 1, rules: rules.slice() },
+		};
+
 		try {
-			await putDetails(auth.userId, { public: nextPublic, shortlistName: nextName });
+			await putDetails(auth.userId, nextDetails);
 			setStatusText("Saved. Reloading…");
 			setTimeout(() => location.reload(), 150);
 		} catch (e) {
