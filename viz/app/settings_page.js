@@ -243,7 +243,7 @@ export async function renderSettings($app) {
 									</div>
 								</label>
 								<div id="publicNote" class="subtleNote" style="display:none;">
-									Changes to private may take up to 15 minutes to take effect.
+                                    Privacy changes may take up to 15 minutes to take effect.
 								</div>
 							</div>
 
@@ -375,20 +375,21 @@ export async function renderSettings($app) {
 
 	let prevPublic = initialPublic;
 
-	$isPublic.addEventListener("change", () => {
-		const next = $isPublic.checked;
-		setUiForPublic(next);
-
-		const showNote = prevPublic && !next;
-		$note.style.display = showNote ? "block" : "none";
-
-		prevPublic = next;
-
-		if (next) {
-			$name.focus();
-			$name.select?.();
-		}
-	});
+    $isPublic.addEventListener("change", () => {
+        const next = $isPublic.checked;
+        setUiForPublic(next);
+    
+        // show note for BOTH directions
+        const changed = prevPublic !== next;
+        $note.style.display = changed ? "block" : "none";
+    
+        prevPublic = next;
+    
+        if (next) {
+            $name.focus();
+            $name.select?.();
+        }
+    });
 
 	async function doSave() {
 		setStatusText("");
