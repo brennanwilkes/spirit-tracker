@@ -533,11 +533,6 @@ export async function renderSettings($app) {
 		`;
 	}
 
-	function setSwitchUi($label, on) {
-		if (!$label) return;
-		$label.classList.toggle("isOn", !!on);
-	}
-
 	let emailNotifications = getEmailNotifications(details);
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
 
@@ -549,18 +544,14 @@ export async function renderSettings($app) {
 	function dropEmptyFilters(r) {
 		const f = ensureFilters(r);
 
-		// normalize empty arrays
 		if (Array.isArray(f.keywordsAny) && !f.keywordsAny.length) delete f.keywordsAny;
 		if (Array.isArray(f.keywordsNone) && !f.keywordsNone.length) delete f.keywordsNone;
 
-		// delete empty strings
 		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
 
-		// only store true for booleans
 		if (f.requireCheapestNow !== true) delete f.requireCheapestNow;
 		if (f.acrossMarket !== true) delete f.acrossMarket;
 
-		// numbers: keep only finite >= 0
 		if (!(typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) && f.minDropAbs >= 0)) delete f.minDropAbs;
 		if (!(typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) && f.minDropPct >= 0 && f.minDropPct <= 100)) delete f.minDropPct;
 
@@ -572,7 +563,7 @@ export async function renderSettings($app) {
 
 	function normalizeRule(r) {
 		const out = { ...r };
-		out.enabled = true; // always true; delete to disable
+		out.enabled = true; // always true
 
 		out.scope = out.scope === "all" ? "all" : "shortlist";
 
@@ -581,7 +572,6 @@ export async function renderSettings($app) {
 			? et
 			: "IN_STOCK";
 
-		// If not PRICE_DROP, strip drop-specific fields
 		const f = ensureFilters(out);
 		if (out.eventType !== "PRICE_DROP") {
 			delete f.minDropAbs;
@@ -600,7 +590,7 @@ export async function renderSettings($app) {
 			enabled: true,
 			scope: "shortlist",
 			eventType: "IN_STOCK",
-			filters: {}, // all toggles default OFF
+			filters: {},
 		});
 	}
 
@@ -806,7 +796,89 @@ export async function renderSettings($app) {
 		renderRules();
 	});
 
-	// toggles + selects
+	// FIXED: switches toggle on click (like Public link), not relying on change bubbling
+	$rulesWrap.addEventListener("click", (e) => {
+		const lab = e.target?.closest?.("label.switch");
+		if (lab && lab.classList.contains("mini")) {
+			const i = Number(lab?.dataset?.i);
+			const dk = String(lab?.dataset?.k || "");
+			if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+
+			const cb = lab.querySelector("input[type='checkbox']");
+			if (!cb) return;
+
+			// flip
+			cb.checked = !cb.checked;
+
+			const cur = { ...rules[i] };
+			const f = ensureFilters(cur);
+
+			if (dk === "useStore") {
+				if (cb.checked) f.storeId = f.storeId || STORES[0]?.id || "kwm";
+				else delete f.storeId;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			if (dk === "useKwAny") {
+				if (cb.checked) f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
+				else delete f.keywordsAny;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			if (dk === "useKwNone") {
+				if (cb.checked) f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
+				else delete f.keywordsNone;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			if (dk === "useAcrossMarket") {
+				if (cb.checked) f.acrossMarket = true;
+				else delete f.acrossMarket;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			if (dk === "useMinAbs") {
+				if (cb.checked) f.minDropAbs = typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) ? f.minDropAbs : 0;
+				else delete f.minDropAbs;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			if (dk === "useMinPct") {
+				if (cb.checked) f.minDropPct = typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) ? f.minDropPct : 0;
+				else delete f.minDropPct;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			if (dk === "useCheapest") {
+				if (cb.checked) f.requireCheapestNow = true;
+				else delete f.requireCheapestNow;
+				setRuleAt(i, { ...cur, filters: f });
+				return renderRules();
+			}
+
+			return;
+		}
+
+		// delete button
+		const btn = e.target?.closest?.("button");
+		if (btn) {
+			const i = Number(btn?.dataset?.i);
+			const k = String(btn?.dataset?.k || "");
+			if (k === "delete") {
+				if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+				rules = rules.filter((_, idx) => idx !== i);
+				return renderRules();
+			}
+		}
+	});
+
+	// selects (eventType/scope/storeId)
 	$rulesWrap.addEventListener("change", (e) => {
 		const el = e.target;
 		const i = Number(el?.dataset?.i);
@@ -816,7 +888,6 @@ export async function renderSettings($app) {
 		const cur = { ...rules[i] };
 		const f = ensureFilters(cur);
 
-		// event/scope selects
 		if (k === "scope") {
 			cur.scope = String(el.value || "");
 			setRuleAt(i, { ...cur, filters: f });
@@ -827,69 +898,15 @@ export async function renderSettings($app) {
 			setRuleAt(i, { ...cur, filters: f });
 			return renderRules();
 		}
-
-		// field toggles are on the LABEL, not the INPUT, so read from closest label dataset when needed
-		const lab = el.closest?.("label");
-		const dk = String(lab?.dataset?.k || k);
-
-		if (dk === "useStore") {
-			const on = !!el.checked;
-			if (on) f.storeId = f.storeId || STORES[0]?.id || "kwm";
-			else delete f.storeId;
+		if (k === "storeId") {
+			const s = String(el.value || "").trim();
+			f.storeId = s;
 			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
-		}
-
-		if (dk === "useKwAny") {
-			const on = !!el.checked;
-			if (on) f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
-			else delete f.keywordsAny;
-			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
-		}
-
-		if (dk === "useKwNone") {
-			const on = !!el.checked;
-			if (on) f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
-			else delete f.keywordsNone;
-			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
-		}
-
-		if (dk === "useAcrossMarket") {
-			const on = !!el.checked;
-			if (on) f.acrossMarket = true;
-			else delete f.acrossMarket;
-			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
-		}
-
-		if (dk === "useMinAbs") {
-			const on = !!el.checked;
-			if (on) f.minDropAbs = typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) ? f.minDropAbs : 0;
-			else delete f.minDropAbs;
-			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
-		}
-
-		if (dk === "useMinPct") {
-			const on = !!el.checked;
-			if (on) f.minDropPct = typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) ? f.minDropPct : 0;
-			else delete f.minDropPct;
-			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
-		}
-
-		if (dk === "useCheapest") {
-			const on = !!el.checked;
-			if (on) f.requireCheapestNow = true;
-			else delete f.requireCheapestNow;
-			setRuleAt(i, { ...cur, filters: f });
-			return renderRules();
+			return;
 		}
 	});
 
-	// text/number inputs + store select
+	// text/number inputs
 	$rulesWrap.addEventListener("input", (e) => {
 		const el = e.target;
 		const i = Number(el?.dataset?.i);
@@ -927,32 +944,6 @@ export async function renderSettings($app) {
 		}
 	});
 
-	$rulesWrap.addEventListener("change", (e) => {
-		const el = e.target;
-		const i = Number(el?.dataset?.i);
-		const k = String(el?.dataset?.k || "");
-		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
-
-		if (k === "storeId") {
-			const cur = { ...rules[i] };
-			const f = ensureFilters(cur);
-			const s = String(el.value || "").trim();
-			f.storeId = s;
-			setRuleAt(i, { ...cur, filters: f });
-			return;
-		}
-	});
-
-	$rulesWrap.addEventListener("click", (e) => {
-		const el = e.target?.closest?.("button");
-		const i = Number(el?.dataset?.i);
-		const k = String(el?.dataset?.k || "");
-		if (k !== "delete") return;
-		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
-		rules = rules.filter((_, idx) => idx !== i);
-		renderRules();
-	});
-
 	renderRules();
 
 	/* ---------------- public switch wiring ---------------- */
@@ -963,7 +954,6 @@ export async function renderSettings($app) {
 		const next = $isPublic.checked;
 		setUiForPublic(next);
 
-		// show note for BOTH directions
 		const changed = prevPublic !== next;
 		$note.style.display = changed ? "block" : "none";
 
