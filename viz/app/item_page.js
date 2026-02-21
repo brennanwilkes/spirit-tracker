@@ -1209,6 +1209,26 @@ export async function renderItem($app, skuInput) {
 
 	const colorMap = buildStoreColorMap(storeSeriesSorted.map((x) => x.label));
 
+	// --- If multiple points exist on a given date for the same store, only show the cheapest one ---
+	const winnerByStoreDate = new Map(); // `${store}|${date}` -> variantKey
+	for (const st of storeSeriesSorted) {
+		const vars = st.vars.slice().sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
+		for (const d of labels) {
+			let bestKey = null;
+			let bestVal = Infinity;
+			for (const s of vars) {
+				const v = s.points.has(d) ? s.points.get(d) : null;
+				if (!Number.isFinite(v)) continue;
+				if (v < bestVal) {
+					bestVal = v;
+					bestKey = s.variantKey;
+				}
+			}
+			if (bestKey !== null) winnerByStoreDate.set(`${st.label}|${d}`, bestKey);
+		}
+	}
+	const winKeyFor = (store, date) => winnerByStoreDate.get(`${store}|${date}`) || null;
+
 	// Build datasets: multiple lines per store, same label, same color, same stroke
 	const datasets = [];
 	for (const st of storeSeriesSorted) {
@@ -1221,6 +1241,7 @@ export async function renderItem($app, skuInput) {
 		for (const s of vars) {
 			datasets.push({
 				label: st.label, // IMPORTANT: no SKU in label
+				variantKey: s.variantKey,
 				data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
 				spanGaps: false,
 				tension: 0.15,
@@ -1229,6 +1250,18 @@ export async function renderItem($app, skuInput) {
 				pointBackgroundColor: base,
 				pointBorderColor: stroke,
 				borderWidth: datasetStrokeWidth(base),
+				pointRadius: (ctx) => {
+					const v = ctx.parsed?.y;
+					if (!Number.isFinite(v)) return 0;
+					const d = labels[ctx.dataIndex];
+					return ctx.dataset.variantKey === winKeyFor(ctx.dataset.label, d) ? 3 : 0;
+				},
+				pointHoverRadius: (ctx) => {
+					const v = ctx.parsed?.y;
+					if (!Number.isFinite(v)) return 0;
+					const d = labels[ctx.dataIndex];
+					return ctx.dataset.variantKey === winKeyFor(ctx.dataset.label, d) ? 5 : 0;
+				},
 			});
 		}
 	}
@@ -1310,6 +1343,7 @@ export async function renderItem($app, skuInput) {
 				axisInset: 2,
 			},
 
+			// v3 fallback (plugin reads this too)
 			plugins: {
 				// v3+ (plugin reads this too)
 				staticMarkerLines: {
@@ -1364,6 +1398,11 @@ export async function renderItem($app, skuInput) {
 				},
 
 				tooltip: {
+					filter: (tctx) => {
+						const store = String(tctx.dataset?.label || "");
+						const date = String(tctx.label || "");
+						return tctx.dataset?.variantKey === winKeyFor(store, date);
+					},
 					callbacks: {
 						label: (ctx) => {
 							const v = ctx.parsed?.y;
