@@ -1,0 +1,60 @@
+name: Send email pack
+
+on:
+  workflow_dispatch:
+    inputs:
+      data_sha:
+        description: "Data commit SHA to build pack from (defaults to tip of data)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: send-email-pack
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout data branch (full history for parent lookup)
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          fetch-depth: 0
+
+      - name: Checkout requested data SHA (optional)
+        if: inputs.data_sha != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --detach "${{ inputs.data_sha }}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build email pack (JSON)
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+          node tools/build_email_event_pack.js "$sha" --out pack.json
+
+      - name: Post email pack
+        shell: bash
+        env:
+          EMAIL_PACK_HMAC_SECRET: ${{ secrets.EMAIL_PACK_HMAC_SECRET }}
+        run: |
+          set -euo pipefail
+          ts="$(date +%s)"
+          sig="$( (printf "%s" "${ts}."; cat pack.json) | openssl dgst -sha256 -hmac "${EMAIL_PACK_HMAC_SECRET}" -hex | awk '{print $2}' )"
+
+          curl -sS -X POST "https://spirit-tracker-api.brennan-a53.workers.dev/email" \
+            -H "Content-Type: application/json" \
+            -H "X-Spirit-Timestamp: ${ts}" \
+            -H "X-Spirit-Signature: v1=${sig}" \
+            --data-binary @pack.json

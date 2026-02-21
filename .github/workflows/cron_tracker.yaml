@@ -119,12 +119,16 @@ jobs:
             echo "data_changed=0" >> "$GITHUB_OUTPUT"
           fi
 
-      # Important: pushes made with GITHUB_TOKEN won't trigger push-based workflows.
-      - name: Trigger Pages deploy + email workflow
+      - name: Trigger Pages deploy + email pack workflows
         if: steps.changed.outputs.data_changed == '1'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # after SHA on origin/data
+          git fetch --no-tags origin data
+          after="$(git rev-parse origin/data)"
+
           gh workflow run "Deploy visualizer to GitHub Pages" --ref main
+          gh workflow run "Send email pack" --ref main -f data_sha="$after"
