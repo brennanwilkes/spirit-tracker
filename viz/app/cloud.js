@@ -451,6 +451,19 @@ function validateEmailNotificationsV1(v) {
 			if (kwAny.length) out.keywordsAny = kwAny;
 			if (kwNone.length) out.keywordsNone = kwNone;
 
+			// store filter
+			if (filtersIn.storeId != null) {
+				const s = String(filtersIn.storeId || "").trim();
+				if (!s || s.length > 64 || !/^[a-z0-9_-]+$/.test(s)) throw new TypeError("storeId must be a small slug");
+				out.storeId = s;
+			}
+
+			// across market
+			if (filtersIn.acrossMarket != null) {
+				if (typeof filtersIn.acrossMarket !== "boolean") throw new TypeError("acrossMarket must be boolean");
+				if (filtersIn.acrossMarket) out.acrossMarket = true;
+			}
+
 			if (eventType === "PRICE_DROP") {
 				if (filtersIn.minDropAbs != null) {
 					const n = Number(filtersIn.minDropAbs);
