@@ -542,7 +542,7 @@ export async function renderSettings($app) {
 	let emailNotifications = getEmailNotifications(details);
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
     rules = rules.map(normalizeRule);
-    
+
 	function ensureFilters(r) {
 		return (r && r.filters && typeof r.filters === "object") ? { ...r.filters } : {};
 	}
@@ -805,7 +805,7 @@ export async function renderSettings($app) {
 							<label data-i="${i}" data-k="useCheapest" class="switch mini ${useCheapest ? "isOn" : ""}" style="cursor:pointer;">
 								<input type="checkbox" ${useCheapest ? "checked" : ""} />
 								<div class="switchLabel">
-									<div class="switchStatus ${useCheapest ? "" : "muted"}">Cheapest across market</div>
+									<div class="switchStatus ${useCheapest ? "" : "muted"}">Cheapest across market (same SKU)</div>
 								</div>
 								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
 							</label>
