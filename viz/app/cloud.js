@@ -14,6 +14,8 @@ const LS_TOKEN = "st:cloud:v1:token";
 const LS_USERID = "st:cloud:v1:userId";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const EVENT_TYPES = ["IN_STOCK","OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"];
+
 
 /* ---------------- Support link (optional) ---------------- */
 
@@ -400,9 +402,95 @@ function sanitizeUserText(s, maxLen) {
 	return out.slice(0, maxLen);
 }
 
+function sanitizeKeyword(s, maxLen = 40) {
+	const out = sanitizeUserText(String(s ?? ""), maxLen);
+	return out ? out : null;
+}
+
+function uniqStrings(arr) {
+	const out = [];
+	const seen = new Set();
+	for (const s of arr) {
+		const k = String(s).toLowerCase();
+		if (seen.has(k)) continue;
+		seen.add(k);
+		out.push(String(s));
+	}
+	return out;
+}
+
+function validateEmailNotificationsV1(v) {
+	if (!v || typeof v !== "object" || Array.isArray(v)) throw new TypeError("emailNotifications must be an object");
+	const version = Number(v.version);
+	if (version !== 1) throw new TypeError("emailNotifications.version must be 1");
+	if (!Array.isArray(v.rules)) throw new TypeError("emailNotifications.rules must be an array");
+
+	const rules = [];
+	const seen = new Set();
+	for (const r of v.rules.slice(0, 50)) {
+		if (!r || typeof r !== "object" || Array.isArray(r)) throw new TypeError("rule must be object");
+		const id = String(r.id || "").trim();
+		if (!UUID_RE.test(id)) throw new TypeError("rule.id must be uuid");
+		if (typeof r.enabled !== "boolean") throw new TypeError("rule.enabled must be boolean");
+		const scope = String(r.scope || "");
+		if (scope !== "all" && scope !== "shortlist") throw new TypeError("rule.scope invalid");
+		const eventType = String(r.eventType || "");
+		if (!EVENT_TYPES.includes(eventType)) throw new TypeError("rule.eventType invalid");
+
+		const filtersIn = r.filters;
+		let filters = undefined;
+
+		if (filtersIn != null) {
+			if (!filtersIn || typeof filtersIn !== "object" || Array.isArray(filtersIn)) throw new TypeError("rule.filters must be object");
+			const kwAnyRaw = Array.isArray(filtersIn.keywordsAny) ? filtersIn.keywordsAny : [];
+			const kwNoneRaw = Array.isArray(filtersIn.keywordsNone) ? filtersIn.keywordsNone : [];
+			const kwAny = uniqStrings(kwAnyRaw.map((x) => sanitizeKeyword(x)).filter(Boolean)).slice(0, 16);
+			const kwNone = uniqStrings(kwNoneRaw.map((x) => sanitizeKeyword(x)).filter(Boolean)).slice(0, 16);
+
+			const out = {};
+			if (kwAny.length) out.keywordsAny = kwAny;
+			if (kwNone.length) out.keywordsNone = kwNone;
+
+			if (eventType === "PRICE_DROP") {
+				if (filtersIn.minDropAbs != null) {
+					const n = Number(filtersIn.minDropAbs);
+					if (!Number.isFinite(n) || n < 0) throw new TypeError("minDropAbs must be >= 0");
+					out.minDropAbs = n;
+				}
+				if (filtersIn.minDropPct != null) {
+					const n = Number(filtersIn.minDropPct);
+					if (!Number.isFinite(n) || n < 0 || n > 100) throw new TypeError("minDropPct must be 0..100");
+					out.minDropPct = n;
+				}
+				if (filtersIn.requireCheapestNow != null) {
+					if (typeof filtersIn.requireCheapestNow !== "boolean") throw new TypeError("requireCheapestNow must be boolean");
+					out.requireCheapestNow = filtersIn.requireCheapestNow;
+				}
+			}
+
+			if (Object.keys(out).length) filters = out;
+		}
+
+		const rr = { id, enabled: r.enabled, scope, eventType, ...(filters ? { filters } : {}) };
+		if (seen.has(rr.id)) continue;
+		seen.add(rr.id);
+		rules.push(rr);
+	}
+
+	return { version: 1, rules };
+}
+
 function validateDetails(obj) {
 	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError("details must be an object");
 	if (typeof obj.public !== "boolean") throw new TypeError("details.public must be boolean");
+
+	if (Object.prototype.hasOwnProperty.call(obj, "emailNotifications")) {
+		if (obj.emailNotifications == null) {
+			delete obj.emailNotifications;
+		} else {
+			obj.emailNotifications = validateEmailNotificationsV1(obj.emailNotifications);
+		}
+	}
 
 	if (Object.prototype.hasOwnProperty.call(obj, "shortlistName")) {
 		if (obj.shortlistName == null) {
