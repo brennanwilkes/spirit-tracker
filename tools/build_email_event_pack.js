@@ -583,7 +583,7 @@ function main() {
         marketOut: mi.marketOut,
         baseInStockCount: mi.baseInCount,
         headInStockCount: mi.headInCount,
-        ...(eventType === "PRICE_DROP" ? payload : {}),
+        ...payload
       });
 
       affectedCanon.add(canonSku);
