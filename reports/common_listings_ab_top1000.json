@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-21T19:04:54.986Z",
+  "generatedAt": "2026-02-21T21:51:26.397Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7978,
-    "removedRows": 678,
-    "canonSkus": 4491,
+    "liveRows": 7979,
+    "removedRows": 681,
+    "canonSkus": 4487,
     "outputCount": 1000
   },
   "rows": [
@@ -2434,7 +2434,7 @@
       ],
       "storePrices": {
         "bsw": 140,
-        "craftcellars": 115.99,
+        "craftcellars": 165.99,
         "kegncork": 164.96,
         "kwm": 164.99,
         "sierrasprings": 163.7,
@@ -2442,21 +2442,21 @@
       },
       "representative": {
         "name": "Bowmore 18 Year Old",
-        "price": "$115.99",
-        "priceNum": 115.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "805160",
         "skuKey": "805160",
-        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$115.99",
-        "priceNum": 115.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv"
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
       }
     },
     {
@@ -3213,6 +3213,48 @@
         "priceNum": 99.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/jefferson-s-ocean-aged-at-sea-bourbon-45-abv"
+      }
+    },
+    {
+      "canonSku": "500231",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 300,
+        "coop": 359.99,
+        "craftcellars": 343.99,
+        "kwm": 349.99,
+        "maltsandgrains": 360.47,
+        "willowpark": 349.99
+      },
+      "representative": {
+        "name": "Highland Park 18 Year Old",
+        "price": "$300.00",
+        "priceNum": 300,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "500231",
+        "skuKey": "500231",
+        "url": "https://www.bswliquor.com/products/highland-park-18-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$300.00",
+        "priceNum": 300,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/highland-park-18-year-old"
       }
     },
     {
@@ -7052,47 +7094,6 @@
       }
     },
     {
-      "canonSku": "500231",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 300,
-        "craftcellars": 343.99,
-        "kwm": 349.99,
-        "maltsandgrains": 360.47,
-        "willowpark": 349.99
-      },
-      "representative": {
-        "name": "Highland Park 18 Year Old",
-        "price": "$300.00",
-        "priceNum": 300,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "500231",
-        "skuKey": "500231",
-        "url": "https://www.bswliquor.com/products/highland-park-18-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$300.00",
-        "priceNum": 300,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/highland-park-18-year-old"
-      }
-    },
-    {
       "canonSku": "501984",
       "storeCount": 5,
       "stores": [
@@ -9496,6 +9497,46 @@
         "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/benriach-10-year-old-the-smoky"
+      }
+    },
+    {
+      "canonSku": "056069",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 675,
+        "coop": 799.99,
+        "craftcellars": 799.99,
+        "kwm": 599.99
+      },
+      "representative": {
+        "name": "Bowmore 25 Year Old",
+        "price": "$675.00",
+        "priceNum": 675,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "056069",
+        "skuKey": "056069",
+        "url": "https://www.bswliquor.com/products/bowmore-25-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$599.99",
+        "priceNum": 599.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/56069/bowmore-25-year"
       }
     },
     {
@@ -25665,45 +25706,6 @@
       }
     },
     {
-      "canonSku": "301926",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "craftcellars": 115.99,
-        "kegncork": 105.96
-      },
-      "representative": {
-        "name": "Remus Highest Rye Bourbon 6 Year Old",
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "892735",
-        "skuKey": "892735",
-        "url": "https://www.bswliquor.com/products/remus-highest-rye-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$105.96",
-        "priceNum": 105.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/remus-highest-rye-bourbon-750-ml/"
-      }
-    },
-    {
       "canonSku": "310354",
       "storeCount": 3,
       "stores": [
@@ -39519,6 +39521,44 @@
       }
     },
     {
+      "canonSku": "301926",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "kegncork": 105.96
+      },
+      "representative": {
+        "name": "Remus Highest Rye Bourbon 6 Year Old",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "892735",
+        "skuKey": "892735",
+        "url": "https://www.bswliquor.com/products/remus-highest-rye-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$105.96",
+        "priceNum": 105.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/remus-highest-rye-bourbon-750-ml/"
+      }
+    },
+    {
       "canonSku": "661884",
       "storeCount": 2,
       "stores": [
@@ -39554,44 +39594,6 @@
         "priceNum": 160,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1"
-      }
-    },
-    {
-      "canonSku": "804421",
-      "storeCount": 2,
-      "stores": [
-        "craftcellars",
-        "kwm"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "craftcellars": 799.99,
-        "kwm": 599.99
-      },
-      "representative": {
-        "name": "Bowmore 25 Year Old Small Batch Release",
-        "price": "$799.99",
-        "priceNum": 799.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "804421",
-        "skuKey": "804421",
-        "url": "https://craftcellars.ca/products/bowmore-25-year-old-small-batch-release-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$599.99",
-        "priceNum": 599.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/56069/bowmore-25-year"
       }
     },
     {
