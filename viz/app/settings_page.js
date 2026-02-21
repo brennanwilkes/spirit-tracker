@@ -139,6 +139,17 @@ function ensureSettingsCssOnce() {
 	    0 1px 0 rgba(0,0,0,0.28);
 	}
 
+	/* --- mini switch (for rule field toggles) --- */
+	.switch.mini{
+	  height: 40px;
+	  border-radius: 12px;
+	  padding: 0 10px;
+	}
+	.switch.mini .switchStatus{ font-size: 13px; font-weight: 850; }
+	.switch.mini .switchPill{ width: 42px; height: 26px; }
+	.switch.mini .switchKnob{ width: 20px; height: 20px; }
+	.switch.mini.isOn .switchKnob{ left: 19px; }
+
 	.subtleNote{
 	  font-size: 12px;
 	  color: var(--muted);
@@ -199,6 +210,93 @@ function ensureSettingsCssOnce() {
 	  letter-spacing: 0.2px;
 	  border-color: rgba(125, 211, 252, 0.28);
 	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.10) inset;
+	}
+
+	/* --- rule editor --- */
+	.stRuleCard{
+	  padding: 12px;
+	  border-radius: 12px;
+	}
+	.stRuleHeader{
+	  display:grid;
+	  grid-template-columns: 1fr 1fr 40px;
+	  gap: 10px;
+	  align-items:center;
+	}
+	@media (max-width: 640px){
+	  .stRuleHeader{ grid-template-columns: 1fr 40px; }
+	  .stRuleHeader .stRuleScope{ grid-column: 1 / -1; }
+	}
+
+	/* custom select to avoid .input padding issues */
+	.stSelect{
+	  width: 100%;
+	  height: 40px;
+	  border: 1px solid var(--border);
+	  background: #0f1318;
+	  color: var(--text);
+	  border-radius: 10px;
+
+	  -webkit-appearance: none;
+	  -moz-appearance: none;
+	  appearance: none;
+	  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa6b2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	  background-repeat: no-repeat;
+	  background-position: right 10px center;
+	  background-size: 12px 12px;
+
+	  padding: 6px 28px 6px 10px;
+	  font-size: 13px;
+	  line-height: 1;
+	  outline: none;
+	}
+	.stSelect:hover{ border-color: #2f3a46; cursor:pointer; }
+	.stSelect:focus{ border-color: #37566b; outline: 1px solid #37566b; }
+	.stSelect:disabled{ opacity: 0.55; cursor:not-allowed; }
+
+	.stRuleRows{
+	  display:flex;
+	  flex-direction:column;
+	  gap: 10px;
+	  margin-top: 10px;
+	}
+
+	.stRuleRow{
+	  display:grid;
+	  grid-template-columns: minmax(220px, 300px) 1fr;
+	  gap: 10px;
+	  align-items:center;
+	}
+	@media (max-width: 640px){
+	  .stRuleRow{ grid-template-columns: 1fr; }
+	}
+
+	.stRuleInput{
+	  height: 40px;
+	  padding: 10px 12px; /* override global input padding slightly */
+	}
+	.stRuleInput:disabled{ opacity: 0.55; }
+
+	.stRuleNote{
+	  margin-top: 2px;
+	}
+
+	.ruleTrashBtn{
+	  width:40px;
+	  height:40px;
+	  padding:0;
+	  display:inline-flex;
+	  align-items:center;
+	  justify-content:center;
+	}
+	.ruleTrashBtn svg{
+	  width: 18px;
+	  height: 18px;
+	  stroke: currentColor;
+	  fill: none;
+	  stroke-width: 2;
+	  stroke-linecap: round;
+	  stroke-linejoin: round;
 	}
 	`;
 	document.head.appendChild(css);
@@ -279,22 +377,18 @@ export async function renderSettings($app) {
 					<hr class="hrClean" />
 
 					<div>
-                        <div class="settingsSectionTitle">Email notifications</div>
+						<div class="settingsSectionTitle">Email notifications</div>
 
-                        <div class="small" style="margin-bottom:10px; color:var(--muted);">
-                            Add rules to get email alerts (ASAP). Saved on the same Settings “Save” button below.
-                        </div>
+						<div class="small" style="margin-bottom:10px; color:var(--muted);">
+							Alerts are sent ASAP. Add rules below, then hit Save.
+						</div>
 
-                        <div id="rulesWrap" style="display:flex; flex-direction:column; gap:10px;"></div>
+						<div id="rulesWrap" style="display:flex; flex-direction:column; gap:10px;"></div>
 
-                        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-                            <button id="addRule" class="btn" type="button">+ Add rule</button>
-                        </div>
-
-                        <div class="subtleNote" style="margin-top:8px;">
-                            Keywords are optional. Separate with commas.
-                        </div>
-                    </div>
+						<div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+							<button id="addRule" class="btn" type="button">+ Add rule</button>
+						</div>
+					</div>
 
 					<hr class="hrClean" />
 
@@ -386,8 +480,28 @@ export async function renderSettings($app) {
 	$name.value = initialName;
 	setUiForPublic(initialPublic);
 
+	/* ---------------- Email rules UI ---------------- */
 
-    const $rulesWrap = document.getElementById("rulesWrap");
+	const STORES = [
+		{ id: "arc", label: "ARC Liquor" },
+		{ id: "bcl", label: "BCL" },
+		{ id: "bsw", label: "BSW" },
+		{ id: "coop", label: "Co-op World of Whisky" },
+		{ id: "craftcellars", label: "Craft Cellars" },
+		{ id: "gull", label: "Gull Liquor" },
+		{ id: "kegncork", label: "Keg N Cork" },
+		{ id: "kwm", label: "Kensington Wine Market" },
+		{ id: "legacyliquor", label: "Legacy Liquor" },
+		{ id: "maltsandgrains", label: "Malts & Grains" },
+		{ id: "sierrasprings", label: "Sierra Springs" },
+		{ id: "strath", label: "Strath Liquor" },
+		{ id: "tudor", label: "Tudor House" },
+		{ id: "vessel", label: "Vessel Liquor" },
+		{ id: "vintage", label: "Vintage Spirits" },
+		{ id: "willowpark", label: "Willow Park" },
+	];
+
+	const $rulesWrap = document.getElementById("rulesWrap");
 	const $addRule = document.getElementById("addRule");
 
 	function getEmailNotifications(detailsObj) {
@@ -407,8 +521,103 @@ export async function renderSettings($app) {
 		return Array.isArray(arr) ? arr.join(", ") : "";
 	}
 
+	function trashIconSvg() {
+		return `
+			<svg viewBox="0 0 24 24" aria-hidden="true">
+			  <path d="M3 6h18"></path>
+			  <path d="M8 6V4h8v2"></path>
+			  <path d="M6 6l1 16h10l1-16"></path>
+			  <path d="M10 11v6"></path>
+			  <path d="M14 11v6"></path>
+			</svg>
+		`;
+	}
+
+	function setSwitchUi($label, on) {
+		if (!$label) return;
+		$label.classList.toggle("isOn", !!on);
+	}
+
 	let emailNotifications = getEmailNotifications(details);
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
+
+	function ensureFilters(r) {
+		const f = r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
+		return f;
+	}
+
+	function dropEmptyFilters(r) {
+		const f = ensureFilters(r);
+
+		// normalize empty arrays
+		if (Array.isArray(f.keywordsAny) && !f.keywordsAny.length) delete f.keywordsAny;
+		if (Array.isArray(f.keywordsNone) && !f.keywordsNone.length) delete f.keywordsNone;
+
+		// delete empty strings
+		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
+
+		// only store true for booleans
+		if (f.requireCheapestNow !== true) delete f.requireCheapestNow;
+		if (f.acrossMarket !== true) delete f.acrossMarket;
+
+		// numbers: keep only finite >= 0
+		if (!(typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) && f.minDropAbs >= 0)) delete f.minDropAbs;
+		if (!(typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) && f.minDropPct >= 0 && f.minDropPct <= 100)) delete f.minDropPct;
+
+		const out = { ...r };
+		if (Object.keys(f).length) out.filters = f;
+		else delete out.filters;
+		return out;
+	}
+
+	function normalizeRule(r) {
+		const out = { ...r };
+		out.enabled = true; // always true; delete to disable
+
+		out.scope = out.scope === "all" ? "all" : "shortlist";
+
+		const et = String(out.eventType || "IN_STOCK");
+		out.eventType = ["IN_STOCK", "OUT_OF_STOCK", "PRICE_DROP", "GLOBAL_NEW", "GLOBAL_RETURN"].includes(et)
+			? et
+			: "IN_STOCK";
+
+		// If not PRICE_DROP, strip drop-specific fields
+		const f = ensureFilters(out);
+		if (out.eventType !== "PRICE_DROP") {
+			delete f.minDropAbs;
+			delete f.minDropPct;
+			delete f.requireCheapestNow;
+		}
+		out.filters = f;
+
+		return dropEmptyFilters(out);
+	}
+
+	function newRule() {
+		const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+		return normalizeRule({
+			id,
+			enabled: true,
+			scope: "shortlist",
+			eventType: "IN_STOCK",
+			filters: {}, // all toggles default OFF
+		});
+	}
+
+	function storeOptionsHtml(selected) {
+		return STORES.map((s) => `<option value="${esc(s.id)}" ${s.id === selected ? "selected" : ""}>${esc(s.label)}</option>`).join("");
+	}
+
+	function labelForEventType(et) {
+		switch (et) {
+			case "IN_STOCK": return "In stock";
+			case "OUT_OF_STOCK": return "Out of stock";
+			case "PRICE_DROP": return "Price drop";
+			case "GLOBAL_NEW": return "New bottle";
+			case "GLOBAL_RETURN": return "Back in stock";
+			default: return "In stock";
+		}
+	}
 
 	function renderRules() {
 		if (!rules.length) {
@@ -417,111 +626,179 @@ export async function renderSettings($app) {
 		}
 
 		$rulesWrap.innerHTML = rules.map((r, i) => {
+			const f = ensureFilters(r);
+
+			const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
+			const useKwAny = Array.isArray(f.keywordsAny) && f.keywordsAny.length > 0;
+			const useKwNone = Array.isArray(f.keywordsNone) && f.keywordsNone.length > 0;
+
 			const isDrop = r.eventType === "PRICE_DROP";
-			const f = r.filters || {};
+			const useMinAbs = isDrop && typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs);
+			const useMinPct = isDrop && typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct);
+			const useCheapest = isDrop && f.requireCheapestNow === true;
+
+			const showAcrossMarket = (r.eventType === "IN_STOCK" || r.eventType === "OUT_OF_STOCK" || r.eventType === "GLOBAL_RETURN");
+			const useAcrossMarket = showAcrossMarket && f.acrossMarket === true;
+
+			const storeSel = useStore ? String(f.storeId) : STORES[0]?.id;
+
 			return `
-				<div class="card" style="padding:12px; border-radius:12px;">
-					<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-						<label class="small" style="display:flex; align-items:center; gap:8px;">
-							<input data-i="${i}" data-k="enabled" type="checkbox" ${r.enabled ? "checked" : ""}/>
-							Enabled
-						</label>
+				<div class="card stRuleCard" data-rule="${esc(r.id)}">
+					<div class="stRuleHeader">
+						<select data-i="${i}" data-k="eventType" class="stSelect stRuleEvent" aria-label="Alert type">
+							${["IN_STOCK","OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"].map((et) =>
+								`<option value="${et}" ${r.eventType === et ? "selected" : ""}>${esc(labelForEventType(et))}</option>`
+							).join("")}
+						</select>
 
-						<select data-i="${i}" data-k="scope" class="input" style="height:38px; max-width:160px;">
-							<option value="all" ${r.scope === "all" ? "selected" : ""}>All bottles</option>
+						<select data-i="${i}" data-k="scope" class="stSelect stRuleScope" aria-label="Scope">
 							<option value="shortlist" ${r.scope === "shortlist" ? "selected" : ""}>Shortlist only</option>
+							<option value="all" ${r.scope === "all" ? "selected" : ""}>All bottles</option>
 						</select>
 
-						<select data-i="${i}" data-k="eventType" class="input" style="height:38px; max-width:180px;">
-							<option value="IN_STOCK" ${r.eventType === "IN_STOCK" ? "selected" : ""}>In stock</option>
-							<option value="OUT_OF_STOCK" ${r.eventType === "OUT_OF_STOCK" ? "selected" : ""}>Out of stock</option>
-							<option value="PRICE_DROP" ${r.eventType === "PRICE_DROP" ? "selected" : ""}>Price drop</option>
-							<option value="GLOBAL_NEW" ${r.eventType === "GLOBAL_NEW" ? "selected" : ""}>Global new SKU</option>
-							<option value="GLOBAL_RETURN" ${r.eventType === "GLOBAL_RETURN" ? "selected" : ""}>Global return</option>
-						</select>
-
-						<button data-i="${i}" data-k="delete" class="btn" type="button">Delete</button>
+						<button data-i="${i}" data-k="delete" class="favStarBtn ruleTrashBtn" type="button" title="Delete rule" aria-label="Delete rule">
+							${trashIconSvg()}
+						</button>
 					</div>
 
-					<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-						<div>
-							<div class="fieldTitle">Keywords include</div>
-							<input data-i="${i}" data-k="keywordsAny" class="input" style="height:40px;"
-								value="${esc(csvKeywords(f.keywordsAny))}" placeholder="e.g. Springbank, Benromach" />
-						</div>
-						<div>
-							<div class="fieldTitle">Keywords exclude</div>
-							<input data-i="${i}" data-k="keywordsNone" class="input" style="height:40px;"
-								value="${esc(csvKeywords(f.keywordsNone))}" placeholder="e.g. 50ml, mini" />
-						</div>
-					</div>
+					<div class="stRuleRows">
 
-					${isDrop ? `
-					<div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px;">
-						<div>
-							<div class="fieldTitle">Min $ drop</div>
-							<input data-i="${i}" data-k="minDropAbs" class="input" style="height:40px;" type="number" min="0" step="0.01"
-								value="${Number.isFinite(Number(f.minDropAbs)) ? String(f.minDropAbs) : ""}" placeholder="0" />
-						</div>
-						<div>
-							<div class="fieldTitle">Min % drop</div>
-							<input data-i="${i}" data-k="minDropPct" class="input" style="height:40px;" type="number" min="0" max="100" step="0.1"
-								value="${Number.isFinite(Number(f.minDropPct)) ? String(f.minDropPct) : ""}" placeholder="0" />
-						</div>
-						<div style="display:flex; align-items:end;">
-							<label class="small" style="display:flex; gap:8px; align-items:center;">
-								<input data-i="${i}" data-k="requireCheapestNow" type="checkbox" ${f.requireCheapestNow ? "checked" : ""}/>
-								Cheapest now
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useStore" class="switch mini ${useStore ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useStore ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useStore ? "" : "muted"}">Filter by store</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
 							</label>
+							<select data-i="${i}" data-k="storeId" class="stSelect" ${useStore ? "" : "disabled"}>
+								${storeOptionsHtml(storeSel)}
+							</select>
 						</div>
+
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useKwAny" class="switch mini ${useKwAny ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useKwAny ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useKwAny ? "" : "muted"}">Include keywords</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<input
+								data-i="${i}"
+								data-k="keywordsAny"
+								class="input stRuleInput"
+								type="text"
+								placeholder="e.g. Springbank, Benromach"
+								autocomplete="off"
+								value="${esc(useKwAny ? csvKeywords(f.keywordsAny) : "")}"
+								${useKwAny ? "" : "disabled"}
+							/>
+						</div>
+
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useKwNone" class="switch mini ${useKwNone ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useKwNone ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useKwNone ? "" : "muted"}">Exclude keywords</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<input
+								data-i="${i}"
+								data-k="keywordsNone"
+								class="input stRuleInput"
+								type="text"
+								placeholder="e.g. 50ml, mini"
+								autocomplete="off"
+								value="${esc(useKwNone ? csvKeywords(f.keywordsNone) : "")}"
+								${useKwNone ? "" : "disabled"}
+							/>
+						</div>
+
+						<div class="subtleNote stRuleNote">
+							Keywords are optional. Separate with commas.
+						</div>
+
+						${showAcrossMarket ? `
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useAcrossMarket" class="switch mini ${useAcrossMarket ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useAcrossMarket ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useAcrossMarket ? "" : "muted"}">Across all stores</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<div class="small" style="text-align:left;">
+								Same bottle (matched by SKU)
+							</div>
+						</div>
+						` : ""}
+
+						${isDrop ? `
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useMinAbs" class="switch mini ${useMinAbs ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useMinAbs ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useMinAbs ? "" : "muted"}">Min $ drop</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<input
+								data-i="${i}"
+								data-k="minDropAbs"
+								class="input stRuleInput"
+								type="number"
+								min="0"
+								step="0.01"
+								placeholder="0"
+								value="${useMinAbs ? esc(String(f.minDropAbs)) : ""}"
+								${useMinAbs ? "" : "disabled"}
+							/>
+						</div>
+
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useMinPct" class="switch mini ${useMinPct ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useMinPct ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useMinPct ? "" : "muted"}">Min % drop</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<input
+								data-i="${i}"
+								data-k="minDropPct"
+								class="input stRuleInput"
+								type="number"
+								min="0"
+								max="100"
+								step="0.1"
+								placeholder="0"
+								value="${useMinPct ? esc(String(f.minDropPct)) : ""}"
+								${useMinPct ? "" : "disabled"}
+							/>
+						</div>
+
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useCheapest" class="switch mini ${useCheapest ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useCheapest ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useCheapest ? "" : "muted"}">Cheapest across market</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<div class="small" style="text-align:left;">Across all stores</div>
+						</div>
+						` : ""}
+
 					</div>
-					` : ""}
 				</div>
 			`;
 		}).join("");
 	}
 
-	function newRule() {
-		const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
-		return {
-			id,
-			enabled: true,
-			scope: "shortlist",
-			eventType: "IN_STOCK",
-			filters: { keywordsAny: [], keywordsNone: [] },
-		};
-	}
-
-	function normalizeRule(r) {
-		const out = { ...r };
-		out.enabled = !!out.enabled;
-		out.scope = out.scope === "all" ? "all" : "shortlist";
-		const et = String(out.eventType || "IN_STOCK");
-		out.eventType = ["IN_STOCK","OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"].includes(et) ? et : "IN_STOCK";
-
-		const f = out.filters && typeof out.filters === "object" ? { ...out.filters } : {};
-		f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
-		f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
-
-		if (out.eventType === "PRICE_DROP") {
-			if (f.minDropAbs != null && f.minDropAbs !== "") f.minDropAbs = Number(f.minDropAbs);
-			else delete f.minDropAbs;
-			if (f.minDropPct != null && f.minDropPct !== "") f.minDropPct = Number(f.minDropPct);
-			else delete f.minDropPct;
-			f.requireCheapestNow = !!f.requireCheapestNow;
-		} else {
-			delete f.minDropAbs;
-			delete f.minDropPct;
-			delete f.requireCheapestNow;
-		}
-
-		// drop empty filters
-		if (!f.keywordsAny.length) delete f.keywordsAny;
-		if (!f.keywordsNone.length) delete f.keywordsNone;
-		if (Object.keys(f).length) out.filters = f;
-		else delete out.filters;
-
-		return out;
+	function setRuleAt(i, nextRule) {
+		rules[i] = normalizeRule(nextRule);
 	}
 
 	$addRule.addEventListener("click", () => {
@@ -529,31 +806,145 @@ export async function renderSettings($app) {
 		renderRules();
 	});
 
+	// toggles + selects
+	$rulesWrap.addEventListener("change", (e) => {
+		const el = e.target;
+		const i = Number(el?.dataset?.i);
+		const k = String(el?.dataset?.k || "");
+		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+
+		const cur = { ...rules[i] };
+		const f = ensureFilters(cur);
+
+		// event/scope selects
+		if (k === "scope") {
+			cur.scope = String(el.value || "");
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+		if (k === "eventType") {
+			cur.eventType = String(el.value || "");
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		// field toggles are on the LABEL, not the INPUT, so read from closest label dataset when needed
+		const lab = el.closest?.("label");
+		const dk = String(lab?.dataset?.k || k);
+
+		if (dk === "useStore") {
+			const on = !!el.checked;
+			if (on) f.storeId = f.storeId || STORES[0]?.id || "kwm";
+			else delete f.storeId;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		if (dk === "useKwAny") {
+			const on = !!el.checked;
+			if (on) f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
+			else delete f.keywordsAny;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		if (dk === "useKwNone") {
+			const on = !!el.checked;
+			if (on) f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
+			else delete f.keywordsNone;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		if (dk === "useAcrossMarket") {
+			const on = !!el.checked;
+			if (on) f.acrossMarket = true;
+			else delete f.acrossMarket;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		if (dk === "useMinAbs") {
+			const on = !!el.checked;
+			if (on) f.minDropAbs = typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) ? f.minDropAbs : 0;
+			else delete f.minDropAbs;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		if (dk === "useMinPct") {
+			const on = !!el.checked;
+			if (on) f.minDropPct = typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) ? f.minDropPct : 0;
+			else delete f.minDropPct;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+
+		if (dk === "useCheapest") {
+			const on = !!el.checked;
+			if (on) f.requireCheapestNow = true;
+			else delete f.requireCheapestNow;
+			setRuleAt(i, { ...cur, filters: f });
+			return renderRules();
+		}
+	});
+
+	// text/number inputs + store select
 	$rulesWrap.addEventListener("input", (e) => {
 		const el = e.target;
 		const i = Number(el?.dataset?.i);
 		const k = String(el?.dataset?.k || "");
 		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
 
-		const r = { ...rules[i] };
-		r.filters = r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
+		const cur = { ...rules[i] };
+		const f = ensureFilters(cur);
 
-		if (k === "enabled") r.enabled = !!el.checked;
-		else if (k === "scope") r.scope = String(el.value || "");
-		else if (k === "eventType") r.eventType = String(el.value || "");
-		else if (k === "keywordsAny") r.filters.keywordsAny = parseCsvKeywords(el.value);
-		else if (k === "keywordsNone") r.filters.keywordsNone = parseCsvKeywords(el.value);
-		else if (k === "minDropAbs") r.filters.minDropAbs = el.value === "" ? undefined : Number(el.value);
-		else if (k === "minDropPct") r.filters.minDropPct = el.value === "" ? undefined : Number(el.value);
-		else if (k === "requireCheapestNow") r.filters.requireCheapestNow = !!el.checked;
+		if (k === "keywordsAny") {
+			f.keywordsAny = parseCsvKeywords(el.value);
+			setRuleAt(i, { ...cur, filters: f });
+			return;
+		}
+		if (k === "keywordsNone") {
+			f.keywordsNone = parseCsvKeywords(el.value);
+			setRuleAt(i, { ...cur, filters: f });
+			return;
+		}
+		if (k === "minDropAbs") {
+			const v = String(el.value || "");
+			const n = v === "" ? NaN : Number(v);
+			if (Number.isFinite(n) && n >= 0) f.minDropAbs = n;
+			else f.minDropAbs = 0;
+			setRuleAt(i, { ...cur, filters: f });
+			return;
+		}
+		if (k === "minDropPct") {
+			const v = String(el.value || "");
+			const n = v === "" ? NaN : Number(v);
+			if (Number.isFinite(n) && n >= 0 && n <= 100) f.minDropPct = n;
+			else f.minDropPct = 0;
+			setRuleAt(i, { ...cur, filters: f });
+			return;
+		}
+	});
 
-		rules[i] = normalizeRule(r);
-		// eventType switch affects visible fields
-		if (k === "eventType") renderRules();
+	$rulesWrap.addEventListener("change", (e) => {
+		const el = e.target;
+		const i = Number(el?.dataset?.i);
+		const k = String(el?.dataset?.k || "");
+		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+
+		if (k === "storeId") {
+			const cur = { ...rules[i] };
+			const f = ensureFilters(cur);
+			const s = String(el.value || "").trim();
+			f.storeId = s;
+			setRuleAt(i, { ...cur, filters: f });
+			return;
+		}
 	});
 
 	$rulesWrap.addEventListener("click", (e) => {
-		const el = e.target;
+		const el = e.target?.closest?.("button");
 		const i = Number(el?.dataset?.i);
 		const k = String(el?.dataset?.k || "");
 		if (k !== "delete") return;
@@ -564,27 +955,29 @@ export async function renderSettings($app) {
 
 	renderRules();
 
-
+	/* ---------------- public switch wiring ---------------- */
 
 	let prevPublic = initialPublic;
 
-    $isPublic.addEventListener("change", () => {
-        const next = $isPublic.checked;
-        setUiForPublic(next);
-    
-        // show note for BOTH directions
-        const changed = prevPublic !== next;
-        $note.style.display = changed ? "block" : "none";
-    
-        prevPublic = next;
-    
-        if (next) {
-            $name.focus();
-            $name.select?.();
-        }
-    });
+	$isPublic.addEventListener("change", () => {
+		const next = $isPublic.checked;
+		setUiForPublic(next);
 
-    async function doSave() {
+		// show note for BOTH directions
+		const changed = prevPublic !== next;
+		$note.style.display = changed ? "block" : "none";
+
+		prevPublic = next;
+
+		if (next) {
+			$name.focus();
+			$name.select?.();
+		}
+	});
+
+	/* ---------------- Save ---------------- */
+
+	async function doSave() {
 		setStatusText("");
 		$save.disabled = true;
 
