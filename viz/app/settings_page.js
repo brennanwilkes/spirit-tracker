@@ -304,6 +304,10 @@ function ensureSettingsCssOnce() {
 	  stroke-linecap: round;
 	  stroke-linejoin: round;
 	}
+
+	/* Add rule button area */
+	.addRuleRow{ margin-top: 12px; }
+	.addRuleBtn{ width: 100%; }
 	`;
 	document.head.appendChild(css);
 }
@@ -385,14 +389,10 @@ export async function renderSettings($app) {
 					<div>
 						<div class="settingsSectionTitle">Email notifications</div>
 
-						<div class="small" style="margin-bottom:10px; color:var(--muted);">
-							Alerts are sent ASAP. Rules can match across stores using <b>SKU</b> (a shared item code).
-						</div>
-
 						<div id="rulesWrap" style="display:flex; flex-direction:column; gap:10px;"></div>
 
-						<div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-							<button id="addRule" class="btn" type="button">+ Add rule</button>
+						<div class="addRuleRow">
+							<button id="addRule" class="btn addRuleBtn" type="button">+ Add rule</button>
 						</div>
 					</div>
 
@@ -549,13 +549,11 @@ export async function renderSettings($app) {
 	function dropEmptyFilters(r) {
 		const f = ensureFilters(r);
 
-		// keep keywords arrays even if empty (toggle-on state)
 		if (f.keywordsAny !== undefined && !Array.isArray(f.keywordsAny)) delete f.keywordsAny;
 		if (f.keywordsNone !== undefined && !Array.isArray(f.keywordsNone)) delete f.keywordsNone;
 
 		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
 
-		// keep acrossMarket boolean (true/false) so "off" can persist
 		if (f.acrossMarket !== undefined && typeof f.acrossMarket !== "boolean") delete f.acrossMarket;
 
 		if (f.requireCheapestNow !== true) delete f.requireCheapestNow;
@@ -580,17 +578,14 @@ export async function renderSettings($app) {
 
 		const f = ensureFilters(out);
 
-		// Default only: New bottle -> same SKU across all stores ON unless user explicitly set false
 		if (out.eventType === "GLOBAL_NEW" && typeof f.acrossMarket !== "boolean") {
 			f.acrossMarket = true;
 		}
 
-		// acrossMarket only relevant for these
 		if (!(out.eventType === "GLOBAL_NEW" || out.eventType === "GLOBAL_RETURN" || out.eventType === "OUT_OF_STOCK")) {
 			delete f.acrossMarket;
 		}
 
-		// Drop-specific fields only for PRICE_DROP
 		if (out.eventType !== "PRICE_DROP") {
 			delete f.minDropAbs;
 			delete f.minDropPct;
@@ -637,7 +632,6 @@ export async function renderSettings($app) {
 
 			const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
 
-			// IMPORTANT: enabled = property exists (even empty array)
 			const useKwAny = Array.isArray(f.keywordsAny);
 			const useKwNone = Array.isArray(f.keywordsNone);
 
@@ -732,7 +726,7 @@ export async function renderSettings($app) {
 						</div>
 
 						<div class="subtleNote stRuleNote">
-							Keywords match the bottle name (not the SKU). Use commas to list multiple.
+							Keywords match the bottle name. Use commas to list multiple.
 						</div>
 
 						${showAcrossMarket ? `
@@ -821,7 +815,6 @@ export async function renderSettings($app) {
 		renderRules();
 	});
 
-	// Switches + delete (capture so nothing can stop it)
 	$rulesWrap.addEventListener("click", (e) => {
 		const btn = e.target?.closest?.("button[data-k]");
 		if (btn) {
@@ -875,7 +868,6 @@ export async function renderSettings($app) {
 		}
 
 		if (dk === "useAcrossMarket") {
-			// store explicit false so "off" persists for GLOBAL_NEW
 			f.acrossMarket = cb.checked ? true : false;
 			setRuleAt(i, { ...cur, filters: f });
 			renderRules();
@@ -907,7 +899,6 @@ export async function renderSettings($app) {
 		}
 	}, true);
 
-	// selects
 	$rulesWrap.addEventListener("change", (e) => {
 		const el = e.target;
 		const i = Number(el?.getAttribute?.("data-i"));
@@ -936,7 +927,6 @@ export async function renderSettings($app) {
 		}
 	});
 
-	// text/number inputs
 	$rulesWrap.addEventListener("input", (e) => {
 		const el = e.target;
 		const i = Number(el?.getAttribute?.("data-i"));
