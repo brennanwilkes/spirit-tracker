@@ -223,9 +223,15 @@ function ensureSettingsCssOnce() {
 	  gap: 10px;
 	  align-items:center;
 	}
+	.stRuleEvent{ grid-column: 1; }
+	.stRuleScope{ grid-column: 2; }
+	.ruleTrashBtn{ grid-column: 3; justify-self: end; }
+
 	@media (max-width: 640px){
 	  .stRuleHeader{ grid-template-columns: 1fr 40px; }
-	  .stRuleHeader .stRuleScope{ grid-column: 1 / -1; }
+	  .stRuleEvent{ grid-column: 1; grid-row: 1; }
+	  .ruleTrashBtn{ grid-column: 2; grid-row: 1; justify-self: end; }
+	  .stRuleHeader .stRuleScope{ grid-column: 1 / -1; grid-row: 2; }
 	}
 
 	/* custom select to avoid .input padding issues */
@@ -380,7 +386,7 @@ export async function renderSettings($app) {
 						<div class="settingsSectionTitle">Email notifications</div>
 
 						<div class="small" style="margin-bottom:10px; color:var(--muted);">
-							Alerts are sent ASAP. Add rules below, then hit Save.
+							Alerts are sent ASAP. Rules can match across stores using <b>SKU</b> (a shared item code).
 						</div>
 
 						<div id="rulesWrap" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -537,20 +543,22 @@ export async function renderSettings($app) {
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
 
 	function ensureFilters(r) {
-		const f = r && r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
-		return f;
+		return (r && r.filters && typeof r.filters === "object") ? { ...r.filters } : {};
 	}
 
 	function dropEmptyFilters(r) {
 		const f = ensureFilters(r);
 
-		if (Array.isArray(f.keywordsAny) && !f.keywordsAny.length) delete f.keywordsAny;
-		if (Array.isArray(f.keywordsNone) && !f.keywordsNone.length) delete f.keywordsNone;
+		// keep keywords arrays even if empty (toggle-on state)
+		if (f.keywordsAny !== undefined && !Array.isArray(f.keywordsAny)) delete f.keywordsAny;
+		if (f.keywordsNone !== undefined && !Array.isArray(f.keywordsNone)) delete f.keywordsNone;
 
 		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
 
+		// keep acrossMarket boolean (true/false) so "off" can persist
+		if (f.acrossMarket !== undefined && typeof f.acrossMarket !== "boolean") delete f.acrossMarket;
+
 		if (f.requireCheapestNow !== true) delete f.requireCheapestNow;
-		if (f.acrossMarket !== true) delete f.acrossMarket;
 
 		if (!(typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) && f.minDropAbs >= 0)) delete f.minDropAbs;
 		if (!(typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) && f.minDropPct >= 0 && f.minDropPct <= 100)) delete f.minDropPct;
@@ -568,15 +576,18 @@ export async function renderSettings($app) {
 		out.scope = out.scope === "all" ? "all" : "shortlist";
 
 		const et = String(out.eventType || "GLOBAL_NEW");
-		out.eventType = ["OUT_OF_STOCK", "PRICE_DROP", "GLOBAL_NEW", "GLOBAL_RETURN"].includes(et)
-			? et
-			: "GLOBAL_NEW";
+		out.eventType = ["GLOBAL_NEW", "GLOBAL_RETURN", "OUT_OF_STOCK", "PRICE_DROP"].includes(et) ? et : "GLOBAL_NEW";
 
 		const f = ensureFilters(out);
 
-		// "New bottle" needs across-market option and should default on (SKU-matched across stores)
-		if (out.eventType === "GLOBAL_NEW") {
-			if (f.acrossMarket !== true) f.acrossMarket = true;
+		// Default only: New bottle -> same SKU across all stores ON unless user explicitly set false
+		if (out.eventType === "GLOBAL_NEW" && typeof f.acrossMarket !== "boolean") {
+			f.acrossMarket = true;
+		}
+
+		// acrossMarket only relevant for these
+		if (!(out.eventType === "GLOBAL_NEW" || out.eventType === "GLOBAL_RETURN" || out.eventType === "OUT_OF_STOCK")) {
+			delete f.acrossMarket;
 		}
 
 		// Drop-specific fields only for PRICE_DROP
@@ -584,11 +595,6 @@ export async function renderSettings($app) {
 			delete f.minDropAbs;
 			delete f.minDropPct;
 			delete f.requireCheapestNow;
-		}
-
-		// Across-market applies to New bottle + Back in stock + Out of stock
-		if (!(out.eventType === "GLOBAL_NEW" || out.eventType === "GLOBAL_RETURN" || out.eventType === "OUT_OF_STOCK")) {
-			delete f.acrossMarket;
 		}
 
 		out.filters = f;
@@ -602,7 +608,7 @@ export async function renderSettings($app) {
 			enabled: true,
 			scope: "shortlist",
 			eventType: "GLOBAL_NEW",
-			filters: { acrossMarket: true }, // default ON for new bottle
+			filters: { acrossMarket: true },
 		});
 	}
 
@@ -620,16 +626,6 @@ export async function renderSettings($app) {
 		}
 	}
 
-	function findClosest(el, tagName) {
-		let n = el;
-		const want = String(tagName || "").toUpperCase();
-		while (n && n.nodeType === 1) {
-			if (n.tagName === want) return n;
-			n = n.parentNode;
-		}
-		return null;
-	}
-
 	function renderRules() {
 		if (!rules.length) {
 			$rulesWrap.innerHTML = `<div class="small" style="color:var(--muted);">No rules yet.</div>`;
@@ -640,8 +636,10 @@ export async function renderSettings($app) {
 			const f = ensureFilters(r);
 
 			const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
-			const useKwAny = Array.isArray(f.keywordsAny) && f.keywordsAny.length > 0;
-			const useKwNone = Array.isArray(f.keywordsNone) && f.keywordsNone.length > 0;
+
+			// IMPORTANT: enabled = property exists (even empty array)
+			const useKwAny = Array.isArray(f.keywordsAny);
+			const useKwNone = Array.isArray(f.keywordsNone);
 
 			const isDrop = r.eventType === "PRICE_DROP";
 			const useMinAbs = isDrop && typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs);
@@ -651,17 +649,13 @@ export async function renderSettings($app) {
 			const showAcrossMarket = (r.eventType === "GLOBAL_NEW" || r.eventType === "GLOBAL_RETURN" || r.eventType === "OUT_OF_STOCK");
 			const useAcrossMarket = showAcrossMarket && f.acrossMarket === true;
 
-			const storeSel = useStore ? String(f.storeId) : STORES[0] && STORES[0].id;
+			const storeSel = useStore ? String(f.storeId) : (STORES[0] ? STORES[0].id : "");
 
-			const acrossLabel =
-				r.eventType === "OUT_OF_STOCK" ? "Same SKU (any store)" :
-				r.eventType === "GLOBAL_RETURN" ? "Same SKU (any store)" :
-				"Same SKU (any store)";
-
+			const acrossTitle = "Same SKU across all stores";
 			const acrossHelp =
 				r.eventType === "GLOBAL_NEW"
-					? "On = alert only when this SKU is first seen anywhere. Off = alert when any store posts the SKU."
-					: "On = treat the bottle as the same across stores when the SKU matches.";
+					? "On = only alert when this SKU is brand new to the whole market. Off = alert when any store adds the SKU."
+					: "On = treat listings as the same bottle when their SKU matches across stores.";
 
 			return `
 				<div class="card stRuleCard" data-rule="${esc(r.id)}">
@@ -738,7 +732,7 @@ export async function renderSettings($app) {
 						</div>
 
 						<div class="subtleNote stRuleNote">
-							Keywords match the bottle name. Use commas to add multiple terms.
+							Keywords match the bottle name (not the SKU). Use commas to list multiple.
 						</div>
 
 						${showAcrossMarket ? `
@@ -746,7 +740,7 @@ export async function renderSettings($app) {
 							<label data-i="${i}" data-k="useAcrossMarket" class="switch mini ${useAcrossMarket ? "isOn" : ""}" style="cursor:pointer;">
 								<input type="checkbox" ${useAcrossMarket ? "checked" : ""} />
 								<div class="switchLabel">
-									<div class="switchStatus ${useAcrossMarket ? "" : "muted"}">${esc(acrossLabel)}</div>
+									<div class="switchStatus ${useAcrossMarket ? "" : "muted"}">${esc(acrossTitle)}</div>
 								</div>
 								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
 							</label>
@@ -827,25 +821,10 @@ export async function renderSettings($app) {
 		renderRules();
 	});
 
-	// IMPORTANT: use CAPTURE on document so nothing can “eat” events before we see them.
-	document.addEventListener("click", (e) => {
-		// Only handle clicks inside the rules editor
-		const wrap = document.getElementById("rulesWrap");
-		if (!wrap) return;
-
-		// walk up to see if this click is inside #rulesWrap
-		let node = e.target;
-		let inside = false;
-		while (node && node.nodeType === 1) {
-			if (node === wrap) { inside = true; break; }
-			node = node.parentNode;
-		}
-		if (!inside) return;
-
-		// delete button
-		let btn = e.target;
-		while (btn && btn.nodeType === 1 && btn.tagName !== "BUTTON") btn = btn.parentNode;
-		if (btn && btn.tagName === "BUTTON") {
+	// Switches + delete (capture so nothing can stop it)
+	$rulesWrap.addEventListener("click", (e) => {
+		const btn = e.target?.closest?.("button[data-k]");
+		if (btn) {
 			const k = String(btn.getAttribute("data-k") || "");
 			if (k === "delete") {
 				const i = Number(btn.getAttribute("data-i"));
@@ -856,13 +835,8 @@ export async function renderSettings($app) {
 			}
 		}
 
-		// toggle switches (label.switch.mini)
-		let lab = e.target;
-		while (lab && lab.nodeType === 1 && !(lab.tagName === "LABEL" && String(lab.className || "").includes("switch"))) {
-			lab = lab.parentNode;
-		}
-		if (!lab || lab.tagName !== "LABEL") return;
-		if (!String(lab.className || "").includes("mini")) return;
+		const lab = e.target?.closest?.("label.switch.mini");
+		if (!lab) return;
 
 		const i = Number(lab.getAttribute("data-i"));
 		const dk = String(lab.getAttribute("data-k") || "");
@@ -877,7 +851,7 @@ export async function renderSettings($app) {
 		const f = ensureFilters(cur);
 
 		if (dk === "useStore") {
-			if (cb.checked) f.storeId = f.storeId || (STORES[0] && STORES[0].id) || "kwm";
+			if (cb.checked) f.storeId = f.storeId || (STORES[0] ? STORES[0].id : "kwm");
 			else delete f.storeId;
 			setRuleAt(i, { ...cur, filters: f });
 			renderRules();
@@ -901,8 +875,8 @@ export async function renderSettings($app) {
 		}
 
 		if (dk === "useAcrossMarket") {
-			if (cb.checked) f.acrossMarket = true;
-			else delete f.acrossMarket;
+			// store explicit false so "off" persists for GLOBAL_NEW
+			f.acrossMarket = cb.checked ? true : false;
 			setRuleAt(i, { ...cur, filters: f });
 			renderRules();
 			return;
@@ -933,10 +907,11 @@ export async function renderSettings($app) {
 		}
 	}, true);
 
+	// selects
 	$rulesWrap.addEventListener("change", (e) => {
 		const el = e.target;
-		const i = Number(el && el.getAttribute && el.getAttribute("data-i"));
-		const k = String(el && el.getAttribute && el.getAttribute("data-k") || "");
+		const i = Number(el?.getAttribute?.("data-i"));
+		const k = String(el?.getAttribute?.("data-k") || "");
 		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
 
 		const cur = { ...rules[i] };
@@ -948,14 +923,12 @@ export async function renderSettings($app) {
 			renderRules();
 			return;
 		}
-
 		if (k === "eventType") {
 			cur.eventType = String(el.value || "");
 			setRuleAt(i, { ...cur, filters: f });
 			renderRules();
 			return;
 		}
-
 		if (k === "storeId") {
 			f.storeId = String(el.value || "").trim();
 			setRuleAt(i, { ...cur, filters: f });
@@ -963,10 +936,11 @@ export async function renderSettings($app) {
 		}
 	});
 
+	// text/number inputs
 	$rulesWrap.addEventListener("input", (e) => {
 		const el = e.target;
-		const i = Number(el && el.getAttribute && el.getAttribute("data-i"));
-		const k = String(el && el.getAttribute && el.getAttribute("data-k") || "");
+		const i = Number(el?.getAttribute?.("data-i"));
+		const k = String(el?.getAttribute?.("data-k") || "");
 		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
 
 		const cur = { ...rules[i] };
@@ -1044,7 +1018,7 @@ export async function renderSettings($app) {
 				location.hash = "#/login";
 				return;
 			}
-			setStatusText(`Save failed: ${String(e && e.message || e)}`);
+			setStatusText(`Save failed: ${String(e?.message || e)}`);
 		} finally {
 			$save.disabled = false;
 		}
