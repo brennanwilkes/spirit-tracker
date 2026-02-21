@@ -15,9 +15,8 @@ function ensureSettingsCssOnce() {
 	const css = document.createElement("style");
 	css.id = "stSettingsCss";
 	css.textContent = `
-	/* Scope font + polish to settings only */
 	.settingsWrap{
-	  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+	  font-family: ui-sans-serif, system-ui, -apple-system, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 	  font-size: 15px;
 	}
 	.settingsWrap button,
@@ -27,14 +26,12 @@ function ensureSettingsCssOnce() {
 
 	.settingsCard{ padding: 16px; border-radius: 14px; }
 
-	/* Bump Settings title */
 	.settingsTitle{
 	  font-size: 19px;
 	  font-weight: 900;
 	  letter-spacing: 0.2px;
 	}
 
-	/* Bump section titles */
 	.settingsSectionTitle{
 	  font-size: 16px;
 	  font-weight: 900;
@@ -49,7 +46,6 @@ function ensureSettingsCssOnce() {
 	  margin: 12px 0;
 	}
 
-	/* Two columns (mobile stacks) */
 	.switchRow{
 	  display: grid;
 	  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
@@ -62,18 +58,16 @@ function ensureSettingsCssOnce() {
 
 	.fieldTitle{ color: var(--muted); font-size: 12px; margin: 0 0 6px; }
 
-	/* Make Public + Name blocks match height */
 	.nameBlock .input{ height: 50px; }
 	.switchWrap{ display:flex; flex-direction:column; padding-top: 2px; }
 
-	/* Toggle container (same height as input) */
 	.switch{
 	  display:flex;
-	  align-items:center;            /* vertically center the inner text/pill */
+	  align-items:center;
 	  justify-content: space-between;
 	  gap: 12px;
-	  padding: 0 12px;               /* remove vertical padding so height is exact */
-	  height: 50px;                  /* match .input feel */
+	  padding: 0 12px;
+	  height: 50px;
 	  border-radius: 12px;
 	  border: 1px solid var(--border);
 	  background: #0f1318;
@@ -87,7 +81,7 @@ function ensureSettingsCssOnce() {
 
 	.switchLabel{
 	  display:flex;
-	  align-items:center;            /* center status text vertically */
+	  align-items:center;
 	  min-width: 0;
 	  height: 100%;
 	}
@@ -108,7 +102,6 @@ function ensureSettingsCssOnce() {
 	  font-weight: 750;
 	}
 
-	/* More visible toggle */
 	.switchPill{
 	  width: 46px;
 	  height: 28px;
@@ -146,15 +139,21 @@ function ensureSettingsCssOnce() {
 	    0 1px 0 rgba(0,0,0,0.28);
 	}
 
+	.subtleNote{
+	  font-size: 12px;
+	  color: var(--muted);
+	  margin-top: 6px;
+	  line-height: 1.25;
+	}
+
 	.nameBlock{ padding-top: 2px; }
 
-	/* Public link section: tight */
 	.linkSection{
 	  display:flex;
 	  flex-direction: column;
 	  gap: 8px;
 	  padding: 0;
-      margin-top: 20px;
+	  margin-top: 20px;
 	}
 	.linkRow{
 	  display:flex;
@@ -170,7 +169,6 @@ function ensureSettingsCssOnce() {
 	  overflow: hidden;
 	  text-overflow: ellipsis;
 	  white-space: nowrap;
-
 	  font-size: 14px;
 	  padding: 6px 12px;
 	  line-height: 1.2;
@@ -180,17 +178,16 @@ function ensureSettingsCssOnce() {
 	  cursor: not-allowed;
 	}
 
-	/* Save area: remove "fake margin" from status */
 	.saveArea{
 	  display:flex;
 	  flex-direction:column;
 	  gap: 8px;
 	}
 	.saveStatus{
-	  margin-top: -2px;  /* optically pulls it closer to preceding hr */
-	  margin-bottom: -2px; /* optically reduces perceived padding above button */
-	  min-height: 0;     /* don't reserve space when empty */
-	  display: none;     /* shown only when text exists */
+	  margin-top: -2px;
+	  margin-bottom: -2px;
+	  min-height: 0;
+	  display: none;
 	}
 	.saveStatus.isOn{ display: block; }
 
@@ -245,6 +242,9 @@ export async function renderSettings($app) {
 										<div class="switchKnob"></div>
 									</div>
 								</label>
+								<div id="publicNote" class="subtleNote" style="display:none;">
+									Changes to private may take up to 15 minutes to take effect.
+								</div>
 							</div>
 
 							<div class="nameBlock">
@@ -305,6 +305,7 @@ export async function renderSettings($app) {
 	const $isPublic = document.getElementById("isPublic");
 	const $name = document.getElementById("shortlistName");
 	const $sub = document.getElementById("publicSub");
+	const $note = document.getElementById("publicNote");
 	const $status = document.getElementById("status");
 	const $save = document.getElementById("save");
 	const $copy = document.getElementById("copyLink");
@@ -358,7 +359,6 @@ export async function renderSettings($app) {
 		}
 	});
 
-	// Load details
 	let details = await getMyDetails().catch((e) => e);
 	if (isAuthErr(details)) {
 		location.hash = "#/login";
@@ -373,9 +373,18 @@ export async function renderSettings($app) {
 	$name.value = initialName;
 	setUiForPublic(initialPublic);
 
+	let prevPublic = initialPublic;
+
 	$isPublic.addEventListener("change", () => {
-		setUiForPublic($isPublic.checked);
-		if ($isPublic.checked) {
+		const next = $isPublic.checked;
+		setUiForPublic(next);
+
+		const showNote = prevPublic && !next;
+		$note.style.display = showNote ? "block" : "none";
+
+		prevPublic = next;
+
+		if (next) {
 			$name.focus();
 			$name.select?.();
 		}
@@ -405,7 +414,6 @@ export async function renderSettings($app) {
 
 	$save.addEventListener("click", doSave);
 
-	// Cmd/Ctrl+Enter to save from the name input
 	$name.addEventListener("keydown", (e) => {
 		if ((e.ctrlKey || e.metaKey) && e.key === "Enter") doSave();
 	});
