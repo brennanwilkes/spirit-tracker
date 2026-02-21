@@ -14,8 +14,7 @@ const LS_TOKEN = "st:cloud:v1:token";
 const LS_USERID = "st:cloud:v1:userId";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const EVENT_TYPES = ["IN_STOCK","OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"];
-
+const EVENT_TYPES = ["OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"];
 
 /* ---------------- Support link (optional) ---------------- */
 
@@ -458,10 +457,20 @@ function validateEmailNotificationsV1(v) {
 				out.storeId = s;
 			}
 
-			// across market
+			// across market (preserve false; default true for GLOBAL_NEW; not allowed for PRICE_DROP)
 			if (filtersIn.acrossMarket != null) {
 				if (typeof filtersIn.acrossMarket !== "boolean") throw new TypeError("acrossMarket must be boolean");
-				if (filtersIn.acrossMarket) out.acrossMarket = true;
+				out.acrossMarket = filtersIn.acrossMarket;
+			}
+
+			// Default: GLOBAL_NEW is across-market unless explicitly turned off
+			if (eventType === "GLOBAL_NEW" && out.acrossMarket == null) {
+				out.acrossMarket = true;
+			}
+
+			// PRICE_DROP doesn't use acrossMarket
+			if (eventType === "PRICE_DROP") {
+				delete out.acrossMarket;
 			}
 
 			if (eventType === "PRICE_DROP") {
