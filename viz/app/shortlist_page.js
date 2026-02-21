@@ -5,7 +5,18 @@ import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-import { AuthError, getAuthStatus, getStoredToken, getDetails, getScore, getSampled, setScore, setSampled, getFavourites } from "./cloud.js";
+import {
+	AuthError,
+	getAuthStatus,
+	getStoredToken,
+	getDetails,
+	getScore,
+	getSampled,
+	setScore,
+	setSampled,
+	getFavourites,
+	getShortlists,
+} from "./cloud.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -24,9 +35,7 @@ function weightedScore({ priceNum, scoreNum, sampled }) {
 }
 
 function normStoreLabel(s) {
-	return String(s || "")
-		.trim()
-		.toLowerCase();
+	return String(s || "").trim().toLowerCase();
 }
 
 // canonicalSku -> storeLabel -> url (LIVE rows only)
@@ -99,25 +108,20 @@ export async function renderShortlist($app, accountUuidRaw) {
 		return;
 	}
 
-    const isSmall = !!window.matchMedia?.("(max-width: 640px)")?.matches;
-	const uuidLabel = isSmall ? `${(accountUuid.split("-")[0] || accountUuid)}…` : accountUuid;
-    
 	$app.innerHTML = `
         <div class="container shortlistPage">
             <div class="topbar">
                 <button id="back" class="btn">← Back</button>
 
-                <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
-                    <div class="h1" style="margin:0;">Shortlist</div>
-                    <span
-                        id="copyLink"
-                        class="badge mono badgeClick"
-                        role="button"
-                        tabindex="0"
-                        title="Copy page link"
-                    >
-                        ${esc(uuidLabel)}
-                    </span>
+                <div style="display:flex; align-items:center; gap:10px; margin-left:10px; min-width:0;">
+                    <div id="slTitle" class="h1" style="margin:0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        Shortlist
+                    </div>
+
+					<a class="btn btnIcon" href="#/shortlists" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Public shortlists">
+						<i class="fa-solid fa-people-group" aria-hidden="true"></i>
+						<span class="srOnly">Public Shortlists</span>
+					</a>
                 </div>
             </div>
 
@@ -152,8 +156,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 							style="width:120px; text-align:right; white-space:nowrap; opacity:.9;">$120</div>
 						</div>
 
-
-
 					<div style="display:flex; gap:10px; align-items:center; width:100%;">
 						<input id="q" class="input" placeholder="Search shortlist..." autocomplete="off" style="flex: 1 1 auto;" />
 						<button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
@@ -162,26 +164,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 				<div class="small" id="status" style="margin-top:10px;"></div>
 				<div id="results" class="list"></div>
-				<div id="sentinel" class="small" style="text-align:center; padding:12px 0;"></div>
+				<div id="sentinel" class="small (text-align:center; padding:12px 0;"></div>
 			</div>
 		</div>
 	`;
-
-    const copy = document.getElementById("copyLink");
-    const doCopy = async () => {
-        await navigator.clipboard.writeText(window.location.href);
-        const $status = document.getElementById("status");
-        if ($status) $status.textContent = "Copied page link to clipboard.";
-    };
-
-    copy.addEventListener("click", doCopy);
-    copy.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            doCopy();
-        }
-    });
-
 
 	document.getElementById("back").addEventListener("click", () => {
 		const last = sessionStorage.getItem("viz:lastRoute");
@@ -231,37 +217,62 @@ export async function renderShortlist($app, accountUuidRaw) {
 		getScore(accountUuid).catch((e) => e),
 		getSampled(accountUuid).catch((e) => e),
 		loadRecent().catch(() => null),
-	  ]);
-	
-    function isAuthErr(e) {
-        return e && (e.name === "AuthError" || e instanceof AuthError);
-    }
-    
+	]);
+
+	function isAuthErr(e) {
+		return e && (e.name === "AuthError" || e instanceof AuthError);
+	}
+
+	// ---- Title: try private details first (auth), then fallback to public /shortlists ----
+	(async () => {
+		const $t = document.getElementById("slTitle");
+		if (!$t) return;
+
+		const setTitle = (name) => {
+			const clean = String(name || "").trim();
+			$t.textContent = clean || "Shortlist";
+		};
+
+		try {
+			// Prefer authed details if we have a token. (Details endpoint always requires auth.)
+			const a = getAuthStatus();
+			if (a.ok && a.token) {
+				const d = await getDetails(accountUuid, { token: a.token });
+				setTitle(d?.shortlistName);
+				return;
+			}
+			throw new Error("no auth");
+		} catch {
+			// Fallback: public index list
+			try {
+				const list = await getShortlists({ cacheTtlMs: 6 * 60 * 60 * 1000 });
+				const rec = Array.isArray(list) ? list.find((x) => String(x?.uuid || "") === accountUuid) : null;
+				setTitle(rec?.shortlistName);
+			} catch {
+				setTitle("");
+			}
+		}
+	})();
+
 	// backend decides if this page is public/private
 	// (public pages will allow GET on favourites/score/sampled without auth)
 	if (isAuthErr(fav) || isAuthErr(scoreMap) || isAuthErr(sampledArr)) {
 		location.hash = "#/login";
-        return;
-    }
-    
-    // normalize
-    const scoreObj = scoreMap && typeof scoreMap === "object" ? scoreMap : {};
-    const sampledList = Array.isArray(sampledArr) ? sampledArr : [];
-    
+		return;
+	}
+
+	// normalize
+	const scoreObj = scoreMap && typeof scoreMap === "object" ? scoreMap : {};
+	const sampledList = Array.isArray(sampledArr) ? sampledArr : [];
 
 	// Canonicalize favourites
-    const favArr =
-        Array.isArray(fav) ? fav :
-        Array.isArray(fav?.set) ? fav.set :
-        [];
-    
-    favSet.clear();
-    for (const k of favArr) {
-        const raw = String(k || "");
-        favSet.add(String(rules.canonicalSku(raw) || raw));
-    }
-  
-    
+	const favArr = Array.isArray(fav) ? fav : Array.isArray(fav?.set) ? fav.set : [];
+
+	favSet.clear();
+	for (const k of favArr) {
+		const raw = String(k || "");
+		favSet.add(String(rules.canonicalSku(raw) || raw));
+	}
 
 	const sampledSet = new Set(
 		(Array.isArray(sampledArr) ? sampledArr : []).map((k) => String(rules.canonicalSku(k) || k)),
@@ -385,7 +396,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	}
 
 	function urlForSkuStore(sku, storeNorm) {
-		const label = storeNorm ? (storeDisplayByNorm.get(storeNorm) || "") : "";
+		const label = storeNorm ? storeDisplayByNorm.get(storeNorm) || "" : "";
 		if (!label) return "";
 		const u = URL_BY_SKU_STORE.get(sku)?.get(label) || "";
 		return String(u || "");
@@ -408,7 +419,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		}
 		return best;
 	}
-		
+
 	function bestStoreForSku(sku) {
 		const m = liveMinPriceBySkuStore.get(sku);
 		if (!m) return { storeNorm: "", price: null };
@@ -669,8 +680,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 		return `<span class="badge badgeBad">$${esc(dollars)} higher</span>`;
 	}
 
-		
-
 	function saleBadgeHtml(it) {
 		if (!it._hasSaleMeta) return "";
 
@@ -705,14 +714,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const price = priceStr(it);
 		const storeNeed = String($storeFilter.value || "");
 		// When store-filtered: hide sale badges, show compare-vs-best badge instead.
-		const saleBadge =
-			storeNeed
-				? diffVsOtherBadgeHtml(it)
-				: saleBadgeHtml(it);
-				const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
-        const wDock = showWInline && Number.isFinite(it._viewWeighted)
-            ? `<span class="badge mono badgeNeutral">Weighted: ${esc(it._viewWeighted)}</span>`
-					: "";
+		const saleBadge = storeNeed ? diffVsOtherBadgeHtml(it) : saleBadgeHtml(it);
+		const isSmall = !!window.matchMedia?.("(max-width: 640px)")?.matches;
+		const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
+		const wDock =
+			showWInline && Number.isFinite(it._viewWeighted)
+				? `<span class="badge mono badgeNeutral">Weighted: ${esc(it._viewWeighted)}</span>`
+				: "";
 
 		const storeLabel = String(it._viewStoreLabel || it._bestStoreLabel || "").trim();
 		const href = String(it._viewUrl || it._bestUrl || "").trim() || String(it.sampleUrl || "").trim();
@@ -722,27 +730,23 @@ export async function renderShortlist($app, accountUuidRaw) {
 				? href
 					? `<a class="badge" href="${esc(
 							href,
-						)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
+					  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
 							storeLabel,
-						)}${esc(plus)}</a>`
+					  )}${esc(plus)}</a>`
 					: `<span class="badge">${esc(storeLabel)}${esc(plus)}</span>`
 				: "";
 
 		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
-        const skuDisp = displaySku(it.sku);
+		const skuDisp = displaySku(it.sku);
 
 		const stockBadge = it._outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
 		const specialBadge = it._lastStock
 			? `<span class="badge badgeLastStock">Last Stock</span>`
 			: it._exclusive
-				? `<span class="badge badgeExclusive">Exclusive</span>`
-				: "";
-
-		const scoreBadge = Number.isFinite(it._score)
-			? `<span class="badge mono">Score ${esc(Math.round(it._score))}</span>`
+			? `<span class="badge badgeExclusive">Exclusive</span>`
 			: "";
-		const wBadge = Number.isFinite(it._weighted) ? `<span class="badge mono">W ${esc(it._weighted)}</span>` : "";
-        const sampledPill = `<button
+
+		const sampledPill = `<button
 					class="pillBtn sampledBtn ${it._sampled ? "isOn" : ""}"
 					type="button"
 					data-sku="${esc(it.sku)}"
@@ -778,7 +782,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 						style="width:64px;"
 					/>
 				</div>`;
-        
+
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
 				<div class="starDock">
@@ -787,38 +791,38 @@ export async function renderShortlist($app, accountUuidRaw) {
 				</div>
 				<div class="itemRow">
 					<div class="thumbBox">${renderThumbHtml(it.img)}</div>
-                        <div class="itemBody" style="min-width:0;">
-                            <div class="itemTop" style="display:flex; align-items:center; gap:8px; min-width:0;">
-                                <div class="itemName" style="flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                    ${esc(it.name || "(no name)")}
-                                </div>
-                                                
-                            ${sampledPill}
-                            ${scorePill}
-                                                    
-                            <a
-                                class="badge mono skuLink"
-                                style="
-                                    flex: 0 0 9ch;
-                                    width: 9ch;
-                                    min-width: 9ch;
-                                    max-width: 9ch;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                    white-space: nowrap;
-                                    display: inline-block;
-                                    margin-right: 18px;
-                                "
-                                title="${esc(skuDisp)}"
-                                href="${esc(skuLink)}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onclick="event.stopPropagation()"
-                                >
-                                ${esc(skuDisp)}
-                                </a>
+					<div class="itemBody" style="min-width:0;">
+						<div class="itemTop" style="display:flex; align-items:center; gap:8px; min-width:0;">
+							<div class="itemName" style="flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+								${esc(it.name || "(no name)")}
+							</div>
 
-                        </div>
+							${sampledPill}
+							${scorePill}
+
+							<a
+								class="badge mono skuLink"
+								style="
+									flex: 0 0 9ch;
+									width: 9ch;
+									min-width: 9ch;
+									max-width: 9ch;
+									overflow: hidden;
+									text-overflow: ellipsis;
+									white-space: nowrap;
+									display: inline-block;
+									margin-right: 18px;
+								"
+								title="${esc(skuDisp)}"
+								href="${esc(skuLink)}"
+								target="_blank"
+								rel="noopener noreferrer"
+								onclick="event.stopPropagation()"
+							>
+								${esc(skuDisp)}
+							</a>
+						</div>
+
 						<div class="metaRow">
 							${stockBadge}
 							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
@@ -872,7 +876,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const mode = String($sort.value || "weightedDesc");
 		const storeNeed = String($storeFilter.value || "");
 		const storeFiltered = !!storeNeed;
-		
+
 		function nameKey(x) {
 			return (String(x.name || "") + "|" + String(x.sku || "")).toLowerCase();
 		}
@@ -922,7 +926,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 				if (storeFiltered) {
 					const ap = Number.isFinite(a._diffVsOtherPct) ? a._diffVsOtherPct : 999999;
 					const bp = Number.isFinite(b._diffVsOtherPct) ? b._diffVsOtherPct : 999999;
-					if (ap !== bp) return ap - bp; // smallest difference (best) first
+					if (ap !== bp) return ap - bp;
 					return nameKey(a).localeCompare(nameKey(b));
 				}
 
@@ -932,7 +936,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 				const ap = Number.isFinite(a._salePct) ? a._salePct : 999999;
 				const bp = Number.isFinite(b._salePct) ? b._salePct : 999999;
-				if (ap !== bp) return ap - bp; // most negative (best) first
+				if (ap !== bp) return ap - bp;
 				return nameKey(a).localeCompare(nameKey(b));
 			});
 			return;
@@ -943,7 +947,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 				if (storeFiltered) {
 					const ad = Number.isFinite(a._diffVsOtherDollar) ? a._diffVsOtherDollar : 999999;
 					const bd = Number.isFinite(b._diffVsOtherDollar) ? b._diffVsOtherDollar : 999999;
-					if (ad !== bd) return ad - bd; // smallest difference (best) first
+					if (ad !== bd) return ad - bd;
 					return nameKey(a).localeCompare(nameKey(b));
 				}
 
@@ -953,16 +957,14 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 				const ad = Number.isFinite(a._saleDelta) ? a._saleDelta : 999999;
 				const bd = Number.isFinite(b._saleDelta) ? b._saleDelta : 999999;
-				if (ad !== bd) return ad - bd; // most negative (best) first
-									return nameKey(a).localeCompare(nameKey(b));
+				if (ad !== bd) return ad - bd;
+				return nameKey(a).localeCompare(nameKey(b));
 			});
 			return;
 		}
 	}
 
 	function applyFilter() {
-
-		// Empty-state: no favourites at all (not just "no matches" after filtering)
 		if (!favSet || favSet.size === 0) {
 			$status.textContent = "No favourites yet.";
 			$results.innerHTML = `
@@ -976,26 +978,22 @@ export async function renderShortlist($app, accountUuidRaw) {
 		} else {
 			if ($priceWrap) $priceWrap.style.display = "";
 		}
-				
 
 		localStorage.setItem(LS_Q, String($q.value || ""));
 		localStorage.setItem(LS_SORT, String($sort.value || ""));
 		localStorage.setItem(LS_STORE, String($storeFilter.value || ""));
 
-		// Base = favourites (current favSet), from decorated map
 		let base = [];
 		for (const sku of favSet) {
 			const it = decoratedBySku.get(sku);
 			if (it) base.push(it);
 		}
 
-		// Store filter: only show items IN STOCK at that store
 		const storeNeed = String($storeFilter.value || "");
 		if (storeNeed) {
 			base = base.filter((it) => it && it._liveStoreNorms && it._liveStoreNorms.has(storeNeed));
 		}
 
-		// Compute "view" fields based on store filter
 		const EPS = 0.01;
 		for (const it of base) {
 			const sku = String(it.sku || "");
@@ -1004,35 +1002,32 @@ export async function renderShortlist($app, accountUuidRaw) {
 			const storePrice = storeNeed ? storeMinPrice(sku, storeNeed) : null;
 
 			const viewPrice =
-				storeNeed && Number.isFinite(storePrice)
-					? storePrice
-					: (Number.isFinite(it._priceNum) ? it._priceNum : null);
+				storeNeed && Number.isFinite(storePrice) ? storePrice : Number.isFinite(it._priceNum) ? it._priceNum : null;
 
 			it._viewStoreNorm = activeStore;
-			it._viewStoreLabel = activeStore ? (storeDisplayByNorm.get(activeStore) || it._bestStoreLabel || "") : (it._bestStoreLabel || "");
-			it._viewUrl = activeStore ? (urlForSkuStore(sku, activeStore) || it._bestUrl || it.sampleUrl || "") : (it._bestUrl || it.sampleUrl || "");
+			it._viewStoreLabel = activeStore
+				? storeDisplayByNorm.get(activeStore) || it._bestStoreLabel || ""
+				: it._bestStoreLabel || "";
+			it._viewUrl = activeStore
+				? urlForSkuStore(sku, activeStore) || it._bestUrl || it.sampleUrl || ""
+				: it._bestUrl || it.sampleUrl || "";
 			it._viewPriceNum = Number.isFinite(viewPrice) ? viewPrice : null;
 
-			// When store-filtered, compare vs cheapest OTHER store (matches store page)
 			const vp = it._viewPriceNum;
 			const other = storeNeed ? bestOtherPrice(sku, storeNeed) : null;
-			it._diffVsOtherDollar = (vp !== null && other !== null) ? (vp - other) : null;
-			it._diffVsOtherPct =
-				(vp !== null && other !== null && other > 0) ? (((vp - other) / other) * 100) : null;
-						
+			it._diffVsOtherDollar = vp !== null && other !== null ? vp - other : null;
+			it._diffVsOtherPct = vp !== null && other !== null && other > 0 ? ((vp - other) / other) * 100 : null;
+
 			it._viewWeighted = weightedScore({
 				priceNum: it._viewPriceNum,
 				scoreNum: it._score,
 				sampled: it._sampled,
 			});
 		}
-		
 
-		// Search tokens
 		const tokens = tokenizeQuery($q.value);
 		if (tokens.length) base = base.filter((it) => matchesAllTokens(it.searchText || "", tokens));
 
-		// Max price (based on VIEW price: store price when filtered, else global lowest)
 		if (pageMax !== null && Number.isFinite(selectedMaxPrice)) {
 			const cap = selectedMaxPrice + 0.0001;
 			base = base.filter((it) => {
@@ -1058,7 +1053,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 	function flashSaved(el) {
 		if (!el) return;
 		el.classList.remove("isSaved");
-		// restart animation
 		void el.offsetWidth;
 		el.classList.add("isSaved");
 		setTimeout(() => el && el.classList.remove("isSaved"), 650);
@@ -1069,22 +1063,20 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (refreshAfterFlashT) clearTimeout(refreshAfterFlashT);
 		refreshAfterFlashT = setTimeout(refreshAfterEdit, 680);
 	}
-        
 
-    async function refreshAfterEdit() {
-        // re-decorate score/sample only and re-sort
-        for (const sku of favSet) {
-            const it = decoratedBySku.get(sku);
-            if (!it) continue;
-    
-            const raw = scoreMap && typeof scoreMap === "object" ? Number(scoreMap[sku]) : NaN;
-            it._score = Number.isFinite(raw) ? raw : null;
-            it._sampled = sampledSet.has(sku);
+	async function refreshAfterEdit() {
+		for (const sku of favSet) {
+			const it = decoratedBySku.get(sku);
+			if (!it) continue;
+
+			const raw = scoreMap && typeof scoreMap === "object" ? Number(scoreMap[sku]) : NaN;
+			it._score = Number.isFinite(raw) ? raw : null;
+			it._sampled = sampledSet.has(sku);
 			it._weighted = weightedScore({ priceNum: it._priceNum, scoreNum: it._score, sampled: it._sampled });
-        }
-        applyFilter();
-    }
-    
+		}
+		applyFilter();
+	}
+
 	function setSampledUi(btn, isOn) {
 		if (!btn) return;
 		const on = !!isOn;
@@ -1092,18 +1084,15 @@ export async function renderShortlist($app, accountUuidRaw) {
 		btn.setAttribute("aria-pressed", on ? "true" : "false");
 	}
 
-	// Score pill: click focuses input (and MUST NOT trigger row navigation)
 	$results.addEventListener("click", (e) => {
 		const wrap = e.target.closest(".scoreWrap");
 		if (!wrap) return;
 
-		// Stop the row click handler (same element) from running
 		e.stopImmediatePropagation();
 
 		const inp = wrap.querySelector(".scoreInput");
 		if (!inp) return;
 
-		// Don't break normal input focusing/caret
 		const isInput = e.target === inp;
 		if (!isInput) {
 			e.preventDefault();
@@ -1122,23 +1111,21 @@ export async function renderShortlist($app, accountUuidRaw) {
 		}
 	});
 
-    // Auto-select score on focus (and keep selection after mouseup)
-    $results.addEventListener("focusin", (e) => {
-        const inp = e.target.closest(".scoreInput");
-        if (!inp) return;
-        setTimeout(() => {
-            try {
-                inp.select();
-            } catch {}
-        }, 0);
-    });
+	$results.addEventListener("focusin", (e) => {
+		const inp = e.target.closest(".scoreInput");
+		if (!inp) return;
+		setTimeout(() => {
+			try {
+				inp.select();
+			} catch {}
+		}, 0);
+	});
 
-    $results.addEventListener("mouseup", (e) => {
-        const inp = e.target.closest(".scoreInput");
-        if (!inp) return;
-        e.preventDefault(); // prevents mouseup from clearing the selection
-    });
-
+	$results.addEventListener("mouseup", (e) => {
+		const inp = e.target.closest(".scoreInput");
+		if (!inp) return;
+		e.preventDefault();
+	});
 
 	async function saveScore(sku, wrap, inp) {
 		const raw = String(inp?.value || "").trim();
@@ -1189,11 +1176,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (e.key === "Enter") {
 			e.preventDefault();
 			e.stopImmediatePropagation();
-			inp.blur(); // triggers change
+			inp.blur();
 		}
 	});
 
-	// Sampled toggle (with saving + saved flash) and MUST NOT trigger row navigation
 	$results.addEventListener("click", async (e) => {
 		const btn = e.target.closest(".sampledBtn");
 		if (!btn) return;
@@ -1220,16 +1206,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 			setSaving(btn, false);
 		}
 	});
-        
 
-
-
-	// Click -> item page (ignore fav star / links)
 	$results.addEventListener("click", (e) => {
 		if (e.defaultPrevented) return;
 		if (e.target.closest(".sampledBtn") || e.target.closest(".scoreWrap") || e.target.closest(".scoreInput")) return;
 		if (e.target.closest(".favStarBtn")) {
-			// allow fav_star.js to update, then re-filter to remove unfavourited rows
 			setTimeout(applyFilter, 550);
 			return;
 		}
@@ -1241,7 +1222,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 		location.hash = `#/item/${encodeURIComponent(sku)}`;
 	});
 
-	// Infinite scroll
 	const io = new IntersectionObserver(
 		(entries) => {
 			const hit = entries.some((x) => x.isIntersecting);
