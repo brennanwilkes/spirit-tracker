@@ -523,10 +523,10 @@ function main() {
 
       if (!prevSeen && nextInStock) {
         eventType = "GLOBAL_NEW";
-        payload = { listingUrl: next.url };
+        payload = { listingUrl: next.url, newPrice: next.price || "" };
       } else if (prevSeen && prev.removed && nextInStock) {
         eventType = "GLOBAL_RETURN";
-        payload = { listingUrl: next.url };
+        payload = { listingUrl: next.url, newPrice: next.price || "" };
       } else if (prevInStock && !nextInStock) {
         eventType = "OUT_OF_STOCK";
         payload = { listingUrl: (prev && prev.url) || "" };
