@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-21T19:04:54.204Z",
+  "generatedAt": "2026-02-21T21:51:25.634Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11726,
-    "removedRows": 853,
-    "canonSkus": 5302,
+    "liveRows": 11727,
+    "removedRows": 856,
+    "canonSkus": 5297,
     "outputCount": 1000
   },
   "rows": [
@@ -2435,7 +2435,7 @@
       "storePrices": {
         "bcl": 200.99,
         "bsw": 140,
-        "craftcellars": 115.99,
+        "craftcellars": 165.99,
         "kegncork": 164.96,
         "kwm": 164.99,
         "legacyliquor": 199,
@@ -2447,21 +2447,21 @@
       },
       "representative": {
         "name": "Bowmore 18 Year Old",
-        "price": "$115.99",
-        "priceNum": 115.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "805160",
         "skuKey": "805160",
-        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$115.99",
-        "priceNum": 115.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv"
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
       }
     },
     {
@@ -8901,6 +8901,58 @@
       }
     },
     {
+      "canonSku": "252312",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 42.99,
+        "bcl": 42.99,
+        "bsw": 41.99,
+        "coop": 39.99,
+        "gull": 47.25,
+        "strath": 46.87,
+        "tudor": 68.39,
+        "vessel": 42.99
+      },
+      "representative": {
+        "name": "Glenfiddich 12 Year Old 375ml",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "252312",
+        "skuKey": "252312",
+        "url": "https://www.bswliquor.com/products/glenfiddich-12-year-old-signature-malt-2",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "coop",
+        "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/worldofwhisky#/product/1269"
+      }
+    },
+    {
       "canonSku": "298667",
       "storeCount": 8,
       "stores": [
@@ -9574,6 +9626,58 @@
         "priceNum": 50.39,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-12-year-ir-ml-380"
+      }
+    },
+    {
+      "canonSku": "500231",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 299.99,
+        "bsw": 300,
+        "coop": 359.99,
+        "craftcellars": 343.99,
+        "kwm": 349.99,
+        "maltsandgrains": 360.47,
+        "vessel": 299.99,
+        "willowpark": 349.99
+      },
+      "representative": {
+        "name": "HIGHLAND PARK - 18 YEAR OLD",
+        "price": "$299.99",
+        "priceNum": 299.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "500231",
+        "skuKey": "500231",
+        "url": "https://www.bcliquorstores.com/product/500231",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$299.99",
+        "priceNum": 299.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/500231"
       }
     },
     {
@@ -10911,6 +11015,57 @@
         "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/old-forester-1870"
+      }
+    },
+    {
+      "canonSku": "099906",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 36.99,
+        "coop": 36.99,
+        "craftcellars": 36.99,
+        "kegncork": 39.96,
+        "kwm": 37.99,
+        "strath": 47.74,
+        "vessel": 49.99
+      },
+      "representative": {
+        "name": "Adelphi Private Stock Blend",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "740315",
+        "skuKey": "740315",
+        "url": "https://www.bswliquor.com/products/adelphi-private-stock-blend",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/adelphi-private-stock-blend"
       }
     },
     {
@@ -12546,57 +12701,6 @@
       }
     },
     {
-      "canonSku": "252312",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 42.99,
-        "bcl": 42.99,
-        "bsw": 41.99,
-        "gull": 47.25,
-        "strath": 46.87,
-        "tudor": 68.39,
-        "vessel": 42.99
-      },
-      "representative": {
-        "name": "Glenfiddich 12 Year Old 375ml",
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "252312",
-        "skuKey": "252312",
-        "url": "https://www.bswliquor.com/products/glenfiddich-12-year-old-signature-malt-2",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-12-year-old-signature-malt-2"
-      }
-    },
-    {
       "canonSku": "261376",
       "storeCount": 7,
       "stores": [
@@ -13308,57 +13412,6 @@
         "priceNum": 46.56,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/tennessee/jack-daniels-bonded-50-abv/"
-      }
-    },
-    {
-      "canonSku": "500231",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 299.99,
-        "bsw": 300,
-        "craftcellars": 343.99,
-        "kwm": 349.99,
-        "maltsandgrains": 360.47,
-        "vessel": 299.99,
-        "willowpark": 349.99
-      },
-      "representative": {
-        "name": "HIGHLAND PARK - 18 YEAR OLD",
-        "price": "$299.99",
-        "priceNum": 299.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "500231",
-        "skuKey": "500231",
-        "url": "https://www.bcliquorstores.com/product/500231",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$299.99",
-        "priceNum": 299.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/500231"
       }
     },
     {
@@ -15023,56 +15076,6 @@
         "priceNum": 137,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/writers-tears-japanese-mizunara-cask"
-      }
-    },
-    {
-      "canonSku": "099906",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 36.99,
-        "coop": 36.99,
-        "craftcellars": 36.99,
-        "kegncork": 39.96,
-        "kwm": 37.99,
-        "vessel": 49.99
-      },
-      "representative": {
-        "name": "Adelphi Private Stock Blend",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "740315",
-        "skuKey": "740315",
-        "url": "https://www.bswliquor.com/products/adelphi-private-stock-blend",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/adelphi-private-stock-blend"
       }
     },
     {
@@ -24674,55 +24677,6 @@
         "priceNum": 37.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/john-sleeman-sons-rye-whisky"
-      }
-    },
-    {
-      "canonSku": "301926",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 102.69,
-        "bsw": 115,
-        "craftcellars": 115.99,
-        "kegncork": 105.96,
-        "legacyliquor": 116.42
-      },
-      "representative": {
-        "name": "REMUS HIGHEST RYE BOURBON",
-        "price": "$102.69",
-        "priceNum": 102.69,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "301926",
-        "skuKey": "301926",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4721029-remus-highest-rye-bourbon",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$102.69",
-        "priceNum": 102.69,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4721029-remus-highest-rye-bourbon"
       }
     },
     {
@@ -36349,6 +36303,54 @@
         "priceNum": 59.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/sazerac-6-year-old"
+      }
+    },
+    {
+      "canonSku": "301926",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bsw",
+        "kegncork",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bsw": 115,
+        "kegncork": 105.96,
+        "legacyliquor": 116.42
+      },
+      "representative": {
+        "name": "REMUS HIGHEST RYE BOURBON",
+        "price": "$102.69",
+        "priceNum": 102.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "301926",
+        "skuKey": "301926",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721029-remus-highest-rye-bourbon",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$102.69",
+        "priceNum": 102.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721029-remus-highest-rye-bourbon"
       }
     },
     {
