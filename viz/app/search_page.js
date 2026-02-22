@@ -64,13 +64,15 @@ export function renderSearch($app) {
       </div>
 
       <div class="card">
-        <div style="display:flex; gap:10px; align-items:center; width:100%; flex-wrap:wrap;">
-          <div style="display:flex; gap:10px; align-items:center; flex:1 1 420px; min-width:240px;">
+        <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+          <!-- Row 1: search -->
+          <div style="display:flex; gap:10px; align-items:center; width:100%;">
             <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" style="flex: 1 1 auto;" />
             <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
           </div>
 
-          <div style="display:flex; gap:10px; align-items:center; flex:0 0 auto; flex-wrap:wrap; justify-content:flex-end;">
+          <!-- Row 2: controls -->
+          <div style="display:flex; gap:10px; align-items:center; width:100%; flex-wrap:wrap; justify-content:flex-end;">
             <span class="small" style="opacity:.8;">Sort</span>
             <select id="sort" class="selectSmall" aria-label="Sort">
               <option value="newest">Newest</option>
@@ -88,6 +90,7 @@ export function renderSearch($app) {
             </select>
           </div>
         </div>
+
         <div id="results" class="list"></div>
       </div>
     </div>
@@ -277,7 +280,7 @@ export function renderSearch($app) {
 				if (ms > prev) latestEventMsBySku.set(sku, ms);
 			}
 
-			// sale sorts (latest price change)
+			// sale sorts + badges (latest price change)
 			const kind = normalizeKindForPrice(r);
 			if (kind === "price_down" || kind === "price_up" || kind === "price_change") {
 				const oldN = parsePriceToNumber(r?.oldPrice || "");
@@ -443,6 +446,32 @@ export function renderSearch($app) {
 					(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
 					(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
 
+				// Sale badge from /recent (7d window in rebuildRecentMeta)
+				let saleBadge = "";
+				{
+					const sm = latestPriceChangeBySku.get(sku) || null;
+					const pct = sm && Number.isFinite(sm.pct) ? sm.pct : null;
+					const delta = sm && Number.isFinite(sm.delta) ? sm.delta : null;
+
+					if (mode === "saleAbs") {
+						if (delta !== null) {
+							const abs = Math.round(Math.abs(delta));
+							if (abs) {
+								if (delta < 0) saleBadge = `<span class="badge badgeGood">$${esc(abs)} off</span>`;
+								else saleBadge = `<span class="badge badgeBad">+$${esc(abs)}</span>`;
+							}
+						}
+					} else {
+						if (pct !== null) {
+							const abs = Math.abs(pct);
+							if (abs) {
+								if (pct < 0) saleBadge = `<span class="badge badgeGood">${esc(abs)}% off</span>`;
+								else saleBadge = `<span class="badge badgeBad">+${esc(abs)}%</span>`;
+							}
+						}
+					}
+				}
+
 				const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
 				const specialBadge = stock.lastStock
 					? `<span class="badge badgeLastStock">Last Stock</span>`
@@ -483,6 +512,7 @@ export function renderSearch($app) {
                 </div>
                 <div class="metaRow">
 					<span class="mono price">${esc(price)}</span>
+					${saleBadge}
 					${stockBadge}
 					${specialBadge}
 					${storeBadge}
@@ -651,7 +681,7 @@ export function renderSearch($app) {
 		$results.innerHTML =
 			`<div class="small">Recently changed (last 3 days):</div>` +
 			limited
-				.map(({ r, sku, kind, salePct }) => {
+				.map(({ r, sku, kind }) => {
 					const kindLabel =
 						kind === "new"
 							? "NEW"
