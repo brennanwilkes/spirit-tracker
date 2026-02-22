@@ -1102,16 +1102,24 @@ html { overflow-y: scroll; }
 @media (max-width: 640px) {
   .hideMobile { display: none !important; }
 }
-
 @media (max-width: 640px) {
-  .headerRight.headerButtons{
+  /* hide on list cards only */
+  .itemHasStar .favStarBtn,
+  .shortlistPage .starDock {
+    display: none !important;
+  }
+
+  /* Top nav buttons fill width; icons stay fixed; wide buttons expand */
+  .headerRight.headerButtons {
     width: 100%;
   }
 
-  /* make the wide button actually expand */
-  .headerRight.headerButtons .btnWide{
+  .headerRight.headerButtons .btnIcon {
+    flex: 0 0 40px;
+  }
+
+  .headerRight.headerButtons .btnWide {
     flex: 1 1 auto;
-    width: auto;
-    min-width: 0; /* overrides 120px */
+    min-width: 0;
   }
 }
