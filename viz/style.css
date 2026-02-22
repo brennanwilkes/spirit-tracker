@@ -1067,29 +1067,6 @@ html { overflow-y: scroll; }
 .stSwalFooter a{ color: var(--accent) !important; }
 
 
-@media (max-width: 640px) {
-  .headerRight.headerButtons{
-    width: 100%;
-    display: flex;
-    gap: 10px;              /* restore spacing */
-  }
-
-  /* icons share row evenly */
-  .headerRight.headerButtons .btnIcon{
-    flex: 1 1 0;
-    min-width: 0;
-    width: auto;
-    justify-content: center;
-  }
-
-  /* wide buttons take full row */
-  .headerRight.headerButtons .btnWide{
-    flex: 0 0 100%;
-    width: 100%;
-    order: 99;
-  }
-}
-
 /* shortlist max price row: keep the $ label from wrapping */
 #priceWrap { flex-wrap: nowrap; }
 
@@ -1122,11 +1099,6 @@ html { overflow-y: scroll; }
   white-space: nowrap;
 }
 
-
-.btnWideMobile { display: none; }
-.btnWideDesktop { display: inline-flex; }
-
 @media (max-width: 640px) {
-  .btnWideDesktop { display: none !important; }
-  .btnWideMobile { display: inline-flex !important; }
+  .hideMobile { display: none !important; }
 }
