@@ -314,15 +314,49 @@ export async function renderShortlist($app, accountUuidRaw) {
 		}
 	}
 
-	// Populate store dropdown (live stores only)
+	// Populate store dropdown (live stores only) — grouped by province
 	{
+		const BC_STORE_NORMS = new Set([
+			"ARC Liquor",
+			"BCL",
+			"Gull Liquor",
+			"Legacy Liquor",
+			"Strath Liquor",
+			"Tudor House",
+			"Vessel Liquor",
+			"Vintage Spirits",
+		].map(normStoreLabel));
+
+		const AB_STORE_NORMS = new Set([
+			"BSW",
+			"Co-op World of Whisky",
+			"Craft Cellars",
+			"Keg N Cork",
+			"Kensington Wine Market",
+			"Malts & Grains",
+			"Sierra Springs",
+			"Willow Park",
+		].map(normStoreLabel));
+
 		const opts = Array.from(storeDisplayByNorm.entries())
 			.map(([norm, label]) => ({ norm, label }))
 			.sort((a, b) => a.label.localeCompare(b.label));
 
+		const bc = opts.filter((o) => BC_STORE_NORMS.has(o.norm));
+		const ab = opts.filter((o) => AB_STORE_NORMS.has(o.norm));
+		const other = opts.filter((o) => !BC_STORE_NORMS.has(o.norm) && !AB_STORE_NORMS.has(o.norm));
+
+		const optHtml = (list) =>
+			list.map((o) => `<option value="${esc(o.norm)}">${esc(o.label)}</option>`).join("");
+
+		const groupHtml = (label, list) =>
+			list.length ? `<optgroup label="${esc(label)}">${optHtml(list)}</optgroup>` : "";
+
 		$storeFilter.innerHTML =
 			`<option value="">-</option>` +
-			opts.map((o) => `<option value="${esc(o.norm)}">${esc(o.label)}</option>`).join("");
+			groupHtml("BC", bc) +
+			groupHtml("Alberta", ab) +
+			groupHtml("Other", other);
 
 		// restore persisted selection if still exists
 		const want = String(localStorage.getItem(LS_STORE) || "");
