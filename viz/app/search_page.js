@@ -260,6 +260,8 @@ export function renderSearch($app) {
 	}
 
 	// Find most recent event (within window) that changed the GLOBAL min price (across stores)
+	// Find most recent event (within window) that changed the CURRENT GLOBAL min price (across stores),
+	// but only when that min change was caused by a store price change (up/down), not stock churn.
 	function computeGlobalSaleMetaForSku(sku, evts) {
 		const m = liveMinPriceBySkuStore.get(sku);
 		if (!m || m.size === 0) return null;
@@ -273,8 +275,9 @@ export function renderSearch($app) {
 			return minFinite(st.values());
 		}
 
-		const startAfter = globalMin(state);
-		if (!Number.isFinite(startAfter)) return null;
+		// CURRENT cheapest price (now)
+		const currentMin = globalMin(state);
+		if (!Number.isFinite(currentMin)) return null;
 
 		const sorted = evts.slice().sort((a, b) => {
 			if (b.ms !== a.ms) return b.ms - a.ms;
@@ -285,20 +288,32 @@ export function renderSearch($app) {
 			const afterMin = globalMin(state);
 			if (!Number.isFinite(afterMin)) return null;
 
+			// Once we've rolled back past the chain that produces *current* cheapest,
+			// older events are not relevant for "recent cheapest price change".
+			if (Math.abs(afterMin - currentMin) > EPS) break;
+
 			// rollback e
 			const next = new Map(state);
 
 			if (e.kind === "removed") {
+				// store was removed after this event; rollback = restore its prior price
 				if (Number.isFinite(e.priceNum)) next.set(e.storeNorm, e.priceNum);
 			} else if (e.kind === "new" || e.kind === "restored") {
+				// store didn't exist before this event; rollback = remove it
 				next.delete(e.storeNorm);
 			} else if (e.kind === "price_down" || e.kind === "price_up" || e.kind === "price_change") {
+				// rollback = restore old price
 				if (Number.isFinite(e.oldNum)) next.set(e.storeNorm, e.oldNum);
 			}
 
 			const beforeMin = globalMin(next);
+			if (!Number.isFinite(beforeMin)) return null;
 
-			if (Number.isFinite(beforeMin) && Math.abs(beforeMin - afterMin) > EPS) {
+			if (Math.abs(beforeMin - afterMin) > EPS) {
+				const isPriceEvt = e.kind === "price_down" || e.kind === "price_up" || e.kind === "price_change";
+				// If the first movement of the CURRENT cheapest was caused by stock churn, do not badge/sort.
+				if (!isPriceEvt) return null;
+
 				const delta = afterMin - beforeMin; // negative = down
 				const pct = beforeMin > 0 ? Math.round(((afterMin - beforeMin) / beforeMin) * 100) : 0;
 				return { delta, pct, ms: e.ms };
