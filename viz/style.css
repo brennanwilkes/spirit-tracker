@@ -337,46 +337,6 @@ button.badge.badgeBtn:hover{
   color: var(--text);
 }
 
-/* Search page controls (Sort + Availability) */
-.searchControls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  width:100%;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-
-.searchControl{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.searchControlLabel{
-  opacity:.8;
-  white-space:nowrap;
-}
-
-/* Mobile: keep horizontal, evenly spaced */
-@media (max-width: 640px) {
-
-  .searchControls{
-    justify-content: space-between;
-    flex-wrap: nowrap;
-  }
-
-  .searchControl{
-    flex: 1 1 0;
-    justify-content: center;
-  }
-
-  .searchControl .selectSmall{
-    width: auto;
-    min-width: 0;
-  }
-}
-
 /* --- Store selector (top of search page) --- */
 .storeBarWrap { margin-top: 12px; }
 
@@ -1067,6 +1027,31 @@ html { overflow-y: scroll; }
 .stSwalFooter a{ color: var(--accent) !important; }
 
 
+@media (max-width: 640px) {
+    /* hide on list cards only */
+    .itemHasStar .favStarBtn,
+    .shortlistPage .starDock {
+      display: none !important;
+    }
+  
+
+  /* 2) Top nav buttons fill width; icons stay fixed; "My Shortlist" expands */
+  .headerRight.headerButtons {
+    width: 100%;
+  }
+
+  /* keep icon buttons fixed-size */
+  .headerRight.headerButtons .btnIcon {
+    flex: 0 0 40px;
+  }
+
+  /* let wide button (My Shortlist / Login / Signup) expand */
+  .headerRight.headerButtons .btnWide {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 /* shortlist max price row: keep the $ label from wrapping */
 #priceWrap { flex-wrap: nowrap; }
 
@@ -1099,27 +1084,43 @@ html { overflow-y: scroll; }
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
-  .hideMobile { display: none !important; }
+/* Search page controls (Sort + Availability) */
+.searchControls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  width:100%;
+  flex-wrap:wrap;
+  justify-content:flex-end;
 }
+
+.searchControl{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.searchControlLabel{
+  opacity:.8;
+  white-space:nowrap;
+}
+
+/* Mobile: keep horizontal, evenly spaced */
 @media (max-width: 640px) {
-  /* hide on list cards only */
-  .itemHasStar .favStarBtn,
-  .shortlistPage .starDock {
-    display: none !important;
+
+  .searchControls{
+    justify-content: space-between;
+    flex-wrap: nowrap;
   }
 
-  /* Top nav buttons fill width; icons stay fixed; wide buttons expand */
-  .headerRight.headerButtons {
-    width: 100%;
+  .searchControl{
+    flex: 1 1 0;
+    justify-content: center;
   }
 
-  .headerRight.headerButtons .btnIcon {
-    flex: 0 0 40px;
-  }
-
-  .headerRight.headerButtons .btnWide {
-    flex: 1 1 auto;
+  .searchControl .selectSmall{
+    width: auto;
     min-width: 0;
   }
 }
+  
