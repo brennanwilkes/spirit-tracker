@@ -131,8 +131,8 @@ export function renderSearch($app) {
 	let firstSeenMsBySku = new Map();
 	// sku -> latest event ms (any kind, within recent window we build)
 	let latestEventMsBySku = new Map();
-	// sku -> latest price-change meta (within recent window we build)
-	let latestPriceChangeBySku = new Map(); // sku -> { ms, pct, delta }
+	// sku -> most recent event that changed GLOBAL min price (across stores), within window
+	let globalSaleMetaBySku = new Map(); // sku -> { ms, pct, delta }
 
 	// canonicalSku -> storeLabel -> url
 	let URL_BY_SKU_STORE = new Map();
@@ -250,20 +250,84 @@ export function renderSearch($app) {
 		return kind;
 	}
 
-	// Build cross-page sort metadata from /recent (used for Newest + Sale sorts when typing)
+	function minFinite(vals) {
+		let best = null;
+		for (const v of vals) {
+			if (!Number.isFinite(v)) continue;
+			best = best === null ? v : Math.min(best, v);
+		}
+		return best;
+	}
+
+	// Find most recent event (within window) that changed the GLOBAL min price (across stores)
+	function computeGlobalSaleMetaForSku(sku, evts) {
+		const m = liveMinPriceBySkuStore.get(sku);
+		if (!m || m.size === 0) return null;
+		if (!Array.isArray(evts) || !evts.length) return null;
+
+		// state = storeNorm -> current live min price for that store
+		let state = new Map(m);
+		const EPS = 0.01;
+
+		function globalMin(st) {
+			return minFinite(st.values());
+		}
+
+		const startAfter = globalMin(state);
+		if (!Number.isFinite(startAfter)) return null;
+
+		const sorted = evts.slice().sort((a, b) => {
+			if (b.ms !== a.ms) return b.ms - a.ms;
+			return String(a.storeNorm).localeCompare(String(b.storeNorm));
+		});
+
+		for (const e of sorted) {
+			const afterMin = globalMin(state);
+			if (!Number.isFinite(afterMin)) return null;
+
+			// rollback e
+			const next = new Map(state);
+
+			if (e.kind === "removed") {
+				if (Number.isFinite(e.priceNum)) next.set(e.storeNorm, e.priceNum);
+			} else if (e.kind === "new" || e.kind === "restored") {
+				next.delete(e.storeNorm);
+			} else if (e.kind === "price_down" || e.kind === "price_up" || e.kind === "price_change") {
+				if (Number.isFinite(e.oldNum)) next.set(e.storeNorm, e.oldNum);
+			}
+
+			const beforeMin = globalMin(next);
+
+			if (Number.isFinite(beforeMin) && Math.abs(beforeMin - afterMin) > EPS) {
+				const delta = afterMin - beforeMin; // negative = down
+				const pct = beforeMin > 0 ? Math.round(((afterMin - beforeMin) / beforeMin) * 100) : 0;
+				return { delta, pct, ms: e.ms };
+			}
+
+			state = next;
+		}
+
+		return null;
+	}
+
+	// Build cross-page sort metadata from /recent:
+	// - newest (for recent preload): latestEventMsBySku
+	// - sale: only when the changed price is the CURRENT GLOBAL min price (like shortlist page)
 	function rebuildRecentMeta(recent, canonSkuFn) {
 		latestEventMsBySku = new Map();
-		latestPriceChangeBySku = new Map();
+		globalSaleMetaBySku = new Map();
 
 		const items = Array.isArray(recent?.items) ? recent.items : [];
 		if (!items.length) return;
 
-		// A bit wider than the preload window so Sale sorts still do something when searching
 		const RECENT_DAYS = 7;
 		const nowMs = Date.now();
 		const cutoffMs = nowMs - RECENT_DAYS * 24 * 60 * 60 * 1000;
 
 		const canon = typeof canonSkuFn === "function" ? canonSkuFn : (x) => x;
+
+		// sku -> events[]
+		const eventsBySku = new Map();
 
 		for (const r of items) {
 			const ms = eventMsRecent(r);
@@ -280,37 +344,40 @@ export function renderSearch($app) {
 				if (ms > prev) latestEventMsBySku.set(sku, ms);
 			}
 
-			// sale sorts + badges (latest price change)
+			const storeLabel = String(r?.storeLabel || r?.store || "").trim();
+			const storeNorm = normStoreKey(storeLabel);
+			if (!storeNorm) continue;
+
 			const kind = normalizeKindForPrice(r);
-			if (kind === "price_down" || kind === "price_up" || kind === "price_change") {
-				const oldN = parsePriceToNumber(r?.oldPrice || "");
-				const newN = parsePriceToNumber(r?.newPrice || "");
-				if (!Number.isFinite(oldN) || !Number.isFinite(newN) || !(oldN > 0)) continue;
 
-				const pct = Math.round(((newN - oldN) / oldN) * 100); // negative = down
-				const delta = newN - oldN; // negative = down
+			const oldNum = parsePriceToNumber(r?.oldPrice || "");
+			const newNum = parsePriceToNumber(r?.newPrice || "");
+			const priceNum = parsePriceToNumber(r?.price || "");
 
-				const prev = latestPriceChangeBySku.get(sku);
-				if (!prev || ms > prev.ms) {
-					latestPriceChangeBySku.set(sku, { ms, pct, delta });
-				}
-			}
+			let arr = eventsBySku.get(sku);
+			if (!arr) eventsBySku.set(sku, (arr = []));
+			arr.push({ ms, storeNorm, kind, oldNum, newNum, priceNum });
+		}
+
+		for (const [sku, evts] of eventsBySku.entries()) {
+			const meta = computeGlobalSaleMetaForSku(sku, evts);
+			if (meta) globalSaleMetaBySku.set(sku, meta);
 		}
 	}
 
-	function recencyKeyForSku(sku, fallbackMs) {
-		if (Number.isFinite(fallbackMs)) return fallbackMs;
+	function addedMsForSku(sku) {
 		const s = String(sku || "");
-		return latestEventMsBySku.get(s) || firstSeenMsBySku.get(s) || 0;
+		const ms = firstSeenMsBySku.get(s);
+		return Number.isFinite(ms) ? ms : 0;
 	}
 
 	function salePctForSku(sku) {
-		const m = latestPriceChangeBySku.get(String(sku || ""));
+		const m = globalSaleMetaBySku.get(String(sku || ""));
 		return m && Number.isFinite(m.pct) ? m.pct : null;
 	}
 
 	function saleDeltaForSku(sku) {
-		const m = latestPriceChangeBySku.get(String(sku || ""));
+		const m = globalSaleMetaBySku.get(String(sku || ""));
 		return m && Number.isFinite(m.delta) ? m.delta : null;
 	}
 
@@ -356,6 +423,27 @@ export function renderSearch($app) {
 			.join("");
 	}
 
+	function saleBadgeHtmlForSku(sku, mode) {
+		const sm = globalSaleMetaBySku.get(String(sku || "")) || null;
+		if (!sm) return "";
+
+		const pct = Number.isFinite(sm.pct) ? sm.pct : 0;
+		const delta = Number.isFinite(sm.delta) ? sm.delta : 0;
+
+		if (mode === "saleAbs") {
+			const abs = Math.round(Math.abs(delta));
+			if (!abs) return "";
+			if (delta < 0) return `<span class="badge badgeGood">$${esc(abs)} off</span>`;
+			return `<span class="badge badgeBad">+$${esc(abs)}</span>`;
+		}
+
+		// Default to % badge for non-$ sorts (matches store page behavior)
+		const abs = Math.abs(pct);
+		if (!abs) return "";
+		if (pct < 0) return `<span class="badge badgeGood">${esc(abs)}% off</span>`;
+		return `<span class="badge badgeBad">+${esc(abs)}%</span>`;
+	}
+
 	function renderAggregates(items) {
 		if (!items.length) {
 			$results.innerHTML = `<div class="small">No matches.</div>`;
@@ -365,7 +453,6 @@ export function renderSearch($app) {
 		// Availability filter
 		let list = items.filter((it) => passesAvailability(String(it?.sku || "")));
 
-		// Sort
 		const mode = sortMode();
 		const priceCache = new Map(); // sku -> priceNum|null
 
@@ -386,9 +473,10 @@ export function renderSearch($app) {
 			const as = String(a?.sku || "");
 			const bs = String(b?.sku || "");
 
+			// SEARCH RESULTS: "Newest" means "added to DB" (firstSeenAt), like store page
 			if (mode === "newest") {
-				const av = recencyKeyForSku(as, null);
-				const bv = recencyKeyForSku(bs, null);
+				const av = addedMsForSku(as);
+				const bv = addedMsForSku(bs);
 				if (bv !== av) return bv - av;
 				return nameKey(a).localeCompare(nameKey(b));
 			}
@@ -403,15 +491,13 @@ export function renderSearch($app) {
 				return nameKey(a).localeCompare(nameKey(b));
 			}
 
+			// Sale sorts: tie-break by name (matches store/shortlist patterns)
 			if (mode === "salePct") {
 				const ap = salePctForSku(as);
 				const bp = salePctForSku(bs);
 				const aKey = ap === null ? 999999 : ap; // negative (better) first
 				const bKey = bp === null ? 999999 : bp;
 				if (aKey !== bKey) return aKey - bKey;
-				const av = recencyKeyForSku(as, null);
-				const bv = recencyKeyForSku(bs, null);
-				if (bv !== av) return bv - av;
 				return nameKey(a).localeCompare(nameKey(b));
 			}
 
@@ -421,9 +507,6 @@ export function renderSearch($app) {
 				const aKey = ad === null ? 999999 : ad; // negative (better) first
 				const bKey = bd === null ? 999999 : bd;
 				if (aKey !== bKey) return aKey - bKey;
-				const av = recencyKeyForSku(as, null);
-				const bv = recencyKeyForSku(bs, null);
-				if (bv !== av) return bv - av;
 				return nameKey(a).localeCompare(nameKey(b));
 			}
 
@@ -439,38 +522,15 @@ export function renderSearch($app) {
 
 				const best = bestLiveStoreForSku(sku);
 				const store = !stock.outOfStock
-					? (best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store")
+					? best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store"
 					: "";
 
 				const price =
 					(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
 					(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
 
-				// Sale badge from /recent (7d window in rebuildRecentMeta)
-				let saleBadge = "";
-				{
-					const sm = latestPriceChangeBySku.get(sku) || null;
-					const pct = sm && Number.isFinite(sm.pct) ? sm.pct : null;
-					const delta = sm && Number.isFinite(sm.delta) ? sm.delta : null;
-
-					if (mode === "saleAbs") {
-						if (delta !== null) {
-							const abs = Math.round(Math.abs(delta));
-							if (abs) {
-								if (delta < 0) saleBadge = `<span class="badge badgeGood">$${esc(abs)} off</span>`;
-								else saleBadge = `<span class="badge badgeBad">+$${esc(abs)}</span>`;
-							}
-						}
-					} else {
-						if (pct !== null) {
-							const abs = Math.abs(pct);
-							if (abs) {
-								if (pct < 0) saleBadge = `<span class="badge badgeGood">${esc(abs)}% off</span>`;
-								else saleBadge = `<span class="badge badgeBad">+${esc(abs)}%</span>`;
-							}
-						}
-					}
-				}
+				// Sale badge ONLY when the recent change affected the CURRENT GLOBAL lowest price
+				const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
 				const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
 				const specialBadge = stock.lastStock
@@ -480,7 +540,7 @@ export function renderSearch($app) {
 						: "";
 
 				// link must match the displayed store label
-				const href = store ? (urlForAgg(it, store) || String(it.sampleUrl || "").trim()) : "";
+				const href = store ? urlForAgg(it, store) || String(it.sampleUrl || "").trim() : "";
 				const storeBadge =
 					store && !stock.outOfStock
 						? href
@@ -536,34 +596,6 @@ export function renderSearch($app) {
 		}
 	}
 
-	function salePctOff(oldRaw, newRaw) {
-		const oldN = parsePriceToNumber(oldRaw);
-		const newN = parsePriceToNumber(newRaw);
-		if (!Number.isFinite(oldN) || !Number.isFinite(newN)) return null;
-		if (!(oldN > 0)) return null;
-		if (!(newN < oldN)) return null;
-		const pct = Math.round(((oldN - newN) / oldN) * 100);
-		return Number.isFinite(pct) && pct > 0 ? pct : null;
-	}
-
-	function pctChange(oldRaw, newRaw) {
-		const oldN = parsePriceToNumber(oldRaw);
-		const newN = parsePriceToNumber(newRaw);
-		if (!Number.isFinite(oldN) || !Number.isFinite(newN)) return null;
-		if (!(oldN > 0)) return null;
-		const pct = Math.round(((newN - oldN) / oldN) * 100);
-		return Number.isFinite(pct) ? pct : null;
-	}
-
-	function tsValue(r) {
-		const t = String(r?.ts || "");
-		const ms = t ? Date.parse(t) : NaN;
-		if (Number.isFinite(ms)) return ms;
-		const d = String(r?.date || "");
-		const ms2 = d ? Date.parse(d) : NaN;
-		return Number.isFinite(ms2) ? ms2 : 0;
-	}
-
 	function renderRecent(recent, canonicalSkuFn) {
 		const items = Array.isArray(recent?.items) ? recent.items : [];
 		if (!items.length) {
@@ -576,12 +608,8 @@ export function renderSearch($app) {
 		const nowMs = Date.now();
 		const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
 
-		function eventMs(r) {
-			return eventMsRecent(r);
-		}
-
 		const inWindow = items.filter((r) => {
-			const ms = eventMs(r);
+			const ms = eventMsRecent(r);
 			return ms >= cutoffMs && ms <= nowMs;
 		});
 
@@ -590,14 +618,14 @@ export function renderSearch($app) {
 			return;
 		}
 
-		// One row per SKU: keep the most recent event (no custom ranking)
-		const bySku = new Map(); // sku -> { r, ms }
+		// One row per SKU: keep the most recent event
+		const bySku = new Map(); // sku -> { r, ms, sku }
 		for (const r of inWindow) {
 			const rawSku = String(r?.sku || "").trim();
 			if (!rawSku) continue;
 			const sku = String(canon(rawSku) || "").trim();
 			if (!sku) continue;
-			const ms = eventMs(r);
+			const ms = eventMsRecent(r);
 			const prev = bySku.get(sku);
 			if (!prev || ms > prev.ms) bySku.set(sku, { r, ms, sku });
 		}
@@ -607,81 +635,55 @@ export function renderSearch($app) {
 		// Availability filter
 		picked = picked.filter((x) => passesAvailability(String(x.sku || "")));
 
-		// Decorate with per-row sale meta (for Sale sorts)
-		const decorated = picked.map((x) => {
-			const r = x.r;
-			const kind = normalizeKindForPrice(r);
-			const oldN = parsePriceToNumber(r?.oldPrice || "");
-			const newN = parsePriceToNumber(r?.newPrice || "");
-			const pct =
-				Number.isFinite(oldN) && Number.isFinite(newN) && oldN > 0
-					? Math.round(((newN - oldN) / oldN) * 100)
-					: null; // negative = down
-			const delta = Number.isFinite(oldN) && Number.isFinite(newN) ? newN - oldN : null;
-			return { ...x, kind, salePct: pct, saleDelta: delta };
-		});
-
 		const mode = sortMode();
-		const priceCache = new Map(); // sku -> priceNum|null
-		function priceNumForSku(sku) {
-			const s = String(sku || "");
-			if (priceCache.has(s)) return priceCache.get(s);
-			const best = bestLiveStoreForSku(s);
-			const n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
-			priceCache.set(s, n);
-			return n;
-		}
+
 		function nameKey(r, sku) {
 			return (String(r?.name || "") + "|" + String(sku || "")).toLowerCase();
 		}
 
-		decorated.sort((a, b) => {
+		// RECENT PRELOAD: "Newest" is based on event time (current behavior), not firstSeenAt
+		picked.sort((a, b) => {
 			const as = String(a.sku || "");
 			const bs = String(b.sku || "");
 
-			if (mode === "newest") {
-				const av = recencyKeyForSku(as, a.ms);
-				const bv = recencyKeyForSku(bs, b.ms);
-				if (bv !== av) return bv - av;
-				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
-			}
-
-			if (mode === "priceAsc" || mode === "priceDesc") {
-				const ap = priceNumForSku(as);
-				const bp = priceNumForSku(bs);
-				if (ap === null && bp === null) return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
-				if (ap === null) return 1;
-				if (bp === null) return -1;
-				if (ap !== bp) return mode === "priceAsc" ? ap - bp : bp - ap;
-				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
-			}
-
 			if (mode === "salePct") {
-				const ap = a.salePct === null || !Number.isFinite(a.salePct) ? 999999 : a.salePct;
-				const bp = b.salePct === null || !Number.isFinite(b.salePct) ? 999999 : b.salePct;
-				if (ap !== bp) return ap - bp; // negative (better) first
+				const ap = salePctForSku(as);
+				const bp = salePctForSku(bs);
+				const aKey = ap === null ? 999999 : ap;
+				const bKey = bp === null ? 999999 : bp;
+				if (aKey !== bKey) return aKey - bKey;
 				if (b.ms !== a.ms) return b.ms - a.ms;
 				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 			}
 
 			if (mode === "saleAbs") {
-				const ad = a.saleDelta === null || !Number.isFinite(a.saleDelta) ? 999999 : a.saleDelta;
-				const bd = b.saleDelta === null || !Number.isFinite(b.saleDelta) ? 999999 : b.saleDelta;
-				if (ad !== bd) return ad - bd; // negative (better) first
+				const ad = saleDeltaForSku(as);
+				const bd = saleDeltaForSku(bs);
+				const aKey = ad === null ? 999999 : ad;
+				const bKey = bd === null ? 999999 : bd;
+				if (aKey !== bKey) return aKey - bKey;
 				if (b.ms !== a.ms) return b.ms - a.ms;
 				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 			}
 
+			if (mode === "newest") {
+				if (b.ms !== a.ms) return b.ms - a.ms;
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
+
+			// fallback: newest event
 			if (b.ms !== a.ms) return b.ms - a.ms;
 			return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 		});
 
-		const limited = decorated.slice(0, 140);
+		const limited = picked.slice(0, 140);
 
 		$results.innerHTML =
 			`<div class="small">Recently changed (last 3 days):</div>` +
 			limited
-				.map(({ r, sku, kind }) => {
+				.map(({ r, sku }) => {
+					const kind = normalizeKindForPrice(r);
+
 					const kindLabel =
 						kind === "new"
 							? "NEW"
@@ -728,12 +730,8 @@ export function renderSearch($app) {
 
 					const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
 
-					const offBadge =
-						kind === "price_down" && salePctOff(r?.oldPrice || "", r?.newPrice || "") !== null
-							? `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
-									salePctOff(r?.oldPrice || "", r?.newPrice || ""),
-								)}% Off]</span>`
-							: "";
+					// Sale badge ONLY when the recent change affected the CURRENT GLOBAL lowest price
+					const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
 					const kindBadgeStyle =
 						kind === "new" && (agg?.stores?.size || 0) <= 1
@@ -761,7 +759,7 @@ export function renderSearch($app) {
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
                     <span class="mono price">${esc(priceLine)}</span>
-                    ${offBadge}
+                    ${saleBadge}
 					${stockBadge}
 					${specialBadge}
                     ${storeBadge}
