@@ -11,6 +11,7 @@
  *   #/reset?token=... password reset confirm
  *   #/settings        settings
  *   #/shortlists       public shortlists directory
+ *   #/stores          stores directory
  */
 
 import { destroyChart } from "./item_page.js";
@@ -24,6 +25,7 @@ import { renderShortlist } from "./shortlist_page.js";
 import { getAuthStatus } from "./cloud.js";
 import { renderSettings } from "./settings_page.js";
 import { renderPublicShortlists } from "./public_shortlists_page.js";
+import { renderStores } from "./stores_page.js";
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");
@@ -78,6 +80,7 @@ function route() {
 	if (parts[0] === "store" && parts[1]) return renderStore($app, decodeURIComponent(parts[1]));
 	if (parts[0] === "link") return renderSkuLinker($app);
 	if (parts[0] === "stats") return renderStats($app);
+	if (parts[0] === "stores") return renderStores($app);
 
 	if (parts[0] === "login") return renderLogin($app, { flash: params });
 	if (parts[0] === "signup") return renderSignup($app, { flash: params });

@@ -337,6 +337,37 @@ button.badge.badgeBtn:hover{
   color: var(--text);
 }
 
+/* Search page controls (Sort + Availability) */
+.searchControls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  width:100%;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.searchControl{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.searchControlLabel{ opacity: .8; }
+
+@media (max-width: 640px) {
+  .searchControls{
+    justify-content: center;
+    width: 100%;
+  }
+  .searchControl{
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .searchControl .selectSmall{ width: 100%; }
+  .searchControlLabel{ text-align: center; }
+}
+
 /* --- Store selector (top of search page) --- */
 .storeBarWrap { margin-top: 12px; }
 
