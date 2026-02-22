@@ -11,8 +11,8 @@ const BC_STORES = [
 	{ id: "bcl", label: "BCL", logo: "https://www.guidedby.ca/img/asset/d3BfdXBsb2Fkcy9sb2dvLWJjLWxpcXVvci1zdG9yZS1pcm9ud29vZC5qcGc=?p=md" },
 	{ id: "gull", label: "Gull Liquor", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIJA_whsBa8iTXQ-wFxacDBxQxbmXInxkl7Q&s" },
 	{ id: "legacyliquor", label: "Legacy Liquor", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJsphhKOkacPi-a62RgC76ez05LnkPVp4A5Q&s" },
-	{ id: "strath", label: "Strath Liquor", logo: "https://www.strathliquor.com/wp-content/uploads/2025/04/Strath-Text-Logo-Colour.svg" },
-	{ id: "tudor", label: "Tudor House", logo: "https://storage.googleapis.com/gulp-project-static/TUDORHOUSE/logo.png" },
+	{ id: "strath", label: "Strath Liquor", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa7HEM5Ah79hCwEd2nTExFAaab7unm792RBg&s" },
+	{ id: "tudor", label: "Tudor House", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9ON4YVT-GUV0SBZDQrmAXyAXvLp_5xcXicg&s" },
 	{ id: "vessel", label: "Vessel Liquor", logo: "https://www.go2hr.ca/wp-content/uploads/2023/04/Vessel_Final_logo_wtext-01-e1521483297146.jpg" },
 	{ id: "vintage", label: "Vintage Spirits", logo: "https://s.barnetnetwork.com/media/f/d3/0b/23/59/d30b2359-8836-4c75-8bdf-5f93f80554e2.png" },
 ];
