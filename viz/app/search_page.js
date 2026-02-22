@@ -32,7 +32,7 @@ export function renderSearch($app) {
 				<i class="fa-solid fa-link" aria-hidden="true"></i>
 				<span class="srOnly">Link SKUs</span>
 			</a>
-			<a class="btn btnIcon" href="#/stores" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Stores">
+			<a id="storesBtn" class="btn btnIcon" href="#/stores" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Stores">
 				<i class="fa-solid fa-store" aria-hidden="true"></i>
 				<span class="srOnly">Stores</span>
 			</a>
@@ -122,6 +122,13 @@ export function renderSearch($app) {
 		$logoutBtn.addEventListener("click", (e) => {
 			e.preventDefault();
 			logoutAndReload();
+		});
+	}
+
+	const $storesBtn = document.getElementById("storesBtn");
+	if ($storesBtn) {
+		$storesBtn.addEventListener("click", () => {
+			sessionStorage.setItem("viz:lastRoute", location.hash); // usually "#/"
 		});
 	}
 

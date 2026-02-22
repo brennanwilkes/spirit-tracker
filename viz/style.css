@@ -1068,27 +1068,26 @@ html { overflow-y: scroll; }
 
 
 @media (max-width: 640px) {
-    /* hide on list cards only */
-    .itemHasStar .favStarBtn,
-    .shortlistPage .starDock {
-      display: none !important;
-    }
-  
-
-  /* 2) Top nav buttons fill width; icons stay fixed; "My Shortlist" expands */
-  .headerRight.headerButtons {
+  .headerRight.headerButtons{
     width: 100%;
+    justify-content: space-between;
+    gap: 0;
+    row-gap: 10px;
   }
 
-  /* keep icon buttons fixed-size */
-  .headerRight.headerButtons .btnIcon {
-    flex: 0 0 40px;
-  }
-
-  /* let wide button (My Shortlist / Login / Signup) expand */
-  .headerRight.headerButtons .btnWide {
-    flex: 1 1 auto;
+  /* spread icons evenly */
+  .headerRight.headerButtons .btnIcon{
+    flex: 1 1 0;
     min-width: 0;
+    width: auto;
+    justify-content: center;
+  }
+
+  /* wide buttons take full row */
+  .headerRight.headerButtons .btnWide{
+    flex: 0 0 100%;
+    width: 100%;
+    order: 99;
   }
 }
 
