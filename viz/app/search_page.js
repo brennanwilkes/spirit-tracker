@@ -312,7 +312,7 @@ export function renderSearch($app) {
 
 	// Build cross-page sort metadata from /recent:
 	// - newest (for recent preload): latestEventMsBySku
-	// - sale: only when the changed price is the CURRENT GLOBAL min price (like shortlist page)
+	// - sale: only when the changed price is the CURRENT GLOBAL min price
 	function rebuildRecentMeta(recent, canonSkuFn) {
 		latestEventMsBySku = new Map();
 		globalSaleMetaBySku = new Map();
@@ -386,7 +386,6 @@ export function renderSearch($app) {
 	}
 
 	function renderStoreButtons(listings) {
-		// include all stores seen (live or removed) so the selector is stable
 		const set = new Set();
 		for (const r of Array.isArray(listings) ? listings : []) {
 			const lab = normStoreLabel(r?.storeLabel || r?.store || "");
@@ -437,7 +436,6 @@ export function renderSearch($app) {
 			return `<span class="badge badgeBad">+$${esc(abs)}</span>`;
 		}
 
-		// Default to % badge for non-$ sorts (matches store page behavior)
 		const abs = Math.abs(pct);
 		if (!abs) return "";
 		if (pct < 0) return `<span class="badge badgeGood">${esc(abs)}% off</span>`;
@@ -450,7 +448,6 @@ export function renderSearch($app) {
 			return;
 		}
 
-		// Availability filter
 		let list = items.filter((it) => passesAvailability(String(it?.sku || "")));
 
 		const mode = sortMode();
@@ -473,7 +470,7 @@ export function renderSearch($app) {
 			const as = String(a?.sku || "");
 			const bs = String(b?.sku || "");
 
-			// SEARCH RESULTS: "Newest" means "added to DB" (firstSeenAt), like store page
+			// SEARCH RESULTS: newest = firstSeenAt (added to DB)
 			if (mode === "newest") {
 				const av = addedMsForSku(as);
 				const bv = addedMsForSku(bs);
@@ -491,11 +488,10 @@ export function renderSearch($app) {
 				return nameKey(a).localeCompare(nameKey(b));
 			}
 
-			// Sale sorts: tie-break by name (matches store/shortlist patterns)
 			if (mode === "salePct") {
 				const ap = salePctForSku(as);
 				const bp = salePctForSku(bs);
-				const aKey = ap === null ? 999999 : ap; // negative (better) first
+				const aKey = ap === null ? 999999 : ap;
 				const bKey = bp === null ? 999999 : bp;
 				if (aKey !== bKey) return aKey - bKey;
 				return nameKey(a).localeCompare(nameKey(b));
@@ -504,7 +500,7 @@ export function renderSearch($app) {
 			if (mode === "saleAbs") {
 				const ad = saleDeltaForSku(as);
 				const bd = saleDeltaForSku(bs);
-				const aKey = ad === null ? 999999 : ad; // negative (better) first
+				const aKey = ad === null ? 999999 : ad;
 				const bKey = bd === null ? 999999 : bd;
 				if (aKey !== bKey) return aKey - bKey;
 				return nameKey(a).localeCompare(nameKey(b));
@@ -529,7 +525,6 @@ export function renderSearch($app) {
 					(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
 					(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
 
-				// Sale badge ONLY when the recent change affected the CURRENT GLOBAL lowest price
 				const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
 				const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
@@ -539,7 +534,6 @@ export function renderSearch($app) {
 						? `<span class="badge badgeExclusive">Exclusive</span>`
 						: "";
 
-				// link must match the displayed store label
 				const href = store ? urlForAgg(it, store) || String(it.sampleUrl || "").trim() : "";
 				const storeBadge =
 					store && !stock.outOfStock
@@ -618,7 +612,6 @@ export function renderSearch($app) {
 			return;
 		}
 
-		// One row per SKU: keep the most recent event
 		const bySku = new Map(); // sku -> { r, ms, sku }
 		for (const r of inWindow) {
 			const rawSku = String(r?.sku || "").trim();
@@ -632,7 +625,6 @@ export function renderSearch($app) {
 
 		let picked = Array.from(bySku.values());
 
-		// Availability filter
 		picked = picked.filter((x) => passesAvailability(String(x.sku || "")));
 
 		const mode = sortMode();
@@ -641,7 +633,7 @@ export function renderSearch($app) {
 			return (String(r?.name || "") + "|" + String(sku || "")).toLowerCase();
 		}
 
-		// RECENT PRELOAD: "Newest" is based on event time (current behavior), not firstSeenAt
+		// RECENT PRELOAD: newest = event time
 		picked.sort((a, b) => {
 			const as = String(a.sku || "");
 			const bs = String(b.sku || "");
@@ -671,7 +663,6 @@ export function renderSearch($app) {
 				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 			}
 
-			// fallback: newest event
 			if (b.ms !== a.ms) return b.ms - a.ms;
 			return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 		});
@@ -730,7 +721,6 @@ export function renderSearch($app) {
 
 					const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
 
-					// Sale badge ONLY when the recent change affected the CURRENT GLOBAL lowest price
 					const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
 					const kindBadgeStyle =
@@ -832,7 +822,6 @@ export function renderSearch($app) {
 
 			const listings = Array.isArray(idx.items) ? idx.items : [];
 
-			// Build stock + display maps (LIVE vs EVER)
 			liveStoresBySku = new Map();
 			everStoresBySku = new Map();
 			storeDisplayByNorm = new Map();
@@ -842,16 +831,14 @@ export function renderSearch($app) {
 			for (const r of listings) {
 				if (!r) continue;
 
-				const storeLabel = String(r.storeLabel || r.store || "").trim();
-				const stNorm = normStoreKey(storeLabel);
-				if (!stNorm) continue;
+				// --- KEY FIX FOR "NEWEST" ---
+				// Compute sku + firstSeenAt even if storeLabel is missing (common on removed/out-of-stock rows)
+				const skuKeyRaw = String(keySkuForRow(r) || "").trim();
+				if (!skuKeyRaw) continue;
 
-				const skuKey = String(keySkuForRow(r) || "").trim();
-				if (!skuKey) continue;
-				const sku = String(rules.canonicalSku(skuKey) || skuKey);
+				const sku = String(rules.canonicalSku(skuKeyRaw) || skuKeyRaw);
 				if (!sku) continue;
 
-				// earliest firstSeenAt across any row (includes removed)
 				{
 					const t = String(r?.firstSeenAt || "").trim();
 					const ms = t ? Date.parse(t) : NaN;
@@ -860,6 +847,11 @@ export function renderSearch($app) {
 						if (prev === undefined || ms < prev) firstSeenMsBySku.set(sku, ms);
 					}
 				}
+
+				// Everything below needs a store label
+				const storeLabel = String(r.storeLabel || r.store || "").trim();
+				const stNorm = normStoreKey(storeLabel);
+				if (!stNorm) continue;
 
 				// ever stores includes removed
 				{
@@ -911,7 +903,6 @@ export function renderSearch($app) {
 			$q.value = "";
 			saveQuery("");
 		}
-		// refresh recent (so Sale/Newest sorts stay meaningful) then re-render
 		loadRecent()
 			.then((recent) => {
 				recentCache = recent;
@@ -931,7 +922,6 @@ export function renderSearch($app) {
 		}, 50);
 	});
 
-	// Sort / availability controls
 	if ($sort) {
 		$sort.addEventListener("change", () => {
 			localStorage.setItem(LS_SORT, String($sort.value || "newest"));
