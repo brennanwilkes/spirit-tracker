@@ -66,21 +66,41 @@ function fnv1a32(str) {
 	return (h >>> 0).toString(16).padStart(8, "0");
 }
 
-function makeSyntheticSku(storeLabel, url) {
-	const store = String(storeLabel || "store");
-	const u = String(url || "");
-	if (!u) return "";
-	return `u:${fnv1a32(`${store}|${u}`)}`;
+// --- CHANGED: synthetic key is based on normalized URL ONLY (stable across storeLabel/store changes)
+function normalizeUrlForKey(u) {
+	const raw = String(u || "").trim();
+	if (!raw) return "";
+	try {
+		const url = new URL(raw);
+		url.hash = "";
+		url.search = "";
+		url.username = "";
+		url.password = "";
+		url.hostname = url.hostname.toLowerCase();
+
+		// keep scheme+host+path; trim trailing slash
+		let s = url.toString();
+		s = s.replace(/\/$/, "");
+		return s;
+	} catch {
+		return raw.replace(/\/$/, "");
+	}
 }
 
-function keySkuForItem(it, storeLabel) {
+function makeSyntheticSkuFromUrl(url) {
+	const u = normalizeUrlForKey(url);
+	if (!u) return "";
+	return `u:${fnv1a32(u)}`;
+}
+
+function keySkuForItem(it) {
 	const real = normalizeCspc(it?.sku);
 	if (real) return real;
-	return makeSyntheticSku(storeLabel, it?.url);
+	return makeSyntheticSkuFromUrl(it?.url);
 }
 
 // Returns Map(skuKey -> firstSeenAtISO) for this dbFile (store/category file).
-function computeFirstSeenForDbFile({ repoRoot, relDbFile, storeLabel, wantSkuKeys, commitsArr, nowIso }) {
+function computeFirstSeenForDbFile({ relDbFile, wantSkuKeys, commitsArr, nowIso }) {
 	const out = new Map();
 	const want = new Set(wantSkuKeys);
 
@@ -98,13 +118,12 @@ function computeFirstSeenForDbFile({ repoRoot, relDbFile, storeLabel, wantSkuKey
 
 		const obj = gitShowJson(sha, relDbFile);
 		const items = Array.isArray(obj?.items) ? obj.items : [];
-		const sLabel = String(obj?.storeLabel || obj?.store || storeLabel || "");
 
 		for (const it of items) {
 			if (!it) continue;
 			if (Boolean(it.removed)) continue; // first time it existed LIVE in this file
 
-			const k = keySkuForItem(it, sLabel);
+			const k = keySkuForItem(it);
 			if (!k) continue;
 			if (!want.has(k)) continue;
 			if (out.has(k)) continue;
@@ -118,6 +137,42 @@ function computeFirstSeenForDbFile({ repoRoot, relDbFile, storeLabel, wantSkuKey
 
 	// Anything never seen historically -> new today
 	for (const k of want) if (!out.has(k)) out.set(k, nowIso);
+
+	return out;
+}
+
+// --- NEW: last time the item existed LIVE in this file (used to prevent removed rows "updatedAt" smear)
+function computeLastLiveForDbFile({ relDbFile, wantSkuKeys, commitsArr }) {
+	const out = new Map();
+	const want = new Set(wantSkuKeys);
+
+	if (!Array.isArray(commitsArr) || !commitsArr.length || !want.size) return out;
+
+	// scan newest -> oldest; first hit is the latest live appearance
+	for (let i = commitsArr.length - 1; i >= 0; i--) {
+		const c = commitsArr[i];
+		const sha = String(c?.sha || "");
+		const ts = String(c?.ts || "");
+		if (!sha || !ts) continue;
+
+		const obj = gitShowJson(sha, relDbFile);
+		const items = Array.isArray(obj?.items) ? obj.items : [];
+
+		for (const it of items) {
+			if (!it) continue;
+			if (Boolean(it.removed)) continue;
+
+			const k = keySkuForItem(it);
+			if (!k) continue;
+			if (!want.has(k)) continue;
+			if (out.has(k)) continue;
+
+			out.set(k, ts);
+			if (out.size >= want.size) break;
+		}
+
+		if (out.size >= want.size) break;
+	}
 
 	return out;
 }
@@ -145,7 +200,7 @@ function main() {
 		const category = String(obj.category || "");
 		const categoryLabel = String(obj.categoryLabel || "");
 		const source = String(obj.source || "");
-		const updatedAt = String(obj.updatedAt || "");
+		const fileUpdatedAt = String(obj.updatedAt || "");
 
 		const dbFile = path.relative(repoRoot, file).replace(/\\/g, "/"); // e.g. data/db/foo.json
 
@@ -153,20 +208,28 @@ function main() {
 
 		// Build want keys from CURRENT file contents (includes removed rows too)
 		const wantSkuKeys = [];
+		const wantRemovedKeys = [];
 		for (const it of arr) {
 			if (!it) continue;
-			const k = keySkuForItem(it, storeLabel);
-			if (k) wantSkuKeys.push(k);
+			const k = keySkuForItem(it);
+			if (!k) continue;
+			wantSkuKeys.push(k);
+			if (Boolean(it.removed)) wantRemovedKeys.push(k);
 		}
 
 		const commitsArr = commitsManifest?.files?.[dbFile] || null;
+
 		const firstSeenByKey = computeFirstSeenForDbFile({
-			repoRoot,
 			relDbFile: dbFile,
-			storeLabel,
 			wantSkuKeys,
 			commitsArr,
 			nowIso,
+		});
+
+		const lastLiveByKey = computeLastLiveForDbFile({
+			relDbFile: dbFile,
+			wantSkuKeys: wantRemovedKeys,
+			commitsArr,
 		});
 
 		for (const it of arr) {
@@ -181,8 +244,12 @@ function main() {
 			const url = String(it.url || "").trim();
 			const img = String(it.img || it.image || it.thumb || "").trim();
 
-			const skuKey = keySkuForItem(it, storeLabel);
+			const skuKey = keySkuForItem(it);
 			const firstSeenAt = skuKey ? String(firstSeenByKey.get(skuKey) || nowIso) : nowIso;
+
+			// --- CHANGED: removed rows no longer inherit the *file* updatedAt (prevents "fresh" removed items)
+			const lastLiveAt = skuKey ? String(lastLiveByKey.get(skuKey) || "") : "";
+			const updatedAt = removed ? lastLiveAt : fileUpdatedAt;
 
 			items.push({
 				sku,
@@ -190,14 +257,14 @@ function main() {
 				price,
 				url,
 				img,
-				removed, // NEW (additive): allows viz to show history / removed-only items
+				removed, // additive
 				store,
 				storeLabel,
 				category,
 				categoryLabel,
 				source,
 				updatedAt,
-				firstSeenAt, // NEW: first time this item appeared LIVE in this store/category db file (or now)
+				firstSeenAt, // additive
 				dbFile,
 			});
 		}
