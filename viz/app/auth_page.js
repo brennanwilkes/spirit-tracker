@@ -284,7 +284,16 @@ function renderAuth($app, { mode, flash = {} }) {
 			setStatus($statusRow, "Success. Redirecting…", "good");
 			goAfterLogin();
 		} catch (e) {
+			const msg = String(e?.message || "");
+			if (/email not verified/i.test(msg)) {
+				setStatus(
+					$statusRow,
+					"Your email isn't verified yet. We just sent you a new verification link - check your spam/junk folder.",
+					"neutral"
+				);
+			} else {
 			setStatus($statusRow, safeMsg(e), "bad");
+			}
 		} finally {
 			setBusy(false);
 		}

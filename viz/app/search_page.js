@@ -32,6 +32,10 @@ export function renderSearch($app) {
 				<i class="fa-solid fa-link" aria-hidden="true"></i>
 				<span class="srOnly">Link SKUs</span>
 			</a>
+			<a class="btn btnIcon" href="#/stores" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Stores">
+				<i class="fa-solid fa-store" aria-hidden="true"></i>
+				<span class="srOnly">Stores</span>
+			</a>
 			<a class="btn btnIcon" href="#/shortlists" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Public shortlists">
 				<i class="fa-solid fa-people-group" aria-hidden="true"></i>
 				<span class="srOnly">Public Shortlists</span>
@@ -55,12 +59,6 @@ export function renderSearch($app) {
 		</div>
         </div>
 
-        <!-- Row 2 -->
-        <div class="headerRow2">
-          <div class="storeBarWrap">
-            <div id="stores" class="storeBar"></div>
-          </div>
-        </div>
       </div>
 
       <div class="card">
@@ -71,24 +69,28 @@ export function renderSearch($app) {
             <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
           </div>
 
-          <!-- Row 2: controls -->
-          <div style="display:flex; gap:10px; align-items:center; width:100%; flex-wrap:wrap; justify-content:flex-end;">
-            <span class="small" style="opacity:.8;">Sort</span>
-            <select id="sort" class="selectSmall" aria-label="Sort">
-              <option value="newest">Newest</option>
-              <option value="salePct">Sale %</option>
-              <option value="saleAbs">Sale $</option>
-              <option value="priceAsc">Price (low)</option>
-              <option value="priceDesc">Price (high)</option>
-            </select>
+          <div class="searchControls">
+            <div class="searchControl">
+              <span class="small searchControlLabel">Sort</span>
+              <select id="sort" class="selectSmall" aria-label="Sort">
+                <option value="newest">Newest</option>
+                <option value="salePct">Sale %</option>
+                <option value="saleAbs">Sale $</option>
+                <option value="priceAsc">Price (low)</option>
+                <option value="priceDesc">Price (high)</option>
+              </select>
+            </div>
 
-            <span class="small" style="opacity:.8;">Availability</span>
-            <select id="avail" class="selectSmall" aria-label="Availability">
-              <option value="all">All</option>
-              <option value="in">In stock only</option>
-              <option value="out">Out of stock only</option>
-            </select>
+            <div class="searchControl">
+              <span class="small searchControlLabel">Availability</span>
+              <select id="avail" class="selectSmall" aria-label="Availability">
+                <option value="all">All</option>
+                <option value="in">In stock only</option>
+                <option value="out">Out of stock only</option>
+              </select>
+            </div>
           </div>
+
         </div>
 
         <div id="results" class="list"></div>
@@ -98,7 +100,6 @@ export function renderSearch($app) {
 
 	const $q = document.getElementById("q");
 	const $results = document.getElementById("results");
-	const $stores = document.getElementById("stores");
 	const $clearSearch = document.getElementById("clearSearch");
 	const $sort = document.getElementById("sort");
 	const $avail = document.getElementById("avail");
@@ -401,46 +402,6 @@ export function renderSearch($app) {
 		return m && Number.isFinite(m.delta) ? m.delta : null;
 	}
 
-	function normStoreLabel(s) {
-		return String(s || "").trim();
-	}
-
-	function renderStoreButtons(listings) {
-		const set = new Set();
-		for (const r of Array.isArray(listings) ? listings : []) {
-			const lab = normStoreLabel(r?.storeLabel || r?.store || "");
-			if (lab) set.add(lab);
-		}
-		const stores = Array.from(set).sort((a, b) => a.localeCompare(b));
-
-		if (!stores.length) {
-			$stores.innerHTML = "";
-			return;
-		}
-
-		const totalChars = stores.reduce((n, s) => n + s.length, 0);
-		const target = totalChars / 2;
-
-		let acc = 0;
-		let breakAt = stores.length;
-
-		for (let i = 0; i < stores.length; i++) {
-			acc += stores[i].length;
-			if (acc >= target) {
-				breakAt = i + 1;
-				break;
-			}
-		}
-
-		$stores.innerHTML = stores
-			.map((s, i) => {
-				const btn = `<a class="storeBtn" href="#/store/${encodeURIComponent(s)}">${esc(s)}</a>`;
-				const brk =
-					i === breakAt - 1 && stores.length > 1 ? `<span class="storeBreak" aria-hidden="true"></span>` : "";
-				return btn + brk;
-			})
-			.join("");
-	}
 
 	function saleBadgeHtmlForSku(sku, mode) {
 		const sm = globalSaleMetaBySku.get(String(sku || "")) || null;
@@ -901,8 +862,6 @@ export function renderSearch($app) {
 					if (prev === undefined || p < prev) m.set(stNorm, p);
 				}
 			}
-
-			renderStoreButtons(listings);
 
 			allAgg = aggregateBySku(listings, rules.canonicalSku);
 			const missing = allAgg
