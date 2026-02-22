@@ -1,3 +1,4 @@
+// viz/app/search_page.js
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
 import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
@@ -8,11 +9,10 @@ import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js
 import { getAuthStatus, logoutAndReload } from "./cloud.js";
 
 export function renderSearch($app) {
-
 	const auth = getAuthStatus();
 	const authed = auth.ok;
 	const shortlistHref = authed ? `#/shortlist/${encodeURIComponent(auth.userId)}` : "#/login";
-	
+
 	$app.innerHTML = `
     <div class="container">
       <div class="header">
@@ -64,9 +64,29 @@ export function renderSearch($app) {
       </div>
 
       <div class="card">
-        <div style="display:flex; gap:10px; align-items:center; width:100%;">
-          <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" style="flex: 1 1 auto;" />
-          <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
+        <div style="display:flex; gap:10px; align-items:center; width:100%; flex-wrap:wrap;">
+          <div style="display:flex; gap:10px; align-items:center; flex:1 1 420px; min-width:240px;">
+            <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" style="flex: 1 1 auto;" />
+            <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex:0 0 auto; flex-wrap:wrap; justify-content:flex-end;">
+            <span class="small" style="opacity:.8;">Sort</span>
+            <select id="sort" class="selectSmall" aria-label="Sort">
+              <option value="newest">Newest</option>
+              <option value="salePct">Sale %</option>
+              <option value="saleAbs">Sale $</option>
+              <option value="priceAsc">Price (low)</option>
+              <option value="priceDesc">Price (high)</option>
+            </select>
+
+            <span class="small" style="opacity:.8;">Availability</span>
+            <select id="avail" class="selectSmall" aria-label="Availability">
+              <option value="all">All</option>
+              <option value="in">In stock only</option>
+              <option value="out">Out of stock only</option>
+            </select>
+          </div>
         </div>
         <div id="results" class="list"></div>
       </div>
@@ -77,6 +97,14 @@ export function renderSearch($app) {
 	const $results = document.getElementById("results");
 	const $stores = document.getElementById("stores");
 	const $clearSearch = document.getElementById("clearSearch");
+	const $sort = document.getElementById("sort");
+	const $avail = document.getElementById("avail");
+
+	const LS_SORT = "viz:searchSort";
+	const LS_AVAIL = "viz:searchAvail";
+	if ($sort && localStorage.getItem(LS_SORT)) $sort.value = String(localStorage.getItem(LS_SORT) || "newest");
+	if ($avail && localStorage.getItem(LS_AVAIL)) $avail.value = String(localStorage.getItem(LS_AVAIL) || "all");
+
 	const favSet = new Set();
 	installFavStars($results, favSet);
 
@@ -88,12 +116,20 @@ export function renderSearch($app) {
 		});
 	}
 
-
 	$q.value = loadSavedQuery();
 
 	let aggBySku = new Map();
 	let allAgg = [];
 	let indexReady = false;
+	let rulesRef = null;
+	let recentCache = null;
+
+	// sku -> earliest firstSeenAt across any row (ms)
+	let firstSeenMsBySku = new Map();
+	// sku -> latest event ms (any kind, within recent window we build)
+	let latestEventMsBySku = new Map();
+	// sku -> latest price-change meta (within recent window we build)
+	let latestPriceChangeBySku = new Map(); // sku -> { ms, pct, delta }
 
 	// canonicalSku -> storeLabel -> url
 	let URL_BY_SKU_STORE = new Map();
@@ -170,7 +206,110 @@ export function renderSearch($app) {
 	function priceStrFromNum(n) {
 		return Number.isFinite(n) ? `$${n.toFixed(2)}` : "";
 	}
-		
+
+	function sortMode() {
+		return String($sort?.value || "newest");
+	}
+
+	function availMode() {
+		return String($avail?.value || "all");
+	}
+
+	function passesAvailability(sku) {
+		const m = availMode();
+		if (m === "all") return true;
+		const st = stockMetaForSku(String(sku || ""));
+		if (m === "in") return !st.outOfStock;
+		if (m === "out") return !!st.outOfStock;
+		return true;
+	}
+
+	function eventMsRecent(r) {
+		const t = String(r?.ts || "");
+		const ms = t ? Date.parse(t) : NaN;
+		if (Number.isFinite(ms)) return ms;
+		const d = String(r?.date || "");
+		const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
+		return Number.isFinite(ms2) ? ms2 : 0;
+	}
+
+	function normalizeKindForPrice(r) {
+		let kind = String(r?.kind || "");
+		if (kind === "price_change") {
+			const o = parsePriceToNumber(r?.oldPrice || "");
+			const n = parsePriceToNumber(r?.newPrice || "");
+			if (Number.isFinite(o) && Number.isFinite(n)) {
+				if (n < o) kind = "price_down";
+				else if (n > o) kind = "price_up";
+				else kind = "price_change";
+			}
+		}
+		return kind;
+	}
+
+	// Build cross-page sort metadata from /recent (used for Newest + Sale sorts when typing)
+	function rebuildRecentMeta(recent, canonSkuFn) {
+		latestEventMsBySku = new Map();
+		latestPriceChangeBySku = new Map();
+
+		const items = Array.isArray(recent?.items) ? recent.items : [];
+		if (!items.length) return;
+
+		// A bit wider than the preload window so Sale sorts still do something when searching
+		const RECENT_DAYS = 7;
+		const nowMs = Date.now();
+		const cutoffMs = nowMs - RECENT_DAYS * 24 * 60 * 60 * 1000;
+
+		const canon = typeof canonSkuFn === "function" ? canonSkuFn : (x) => x;
+
+		for (const r of items) {
+			const ms = eventMsRecent(r);
+			if (!(ms >= cutoffMs && ms <= nowMs)) continue;
+
+			const rawSku = String(r?.sku || "").trim();
+			if (!rawSku) continue;
+			const sku = String(canon(rawSku) || "").trim();
+			if (!sku) continue;
+
+			// newest (any kind)
+			{
+				const prev = latestEventMsBySku.get(sku) || 0;
+				if (ms > prev) latestEventMsBySku.set(sku, ms);
+			}
+
+			// sale sorts (latest price change)
+			const kind = normalizeKindForPrice(r);
+			if (kind === "price_down" || kind === "price_up" || kind === "price_change") {
+				const oldN = parsePriceToNumber(r?.oldPrice || "");
+				const newN = parsePriceToNumber(r?.newPrice || "");
+				if (!Number.isFinite(oldN) || !Number.isFinite(newN) || !(oldN > 0)) continue;
+
+				const pct = Math.round(((newN - oldN) / oldN) * 100); // negative = down
+				const delta = newN - oldN; // negative = down
+
+				const prev = latestPriceChangeBySku.get(sku);
+				if (!prev || ms > prev.ms) {
+					latestPriceChangeBySku.set(sku, { ms, pct, delta });
+				}
+			}
+		}
+	}
+
+	function recencyKeyForSku(sku, fallbackMs) {
+		if (Number.isFinite(fallbackMs)) return fallbackMs;
+		const s = String(sku || "");
+		return latestEventMsBySku.get(s) || firstSeenMsBySku.get(s) || 0;
+	}
+
+	function salePctForSku(sku) {
+		const m = latestPriceChangeBySku.get(String(sku || ""));
+		return m && Number.isFinite(m.pct) ? m.pct : null;
+	}
+
+	function saleDeltaForSku(sku) {
+		const m = latestPriceChangeBySku.get(String(sku || ""));
+		return m && Number.isFinite(m.delta) ? m.delta : null;
+	}
 
 	function normStoreLabel(s) {
 		return String(s || "").trim();
@@ -220,7 +359,75 @@ export function renderSearch($app) {
 			return;
 		}
 
-		const limited = items.slice(0, 80);
+		// Availability filter
+		let list = items.filter((it) => passesAvailability(String(it?.sku || "")));
+
+		// Sort
+		const mode = sortMode();
+		const priceCache = new Map(); // sku -> priceNum|null
+
+		function priceNumForSku(sku) {
+			const s = String(sku || "");
+			if (priceCache.has(s)) return priceCache.get(s);
+			const best = bestLiveStoreForSku(s);
+			const n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
+			priceCache.set(s, n);
+			return n;
+		}
+
+		function nameKey(it) {
+			return (String(it?.name || "") + "|" + String(it?.sku || "")).toLowerCase();
+		}
+
+		list = list.slice().sort((a, b) => {
+			const as = String(a?.sku || "");
+			const bs = String(b?.sku || "");
+
+			if (mode === "newest") {
+				const av = recencyKeyForSku(as, null);
+				const bv = recencyKeyForSku(bs, null);
+				if (bv !== av) return bv - av;
+				return nameKey(a).localeCompare(nameKey(b));
+			}
+
+			if (mode === "priceAsc" || mode === "priceDesc") {
+				const ap = priceNumForSku(as);
+				const bp = priceNumForSku(bs);
+				if (ap === null && bp === null) return nameKey(a).localeCompare(nameKey(b));
+				if (ap === null) return 1;
+				if (bp === null) return -1;
+				if (ap !== bp) return mode === "priceAsc" ? ap - bp : bp - ap;
+				return nameKey(a).localeCompare(nameKey(b));
+			}
+
+			if (mode === "salePct") {
+				const ap = salePctForSku(as);
+				const bp = salePctForSku(bs);
+				const aKey = ap === null ? 999999 : ap; // negative (better) first
+				const bKey = bp === null ? 999999 : bp;
+				if (aKey !== bKey) return aKey - bKey;
+				const av = recencyKeyForSku(as, null);
+				const bv = recencyKeyForSku(bs, null);
+				if (bv !== av) return bv - av;
+				return nameKey(a).localeCompare(nameKey(b));
+			}
+
+			if (mode === "saleAbs") {
+				const ad = saleDeltaForSku(as);
+				const bd = saleDeltaForSku(bs);
+				const aKey = ad === null ? 999999 : ad; // negative (better) first
+				const bKey = bd === null ? 999999 : bd;
+				if (aKey !== bKey) return aKey - bKey;
+				const av = recencyKeyForSku(as, null);
+				const bv = recencyKeyForSku(bs, null);
+				if (bv !== av) return bv - av;
+				return nameKey(a).localeCompare(nameKey(b));
+			}
+
+			return nameKey(a).localeCompare(nameKey(b));
+		});
+
+		const limited = list.slice(0, 80);
 		$results.innerHTML = limited
 			.map((it) => {
 				const sku = String(it?.sku || "");
@@ -242,7 +449,7 @@ export function renderSearch($app) {
 					: stock.exclusive
 						? `<span class="badge badgeExclusive">Exclusive</span>`
 						: "";
-				
+
 				// link must match the displayed store label
 				const href = store ? (urlForAgg(it, store) || String(it.sampleUrl || "").trim()) : "";
 				const storeBadge =
@@ -255,7 +462,7 @@ export function renderSearch($app) {
 								)}${esc(plus)}</a>`
 							: `<span class="badge">${esc(store)}${esc(plus)}</span>`
 						: "";
-				
+
 				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
 				return `
@@ -327,99 +534,6 @@ export function renderSearch($app) {
 		return Number.isFinite(ms2) ? ms2 : 0;
 	}
 
-	// Custom priority (unchanged)
-	function rankRecent(r, canonSkuFn) {
-		const rawSku = String(r?.sku || "");
-		const sku = String(canonSkuFn ? canonSkuFn(rawSku) : rawSku);
-
-		const agg = aggBySku.get(sku) || null;
-
-		const storeLabelRaw = String(r?.storeLabel || r?.store || "").trim();
-		const bestStoreRaw = String(agg?.cheapestStoreLabel || "").trim();
-
-		const normStore = (s) =>
-			String(s || "")
-				.trim()
-				.toLowerCase();
-
-		// Normalize kind
-		let kind = String(r?.kind || "");
-		if (kind === "price_change") {
-			const o = parsePriceToNumber(r?.oldPrice || "");
-			const n = parsePriceToNumber(r?.newPrice || "");
-			if (Number.isFinite(o) && Number.isFinite(n)) {
-				if (n < o) kind = "price_down";
-				else if (n > o) kind = "price_up";
-			}
-		}
-
-		const pctOff = kind === "price_down" ? salePctOff(r?.oldPrice || "", r?.newPrice || "") : null;
-		const pctUp = kind === "price_up" ? pctChange(r?.oldPrice || "", r?.newPrice || "") : null;
-
-		const isNew = kind === "new";
-		const storeCount = agg?.stores?.size || 0;
-		const isNewUnique = isNew && storeCount <= 1;
-
-		// Cheapest checks (use aggregate index)
-		const newPriceNum = kind === "price_down" || kind === "price_up" ? parsePriceToNumber(r?.newPrice || "") : null;
-		const bestPriceNum = Number.isFinite(agg?.cheapestPriceNum) ? agg.cheapestPriceNum : null;
-
-		const EPS = 0.01;
-		const priceMatchesBest =
-			Number.isFinite(newPriceNum) && Number.isFinite(bestPriceNum)
-				? Math.abs(newPriceNum - bestPriceNum) <= EPS
-				: false;
-
-		const storeIsBest =
-			normStore(storeLabelRaw) && normStore(bestStoreRaw) && normStore(storeLabelRaw) === normStore(bestStoreRaw);
-
-		const saleIsCheapestHere = kind === "price_down" && storeIsBest && priceMatchesBest;
-		const saleIsTiedCheapest = kind === "price_down" && !storeIsBest && priceMatchesBest;
-		const saleIsCheapest = saleIsCheapestHere || saleIsTiedCheapest;
-
-		// Bucketed scoring (higher = earlier)
-		let score = 0;
-
-		function saleBucketScore(isCheapest, pct) {
-			const p = Number.isFinite(pct) ? pct : 0;
-
-			if (isCheapest) {
-				if (p >= 20) return 9000 + p;
-				if (p >= 10) return 7000 + p;
-				if (p > 0) return 6000 + p;
-				return 5900;
-			} else {
-				if (p >= 20) return 4500 + p;
-				if (p >= 10) return 1500 + p;
-				if (p > 0) return 1200 + p;
-				return 1000;
-			}
-		}
-
-		if (kind === "price_down") {
-			score = saleBucketScore(saleIsCheapest, pctOff);
-		} else if (isNewUnique) {
-			score = 8000;
-		} else if (kind === "removed") {
-			score = 3000;
-		} else if (kind === "price_up") {
-			score = 2000 + Math.min(99, Math.max(0, pctUp || 0));
-		} else if (kind === "new") {
-			score = 1100;
-		} else if (kind === "restored") {
-			score = 5000;
-		} else {
-			score = 0;
-		}
-
-		let tie = 0;
-		if (kind === "price_down") tie = (pctOff || 0) * 100000 + tsValue(r);
-		else if (kind === "price_up") tie = (pctUp || 0) * 100000 + tsValue(r);
-		else tie = tsValue(r);
-
-		return { sku, kind, pctOff, storeCount, isNewUnique, score, tie };
-	}
-
 	function renderRecent(recent, canonicalSkuFn) {
 		const items = Array.isArray(recent?.items) ? recent.items : [];
 		if (!items.length) {
@@ -433,13 +547,7 @@ export function renderSearch($app) {
 		const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
 
 		function eventMs(r) {
-			const t = String(r?.ts || "");
-			const ms = t ? Date.parse(t) : NaN;
-			if (Number.isFinite(ms)) return ms;
-
-			const d = String(r?.date || "");
-			const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
-			return Number.isFinite(ms2) ? ms2 : 0;
+			return eventMsRecent(r);
 		}
 
 		const inWindow = items.filter((r) => {
@@ -452,85 +560,123 @@ export function renderSearch($app) {
 			return;
 		}
 
-		const bySkuStore = new Map();
-
+		// One row per SKU: keep the most recent event (no custom ranking)
+		const bySku = new Map(); // sku -> { r, ms }
 		for (const r of inWindow) {
 			const rawSku = String(r?.sku || "").trim();
 			if (!rawSku) continue;
-
 			const sku = String(canon(rawSku) || "").trim();
 			if (!sku) continue;
-
-			const storeLabel = String(r?.storeLabel || r?.store || "Store").trim() || "Store";
 			const ms = eventMs(r);
-
-			let storeMap = bySkuStore.get(sku);
-			if (!storeMap) bySkuStore.set(sku, (storeMap = new Map()));
-
-			const prev = storeMap.get(storeLabel);
-			if (!prev || eventMs(prev) < ms) storeMap.set(storeLabel, r);
+			const prev = bySku.get(sku);
+			if (!prev || ms > prev.ms) bySku.set(sku, { r, ms, sku });
 		}
 
-		const picked = [];
-		for (const [sku, storeMap] of bySkuStore.entries()) {
-			let best = null;
+		let picked = Array.from(bySku.values());
 
-			for (const r of storeMap.values()) {
-				const meta = rankRecent(r, canon);
-				const ms = eventMs(r);
+		// Availability filter
+		picked = picked.filter((x) => passesAvailability(String(x.sku || "")));
 
-				if (
-					!best ||
-					meta.score > best.meta.score ||
-					(meta.score === best.meta.score && meta.tie > best.meta.tie) ||
-					(meta.score === best.meta.score && meta.tie === best.meta.tie && ms > best.ms)
-				) {
-					best = { r, meta, ms };
-				}
-			}
-
-			if (best) picked.push(best);
-		}
-
-		const ranked = picked.sort((a, b) => {
-			if (b.meta.score !== a.meta.score) return b.meta.score - a.meta.score;
-			if (b.meta.tie !== a.meta.tie) return b.meta.tie - a.meta.tie;
-			return String(a.meta.sku || "").localeCompare(String(b.meta.sku || ""));
+		// Decorate with per-row sale meta (for Sale sorts)
+		const decorated = picked.map((x) => {
+			const r = x.r;
+			const kind = normalizeKindForPrice(r);
+			const oldN = parsePriceToNumber(r?.oldPrice || "");
+			const newN = parsePriceToNumber(r?.newPrice || "");
+			const pct =
+				Number.isFinite(oldN) && Number.isFinite(newN) && oldN > 0
+					? Math.round(((newN - oldN) / oldN) * 100)
+					: null; // negative = down
+			const delta = Number.isFinite(oldN) && Number.isFinite(newN) ? newN - oldN : null;
+			return { ...x, kind, salePct: pct, saleDelta: delta };
 		});
 
-		const limited = ranked.slice(0, 140);
+		const mode = sortMode();
+		const priceCache = new Map(); // sku -> priceNum|null
+		function priceNumForSku(sku) {
+			const s = String(sku || "");
+			if (priceCache.has(s)) return priceCache.get(s);
+			const best = bestLiveStoreForSku(s);
+			const n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
+			priceCache.set(s, n);
+			return n;
+		}
+		function nameKey(r, sku) {
+			return (String(r?.name || "") + "|" + String(sku || "")).toLowerCase();
+		}
+
+		decorated.sort((a, b) => {
+			const as = String(a.sku || "");
+			const bs = String(b.sku || "");
+
+			if (mode === "newest") {
+				const av = recencyKeyForSku(as, a.ms);
+				const bv = recencyKeyForSku(bs, b.ms);
+				if (bv !== av) return bv - av;
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
+
+			if (mode === "priceAsc" || mode === "priceDesc") {
+				const ap = priceNumForSku(as);
+				const bp = priceNumForSku(bs);
+				if (ap === null && bp === null) return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+				if (ap === null) return 1;
+				if (bp === null) return -1;
+				if (ap !== bp) return mode === "priceAsc" ? ap - bp : bp - ap;
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
+
+			if (mode === "salePct") {
+				const ap = a.salePct === null || !Number.isFinite(a.salePct) ? 999999 : a.salePct;
+				const bp = b.salePct === null || !Number.isFinite(b.salePct) ? 999999 : b.salePct;
+				if (ap !== bp) return ap - bp; // negative (better) first
+				if (b.ms !== a.ms) return b.ms - a.ms;
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
+
+			if (mode === "saleAbs") {
+				const ad = a.saleDelta === null || !Number.isFinite(a.saleDelta) ? 999999 : a.saleDelta;
+				const bd = b.saleDelta === null || !Number.isFinite(b.saleDelta) ? 999999 : b.saleDelta;
+				if (ad !== bd) return ad - bd; // negative (better) first
+				if (b.ms !== a.ms) return b.ms - a.ms;
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
+
+			if (b.ms !== a.ms) return b.ms - a.ms;
+			return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+		});
+
+		const limited = decorated.slice(0, 140);
 
 		$results.innerHTML =
 			`<div class="small">Recently changed (last 3 days):</div>` +
 			limited
-				.map(({ r, meta }) => {
+				.map(({ r, sku, kind, salePct }) => {
 					const kindLabel =
-						meta.kind === "new"
+						kind === "new"
 							? "NEW"
-							: meta.kind === "restored"
+							: kind === "restored"
 								? "RESTORED"
-								: meta.kind === "removed"
+								: kind === "removed"
 									? "REMOVED"
-									: meta.kind === "price_down"
+									: kind === "price_down"
 										? "PRICE ↓"
-										: meta.kind === "price_up"
+										: kind === "price_up"
 											? "PRICE ↑"
-											: meta.kind === "price_change"
+											: kind === "price_change"
 												? "PRICE"
 												: "CHANGE";
 
 					const priceLine =
-						meta.kind === "new" || meta.kind === "restored" || meta.kind === "removed"
+						kind === "new" || kind === "restored" || kind === "removed"
 							? `${esc(r.price || "")}`
 							: `${esc(r.oldPrice || "")} → ${esc(r.newPrice || "")}`;
 
 					const when = r.ts ? prettyTs(r.ts) : r.date || "";
 
-					const sku = meta.sku; // canonical SKU
 					const agg = aggBySku.get(sku) || null;
 					const img = agg?.img || "";
 
-					const storeCount = agg?.stores?.size || 0;
 					const stock = stockMetaForSku(sku);
 					const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
 
@@ -540,7 +686,7 @@ export function renderSearch($app) {
 						: stock.exclusive
 							? `<span class="badge badgeExclusive">Exclusive</span>`
 							: "";
-					
+
 					const href = String(r.url || "").trim();
 					const storeBadge = href
 						? `<a class="badge" href="${esc(
@@ -553,14 +699,14 @@ export function renderSearch($app) {
 					const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
 
 					const offBadge =
-						meta.kind === "price_down" && meta.pctOff !== null
+						kind === "price_down" && salePctOff(r?.oldPrice || "", r?.newPrice || "") !== null
 							? `<span class="badge" style="margin-left:6px; color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);">[${esc(
-									meta.pctOff,
+									salePctOff(r?.oldPrice || "", r?.newPrice || ""),
 								)}% Off]</span>`
 							: "";
 
 					const kindBadgeStyle =
-						meta.kind === "new" && meta.isNewUnique
+						kind === "new" && (agg?.stores?.size || 0) <= 1
 							? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
 							: "";
 
@@ -610,11 +756,15 @@ export function renderSearch($app) {
 		}
 	}
 
-	function applySearch() {
+	function renderCurrent() {
 		if (!indexReady) return;
 
 		const tokens = tokenizeQuery($q.value);
-		if (!tokens.length) return;
+		if (!tokens.length) {
+			if (recentCache) renderRecent(recentCache, rulesRef?.canonicalSku);
+			else $results.innerHTML = `<div class="small">Type to search…</div>`;
+			return;
+		}
 
 		const matches = allAgg.filter((it) => matchesAllTokens(it.searchText, tokens));
 
@@ -641,14 +791,17 @@ export function renderSearch($app) {
 
 	$results.innerHTML = `<div class="small">Loading index…</div>`;
 
-	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet()])
-		.then(([idx, rules, fav]) => {
+	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet(), loadRecent().catch(() => null)])
+		.then(([idx, rules, fav, recent]) => {
+			rulesRef = rules;
+			recentCache = recent;
+
 			favSet.clear();
 			for (const k of fav.set) {
 				const raw = String(k || "");
 				favSet.add(String(rules.canonicalSku(raw) || raw));
 			}
-			
+
 			const listings = Array.isArray(idx.items) ? idx.items : [];
 
 			// Build stock + display maps (LIVE vs EVER)
@@ -656,6 +809,7 @@ export function renderSearch($app) {
 			everStoresBySku = new Map();
 			storeDisplayByNorm = new Map();
 			liveMinPriceBySkuStore = new Map();
+			firstSeenMsBySku = new Map();
 
 			for (const r of listings) {
 				if (!r) continue;
@@ -668,6 +822,16 @@ export function renderSearch($app) {
 				if (!skuKey) continue;
 				const sku = String(rules.canonicalSku(skuKey) || skuKey);
 				if (!sku) continue;
+
+				// earliest firstSeenAt across any row (includes removed)
+				{
+					const t = String(r?.firstSeenAt || "").trim();
+					const ms = t ? Date.parse(t) : NaN;
+					if (Number.isFinite(ms)) {
+						const prev = firstSeenMsBySku.get(sku);
+						if (prev === undefined || ms < prev) firstSeenMsBySku.set(sku, ms);
+					}
+				}
 
 				// ever stores includes removed
 				{
@@ -697,7 +861,6 @@ export function renderSearch($app) {
 					if (prev === undefined || p < prev) m.set(stNorm, p);
 				}
 			}
-			
 
 			renderStoreButtons(listings);
 
@@ -708,12 +871,8 @@ export function renderSearch($app) {
 			indexReady = true;
 			$q.focus();
 
-			const tokens = tokenizeQuery($q.value);
-			if (tokens.length) {
-				applySearch();
-			} else {
-				return loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku));
-			}
+			if (recentCache) rebuildRecentMeta(recentCache, rules.canonicalSku);
+			renderCurrent();
 		})
 		.catch((e) => {
 			$results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
@@ -724,11 +883,14 @@ export function renderSearch($app) {
 			$q.value = "";
 			saveQuery("");
 		}
-		loadSkuRules()
-			.then((rules) => loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku)))
-			.catch(() => {
-				$results.innerHTML = `<div class="small">Type to search…</div>`;
-			});
+		// refresh recent (so Sale/Newest sorts stay meaningful) then re-render
+		loadRecent()
+			.then((recent) => {
+				recentCache = recent;
+				if (rulesRef) rebuildRecentMeta(recentCache, rulesRef.canonicalSku);
+				renderCurrent();
+			})
+			.catch(() => renderCurrent());
 		$q.focus();
 	});
 
@@ -737,16 +899,21 @@ export function renderSearch($app) {
 		saveQuery($q.value);
 		if (t) clearTimeout(t);
 		t = setTimeout(() => {
-			const tokens = tokenizeQuery($q.value);
-			if (!tokens.length) {
-				loadSkuRules()
-					.then((rules) => loadRecent().then((recent) => renderRecent(recent, rules.canonicalSku)))
-					.catch(() => {
-						$results.innerHTML = `<div class="small">Type to search…</div>`;
-					});
-				return;
-			}
-			applySearch();
+			renderCurrent();
 		}, 50);
 	});
+
+	// Sort / availability controls
+	if ($sort) {
+		$sort.addEventListener("change", () => {
+			localStorage.setItem(LS_SORT, String($sort.value || "newest"));
+			renderCurrent();
+		});
+	}
+	if ($avail) {
+		$avail.addEventListener("change", () => {
+			localStorage.setItem(LS_AVAIL, String($avail.value || "all"));
+			renderCurrent();
+		});
+	}
 }
