@@ -234,6 +234,40 @@ function ensureSettingsCssOnce() {
 	  .stRuleHeader .stRuleScope{ grid-column: 1 / -1; grid-row: 2; }
 	}
 
+	/* --- rule editor --- */
+	.stRuleCard{
+	  padding: 12px;
+	  border-radius: 12px;
+	
+	  /* make it stand out from the parent .card */
+	  background: #0f1318;
+	  border: 1px solid rgba(125, 211, 252, 0.18);
+	  box-shadow:
+		0 0 0 1px rgba(0,0,0,0.35) inset,
+		0 10px 18px rgba(0,0,0,0.22);
+	}
+	
+	/* divider between rules */
+	.hrRule{
+	  height: 2px;
+	  border: 0;
+	  margin: 12px 2px;
+	  background: linear-gradient(
+		90deg,
+		rgba(125,211,252,0.00),
+		rgba(125,211,252,0.55),
+		rgba(125,211,252,0.00)
+	  );
+	  opacity: 0.95;
+	}
+	
+	/* remove the flex gap so the HR does the separation */
+	#rulesWrap{ gap: 0 !important; }
+	
+	@media (max-width: 640px){
+	  .hrRule{ margin: 14px 0; }
+	}
+
 	/* custom select to avoid .input padding issues */
 	.stSelect{
 	  width: 100%;
@@ -815,6 +849,7 @@ export async function renderSettings($app) {
 
 					</div>
 				</div>
+				${i < rules.length - 1 ? `<hr class="hrRule" />` : ``}
 			`;
 		}).join("");
 	}
