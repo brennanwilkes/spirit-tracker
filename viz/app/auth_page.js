@@ -288,7 +288,7 @@ function renderAuth($app, { mode, flash = {} }) {
 			if (/email not verified/i.test(msg)) {
 				setStatus(
 					$statusRow,
-					"Your email isn't verified yet. We just sent you a new verification link - check your spam/junk folder.",
+					"You must verify your email. Check your spam/junk folder.",
 					"neutral"
 				);
 			} else {

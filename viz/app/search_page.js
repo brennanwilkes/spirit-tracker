@@ -44,8 +44,13 @@ export function renderSearch($app) {
 			${
 				authed
 					? `
-		<a class="btn btnWide" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
-	  <a class="btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
+
+		<a class="btn btnWide btnWideDesktop" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
+		<a class="btn btnIcon btnWideMobile" href="${shortlistHref}" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;" aria-label="My Shortlist">
+			<i class="fa-solid fa-list" aria-hidden="true"></i>
+			<span class="srOnly">My Shortlist</span>
+		</a>					
+		<a class="btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
 		<i class="fa-solid fa-gear" aria-hidden="true"></i>
 		<span class="srOnly">Settings</span>
 	  </a>

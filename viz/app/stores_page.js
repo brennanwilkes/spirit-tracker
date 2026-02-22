@@ -7,8 +7,8 @@ import { esc } from "./dom.js";
 ================================= */
 
 const BC_STORES = [
-	{ id: "arc", label: "ARC Liquor", logo: "" },
-	{ id: "bcl", label: "BCL", logo: "" },
+	{ id: "arc", label: "ARC Liquor", logo: "https://s.barnetnetwork.com/media/f/0e/22/a1/bf/0e22a1bf-1e98-482d-b332-eb0ba0f22722.png" },
+	{ id: "bcl", label: "BCL", logo: "https://www.guidedby.ca/img/asset/d3BfdXBsb2Fkcy9sb2dvLWJjLWxpcXVvci1zdG9yZS1pcm9ud29vZC5qcGc=?p=md" },
 	{ id: "gull", label: "Gull Liquor", logo: "" },
 	{ id: "legacyliquor", label: "Legacy Liquor", logo: "" },
 	{ id: "strath", label: "Strath Liquor", logo: "" },
@@ -22,7 +22,7 @@ const AB_STORES = [
 	{ id: "coop", label: "Co-op World of Whisky", logo: "" },
 	{ id: "craftcellars", label: "Craft Cellars", logo: "" },
 	{ id: "kegncork", label: "Keg N Cork", logo: "" },
-	{ id: "kwm", label: "Kensington Wine Market", logo: "" },
+	{ id: "kwm", label: "Kensington Wine Market", logo: "https://kensingtonwinemarket.com/img/kwm-logo.png" },
 	{ id: "maltsandgrains", label: "Malts & Grains", logo: "" },
 	{ id: "sierrasprings", label: "Sierra Springs", logo: "" },
 	{ id: "willowpark", label: "Willow Park", logo: "" },
