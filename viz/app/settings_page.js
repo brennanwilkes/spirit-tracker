@@ -522,24 +522,30 @@ export async function renderSettings($app) {
 
 	/* ---------------- Email rules UI ---------------- */
 
-	const STORES = [
+	const BC_STORES = [
 		{ id: "arc", label: "ARC Liquor" },
 		{ id: "bcl", label: "BCL" },
-		{ id: "bsw", label: "BSW" },
-		{ id: "coop", label: "Co-op World of Whisky" },
-		{ id: "craftcellars", label: "Craft Cellars" },
 		{ id: "gull", label: "Gull Liquor" },
-		{ id: "kegncork", label: "Keg N Cork" },
-		{ id: "kwm", label: "Kensington Wine Market" },
 		{ id: "legacyliquor", label: "Legacy Liquor" },
-		{ id: "maltsandgrains", label: "Malts & Grains" },
-		{ id: "sierrasprings", label: "Sierra Springs" },
 		{ id: "strath", label: "Strath Liquor" },
 		{ id: "tudor", label: "Tudor House" },
 		{ id: "vessel", label: "Vessel Liquor" },
 		{ id: "vintage", label: "Vintage Spirits" },
+	];
+	  
+	const AB_STORES = [
+		{ id: "bsw", label: "BSW" },
+		{ id: "coop", label: "Co-op World of Whisky" },
+		{ id: "craftcellars", label: "Craft Cellars" },
+		{ id: "kegncork", label: "Keg N Cork" },
+		{ id: "kwm", label: "Kensington Wine Market" },
+		{ id: "maltsandgrains", label: "Malts & Grains" },
+		{ id: "sierrasprings", label: "Sierra Springs" },
 		{ id: "willowpark", label: "Willow Park" },
 	];
+	  
+	const STORES = [...BC_STORES, ...AB_STORES];
+	  
 
 	const $rulesWrap = document.getElementById("rulesWrap");
 	const $addRule = document.getElementById("addRule");
@@ -643,7 +649,13 @@ export async function renderSettings($app) {
 	}
 
 	function storeOptionsHtml(selected) {
-		return STORES.map((s) => `<option value="${esc(s.id)}" ${s.id === selected ? "selected" : ""}>${esc(s.label)}</option>`).join("");
+		const opt = (s) =>
+		  `<option value="${esc(s.id)}" ${s.id === selected ? "selected" : ""}>${esc(s.label)}</option>`;
+	  
+		const group = (label, list) =>
+		  `<optgroup label="${esc(label)}">${list.map(opt).join("")}</optgroup>`;
+	  
+		return group("BC", BC_STORES) + group("Alberta", AB_STORES);
 	}
 
 	function labelForEventType(et) {
