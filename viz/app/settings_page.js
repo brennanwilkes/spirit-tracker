@@ -339,6 +339,30 @@ function ensureSettingsCssOnce() {
 	  stroke-linejoin: round;
 	}
 
+	/* mobile: fixed save bar */
+	@media (max-width: 640px){
+	/* make room so content isn't hidden behind the fixed bar */
+	.settingsWrap{ padding-bottom: 130px; }
+
+	.saveArea{
+		position: fixed;
+		left: 50%;
+		transform: translateX(-50%);
+		bottom: 0;
+
+		width: calc(100% - 28px);
+		max-width: 980px;
+
+		padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+		background: rgba(18,22,27,0.92);
+		backdrop-filter: blur(10px);
+
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		z-index: 1000;
+	}
+	}
+
 	/* Add rule button area */
 	.addRuleRow{ margin-top: 12px; }
 	.addRuleBtn{ width: 100%; }
