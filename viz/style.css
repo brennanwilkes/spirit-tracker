@@ -1070,12 +1070,11 @@ html { overflow-y: scroll; }
 @media (max-width: 640px) {
   .headerRight.headerButtons{
     width: 100%;
-    justify-content: space-between;
-    gap: 0;
-    row-gap: 10px;
+    display: flex;
+    gap: 10px;              /* restore spacing */
   }
 
-  /* spread icons evenly */
+  /* icons share row evenly */
   .headerRight.headerButtons .btnIcon{
     flex: 1 1 0;
     min-width: 0;
