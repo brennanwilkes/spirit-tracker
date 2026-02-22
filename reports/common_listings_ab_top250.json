@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-22T07:12:24.629Z",
+  "generatedAt": "2026-02-22T19:04:51.726Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7976,
-    "removedRows": 685,
-    "canonSkus": 4485,
+    "liveRows": 7975,
+    "removedRows": 687,
+    "canonSkus": 4484,
     "outputCount": 250
   },
   "rows": [
@@ -3804,6 +3804,48 @@
       }
     },
     {
+      "canonSku": "730008",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "coop": 49.99,
+        "craftcellars": 33.99,
+        "kegncork": 81.96,
+        "kwm": 40,
+        "sierrasprings": 68.47
+      },
+      "representative": {
+        "name": "Lochlea Single Malt Whisky Our Barley",
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "874957",
+        "skuKey": "874957",
+        "url": "https://craftcellars.ca/products/lochlea-single-malt-whisky-our-barley-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/lochlea-single-malt-whisky-our-barley-46-abv"
+      }
+    },
+    {
       "canonSku": "747216",
       "storeCount": 6,
       "stores": [
@@ -7461,47 +7503,6 @@
         "priceNum": 76.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/arran-sauternes-cask"
-      }
-    },
-    {
-      "canonSku": "730008",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "coop": 49.99,
-        "kegncork": 81.96,
-        "kwm": 40,
-        "sierrasprings": 68.47
-      },
-      "representative": {
-        "name": "Lochlea Our Barley",
-        "price": "$40.00",
-        "priceNum": 40,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "874957",
-        "skuKey": "874957",
-        "url": "https://kensingtonwinemarket.com/product/874957/lochlea-our-barley",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$40.00",
-        "priceNum": 40,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/874957/lochlea-our-barley"
       }
     },
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-22T07:12:24.788Z",
+  "generatedAt": "2026-02-22T19:04:51.872Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7976,
-    "removedRows": 685,
-    "canonSkus": 4485,
+    "liveRows": 7975,
+    "removedRows": 687,
+    "canonSkus": 4484,
     "outputCount": 1000
   },
   "rows": [
@@ -3804,6 +3804,48 @@
       }
     },
     {
+      "canonSku": "730008",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "coop": 49.99,
+        "craftcellars": 33.99,
+        "kegncork": 81.96,
+        "kwm": 40,
+        "sierrasprings": 68.47
+      },
+      "representative": {
+        "name": "Lochlea Single Malt Whisky Our Barley",
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "874957",
+        "skuKey": "874957",
+        "url": "https://craftcellars.ca/products/lochlea-single-malt-whisky-our-barley-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/lochlea-single-malt-whisky-our-barley-46-abv"
+      }
+    },
+    {
       "canonSku": "747216",
       "storeCount": 6,
       "stores": [
@@ -7543,47 +7585,6 @@
         "priceNum": 76.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/arran-sauternes-cask"
-      }
-    },
-    {
-      "canonSku": "730008",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "coop": 49.99,
-        "kegncork": 81.96,
-        "kwm": 40,
-        "sierrasprings": 68.47
-      },
-      "representative": {
-        "name": "Lochlea Our Barley",
-        "price": "$40.00",
-        "priceNum": 40,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "874957",
-        "skuKey": "874957",
-        "url": "https://kensingtonwinemarket.com/product/874957/lochlea-our-barley",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$40.00",
-        "priceNum": 40,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/874957/lochlea-our-barley"
       }
     },
     {
@@ -11818,46 +11819,6 @@
         "priceNum": 45.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon"
-      }
-    },
-    {
-      "canonSku": "137253",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "craftcellars": 89.99,
-        "kegncork": 84.96,
-        "maltsandgrains": 78.99
-      },
-      "representative": {
-        "name": "Green River Full Proof Brbn 58.95%",
-        "price": "$78.99",
-        "priceNum": 78.99,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "137253",
-        "skuKey": "137253",
-        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$78.99",
-        "priceNum": 78.99,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/"
       }
     },
     {
@@ -24302,6 +24263,45 @@
       }
     },
     {
+      "canonSku": "137253",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 82.99,
+        "craftcellars": 89.99,
+        "maltsandgrains": 78.99
+      },
+      "representative": {
+        "name": "Green River Full Proof Brbn 58.95%",
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "137253",
+        "skuKey": "137253",
+        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/"
+      }
+    },
+    {
       "canonSku": "137289",
       "storeCount": 3,
       "stores": [
@@ -25664,6 +25664,45 @@
         "priceNum": 59.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/sazerac-6-year-old"
+      }
+    },
+    {
+      "canonSku": "301926",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "craftcellars": 115.99,
+        "kegncork": 105.96
+      },
+      "representative": {
+        "name": "Remus Highest Rye Bourbon 6 Year Old",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "892735",
+        "skuKey": "892735",
+        "url": "https://www.bswliquor.com/products/remus-highest-rye-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$105.96",
+        "priceNum": 105.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/remus-highest-rye-bourbon-750-ml/"
       }
     },
     {
@@ -39440,44 +39479,6 @@
         "priceNum": 243.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/gordon-macphail-connoisseurs-choice-clynelish-2008-311776"
-      }
-    },
-    {
-      "canonSku": "301926",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "kegncork": 105.96
-      },
-      "representative": {
-        "name": "Remus Highest Rye Bourbon 6 Year Old",
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "892735",
-        "skuKey": "892735",
-        "url": "https://www.bswliquor.com/products/remus-highest-rye-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$105.96",
-        "priceNum": 105.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/remus-highest-rye-bourbon-750-ml/"
       }
     },
     {
