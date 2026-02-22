@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-22T01:11:40.104Z",
+  "generatedAt": "2026-02-22T01:57:05.930Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7980,
-    "removedRows": 681,
-    "canonSkus": 4487,
+    "liveRows": 7978,
+    "removedRows": 683,
+    "canonSkus": 4485,
     "outputCount": 1000
   },
   "rows": [
@@ -3927,6 +3927,48 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/aberlour-12-year-old-40-abv/"
+      }
+    },
+    {
+      "canonSku": "773002",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 79.99,
+        "craftcellars": 81.99,
+        "kegncork": 81.96,
+        "kwm": 75.99,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "Aberfeldy 12 Year Old",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "840932",
+        "skuKey": "840932",
+        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old"
       }
     },
     {
@@ -7870,47 +7912,6 @@
         "priceNum": 149.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/tomatin-14-yr-port-wood-finish-750-ml/"
-      }
-    },
-    {
-      "canonSku": "773002",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 79.99,
-        "craftcellars": 81.99,
-        "kwm": 75.99,
-        "willowpark": 83.49
-      },
-      "representative": {
-        "name": "Aberfeldy 12 Year Old",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "840932",
-        "skuKey": "840932",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old"
       }
     },
     {
@@ -33857,45 +33858,6 @@
       }
     },
     {
-      "canonSku": "899249",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 110,
-        "kegncork": 80,
-        "kwm": 74.09
-      },
-      "representative": {
-        "name": "Sweet Wee Scallywag Alberta Edition",
-        "price": "$74.09",
-        "priceNum": 74.09,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "899249",
-        "skuKey": "899249",
-        "url": "https://kensingtonwinemarket.com/product/899249/sweet-wee-scallywag-alberta-edition",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$74.09",
-        "priceNum": 74.09,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/899249/sweet-wee-scallywag-alberta-edition"
-      }
-    },
-    {
       "canonSku": "899340",
       "storeCount": 3,
       "stores": [
@@ -39670,6 +39632,44 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/loch-lomond-14-year-old-1"
+      }
+    },
+    {
+      "canonSku": "899249",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 110,
+        "kwm": 74.09
+      },
+      "representative": {
+        "name": "Sweet Wee Scallywag Alberta Edition",
+        "price": "$74.09",
+        "priceNum": 74.09,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "899249",
+        "skuKey": "899249",
+        "url": "https://kensingtonwinemarket.com/product/899249/sweet-wee-scallywag-alberta-edition",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$74.09",
+        "priceNum": 74.09,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/899249/sweet-wee-scallywag-alberta-edition"
       }
     }
   ]

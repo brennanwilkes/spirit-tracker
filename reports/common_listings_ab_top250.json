@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-22T01:11:39.950Z",
+  "generatedAt": "2026-02-22T01:57:05.770Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7980,
-    "removedRows": 681,
-    "canonSkus": 4487,
+    "liveRows": 7978,
+    "removedRows": 683,
+    "canonSkus": 4485,
     "outputCount": 250
   },
   "rows": [
@@ -3930,6 +3930,48 @@
       }
     },
     {
+      "canonSku": "773002",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 79.99,
+        "craftcellars": 81.99,
+        "kegncork": 81.96,
+        "kwm": 75.99,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "Aberfeldy 12 Year Old",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "840932",
+        "skuKey": "840932",
+        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old"
+      }
+    },
+    {
       "canonSku": "774524",
       "storeCount": 6,
       "stores": [
@@ -7788,47 +7830,6 @@
         "priceNum": 149.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/tomatin-14-yr-port-wood-finish-750-ml/"
-      }
-    },
-    {
-      "canonSku": "773002",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 79.99,
-        "craftcellars": 81.99,
-        "kwm": 75.99,
-        "willowpark": 83.49
-      },
-      "representative": {
-        "name": "Aberfeldy 12 Year Old",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "840932",
-        "skuKey": "840932",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old"
       }
     },
     {
