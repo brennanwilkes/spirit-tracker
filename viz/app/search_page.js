@@ -366,9 +366,14 @@ export function renderSearch($app) {
 	}
 
 	function addedMsForSku(sku) {
-		const s = String(sku || "");
+		const raw = String(sku || "");
+		const s = rulesRef?.canonicalSku ? String(rulesRef.canonicalSku(raw) || raw) : raw;
+
 		const ms = firstSeenMsBySku.get(s);
-		return Number.isFinite(ms) ? ms : 0;
+		if (Number.isFinite(ms)) return ms;
+
+		const fallback = latestEventMsBySku.get(s);
+		return Number.isFinite(fallback) ? fallback : 0;
 	}
 
 	function salePctForSku(sku) {
@@ -833,7 +838,7 @@ export function renderSearch($app) {
 
 				// --- KEY FIX FOR "NEWEST" ---
 				// Compute sku + firstSeenAt even if storeLabel is missing (common on removed/out-of-stock rows)
-				const skuKeyRaw = String(keySkuForRow(r) || "").trim();
+				const skuKeyRaw = String(r?.sku || keySkuForRow(r) || "").trim();
 				if (!skuKeyRaw) continue;
 
 				const sku = String(rules.canonicalSku(skuKeyRaw) || skuKeyRaw);
