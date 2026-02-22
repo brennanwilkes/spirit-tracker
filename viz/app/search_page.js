@@ -890,6 +890,11 @@ export function renderSearch($app) {
 			renderStoreButtons(listings);
 
 			allAgg = aggregateBySku(listings, rules.canonicalSku);
+			const missing = allAgg
+			.map((it) => String(it?.sku || ""))
+			.filter((sku) => sku && !firstSeenMsBySku.has(sku));
+
+			if (missing.length) console.warn("Missing firstSeenAt for SKUs:", missing.slice(0, 50));
 			aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
 			URL_BY_SKU_STORE = buildUrlMap(listings, rules.canonicalSku);
 
