@@ -9,23 +9,23 @@ import { esc } from "./dom.js";
 const BC_STORES = [
 	{ id: "arc", label: "ARC Liquor", logo: "https://s.barnetnetwork.com/media/f/0e/22/a1/bf/0e22a1bf-1e98-482d-b332-eb0ba0f22722.png" },
 	{ id: "bcl", label: "BCL", logo: "https://www.guidedby.ca/img/asset/d3BfdXBsb2Fkcy9sb2dvLWJjLWxpcXVvci1zdG9yZS1pcm9ud29vZC5qcGc=?p=md" },
-	{ id: "gull", label: "Gull Liquor", logo: "" },
-	{ id: "legacyliquor", label: "Legacy Liquor", logo: "" },
-	{ id: "strath", label: "Strath Liquor", logo: "" },
-	{ id: "tudor", label: "Tudor House", logo: "" },
-	{ id: "vessel", label: "Vessel Liquor", logo: "" },
-	{ id: "vintage", label: "Vintage Spirits", logo: "" },
+	{ id: "gull", label: "Gull Liquor", logo: "https://gullliquorstore.com/wp-content/themes/Gull/images/favicon.ico" },
+	{ id: "legacyliquor", label: "Legacy Liquor", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJsphhKOkacPi-a62RgC76ez05LnkPVp4A5Q&s" },
+	{ id: "strath", label: "Strath Liquor", logo: "https://www.strathliquor.com/wp-content/uploads/2025/04/Strath-Text-Logo-Colour.svg" },
+	{ id: "tudor", label: "Tudor House", logo: "https://storage.googleapis.com/gulp-project-static/TUDORHOUSE/logo.png" },
+	{ id: "vessel", label: "Vessel Liquor", logo: "https://www.go2hr.ca/wp-content/uploads/2023/04/Vessel_Final_logo_wtext-01-e1521483297146.jpg" },
+	{ id: "vintage", label: "Vintage Spirits", logo: "https://s.barnetnetwork.com/media/f/d3/0b/23/59/d30b2359-8836-4c75-8bdf-5f93f80554e2.png" },
 ];
 
 const AB_STORES = [
-	{ id: "bsw", label: "BSW", logo: "" },
-	{ id: "coop", label: "Co-op World of Whisky", logo: "" },
-	{ id: "craftcellars", label: "Craft Cellars", logo: "" },
-	{ id: "kegncork", label: "Keg N Cork", logo: "" },
-	{ id: "kwm", label: "Kensington Wine Market", logo: "https://kensingtonwinemarket.com/img/kwm-logo.png" },
-	{ id: "maltsandgrains", label: "Malts & Grains", logo: "" },
-	{ id: "sierrasprings", label: "Sierra Springs", logo: "" },
-	{ id: "willowpark", label: "Willow Park", logo: "" },
+	{ id: "bsw", label: "BSW", logo: "https://www.bswliquor.com/cdn/shop/files/bsw-logo.png?v=1699261679&width=100" },
+	{ id: "coop", label: "Co-op World of Whisky", logo: "https://www.coopwinespiritsbeer.com/wp-content/themes/calgarycoop/src/images/cc-black-desktop-logo.svg" },
+	{ id: "craftcellars", label: "Craft Cellars", logo: "https://pbs.twimg.com/profile_images/590644683442884611/K2Pu0S7D.jpg" },
+	{ id: "kegncork", label: "Keg N Cork", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZIVLtvsg1BP0UWMTe76Qfq4rtRtjBuIxo9w&s" },
+	{ id: "kwm", label: "Kensington Wine Market", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAJn_7veeZW6RD-DDusNtJVkBTAaskYBzh5g&s" },
+	{ id: "maltsandgrains", label: "Malts & Grains", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0q4mKBOfetGovXMiZDXgEPMhubsCzpa1ZuQ&s" },
+	{ id: "sierrasprings", label: "Sierra Springs", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNrN3pa3sPOTjKjkpjVcqOrQyRaoF7eIl7Xg&s" },
+	{ id: "willowpark", label: "Willow Park", logo: "https://pbs.twimg.com/profile_images/1234910564373028864/kGGDvGxQ.jpg" },
 ];
 
 /* ===============================
