@@ -49,18 +49,32 @@ function normalizePrice(str) {
 	return raw.replace(/,/g, "");
 }
 
+function extractWhiskyFolkPriceBlock(articleHtml) {
+	const a = String(articleHtml || "");
+	const m = a.match(
+		/<div\b[^>]*class=["'][^"']*\bwhiskyfolk-price\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+	);
+	return m && m[1] ? m[1] : "";
+}
+
 function pickPriceFromArticle(articleHtml) {
 	const a = String(articleHtml || "");
-	const noMember = a.replace(/<div\b[^>]*class=["'][^"']*\bwhiskyfolk-price\b[^"']*["'][^>]*>[\s\S]*?<\/div>/gi, " ");
 
-	const ins = noMember.match(/<ins\b[^>]*>[\s\S]*?(\$[\s\S]{0,32}?)<\/ins>/i);
+	// Prefer Whisky Folk/member price when present.
+	const wfBlock = extractWhiskyFolkPriceBlock(a);
+	if (wfBlock) {
+		const p = normalizePrice(wfBlock);
+		if (p) return p;
+	}
+
+	const ins = a.match(/<ins\b[^>]*>[\s\S]*?(\$[\s\S]{0,32}?)<\/ins>/i);
 	if (ins && ins[1]) return normalizePrice(ins[1]);
 
-	const reg = noMember.match(/class=["'][^"']*\bregular-price-card\b[^"']*["'][^>]*>\s*([^<]+)/i);
+	const reg = a.match(/class=["'][^"']*\bregular-price-card\b[^"']*["'][^>]*>\s*([^<]+)/i);
 	if (reg && reg[1]) return normalizePrice(reg[1]);
 
-	const priceDiv = noMember.match(/<div\b[^>]*class=["'][^"']*\bproduct-price\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
-	const scope = priceDiv && priceDiv[1] ? priceDiv[1] : noMember;
+	const priceDiv = a.match(/<div\b[^>]*class=["'][^"']*\bproduct-price\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
+	const scope = priceDiv && priceDiv[1] ? priceDiv[1] : a;
 
 	return normalizePrice(scope);
 }
@@ -135,9 +149,11 @@ function parseProductFromArticle(articleHtml) {
 	const name = cleanText([title, sub].filter(Boolean).join(" - "));
 	if (!name) return null;
 
+	const wfBlock = extractWhiskyFolkPriceBlock(a);
+	const wfPrice = Boolean(wfBlock && normalizePrice(wfBlock));
 	const price = pickPriceFromArticle(a);
-	const productId = extractProductIdFromArticle(a);
 
+	const productId = extractProductIdFromArticle(a);
 	const img = extractFirstImgUrl(a, "https://www.strathliquor.com/");
 
 	const skuFromHtml = extractSkuFromArticle(a);
@@ -151,6 +167,7 @@ function parseProductFromArticle(articleHtml) {
 		sku: skuFromHtml || skuFromImg || fallbackSku,
 		productId,
 		img,
+		wfPrice,
 	};
 }
 
@@ -200,7 +217,6 @@ function normalizeProductUrl(p) {
 }
 
 function normalizeProductName(p) {
-	// Store API "name" can contain HTML entities like &#8211; and sometimes markup like <em>
 	const raw = String(p?.name || "");
 	return cleanText(decodeHtml(stripTags(raw)));
 }
@@ -231,7 +247,6 @@ function toMoneyStringFromMinorUnits(valueStr, minorUnit) {
 	const v = String(valueStr || "").trim();
 	if (!/^\d+$/.test(v)) return "";
 
-	// Use integer math to avoid float rounding issues
 	const pad = "0".repeat(mu);
 	const s = v.length <= mu ? pad.slice(0, mu - v.length) + v : v;
 	const whole = s.length === mu ? "0" : s.slice(0, s.length - mu);
@@ -242,7 +257,6 @@ function toMoneyStringFromMinorUnits(valueStr, minorUnit) {
 function normalizeProductPrice(p) {
 	const prices = p?.prices;
 
-	// Woo store API commonly returns minor units (e.g., "11035" with minor_unit=2 => 110.35)
 	if (prices && typeof prices === "object") {
 		const minor = prices.currency_minor_unit;
 		const sale = String(prices.sale_price || "").trim();
@@ -263,8 +277,7 @@ function normalizeProductPrice(p) {
 	}
 
 	const raw = String(p?.price || p?.price_html || "").trim();
-	const norm = normalizePrice(raw);
-	return norm;
+	return normalizePrice(raw);
 }
 
 function normalizeProductSku(p) {
@@ -289,6 +302,69 @@ async function fetchStoreApiPage(ctx, apiBaseUrl, page, perPage) {
 			Accept: "application/json",
 			Referer: ctx.cat.startUrl,
 		},
+	});
+}
+
+/* ---------------- Divi Ajax Filter (no hardcoded query) ---------------- */
+
+function extractDiviAjaxSecurity(html) {
+	const s = String(html || "");
+	const m =
+		s.match(/loadmore_ajax_object\s*=\s*\{[\s\S]*?"security"\s*:\s*"([a-f0-9]{8,64})"/i) ||
+		s.match(/filter_ajax_object\s*=\s*\{[\s\S]*?"security"\s*:\s*"([a-f0-9]{8,64})"/i) ||
+		s.match(/"security"\s*:\s*"([a-f0-9]{8,64})"/i);
+	return (m && m[1]) || "";
+}
+
+function extractDiviFilterVarQuery(html) {
+	const s = String(html || "");
+	// data-filter-var='{"post_type":"product",...}'
+	const m = s.match(/\bdata-filter-var\s*=\s*'([\s\S]*?)'\s*/i);
+	if (!m || !m[1]) return null;
+
+	const raw = decodeHtml(m[1]);
+	try {
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
+}
+
+async function fetchDiviLoadMore(ctx, endpoint, body) {
+	return await ctx.http.fetchJsonWithRetry(endpoint, `strath:divi:${ctx.cat.key}:p${body.page}`, ctx.store.ua, {
+		method: "POST",
+		headers: {
+			Accept: "application/json",
+			"Content-Type": "application/json",
+			"X-Requested-With": "XMLHttpRequest",
+			Origin: "https://www.strathliquor.com",
+			Referer: ctx.cat.startUrl,
+		},
+		body: JSON.stringify(body),
+	});
+}
+
+function mergePreferWf(discovered, it) {
+	if (!it || !it.url) return;
+
+	const prev = discovered.get(it.url) || null;
+	if (!prev) {
+		discovered.set(it.url, it);
+		return;
+	}
+
+	// If new has wfPrice, always prefer its price.
+	const price = it.wfPrice ? it.price : prev.price || it.price;
+	const wfPrice = Boolean(prev.wfPrice || it.wfPrice);
+
+	discovered.set(it.url, {
+		name: it.name || prev.name,
+		price,
+		url: it.url,
+		sku: pickBetterSku(it.sku, prev.sku),
+		productId: it.productId || prev.productId || 0,
+		img: it.img || prev.img || "",
+		wfPrice,
 	});
 }
 
@@ -318,7 +394,7 @@ function avoidMassRemoval(prevDb, discovered, ctx, reason) {
 async function scanCategoryStrath(ctx, prevDb, report) {
 	const t0 = Date.now();
 
-	// Listing HTML (seed + sanity)
+	// Listing HTML (nonce + data-filter-var)
 	let html = "";
 	let listingFinalUrl = ctx.cat.startUrl;
 	let listingStatus = 0;
@@ -338,12 +414,13 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 
 	const discovered = new Map();
 
+	// Parse first page HTML (cheap, but may not contain member pricing everywhere).
 	const listingArticles = extractArticles(html);
 	let listingItems = 0;
 	for (const art of listingArticles) {
 		const it = parseProductFromArticle(art);
 		if (it) {
-			discovered.set(it.url, it);
+			mergePreferWf(discovered, it);
 			listingItems++;
 		}
 	}
@@ -355,6 +432,73 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 		)} | bytes=${kbStr(listingBytes)} | ${padRight(ctx.http.inflightStr(), 11)} | ${secStr(listingMs)}`,
 	);
 
+	// Divi loadmore paging (use live query from data-filter-var so post__in stays current)
+	const nonce = extractDiviAjaxSecurity(html);
+	const baseQuery = extractDiviFilterVarQuery(html);
+	const divi = ctx.cat.diviLoadMore;
+
+	if (nonce && baseQuery && divi && divi.baseBody) {
+		const endpoint = divi.endpoint || "https://www.strathliquor.com/wp-json/divi-ajax-filter/v1/loadmore";
+		const maxPagesCap = ctx.config.maxPages === null ? 5000 : ctx.config.maxPages;
+
+		const perPage = Number(divi.baseBody.postnumber) || Number(baseQuery.posts_per_page) || 50;
+
+		for (let page = 1; page <= maxPagesCap; page++) {
+			const q = { ...baseQuery, paged: page, posts_per_page: perPage };
+
+			const body = {
+				...divi.baseBody,
+				security: nonce,
+				page,
+				postnumber: String(perPage),
+				query: JSON.stringify(q),
+			};
+
+			let r;
+			try {
+				r = await fetchDiviLoadMore(ctx, endpoint, body);
+			} catch (e) {
+				ctx.logger.warn?.(`${ctx.catPrefixOut} | Divi loadmore page ${page} failed: ${e?.message || e}`);
+				break;
+			}
+
+			const postsHtml = String(r?.json?.posts || "");
+			if (!postsHtml.trim()) break;
+			if (!/<article\b/i.test(postsHtml)) break;
+
+			let added = 0;
+			let wfUpgrades = 0;
+
+			const arts = extractArticles(postsHtml);
+			for (const art of arts) {
+				const it = parseProductFromArticle(art);
+				if (!it) continue;
+
+				const prev = discovered.get(it.url) || null;
+				const prevWf = Boolean(prev && prev.wfPrice);
+
+				mergePreferWf(discovered, it);
+
+				if (!prev) added++;
+				else if (!prevWf && it.wfPrice) wfUpgrades++;
+			}
+
+			ctx.logger.ok(
+				`${ctx.catPrefixOut} | Divi Page ${pageStr(page, page)} | ${(r?.status || "").toString().padEnd(3)} | items+=${padLeft(
+					added,
+					3,
+				)} | wf+=${padLeft(wfUpgrades, 3)} | bytes=${kbStr(r.bytes)} | ${padRight(ctx.http.inflightStr(), 11)} | ${secStr(r.ms)}`,
+			);
+
+			if (arts.length < perPage) break;
+		}
+	} else {
+		ctx.logger.warn?.(
+			`${ctx.catPrefixOut} | Divi paging disabled (nonce=${nonce ? "ok" : "missing"} query=${baseQuery ? "ok" : "missing"}).`,
+		);
+	}
+
+	// Store API scan (completeness). Preserve WF/member price when already present.
 	const apiBase = buildStoreApiBaseUrlFromCategoryUrl(listingFinalUrl || ctx.cat.startUrl);
 
 	const perPage = 100;
@@ -395,11 +539,12 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 			const name = normalizeProductName(p);
 			if (!name) continue;
 
-			const price = normalizeProductPrice(p);
+			const apiPrice = normalizeProductPrice(p);
 			const sku = normalizeProductSku(p);
 			const productId = normalizeProductId(p);
 
 			const prev = discovered.get(url) || null;
+			const prevHasWf = Boolean(prev && prev.wfPrice);
 
 			const apiImg = normalizeProductImage(p) || "";
 			const img = apiImg || (prev && prev.img) || "";
@@ -410,13 +555,16 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 			const newSku = sku || fallbackSku;
 			const mergedSku = pickBetterSku(newSku, prev && prev.sku);
 
+			const mergedPrice = prevHasWf ? prev.price : (prev && prev.price) || apiPrice;
+
 			discovered.set(url, {
-				name,
-				price,
+				name: (prev && prev.name) || name,
+				price: mergedPrice,
 				url,
 				sku: mergedSku,
-				productId,
+				productId: (prev && prev.productId) || productId,
 				img,
+				wfPrice: prevHasWf,
 			});
 			kept++;
 		}
@@ -431,8 +579,6 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 		if (wantedSlug) {
 			if (kept === 0) emptyMatchPages++;
 			else emptyMatchPages = 0;
-
-			// If filter is tight (rum), stop after 2 empty pages in a row.
 			if (emptyMatchPages >= 2) break;
 		}
 
@@ -502,6 +648,35 @@ function createStore(defaultUa) {
 				apiCategorySlug: "whisky",
 				startUrl:
 					"https://www.strathliquor.com/whisky/?_sfm__stock_status=instock&_sfm__regular_price=0+6000&_sfm_product_abv=20+75&orderby=date",
+				diviLoadMore: {
+					endpoint: "https://www.strathliquor.com/wp-json/divi-ajax-filter/v1/loadmore",
+					// Keep only the non-query UI args here (query comes from data-filter-var).
+					baseBody: {
+						security: "",
+						query: "",
+						page: 1,
+						layoutid: "none",
+						posttype: "product",
+						noresults: "none",
+						sortorder: "title_asc",
+						sortasc: "desc",
+						gridstyle: "off",
+						columnscount: "5",
+						resultcount: "on",
+						countposition: "top",
+						shortcode_name: "[de_loop_template_shortcode]",
+						postnumber: "50",
+						loadmoretext: "Load More",
+						link_wholegrid: "",
+						is_loadmore: "on",
+						loop_var:
+							'{"loop_style":"on","loop_templates":"custom-template","show_variations":"off","show_excerpt_list_view":"off","enable_overlay":"on","show_featured_image":"on","show_read_more":"off","show_author":"on","show_date":"on","date_format":"F j, Y","show_categories":"on","show_categories_count":"off","show_content":"off","show_comments":"off","excerpt_length":"270","excerpt_more":"...","meta_separator":"|","read_more_text":"Read More","button_fullwidth":"off","custom_loop_template":"custom-template.php"}',
+						show_rating: "on",
+						show_price: "on",
+						show_excerpt: "",
+						show_add_to_cart: "on",
+					},
+				},
 			},
 			{
 				key: "spirits-rum",
@@ -509,6 +684,34 @@ function createStore(defaultUa) {
 				apiCategorySlug: "rum",
 				startUrl:
 					"https://www.strathliquor.com/spirits/?_sfm__stock_status=instock&_sfm__regular_price=0+600&_sfm_product_type=Rum&_sfm_product_abv=10+75&orderby=date",
+				diviLoadMore: {
+					endpoint: "https://www.strathliquor.com/wp-json/divi-ajax-filter/v1/loadmore",
+					baseBody: {
+						security: "",
+						query: "",
+						page: 1,
+						layoutid: "none",
+						posttype: "product",
+						noresults: "none",
+						sortorder: "date ID",
+						sortasc: "DESC",
+						gridstyle: "off",
+						columnscount: "5",
+						resultcount: "on",
+						countposition: "top",
+						shortcode_name: "[de_loop_template_shortcode]",
+						postnumber: "100",
+						loadmoretext: "Load More",
+						link_wholegrid: "",
+						is_loadmore: "on",
+						loop_var:
+							'{"loop_style":"on","loop_templates":"custom-template","show_variations":"off","show_excerpt_list_view":"off","enable_overlay":"on","show_featured_image":"on","show_read_more":"off","show_author":"on","show_date":"on","date_format":"F j, Y","show_categories":"on","show_categories_count":"off","show_content":"off","show_comments":"off","excerpt_length":"270","excerpt_more":"...","meta_separator":"|","read_more_text":"Read More","button_fullwidth":"off","custom_loop_template":"custom-template.php"}',
+						show_rating: "on",
+						show_price: "on",
+						show_excerpt: "",
+						show_add_to_cart: "on",
+					},
+				},
 			},
 		],
 	};
