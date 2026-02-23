@@ -20,19 +20,33 @@ function usd(n) {
 
 function bswExtractCollectionIdFromHtml(html) {
 	const s = String(html || "");
-	const patterns = [
-		/collection_ids%3A(\d{6,})/i,
-		/collection_ids\s*:\s*(\d{6,})/i,
-		/"collection_ids"\s*:\s*(\d{6,})/i,
-		/"collection_id"\s*:\s*(\d{6,})/i,
-		/collection_id\s*=\s*(\d{6,})/i,
-		/collectionId["']?\s*[:=]\s*["']?(\d{6,})/i,
-		/data-collection-id=["'](\d{6,})["']/i,
+  
+	// Prefer the actual collection grid id on the page (Shopify collection id)
+	const preferred = [
+	  /data-collection-id=["'](\d{6,})["']/i,
+	  /data-collectionid=["'](\d{6,})["']/i,
+	  /collectionId["']?\s*[:=]\s*["']?(\d{6,})/i,
+	  /collection_id\s*=\s*(\d{6,})/i,
+	  /"collection_id"\s*:\s*(\d{6,})/i,
 	];
-	for (const re of patterns) {
-		const m = s.match(re);
-		if (m && m[1]) return Number.parseInt(m[1], 10);
+  
+	for (const re of preferred) {
+	  const m = s.match(re);
+	  if (m && m[1]) return Number.parseInt(m[1], 10);
 	}
+  
+	// Fallbacks (often appear in Algolia client-side code and can be misleading)
+	const fallbacks = [
+	  /collection_ids%3A(\d{6,})/i,
+	  /collection_ids\s*:\s*(\d{6,})/i,
+	  /"collection_ids"\s*:\s*(\d{6,})/i,
+	];
+  
+	for (const re of fallbacks) {
+	  const m = s.match(re);
+	  if (m && m[1]) return Number.parseInt(m[1], 10);
+	}
+  
 	return null;
 }
 
