@@ -203,10 +203,34 @@ function formatDollars(p) {
 	return `$${Math.round(p)}`;
 }
 
+function formatSignedDollars(n) {
+	if (!Number.isFinite(n)) return "";
+	const v = Math.round(n);
+	if (v === 0) return "$0";
+	return v < 0 ? `-$${Math.abs(v)}` : `+$${v}`;
+}
+
+function stepForDollarsSpan(span) {
+	const s = Math.abs(Number(span) || 0);
+	if (s <= 10) return 1;
+	if (s <= 25) return 2;
+	if (s <= 60) return 5;
+	if (s <= 150) return 10;
+	if (s <= 300) return 25;
+	return 50;
+}
+
 /* ---------------- report filtering + series ---------------- */
 
-// avg over SKUs that store has a price for: ((storePrice - skuBaseline) / skuBaseline) * 100
-// where skuBaseline is the SKU's median price on its first-ever day in the dataset.
+// Store series:
+//   avg over SKUs that store has a price for.
+// Market series (NEW):
+//   SKU-centric: for each SKU/day, take median across stores (one vote per SKU),
+//   then average across SKUs.
+//
+// valueMode:
+//   "percent" => value = ((p - base) / base) * 100
+//   "dollars" => value = (p - base)  (only used when eligibleSkus===1, i.e. single bottle)
 function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 	const stores = Array.isArray(filter?.stores)
 		? filter.stores.map(String)
@@ -218,6 +242,7 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 	const tokens = Array.isArray(filter?.tokens) ? filter.tokens : [];
 	const minP = Number.isFinite(filter?.minPrice) ? filter.minPrice : null;
 	const maxP = Number.isFinite(filter?.maxPrice) ? filter.maxPrice : null;
+	const valueMode = String(filter?.valueMode || "percent");
 
 	const sum = new Map();
 	const cnt = new Map();
@@ -226,11 +251,12 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 		cnt.set(s, 0);
 	}
 
-	// Market = avg across ALL store price points (same per-SKU baseline % logic)
-	let marketSum = 0;
-	let marketCnt = 0;
+	// SKU-centric market accumulators (one value per SKU/day)
+	let marketSkuSum = 0;
+	let marketSkuCnt = 0;
 
-	let usedRows = 0;
+	let usedRows = 0; // rows that had at least one store price (so they actually contribute)
+	let eligibleSkus = 0; // rows after filters + baseline (even if some stores don't carry)
 
 	for (const r of rows) {
 		if (!r || typeof r !== "object") continue;
@@ -255,33 +281,56 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 		const sp = r.storePrices;
 		if (!sp || typeof sp !== "object") continue;
 
+		eligibleSkus++;
+
 		let contributed = false;
+		const skuVals = [];
 
 		for (const s of stores) {
 			const p = sp[s];
 			if (!Number.isFinite(p)) continue;
-			const pct = ((p - base) / base) * 100;
-			sum.set(s, (sum.get(s) || 0) + pct);
+
+			const v = valueMode === "dollars" ? p - base : ((p - base) / base) * 100;
+
+			sum.set(s, (sum.get(s) || 0) + v);
 			cnt.set(s, (cnt.get(s) || 0) + 1);
 
-			marketSum += pct;
-			marketCnt += 1;
-
+			skuVals.push(v);
 			contributed = true;
 		}
 
-		if (contributed) usedRows++;
+		if (contributed) {
+			usedRows++;
+
+			skuVals.sort((a, b) => a - b);
+			const skuMed = medianOfSorted(skuVals);
+			if (Number.isFinite(skuMed)) {
+				marketSkuSum += skuMed;
+				marketSkuCnt += 1;
+			}
+		}
 	}
 
 	const out = {};
+	const coverageByStore = {};
 	for (const s of stores) {
 		const c = cnt.get(s) || 0;
 		out[s] = c > 0 ? (sum.get(s) || 0) / c : null;
+		coverageByStore[s] = eligibleSkus > 0 ? c / eligibleSkus : 0;
 	}
 
-	const marketValue = marketCnt > 0 ? marketSum / marketCnt : null;
+	const marketValue = marketSkuCnt > 0 ? marketSkuSum / marketSkuCnt : null;
 
-	return { stores, valuesByStore: out, marketValue, usedRows, totalRows: rows.length };
+	return {
+		stores,
+		valuesByStore: out,
+		marketValue,
+		usedRows,
+		totalRows: rows.length,
+		eligibleSkus,
+		coverageByStore,
+		valueMode,
+	};
 }
 
 function relReportPath(group, size) {
@@ -442,6 +491,27 @@ function computeSeriesFromRaw(raw, filter) {
 	// compute once per raw (and keep it across filter changes)
 	if (!raw.skuBaselines) raw.skuBaselines = buildSkuBaselinesFromRaw(raw);
 
+	// Decide value mode:
+	// If the *filtered eligible SKU count* on the newest report is exactly 1,
+	// show $ deltas instead of % (single bottle mode).
+	let valueMode = "percent";
+	let newestEligibleSkus = 0;
+
+	const newestRep = reportsByIdx[reportsByIdx.length - 1];
+	if (newestRep) {
+		const probe = computeDailyStoreSeriesFromReport(
+			newestRep,
+			{
+				...filter,
+				stores,
+				valueMode: "percent",
+			},
+			raw.skuBaselines,
+		);
+		newestEligibleSkus = Number(probe?.eligibleSkus || 0);
+		if (newestEligibleSkus === 1) valueMode = "dollars";
+	}
+
 	const seriesByStore = {};
 	for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
 
@@ -449,6 +519,7 @@ function computeSeriesFromRaw(raw, filter) {
 
 	let newestUsed = 0;
 	let newestTotal = 0;
+	let newestCoverageByStore = null;
 
 	for (let i = 0; i < reportsByIdx.length; i++) {
 		const rep = reportsByIdx[i];
@@ -459,6 +530,7 @@ function computeSeriesFromRaw(raw, filter) {
 			{
 				...filter,
 				stores,
+				valueMode,
 			},
 			raw.skuBaselines,
 		);
@@ -473,10 +545,12 @@ function computeSeriesFromRaw(raw, filter) {
 		if (i === reportsByIdx.length - 1) {
 			newestUsed = daily.usedRows;
 			newestTotal = daily.totalRows;
+			newestCoverageByStore = daily.coverageByStore || null;
+			newestEligibleSkus = Number(daily.eligibleSkus || newestEligibleSkus || 0);
 		}
 	}
 
-	// Re-anchor so first visible day = 0
+	// Re-anchor market so first visible day = 0 (works for both % and $)
 	let first = null;
 	for (const v of marketSeries) {
 		if (Number.isFinite(v)) {
@@ -485,13 +559,21 @@ function computeSeriesFromRaw(raw, filter) {
 		}
 	}
 
-	const marketSeriesAnchored = marketSeries.map(v =>
-		Number.isFinite(v) && Number.isFinite(first) ? v - first : v
-	);
+	const marketSeriesAnchored = marketSeries.map((v) => (Number.isFinite(v) && Number.isFinite(first) ? v - first : v));
 
 	const marketTrend = movingAverage(marketSeriesAnchored, 1);
 
-	return { labels, stores, seriesByStore, marketTrend, newestUsed, newestTotal };
+	return {
+		labels,
+		stores,
+		seriesByStore,
+		marketTrend,
+		newestUsed,
+		newestTotal,
+		newestCoverageByStore,
+		newestEligibleSkus,
+		valueMode,
+	};
 }
 
 /* ---------------- y-axis bounds ---------------- */
@@ -786,8 +868,14 @@ export async function renderStats($app) {
 		return null;
 	}
 
+	function borderWidthFromCoverage(c) {
+		const x = clamp(Number(c) || 0, 0, 1);
+		// subtle: 1.0px .. 1.9px (sqrt makes low coverage differences even smaller)
+		return 1.0 + 0.9 * Math.sqrt(x);
+	}
+
 	async function drawOrUpdateChart(series, yBounds) {
-		const { labels, stores, seriesByStore, marketTrend } = series;
+		const { labels, stores, seriesByStore, marketTrend, valueMode, newestCoverageByStore } = series;
 
 		const Chart = await ensureChartJs();
 		const canvas = document.getElementById("statsChart");
@@ -808,9 +896,13 @@ export async function renderStats($app) {
 
 		const colorMap = buildStoreColorMap(order);
 
+		const cov = newestCoverageByStore || {};
+
 		const datasets = order.map((s) => {
 			const base = storeColor(s, colorMap);
 			const stroke = lighten(base, 0.25);
+			const bw = borderWidthFromCoverage(cov[s]);
+
 			return {
 				label: displayStoreName(s),
 				data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
@@ -823,7 +915,7 @@ export async function renderStats($app) {
 				pointRadius: 0,
 				pointHoverRadius: 0,
 				pointHitRadius: 6,
-				borderWidth: 1.25,
+				borderWidth: bw,
 			};
 		});
 
@@ -841,13 +933,68 @@ export async function renderStats($app) {
 			borderWidth: 1.75,
 		});
 
+		const isDollars = valueMode === "dollars";
+
+		// y tick step for $ mode
+		let yStep = 1;
+		if (isDollars && yBounds) {
+			const span = (yBounds.max ?? 0) - (yBounds.min ?? 0);
+			yStep = stepForDollarsSpan(span);
+
+			// snap bounds to step so ticks land nicely
+			yBounds = {
+				min: Math.floor((yBounds.min ?? 0) / yStep) * yStep,
+				max: Math.ceil((yBounds.max ?? 0) / yStep) * yStep,
+			};
+		}
+
+		const yTitle = isDollars ? "Avg Δ$ vs per-SKU baseline" : "Avg % vs per-SKU baseline";
+
+		const tooltipLabel = (ctx2) => {
+			const v = ctx2.parsed?.y;
+			if (!Number.isFinite(v)) return `${ctx2.dataset.label}: (no data)`;
+			return isDollars ? `${ctx2.dataset.label}: ${formatSignedDollars(v)}` : `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
+		};
+
+		const yTickCallback = (v) => {
+			const n = Number(v);
+			if (!Number.isFinite(n)) return "";
+			if (isDollars) {
+				const r = Math.round(n);
+				if (r === 0) return "$0";
+				return r < 0 ? `-$${Math.abs(r)}` : `$${r}`;
+			}
+			return `${n.toFixed(0)}%`;
+		};
+
+		const yTicks = isDollars
+			? {
+					stepSize: yStep,
+					precision: 0,
+					autoSkip: true,
+					maxTicksLimit: 10,
+					callback: yTickCallback,
+				}
+			: {
+					stepSize: 1,
+					precision: 0,
+					autoSkip: false, // don't skip integer % ticks
+					callback: yTickCallback,
+				};
+
 		if (_chart) {
 			_chart.data.labels = labels;
 			_chart.data.datasets = datasets;
+
 			if (yBounds) {
 				_chart.options.scales.y.min = yBounds.min;
 				_chart.options.scales.y.max = yBounds.max;
 			}
+
+			_chart.options.scales.y.title.text = yTitle;
+			_chart.options.scales.y.ticks = yTicks;
+			_chart.options.plugins.tooltip.callbacks.label = tooltipLabel;
+
 			_chart.update("none");
 			return;
 		}
@@ -864,13 +1011,7 @@ export async function renderStats($app) {
 				plugins: {
 					legend: { display: true },
 					tooltip: {
-						callbacks: {
-							label: (ctx2) => {
-								const v = ctx2.parsed?.y;
-								if (!Number.isFinite(v)) return `${ctx2.dataset.label}: (no data)`;
-								return `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
-							},
-						},
+						callbacks: { label: tooltipLabel },
 					},
 				},
 				scales: {
@@ -881,15 +1022,8 @@ export async function renderStats($app) {
 					y: {
 						min: yBounds?.min,
 						max: yBounds?.max,
-						title: { display: true, text: "Avg % vs per-SKU median" },
-
-						ticks: {
-							stepSize: 1,
-							precision: 0,
-							autoSkip: false, // <- don't skip integer ticks
-							callback: (v) => `${Number(v).toFixed(0)}%`,
-						},
-
+						title: { display: true, text: yTitle },
+						ticks: yTicks,
 						grid: {
 							drawBorder: false,
 							color: (ctx) =>
@@ -959,7 +1093,11 @@ export async function renderStats($app) {
 				maxPrice: selectedMaxPrice,
 			});
 
-			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], group === "all" ? 8 : 6, 1);
+			const isDollars = series.valueMode === "dollars";
+			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
+			const yPad = isDollars ? 2 : 1;
+
+			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], yMinSpan, yPad);
 
 			await drawOrUpdateChart(series, yBounds);
 			_chart?.resize();
@@ -995,7 +1133,11 @@ export async function renderStats($app) {
 				maxPrice: selectedMaxPrice,
 			});
 
-			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], group === "all" ? 8 : 6, 1);
+			const isDollars = series.valueMode === "dollars";
+			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
+			const yPad = isDollars ? 2 : 1;
+
+			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], yMinSpan, yPad);
 
 			await drawOrUpdateChart(series, yBounds);
 			_chart?.resize();
