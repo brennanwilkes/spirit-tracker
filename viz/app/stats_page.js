@@ -929,10 +929,10 @@ export async function renderStats($app) {
 
 	function borderWidthFromCoverage(c) {
 		const x = clamp(Number(c) || 0, 0, 1);
-		// amplified: 1.0px .. 3.5px (sqrt keeps low-coverage from jumping too hard)
-		return 1.0 + 2.5 * Math.sqrt(x);
+		// much less in the middle, big jump near high coverage
+		return 1.0 + 4.5 * Math.pow(x, 2.4); // 1.0px .. 5.5px
 	}
-	
+
 	async function drawOrUpdateChart(series, yBounds) {
 		const { labels, stores, seriesByStore, marketMedianTrend, marketFloorTrend, valueMode, newestCoverageByStore } =
 			series;
