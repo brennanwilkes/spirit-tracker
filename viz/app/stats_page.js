@@ -322,7 +322,7 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines, skuFloo
 
 		let contributed = false;
 		const skuVals = [];
-		const skuValsFloor = [];
+		let skuMinV = null;
 
 		for (const s of stores) {
 			const p = sp[s];
@@ -335,10 +335,8 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines, skuFloo
 
 			skuVals.push(v);
 
-			if (hasFloor) {
-				const vf = valueMode === "dollars" ? p - floorBase : ((p - floorBase) / floorBase) * 100;
-				skuValsFloor.push(vf);
-			}
+			// Market floor: per-SKU/day minimum across stores (same baseline as v)
+			if (skuMinV === null || v < skuMinV) skuMinV = v;
 
 			contributed = true;
 		}
@@ -353,13 +351,9 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines, skuFloo
 				marketMedSkuCnt += 1;
 			}
 
-			if (hasFloor && skuValsFloor.length) {
-				skuValsFloor.sort((a, b) => a - b);
-				const skuMedFloor = medianOfSorted(skuValsFloor);
-				if (Number.isFinite(skuMedFloor)) {
-					marketFloorSkuSum += skuMedFloor;
-					marketFloorSkuCnt += 1;
-				}
+			if (Number.isFinite(skuMinV)) {
+				marketFloorSkuSum += skuMinV;
+				marketFloorSkuCnt += 1;
 			}
 		}
 	}
@@ -1004,8 +998,8 @@ export async function renderStats($app) {
 			data: Array.isArray(marketFloorTrend) ? marketFloorTrend : labels.map(() => null),
 			spanGaps: false,
 			tension: 0.15,
-			backgroundColor: "rgba(110,110,110,0.9)",
-			borderColor: "rgba(110,110,110,0.9)",
+			backgroundColor: "rgba(160,160,160,0.9)",
+			borderColor: "rgba(160,160,160,0.9)",
 			borderDash: [2, 6],
 			pointRadius: 0,
 			pointHoverRadius: 0,
