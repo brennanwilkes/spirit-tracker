@@ -10,7 +10,7 @@ import { getAuthStatus, logoutAndReload } from "./cloud.js";
 import { inferGithubOwnerRepo, fetchJson, githubFetchFileAtSha } from "./api.js";
 import { getOrBuildMinIndex, buildMinIndex } from "./sha_min_index.js";
 
-let PREWARM_STARTED = false;
+let PREWARM_TOKEN = 0;
 
 function idleTick(timeoutMs = 1200) {
 	return new Promise((resolve) => {
@@ -835,10 +835,16 @@ export function renderSearch($app) {
 
 	$results.innerHTML = `<div class="small">Loading index…</div>`;
 
+	const myToken = ++PREWARM_TOKEN;
 
-	async function startPrewarm(listings, rules, recent) {
-		if (PREWARM_STARTED) return;
-		PREWARM_STARTED = true;
+	// invalidate this run when you leave the page
+	window.addEventListener(
+	  "hashchange",
+	  () => { PREWARM_TOKEN++; },
+	  { once: true }
+	);
+
+	async function startPrewarm(listings, rules, recent, token) {
 	
 		const conn = navigator.connection;
 		if (conn?.saveData) return;
@@ -905,6 +911,8 @@ export function renderSearch($app) {
 		const PER_FILE = 20; // bump to 40 if you want more coverage
 	
 		for (const dbFile of queue) {
+			if (token !== PREWARM_TOKEN) return;
+
 			if (document.visibilityState === "hidden") break;
 	
 			const arr = files[dbFile];
@@ -917,9 +925,14 @@ export function renderSearch($app) {
 				.filter(Boolean);
 	
 			for (const sha of shas) {
+				if (token !== PREWARM_TOKEN) return;
+
 				await idleTick();
-	
+				if (token !== PREWARM_TOKEN) return;
+
 				await limitNet(async () => {
+					if (token !== PREWARM_TOKEN) return;
+
 					const idbKey = `v1|${dbFile}|${sha}`;
 					await getOrBuildMinIndex(idbKey, async () => {
 						const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
@@ -1019,7 +1032,7 @@ export function renderSearch($app) {
 			if (recentCache) rebuildRecentMeta(recentCache, rules.canonicalSku);
 			renderCurrent();
 
-			setTimeout(() => startPrewarm(listings, rules, recentCache), 600);
+			setTimeout(() => startPrewarm(listings, rules, recentCache, myToken), 600);
 		})
 		.catch((e) => {
 			$results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
