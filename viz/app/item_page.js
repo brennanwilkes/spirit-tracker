@@ -6,6 +6,7 @@ import { loadSkuRules } from "./mapping.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
+import { getOrBuildMinIndex, buildMinIndex, minForVariant } from "./sha_min_index.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
@@ -351,8 +352,6 @@ function loadSeriesCache(sku, dbFile, cacheBust, variantKey) {
 		if (!raw) return null;
 		const obj = JSON.parse(raw);
 		if (!obj || !Array.isArray(obj.points)) return null;
-		const savedAt = Number(obj.savedAt || 0);
-		if (!Number.isFinite(savedAt) || Date.now() - savedAt > 7 * 24 * 3600 * 1000) return null;
 		return obj;
 	} catch {
 		return null;
@@ -842,7 +841,7 @@ export async function renderItem($app, skuInput) {
 	const manifest = await loadDbCommitsManifest();
 
 	// Shared caches across all stores
-	const fileJsonCache = new Map(); // ck(sha|path) -> parsed JSON
+	const fileIdxCache = new Map(); // ck(sha|path) -> min-index object
 	const inflightFetch = new Map(); // ck -> Promise
 	const today = dateOnly(idx.generatedAt || new Date().toISOString());
 
@@ -978,22 +977,27 @@ export async function renderItem($app, skuInput) {
 		if (dayEntries.length > MAX_POINTS) dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
 
 		// Aggressive global network fetch (dedup + throttled)
-		async function loadAtSha(sha) {
+		async function loadIndexAtSha(sha) {
 			const ck = `${sha}|${dbFile}`;
-			const cachedObj = fileJsonCache.get(ck);
-			if (cachedObj) return cachedObj;
-
+		
+			const cached = fileIdxCache.get(ck);
+			if (cached) return cached;
+		
 			const prev = inflightFetch.get(ck);
 			if (prev) return prev;
-
+		
 			const p = limitNet(async () => {
-				const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
-				fileJsonCache.set(ck, obj);
-				return obj;
+				const idbKey = `v1|${dbFile}|${sha}`;
+				const ix = await getOrBuildMinIndex(idbKey, async () => {
+					const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
+					return buildMinIndex(obj, storeLabel, parsePriceToNumber, keySkuForRow);
+				});
+				fileIdxCache.set(ck, ix);
+				return ix;
 			}).finally(() => {
 				inflightFetch.delete(ck);
 			});
-
+		
 			inflightFetch.set(ck, p);
 			return p;
 		}
@@ -1007,7 +1011,7 @@ export async function renderItem($app, skuInput) {
 				const sha = String(arr[arr.length - 1]?.sha || "");
 				if (sha) shas.push(sha);
 			}
-			await Promise.all(shas.map((sha) => loadAtSha(sha).catch(() => null)));
+			await Promise.all(shas.map((sha) => loadIndexAtSha(sha).catch(() => null)));
 		}
 
 		// Build series for variants missing from cache
@@ -1035,19 +1039,17 @@ export async function renderItem($app, skuInput) {
 			const lastSha = String(last?.sha || "");
 			if (!lastSha) continue;
 
-			let objLast;
+			let ixLast;
 			try {
-				objLast = await loadAtSha(lastSha);
+				ixLast = await loadIndexAtSha(lastSha);
 			} catch {
 				continue;
 			}
 
 			for (const [vk, st] of state.entries()) {
-				const wantRealSkus = new Set([vk].filter((x) => x && !String(x).startsWith("u:")));
-				const skuKeysOne = [vk];
-
 				const wantUrls = wantUrlsByVar.get(vk) || new Set();
-				const lastMin = findMinPricesForSkuGroupInDb(objLast, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
+				const lastMin = minForVariant(ixLast, vk, wantUrls);
+
 				const lastLive = lastMin.liveMin;
 				const lastRemoved = lastMin.removedMin;
 
@@ -1060,22 +1062,22 @@ export async function renderItem($app, skuInput) {
 					const firstSha = String(dayCommits[0]?.sha || "");
 					if (firstSha) {
 						try {
-							const objFirst = await loadAtSha(firstSha);
-							const firstMin = findMinPricesForSkuGroupInDb(objFirst, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
+							const ixFirst = await loadIndexAtSha(firstSha);
+							const firstMin = minForVariant(ixFirst, vk, wantUrls);
 							if (firstMin.liveMin !== null) {
 								const candidates = [];
 								for (let i = 0; i < dayCommits.length - 1; i++) {
 									const sha = String(dayCommits[i]?.sha || "");
 									if (sha) candidates.push(sha);
 								}
-								await Promise.all(candidates.map((sha) => loadAtSha(sha).catch(() => null)));
+								await Promise.all(candidates.map((sha) => loadIndexAtSha(sha).catch(() => null)));
 
 								for (let i = dayCommits.length - 2; i >= 0; i--) {
 									const sha = String(dayCommits[i]?.sha || "");
 									if (!sha) continue;
 									try {
-										const obj = await loadAtSha(sha);
-										const m = findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeysOne, storeLabel, wantUrls);
+										const ix = await loadIndexAtSha(sha);
+										const m = minForVariant(ix, vk, wantUrls);
 										if (m.liveMin !== null) {
 											sameDayLastLive = m.liveMin;
 											break;
