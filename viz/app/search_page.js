@@ -7,6 +7,43 @@ import { loadSkuRules } from "./mapping.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, logoutAndReload } from "./cloud.js";
+import { inferGithubOwnerRepo, fetchJson, githubFetchFileAtSha } from "./api.js";
+import { getOrBuildMinIndex, buildMinIndex } from "./sha_min_index.js";
+
+let PREWARM_STARTED = false;
+
+function idleTick(timeoutMs = 1200) {
+	return new Promise((resolve) => {
+		if ("requestIdleCallback" in window) {
+			requestIdleCallback(() => resolve(), { timeout: timeoutMs });
+		} else {
+			setTimeout(resolve, 150);
+		}
+	});
+}
+
+function makeLimiter(max) {
+	let active = 0;
+	const q = [];
+	const runNext = () => {
+		while (active < max && q.length) {
+			active++;
+			const { fn, resolve, reject } = q.shift();
+			Promise.resolve()
+				.then(fn)
+				.then(resolve, reject)
+				.finally(() => {
+					active--;
+					runNext();
+				});
+		}
+	};
+	return (fn) =>
+		new Promise((resolve, reject) => {
+			q.push({ fn, resolve, reject });
+			runNext();
+		});
+}
 
 export function renderSearch($app) {
 	const auth = getAuthStatus();
@@ -798,6 +835,102 @@ export function renderSearch($app) {
 
 	$results.innerHTML = `<div class="small">Loading index…</div>`;
 
+
+	async function startPrewarm(listings, rules, recent) {
+		if (PREWARM_STARTED) return;
+		PREWARM_STARTED = true;
+	
+		const conn = navigator.connection;
+		if (conn?.saveData) return;
+		if (String(conn?.effectiveType || "").includes("2g")) return;
+	
+		let manifest = null;
+		try {
+			manifest = await fetchJson("./data/db_commits.json");
+		} catch {
+			return;
+		}
+		const files = manifest?.files || {};
+		const allDbFiles = Object.keys(files);
+		if (!allDbFiles.length) return;
+	
+		// dbFile -> storeLabel (for keySkuForRow stability)
+		const dbFileToStoreLabel = new Map();
+	
+		// sku -> Set(dbFile) (for prioritizing recent SKUs)
+		const skuToDbFiles = new Map();
+	
+		for (const r of Array.isArray(listings) ? listings : []) {
+			const dbFile = String(r?.dbFile || "").trim();
+			if (!dbFile) continue;
+	
+			if (!dbFileToStoreLabel.has(dbFile)) {
+				const sl = String(r?.storeLabel || r?.store || dbFile).trim();
+				dbFileToStoreLabel.set(dbFile, sl || dbFile);
+			}
+	
+			const skuKeyRaw = String(r?.sku || keySkuForRow(r) || "").trim();
+			if (!skuKeyRaw) continue;
+			const sku = String(rules?.canonicalSku ? rules.canonicalSku(skuKeyRaw) : skuKeyRaw);
+			if (!sku) continue;
+	
+			let set = skuToDbFiles.get(sku);
+			if (!set) skuToDbFiles.set(sku, (set = new Set()));
+			set.add(dbFile);
+		}
+	
+		// Priority dbFiles: stores that had events in last 3 days
+		const pri = new Set();
+		{
+			const nowMs = Date.now();
+			const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
+			const items = Array.isArray(recent?.items) ? recent.items : [];
+			for (const r of items) {
+				const ms = eventMsRecent(r);
+				if (!(ms >= cutoffMs && ms <= nowMs)) continue;
+	
+				const rawSku = String(r?.sku || "").trim();
+				if (!rawSku) continue;
+				const sku = String(rules?.canonicalSku ? rules.canonicalSku(rawSku) : rawSku);
+				const s = skuToDbFiles.get(sku);
+				if (!s) continue;
+				for (const dbFile of s) pri.add(dbFile);
+			}
+		}
+	
+		const queue = [...pri, ...allDbFiles.filter((x) => !pri.has(x))];
+	
+		const { owner, repo } = inferGithubOwnerRepo();
+		const limitNet = makeLimiter(2); // keep low: avoids jank + bandwidth spikes
+		const PER_FILE = 20; // bump to 40 if you want more coverage
+	
+		for (const dbFile of queue) {
+			if (document.visibilityState === "hidden") break;
+	
+			const arr = files[dbFile];
+			if (!Array.isArray(arr) || !arr.length) continue;
+	
+			const storeLabel = dbFileToStoreLabel.get(dbFile) || dbFile;
+			const shas = arr
+				.slice(-PER_FILE)
+				.map((c) => String(c?.sha || "").trim())
+				.filter(Boolean);
+	
+			for (const sha of shas) {
+				await idleTick();
+	
+				await limitNet(async () => {
+					const idbKey = `v1|${dbFile}|${sha}`;
+					await getOrBuildMinIndex(idbKey, async () => {
+						const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
+						return buildMinIndex(obj, storeLabel, parsePriceToNumber, keySkuForRow);
+					});
+				}).catch(() => {});
+			}
+		}
+	}
+
+
 	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet(), loadRecent().catch(() => null)])
 		.then(([idx, rules, fav, recent]) => {
 			rulesRef = rules;
@@ -885,6 +1018,8 @@ export function renderSearch($app) {
 
 			if (recentCache) rebuildRecentMeta(recentCache, rules.canonicalSku);
 			renderCurrent();
+
+			setTimeout(() => startPrewarm(listings, rules, recentCache), 600);
 		})
 		.catch((e) => {
 			$results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
