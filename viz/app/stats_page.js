@@ -564,7 +564,11 @@ function computeSeriesFromRaw(raw, filter) {
 	}
 
 	const seriesByStore = {};
-	for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
+	const coverageSeriesByStore = {};
+	for (const s of stores) {
+		seriesByStore[s] = new Array(labels.length).fill(null);
+		coverageSeriesByStore[s] = new Array(labels.length).fill(0);
+	}
 
 	const marketMedianSeries = new Array(labels.length).fill(null);
 	const marketFloorSeries = new Array(labels.length).fill(null);
@@ -591,6 +595,9 @@ function computeSeriesFromRaw(raw, filter) {
 		for (const s of stores) {
 			const v = daily.valuesByStore[s];
 			seriesByStore[s][i] = Number.isFinite(v) ? v : null;
+
+			const c = daily.coverageByStore?.[s];
+			coverageSeriesByStore[s][i] = Number.isFinite(c) ? c : 0;
 		}
 
 		marketMedianSeries[i] = Number.isFinite(daily.marketMedianValue) ? daily.marketMedianValue : null;
@@ -632,6 +639,7 @@ function computeSeriesFromRaw(raw, filter) {
 		newestCoverageByStore,
 		newestEligibleSkus,
 		valueMode,
+		coverageSeriesByStore,
 	};
 }
 
@@ -934,7 +942,7 @@ export async function renderStats($app) {
 	}
 
 	async function drawOrUpdateChart(series, yBounds) {
-		const { labels, stores, seriesByStore, marketMedianTrend, marketFloorTrend, valueMode, newestCoverageByStore } =
+		const { labels, stores, seriesByStore, coverageSeriesByStore, marketMedianTrend, marketFloorTrend, valueMode } =
 			series;
 
 		const Chart = await ensureChartJs();
@@ -956,12 +964,12 @@ export async function renderStats($app) {
 
 		const colorMap = buildStoreColorMap(order);
 
-		const cov = newestCoverageByStore || {};
-
 		const datasets = order.map((s) => {
 			const base = storeColor(s, colorMap);
 			const stroke = lighten(base, 0.25);
-			const bw = borderWidthFromCoverage(cov[s]);
+
+			const covArr = Array.isArray(coverageSeriesByStore?.[s]) ? coverageSeriesByStore[s] : [];
+			const lastCov = covArr.length ? covArr[covArr.length - 1] : 0;
 
 			return {
 				label: displayStoreName(s),
@@ -975,7 +983,17 @@ export async function renderStats($app) {
 				pointRadius: 0,
 				pointHoverRadius: 0,
 				pointHitRadius: 6,
-				borderWidth: bw,
+
+				// legend / fallback width
+				borderWidth: borderWidthFromCoverage(lastCov),
+
+				// width varies over time using coverage at segment end (p1)
+				segment: {
+					borderWidth: (ctx3) => {
+						const i = ctx3.p1DataIndex ?? ctx3.p0DataIndex ?? 0;
+						return borderWidthFromCoverage(covArr[i] ?? 0);
+					},
+				},
 			};
 		});
 
