@@ -88,6 +88,37 @@ function buildSkuBaselinesFromRaw(raw) {
 	return baselines;
 }
 
+// Floor for each SKU = minimum(storePrices) across *all reports* and *all stores*.
+function buildSkuFloorsFromRaw(raw) {
+	const stores = Array.isArray(raw?.stores) ? raw.stores.map(String) : [];
+	const reportsByIdx = Array.isArray(raw?.reportsByIdx) ? raw.reportsByIdx : [];
+	const floors = new Map();
+
+	for (let i = 0; i < reportsByIdx.length; i++) {
+		const rep = reportsByIdx[i];
+		const rows = Array.isArray(rep?.rows) ? rep.rows : [];
+		for (const r of rows) {
+			const k = rowKey(r);
+			if (!k) continue;
+
+			const sp = r?.storePrices;
+			if (!sp || typeof sp !== "object") continue;
+
+			let mn = null;
+			for (const s of stores) {
+				const p = sp[s];
+				if (Number.isFinite(p) && p > 0) mn = mn === null ? p : Math.min(mn, p);
+			}
+			if (!isFinitePos(mn)) continue;
+
+			const prev = floors.get(k);
+			if (!isFinitePos(prev) || mn < prev) floors.set(k, mn);
+		}
+	}
+
+	return floors;
+}
+
 function dateOnly(iso) {
 	const m = String(iso ?? "").match(/^(\d{4}-\d{2}-\d{2})/);
 	return m ? m[1] : "";
@@ -224,14 +255,14 @@ function stepForDollarsSpan(span) {
 
 // Store series:
 //   avg over SKUs that store has a price for.
-// Market series (NEW):
+// Market series:
 //   SKU-centric: for each SKU/day, take median across stores (one vote per SKU),
 //   then average across SKUs.
 //
 // valueMode:
 //   "percent" => value = ((p - base) / base) * 100
 //   "dollars" => value = (p - base)  (only used when eligibleSkus===1, i.e. single bottle)
-function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
+function computeDailyStoreSeriesFromReport(report, filter, skuBaselines, skuFloors) {
 	const stores = Array.isArray(filter?.stores)
 		? filter.stores.map(String)
 		: Array.isArray(report?.stores)
@@ -252,8 +283,11 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 	}
 
 	// SKU-centric market accumulators (one value per SKU/day)
-	let marketSkuSum = 0;
-	let marketSkuCnt = 0;
+	let marketMedSkuSum = 0;
+	let marketMedSkuCnt = 0;
+
+	let marketFloorSkuSum = 0;
+	let marketFloorSkuCnt = 0;
 
 	let usedRows = 0; // rows that had at least one store price (so they actually contribute)
 	let eligibleSkus = 0; // rows after filters + baseline (even if some stores don't carry)
@@ -278,6 +312,9 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 		const base = k ? skuBaselines?.get(k) : null;
 		if (!isFinitePos(base)) continue;
 
+		const floorBase = k ? skuFloors?.get(k) : null;
+		const hasFloor = isFinitePos(floorBase);
+
 		const sp = r.storePrices;
 		if (!sp || typeof sp !== "object") continue;
 
@@ -285,6 +322,7 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 
 		let contributed = false;
 		const skuVals = [];
+		const skuValsFloor = [];
 
 		for (const s of stores) {
 			const p = sp[s];
@@ -296,6 +334,12 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 			cnt.set(s, (cnt.get(s) || 0) + 1);
 
 			skuVals.push(v);
+
+			if (hasFloor) {
+				const vf = valueMode === "dollars" ? p - floorBase : ((p - floorBase) / floorBase) * 100;
+				skuValsFloor.push(vf);
+			}
+
 			contributed = true;
 		}
 
@@ -305,8 +349,17 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 			skuVals.sort((a, b) => a - b);
 			const skuMed = medianOfSorted(skuVals);
 			if (Number.isFinite(skuMed)) {
-				marketSkuSum += skuMed;
-				marketSkuCnt += 1;
+				marketMedSkuSum += skuMed;
+				marketMedSkuCnt += 1;
+			}
+
+			if (hasFloor && skuValsFloor.length) {
+				skuValsFloor.sort((a, b) => a - b);
+				const skuMedFloor = medianOfSorted(skuValsFloor);
+				if (Number.isFinite(skuMedFloor)) {
+					marketFloorSkuSum += skuMedFloor;
+					marketFloorSkuCnt += 1;
+				}
 			}
 		}
 	}
@@ -319,12 +372,14 @@ function computeDailyStoreSeriesFromReport(report, filter, skuBaselines) {
 		coverageByStore[s] = eligibleSkus > 0 ? c / eligibleSkus : 0;
 	}
 
-	const marketValue = marketSkuCnt > 0 ? marketSkuSum / marketSkuCnt : null;
+	const marketMedianValue = marketMedSkuCnt > 0 ? marketMedSkuSum / marketMedSkuCnt : null;
+	const marketFloorValue = marketFloorSkuCnt > 0 ? marketFloorSkuSum / marketFloorSkuCnt : null;
 
 	return {
 		stores,
 		valuesByStore: out,
-		marketValue,
+		marketMedianValue,
+		marketFloorValue,
 		usedRows,
 		totalRows: rows.length,
 		eligibleSkus,
@@ -490,6 +545,7 @@ function computeSeriesFromRaw(raw, filter) {
 
 	// compute once per raw (and keep it across filter changes)
 	if (!raw.skuBaselines) raw.skuBaselines = buildSkuBaselinesFromRaw(raw);
+	if (!raw.skuFloors) raw.skuFloors = buildSkuFloorsFromRaw(raw);
 
 	// Decide value mode:
 	// If the *filtered eligible SKU count* on the newest report is exactly 1,
@@ -507,6 +563,7 @@ function computeSeriesFromRaw(raw, filter) {
 				valueMode: "percent",
 			},
 			raw.skuBaselines,
+			raw.skuFloors,
 		);
 		newestEligibleSkus = Number(probe?.eligibleSkus || 0);
 		if (newestEligibleSkus === 1) valueMode = "dollars";
@@ -515,7 +572,8 @@ function computeSeriesFromRaw(raw, filter) {
 	const seriesByStore = {};
 	for (const s of stores) seriesByStore[s] = new Array(labels.length).fill(null);
 
-	const marketSeries = new Array(labels.length).fill(null);
+	const marketMedianSeries = new Array(labels.length).fill(null);
+	const marketFloorSeries = new Array(labels.length).fill(null);
 
 	let newestUsed = 0;
 	let newestTotal = 0;
@@ -533,6 +591,7 @@ function computeSeriesFromRaw(raw, filter) {
 				valueMode,
 			},
 			raw.skuBaselines,
+			raw.skuFloors,
 		);
 
 		for (const s of stores) {
@@ -540,7 +599,8 @@ function computeSeriesFromRaw(raw, filter) {
 			seriesByStore[s][i] = Number.isFinite(v) ? v : null;
 		}
 
-		marketSeries[i] = Number.isFinite(daily.marketValue) ? daily.marketValue : null;
+		marketMedianSeries[i] = Number.isFinite(daily.marketMedianValue) ? daily.marketMedianValue : null;
+		marketFloorSeries[i] = Number.isFinite(daily.marketFloorValue) ? daily.marketFloorValue : null;
 
 		if (i === reportsByIdx.length - 1) {
 			newestUsed = daily.usedRows;
@@ -550,24 +610,29 @@ function computeSeriesFromRaw(raw, filter) {
 		}
 	}
 
-	// Re-anchor market so first visible day = 0 (works for both % and $)
-	let first = null;
-	for (const v of marketSeries) {
-		if (Number.isFinite(v)) {
-			first = v;
-			break;
+	function anchorToFirst(arr) {
+		let first = null;
+		for (const v of arr) {
+			if (Number.isFinite(v)) {
+				first = v;
+				break;
+			}
 		}
+		return arr.map((v) => (Number.isFinite(v) && Number.isFinite(first) ? v - first : v));
 	}
 
-	const marketSeriesAnchored = marketSeries.map((v) => (Number.isFinite(v) && Number.isFinite(first) ? v - first : v));
+	const marketMedianAnchored = anchorToFirst(marketMedianSeries);
+	const marketFloorAnchored = anchorToFirst(marketFloorSeries);
 
-	const marketTrend = movingAverage(marketSeriesAnchored, 1);
+	const marketMedianTrend = movingAverage(marketMedianAnchored, 1);
+	const marketFloorTrend = movingAverage(marketFloorAnchored, 1);
 
 	return {
 		labels,
 		stores,
 		seriesByStore,
-		marketTrend,
+		marketMedianTrend,
+		marketFloorTrend,
 		newestUsed,
 		newestTotal,
 		newestCoverageByStore,
@@ -875,7 +940,8 @@ export async function renderStats($app) {
 	}
 
 	async function drawOrUpdateChart(series, yBounds) {
-		const { labels, stores, seriesByStore, marketTrend, valueMode, newestCoverageByStore } = series;
+		const { labels, stores, seriesByStore, marketMedianTrend, marketFloorTrend, valueMode, newestCoverageByStore } =
+			series;
 
 		const Chart = await ensureChartJs();
 		const canvas = document.getElementById("statsChart");
@@ -920,13 +986,27 @@ export async function renderStats($app) {
 		});
 
 		datasets.push({
-			label: "Market Trend",
-			data: Array.isArray(marketTrend) ? marketTrend : labels.map(() => null),
+			label: "Market Median",
+			data: Array.isArray(marketMedianTrend) ? marketMedianTrend : labels.map(() => null),
 			spanGaps: false,
 			tension: 0.15,
 			backgroundColor: "rgba(160,160,160,0.9)",
 			borderColor: "rgba(160,160,160,0.9)",
 			borderDash: [6, 4],
+			pointRadius: 0,
+			pointHoverRadius: 0,
+			pointHitRadius: 6,
+			borderWidth: 1.75,
+		});
+
+		datasets.push({
+			label: "Market Floor",
+			data: Array.isArray(marketFloorTrend) ? marketFloorTrend : labels.map(() => null),
+			spanGaps: false,
+			tension: 0.15,
+			backgroundColor: "rgba(110,110,110,0.9)",
+			borderColor: "rgba(110,110,110,0.9)",
+			borderDash: [2, 6],
 			pointRadius: 0,
 			pointHoverRadius: 0,
 			pointHitRadius: 6,
@@ -1097,7 +1177,7 @@ export async function renderStats($app) {
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
-			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], yMinSpan, yPad);
+			const yBounds = computeYBounds(series.seriesByStore, [series.marketMedianTrend, series.marketFloorTrend], yMinSpan, yPad);
 
 			await drawOrUpdateChart(series, yBounds);
 			_chart?.resize();
@@ -1137,7 +1217,7 @@ export async function renderStats($app) {
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
-			const yBounds = computeYBounds(series.seriesByStore, [series.marketTrend], yMinSpan, yPad);
+			const yBounds = computeYBounds(series.seriesByStore, [series.marketMedianTrend, series.marketFloorTrend], yMinSpan, yPad);
 
 			await drawOrUpdateChart(series, yBounds);
 			_chart?.resize();
