@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-24T13:09:47.015Z",
+  "generatedAt": "2026-02-24T19:16:33.389Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,15 +34,15 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11687,
-    "removedRows": 921,
-    "canonSkus": 5292,
+    "liveRows": 11723,
+    "removedRows": 905,
+    "canonSkus": 5305,
     "outputCount": 50
   },
   "rows": [
     {
       "canonSku": "249680",
-      "storeCount": 16,
+      "storeCount": 15,
       "stores": [
         "arc",
         "bcl",
@@ -50,7 +50,6 @@
         "coop",
         "craftcellars",
         "gull",
-        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -61,7 +60,9 @@
         "vintage",
         "willowpark"
       ],
-      "missingStores": [],
+      "missingStores": [
+        "kegncork"
+      ],
       "storePrices": {
         "arc": 110.99,
         "bcl": 115.99,
@@ -69,7 +70,6 @@
         "coop": 109.99,
         "craftcellars": 122.99,
         "gull": 125.99,
-        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -155,64 +155,6 @@
         "priceNum": 59.29,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
-      }
-    },
-    {
-      "canonSku": "125930",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "maltsandgrains",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 135.69,
-        "bcl": 132.99,
-        "bsw": 115,
-        "coop": 129.99,
-        "craftcellars": 131.99,
-        "gull": 139.99,
-        "kegncork": 130.96,
-        "kwm": 134.99,
-        "legacyliquor": 147.79,
-        "sierrasprings": 95.23,
-        "tudor": 115.99,
-        "vessel": 129.99,
-        "vintage": 137.3,
-        "willowpark": 133.49
-      },
-      "representative": {
-        "name": "GLENFARCLAS 105 CASK STRENGTH",
-        "price": "$95.23",
-        "priceNum": 95.23,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "131896",
-        "skuKey": "131896",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$95.23",
-        "priceNum": 95.23,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
       }
     },
     {
@@ -443,6 +385,63 @@
         "priceNum": 71.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/ardbeg-wee-beastie-ml-420"
+      }
+    },
+    {
+      "canonSku": "125930",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 135.69,
+        "bcl": 132.99,
+        "bsw": 115,
+        "coop": 129.99,
+        "craftcellars": 131.99,
+        "gull": 139.99,
+        "kwm": 134.99,
+        "legacyliquor": 147.79,
+        "sierrasprings": 95.23,
+        "tudor": 115.99,
+        "vessel": 129.99,
+        "vintage": 137.3,
+        "willowpark": 133.49
+      },
+      "representative": {
+        "name": "GLENFARCLAS 105 CASK STRENGTH",
+        "price": "$95.23",
+        "priceNum": 95.23,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "131896",
+        "skuKey": "131896",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$95.23",
+        "priceNum": 95.23,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
       }
     },
     {
@@ -1466,62 +1465,6 @@
       }
     },
     {
-      "canonSku": "138495",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 54.99,
-        "bcl": 67.99,
-        "bsw": 62.99,
-        "craftcellars": 90.99,
-        "gull": 59.99,
-        "kegncork": 89.96,
-        "kwm": 70.99,
-        "legacyliquor": 77.16,
-        "sierrasprings": 69.42,
-        "tudor": 67.49,
-        "vessel": 69.99,
-        "willowpark": 71.49
-      },
-      "representative": {
-        "name": "AUCHENTOSHAN THREE WOOD",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "138495",
-        "skuKey": "138495",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4762317-auchentoshan-three-wood",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4762317-auchentoshan-three-wood"
-      }
-    },
-    {
       "canonSku": "224496",
       "storeCount": 12,
       "stores": [
@@ -2297,6 +2240,61 @@
       }
     },
     {
+      "canonSku": "138495",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 54.99,
+        "bcl": 67.99,
+        "bsw": 62.99,
+        "craftcellars": 90.99,
+        "gull": 59.99,
+        "kwm": 70.99,
+        "legacyliquor": 77.16,
+        "sierrasprings": 69.42,
+        "tudor": 67.49,
+        "vessel": 69.99,
+        "willowpark": 71.49
+      },
+      "representative": {
+        "name": "AUCHENTOSHAN THREE WOOD",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "138495",
+        "skuKey": "138495",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4762317-auchentoshan-three-wood",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4762317-auchentoshan-three-wood"
+      }
+    },
+    {
       "canonSku": "141495",
       "storeCount": 11,
       "stores": [
@@ -2322,7 +2320,7 @@
       "storePrices": {
         "bcl": 200.99,
         "bsw": 140,
-        "craftcellars": 165.99,
+        "craftcellars": 115.99,
         "kegncork": 164.96,
         "kwm": 164.99,
         "legacyliquor": 199,
@@ -2334,21 +2332,21 @@
       },
       "representative": {
         "name": "Bowmore 18 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "805160",
-        "skuKey": "805160",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "price": "$115.99",
+        "priceNum": 115.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "141495",
+        "skuKey": "141495",
+        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
+        "price": "$115.99",
+        "priceNum": 115.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bowmore-18-year-old-43-abv"
       }
     },
     {
@@ -2404,6 +2402,61 @@
         "priceNum": 80.79,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/fettercairn-12-year-ml-420"
+      }
+    },
+    {
+      "canonSku": "202028",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "willowpark"
+      ],
+      "missingStores": [
+        "gull",
+        "maltsandgrains",
+        "sierrasprings",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 146.99,
+        "bcl": 159.99,
+        "bsw": 110,
+        "coop": 134.99,
+        "craftcellars": 104.99,
+        "kegncork": 132.96,
+        "kwm": 133.99,
+        "legacyliquor": 166.4,
+        "strath": 161.83,
+        "tudor": 143.99,
+        "willowpark": 131.49
+      },
+      "representative": {
+        "name": "Ardbeg Uigeadail",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "717559",
+        "skuKey": "717559",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
       }
     },
     {
@@ -2788,60 +2841,6 @@
         "priceNum": 26.56,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/appleton-estate-signature-40-abv/"
-      }
-    },
-    {
-      "canonSku": "202028",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "gull",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 146.99,
-        "bcl": 159.99,
-        "bsw": 110,
-        "coop": 134.99,
-        "craftcellars": 104.99,
-        "kwm": 133.99,
-        "legacyliquor": 166.4,
-        "strath": 161.83,
-        "tudor": 143.99,
-        "willowpark": 131.49
-      },
-      "representative": {
-        "name": "Ardbeg Uigeadail",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "717559",
-        "skuKey": "717559",
-        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
       }
     }
   ]
