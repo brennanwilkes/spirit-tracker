@@ -1,3 +1,4 @@
+
 export async function fetchJson(url) {
 	const res = await fetch(url, { cache: "no-store" });
 	if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
@@ -9,6 +10,7 @@ export async function fetchText(url) {
 	if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
 	return await res.text();
 }
+
 
 export function inferGithubOwnerRepo() {
 	const host = location.hostname || "";
@@ -110,7 +112,44 @@ export async function githubListCommits({ owner, repo, branch, path }) {
 }
 
 export async function githubFetchFileAtSha({ owner, repo, sha, path }) {
-	const raw = `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(sha)}/${path}`;
-	const txt = await fetchText(raw);
+	const cleanPath = String(path || "").replace(/^\/+/, "");
+	const raw = `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(sha)}/${cleanPath}`;
+	const txt = await fetchTextImmutableCached(raw);
 	return JSON.parse(txt);
+}
+
+const RAW_CACHE_NAME = "stviz:raw:v1";
+const MEM = new Map(); // session-only microcache
+
+async function fetchTextImmutableCached(url) {
+	// session cache
+	const memHit = MEM.get(url);
+	if (typeof memHit === "string") return memHit;
+
+	// persistent cache (CacheStorage)
+	if (globalThis.caches) {
+		const cache = await caches.open(RAW_CACHE_NAME);
+		const hit = await cache.match(url);
+		if (hit) {
+			const txt = await hit.text();
+			MEM.set(url, txt);
+			return txt;
+		}
+
+		// Use normal HTTP cache too; URL is immutable because sha is in it.
+		const res = await fetch(url, { cache: "force-cache" });
+		if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+		await cache.put(url, res.clone());
+
+		const txt = await res.text();
+		MEM.set(url, txt);
+		return txt;
+	}
+
+	// fallback
+	const res = await fetch(url, { cache: "force-cache" });
+	if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+	const txt = await res.text();
+	MEM.set(url, txt);
+	return txt;
 }
