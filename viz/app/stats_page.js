@@ -929,10 +929,10 @@ export async function renderStats($app) {
 
 	function borderWidthFromCoverage(c) {
 		const x = clamp(Number(c) || 0, 0, 1);
-		// subtle: 1.0px .. 1.9px (sqrt makes low coverage differences even smaller)
-		return 1.0 + 0.9 * Math.sqrt(x);
+		// amplified: 1.0px .. 3.5px (sqrt keeps low-coverage from jumping too hard)
+		return 1.0 + 2.5 * Math.sqrt(x);
 	}
-
+	
 	async function drawOrUpdateChart(series, yBounds) {
 		const { labels, stores, seriesByStore, marketMedianTrend, marketFloorTrend, valueMode, newestCoverageByStore } =
 			series;
@@ -1000,7 +1000,7 @@ export async function renderStats($app) {
 			tension: 0.15,
 			backgroundColor: "rgba(160,160,160,0.9)",
 			borderColor: "rgba(160,160,160,0.9)",
-			borderDash: [2, 6],
+			borderDash: [6, 4],
 			pointRadius: 0,
 			pointHoverRadius: 0,
 			pointHitRadius: 6,
