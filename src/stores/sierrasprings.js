@@ -259,6 +259,18 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 			ctx.store.ua,
 		);
 
+		// NEW: determine API page size BEFORE our parsing drops/normalizes items
+		let apiCount = null;
+		const trimmed = String(text || "").trimStart();
+		if (trimmed.startsWith("[")) {
+			try {
+				const arr = JSON.parse(trimmed);
+				if (Array.isArray(arr)) apiCount = arr.length;
+			} catch (_) {
+				// ignore; fall back to parsed length
+			}
+		}
+
 		// IMPORTANT:
 		// Parse WITHOUT allowUrl so pagination is based on real API page size
 		const ctxNoFilter =
@@ -266,7 +278,9 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 
 		const itemsAll = (ctx.store.parseProducts || ctx.config.defaultParseProducts)(text, ctxNoFilter, finalUrl);
 
-		const rawCount = itemsAll.length;
+		// IMPORTANT:
+		// Use API count for pagination; parsed count may be lower if we drop invalid items (e.g., missing name)
+		const rawCount = Number.isFinite(apiCount) ? apiCount : itemsAll.length;
 
 		// Now apply allowUrl AFTER pagination logic
 		const items = [];
@@ -277,7 +291,12 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 		}
 
 		logger.ok(
-			`${ctx.catPrefixOut} | Page ${String(page).padStart(3, " ")} | ${String(status).padStart(3, " ")} | raw=${String(rawCount).padStart(3, " ")} kept=${String(items.length).padStart(3, " ")} | bytes=${String(bytes || 0).padStart(8, " ")} | ${(ms / 1000).toFixed(1).padStart(6, " ")}s`,
+			`${ctx.catPrefixOut} | Page ${String(page).padStart(3, " ")} | ${String(status).padStart(3, " ")} | api=${String(
+				rawCount,
+			).padStart(3, " ")} parsed=${String(itemsAll.length).padStart(3, " ")} kept=${String(items.length).padStart(
+				3,
+				" ",
+			)} | bytes=${String(bytes || 0).padStart(8, " ")} | ${(ms / 1000).toFixed(1).padStart(6, " ")}s`,
 		);
 
 		// Stop only when the API page itself is empty
