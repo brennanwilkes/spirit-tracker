@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-25T04:30:05.840Z",
+  "generatedAt": "2026-02-25T07:16:40.959Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7966,
-    "removedRows": 723,
-    "canonSkus": 4486,
+    "liveRows": 7960,
+    "removedRows": 739,
+    "canonSkus": 4483,
     "outputCount": 50
   },
   "rows": [
@@ -73,6 +73,49 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 94.99,
+        "coop": 109.99,
+        "craftcellars": 122.99,
+        "kegncork": 109.96,
+        "kwm": 109.99,
+        "maltsandgrains": 114.62,
+        "sierrasprings": 98.94,
+        "willowpark": 103.49
+      },
+      "representative": {
+        "name": "Talisker 10 Year Old",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -463,6 +506,49 @@
       }
     },
     {
+      "canonSku": "125930",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "coop": 129.99,
+        "craftcellars": 131.99,
+        "kegncork": 130.96,
+        "kwm": 134.99,
+        "sierrasprings": 95.23,
+        "willowpark": 133.49
+      },
+      "representative": {
+        "name": "GLENFARCLAS 105 CASK STRENGTH",
+        "price": "$95.23",
+        "priceNum": 95.23,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "131896",
+        "skuKey": "131896",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$95.23",
+        "priceNum": 95.23,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
+      }
+    },
+    {
       "canonSku": "224496",
       "storeCount": 7,
       "stores": [
@@ -503,49 +589,6 @@
         "priceNum": 165.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/glen-grant-18-year-old"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 94.99,
-        "coop": 109.99,
-        "craftcellars": 122.99,
-        "kwm": 109.99,
-        "maltsandgrains": 114.62,
-        "sierrasprings": 98.94,
-        "willowpark": 103.49
-      },
-      "representative": {
-        "name": "Talisker 10 Year Old",
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -1991,48 +2034,6 @@
         "priceNum": 140,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ardbeg-smokiverse"
-      }
-    },
-    {
-      "canonSku": "125930",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "coop": 129.99,
-        "craftcellars": 131.99,
-        "kwm": 134.99,
-        "sierrasprings": 95.23,
-        "willowpark": 133.49
-      },
-      "representative": {
-        "name": "GLENFARCLAS 105 CASK STRENGTH",
-        "price": "$95.23",
-        "priceNum": 95.23,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "131896",
-        "skuKey": "131896",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$95.23",
-        "priceNum": 95.23,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
       }
     },
     {
