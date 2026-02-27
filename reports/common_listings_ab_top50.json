@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-27T17:43:23.356Z",
+  "generatedAt": "2026-02-27T19:10:55.641Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8001,
-    "removedRows": 764,
-    "canonSkus": 4495,
+    "liveRows": 7993,
+    "removedRows": 774,
+    "canonSkus": 4494,
     "outputCount": 50
   },
   "rows": [
@@ -546,49 +546,6 @@
         "priceNum": 67.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
-      }
-    },
-    {
-      "canonSku": "125930",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "coop": 129.99,
-        "craftcellars": 131.99,
-        "kegncork": 130.96,
-        "kwm": 134.99,
-        "sierrasprings": 95.23,
-        "willowpark": 133.49
-      },
-      "representative": {
-        "name": "GLENFARCLAS 105 CASK STRENGTH",
-        "price": "$95.23",
-        "priceNum": 95.23,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "131896",
-        "skuKey": "131896",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$95.23",
-        "priceNum": 95.23,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
       }
     },
     {
@@ -1423,7 +1380,7 @@
         "sierrasprings"
       ],
       "storePrices": {
-        "bsw": 54.99,
+        "bsw": 47.99,
         "craftcellars": 42.99,
         "kegncork": 63.96,
         "kwm": 57.99,
@@ -2038,6 +1995,48 @@
       }
     },
     {
+      "canonSku": "125930",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "coop": 129.99,
+        "craftcellars": 131.99,
+        "kwm": 134.99,
+        "sierrasprings": 95.23,
+        "willowpark": 133.49
+      },
+      "representative": {
+        "name": "GLENFARCLAS 105 CASK STRENGTH",
+        "price": "$95.23",
+        "priceNum": 95.23,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "131896",
+        "skuKey": "131896",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$95.23",
+        "priceNum": 95.23,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
+      }
+    },
+    {
       "canonSku": "129965",
       "storeCount": 6,
       "stores": [
@@ -2095,7 +2094,7 @@
         "sierrasprings"
       ],
       "storePrices": {
-        "bsw": 79.99,
+        "bsw": 89.99,
         "coop": 104.99,
         "kegncork": 115.96,
         "kwm": 83.99,
@@ -2103,22 +2102,22 @@
         "willowpark": 119.99
       },
       "representative": {
-        "name": "The GlenDronach 12 Year Old",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Glendronach 12 Year",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "866077",
         "skuKey": "866077",
-        "url": "https://www.bswliquor.com/products/glendronach-12-year-old-original-2",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glendronach-12-year-old-original-2"
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
       }
     },
     {
