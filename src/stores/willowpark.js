@@ -45,18 +45,50 @@ function canonicalizeWillowUrl(raw) {
 function extractWillowCardPrice(block) {
 	const b = String(block || "");
 
-	const current =
-		b.match(
-			/grid-product__price--current[\s\S]*?<span\b[^>]*class=["']visually-hidden["'][^>]*>\s*(\$\s*[\d,]+\.\d{2})\s*<\/span>/i,
-		)?.[1] || b.match(/<span\b[^>]*class=["']visually-hidden["'][^>]*>\s*(\$\s*[\d,]+\.\d{2})\s*<\/span>/i)?.[1];
+	function extractPriceFromSlice(slice) {
+		const s = String(slice || "");
 
-	if (current) return current.replace(/\s+/g, "");
+		// Prefer exact decimal
+		const vh = s.match(
+			/<span\b[^>]*class=["']visually-hidden["'][^>]*>\s*(\$\s*[\d,]+\.\d{2})\s*<\/span>/i,
+		)?.[1];
+		if (vh) return vh.replace(/\s+/g, "");
 
-	const sup = b.match(/\$\s*([\d,]+)\s*<sup>\s*(\d{2})\s*<\/sup>/i);
-	if (sup) return `$${sup[1].replace(/,/g, "")}.${sup[2]}`;
+		const dec = s.match(/\$\s*[\d,]+\.\d{2}/)?.[0];
+		if (dec) return dec.replace(/\s+/g, "");
 
-	const any = b.match(/\$\s*[\d,]+(?:\.\d{2})?/);
-	return any ? any[0].replace(/\s+/g, "") : "";
+		// Reconstruct from $84<sup>99</sup>
+		const sup = s.match(/\$\s*([\d,]+)\s*<sup>\s*(\d{2})\s*<\/sup>/i);
+		if (sup) return `$${sup[1].replace(/\s+/g, "")}.${sup[2]}`;
+
+		const any = s.match(/\$\s*[\d,]+/)?.[0];
+		return any ? any.replace(/\s+/g, "") : "";
+	}
+
+	// 1) Current price slice (prevents accidentally capturing original price)
+	const iCur = b.search(/\bgrid-product__price--current\b/i);
+	if (iCur >= 0) {
+		let curSlice = b.slice(iCur);
+		const stop = curSlice.search(/\bgrid-product__price--original\b/i);
+		if (stop >= 0) curSlice = curSlice.slice(0, stop);
+
+		const p = extractPriceFromSlice(curSlice);
+		if (p) return p;
+	}
+
+	// 2) Original price slice (only if needed)
+	const iOrig = b.search(/\bgrid-product__price--original\b/i);
+	if (iOrig >= 0) {
+		let origSlice = b.slice(iOrig);
+		const stop = origSlice.search(/\bgrid-product__price--savings\b/i);
+		if (stop >= 0) origSlice = origSlice.slice(0, stop);
+
+		const p = extractPriceFromSlice(origSlice);
+		if (p) return p;
+	}
+
+	// 3) Last resort
+	return extractPriceFromSlice(b);
 }
 
 function parseProductsWillowPark(html, ctx, finalUrl) {
