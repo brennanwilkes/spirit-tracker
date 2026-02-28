@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T01:11:12.388Z",
+  "generatedAt": "2026-02-28T07:06:44.863Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -35,14 +35,14 @@
   ],
   "totals": {
     "liveRows": 11767,
-    "removedRows": 975,
-    "canonSkus": 5313,
+    "removedRows": 985,
+    "canonSkus": 5319,
     "outputCount": 50
   },
   "rows": [
     {
       "canonSku": "249680",
-      "storeCount": 16,
+      "storeCount": 15,
       "stores": [
         "arc",
         "bcl",
@@ -50,7 +50,6 @@
         "coop",
         "craftcellars",
         "gull",
-        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -61,7 +60,9 @@
         "vintage",
         "willowpark"
       ],
-      "missingStores": [],
+      "missingStores": [
+        "kegncork"
+      ],
       "storePrices": {
         "arc": 110.99,
         "bcl": 115.99,
@@ -69,7 +70,6 @@
         "coop": 109.99,
         "craftcellars": 122.99,
         "gull": 125.99,
-        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -729,6 +729,63 @@
         "priceNum": 51.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bumbu-xo-craft-rum"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bcl": 169.99,
+        "bsw": 140,
+        "coop": 169.99,
+        "craftcellars": 184.99,
+        "gull": 169.99,
+        "kegncork": 161.96,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 152.99,
+        "vessel": 164.99,
+        "vintage": 183.39,
+        "willowpark": 174.99
+      },
+      "representative": {
+        "name": "Lagavulin 16 Year Old",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {
@@ -1408,62 +1465,6 @@
         "priceNum": 104.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 12,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bcl": 169.99,
-        "bsw": 140,
-        "coop": 169.99,
-        "craftcellars": 184.99,
-        "gull": 169.99,
-        "kegncork": 161.96,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 152.99,
-        "vessel": 164.99,
-        "vintage": 183.39,
-        "willowpark": 174.99
-      },
-      "representative": {
-        "name": "Lagavulin 16 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {

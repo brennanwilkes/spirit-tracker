@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T01:11:13.427Z",
+  "generatedAt": "2026-02-28T07:06:45.929Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7989,
-    "removedRows": 778,
-    "canonSkus": 4495,
+    "liveRows": 7992,
+    "removedRows": 784,
+    "canonSkus": 4500,
     "outputCount": 250
   },
   "rows": [
@@ -73,49 +73,6 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 94.99,
-        "coop": 109.99,
-        "craftcellars": 122.99,
-        "kegncork": 109.96,
-        "kwm": 109.99,
-        "maltsandgrains": 114.62,
-        "sierrasprings": 98.94,
-        "willowpark": 103.49
-      },
-      "representative": {
-        "name": "Talisker 10 Year Old",
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -718,6 +675,49 @@
         "priceNum": 110,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/craigellachie-17-year-old"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 94.99,
+        "coop": 109.99,
+        "craftcellars": 122.99,
+        "kwm": 109.99,
+        "maltsandgrains": 114.62,
+        "sierrasprings": 98.94,
+        "willowpark": 103.49
+      },
+      "representative": {
+        "name": "Talisker 10 Year Old",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -1848,28 +1848,28 @@
       "storePrices": {
         "bsw": 39.99,
         "coop": 44.99,
-        "craftcellars": 47.99,
+        "craftcellars": 31.99,
         "kwm": 47.99,
         "maltsandgrains": 45.05,
         "sierrasprings": 37.04
       },
       "representative": {
-        "name": "MAKER’S MARK",
-        "price": "$37.04",
-        "priceNum": 37.04,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Makers Mark Kentucky Straight Bourbon",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "103747",
         "skuKey": "103747",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/makers-mark-kentucky-straight-bourbon-45-abv/",
+        "url": "https://craftcellars.ca/products/maker-s-mark-kentucky-straight-bourbon",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$37.04",
-        "priceNum": 37.04,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/makers-mark-kentucky-straight-bourbon-45-abv/"
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/maker-s-mark-kentucky-straight-bourbon"
       }
     },
     {
@@ -5942,47 +5942,6 @@
         "priceNum": 38.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/high-west-bourbon-46-abv"
-      }
-    },
-    {
-      "canonSku": "238113",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 93.99,
-        "craftcellars": 95.99,
-        "kegncork": 83.96,
-        "kwm": 97.99,
-        "sierrasprings": 95.13
-      },
-      "representative": {
-        "name": "Glenkinchie 12 Year Old",
-        "price": "$93.99",
-        "priceNum": 93.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "238113",
-        "skuKey": "238113",
-        "url": "https://www.bswliquor.com/products/glenkinchie-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$83.96",
-        "priceNum": 83.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/glenkinchie-12-yo-700-ml/"
       }
     },
     {
@@ -10206,6 +10165,46 @@
         "priceNum": 156.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/old-pulteney-18year-old-scotch-whisky-46-abv"
+      }
+    },
+    {
+      "canonSku": "238113",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 93.99,
+        "craftcellars": 95.99,
+        "kwm": 97.99,
+        "sierrasprings": 95.13
+      },
+      "representative": {
+        "name": "Glenkinchie 12 Year Old",
+        "price": "$93.99",
+        "priceNum": 93.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "238113",
+        "skuKey": "238113",
+        "url": "https://www.bswliquor.com/products/glenkinchie-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$93.99",
+        "priceNum": 93.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenkinchie-12-year-old-1"
       }
     },
     {
