@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-01T07:11:53.258Z",
+  "generatedAt": "2026-03-01T19:03:47.628Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7969,
-    "removedRows": 808,
-    "canonSkus": 4493,
+    "liveRows": 7964,
+    "removedRows": 814,
+    "canonSkus": 4494,
     "outputCount": 250
   },
   "rows": [
@@ -7337,47 +7337,6 @@
       }
     },
     {
-      "canonSku": "753890",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 98.99,
-        "craftcellars": 79.99,
-        "kegncork": 104.96,
-        "kwm": 99.99
-      },
-      "representative": {
-        "name": "Longrow Peated Single Malt NV",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "753890",
-        "skuKey": "753890",
-        "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv"
-      }
-    },
-    {
       "canonSku": "757360",
       "storeCount": 5,
       "stores": [
@@ -10122,6 +10081,46 @@
         "priceNum": 74.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/michters-us1-unblended-american-whiskey-41-7-abv/"
+      }
+    },
+    {
+      "canonSku": "753890",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 98.99,
+        "kegncork": 104.96,
+        "kwm": 99.99
+      },
+      "representative": {
+        "name": "Longrow Peated",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "753890",
+        "skuKey": "753890",
+        "url": "https://www.bswliquor.com/products/longrow-peated-single-malt",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/longrow-peated-single-malt"
       }
     },
     {
