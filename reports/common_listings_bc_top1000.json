@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-03T04:26:13.182Z",
+  "generatedAt": "2026-03-03T07:15:37.060Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3746,
-    "removedRows": 230,
-    "canonSkus": 1910,
-    "outputCount": 817
+    "liveRows": 3743,
+    "removedRows": 233,
+    "canonSkus": 1909,
+    "outputCount": 818
   },
   "rows": [
     {
@@ -268,7 +268,7 @@
         "legacyliquor": 129.06,
         "strath": 113.09,
         "tudor": 114.99,
-        "vessel": 104.99,
+        "vessel": 109.99,
         "vintage": 123.39
       },
       "representative": {
@@ -1215,7 +1215,7 @@
         "legacyliquor": 109.83,
         "strath": 105.66,
         "tudor": 106.99,
-        "vessel": 94.99
+        "vessel": 104.99
       },
       "representative": {
         "name": "Laphroaig – Quarter Cask 750ml",
@@ -1234,49 +1234,6 @@
         "priceNum": 79.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
-      "canonSku": "677666",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 74.99,
-        "bcl": 79.99,
-        "gull": 82.99,
-        "legacyliquor": 84.51,
-        "strath": 80.05,
-        "tudor": 79.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "LEDAIG 10YO",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "677666",
-        "skuKey": "677666",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo"
       }
     },
     {
@@ -1783,48 +1740,6 @@
         "priceNum": 59.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo"
-      }
-    },
-    {
-      "canonSku": "007880",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 64.99,
-        "gull": 64.95,
-        "legacyliquor": 67.99,
-        "tudor": 64.99,
-        "vessel": 65.99
-      },
-      "representative": {
-        "name": "Johnnie Walker – 12 Year Old Black Label 750ml",
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/"
       }
     },
     {
@@ -2394,7 +2309,7 @@
         "gull": 58.95,
         "legacyliquor": 57.99,
         "tudor": 55.99,
-        "vessel": 52.99
+        "vessel": 55.99
       },
       "representative": {
         "name": "BUSHMILLS - 10 YEAR OLD SINGLE MALT",
@@ -3298,6 +3213,48 @@
       }
     },
     {
+      "canonSku": "677666",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 74.99,
+        "bcl": 79.99,
+        "gull": 82.99,
+        "legacyliquor": 84.51,
+        "strath": 80.05,
+        "tudor": 79.99
+      },
+      "representative": {
+        "name": "LEDAIG 10YO",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "677666",
+        "skuKey": "677666",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo"
+      }
+    },
+    {
       "canonSku": "741502",
       "storeCount": 6,
       "stores": [
@@ -3831,6 +3788,47 @@
         "priceNum": 11.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/3871"
+      }
+    },
+    {
+      "canonSku": "007880",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 64.99,
+        "gull": 64.95,
+        "tudor": 64.99,
+        "vessel": 65.99
+      },
+      "representative": {
+        "name": "Johnnie Walker – 12 Year Old Black Label 750ml",
+        "price": "$64.95",
+        "priceNum": 64.95,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$64.95",
+        "priceNum": 64.95,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/"
       }
     },
     {
@@ -9100,7 +9098,7 @@
         "bcl": 34.49,
         "gull": 39.25,
         "tudor": 36.49,
-        "vessel": 35.99
+        "vessel": 37.99
       },
       "representative": {
         "name": "CANADIAN CLUB - CLASSIC 12 YEAR OLD",
@@ -9460,7 +9458,7 @@
         "arc": 41.99,
         "bcl": 40.99,
         "gull": 45.8,
-        "vessel": 41.99
+        "vessel": 44.99
       },
       "representative": {
         "name": "CAPTAIN MORGAN - SPICED PET",
@@ -9959,46 +9957,6 @@
         "priceNum": 55.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum"
-      }
-    },
-    {
-      "canonSku": "287474",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 43.99,
-        "gull": 45.5,
-        "tudor": 43.99,
-        "vessel": 44.99
-      },
-      "representative": {
-        "name": "WHYTE AND MACKAY - SPECIAL",
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "287474",
-        "skuKey": "287474",
-        "url": "https://www.bcliquorstores.com/product/287474",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/287474"
       }
     },
     {
@@ -12825,7 +12783,7 @@
       "storePrices": {
         "bcl": 80.99,
         "legacyliquor": 103.12,
-        "vessel": 84.99
+        "vessel": 89.99
       },
       "representative": {
         "name": "PLANTATION -  20TH ANNIVERSARY XO",
@@ -14794,6 +14752,45 @@
         "priceNum": 78.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4703510-havana-club-seleccion-de-maestros"
+      }
+    },
+    {
+      "canonSku": "287474",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 43.99,
+        "tudor": 43.99,
+        "vessel": 44.99
+      },
+      "representative": {
+        "name": "WHYTE AND MACKAY - SPECIAL",
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "287474",
+        "skuKey": "287474",
+        "url": "https://www.bcliquorstores.com/product/287474",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/287474"
       }
     },
     {
@@ -19926,6 +19923,44 @@
         "priceNum": 141.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/107935"
+      }
+    },
+    {
+      "canonSku": "108770",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 114.99,
+        "strath": 123.83
+      },
+      "representative": {
+        "name": "ORKNEY (HP) 14YO 2011 SIGNATORY 100 PROOF #58 AMON",
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "743235",
+        "skuKey": "743235",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5129168-orkney-hp-14yo-2011-signatory-100-proof-58-amon",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5129168-orkney-hp-14yo-2011-signatory-100-proof-58-amon"
       }
     },
     {

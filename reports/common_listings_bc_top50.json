@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-03T04:26:12.967Z",
+  "generatedAt": "2026-03-03T07:15:36.812Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3746,
-    "removedRows": 230,
-    "canonSkus": 1910,
+    "liveRows": 3743,
+    "removedRows": 233,
+    "canonSkus": 1909,
     "outputCount": 50
   },
   "rows": [
@@ -268,7 +268,7 @@
         "legacyliquor": 129.06,
         "strath": 113.09,
         "tudor": 114.99,
-        "vessel": 104.99,
+        "vessel": 109.99,
         "vintage": 123.39
       },
       "representative": {
@@ -1194,49 +1194,6 @@
       }
     },
     {
-      "canonSku": "677666",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 74.99,
-        "bcl": 79.99,
-        "gull": 82.99,
-        "legacyliquor": 84.51,
-        "strath": 80.05,
-        "tudor": 79.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "LEDAIG 10YO",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "677666",
-        "skuKey": "677666",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo"
-      }
-    },
-    {
       "canonSku": "752142",
       "storeCount": 7,
       "stores": [
@@ -1743,48 +1700,6 @@
       }
     },
     {
-      "canonSku": "007880",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 64.99,
-        "gull": 64.95,
-        "legacyliquor": 67.99,
-        "tudor": 64.99,
-        "vessel": 65.99
-      },
-      "representative": {
-        "name": "Johnnie Walker – 12 Year Old Black Label 750ml",
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/"
-      }
-    },
-    {
       "canonSku": "010108",
       "storeCount": 6,
       "stores": [
@@ -2121,6 +2036,48 @@
       }
     },
     {
+      "canonSku": "677666",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 74.99,
+        "bcl": 79.99,
+        "gull": 82.99,
+        "legacyliquor": 84.51,
+        "strath": 80.05,
+        "tudor": 79.99
+      },
+      "representative": {
+        "name": "LEDAIG 10YO",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "677666",
+        "skuKey": "677666",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo"
+      }
+    },
+    {
       "canonSku": "000596",
       "storeCount": 5,
       "stores": [
@@ -2159,6 +2116,47 @@
         "priceNum": 13.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml"
+      }
+    },
+    {
+      "canonSku": "007880",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 64.99,
+        "gull": 64.95,
+        "tudor": 64.99,
+        "vessel": 65.99
+      },
+      "representative": {
+        "name": "Johnnie Walker – 12 Year Old Black Label 750ml",
+        "price": "$64.95",
+        "priceNum": 64.95,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$64.95",
+        "priceNum": 64.95,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/"
       }
     }
   ]
