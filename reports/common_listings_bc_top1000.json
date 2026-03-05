@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-05T17:49:07.316Z",
+  "generatedAt": "2026-03-05T19:32:58.010Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3747,
-    "removedRows": 233,
+    "liveRows": 3749,
+    "removedRows": 232,
     "canonSkus": 1908,
     "outputCount": 815
   },
@@ -5679,6 +5679,47 @@
       }
     },
     {
+      "canonSku": "264232",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 92.19,
+        "gull": 93.99,
+        "legacyliquor": 104.99,
+        "tudor": 99.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "Maker's Mark - Cask Strength Bourbon",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "264232",
+        "skuKey": "264232",
+        "url": "https://vesselliquor.com/products/makers-mark-cask-strength-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/makers-mark-cask-strength-bourbon"
+      }
+    },
+    {
       "canonSku": "271338",
       "storeCount": 5,
       "stores": [
@@ -9406,6 +9447,46 @@
       }
     },
     {
+      "canonSku": "168936",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 34.99,
+        "bcl": 34.49,
+        "gull": 40.25,
+        "legacyliquor": 43.99
+      },
+      "representative": {
+        "name": "PENDLETON",
+        "price": "$34.49",
+        "priceNum": 34.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "168936",
+        "skuKey": "168936",
+        "url": "https://www.bcliquorstores.com/product/168936",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$34.49",
+        "priceNum": 34.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/168936"
+      }
+    },
+    {
       "canonSku": "187532",
       "storeCount": 4,
       "stores": [
@@ -9843,46 +9924,6 @@
         "priceNum": 58.09,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select"
-      }
-    },
-    {
-      "canonSku": "264232",
-      "storeCount": 4,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 93.99,
-        "legacyliquor": 104.99,
-        "tudor": 99.99,
-        "vessel": 89.99
-      },
-      "representative": {
-        "name": "Maker's Mark - Cask Strength Bourbon",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "264232",
-        "skuKey": "264232",
-        "url": "https://vesselliquor.com/products/makers-mark-cask-strength-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/makers-mark-cask-strength-bourbon"
       }
     },
     {
@@ -13745,45 +13786,6 @@
         "priceNum": 62.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/rittenhouse-straight-ml-380"
-      }
-    },
-    {
-      "canonSku": "168936",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "arc",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 34.49,
-        "gull": 40.25,
-        "legacyliquor": 43.99
-      },
-      "representative": {
-        "name": "PENDLETON",
-        "price": "$34.49",
-        "priceNum": 34.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "168936",
-        "skuKey": "168936",
-        "url": "https://www.bcliquorstores.com/product/168936",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$34.49",
-        "priceNum": 34.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/168936"
       }
     },
     {
