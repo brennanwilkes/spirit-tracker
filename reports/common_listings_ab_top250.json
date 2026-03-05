@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-05T04:24:26.929Z",
+  "generatedAt": "2026-03-05T17:49:07.632Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8010,
-    "removedRows": 829,
-    "canonSkus": 4513,
+    "liveRows": 8013,
+    "removedRows": 833,
+    "canonSkus": 4517,
     "outputCount": 250
   },
   "rows": [
@@ -264,7 +264,7 @@
       "storePrices": {
         "bsw": 56.99,
         "coop": 76.99,
-        "craftcellars": 82.99,
+        "craftcellars": 56.99,
         "kegncork": 76.96,
         "kwm": 74.99,
         "maltsandgrains": 74.9,
@@ -718,6 +718,49 @@
         "priceNum": 129.9,
         "storeKey": "maltsandgrains",
         "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/"
+      }
+    },
+    {
+      "canonSku": "238725",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 94.99,
+        "coop": 109.99,
+        "craftcellars": 109.99,
+        "kegncork": 106.96,
+        "kwm": 109.99,
+        "sierrasprings": 94.28,
+        "willowpark": 109.99
+      },
+      "representative": {
+        "name": "KILCHOMAN SANAIG",
+        "price": "$94.28",
+        "priceNum": 94.28,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "779564",
+        "skuKey": "779564",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/kilchoman-sanaig-46-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$94.28",
+        "priceNum": 94.28,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/kilchoman-sanaig-46-abv/"
       }
     },
     {
@@ -1254,29 +1297,29 @@
       "storePrices": {
         "bsw": 160,
         "coop": 189.99,
-        "craftcellars": 185.99,
+        "craftcellars": 99.99,
         "kwm": 107.89,
         "maltsandgrains": 184.59,
         "sierrasprings": 190.37,
         "willowpark": 186.99
       },
       "representative": {
-        "name": "Highland Park 15 Year",
-        "price": "$107.89",
-        "priceNum": 107.89,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Highland Park 15 Year Old Viking Heart",
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "855764",
         "skuKey": "855764",
-        "url": "https://kensingtonwinemarket.com/product/855764/highland-park-15-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://craftcellars.ca/products/highland-park-15-year-old-viking-heart-44-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$107.89",
-        "priceNum": 107.89,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/855764/highland-park-15-year"
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/highland-park-15-year-old-viking-heart-44-abv"
       }
     },
     {
@@ -2671,48 +2714,6 @@
       }
     },
     {
-      "canonSku": "238725",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 94.99,
-        "coop": 109.99,
-        "craftcellars": 109.99,
-        "kwm": 109.99,
-        "sierrasprings": 94.28,
-        "willowpark": 109.99
-      },
-      "representative": {
-        "name": "KILCHOMAN SANAIG",
-        "price": "$94.28",
-        "priceNum": 94.28,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "779564",
-        "skuKey": "779564",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/kilchoman-sanaig-46-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$94.28",
-        "priceNum": 94.28,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/kilchoman-sanaig-46-abv/"
-      }
-    },
-    {
       "canonSku": "243824",
       "storeCount": 6,
       "stores": [
@@ -3864,28 +3865,28 @@
       "storePrices": {
         "bsw": 180,
         "coop": 209.99,
-        "craftcellars": 159.99,
+        "craftcellars": 209.99,
         "kwm": 209.99,
         "maltsandgrains": 219.9,
         "willowpark": 199.99
       },
       "representative": {
-        "name": "Dalmore Cigar Malt Reserve Highland Single Malt Scotch Whisky",
-        "price": "$159.99",
-        "priceNum": 159.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "The Dalmore Cigar Malt Reserve",
+        "price": "$180.00",
+        "priceNum": 180,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "747216",
         "skuKey": "747216",
-        "url": "https://craftcellars.ca/products/dalmore-cigar-malt-reserve-highland-single-malt-scotch-whisky-44-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/the-dalmore-cigar-malt-reserve",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$159.99",
-        "priceNum": 159.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/dalmore-cigar-malt-reserve-highland-single-malt-scotch-whisky-44-abv"
+        "price": "$180.00",
+        "priceNum": 180,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/the-dalmore-cigar-malt-reserve"
       }
     },
     {
@@ -5930,7 +5931,7 @@
         "willowpark": 84.49
       },
       "representative": {
-        "name": "Highland Park 12 Year Old Viking Honour Single Malt Scotch Whisky",
+        "name": "Highland Park 12 Year Old Viking Honour",
         "price": "$74.99",
         "priceNum": 74.99,
         "storeKey": "bsw",
@@ -6971,6 +6972,47 @@
         "priceNum": 82.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
+      }
+    },
+    {
+      "canonSku": "584375",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "coop": 79.99,
+        "craftcellars": 85.99,
+        "kwm": 83.99,
+        "sierrasprings": 74.18
+      },
+      "representative": {
+        "name": "Michter’s US*1 Unblended American Whiskey (41.7% abv)",
+        "price": "$74.18",
+        "priceNum": 74.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "764188",
+        "skuKey": "764188",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/michters-us1-unblended-american-whiskey-41-7-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$74.18",
+        "priceNum": 74.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/michters-us1-unblended-american-whiskey-41-7-abv/"
       }
     },
     {
@@ -8808,46 +8850,6 @@
       }
     },
     {
-      "canonSku": "043255",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 76.99,
-        "coop": 79.99,
-        "kegncork": 79.96,
-        "kwm": 79.99
-      },
-      "representative": {
-        "name": "Tomintoul Seiridh Oloroso Sherry Cask",
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "834525",
-        "skuKey": "834525",
-        "url": "https://www.bswliquor.com/products/tomintoul-seiridh-oloroso-sherry-cask",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/tomintoul-seiridh-oloroso-sherry-cask"
-      }
-    },
-    {
       "canonSku": "055155",
       "storeCount": 4,
       "stores": [
@@ -10008,46 +10010,6 @@
       }
     },
     {
-      "canonSku": "584375",
-      "storeCount": 4,
-      "stores": [
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "bsw",
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "coop": 79.99,
-        "craftcellars": 85.99,
-        "kwm": 83.99,
-        "sierrasprings": 74.18
-      },
-      "representative": {
-        "name": "Michter’s US*1 Unblended American Whiskey (41.7% abv)",
-        "price": "$74.18",
-        "priceNum": 74.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "764188",
-        "skuKey": "764188",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/michters-us1-unblended-american-whiskey-41-7-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$74.18",
-        "priceNum": 74.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/michters-us1-unblended-american-whiskey-41-7-abv/"
-      }
-    },
-    {
       "canonSku": "585836",
       "storeCount": 4,
       "stores": [
@@ -10088,46 +10050,6 @@
       }
     },
     {
-      "canonSku": "724819",
-      "storeCount": 4,
-      "stores": [
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "craftcellars": 87.99,
-        "kegncork": 85.96,
-        "kwm": 87.99,
-        "willowpark": 88.99
-      },
-      "representative": {
-        "name": "Arran Sauternes Cask Finish",
-        "price": "$87.99",
-        "priceNum": 87.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "724819",
-        "skuKey": "724819",
-        "url": "https://craftcellars.ca/products/arran-sauternes-cask-finish-50-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$85.96",
-        "priceNum": 85.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/arran-sauternes-cask-finish-700-ml/"
-      }
-    },
-    {
       "canonSku": "784271",
       "storeCount": 4,
       "stores": [
@@ -10165,46 +10087,6 @@
         "priceNum": 75.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/kilkerran-12-year-old"
-      }
-    },
-    {
-      "canonSku": "835053",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 54.99,
-        "coop": 56.99,
-        "craftcellars": 57.99,
-        "maltsandgrains": 60.72
-      },
-      "representative": {
-        "name": "Bridgeland Distillery Taber Corn Berbon",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "835053",
-        "skuKey": "835053",
-        "url": "https://www.bswliquor.com/products/bridgeland-taber-corn-berbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bridgeland-taber-corn-berbon"
       }
     },
     {
@@ -10288,6 +10170,45 @@
       }
     },
     {
+      "canonSku": "043255",
+      "storeCount": 3,
+      "stores": [
+        "coop",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "coop": 79.99,
+        "kegncork": 79.96,
+        "kwm": 79.99
+      },
+      "representative": {
+        "name": "Tomintoul Seiridh Oloroso Finish",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "834525",
+        "skuKey": "834525",
+        "url": "https://kensingtonwinemarket.com/product/834525/tomintoul-seiridh-oloroso-finish",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$79.96",
+        "priceNum": 79.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/tomintoul-seiridh-oloroso-sherry-cask-700-ml/"
+      }
+    },
+    {
       "canonSku": "108482",
       "storeCount": 3,
       "stores": [
@@ -10363,6 +10284,84 @@
         "priceNum": 141.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/kavalan-lan-single-malt-whisky-700-ml/"
+      }
+    },
+    {
+      "canonSku": "724819",
+      "storeCount": 3,
+      "stores": [
+        "craftcellars",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "craftcellars": 87.99,
+        "kwm": 87.99,
+        "willowpark": 88.99
+      },
+      "representative": {
+        "name": "Arran Sauternes Cask Finish",
+        "price": "$87.99",
+        "priceNum": 87.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "724819",
+        "skuKey": "724819",
+        "url": "https://craftcellars.ca/products/arran-sauternes-cask-finish-50-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$87.99",
+        "priceNum": 87.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/arran-sauternes-cask-finish-50-abv"
+      }
+    },
+    {
+      "canonSku": "835053",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 54.99,
+        "craftcellars": 57.99,
+        "maltsandgrains": 60.72
+      },
+      "representative": {
+        "name": "Bridgeland Distillery Taber Corn Berbon",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "835053",
+        "skuKey": "835053",
+        "url": "https://www.bswliquor.com/products/bridgeland-taber-corn-berbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bridgeland-taber-corn-berbon"
       }
     }
   ]
