@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-06T07:13:47.369Z",
+  "generatedAt": "2026-03-06T19:11:36.782Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3757,
-    "removedRows": 232,
-    "canonSkus": 1910,
+    "liveRows": 3759,
+    "removedRows": 236,
+    "canonSkus": 1914,
     "outputCount": 250
   },
   "rows": [
@@ -52,7 +52,7 @@
         "gull": 83.45,
         "legacyliquor": 83.51,
         "strath": 80.87,
-        "tudor": 79.99,
+        "tudor": 74.99,
         "vessel": 74.99,
         "vintage": 75.57
       },
@@ -310,7 +310,7 @@
         "gull": 105.99,
         "legacyliquor": 129.06,
         "strath": 113.09,
-        "tudor": 114.99,
+        "tudor": 104.99,
         "vessel": 99.99,
         "vintage": 123.39
       },
@@ -1847,7 +1847,7 @@
         "bcl": 43.99,
         "gull": 40.49,
         "legacyliquor": 45.68,
-        "tudor": 61.99,
+        "tudor": 58.99,
         "vessel": 41.99
       },
       "representative": {
@@ -5986,7 +5986,7 @@
         "arc": 62.59,
         "bcl": 64.99,
         "legacyliquor": 75.99,
-        "tudor": 69.99,
+        "tudor": 64.99,
         "vessel": 64.99
       },
       "representative": {
@@ -6806,7 +6806,7 @@
         "arc": 110.99,
         "bcl": 112.99,
         "legacyliquor": 142.73,
-        "tudor": 124.99,
+        "tudor": 112.99,
         "vessel": 109.99
       },
       "representative": {
@@ -9686,6 +9686,46 @@
       }
     },
     {
+      "canonSku": "278914",
+      "storeCount": 4,
+      "stores": [
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 102.99,
+        "legacyliquor": 112.99,
+        "strath": 103.18,
+        "tudor": 109.99
+      },
+      "representative": {
+        "name": "Shelter Point Distillery – Cask Strength Single Malt 750ml",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "278914",
+        "skuKey": "278914",
+        "url": "https://gullliquorstore.com/product/shelter-pt-cask-st-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/shelter-pt-cask-st-750m/"
+      }
+    },
+    {
       "canonSku": "284359",
       "storeCount": 4,
       "stores": [
@@ -10280,45 +10320,6 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/kilchoman-sanaig-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "278914",
-      "storeCount": 3,
-      "stores": [
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 112.99,
-        "strath": 103.18,
-        "tudor": 109.99
-      },
-      "representative": {
-        "name": "Shelter Point - Cask Strength Single Malt",
-        "price": "$103.18",
-        "priceNum": 103.18,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "278914",
-        "skuKey": "278914",
-        "url": "https://www.strathliquor.com/product/shelter-point-cask-strength-single-malt/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$103.18",
-        "priceNum": 103.18,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/shelter-point-cask-strength-single-malt/"
       }
     }
   ]
