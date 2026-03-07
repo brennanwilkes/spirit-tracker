@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-07T15:51:15.838Z",
+  "generatedAt": "2026-03-07T21:36:56.609Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3753,
-    "removedRows": 244,
+    "liveRows": 3750,
+    "removedRows": 248,
     "canonSkus": 1911,
     "outputCount": 250
   },
@@ -202,49 +202,6 @@
         "priceNum": 34.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/123422"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "gull": 169.99,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "LAGAVULIN 16YO",
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -933,6 +890,49 @@
         "priceNum": 85.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc"
+      ],
+      "storePrices": {
+        "bcl": 169.99,
+        "gull": 169.99,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "Lagavulin - 16 Year Old Single Malt Scotch",
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch"
       }
     },
     {
@@ -6189,7 +6189,7 @@
         "bcl": 99.99,
         "gull": 107.99,
         "legacyliquor": 108.88,
-        "tudor": 104.99,
+        "tudor": 99.99,
         "vessel": 99.99
       },
       "representative": {
@@ -6722,26 +6722,26 @@
         "arc": 63.79,
         "bcl": 63.99,
         "gull": 67.7,
-        "tudor": 60.99,
+        "tudor": 63.99,
         "vessel": 62.99
       },
       "representative": {
-        "name": "Captain Morgan Original Spiced Rum",
-        "price": "$60.99",
-        "priceNum": 60.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "Captain Morgan - Spiced Rum",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
         "skuRaw": "500546",
         "skuKey": "500546",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/capt-morgan-spiced-l-360",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+        "url": "https://vesselliquor.com/products/captain-morgan-spiced-rum-1750-ml",
+        "categoryLabel": "Rum / Cane Spirit",
+        "dbFile": "data/db/vessel__rum-cane-spirit__f0a980b4.json"
       },
       "cheapest": {
-        "price": "$60.99",
-        "priceNum": 60.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/capt-morgan-spiced-l-360"
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/captain-morgan-spiced-rum-1750-ml"
       }
     },
     {
@@ -8903,7 +8903,7 @@
         "arc": 42.69,
         "bcl": 42.99,
         "gull": 48.5,
-        "tudor": 45.99
+        "tudor": 42.99
       },
       "representative": {
         "name": "JAMESON TRIPLE TRIPLE IRISH WHISKEY",
@@ -9863,25 +9863,25 @@
         "arc": 145.65,
         "gull": 149.99,
         "legacyliquor": 173.61,
-        "tudor": 159.99
+        "tudor": 139.99
       },
       "representative": {
-        "name": "KILCHOMAN SMALL BATCH 2023",
-        "price": "$145.65",
-        "priceNum": 145.65,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "name": "Kilchoman Small Batc",
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
         "skuRaw": "330665",
         "skuKey": "330665",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588349-kilchoman-small-batch-2023",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/kilchoman-small-batc-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
       },
       "cheapest": {
-        "price": "$145.65",
-        "priceNum": 145.65,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588349-kilchoman-small-batch-2023"
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/kilchoman-small-batc-ml-420"
       }
     },
     {
@@ -10042,46 +10042,6 @@
         "priceNum": 84.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/368456"
-      }
-    },
-    {
-      "canonSku": "444711",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 48.79,
-        "bcl": 47.99,
-        "legacyliquor": 49.99,
-        "tudor": 47.99
-      },
-      "representative": {
-        "name": "EL DORADO - 12 YEAR OLD FINEST DEMERARA",
-        "price": "$47.99",
-        "priceNum": 47.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "444711",
-        "skuKey": "444711",
-        "url": "https://www.bcliquorstores.com/product/444711",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$47.99",
-        "priceNum": 47.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/444711"
       }
     },
     {
@@ -10319,6 +10279,45 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/kilchoman-sanaig-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "444711",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 48.79,
+        "bcl": 47.99,
+        "legacyliquor": 49.99
+      },
+      "representative": {
+        "name": "EL DORADO - 12 YEAR OLD FINEST DEMERARA",
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "444711",
+        "skuKey": "444711",
+        "url": "https://www.bcliquorstores.com/product/444711",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/444711"
       }
     }
   ]

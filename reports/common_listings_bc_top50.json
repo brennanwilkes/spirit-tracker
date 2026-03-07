@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-07T15:51:15.722Z",
+  "generatedAt": "2026-03-07T21:36:56.494Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3753,
-    "removedRows": 244,
+    "liveRows": 3750,
+    "removedRows": 248,
     "canonSkus": 1911,
     "outputCount": 50
   },
@@ -202,49 +202,6 @@
         "priceNum": 34.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/123422"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "gull": 169.99,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "LAGAVULIN 16YO",
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -933,6 +890,49 @@
         "priceNum": 85.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc"
+      ],
+      "storePrices": {
+        "bcl": 169.99,
+        "gull": 169.99,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "Lagavulin - 16 Year Old Single Malt Scotch",
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch"
       }
     },
     {
