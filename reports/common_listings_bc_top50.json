@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-07T04:16:12.874Z",
+  "generatedAt": "2026-03-07T07:08:41.494Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3759,
-    "removedRows": 236,
-    "canonSkus": 1914,
+    "liveRows": 3753,
+    "removedRows": 244,
+    "canonSkus": 1911,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 36.99,
+        "gull": 37.99,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 36.99,
+        "vessel": 41.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "JAMESON - IRISH",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://www.bcliquorstores.com/product/10157",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/10157"
+      }
+    },
     {
       "canonSku": "057706",
       "storeCount": 8,
@@ -546,49 +589,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 36.99,
-        "gull": 37.99,
-        "strath": 39.57,
-        "tudor": 40.99,
-        "vessel": 41.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://www.bcliquorstores.com/product/10157",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/10157"
       }
     },
     {
@@ -2055,7 +2055,7 @@
         "arc": 72.79,
         "bcl": 77.99,
         "gull": 75.9,
-        "legacyliquor": 80.99,
+        "legacyliquor": 90.13,
         "tudor": 84.99,
         "vessel": 79.99
       },
