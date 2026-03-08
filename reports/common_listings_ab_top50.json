@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-08T13:08:02.839Z",
+  "generatedAt": "2026-03-08T19:04:32.036Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,55 +26,12 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7985,
-    "removedRows": 891,
-    "canonSkus": 4514,
+    "liveRows": 7988,
+    "removedRows": 888,
+    "canonSkus": 4515,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "002838",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 84.99,
-        "coop": 119.99,
-        "craftcellars": 115.99,
-        "kegncork": 114.96,
-        "kwm": 96.99,
-        "maltsandgrains": 120.89,
-        "sierrasprings": 91.32,
-        "willowpark": 117.49
-      },
-      "representative": {
-        "name": "Bruichladdich Port Charlotte 10 Year Old",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "806524",
-        "skuKey": "806524",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
-      }
-    },
     {
       "canonSku": "368456",
       "storeCount": 8,
@@ -202,6 +159,49 @@
         "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/craigellachie-13-year-old"
+      }
+    },
+    {
+      "canonSku": "002838",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "craftcellars": 115.99,
+        "kegncork": 114.96,
+        "kwm": 96.99,
+        "maltsandgrains": 120.89,
+        "sierrasprings": 91.32,
+        "willowpark": 117.49
+      },
+      "representative": {
+        "name": "Bruichladdich Port Charlotte 10 Year Old",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "806524",
+        "skuKey": "806524",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
       }
     },
     {
@@ -1871,6 +1871,48 @@
       }
     },
     {
+      "canonSku": "108015",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "kegncork",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 91.99,
+        "coop": 99.99,
+        "craftcellars": 94.99,
+        "kwm": 91.99,
+        "maltsandgrains": 111.17,
+        "sierrasprings": 91.32
+      },
+      "representative": {
+        "name": "BULLEIT BARREL STRENGTH BATCH NO. 8",
+        "price": "$91.32",
+        "priceNum": 91.32,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "108015",
+        "skuKey": "108015",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/bulleit-barrel-strength-batch-no-8/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$91.32",
+        "priceNum": 91.32,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/bulleit-barrel-strength-batch-no-8/"
+      }
+    },
+    {
       "canonSku": "117348",
       "storeCount": 6,
       "stores": [
@@ -2120,47 +2162,6 @@
         "priceNum": 44.66,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/bumbu-craft-rum-35-abv/"
-      }
-    },
-    {
-      "canonSku": "108015",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 91.99,
-        "coop": 99.99,
-        "craftcellars": 94.99,
-        "kwm": 91.99,
-        "sierrasprings": 91.32
-      },
-      "representative": {
-        "name": "BULLEIT BARREL STRENGTH BATCH NO. 8",
-        "price": "$91.32",
-        "priceNum": 91.32,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "108015",
-        "skuKey": "108015",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/bulleit-barrel-strength-batch-no-8/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$91.32",
-        "priceNum": 91.32,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/bulleit-barrel-strength-batch-no-8/"
       }
     }
   ]
