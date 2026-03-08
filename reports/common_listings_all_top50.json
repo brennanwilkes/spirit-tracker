@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-08T04:24:26.612Z",
+  "generatedAt": "2026-03-08T07:10:01.795Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11740,
-    "removedRows": 1131,
-    "canonSkus": 5328,
+    "liveRows": 11728,
+    "removedRows": 1146,
+    "canonSkus": 5326,
     "outputCount": 50
   },
   "rows": [
@@ -618,60 +618,60 @@
       }
     },
     {
-      "canonSku": "185921",
+      "canonSku": "207126",
       "storeCount": 13,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "coop",
+        "craftcellars",
         "gull",
         "kegncork",
         "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
         "strath",
         "tudor",
         "vessel",
+        "vintage",
         "willowpark"
       ],
       "missingStores": [
-        "craftcellars",
         "kwm",
-        "vintage"
+        "maltsandgrains",
+        "sierrasprings"
       ],
       "storePrices": {
-        "arc": 62.79,
-        "bcl": 66.99,
-        "bsw": 51.99,
-        "coop": 58.99,
-        "gull": 71.4,
-        "kegncork": 59.96,
-        "legacyliquor": 74.91,
-        "maltsandgrains": 61.46,
-        "sierrasprings": 56.09,
-        "strath": 70.78,
-        "tudor": 66.99,
-        "vessel": 69.99,
-        "willowpark": 60.49
+        "arc": 158.99,
+        "bcl": 169.99,
+        "bsw": 130,
+        "coop": 169.99,
+        "craftcellars": 184.99,
+        "gull": 169.99,
+        "kegncork": 161.96,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39,
+        "willowpark": 174.99
       },
       "representative": {
-        "name": "Bumbu XO Rum",
-        "price": "$51.99",
-        "priceNum": 51.99,
+        "name": "Lagavulin 16 Year Old",
+        "price": "$130.00",
+        "priceNum": 130,
         "storeKey": "bsw",
         "storeLabel": "BSW",
-        "skuRaw": "815335",
-        "skuKey": "815335",
-        "url": "https://www.bswliquor.com/products/bumbu-xo-craft-rum",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$51.99",
-        "priceNum": 51.99,
+        "price": "$130.00",
+        "priceNum": 130,
         "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bumbu-xo-craft-rum"
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {
@@ -1299,6 +1299,62 @@
       }
     },
     {
+      "canonSku": "185921",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 62.79,
+        "bcl": 66.99,
+        "bsw": 51.99,
+        "coop": 58.99,
+        "gull": 71.4,
+        "kegncork": 59.96,
+        "legacyliquor": 74.91,
+        "sierrasprings": 56.09,
+        "strath": 70.78,
+        "tudor": 66.99,
+        "vessel": 69.99,
+        "willowpark": 60.49
+      },
+      "representative": {
+        "name": "Bumbu XO Rum",
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "815335",
+        "skuKey": "815335",
+        "url": "https://www.bswliquor.com/products/bumbu-xo-craft-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+      },
+      "cheapest": {
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bumbu-xo-craft-rum"
+      }
+    },
+    {
       "canonSku": "202028",
       "storeCount": 12,
       "stores": [
@@ -1352,62 +1408,6 @@
         "priceNum": 104.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 12,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bcl": 169.99,
-        "bsw": 130,
-        "coop": 169.99,
-        "craftcellars": 184.99,
-        "gull": 169.99,
-        "kegncork": 161.96,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39,
-        "willowpark": 174.99
-      },
-      "representative": {
-        "name": "Lagavulin 16 Year Old",
-        "price": "$130.00",
-        "priceNum": 130,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$130.00",
-        "priceNum": 130,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {
@@ -1722,27 +1722,27 @@
         "gull": 25,
         "kwm": 27.99,
         "legacyliquor": 24.99,
-        "sierrasprings": 19.99,
+        "sierrasprings": 19.04,
         "tudor": 21.99,
         "vessel": 22.49
       },
       "representative": {
-        "name": "ALBERTA PREMIUM RYE 750ML",
-        "price": "$19.99",
-        "priceNum": 19.99,
+        "name": "Alberta Premium (40% abv)",
+        "price": "$19.04",
+        "priceNum": 19.04,
         "storeKey": "sierrasprings",
         "storeLabel": "Sierra Springs",
         "skuRaw": "000984",
         "skuKey": "000984",
-        "url": "https://sierraspringsliquor.ca/shop/cooler/canadian-whisky-cooler/alberta-premium-rye/",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/",
         "categoryLabel": "Whisky",
         "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
-        "price": "$19.99",
-        "priceNum": 19.99,
+        "price": "$19.04",
+        "priceNum": 19.04,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/cooler/canadian-whisky-cooler/alberta-premium-rye/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/"
       }
     },
     {
@@ -2128,61 +2128,6 @@
         "priceNum": 64.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/105447/jura-12-year-old"
-      }
-    },
-    {
-      "canonSku": "115490",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 75.19,
-        "bcl": 88.99,
-        "bsw": 86.99,
-        "craftcellars": 89.99,
-        "gull": 77.7,
-        "kegncork": 89.96,
-        "kwm": 89.99,
-        "legacyliquor": 93.04,
-        "strath": 88.31,
-        "tudor": 88.99,
-        "willowpark": 84.49
-      },
-      "representative": {
-        "name": "BOWMORE 12YO SHERRY OAK",
-        "price": "$75.19",
-        "priceNum": 75.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "303821",
-        "skuKey": "303821",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$75.19",
-        "priceNum": 75.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak"
       }
     },
     {
@@ -2788,6 +2733,60 @@
         "priceNum": 82.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
+      }
+    },
+    {
+      "canonSku": "115490",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "gull",
+        "maltsandgrains",
+        "sierrasprings",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 75.19,
+        "bcl": 88.99,
+        "bsw": 86.99,
+        "craftcellars": 89.99,
+        "kegncork": 89.96,
+        "kwm": 89.99,
+        "legacyliquor": 93.04,
+        "strath": 88.31,
+        "tudor": 88.99,
+        "willowpark": 84.49
+      },
+      "representative": {
+        "name": "BOWMORE 12YO SHERRY OAK",
+        "price": "$75.19",
+        "priceNum": 75.19,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "303821",
+        "skuKey": "303821",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$75.19",
+        "priceNum": 75.19,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak"
       }
     },
     {
