@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-12T04:25:36.653Z",
+  "generatedAt": "2026-03-12T07:16:23.766Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11780,
-    "removedRows": 1151,
-    "canonSkus": 5347,
+    "liveRows": 11793,
+    "removedRows": 1147,
+    "canonSkus": 5357,
     "outputCount": 50
   },
   "rows": [
@@ -1855,6 +1855,61 @@
       }
     },
     {
+      "canonSku": "001487",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "tudor",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 27.99,
+        "bsw": 32.99,
+        "coop": 36.99,
+        "craftcellars": 37.99,
+        "gull": 32.4,
+        "legacyliquor": 31.99,
+        "sierrasprings": 28.57,
+        "strath": 31.31,
+        "vessel": 28.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "CROWN ROYAL",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://www.bcliquorstores.com/product/1487",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1487"
+      }
+    },
+    {
       "canonSku": "001610",
       "storeCount": 11,
       "stores": [
@@ -2677,60 +2732,6 @@
         "priceNum": 82.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
-      }
-    },
-    {
-      "canonSku": "001487",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "tudor",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 28.99,
-        "bcl": 27.99,
-        "bsw": 32.99,
-        "coop": 36.99,
-        "craftcellars": 37.99,
-        "gull": 32.4,
-        "sierrasprings": 28.57,
-        "strath": 31.31,
-        "vessel": 28.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bcliquorstores.com/product/1487",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1487"
       }
     },
     {

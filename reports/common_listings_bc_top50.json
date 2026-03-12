@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-12T04:25:37.176Z",
+  "generatedAt": "2026-03-12T07:16:24.276Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,55 +26,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3743,
-    "removedRows": 265,
-    "canonSkus": 1911,
+    "liveRows": 3751,
+    "removedRows": 260,
+    "canonSkus": 1914,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "010157",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 36.99,
-        "gull": 37.99,
-        "legacyliquor": 41.99,
-        "strath": 39.57,
-        "tudor": 36.99,
-        "vessel": 41.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://www.bcliquorstores.com/product/10157",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/10157"
-      }
-    },
     {
       "canonSku": "116752",
       "storeCount": 8,
@@ -420,6 +377,49 @@
       }
     },
     {
+      "canonSku": "001487",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "tudor"
+      ],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 27.99,
+        "gull": 32.4,
+        "legacyliquor": 31.99,
+        "strath": 31.31,
+        "vessel": 28.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "CROWN ROYAL",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://www.bcliquorstores.com/product/1487",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1487"
+      }
+    },
+    {
       "canonSku": "001610",
       "storeCount": 7,
       "stores": [
@@ -463,46 +463,46 @@
       }
     },
     {
-      "canonSku": "052050",
+      "canonSku": "010157",
       "storeCount": 7,
       "stores": [
         "arc",
         "bcl",
         "gull",
-        "legacyliquor",
         "strath",
         "tudor",
-        "vessel"
-      ],
-      "missingStores": [
+        "vessel",
         "vintage"
       ],
+      "missingStores": [
+        "legacyliquor"
+      ],
       "storePrices": {
-        "arc": 30.09,
-        "bcl": 29.49,
-        "gull": 31.25,
-        "legacyliquor": 30.99,
-        "strath": 29.66,
-        "tudor": 29.49,
-        "vessel": 29.99
+        "arc": 38.99,
+        "bcl": 36.99,
+        "gull": 37.99,
+        "strath": 39.57,
+        "tudor": 36.99,
+        "vessel": 41.99,
+        "vintage": 42.52
       },
       "representative": {
-        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
-        "price": "$29.49",
-        "priceNum": 29.49,
+        "name": "JAMESON - IRISH",
+        "price": "$36.99",
+        "priceNum": 36.99,
         "storeKey": "bcl",
         "storeLabel": "BCL",
-        "skuRaw": "052050",
-        "skuKey": "052050",
-        "url": "https://www.bcliquorstores.com/product/52050",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://www.bcliquorstores.com/product/10157",
         "categoryLabel": "Whisky / Whiskey",
         "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
+        "price": "$36.99",
+        "priceNum": 36.99,
         "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/52050"
+        "url": "https://www.bcliquorstores.com/product/10157"
       }
     },
     {
@@ -1364,48 +1364,6 @@
       }
     },
     {
-      "canonSku": "001487",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 28.99,
-        "bcl": 27.99,
-        "gull": 32.4,
-        "strath": 31.31,
-        "vessel": 28.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bcliquorstores.com/product/1487",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1487"
-      }
-    },
-    {
       "canonSku": "001800",
       "storeCount": 6,
       "stores": [
@@ -1616,6 +1574,48 @@
       }
     },
     {
+      "canonSku": "003517",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "gull": 13.05,
+        "legacyliquor": 12.23,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
+      }
+    },
+    {
       "canonSku": "004465",
       "storeCount": 6,
       "stores": [
@@ -1678,7 +1678,7 @@
         "gull": 62.85,
         "legacyliquor": 64.99,
         "tudor": 62.99,
-        "vessel": 61.99
+        "vessel": 64.99
       },
       "representative": {
         "name": "CHIVAS REGAL 12YO",
@@ -1739,6 +1739,48 @@
         "priceNum": 62.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/johnnie-walker-black-label-blended-scotch"
+      }
+    },
+    {
+      "canonSku": "010108",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 44.49,
+        "bcl": 43.99,
+        "gull": 40.49,
+        "legacyliquor": 45.68,
+        "tudor": 58.99,
+        "vessel": 41.99
+      },
+      "representative": {
+        "name": "Crown Royal 1.14l",
+        "price": "$40.49",
+        "priceNum": 40.49,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "010108",
+        "skuKey": "010108",
+        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$40.49",
+        "priceNum": 40.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/"
       }
     },
     {
@@ -1952,6 +1994,48 @@
       }
     },
     {
+      "canonSku": "052050",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 30.09,
+        "bcl": 29.49,
+        "legacyliquor": 30.99,
+        "strath": 29.66,
+        "tudor": 29.49,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "052050",
+        "skuKey": "052050",
+        "url": "https://www.bcliquorstores.com/product/52050",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/52050"
+      }
+    },
+    {
       "canonSku": "107675",
       "storeCount": 6,
       "stores": [
@@ -2032,88 +2116,6 @@
         "priceNum": 13.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml"
-      }
-    },
-    {
-      "canonSku": "003517",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "gull": 13.05,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
-      "canonSku": "010108",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 44.49,
-        "bcl": 43.99,
-        "gull": 40.49,
-        "tudor": 58.99,
-        "vessel": 41.99
-      },
-      "representative": {
-        "name": "Crown Royal 1.14l",
-        "price": "$40.49",
-        "priceNum": 40.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "010108",
-        "skuKey": "010108",
-        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$40.49",
-        "priceNum": 40.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/crown-royal-1-14l/"
       }
     },
     {
