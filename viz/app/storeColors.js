@@ -1,94 +1,11 @@
-function normalizeId(s) {
-	return String(s || "")
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "");
-}
+import { STORES, normalizeStoreId } from "./stores.js";
 
-const ALIASES = {
-	// ----- ARC -----
-	arcliquor: "arc",
-	arc: "arc",
+// ── Color data derived from STORES ─────────────────────────────────────────
 
-	// ----- BCL -----
-	bcl: "bcl",
+// Canonical id → color (from STORES metadata)
+const OVERRIDES = Object.fromEntries(STORES.map((s) => [s.id, s.color]));
 
-	// ----- BSW -----
-	bsw: "bsw",
-
-	// ----- Co-op World of Whisky -----
-	coopworldofwhisky: "coop",
-	coop: "coop",
-
-	// ----- Craft Cellars -----
-	craftcellars: "craftcellars",
-
-	// ----- Gull Liquor -----
-	gullliquor: "gull",
-	gull: "gull",
-
-	// ----- Keg N Cork -----
-	kegncork: "kegncork",
-
-	// ----- Kensington Wine Market -----
-	kensingtonwinemarket: "kwm",
-	kwm: "kwm",
-
-	// ----- Legacy Liquor -----
-	legacyliquor: "legacyliquor",
-	legacy: "legacyliquor",
-
-	// ----- Malts & Grains -----
-	maltsgrains: "maltsandgrains",
-	maltsandgrains: "maltsandgrains",
-
-	// ----- Sierra Springs -----
-	sierrasprings: "sierrasprings",
-
-	// ----- Strath Liquor -----
-	strathliquor: "strath",
-	strath: "strath",
-
-	// ----- Tudor House -----
-	tudorhouse: "tudor",
-	tudor: "tudor",
-
-	// ----- Vessel Liquor -----
-	vesselliquor: "vessel",
-	vessel: "vessel",
-
-	// ----- Vintage Spirits -----
-	vintagespirits: "vintage",
-	vintage: "vintage",
-
-	// ----- Willow Park -----
-	willowpark: "willowpark",
-};
-
-
-const OVERRIDES = {
-	// keep your existing pins (moved onto store keys)
-	strath: "#76B7FF",
-	bsw: "#E9DF7A",
-	kwm: "#F2C200",
-	vessel: "#FFFFFF",
-	gull: "#6B0F1A",
-	kegncork: "#111111",
-	legacyliquor: "#7B4A12",
-	vintage: "#E34A2C",
-	craftcellars: "#E31B23",
-	maltsandgrains: "#A67C52",
-
-	// assign the remaining stores (distinct / balanced)
-	bcl: "#1F77B4",
-	coop: "#2CA02C",
-	sierrasprings: "#17BECF",
-	willowpark: "#BCBD22",
-	arc: "#9467BD",
-	tudor: "#FF7F0E",
-};
-
-
-// High-contrast qualitative palette
+// High-contrast qualitative palette (fallback for unknown stores)
 const PALETTE = [
 	"#1F77B4",
 	"#FF7F0E",
@@ -127,8 +44,7 @@ function uniq(arr) {
 }
 
 function canonicalId(s) {
-	const id = normalizeId(s);
-	return ALIASES[id] || id;
+	return normalizeStoreId(s) || "";
 }
 
 function buildUniverse(base, extra) {
@@ -138,28 +54,10 @@ function buildUniverse(base, extra) {
 }
 
 // Keep mapping stable even if page sees a subset
-const DEFAULT_UNIVERSE = buildUniverse(Object.keys(OVERRIDES), [
-	"bcl",
-	"bsw",
-	"coop",
-	"craftcellars",
-	"gullliquor",
-	"gull",
-	"kegncork",
-	"kwm",
-	"kensingtonwinemarket",
-	"legacy",
-	"legacyliquor",
-	"maltsandgrains",
-	"sierrasprings",
-	"strath",
-	"tudor",
-	"vessel",
-	"vintage",
-	"vintagespirits",
-	"willowpark",
-	"arc",
-]);
+const DEFAULT_UNIVERSE = buildUniverse(
+	STORES.map((s) => s.id),
+	[],
+);
 
 function isWhiteHex(c) {
 	return (

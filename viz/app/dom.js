@@ -59,3 +59,19 @@ export function renderThumbHtml(imgUrl, cls = "thumb") {
 	if (!img) return `<div class="thumbPlaceholder"></div>`;
 	return `<img referrerpolicy="no-referrer" class="${esc(cls)}" src="${esc(img)}" alt="" loading="lazy" onerror="this.style.display='none'" />`;
 }
+
+/**
+ * Format a number as a price string (e.g. 42.9 → "$42.90").
+ */
+export function prettyPrice(num) {
+	if (!Number.isFinite(num)) return "";
+	return `$${num.toFixed(2)}`;
+}
+
+/**
+ * Render a price value as a styled HTML span.
+ * Always uses esc() — safe to insert into innerHTML.
+ */
+export function priceHtml(str) {
+	return `<span class="mono price">${esc(String(str ?? ""))}</span>`;
+}

@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Brennan's Spirit Tracker</title>
+
+    <!-- Shared base styles (mobile-first) -->
     <link rel="stylesheet" href="./style.css" />
+
+    <!-- Per-page styles (all loaded upfront; browser handles efficiently) -->
+    <link rel="stylesheet" href="./app/search_page/search_page.css" />
+    <link rel="stylesheet" href="./app/item_page/item_page.css" />
+    <link rel="stylesheet" href="./app/store_page/store_page.css" />
+    <link rel="stylesheet" href="./app/stores_page/stores_page.css" />
+    <link rel="stylesheet" href="./app/stats_page/stats_page.css" />
+    <link rel="stylesheet" href="./app/shortlist_page/shortlist_page.css" />
+    <link rel="stylesheet" href="./app/linker_page/linker_page.css" />
+    <link rel="stylesheet" href="./app/auth_page/auth_page.css" />
+    <link rel="stylesheet" href="./app/settings_page/settings_page.css" />
   </head>
   <body>
     <div id="app"></div>
@@ -14,7 +27,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-    
+
     <!-- App (ES modules; no bundler required) -->
     <script type="module" src="./app/main.js"></script>
   </body>

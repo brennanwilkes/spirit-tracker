@@ -1,0 +1,32 @@
+/* ── Shortlist page ────────────────────────────────────────────────────── */
+
+/* Dock: weighted badge + star pinned to bottom-right of card */
+.shortlistPage .starDock {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+
+/* On shortlist, the star lives inside the dock, so it must NOT be absolutely positioned */
+.shortlistPage .itemHasStar .favStarBtn {
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  transform: none;
+}
+
+/* Mobile: hide interactive controls for list density */
+@media (max-width: 640px) {
+  .shortlistPage .sampledBtn,
+  .shortlistPage .scoreWrap,
+  .shortlistPage .skuLink,
+  .shortlistPage .favStarBtn,
+  .shortlistPage .starDock {
+    display: none !important;
+  }
+}

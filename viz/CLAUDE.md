@@ -17,7 +17,7 @@ Or open `viz/index.html` directly in a browser (some features need a server for 
   - Chart.js 4.4.1 — price history line charts
   - Font Awesome 6.5.0 — icons
   - SweetAlert2 11 — modal dialogs
-- **CSS** — `viz/style.css` (~21 KB), dark-mode-first, CSS variables for theming
+- **CSS** — `viz/style.css` (shared, mobile-first) + per-page CSS files loaded via `<link>` tags in `index.html`
 
 ## Routing
 
@@ -59,37 +59,91 @@ For SKU link editing during local development:
 - `GET/POST /__stviz/sku-links` — read/write `data/sku_links.json`
 - `GET/POST /__stviz/sku-ignores` — read/write ignore pairs
 
+## Directory Structure
+
+```
+viz/
+├── index.html              (loads shared + all per-page CSS)
+├── style.css               (shared base — mobile-first)
+└── app/
+    ├── main.js             (hash-based router)
+    ├── stores.js           (single source of truth for all store metadata)
+    ├── state.js, api.js, cloud.js, catalog.js, mapping.js, sku.js, smws.js, pending.js
+    │
+    ├── components/         (shared UI builders)
+    │   ├── item_card.js    (itemCardHtml)
+    │   ├── badges.js       (compareBadgeHtml, priceBadgeHtml, storeBadgeHtml, stockBadgeHtml, skuBadgeHtml)
+    │   ├── topbar.js       (topbarHtml)
+    │   ├── status.js       (loadingHtml, emptyHtml, spinnerBtnHtml)
+    │   ├── infinite_scroll.js
+    │   ├── price_slider.js
+    │   ├── toggle.js
+    │   └── fav_star.js     (re-exports from ../fav_star.js)
+    │
+    ├── item_page/
+    │   ├── item_chart.js   (StaticMarkerLinesPlugin, chart stats utilities)
+    │   └── item_page.css
+    ├── stats_page/
+    │   ├── stats_chart.js  (destroyStatsChart, drawOrUpdateChart, resizeStatsChart)
+    │   └── stats_page.css
+    ├── shortlist_page/
+    │   ├── shortlist_scoring.js  (computeScore, sortShortlist)
+    │   └── shortlist_page.css
+    ├── linker_page/        (linker submodules: similarity, suggestions, price, size, …)
+    │   └── linker_page.css
+    ├── search_page/search_page.css
+    ├── store_page/store_page.css
+    ├── stores_page/stores_page.css
+    ├── auth_page/auth_page.css
+    └── settings_page/settings_page.css
+```
+
 ## Key Modules
 
 | File | Purpose |
 |------|---------|
+| `app/stores.js` | All 16 store entries (id, label, region, color, logo, aliases). Use `storeById()`, `storesByRegion()`, `normalizeStoreId()` |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
 | `app/mapping.js` | Load and apply SKU canonical map (union-find) |
 | `app/state.js` | In-memory + localStorage cache (5-min TTL, cross-tab coherent) |
 | `app/api.js` | `fetchJson`, `fetchText`, GitHub history helpers |
-| `app/cloud.js` | All Cloudflare Workers API calls (1 060 lines) |
-| `app/dom.js` | DOM helpers — **always use `escHtml()` for user-visible strings** |
+| `app/cloud.js` | All Cloudflare Workers API calls |
+| `app/dom.js` | DOM helpers — **always use `esc()` for user-visible strings in innerHTML** |
 | `app/sku.js` | SKU parsing, hashing, synthetic SKU detection |
-| `app/storeColors.js` | Store → CSS color mapping; add new stores here |
+| `app/storeColors.js` | Store → CSS color mapping (delegates to `stores.js` for color data) |
 | `app/smws.js` | Parse SMWS codes like `1.234` |
-| `app/fav_star.js` | Reusable favorite-toggle component — import into any page with item lists |
+| `app/fav_star.js` | Reusable favorite-toggle component |
 
-## SKU Canonical Mapping (`app/linker/`)
+## SKU Canonical Mapping (`app/linker_page/`)
 
-Items from different stores representing the same product are grouped under one canonical SKU using union-find (disjoint-set). The `#/link` page is the curation UI.
+Items from different stores representing the same product are grouped under one canonical SKU using union-find (disjoint-set). The `#/link` page is the curation UI. Submodules:
 
-Similarity scoring pipeline:
-1. `linker/similarity.js` — token overlap, age extraction, SMWS code detection
-2. `linker/price.js` — penalize large price differences
-3. `linker/size.js` — penalize different bottle sizes
-4. `linker/store_cache.js` — group by store for deduplication
-5. `linker/canonical_pref.js` — prefer certain SKU formats as canonical
-6. `linker/suggestions.js` — rank and return top candidate pairs
+1. `linker_page/similarity.js` — token overlap, age extraction, SMWS code detection
+2. `linker_page/price.js` — penalize large price differences
+3. `linker_page/size.js` — penalize different bottle sizes
+4. `linker_page/store_cache.js` — group by store for deduplication
+5. `linker_page/canonical_pref.js` — prefer certain SKU formats as canonical
+6. `linker_page/suggestions.js` — rank and return top candidate pairs
 
 ## Patterns & Conventions
 
-- **New page**: add a `#/route` entry in `app/main.js`, create `app/new_page.js` with a default-export render function
-- **New store**: add its color to `app/storeColors.js`
-- **Escaping**: use `escHtml()` from `dom.js` for any text inserted into innerHTML
+- **Escaping**: always use `esc()` from `dom.js` for any user-visible string inserted into innerHTML — never skip this
+- **Store data**: always import from `app/stores.js`; never hardcode store names, colors, or regions inline
+- **Price display**: always use `<span class="mono price">` wrapping `esc(price)`
+- **New page**: add a `#/route` entry in `app/main.js`, create `app/new_page.js`
+- **New store**: add to `app/stores.js` (id, label, region, color, logo, url, aliases)
 - **Caching**: use `state.js` helpers rather than calling `localStorage` directly
-- **Charts**: all Chart.js usage is in `item_page.js` and `stats_page.js` — follow existing patterns for consistent theming
+- **Charts**: chart creation is in `item_page/item_chart.js` and `stats_page/stats_chart.js` — follow existing patterns
+- **Mobile-first CSS**: base styles target mobile; use `@media (min-width: 641px)` for desktop enhancements only. Never use `@media (max-width: 640px)` for primary layout.
+- **Per-page CSS**: page-specific rules live in `app/<page>/page.css`, loaded statically via `index.html`; never inject CSS via JS
+
+## CSS Variables
+
+```css
+--bg: #0b0d10       /* page background */
+--panel: #12161b    /* card background */
+--text: #e7edf3     /* primary text */
+--muted: #9aa6b2    /* secondary text */
+--border: #242c35   /* borders/dividers */
+--accent: #7dd3fc   /* links, interactive elements */
+```

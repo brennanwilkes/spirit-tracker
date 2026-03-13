@@ -40,140 +40,7 @@ function spinnerHtml(label = "Working…") {
   `;
 }
 
-function ensureCssOnce() {
-	if (document.getElementById("stAuthCss")) return;
-	const css = document.createElement("style");
-	css.id = "stAuthCss";
-	css.textContent = `
-	@keyframes stSpin { to { transform: rotate(360deg); } }
-	
-	/* Scope font fixes + size ONLY to auth/oAuth screens */
-	.authWrap{
-	  min-height: 100vh;
-	  display:flex;
-	  align-items:flex-start;
-	  justify-content:center;
-	  padding: 18px;
-	  padding-top: 26px;
-	
-	  /* font + size fix (prod serif) */
-	  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-	  font-size: 15px;
-	}
-	
-	/* Ensure form controls/buttons inherit the scoped font */
-	.authWrap button,
-	.authWrap input,
-	.authWrap select,
-	.authWrap textarea{
-	  font: inherit;
-	}
-	
-	.authCard{
-	  width: 100%;
-	  max-width: 520px;
-	  padding: 18px;
-	  border-radius: 14px;
-	}
-	
-	.brandMark{
-	  width: 44px;
-	  height: 44px;
-	  border-radius: 14px;
-	  border: 1px solid rgba(125, 211, 252, 0.35);
-	  background:
-		radial-gradient(60% 60% at 30% 30%, rgba(125,211,252,0.22), rgba(0,0,0,0)),
-		linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00));
-	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.10) inset;
-	}
-	
-	.authTitle{
-	  font-size: 18px;
-	  font-weight: 800;
-	  margin: 0;
-	}
-	
-	.authSub{
-	  margin-top: 6px;
-	  color: var(--muted);
-	  font-size: 12px;
-	}
-	
-	.primaryBtn{
-	  width: 100%;
-	  padding: 14px 12px;
-	  border-radius: 12px;
-	  font-weight: 800;
-	  letter-spacing: 0.2px;
-	  border-color: rgba(125, 211, 252, 0.28);
-	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.10) inset;
-	}
-	
-	.secondaryBtn{
-	  width: 100%;
-	  padding: 14px 12px;
-	  border-radius: 12px;
-	  font-weight: 800;
-	  letter-spacing: 0.2px;
-	}
-	
-	.oauthBtn{
-	  width: 100%;
-	  display:flex;
-	  align-items:center;
-	  justify-content:center;
-	  gap:10px;
-	  padding: 12px 12px;
-	  border-radius: 12px;
-	  font-weight: 700;
-	  letter-spacing: 0.2px;
-	}
-	
-	.oauthIcon{
-	  width: 18px;
-	  height: 18px;
-	  display:inline-flex;
-	  align-items:center;
-	  justify-content:center;
-	  border-radius: 6px;
-	  border: 1px solid var(--border);
-	  background: rgba(255,255,255,0.03);
-	}
-	
-	.oauthGoogle{
-	  border-color: rgba(125, 211, 252, 0.35);
-	  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.12) inset;
-	}
-	.oauthGoogle:hover{ border-color: rgba(125, 211, 252, 0.55); }
-	
-	.oauthGithub{
-	  border-color: rgba(231, 237, 243, 0.22);
-	  box-shadow: 0 0 0 1px rgba(231, 237, 243, 0.08) inset;
-	}
-	.oauthGithub:hover{ border-color: rgba(231, 237, 243, 0.35); }
-	
-	.miniLinkRow{
-	  display:flex;
-	  justify-content: space-between;
-	  align-items:center;
-	  gap: 10px;
-	  margin-top: 10px;
-	}
-
-	.miniLink{
-	  background: none;
-	  border: none;
-	  padding: 0;
-	  color: var(--muted);
-	  text-decoration: underline;
-	  cursor: pointer;
-	  font-size: 12px;
-	}
-	.miniLink:hover{ color: #E7EDF3; }
-	`;
-	
-	document.head.appendChild(css);
-}
+// CSS is in app/auth_page/auth_page.css, loaded via index.html
 
 function goAfterLogin() {
 	const last = "#/";
@@ -181,8 +48,6 @@ function goAfterLogin() {
 }
 
 function renderAuth($app, { mode, flash = {} }) {
-	ensureCssOnce();
-
 	const isLogin = mode === "login";
 	const isSignup = mode === "signup";
 
@@ -350,7 +215,7 @@ function renderAuth($app, { mode, flash = {} }) {
 }
 
 export function renderOauth($app) {
-	ensureCssOnce();
+
 
 	$app.innerHTML = `
     <div class="authWrap">
@@ -386,7 +251,7 @@ export function renderOauth($app) {
 }
 
 export function renderForgot($app) {
-	ensureCssOnce();
+
 
 	$app.innerHTML = `
     <div class="authWrap">
@@ -444,7 +309,7 @@ export function renderForgot($app) {
 }
 
 export function renderReset($app, { token }) {
-	ensureCssOnce();
+
 
 	const t = String(token || "").trim();
 

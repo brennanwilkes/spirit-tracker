@@ -1,0 +1,169 @@
+/* ── Item detail page layout ───────────────────────────────────────────── */
+
+.detailCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.detailThumbBox {
+  width: 84px;
+  height: 84px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0b0d10;
+  flex: 0 0 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.detailTopRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.detailHeaderText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.detailMobileLinks { display: none; }
+
+.detailLeft {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.detailRight {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: max-content max-content;
+  grid-auto-rows: min-content;
+  gap: 8px 10px;
+  align-items: start;
+  justify-items: end;
+}
+
+/* make score span both columns */
+.detailRight .pillInput {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* item page star: NOT pinned */
+.detailRight .favStarBtn {
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  transform: none;
+}
+
+.detailTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.detailTitleRow #title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ── Chart box ─────────────────────────────────────────────────────────── */
+
+.chartBox {
+  width: 100%;
+  height: min(58vh, 720px);
+  min-height: 260px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0f1318;
+  padding: 8px;
+}
+
+.chartBox canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Mobile: show links row, rework header grid ─────────────────────────── */
+
+#links, #status { display: none; }
+
+.detailMobileLinks {
+  display: block;
+  margin-top: 8px;
+}
+
+.detailMobileLinks .links { margin-bottom: 8px; }
+
+@media (min-width: 641px) {
+  /* Restore the desktop column with links + status */
+  #links, #status { display: block; }
+  .detailMobileLinks { display: none; }
+
+  .detailThumbBox {
+    width: 96px;
+    height: 96px;
+    flex: 0 0 96px;
+  }
+
+  .chartBox {
+    height: min(72vh, 720px);
+    min-height: 320px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Item page: put thumb + controls on first row, title on its own full-width line */
+  .detailHeader {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    grid-template-areas:
+      "thumb controls"
+      "title title";
+    gap: 10px 12px;
+    align-items: start;
+  }
+
+  /* Flatten wrappers so #title can be positioned by the grid */
+  .detailHeaderText,
+  .detailTopRow,
+  .detailLeft,
+  .detailTitleRow {
+    display: contents;
+  }
+
+  #thumbBox { grid-area: thumb; }
+
+  .detailRight {
+    grid-area: controls;
+    justify-self: end;
+  }
+
+  #title {
+    grid-area: title;
+    margin-top: 2px;
+  }
+}

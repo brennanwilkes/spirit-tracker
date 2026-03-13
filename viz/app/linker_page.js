@@ -19,14 +19,13 @@ import {
 	clearPendingEdits,
 } from "./pending.js";
 
-// ✅ NEW imports (refactor)
-import { buildUrlBySkuStore } from "./linker/url_map.js";
-import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker/store_cache.js";
-import { buildSizePenaltyForPair } from "./linker/size.js";
-import { pickPreferredCanonical } from "./linker/canonical_pref.js";
-import { smwsKeyFromName, similarityScore } from "./linker/similarity.js"; // ✅ CHANGED: import similarityScore too
-import { buildPricePenaltyForPair } from "./linker/price.js";
-import { topSuggestions, recommendSimilar, computeInitialPairsFast } from "./linker/suggestions.js";
+import { buildUrlBySkuStore } from "./linker_page/url_map.js";
+import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker_page/store_cache.js";
+import { buildSizePenaltyForPair } from "./linker_page/size.js";
+import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
+import { smwsKeyFromName, similarityScore } from "./linker_page/similarity.js";
+import { buildPricePenaltyForPair } from "./linker_page/price.js";
+import { topSuggestions, recommendSimilar, computeInitialPairsFast } from "./linker_page/suggestions.js";
 
 /* ---------------- Page ---------------- */
 
