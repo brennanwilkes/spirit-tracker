@@ -770,7 +770,7 @@ export function renderSearch($app) {
                 </div>
                 <div class="itemBody">
                   <div class="itemLine1">${storeHtml}<span class="price">${esc(priceLine)}</span></div>
-                  <div class="metaRow"><span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>${saleBadge}${stockBadge}${specialBadge}${dateBadge}</div>
+                  <div class="metaRow"><span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>${saleBadge}${stockBadge}${specialBadge}</div>
                 </div>
               </div>
             </div>
