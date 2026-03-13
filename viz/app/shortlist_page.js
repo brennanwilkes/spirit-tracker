@@ -733,16 +733,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const storeLabel = String(it._viewStoreLabel || it._bestStoreLabel || "").trim();
 		const href = String(it._viewUrl || it._bestUrl || "").trim() || String(it.sampleUrl || "").trim();
 
-		const storeBadge =
-			storeLabel && !it._outOfStock
-				? href
-					? `<a class="badge" href="${esc(
-							href,
-						)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-							storeLabel,
-						)}${esc(plus)}</a>`
-					: `<span class="badge">${esc(storeLabel)}${esc(plus)}</span>`
-				: "";
+		const storeHtml = storeLabel && !it._outOfStock
+			? href
+				? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}${esc(plus)}</a>`
+				: `<div class="itemStore">${esc(storeLabel)}${esc(plus)}</div>`
+			: "";
 
 		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 		const skuDisp = displaySku(it.sku);
@@ -797,46 +792,28 @@ export async function renderShortlist($app, accountUuidRaw) {
 					${wDock}
 					${favStarHtml(it.sku, favSet.has(it.sku))}
 				</div>
+				<div class="itemTitle">
+					<div class="itemName">${esc(it.name || "(no name)")}</div>
+					${sampledPill}
+					${scorePill}
+					<a class="badge mono skuLink"
+						style="flex:0 0 9ch; width:9ch; min-width:9ch; max-width:9ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+						title="${esc(skuDisp)}"
+						href="${esc(skuLink)}"
+						target="_blank"
+						rel="noopener noreferrer"
+						onclick="event.stopPropagation()"
+					>${esc(skuDisp)}</a>
+				</div>
 				<div class="itemRow">
 					<div class="thumbBox">${renderThumbHtml(it.img)}</div>
-                        <div class="itemBody" style="min-width:0;">
-                            <div class="itemTop" style="display:flex; align-items:center; gap:8px; min-width:0;">
-                                <div class="itemName" style="flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                    ${esc(it.name || "(no name)")}
-                                </div>
-
-                            ${sampledPill}
-                            ${scorePill}
-
-                            <a
-                                class="badge mono skuLink"
-                                style="
-                                    flex: 0 0 9ch;
-                                    width: 9ch;
-                                    min-width: 9ch;
-                                    max-width: 9ch;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                    white-space: nowrap;
-                                    display: inline-block;
-                                    margin-right: 18px;
-                                "
-                                title="${esc(skuDisp)}"
-                                href="${esc(skuLink)}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onclick="event.stopPropagation()"
-                                >
-                                ${esc(skuDisp)}
-                                </a>
-
-                        </div>
+					<div class="itemBody">
+						${storeHtml}
 						<div class="metaRow">
 							${stockBadge}
-							${price ? `<span class="mono price">${esc(price)}</span>` : ""}
+							${price ? `<span class="price">${esc(price)}</span>` : ""}
 							${saleBadge}
 							${specialBadge}
-							${storeBadge}
 						</div>
 					</div>
 				</div>

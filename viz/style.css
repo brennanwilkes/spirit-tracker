@@ -49,7 +49,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 
 .price {
-  font-weight: 700;
+  font-weight: 800;
+  font-family: inherit;
   color: var(--text);
 }
 
@@ -59,6 +60,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .container {
   padding: 14px;
 }
+
+.muted { color: var(--muted); }
 
 .header {
   display: flex;
@@ -94,7 +97,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .card {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 14px;
 }
 
@@ -110,24 +113,37 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 /* --- Item card --- */
 .item {
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  overflow: hidden;
   background: #0f1318;
   cursor: pointer;
 }
 .item:hover { border-color: #2f3a46; }
+.item:hover .itemTitle { border-bottom-color: #2f3a46; }
 
+/* Title zone: full-width name row with border-bottom separator */
+.itemTitle {
+  padding: 11px 12px 9px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Content zone: thumbnail + body */
 .itemRow {
   display: flex;
   gap: 12px;
   align-items: center;
-  min-height: 68px;
+  padding: 10px 12px;
 }
 
 .thumbBox {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--border);
   background: #0b0d10;
@@ -158,50 +174,64 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   justify-content: center;
 }
 
-.itemTop {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: baseline;
-}
 
 .itemName {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 14px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1 1 auto;
 }
 
+/* Store label: plain text, bold, muted — sits above the meta row */
+.itemStore {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+a.itemStore {
+  color: var(--muted);
+  text-decoration: none;
+}
+a.itemStore:hover { color: var(--text); text-decoration: underline; }
+
 .metaRow {
-  margin-top: 8px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: nowrap;
   align-items: center;
   overflow: hidden;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* --- Badges --- */
 .badge {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--muted);
   border: 1px solid var(--border);
-  padding: 3px 10px;
+  padding: 4px 8px;
   border-radius: 999px;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  letter-spacing: 0.01em;
 }
 
 .badgeGood {
   color: rgba(20,110,40,0.95);
   background: rgba(20,110,40,0.10);
   border-color: rgba(20,110,40,0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .badgeNeutral {
@@ -213,24 +243,32 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   color: rgba(160,40,40,0.95);
   background: rgba(160,40,40,0.12);
   border-color: rgba(160,40,40,0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .badgeBest {
   color: rgba(210, 170, 60, 0.95);
   background: rgba(210, 170, 60, 0.12);
   border-color: rgba(210, 170, 60, 0.26);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .badgeExclusive {
   color: rgba(20, 140, 140, 0.95);
   background: rgba(20, 140, 140, 0.12);
   border-color: rgba(20, 140, 140, 0.28);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .badgeLastStock {
   color: rgba(200, 120, 20, 0.95);
   background: rgba(200, 120, 20, 0.12);
   border-color: rgba(200, 120, 20, 0.28);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .badgeBtn {
@@ -259,7 +297,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   border: 1px solid var(--border);
   background: #0f1318;
   color: var(--text);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 10px 10px;
   cursor: pointer;
 }
@@ -293,7 +331,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 .input {
   width: 100%;
   padding: 12px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: #0f1318;
   color: var(--text);
@@ -525,7 +563,6 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 
 /* --- Favourite star --- */
 .itemHasStar { position: relative; }
-.itemHasStar .itemTop { position: relative; }
 .itemHasStar .skuLink { position: static; right: auto; top: auto; }
 .itemHasStar .itemName { padding-right: 0; }
 
@@ -583,7 +620,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   background: var(--panel) !important;
   color: var(--text) !important;
   border: 1px solid var(--border) !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
 }
 .stSwalTitle { color: var(--text) !important; }
 .stSwalHtml { color: var(--muted) !important; }
@@ -624,8 +661,6 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
     height: 64px;
     flex: 0 0 64px;
   }
-
-  .item { min-height: 92px; }
 
   .storeBreak { display: none; }
 

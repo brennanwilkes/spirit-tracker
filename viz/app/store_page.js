@@ -604,20 +604,20 @@ export async function renderStore($app, storeLabelRaw) {
 		return `
 		<div class="item itemHasStar" data-sku="${esc(it.sku)}">
 		${favStarHtml(it.sku, favSet.has(it.sku))}
-			<div class="itemRow">
+		<div class="itemTitle">
+          <div class="itemName">${esc(it.name || "(no name)")}</div>
+          <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
+             href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+        </div>
+		<div class="itemRow">
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
-            <div class="itemTop">
-              <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <a style="margin-right: 18px;" class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
-                 href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
-            </div>
             <div class="metaRow">
               ${specialBadge}
               ${bestBadge}
               ${diffBadge}
               ${exAnnot}
-              <span class="mono price">${esc(price)}</span>
+              <span class="price">${esc(price)}</span>
               ${
 					href
 						? `<a class="badge" href="${esc(

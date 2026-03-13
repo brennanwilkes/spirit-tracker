@@ -129,7 +129,7 @@ Items from different stores representing the same product are grouped under one 
 
 - **Escaping**: always use `esc()` from `dom.js` for any user-visible string inserted into innerHTML — never skip this
 - **Store data**: always import from `app/stores.js`; never hardcode store names, colors, or regions inline
-- **Price display**: always use `<span class="mono price">` wrapping `esc(price)`
+- **Price display**: always use `<span class="price">` wrapping `esc(price)` (no `mono` class — price is bold sans-serif)
 - **New page**: add a `#/route` entry in `app/main.js`, create `app/new_page.js`
 - **New store**: add to `app/stores.js` (id, label, region, color, logo, url, aliases)
 - **Caching**: use `state.js` helpers rather than calling `localStorage` directly

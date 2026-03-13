@@ -73,5 +73,5 @@ export function prettyPrice(num) {
  * Always uses esc() — safe to insert into innerHTML.
  */
 export function priceHtml(str) {
-	return `<span class="mono price">${esc(String(str ?? ""))}</span>`;
+	return `<span class="price">${esc(String(str ?? ""))}</span>`;
 }
