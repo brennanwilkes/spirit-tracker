@@ -427,6 +427,16 @@ export async function renderStore($app, storeLabelRaw) {
 		};
 	});
 
+	// Precompute store hrefs once so renderCard doesn't scan liveAll per card
+	const hrefBySku = new Map();
+	for (const it of items) {
+		const sku = String(it.sku || "");
+		if (!hrefBySku.has(sku)) {
+			const storeHref = readLinkHrefForSkuInStore(liveAll, sku, storeNorm);
+			hrefBySku.set(sku, storeHref || String(it.sampleUrl || "").trim());
+		}
+	}
+
 	// ---- Max price slider (exponential mapping + clicky rounding) ----
 	const MIN_PRICE = 25;
 
@@ -597,8 +607,7 @@ export async function renderStore($app, storeLabelRaw) {
 		const price = listingPriceStr(it);
 
 		// Link the store badge consistently (respects SKU linking / canonical SKU)
-		const storeHref = readLinkHrefForSkuInStore(liveAll, String(it.sku || ""), storeNorm);
-		const href = storeHref || String(it.sampleUrl || "").trim();
+		const href = hrefBySku.get(String(it.sku || "")) || "";
 
 		const specialBadge = it._lastStock
 			? `<span class="badge badgeLastStock">Last Stock</span>`
@@ -627,7 +636,7 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
             <div class="itemLine1">
-              ${href ? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabelShort)}</a>` : `<span class="itemStore">${esc(storeLabelShort)}</span>`}
+              ${href ? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">View</a>` : ""}
               <span class="price">${esc(price)}</span>
             </div>
             <div class="metaRow">${specialBadge}${bestBadge}${diffBadge}${exAnnot}</div>

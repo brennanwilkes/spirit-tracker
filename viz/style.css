@@ -641,7 +641,8 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 /* --- Links list --- */
 .links {
   display: flex;
-  gap: 6px;
+  column-gap: 6px;
+  row-gap: 8px;
   flex-wrap: wrap;
   margin: 8px 0 14px;
   min-width: 0;
@@ -716,7 +717,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   .headerRight.headerButtons .btnIcon { flex: 0 0 40px; }
   .headerRight.headerButtons .btnWide { flex: 0 0 auto; }
 
-  /* Desktop item body: single row — store, price, then badges pushed right */
+  /* Desktop item body: single row — store | badges | → price */
   .itemBody {
     flex-direction: row;
     align-items: center;
@@ -726,12 +727,10 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   .itemLine1 {
     display: contents;
   }
-  .itemLine1 .price {
-    margin-left: 0;
-  }
-  .metaRow {
-    margin-left: auto;
-  }
+  /* Reorder: store (0) → badges (1) → price (2, right-aligned) */
+  .itemStore { order: 0; }
+  .metaRow { order: 1; margin-left: 0; }
+  .itemLine1 .price { order: 2; margin-left: auto; }
 }
 
 /* ── 9. Mobile overrides (shared across all pages) ──────────────────────── */
