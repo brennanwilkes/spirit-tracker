@@ -137,6 +137,62 @@ Items from different stores representing the same product are grouped under one 
 - **Mobile-first CSS**: base styles target mobile; use `@media (min-width: 641px)` for desktop enhancements only. Never use `@media (max-width: 640px)` for primary layout.
 - **Per-page CSS**: page-specific rules live in `app/<page>/page.css`, loaded statically via `index.html`; never inject CSS via JS
 
+## Item Card Layout
+
+Two-zone card structure used on all list pages:
+```html
+<div class="item [itemHasStar]" data-sku="…">
+  <div class="itemTitle">          <!-- full-width: name + SKU badge + fav star -->
+    <div class="itemName">…</div>
+    <a class="badge mono skuLink">…</a>
+    <!-- favStarBtn as last child (visible on mobile + desktop) -->
+  </div>
+  <div class="itemRow">            <!-- thumb + body -->
+    <div class="thumbBox">…</div>
+    <div class="itemBody">         <!-- flex column: two lines -->
+      <div class="itemLine1">      <!-- store label + price -->
+        <span/a class="itemStore">…</span>
+        <span class="price">…</span>
+      </div>
+      <div class="metaRow">        <!-- badges only; hidden when empty -->
+        <!-- badge spans -->
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+- `.itemStore` is `<a>` when a product URL is available, `<span>` otherwise
+- Store label includes `+N` suffix when item is at N other stores (e.g. `"BCL +2"`)
+- `.metaRow:empty { display: none }` — omit metaRow content rather than leaving it blank
+- On the store page, store label links to the product URL on that store's website; users navigate to item detail first, then follow store links from there
+
+## Badge Classes
+
+| Class | Color | Meaning |
+|-------|-------|---------|
+| `.badgeGood` | green | On sale / price dropped |
+| `.badgeBad` | red | Out of stock / price up |
+| `.badgeAccent` | blue | New to market / back in stock |
+| `.badgeBest` | gold | Best price across all stores |
+| `.badgeExclusive` | teal | Only available at one store |
+| `.badgeLastStock` | orange | Last remaining stock |
+| `.badgeNeutral` | muted | Informational |
+
+## Search Page — Recent Results (`renderRecent`)
+
+The initial prefill on `#/` shows **market-wide changes only** from the last 3 days. An event is only surfaced if it represents a change visible to the whole market:
+
+| Event kind | Filter condition | Badge shown |
+|------------|-----------------|-------------|
+| `new` | `agg.stores.size <= 1` (first store ever) | JUST LANDED (`badgeAccent`) |
+| `restored` | `stock.storeCount <= 1` (back after being gone everywhere) | BACK IN STOCK (`badgeAccent`) |
+| `removed` | `stock.outOfStock === true` (gone from all stores) | OUT OF STOCK (`badgeBad`) |
+| `price_down` | `newPrice <= globalCheapest + $0.01` (moves the global cheapest) | ON SALE (`badgeGood`) |
+| `price_up` / `price_change` | always filtered out | — |
+
+Price shown is always `agg.cheapestPriceStr` (global cheapest across all stores), not the event store's specific price.
+
 ## CSS Variables
 
 ```css
