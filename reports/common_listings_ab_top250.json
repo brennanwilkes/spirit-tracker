@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-12T21:56:48.364Z",
+  "generatedAt": "2026-03-13T01:11:33.347Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8045,
-    "removedRows": 888,
-    "canonSkus": 4542,
+    "liveRows": 8048,
+    "removedRows": 885,
+    "canonSkus": 4543,
     "outputCount": 250
   },
   "rows": [
@@ -1148,6 +1148,49 @@
         "priceNum": 165,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml"
+      }
+    },
+    {
+      "canonSku": "569137",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 107,
+        "coop": 114.99,
+        "craftcellars": 108.99,
+        "kegncork": 101.96,
+        "kwm": 102.99,
+        "sierrasprings": 88.99,
+        "willowpark": 110.99
+      },
+      "representative": {
+        "name": "OBAN LITTLE BAY",
+        "price": "$88.99",
+        "priceNum": 88.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "770050",
+        "skuKey": "770050",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/oban-little-bay-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$88.99",
+        "priceNum": 88.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/oban-little-bay-43-abv/"
       }
     },
     {
@@ -3425,48 +3468,6 @@
         "priceNum": 79.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
-      }
-    },
-    {
-      "canonSku": "569137",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 107,
-        "coop": 114.99,
-        "craftcellars": 108.99,
-        "kegncork": 101.96,
-        "kwm": 102.99,
-        "willowpark": 110.99
-      },
-      "representative": {
-        "name": "Oban Little Bay",
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "770050",
-        "skuKey": "770050",
-        "url": "https://kensingtonwinemarket.com/product/770050/oban-little-bay",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$101.96",
-        "priceNum": 101.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/oban-little-bay-750-ml/"
       }
     },
     {
