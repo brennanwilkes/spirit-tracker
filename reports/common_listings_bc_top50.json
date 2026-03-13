@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-13T01:11:32.803Z",
+  "generatedAt": "2026-03-13T07:15:52.896Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3749,
-    "removedRows": 263,
+    "liveRows": 3750,
+    "removedRows": 264,
     "canonSkus": 1915,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 36.99,
+        "gull": 37.99,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 36.99,
+        "vessel": 41.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "JAMESON - IRISH",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://www.bcliquorstores.com/product/10157",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/10157"
+      }
+    },
     {
       "canonSku": "116752",
       "storeCount": 8,
@@ -420,92 +463,6 @@
       }
     },
     {
-      "canonSku": "001610",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.69,
-        "bcl": 30.99,
-        "gull": 33,
-        "legacyliquor": 32.54,
-        "strath": 31.31,
-        "tudor": 30.99,
-        "vessel": 31.99
-      },
-      "representative": {
-        "name": "BALLANTINE'S - FINEST",
-        "price": "$30.99",
-        "priceNum": 30.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://www.bcliquorstores.com/product/1610",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$30.99",
-        "priceNum": 30.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 36.99,
-        "gull": 37.99,
-        "strath": 39.57,
-        "tudor": 36.99,
-        "vessel": 41.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://www.bcliquorstores.com/product/10157",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/10157"
-      }
-    },
-    {
       "canonSku": "057706",
       "storeCount": 7,
       "stores": [
@@ -847,6 +804,49 @@
         "priceNum": 85.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bcl": 169.99,
+        "gull": 169.99,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "LAGAVULIN 16YO",
+        "price": "$158.99",
+        "priceNum": 158.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$158.99",
+        "priceNum": 158.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -1318,6 +1318,48 @@
         "priceNum": 34.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1412"
+      }
+    },
+    {
+      "canonSku": "001610",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.69,
+        "bcl": 30.99,
+        "legacyliquor": 32.54,
+        "strath": 31.31,
+        "tudor": 30.99,
+        "vessel": 31.99
+      },
+      "representative": {
+        "name": "BALLANTINE'S - FINEST",
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://www.bcliquorstores.com/product/1610",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1610"
       }
     },
     {
@@ -1990,48 +2032,6 @@
         "priceNum": 72.79,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4672925-shelter-point-7yo-single-malt"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 6,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "vessel"
-      ],
-      "storePrices": {
-        "bcl": 169.99,
-        "gull": 169.99,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "Lagavulin - 16 Years Old",
-        "price": "$165.13",
-        "priceNum": 165.13,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://www.strathliquor.com/product/lagavulin-16-years-old/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$165.13",
-        "priceNum": 165.13,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/lagavulin-16-years-old/"
       }
     },
     {
