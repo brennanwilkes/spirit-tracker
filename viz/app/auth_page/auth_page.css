@@ -119,3 +119,10 @@
   font-size: 12px;
 }
 .miniLink:hover { color: #E7EDF3; }
+
+@media (prefers-color-scheme: light) {
+  .oauthIcon { background: rgba(0,0,0,0.03); }
+  .oauthGithub { border-color: rgba(0,0,0,0.18); box-shadow: none; }
+  .oauthGithub:hover { border-color: rgba(0,0,0,0.30); }
+  .miniLink:hover { color: #0f172a; }
+}

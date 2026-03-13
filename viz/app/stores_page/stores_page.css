@@ -89,3 +89,10 @@
   pointer-events: none;
   user-select: none;
 }
+
+@media (prefers-color-scheme: light) {
+  .storesPage .row { background: #ffffff; }
+  .storesPage .row:hover { border-color: #a8bece; }
+  .storesPage .logoPlaceholder { background: rgba(0,0,0,0.02); }
+  .storesPage .openPill { background: rgba(0,0,0,0.02); }
+}

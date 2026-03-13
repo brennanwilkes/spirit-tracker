@@ -134,6 +134,11 @@
   }
 }
 
+@media (prefers-color-scheme: light) {
+  .detailThumbBox { background: #f3f6fa; }
+  .chartBox { background: #ffffff; }
+}
+
 @media (max-width: 640px) {
   /* Item page: put thumb + controls on first row, title on its own full-width line */
   .detailHeader {

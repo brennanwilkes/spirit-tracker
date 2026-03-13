@@ -719,7 +719,73 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 
 }
 
-/* ── 9. Mobile overrides (shared across all pages) ──────────────────────── */
+/* ── 9. Light mode (prefers-color-scheme: light) ───────────────────────── */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f6f9;
+    --panel: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #d6dde6;
+    --accent: #1565c0;
+  }
+
+  /* Item card */
+  .item { background: #ffffff; }
+  .item:hover { border-color: #a8bece; }
+  .item:hover .itemTitle { border-bottom-color: #a8bece; }
+
+  /* Thumbnails */
+  .thumbBox,
+  .thumbPlaceholder { background: #f3f6fa; }
+
+  /* Badges */
+  .badgeNeutral { background: rgba(0,0,0,0.02); }
+  button.badge.badgeBtn { background: #ffffff; }
+  button.badge.badgeBtn:hover { border-color: #a8bece; }
+  .badgeClick:hover { border-color: #a8bece; background: rgba(0,0,0,0.03); }
+
+  /* Buttons */
+  .btn { background: #ffffff; }
+  .btn:hover { border-color: #a8bece; }
+
+  /* Forms */
+  .input { background: #ffffff; }
+  .input:focus { border-color: #3d7fa8; }
+
+  /* Select */
+  .selectSmall {
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+  .selectSmall:hover { border-color: #a8bece; }
+  .selectSmall:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
+
+  /* Store bar */
+  .storeBtn { background: #ffffff; }
+  .storeBtn:hover { border-color: #a8bece; }
+  .storeBtnActive { border-color: #3d7fa8; outline-color: #3d7fa8; }
+
+  /* Pills */
+  .pillBtn { background: #ffffff; }
+  .pillBtn:hover { border-color: #a8bece; background: rgba(0,0,0,0.03); }
+  .pillInput { background: #ffffff; }
+  .pillInput:hover { border-color: #a8bece; }
+  .pillInput:focus-within { border-color: #3d7fa8; outline-color: #3d7fa8; }
+
+  /* Fav star */
+  .favStarBtn:hover { border-color: #a8bece; background: rgba(0,0,0,0.03); }
+
+  /* Links list */
+  .links a:hover { border-color: #a8bece; }
+
+  /* SweetAlert2 */
+  .stSwalConfirm { background: #ffffff !important; }
+  .stSwalConfirm:focus { box-shadow: 0 0 0 2px #3d7fa8 !important; }
+}
+
+/* ── 10. Mobile overrides (shared across all pages) ─────────────────────── */
 
 @media (max-width: 640px) {
 
