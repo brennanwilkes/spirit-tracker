@@ -652,6 +652,10 @@ export function renderSearch($app) {
 		let picked = Array.from(bySku.values());
 
 		picked = picked.filter((x) => passesAvailability(String(x.sku || "")));
+		picked = picked.filter((x) => {
+			const k = normalizeKindForPrice(x.r);
+			return k !== "price_up" && k !== "price_change";
+		});
 
 		const mode = sortMode();
 
@@ -703,28 +707,31 @@ export function renderSearch($app) {
 
 					const kindLabel =
 						kind === "new"
-							? "NEW"
+							? "JUST LANDED"
 							: kind === "restored"
-								? "RESTORED"
+								? "BACK IN STOCK"
 								: kind === "removed"
-									? "REMOVED"
+									? "OUT OF STOCK"
 									: kind === "price_down"
-										? "PRICE ↓"
-										: kind === "price_up"
-											? "PRICE ↑"
-											: kind === "price_change"
-												? "PRICE"
-												: "CHANGE";
+										? "ON SALE"
+										: "CHANGE";
 
-					const priceLine =
-						kind === "new" || kind === "restored" || kind === "removed"
-							? `${esc(r.price || "")}`
-							: `${esc(r.oldPrice || "")} → ${esc(r.newPrice || "")}`;
+					const kindBadgeClass =
+						kind === "new" || kind === "restored"
+							? "badgeAccent"
+							: kind === "removed"
+								? "badgeBad"
+								: kind === "price_down"
+									? "badgeGood"
+									: "";
 
 					const when = r.ts ? prettyTs(r.ts) : r.date || "";
 
 					const agg = aggBySku.get(sku) || null;
 					const img = agg?.img || "";
+
+					// Always show the global cheapest price for this SKU
+					const priceLine = agg?.cheapestPriceStr || r.newPrice || r.price || "";
 
 					const stock = stockMetaForSku(sku);
 					const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
@@ -750,11 +757,6 @@ export function renderSearch($app) {
 
 					const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
-					const kindBadgeStyle =
-						kind === "new" && (agg?.stores?.size || 0) <= 1
-							? ` style="color:rgba(20,110,40,0.95); background:rgba(20,110,40,0.10); border:1px solid rgba(20,110,40,0.20);"`
-							: "";
-
 					const skuLink = `#/link/?left=${encodeURIComponent(String(sku || ""))}`;
 
 					return `
@@ -770,7 +772,7 @@ export function renderSearch($app) {
                 </div>
                 <div class="itemBody">
                   <div class="itemLine1">${storeHtml}<span class="price">${esc(priceLine)}</span></div>
-                  <div class="metaRow"><span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>${saleBadge}${stockBadge}${specialBadge}</div>
+                  <div class="metaRow"><span class="badge ${kindBadgeClass}">${esc(kindLabel)}</span>${saleBadge}${stockBadge}${specialBadge}</div>
                 </div>
               </div>
             </div>

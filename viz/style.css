@@ -280,6 +280,14 @@ a.itemStore:hover { color: var(--text); text-decoration: underline; }
   letter-spacing: 0.04em;
 }
 
+.badgeAccent {
+  color: rgba(80, 160, 220, 0.95);
+  background: rgba(80, 160, 220, 0.10);
+  border-color: rgba(80, 160, 220, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .badgeBest {
   color: rgba(210, 170, 60, 0.95);
   background: rgba(210, 170, 60, 0.12);
@@ -707,6 +715,23 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   .headerRight.headerButtons { width: auto; }
   .headerRight.headerButtons .btnIcon { flex: 0 0 40px; }
   .headerRight.headerButtons .btnWide { flex: 0 0 auto; }
+
+  /* Desktop item body: single row — store, price, then badges pushed right */
+  .itemBody {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .itemLine1 {
+    display: contents;
+  }
+  .itemLine1 .price {
+    margin-left: 0;
+  }
+  .metaRow {
+    margin-left: auto;
+  }
 }
 
 /* ── 9. Mobile overrides (shared across all pages) ──────────────────────── */
