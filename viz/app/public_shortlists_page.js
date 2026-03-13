@@ -1,61 +1,7 @@
 // viz/app/public_shortlists_page.js
+// CSS is in app/public_shortlists_page/public_shortlists_page.css, loaded via index.html
 import { esc } from "./dom.js";
 import { getShortlists } from "./cloud.js";
-
-function ensureCssOnce() {
-	if (document.getElementById("stShortlistsCss")) return;
-	const css = document.createElement("style");
-	css.id = "stShortlistsCss";
-	css.textContent = `
-	.shortlistsPage .row{
-	  display:flex;
-	  align-items:center;
-	  justify-content:space-between;
-	  gap:12px;
-	  padding:12px;
-	  border:1px solid var(--border);
-	  border-radius:12px;
-	  background:#0f1318;
-	  cursor:pointer;
-	}
-    .shortlistsPage .list{
-        margin-top: 0;
-      }
-    
-      .shortlistsPage .row{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:12px;
-        padding:12px;
-        border:1px solid var(--border);
-        border-radius:12px;
-        background:#0f1318;
-        cursor:pointer;
-      }
-	.shortlistsPage .row:hover{ border-color:#2f3a46; }
-	.shortlistsPage .name{
-	  font-weight:800;
-	  font-size:14px;
-	  min-width:0;
-	  white-space:nowrap;
-	  overflow:hidden;
-	  text-overflow:ellipsis;
-	}
-	.shortlistsPage .openPill{
-	  flex:0 0 auto;
-	  border:1px solid var(--border);
-	  background: rgba(255,255,255,0.02);
-	  color: var(--text);
-	  border-radius: 999px;
-	  padding: 6px 10px;
-	  font-size: 12px;
-	  pointer-events: none; /* <-- key: row handles click */
-	  user-select: none;
-	}
-	`;
-	document.head.appendChild(css);
-}
 
 function goTo(uuid) {
 	sessionStorage.setItem("viz:lastRoute", location.hash);
@@ -63,8 +9,6 @@ function goTo(uuid) {
 }
 
 export async function renderPublicShortlists($app) {
-	ensureCssOnce();
-
 	$app.innerHTML = `
 		<div class="container shortlistsPage">
 			<div class="topbar">

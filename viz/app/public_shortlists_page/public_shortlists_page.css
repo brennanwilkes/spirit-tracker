@@ -1,0 +1,52 @@
+/* ── Public shortlists directory page ───────────────────────────────────── */
+
+.shortlistsPage .list { margin-top: 0; }
+
+.shortlistsPage .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0f1318;
+  cursor: pointer;
+}
+
+.shortlistsPage .row:hover { border-color: #2f3a46; }
+
+.shortlistsPage .name {
+  font-weight: 800;
+  font-size: 14px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shortlistsPage .openPill {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-color-scheme: light) {
+  .shortlistsPage .row { background: #c0ccd8; }
+  .shortlistsPage .row:hover { border-color: #6a8898; }
+  .shortlistsPage .openPill { background: rgba(0,0,0,0.06); }
+}
+
+html[data-theme="light"] .shortlistsPage .row { background: #c0ccd8; }
+html[data-theme="light"] .shortlistsPage .row:hover { border-color: #6a8898; }
+html[data-theme="light"] .shortlistsPage .openPill { background: rgba(0,0,0,0.06); }
+
+html[data-theme="dark"] .shortlistsPage .row { background: #0f1318; }
+html[data-theme="dark"] .shortlistsPage .row:hover { border-color: #2f3a46; }
+html[data-theme="dark"] .shortlistsPage .openPill { background: rgba(255,255,255,0.02); }
