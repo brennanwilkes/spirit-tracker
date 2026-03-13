@@ -336,27 +336,27 @@
 .addRuleBtn { width: 100%; }
 
 @media (prefers-color-scheme: light) {
-  .switch { background: #c3c5c8; }
-  .stRuleCard { background: #cccecf; }
+  .switch { background: var(--lt-control); }
+  .stRuleCard { background: var(--lt-surface); }
   .stSelect {
-    background-color: #c3c5c8;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a525a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-color: var(--lt-control);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   }
-  .stSelect:hover { border-color: #6e737a; }
+  .stSelect:hover { border-color: var(--lt-hover); }
   .stSelect:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
   /* Mobile sticky save bar */
-  .saveArea { background: rgba(199,201,204,0.95); }
+  .saveArea { background: var(--lt-sticky-bg); }
 }
 
-html[data-theme="light"] .switch { background: #c3c5c8; }
-html[data-theme="light"] .stRuleCard { background: #cccecf; }
+html[data-theme="light"] .switch { background: var(--lt-control); }
+html[data-theme="light"] .stRuleCard { background: var(--lt-surface); }
 html[data-theme="light"] .stSelect {
-  background-color: #c3c5c8;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a525a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-color: var(--lt-control);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
-html[data-theme="light"] .stSelect:hover { border-color: #6e737a; }
+html[data-theme="light"] .stSelect:hover { border-color: var(--lt-hover); }
 html[data-theme="light"] .stSelect:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
-html[data-theme="light"] .saveArea { background: rgba(199,201,204,0.95); }
+html[data-theme="light"] .saveArea { background: var(--lt-sticky-bg); }
 
 html[data-theme="dark"] .switch { background: #0f1318; }
 html[data-theme="dark"] .stRuleCard { background: #0f1318; }
