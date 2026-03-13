@@ -347,3 +347,23 @@
   /* Mobile sticky save bar */
   .saveArea { background: rgba(244,246,249,0.92); }
 }
+
+html[data-theme="light"] .switch { background: #ffffff; }
+html[data-theme="light"] .stRuleCard { background: #ffffff; }
+html[data-theme="light"] .stSelect {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+html[data-theme="light"] .stSelect:hover { border-color: #a8bece; }
+html[data-theme="light"] .stSelect:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
+html[data-theme="light"] .saveArea { background: rgba(244,246,249,0.92); }
+
+html[data-theme="dark"] .switch { background: #0f1318; }
+html[data-theme="dark"] .stRuleCard { background: #0f1318; }
+html[data-theme="dark"] .stSelect {
+  background-color: #0f1318;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa6b2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+html[data-theme="dark"] .stSelect:hover { border-color: #2f3a46; }
+html[data-theme="dark"] .stSelect:focus { border-color: #37566b; outline-color: #37566b; }
+html[data-theme="dark"] .saveArea { background: rgba(18,22,27,0.92); }

@@ -22,10 +22,14 @@ import { renderStore } from "./store_page.js";
 import { renderStats, destroyStatsChart } from "./stats_page.js";
 import { renderLogin, renderSignup, renderOauth, renderForgot, renderReset } from "./auth_page.js";
 import { renderShortlist } from "./shortlist_page.js";
-import { getAuthStatus } from "./cloud.js";
+import { getAuthStatus, getMyDetails } from "./cloud.js";
 import { renderSettings } from "./settings_page.js";
 import { renderPublicShortlists } from "./public_shortlists_page.js";
 import { renderStores } from "./stores_page.js";
+import { applyStoredColorScheme, applyColorScheme } from "./theme.js";
+
+// Apply stored theme immediately to prevent FOUC
+applyStoredColorScheme();
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");
@@ -118,3 +122,14 @@ function route() {
 
 window.addEventListener("hashchange", route);
 route();
+
+// Sync color scheme from account in background
+(async () => {
+	const a = getAuthStatus();
+	if (a.ok && a.token) {
+		try {
+			const d = await getMyDetails();
+			if (d && typeof d === "object") applyColorScheme(d.colorScheme ?? null);
+		} catch { /* ignore */ }
+	}
+})();

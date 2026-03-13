@@ -1,6 +1,7 @@
 // viz/app/settings_page.js
 import { esc } from "./dom.js";
 import { AuthError, getAuthStatus, getMyDetails, putDetails } from "./cloud.js";
+import { applyColorScheme } from "./theme.js";
 
 function isAuthErr(e) {
 	return e && (e.name === "AuthError" || e instanceof AuthError);
@@ -85,6 +86,24 @@ export async function renderSettings($app) {
 					<hr class="hrClean" />
 
 					<div>
+						<div class="settingsSectionTitle">Appearance</div>
+						<div class="switchWrap">
+							<div class="fieldTitle">Color theme</div>
+							<label id="themeSwitch" class="switch" style="cursor:pointer;">
+								<input id="themeCheck" type="checkbox" />
+								<div class="switchLabel">
+									<div id="themeSub" class="switchStatus muted">☀️ Light</div>
+								</div>
+								<div class="switchPill" aria-hidden="true">
+									<div class="switchKnob"></div>
+								</div>
+							</label>
+						</div>
+					</div>
+
+					<hr class="hrClean" />
+
+					<div>
 						<div class="settingsSectionTitle">Email notifications</div>
 
 						<div id="rulesWrap" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -121,6 +140,9 @@ export async function renderSettings($app) {
 	const $save = document.getElementById("save");
 	const $copy = document.getElementById("copyLink");
 	const $copyStatus = document.getElementById("copyStatus");
+	const $themeSwitch = document.getElementById("themeSwitch");
+	const $themeCheck = document.getElementById("themeCheck");
+	const $themeSub = document.getElementById("themeSub");
 
 	function setStatusText(t) {
 		const text = String(t || "").trim();
@@ -179,10 +201,16 @@ export async function renderSettings($app) {
 
 	const initialPublic = !!details.public;
 	const initialName = normText(details.shortlistName);
+	const initialDark = details.colorScheme === "dark";
 
 	$isPublic.checked = initialPublic;
 	$name.value = initialName;
 	setUiForPublic(initialPublic);
+
+	$themeCheck.checked = initialDark;
+	$themeSwitch.classList.toggle("isOn", initialDark);
+	$themeSub.textContent = initialDark ? "🌙 Dark" : "☀️ Light";
+	$themeSub.classList.toggle("muted", !initialDark);
 
 	/* ---------------- Email rules UI ---------------- */
 
@@ -756,6 +784,16 @@ export async function renderSettings($app) {
 		}
 	});
 
+	/* ---------------- Theme switch wiring ---------------- */
+
+	$themeCheck.addEventListener("change", () => {
+		const dark = $themeCheck.checked;
+		$themeSwitch.classList.toggle("isOn", dark);
+		$themeSub.textContent = dark ? "🌙 Dark" : "☀️ Light";
+		$themeSub.classList.toggle("muted", !dark);
+		applyColorScheme(dark ? "dark" : "light");
+	});
+
 	/* ---------------- Save ---------------- */
 
 	async function doSave() {
@@ -764,12 +802,14 @@ export async function renderSettings($app) {
 
 		const nextPublic = !!$isPublic.checked;
 		const nextName = nextPublic ? normText($name.value) : "";
+		const nextColorScheme = $themeCheck.checked ? "dark" : "light";
 
 		const nextDetails = {
 			...details,
 			public: nextPublic,
 			shortlistName: nextName,
 			emailNotifications: { version: 1, rules: rules.slice() },
+			colorScheme: nextColorScheme,
 		};
 
 		try {
