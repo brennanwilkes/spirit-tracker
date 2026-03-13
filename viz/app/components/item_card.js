@@ -57,10 +57,10 @@ export function itemCardHtml(
 
 	return `
 <div class="item${showFavStar ? " itemHasStar" : ""}" data-sku="${esc(sku)}">
-  ${star}
   <div class="itemTitle">
     <div class="itemName">${esc(name)}</div>
     ${skuBadge}
+    ${star}
   </div>
   <div class="itemRow">
     <div class="thumbBox">${renderThumbHtml(img)}</div>
