@@ -38,14 +38,14 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .shortlistsPage .row { background: #cccecf; }
-  .shortlistsPage .row:hover { border-color: #6e737a; }
-  .shortlistsPage .openPill { background: rgba(0,0,0,0.06); }
+  .shortlistsPage .row { background: var(--lt-surface); }
+  .shortlistsPage .row:hover { border-color: var(--lt-hover); }
+  .shortlistsPage .openPill { background: var(--lt-hover-bg); }
 }
 
-html[data-theme="light"] .shortlistsPage .row { background: #cccecf; }
-html[data-theme="light"] .shortlistsPage .row:hover { border-color: #6e737a; }
-html[data-theme="light"] .shortlistsPage .openPill { background: rgba(0,0,0,0.06); }
+html[data-theme="light"] .shortlistsPage .row { background: var(--lt-surface); }
+html[data-theme="light"] .shortlistsPage .row:hover { border-color: var(--lt-hover); }
+html[data-theme="light"] .shortlistsPage .openPill { background: var(--lt-hover-bg); }
 
 html[data-theme="dark"] .shortlistsPage .row { background: #0f1318; }
 html[data-theme="dark"] .shortlistsPage .row:hover { border-color: #2f3a46; }
