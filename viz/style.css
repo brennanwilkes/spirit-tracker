@@ -20,6 +20,14 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Form elements don't inherit font by default in most browsers */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -35,8 +43,9 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 .h1 {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .small {
