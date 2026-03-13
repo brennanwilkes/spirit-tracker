@@ -651,10 +651,34 @@ export function renderSearch($app) {
 
 		let picked = Array.from(bySku.values());
 
-		picked = picked.filter((x) => passesAvailability(String(x.sku || "")));
+		// Market-wide filter: only surface events that represent a global change
 		picked = picked.filter((x) => {
+			const sku = String(x.sku || "");
 			const k = normalizeKindForPrice(x.r);
-			return k !== "price_up" && k !== "price_change";
+			if (k === "price_up" || k === "price_change") return false;
+			if (!passesAvailability(sku)) return false;
+			const agg = aggBySku.get(sku) || null;
+			const stock = stockMetaForSku(sku);
+			if (k === "new") {
+				// Only show if truly new to market (only at this one store)
+				return (agg?.stores?.size ?? stock.storeCount) <= 1;
+			}
+			if (k === "removed") {
+				// Only show if now globally out of stock
+				return stock.outOfStock;
+			}
+			if (k === "restored") {
+				// Only show if returning market-wide (single store now = was gone everywhere)
+				return stock.storeCount <= 1;
+			}
+			if (k === "price_down") {
+				// Only show if this drops the global cheapest price
+				const newP = parsePriceToNumber(x.r.newPrice || "");
+				const cheapestP = parsePriceToNumber(agg?.cheapestPriceStr || "");
+				if (newP === null || cheapestP === null) return true;
+				return newP <= cheapestP + 0.01;
+			}
+			return true;
 		});
 
 		const mode = sortMode();
@@ -772,7 +796,7 @@ export function renderSearch($app) {
                 </div>
                 <div class="itemBody">
                   <div class="itemLine1">${storeHtml}<span class="price">${esc(priceLine)}</span></div>
-                  <div class="metaRow"><span class="badge ${kindBadgeClass}">${esc(kindLabel)}</span>${saleBadge}${stockBadge}${specialBadge}</div>
+                  <div class="metaRow"><span class="badge ${kindBadgeClass}">${esc(kindLabel)}</span>${saleBadge}${kind !== "removed" ? stockBadge : ""}${specialBadge}</div>
                 </div>
               </div>
             </div>
