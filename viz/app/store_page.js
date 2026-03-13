@@ -636,6 +636,13 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
             <div class="itemLine1">
+              ${(() => {
+                const otherStores = (storesBySku.get(String(it.sku || ""))?.size ?? 1) - 1;
+                const linkLabel = storeLabelShort + (otherStores > 0 ? ` +${otherStores}` : "");
+                return href
+                  ? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(linkLabel)}</a>`
+                  : `<span class="itemStore">${esc(linkLabel)}</span>`;
+              })()}
               <span class="price">${esc(price)}</span>
             </div>
             <div class="metaRow">${specialBadge}${bestBadge}${diffBadge}${exAnnot}</div>
