@@ -4,18 +4,7 @@ import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-
-function normStoreLabel(s) {
-	return String(s || "")
-		.trim()
-		.toLowerCase();
-}
-
-function abbrevStoreLabel(s) {
-	const t = String(s || "").trim();
-	if (!t) return "";
-	return t.split(/\s+/)[0] || t;
-}
+import { normalizeStoreId, storeById } from "./stores.js";
 
 function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
 	// Prefer the most recent-ish url if multiple exist; stable enough for viz.
@@ -32,7 +21,7 @@ function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
 
 	for (const r of listingsLive) {
 		if (!r || r.removed) continue;
-		const store = normStoreLabel(r.storeLabel || r.store || "");
+		const store = normalizeStoreId(r.storeLabel || r.store || "");
 		if (store !== storeLabelNorm) continue;
 
 		const skuKey = String(rulesCache?.canonicalSku(keySkuForRow(r)) || keySkuForRow(r));
@@ -55,7 +44,7 @@ let rulesCache = null;
 
 export async function renderStore($app, storeLabelRaw) {
 	const storeLabel = String(storeLabelRaw || "").trim();
-	const storeLabelShort = abbrevStoreLabel(storeLabel) || (storeLabel ? storeLabel : "Store");
+	const storeLabelShort = storeById(normalizeStoreId(storeLabel))?.label || storeLabel || "Store";
 
 	$app.innerHTML = `
     <div class="container containerStoreWide">
@@ -172,7 +161,7 @@ export async function renderStore($app, storeLabelRaw) {
 	const $cmpMode = document.getElementById("cmpMode");
 
 	// Persist query per store
-	const storeNorm = normStoreLabel(storeLabel);
+	const storeNorm = normalizeStoreId(storeLabel);
 	const LS_KEY = `viz:storeQuery:${storeNorm}`;
 	const savedQ = String(localStorage.getItem(LS_KEY) || "");
 	if (savedQ) $q.value = savedQ;
@@ -239,7 +228,7 @@ export async function renderStore($app, storeLabelRaw) {
 		if (!rawSku) continue;
 		const sku = String(rules.canonicalSku(rawSku) || rawSku);
 
-		const stNorm = normStoreLabel(r?.storeLabel || r?.store || "");
+		const stNorm = normalizeStoreId(r?.storeLabel || r?.store || "");
 		if (!stNorm) continue;
 
 		let sm = recentBySkuStore.get(sku);
@@ -299,7 +288,7 @@ export async function renderStore($app, storeLabelRaw) {
 	const firstSeenBySkuInStore = new Map(); // sku -> ms
 	for (const r of listingsAll) {
 		if (!r) continue;
-		const store = normStoreLabel(r.storeLabel || r.store || "");
+		const store = normalizeStoreId(r.storeLabel || r.store || "");
 		if (store !== storeNorm) continue;
 
 		const skuKey = keySkuForRow(r);
@@ -316,7 +305,7 @@ export async function renderStore($app, storeLabelRaw) {
 	const everStoresBySku = new Map(); // sku -> Set(storeLabelNorm)
 	for (const r of listingsAll) {
 		if (!r) continue;
-		const store = normStoreLabel(r.storeLabel || r.store || "");
+		const store = normalizeStoreId(r.storeLabel || r.store || "");
 		if (!store) continue;
 
 		const skuKey = keySkuForRow(r);
@@ -332,7 +321,7 @@ export async function renderStore($app, storeLabelRaw) {
 	const minPriceBySkuStore = new Map(); // sku -> Map(storeLabelNorm -> minPrice)
 
 	for (const r of liveAll) {
-		const store = normStoreLabel(r.storeLabel || r.store || "");
+		const store = normalizeStoreId(r.storeLabel || r.store || "");
 		if (!store) continue;
 
 		const skuKey = keySkuForRow(r);
@@ -371,7 +360,7 @@ export async function renderStore($app, storeLabelRaw) {
 	}
 
 	// Store-specific live rows only (in-stock for that store)
-	const rowsStoreLive = liveAll.filter((r) => normStoreLabel(r.storeLabel || r.store || "") === storeNorm);
+	const rowsStoreLive = liveAll.filter((r) => normalizeStoreId(r.storeLabel || r.store || "") === storeNorm);
 
 	// Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
 	let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
@@ -615,20 +604,20 @@ export async function renderStore($app, storeLabelRaw) {
 		return `
 		<div class="item itemHasStar" data-sku="${esc(it.sku)}">
 		${favStarHtml(it.sku, favSet.has(it.sku))}
-			<div class="itemRow">
+		<div class="itemTitle">
+          <div class="itemName">${esc(it.name || "(no name)")}</div>
+          <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
+             href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+        </div>
+		<div class="itemRow">
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
-            <div class="itemTop">
-              <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <a style="margin-right: 18px;" class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
-                 href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
-            </div>
             <div class="metaRow">
               ${specialBadge}
               ${bestBadge}
               ${diffBadge}
               ${exAnnot}
-              <span class="mono price">${esc(price)}</span>
+              <span class="price">${esc(price)}</span>
               ${
 					href
 						? `<a class="badge" href="${esc(

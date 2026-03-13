@@ -1,0 +1,63 @@
+/* ── Search page controls ──────────────────────────────────────────────── */
+
+/* Price range wrap: grid layout so label never wraps */
+#priceWrap {
+  display: grid !important;
+  grid-template-columns: max-content 1fr 120px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+#priceWrap #maxPrice {
+  width: 100%;
+  min-width: 0;
+}
+
+#priceWrap #maxPriceLabel {
+  justify-self: end;
+  white-space: nowrap;
+  width: 96px;
+  min-width: 96px;
+}
+
+/* Sort + Availability controls row */
+.searchControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.searchControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.searchControlLabel {
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+@media (min-width: 641px) {
+  .searchControls {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .searchControl {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+  }
+
+  .searchControl .selectSmall {
+    width: auto;
+    min-width: 0;
+  }
+}

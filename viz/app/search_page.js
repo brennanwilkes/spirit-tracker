@@ -560,42 +560,33 @@ export function renderSearch($app) {
 						? `<span class="badge badgeExclusive">Exclusive</span>`
 						: "";
 
-				const href = store ? urlForAgg(it, store) || String(it.sampleUrl || "").trim() : "";
-				const storeBadge =
-					store && !stock.outOfStock
-						? href
-							? `<a class="badge" href="${esc(
-									href,
-								)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-									store,
-								)}${esc(plus)}</a>`
-							: `<span class="badge">${esc(store)}${esc(plus)}</span>`
-						: "";
+				const storeHref = store && !stock.outOfStock ? urlForAgg(it, store) || String(it.sampleUrl || "").trim() : "";
+				const storeHtml = store && !stock.outOfStock
+					? storeHref
+						? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
+						: `<div class="itemStore">${esc(store)}${esc(plus)}</div>`
+					: "";
 
 				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
 				return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
 				${favStarHtml(it.sku, favSet.has(it.sku))}
+				<div class="itemTitle">
+              <div class="itemName">${esc(it.name || "(no name)")}</div>
+              <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+            </div>
 				<div class="itemRow">
               <div class="thumbBox">
                 ${renderThumbHtml(it.img)}
               </div>
               <div class="itemBody">
-                <div class="itemTop">
-                  <div class="itemName">${esc(it.name || "(no name)")}</div>
-                  <a style="margin-right: 18px;" class="badge mono skuLink" href="${esc(
-						skuLink,
-					)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-						displaySku(it.sku),
-					)}</a>
-                </div>
+                ${storeHtml}
                 <div class="metaRow">
-					<span class="mono price">${esc(price)}</span>
+					<span class="price">${esc(price)}</span>
 					${saleBadge}
 					${stockBadge}
 					${specialBadge}
-					${storeBadge}
                 </div>
               </div>
             </div>
@@ -736,14 +727,13 @@ export function renderSearch($app) {
 							? `<span class="badge badgeExclusive">Exclusive</span>`
 							: "";
 
-					const href = String(r.url || "").trim();
-					const storeBadge = href
-						? `<a class="badge" href="${esc(
-								href,
-							)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-								(r.storeLabel || r.store || "") + plus,
-							)}</a>`
-						: `<span class="badge">${esc((r.storeLabel || r.store || "") + plus)}</span>`;
+					const storeHref = String(r.url || "").trim();
+					const storeLabel = (r.storeLabel || r.store || "") + plus;
+					const storeHtml = storeLabel
+						? storeHref
+							? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
+							: `<div class="itemStore">${esc(storeLabel)}</div>`
+						: "";
 
 					const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
 
@@ -759,26 +749,22 @@ export function renderSearch($app) {
 					return `
 					<div class="item itemHasStar" data-sku="${esc(sku)}">
 					${favStarHtml(sku, favSet.has(sku))}
-								<div class="itemRow">
+					<div class="itemTitle">
+                <div class="itemName">${esc(r.name || "(no name)")}</div>
+                <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
+              </div>
+					<div class="itemRow">
                 <div class="thumbBox">
                   ${renderThumbHtml(img)}
                 </div>
                 <div class="itemBody">
-                  <div class="itemTop">
-                    <div class="itemName">${esc(r.name || "(no name)")}</div>
-                    <a style="margin-right: 18px;" class="badge mono skuLink" href="${esc(
-						skuLink,
-					)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-						displaySku(sku),
-					)}</a>
-                  </div>
+                  ${storeHtml}
                   <div class="metaRow">
                     <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
-                    <span class="mono price">${esc(priceLine)}</span>
+                    <span class="price">${esc(priceLine)}</span>
                     ${saleBadge}
 					${stockBadge}
 					${specialBadge}
-                    ${storeBadge}
                     ${dateBadge}
                   </div>
                 </div>

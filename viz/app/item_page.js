@@ -7,200 +7,22 @@ import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./s
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
 import { getOrBuildMinIndex, buildMinIndex, minForVariant } from "./sha_min_index.js";
+import {
+	BC_STORE_NAMES,
+	isBcStoreLabel,
+	weightedMeanByDuration,
+	meanFinite,
+	minFinite,
+	medianFinite,
+	lastFiniteFromEnd,
+	computeSuggestedY,
+	niceStepAtLeast,
+	StaticMarkerLinesPlugin,
+} from "./item_page/item_chart.js";
 
 /* ---------------- Chart lifecycle ---------------- */
 
 let CHART = null;
-
-/* ---------------- Static marker lines ---------------- */
-
-// --- Province store matching (robust to labels like "Vessel Liquor", "BCL", etc.) ---
-const BC_STORE_NAMES = new Set([
-	"bcl",
-	"tudorhouse",
-	"vesselliquor",
-	"strathliquor",
-	"gullliquor",
-	"vintagespirits",
-	"legacyliquor",
-	"arc",
-]);
-
-function normStoreLabel(s) {
-	return String(s || "")
-		.toLowerCase()
-		.replace(/&/g, "and")
-		.replace(/[^a-z0-9]+/g, " ")
-		.trim()
-		.replace(/\s+/g, "");
-}
-
-function isBcStoreLabel(label) {
-	const n = normStoreLabel(label);
-	if (BC_STORE_NAMES.has(n)) return true;
-
-	// extra fuzzy contains for safety
-	if (n.includes("vessel")) return true;
-	if (n.includes("tudor")) return true;
-	if (n === "bcl") return true;
-	if (n.includes("strath")) return true;
-	if (n.includes("gull")) return true;
-	if (n.includes("vintagespirits")) return true;
-	if (n.includes("legacy")) return true;
-	if (n.includes("arc")) return true;
-
-	return false;
-}
-
-function weightedMeanByDuration(pointsMap, sortedDates) {
-	// pointsMap: Map(dateStr -> number|null)
-	// sortedDates: ["YYYY-MM-DD", ...] sorted asc
-	let wsum = 0;
-	let wtot = 0;
-
-	for (let i = 0; i < sortedDates.length; i++) {
-		const d0 = sortedDates[i];
-		const v = pointsMap.get(d0);
-		if (!Number.isFinite(v)) continue;
-
-		const t0 = Date.parse(d0 + "T00:00:00Z");
-		const d1 = sortedDates[i + 1];
-		const t1 = d1 ? Date.parse(d1 + "T00:00:00Z") : t0 + 24 * 3600 * 1000;
-
-		// weight in days (min 1 day)
-		const w = Math.max(1, Math.round((t1 - t0) / (24 * 3600 * 1000)));
-		wsum += v * w;
-		wtot += w;
-	}
-
-	return wtot ? wsum / wtot : null;
-}
-
-function meanFinite(arr) {
-	if (!Array.isArray(arr)) return null;
-	let sum = 0,
-		n = 0;
-	for (const v of arr) {
-		if (Number.isFinite(v)) {
-			sum += v;
-			n++;
-		}
-	}
-	return n ? sum / n : null;
-}
-
-function minFinite(arr) {
-	if (!Array.isArray(arr)) return null;
-	let m = null;
-	for (const v of arr) {
-		if (Number.isFinite(v)) m = m === null ? v : Math.min(m, v);
-	}
-	return m;
-}
-
-function medianFinite(nums) {
-	const a = (Array.isArray(nums) ? nums : [])
-		.filter((v) => Number.isFinite(v))
-		.slice()
-		.sort((x, y) => x - y);
-	const n = a.length;
-	if (!n) return null;
-	const mid = Math.floor(n / 2);
-	return n % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
-}
-
-const StaticMarkerLinesPlugin = {
-	id: "staticMarkerLines",
-	afterDraw(chart, _args, passedOpts) {
-		const opts =
-			(chart?.options?.plugins && chart.options.plugins.staticMarkerLines) ||
-			chart?.options?.staticMarkerLines ||
-			passedOpts ||
-			{};
-
-		const markers = Array.isArray(opts?.markers) ? opts.markers : [];
-		if (!markers.length) return;
-
-		// Find y-scale (v2/v3 tolerant)
-		const scalesObj = chart?.scales || {};
-		const scales = Object.values(scalesObj);
-		const y =
-			scalesObj.y ||
-			scales.find((s) => s && s.axis === "y") ||
-			scales.find((s) => s && typeof s.getPixelForValue === "function" && s.isHorizontal === false) ||
-			scales.find(
-				(s) =>
-					s &&
-					typeof s.getPixelForValue === "function" &&
-					String(s.id || "")
-						.toLowerCase()
-						.includes("y"),
-			);
-
-		const area = chart?.chartArea;
-		if (!y || !area) return;
-
-		const { ctx } = chart;
-		const { left, right, top, bottom } = area;
-
-		const lineWidth = Number.isFinite(opts?.lineWidth) ? opts.lineWidth : 1.25; // thinner
-		const baseAlpha = Number.isFinite(opts?.alpha) ? opts.alpha : 0.38; // brighter than before
-		const strokeStyle = String(opts?.color || "#7f8da3"); // light grey-blue
-
-		// "marker on Y axis" text
-		const font = opts?.font || "600 11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif";
-		const labelColor = String(opts?.labelColor || "#556274");
-		const axisInset = Number.isFinite(opts?.axisInset) ? opts.axisInset : 2;
-
-		ctx.save();
-		ctx.setLineDash([]); // SOLID
-		ctx.lineWidth = lineWidth;
-		ctx.font = font;
-		ctx.fillStyle = labelColor;
-
-		for (const m of markers) {
-			const yVal = Number(m?.y);
-			if (!Number.isFinite(yVal)) continue;
-
-			const py = y.getPixelForValue(yVal);
-			if (!Number.isFinite(py) || py < top || py > bottom) continue;
-
-			// line
-			ctx.globalAlpha = Number.isFinite(m?.alpha) ? m.alpha : baseAlpha;
-			ctx.strokeStyle = String(m?.color || strokeStyle);
-			ctx.beginPath();
-			ctx.moveTo(left, py);
-			ctx.lineTo(right, py);
-			ctx.stroke();
-
-			// tiny tick mark starting at axisX
-			// y scale box: [y.left .. y.right], where y.right is usually chartArea.left
-			const yLeft = Number.isFinite(y?.left) ? y.left : left;
-			const yRight = Number.isFinite(y?.right) ? y.right : left;
-
-			// center of the y-axis box (clamped)
-			const axisCenterX = Math.max(0, Math.min((yLeft + yRight) / 2, chart.width));
-
-			// draw the little tick at the chart edge (right edge of y-axis box)
-			ctx.beginPath();
-			ctx.moveTo(yRight, py);
-			ctx.lineTo(yRight + 6, py);
-			ctx.stroke();
-
-			// label centered in the y-axis box
-			const text = String(m?.text || "");
-			if (text) {
-				ctx.globalAlpha = 0.95;
-				ctx.fillStyle = String(m?.labelColor || labelColor);
-				ctx.textBaseline = "middle";
-				ctx.textAlign = "center";
-				ctx.fillText(text, axisCenterX, py);
-			}
-		}
-
-		ctx.restore();
-	},
-};
 
 export function destroyChart() {
 	if (CHART) {
@@ -298,48 +120,6 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, wa
 }
 
 
-function lastFiniteFromEnd(arr) {
-	if (!Array.isArray(arr)) return null;
-	for (let i = arr.length - 1; i >= 0; i--) {
-		const v = arr[i];
-		if (Number.isFinite(v)) return v;
-	}
-	return null;
-}
-
-function computeSuggestedY(values, minRange) {
-	const nums = values.filter((v) => Number.isFinite(v));
-	if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
-
-	let min = nums[0],
-		max = nums[0];
-	for (const n of nums) {
-		if (n < min) min = n;
-		if (n > max) max = n;
-	}
-
-	const range = max - min;
-	const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;
-
-	let suggestedMin = Math.max(0, min - pad);
-	let suggestedMax = max + pad;
-
-	if (Number.isFinite(minRange) && minRange > 0) {
-		const span = suggestedMax - suggestedMin;
-		if (span < minRange) {
-			const mid = (suggestedMin + suggestedMax) / 2;
-			suggestedMin = mid - minRange / 2;
-			suggestedMax = mid + minRange / 2;
-			if (suggestedMin < 0) {
-				suggestedMax -= suggestedMin;
-				suggestedMin = 0;
-			}
-		}
-	}
-
-	return { suggestedMin, suggestedMax };
-}
-
 /* ---------------- Series cache (per dbFile + per skuKey) ---------------- */
 
 function cacheKeySeries(sku, dbFile, cacheBust, variantKey) {
@@ -378,19 +158,6 @@ async function loadDbCommitsManifest() {
 		DB_COMMITS = null;
 		return null;
 	}
-}
-
-function niceStepAtLeast(minStep, span, maxTicks) {
-	if (!Number.isFinite(span) || span <= 0) return minStep;
-
-	const target = span / Math.max(1, maxTicks - 1); // desired step to stay under maxTicks
-	const raw = Math.max(minStep, target);
-
-	// "nice" steps: 1/2/5 * 10^k, but never below minStep
-	const pow = Math.pow(10, Math.floor(Math.log10(raw)));
-	const m = raw / pow;
-	const niceM = m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10;
-	return Math.max(minStep, niceM * pow);
 }
 
 function cacheBustForDbFile(manifest, dbFile, commits) {
