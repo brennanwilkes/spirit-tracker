@@ -21,7 +21,8 @@ function safeMsg(e) {
 
 function setStatus($el, text, kind = "neutral") {
 	if (!$el) return;
-	const cls = kind === "good" ? "badge badgeGood" : kind === "bad" ? "badge badgeBad" : "badge badgeNeutral";
+	const cls =
+		kind === "good" ? "badge badgeGood" : kind === "bad" ? "badge badgeBad" : "badge badgeNeutral";
 	$el.innerHTML = text ? `<span class="${cls}">${esc(text)}</span>` : "";
 }
 
@@ -138,7 +139,12 @@ function renderAuth($app, { mode, flash = {} }) {
 
 	// flash badges
 	if (flash?.verified === "1") setStatus($statusRow, "Email verified. Please log in.", "good");
-	else if (flash?.verify_sent === "1") setStatus($statusRow, "Check your email for a verification link. (Check your spam!)", "neutral");
+	else if (flash?.verify_sent === "1")
+		setStatus(
+			$statusRow,
+			"Check your email for a verification link. (Check your spam!)",
+			"neutral",
+		);
 	else if (flash?.reset === "1") setStatus($statusRow, "Password updated. Please log in.", "good");
 
 	async function doLogin() {
@@ -154,10 +160,10 @@ function renderAuth($app, { mode, flash = {} }) {
 				setStatus(
 					$statusRow,
 					"You must verify your email. Check your spam/junk folder.",
-					"neutral"
+					"neutral",
 				);
 			} else {
-			setStatus($statusRow, safeMsg(e), "bad");
+				setStatus($statusRow, safeMsg(e), "bad");
 			}
 		} finally {
 			setBusy(false);
@@ -215,8 +221,6 @@ function renderAuth($app, { mode, flash = {} }) {
 }
 
 export function renderOauth($app) {
-
-
 	$app.innerHTML = `
     <div class="authWrap">
       <div class="card authCard">
@@ -251,8 +255,6 @@ export function renderOauth($app) {
 }
 
 export function renderForgot($app) {
-
-
 	$app.innerHTML = `
     <div class="authWrap">
       <div class="card authCard">
@@ -309,8 +311,6 @@ export function renderForgot($app) {
 }
 
 export function renderReset($app, { token }) {
-
-
 	const t = String(token || "").trim();
 
 	$app.innerHTML = `

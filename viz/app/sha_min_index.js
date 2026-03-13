@@ -77,7 +77,8 @@ export async function getOrBuildMinIndex(key, buildFn) {
 }
 
 export function minForVariant(ix, vk, wantUrlsSet) {
-	let live = null, removed = null;
+	let live = null,
+		removed = null;
 
 	if (wantUrlsSet?.size) {
 		for (const u of wantUrlsSet) {
@@ -88,11 +89,15 @@ export function minForVariant(ix, vk, wantUrlsSet) {
 		}
 	}
 
-	const ls = ix.liveSku[vk]; if (ls != null) live = live == null ? ls : Math.min(live, ls);
-	const rs = ix.removedSku[vk]; if (rs != null) removed = removed == null ? rs : Math.min(removed, rs);
+	const ls = ix.liveSku[vk];
+	if (ls != null) live = live == null ? ls : Math.min(live, ls);
+	const rs = ix.removedSku[vk];
+	if (rs != null) removed = removed == null ? rs : Math.min(removed, rs);
 
-	const lk = ix.liveKey[vk]; if (lk != null) live = live == null ? lk : Math.min(live, lk);
-	const rk = ix.removedKey[vk]; if (rk != null) removed = removed == null ? rk : Math.min(removed, rk);
+	const lk = ix.liveKey[vk];
+	if (lk != null) live = live == null ? lk : Math.min(live, lk);
+	const rk = ix.removedKey[vk];
+	if (rk != null) removed = removed == null ? rk : Math.min(removed, rk);
 
 	return { liveMin: live, removedMin: removed };
 }

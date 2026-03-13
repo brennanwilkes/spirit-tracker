@@ -1,6 +1,12 @@
 // viz/app/linker_page.js
 import { esc, renderThumbHtml } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, normSearchText } from "./sku.js";
+import {
+	tokenizeQuery,
+	matchesAllTokens,
+	displaySku,
+	keySkuForRow,
+	normSearchText,
+} from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules, clearSkuRulesCache } from "./mapping.js";
@@ -25,7 +31,11 @@ import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
 import { smwsKeyFromName, similarityScore } from "./linker_page/similarity.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
-import { topSuggestions, recommendSimilar, computeInitialPairsFast } from "./linker_page/suggestions.js";
+import {
+	topSuggestions,
+	recommendSimilar,
+	computeInitialPairsFast,
+} from "./linker_page/suggestions.js";
 
 /* ---------------- Page ---------------- */
 
@@ -94,16 +104,16 @@ export async function renderSkuLinker($app) {
         <div style="flex:1"></div>
         ${!localWrite ? `<span id="pendingTop" class="badge mono" style="display:none;"></span>` : ``}
         ${
-			!localWrite
-				? `<button id="clearPendingBtn" class="btn" style="padding:6px 10px; display:none;">Clear</button>`
-				: ``
-		}
+					!localWrite
+						? `<button id="clearPendingBtn" class="btn" style="padding:6px 10px; display:none;">Clear</button>`
+						: ``
+				}
         <span class="badge">SKU Linker</span>
         ${
-			localWrite
-				? `<span class="badge mono">LOCAL WRITE</span>`
-				: `<button id="createPrBtn" class="btn" disabled>Create PR</button>`
-		}
+					localWrite
+						? `<span class="badge mono">LOCAL WRITE</span>`
+						: `<button id="createPrBtn" class="btn" disabled>Create PR</button>`
+				}
       </div>
 
       <div class="card" style="padding:14px;">
@@ -248,33 +258,33 @@ export async function renderSkuLinker($app) {
 		const bSku = String(bIt?.sku || "");
 		if (!aSku || !bSku) return false;
 		if (!sameStoreCanon(aSku, bSku)) return false;
-	  
+
 		const A = canonStoresForSkuKey(aSku);
 		const B = canonStoresForSkuKey(bSku);
 		if (!A.size || !B.size) return false;
-	  
+
 		// Prefer overlap on the user-visible “selected” store label (cheapest)
 		const aPrimary = String(aIt?.cheapestStoreLabel || "").trim();
 		const bPrimary = String(bIt?.cheapestStoreLabel || "").trim();
-	  
+
 		// Determine overlap
 		let anyOverlap = false;
 		let primaryOverlap = false;
 		for (const s of A) {
-		  if (!B.has(s)) continue;
-		  anyOverlap = true;
-		  if ((aPrimary && s === aPrimary) || (bPrimary && s === bPrimary)) primaryOverlap = true;
+			if (!B.has(s)) continue;
+			anyOverlap = true;
+			if ((aPrimary && s === aPrimary) || (bPrimary && s === bPrimary)) primaryOverlap = true;
 		}
 		if (!anyOverlap) return false;
-	  
+
 		// If we know a primary store, require overlap on it (tightens to “this looks like a relist on that store”)
 		if ((aPrimary || bPrimary) && !primaryOverlap) return false;
-	  
+
 		// SMWS exact code is a slam-dunk
 		const ka = smwsKeyFromName(aIt?.name || "");
 		const kb = smwsKeyFromName(bIt?.name || "");
 		if (ka && kb && ka === kb) return true;
-	  
+
 		// Otherwise require strong name similarity
 		return similarityScore(aIt?.name || "", bIt?.name || "") >= 3.1;
 	}
@@ -325,7 +335,7 @@ export async function renderSkuLinker($app) {
 
 		const storeHtml = href
 			? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
-			: `<div class="itemStore">${esc(store)}${esc(plus)}</div>`;
+			: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`;
 
 		const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
 
@@ -340,11 +350,8 @@ export async function renderSkuLinker($app) {
             ${renderThumbHtml(it.img)}
           </div>
           <div class="itemBody">
-            ${storeHtml}
-            <div class="metaRow">
-              ${pinnedBadge}
-              <span class="price">${esc(price)}</span>
-            </div>
+            <div class="itemLine1">${storeHtml}<span class="price">${esc(price)}</span></div>
+            <div class="metaRow">${pinnedBadge}</div>
           </div>
         </div>
       </div>
@@ -369,7 +376,7 @@ export async function renderSkuLinker($app) {
 				out = out.filter((it) => {
 					const sSku = String(it?.sku || "");
 					return !sameStoreCanon(oSku, sSku) || true;
-				  });
+				});
 
 				out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
 			}
@@ -397,7 +404,9 @@ export async function renderSkuLinker($app) {
 			const list = side === "L" ? pairs.map((p) => p.a) : pairs.map((p) => p.b);
 			return list.filter(
 				(it) =>
-					it && it.sku !== otherSku && (!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || "")),
+					it &&
+					it.sku !== otherSku &&
+					(!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || "")),
 			);
 		}
 
@@ -629,7 +638,8 @@ export async function renderSkuLinker($app) {
 			const c2 = pendingCounts();
 			$createPrBtn.disabled = c2.total === 0;
 
-			$status.textContent = "PR request opened. Staged edits moved to submitted (won’t re-suggest).";
+			$status.textContent =
+				"PR request opened. Staged edits moved to submitted (won’t re-suggest).";
 			pinnedL = null;
 			pinnedR = null;
 			updateAll();
@@ -649,7 +659,10 @@ export async function renderSkuLinker($app) {
 		it = allAgg.find((x) => String(x?.sku || "") === canonWant);
 		if (it) return it;
 
-		return allAgg.find((x) => String(rules.canonicalSku(String(x?.sku || "")) || "") === canonWant) || null;
+		return (
+			allAgg.find((x) => String(rules.canonicalSku(String(x?.sku || "")) || "") === canonWant) ||
+			null
+		);
 	}
 
 	function updateAll() {

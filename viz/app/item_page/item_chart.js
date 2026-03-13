@@ -81,9 +81,13 @@ export function weightedMeanByDuration(pointsMap, sortedDates) {
 
 export function meanFinite(arr) {
 	if (!Array.isArray(arr)) return null;
-	let sum = 0, n = 0;
+	let sum = 0,
+		n = 0;
 	for (const v of arr) {
-		if (Number.isFinite(v)) { sum += v; n++; }
+		if (Number.isFinite(v)) {
+			sum += v;
+			n++;
+		}
 	}
 	return n ? sum / n : null;
 }
@@ -126,7 +130,8 @@ export function computeSuggestedY(values, minRange) {
 	const nums = values.filter((v) => Number.isFinite(v));
 	if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
-	let min = nums[0], max = nums[0];
+	let min = nums[0],
+		max = nums[0];
 	for (const n of nums) {
 		if (n < min) min = n;
 		if (n > max) max = n;
@@ -193,12 +198,16 @@ export const StaticMarkerLinesPlugin = {
 		const y =
 			scalesObj.y ||
 			scales.find((s) => s && s.axis === "y") ||
-			scales.find((s) => s && typeof s.getPixelForValue === "function" && s.isHorizontal === false) ||
+			scales.find(
+				(s) => s && typeof s.getPixelForValue === "function" && s.isHorizontal === false,
+			) ||
 			scales.find(
 				(s) =>
 					s &&
 					typeof s.getPixelForValue === "function" &&
-					String(s.id || "").toLowerCase().includes("y"),
+					String(s.id || "")
+						.toLowerCase()
+						.includes("y"),
 			);
 
 		const area = chart?.chartArea;
@@ -210,7 +219,9 @@ export const StaticMarkerLinesPlugin = {
 		const lineWidth = Number.isFinite(opts?.lineWidth) ? opts.lineWidth : 1.25;
 		const baseAlpha = Number.isFinite(opts?.alpha) ? opts.alpha : 0.38;
 		const strokeStyle = String(opts?.color || "#7f8da3");
-		const font = opts?.font || "600 11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif";
+		const font =
+			opts?.font ||
+			"600 11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif";
 		const labelColor = String(opts?.labelColor || "#556274");
 
 		ctx.save();

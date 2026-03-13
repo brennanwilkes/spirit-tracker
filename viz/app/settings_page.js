@@ -196,7 +196,7 @@ export async function renderSettings($app) {
 		{ id: "vessel", label: "Vessel Liquor" },
 		{ id: "vintage", label: "Vintage Spirits" },
 	];
-	  
+
 	const AB_STORES = [
 		{ id: "bsw", label: "BSW" },
 		{ id: "coop", label: "Co-op World of Whisky" },
@@ -207,9 +207,8 @@ export async function renderSettings($app) {
 		{ id: "sierrasprings", label: "Sierra Springs" },
 		{ id: "willowpark", label: "Willow Park" },
 	];
-	  
+
 	const STORES = [...BC_STORES, ...AB_STORES];
-	  
 
 	const $rulesWrap = document.getElementById("rulesWrap");
 	const $addRule = document.getElementById("addRule");
@@ -245,10 +244,10 @@ export async function renderSettings($app) {
 
 	let emailNotifications = getEmailNotifications(details);
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
-    rules = rules.map(normalizeRule);
+	rules = rules.map(normalizeRule);
 
 	function ensureFilters(r) {
-		return (r && r.filters && typeof r.filters === "object") ? { ...r.filters } : {};
+		return r && r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
 	}
 
 	function dropEmptyFilters(r) {
@@ -263,8 +262,17 @@ export async function renderSettings($app) {
 
 		if (f.requireCheapestNow !== true) delete f.requireCheapestNow;
 
-		if (!(typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) && f.minDropAbs >= 0)) delete f.minDropAbs;
-		if (!(typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) && f.minDropPct >= 0 && f.minDropPct <= 100)) delete f.minDropPct;
+		if (!(typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) && f.minDropAbs >= 0))
+			delete f.minDropAbs;
+		if (
+			!(
+				typeof f.minDropPct === "number" &&
+				Number.isFinite(f.minDropPct) &&
+				f.minDropPct >= 0 &&
+				f.minDropPct <= 100
+			)
+		)
+			delete f.minDropPct;
 
 		const out = { ...r };
 		if (Object.keys(f).length) out.filters = f;
@@ -279,7 +287,9 @@ export async function renderSettings($app) {
 		out.scope = out.scope === "all" ? "all" : "shortlist";
 
 		const et = String(out.eventType || "GLOBAL_NEW");
-		out.eventType = ["GLOBAL_NEW", "GLOBAL_RETURN", "OUT_OF_STOCK", "PRICE_DROP"].includes(et) ? et : "GLOBAL_NEW";
+		out.eventType = ["GLOBAL_NEW", "GLOBAL_RETURN", "OUT_OF_STOCK", "PRICE_DROP"].includes(et)
+			? et
+			: "GLOBAL_NEW";
 
 		const f = ensureFilters(out);
 
@@ -287,7 +297,13 @@ export async function renderSettings($app) {
 			f.acrossMarket = true;
 		}
 
-		if (!(out.eventType === "GLOBAL_NEW" || out.eventType === "GLOBAL_RETURN" || out.eventType === "OUT_OF_STOCK")) {
+		if (
+			!(
+				out.eventType === "GLOBAL_NEW" ||
+				out.eventType === "GLOBAL_RETURN" ||
+				out.eventType === "OUT_OF_STOCK"
+			)
+		) {
 			delete f.acrossMarket;
 		}
 
@@ -302,7 +318,10 @@ export async function renderSettings($app) {
 	}
 
 	function newRule() {
-		const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+		const id =
+			crypto && crypto.randomUUID
+				? crypto.randomUUID()
+				: String(Date.now()) + Math.random().toString(16).slice(2);
 		return normalizeRule({
 			id,
 			enabled: true,
@@ -314,21 +333,26 @@ export async function renderSettings($app) {
 
 	function storeOptionsHtml(selected) {
 		const opt = (s) =>
-		  `<option value="${esc(s.id)}" ${s.id === selected ? "selected" : ""}>${esc(s.label)}</option>`;
-	  
+			`<option value="${esc(s.id)}" ${s.id === selected ? "selected" : ""}>${esc(s.label)}</option>`;
+
 		const group = (label, list) =>
-		  `<optgroup label="${esc(label)}">${list.map(opt).join("")}</optgroup>`;
-	  
+			`<optgroup label="${esc(label)}">${list.map(opt).join("")}</optgroup>`;
+
 		return group("BC", BC_STORES) + group("Alberta", AB_STORES);
 	}
 
 	function labelForEventType(et) {
 		switch (et) {
-			case "GLOBAL_NEW": return "New bottle";
-			case "GLOBAL_RETURN": return "Back in stock";
-			case "OUT_OF_STOCK": return "Out of stock";
-			case "PRICE_DROP": return "Price drop";
-			default: return "New bottle";
+			case "GLOBAL_NEW":
+				return "New bottle";
+			case "GLOBAL_RETURN":
+				return "Back in stock";
+			case "OUT_OF_STOCK":
+				return "Out of stock";
+			case "PRICE_DROP":
+				return "Price drop";
+			default:
+				return "New bottle";
 		}
 	}
 
@@ -338,49 +362,57 @@ export async function renderSettings($app) {
 			return;
 		}
 
-		$rulesWrap.innerHTML = rules.map((r, i) => {
-			const f = ensureFilters(r);
+		$rulesWrap.innerHTML = rules
+			.map((r, i) => {
+				const f = ensureFilters(r);
 
-			const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
+				const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
 
-			const useKwAny = Array.isArray(f.keywordsAny);
-			const useKwNone = Array.isArray(f.keywordsNone);
+				const useKwAny = Array.isArray(f.keywordsAny);
+				const useKwNone = Array.isArray(f.keywordsNone);
 
-			const isDrop = r.eventType === "PRICE_DROP";
-			const useMinAbs = isDrop && typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs);
-			const useMinPct = isDrop && typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct);
-			const useCheapest = isDrop && f.requireCheapestNow === true;
+				const isDrop = r.eventType === "PRICE_DROP";
+				const useMinAbs =
+					isDrop && typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs);
+				const useMinPct =
+					isDrop && typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct);
+				const useCheapest = isDrop && f.requireCheapestNow === true;
 
-			const showAcrossMarket = (r.eventType === "GLOBAL_NEW" || r.eventType === "GLOBAL_RETURN" || r.eventType === "OUT_OF_STOCK");
-			const useAcrossMarket = showAcrossMarket && f.acrossMarket === true;
+				const showAcrossMarket =
+					r.eventType === "GLOBAL_NEW" ||
+					r.eventType === "GLOBAL_RETURN" ||
+					r.eventType === "OUT_OF_STOCK";
+				const useAcrossMarket = showAcrossMarket && f.acrossMarket === true;
 
-			const storeSel = useStore ? String(f.storeId) : (STORES[0] ? STORES[0].id : "");
+				const storeSel = useStore ? String(f.storeId) : STORES[0] ? STORES[0].id : "";
 
-            let acrossTitle = "Across market (same SKU)";
-            let acrossHelp = "";
-            
-            if (r.eventType === "GLOBAL_NEW") {
-                acrossHelp =
-                    "On = alert only when this SKU is brand new to the market (no store had it). " +
-                    "Off = alert when any store adds it.";
-            } else if (r.eventType === "GLOBAL_RETURN") {
-                acrossHelp =
-                    "On = alert only when this SKU returns to the market (was out everywhere). " +
-                    "Off = alert when a store restocks it.";
-            } else if (r.eventType === "OUT_OF_STOCK") {
-                acrossHelp =
-                    "On = alert only when this SKU disappears from the market (no store has it). " +
-                    "Off = alert when a store goes out of stock.";
-            }
+				let acrossTitle = "Across market (same SKU)";
+				let acrossHelp = "";
 
+				if (r.eventType === "GLOBAL_NEW") {
+					acrossHelp =
+						"On = alert only when this SKU is brand new to the market (no store had it). " +
+						"Off = alert when any store adds it.";
+				} else if (r.eventType === "GLOBAL_RETURN") {
+					acrossHelp =
+						"On = alert only when this SKU returns to the market (was out everywhere). " +
+						"Off = alert when a store restocks it.";
+				} else if (r.eventType === "OUT_OF_STOCK") {
+					acrossHelp =
+						"On = alert only when this SKU disappears from the market (no store has it). " +
+						"Off = alert when a store goes out of stock.";
+				}
 
-			return `
+				return `
 				<div class="card stRuleCard" data-rule="${esc(r.id)}">
 					<div class="stRuleHeader">
 						<select data-i="${i}" data-k="eventType" class="stSelect stRuleEvent" aria-label="Alert type">
-							${["GLOBAL_NEW","GLOBAL_RETURN","OUT_OF_STOCK","PRICE_DROP"].map((et) =>
-								`<option value="${et}" ${r.eventType === et ? "selected" : ""}>${esc(labelForEventType(et))}</option>`
-							).join("")}
+							${["GLOBAL_NEW", "GLOBAL_RETURN", "OUT_OF_STOCK", "PRICE_DROP"]
+								.map(
+									(et) =>
+										`<option value="${et}" ${r.eventType === et ? "selected" : ""}>${esc(labelForEventType(et))}</option>`,
+								)
+								.join("")}
 						</select>
 
 						<select data-i="${i}" data-k="scope" class="stSelect stRuleScope" aria-label="Scope">
@@ -452,7 +484,9 @@ export async function renderSettings($app) {
 							Keywords match the bottle name. Use commas to list multiple.
 						</div>
 
-						${showAcrossMarket ? `
+						${
+							showAcrossMarket
+								? `
 						<div class="stRuleRow">
 							<label data-i="${i}" data-k="useAcrossMarket" class="switch mini ${useAcrossMarket ? "isOn" : ""}" style="cursor:pointer;">
 								<input type="checkbox" ${useAcrossMarket ? "checked" : ""} />
@@ -465,9 +499,13 @@ export async function renderSettings($app) {
 								${esc(acrossHelp)}
 							</div>
 						</div>
-						` : ""}
+						`
+								: ""
+						}
 
-						${isDrop ? `
+						${
+							isDrop
+								? `
 						<div class="stRuleRow">
 							<label data-i="${i}" data-k="useMinAbs" class="switch mini ${useMinAbs ? "isOn" : ""}" style="cursor:pointer;">
 								<input type="checkbox" ${useMinAbs ? "checked" : ""} />
@@ -521,13 +559,16 @@ export async function renderSettings($app) {
 							</label>
 							<div class="small" style="text-align:left;">Cheapest price across all stores (SKU-matched).</div>
 						</div>
-						` : ""}
+						`
+								: ""
+						}
 
 					</div>
 				</div>
 				${i < rules.length - 1 ? `<hr class="hrRule" />` : ``}
 			`;
-		}).join("");
+			})
+			.join("");
 	}
 
 	function setRuleAt(i, nextRule) {
@@ -539,89 +580,97 @@ export async function renderSettings($app) {
 		renderRules();
 	});
 
-	$rulesWrap.addEventListener("click", (e) => {
-		const btn = e.target?.closest?.("button[data-k]");
-		if (btn) {
-			const k = String(btn.getAttribute("data-k") || "");
-			if (k === "delete") {
-				const i = Number(btn.getAttribute("data-i"));
-				if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
-				rules = rules.filter((_, idx) => idx !== i);
+	$rulesWrap.addEventListener(
+		"click",
+		(e) => {
+			const btn = e.target?.closest?.("button[data-k]");
+			if (btn) {
+				const k = String(btn.getAttribute("data-k") || "");
+				if (k === "delete") {
+					const i = Number(btn.getAttribute("data-i"));
+					if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+					rules = rules.filter((_, idx) => idx !== i);
+					renderRules();
+					return;
+				}
+			}
+
+			const lab = e.target?.closest?.("label.switch.mini");
+			if (!lab) return;
+
+			const i = Number(lab.getAttribute("data-i"));
+			const dk = String(lab.getAttribute("data-k") || "");
+			if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+
+			const cb = lab.querySelector("input[type='checkbox']");
+			if (!cb) return;
+
+			cb.checked = !cb.checked;
+
+			const cur = { ...rules[i] };
+			const f = ensureFilters(cur);
+
+			if (dk === "useStore") {
+				if (cb.checked) f.storeId = f.storeId || (STORES[0] ? STORES[0].id : "kwm");
+				else delete f.storeId;
+				setRuleAt(i, { ...cur, filters: f });
 				renderRules();
 				return;
 			}
-		}
 
-		const lab = e.target?.closest?.("label.switch.mini");
-		if (!lab) return;
+			if (dk === "useKwAny") {
+				if (cb.checked) f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
+				else delete f.keywordsAny;
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
 
-		const i = Number(lab.getAttribute("data-i"));
-		const dk = String(lab.getAttribute("data-k") || "");
-		if (!Number.isFinite(i) || i < 0 || i >= rules.length) return;
+			if (dk === "useKwNone") {
+				if (cb.checked) f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
+				else delete f.keywordsNone;
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
 
-		const cb = lab.querySelector("input[type='checkbox']");
-		if (!cb) return;
+			if (dk === "useAcrossMarket") {
+				f.acrossMarket = cb.checked ? true : false;
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
 
-		cb.checked = !cb.checked;
+			if (dk === "useMinAbs") {
+				if (cb.checked)
+					f.minDropAbs =
+						typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) ? f.minDropAbs : 0;
+				else delete f.minDropAbs;
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
 
-		const cur = { ...rules[i] };
-		const f = ensureFilters(cur);
+			if (dk === "useMinPct") {
+				if (cb.checked)
+					f.minDropPct =
+						typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) ? f.minDropPct : 0;
+				else delete f.minDropPct;
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
 
-		if (dk === "useStore") {
-			if (cb.checked) f.storeId = f.storeId || (STORES[0] ? STORES[0].id : "kwm");
-			else delete f.storeId;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-
-		if (dk === "useKwAny") {
-			if (cb.checked) f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
-			else delete f.keywordsAny;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-
-		if (dk === "useKwNone") {
-			if (cb.checked) f.keywordsNone = Array.isArray(f.keywordsNone) ? f.keywordsNone : [];
-			else delete f.keywordsNone;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-
-		if (dk === "useAcrossMarket") {
-			f.acrossMarket = cb.checked ? true : false;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-
-		if (dk === "useMinAbs") {
-			if (cb.checked) f.minDropAbs = typeof f.minDropAbs === "number" && Number.isFinite(f.minDropAbs) ? f.minDropAbs : 0;
-			else delete f.minDropAbs;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-
-		if (dk === "useMinPct") {
-			if (cb.checked) f.minDropPct = typeof f.minDropPct === "number" && Number.isFinite(f.minDropPct) ? f.minDropPct : 0;
-			else delete f.minDropPct;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-
-		if (dk === "useCheapest") {
-			if (cb.checked) f.requireCheapestNow = true;
-			else delete f.requireCheapestNow;
-			setRuleAt(i, { ...cur, filters: f });
-			renderRules();
-			return;
-		}
-	}, true);
+			if (dk === "useCheapest") {
+				if (cb.checked) f.requireCheapestNow = true;
+				else delete f.requireCheapestNow;
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
+		},
+		true,
+	);
 
 	$rulesWrap.addEventListener("change", (e) => {
 		const el = e.target;

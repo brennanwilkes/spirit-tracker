@@ -1,4 +1,3 @@
-
 export async function fetchJson(url) {
 	const res = await fetch(url, { cache: "no-store" });
 	if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
@@ -10,7 +9,6 @@ export async function fetchText(url) {
 	if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
 	return await res.text();
 }
-
 
 export function inferGithubOwnerRepo() {
 	const host = location.hostname || "";
@@ -27,7 +25,8 @@ export function inferGithubOwnerRepo() {
 export function isLocalWriteMode() {
 	const h = String(location.hostname || "").toLowerCase();
 	return (
-		(location.protocol === "http:" || location.protocol === "https:") && (h === "127.0.0.1" || h === "localhost")
+		(location.protocol === "http:" || location.protocol === "https:") &&
+		(h === "127.0.0.1" || h === "localhost")
 	);
 }
 

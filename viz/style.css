@@ -39,6 +39,9 @@ a.badge:hover { text-decoration: underline; cursor: pointer; }
 a.skuLink { color: var(--muted); }
 a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
+/* SKU badges are slightly larger than generic badges for readability */
+.skuLink { font-size: 12px; }
+
 /* ── 3. Typography ─────────────────────────────────────────────────────── */
 
 .h1 {
@@ -194,7 +197,16 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   flex: 1 1 auto;
 }
 
-/* Store label: plain text, bold, muted — sits above the meta row */
+/* Line 1 of itemBody: store label + price side by side */
+.itemLine1 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
 .itemStore {
   font-size: 12px;
   font-weight: 700;
@@ -202,7 +214,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 a.itemStore {
@@ -211,15 +224,23 @@ a.itemStore {
 }
 a.itemStore:hover { color: var(--text); text-decoration: underline; }
 
+.itemLine1 .price {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Line 2: badges only */
 .metaRow {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: nowrap;
   align-items: center;
   overflow: hidden;
   color: var(--muted);
   font-size: 12px;
 }
+/* Hide empty metaRow so it doesn't add spacing when there are no badges */
+.metaRow:empty { display: none; }
 
 /* --- Badges --- */
 .badge {
@@ -616,12 +637,23 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 /* --- Links list --- */
 .links {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   flex-wrap: wrap;
   margin: 8px 0 14px;
   min-width: 0;
 }
-.links a { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.links a {
+  display: inline-block;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.links a:hover { border-color: #2f3a46; color: var(--text); text-decoration: none; }
 
 /* ── 6. Modal (SweetAlert2 theme) ──────────────────────────────────────── */
 

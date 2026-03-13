@@ -14,7 +14,7 @@ const LS_TOKEN = "st:cloud:v1:token";
 const LS_USERID = "st:cloud:v1:userId";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const EVENT_TYPES = ["OUT_OF_STOCK","PRICE_DROP","GLOBAL_NEW","GLOBAL_RETURN"];
+const EVENT_TYPES = ["OUT_OF_STOCK", "PRICE_DROP", "GLOBAL_NEW", "GLOBAL_RETURN"];
 
 /* ---------------- Support link (optional) ---------------- */
 
@@ -171,37 +171,37 @@ function shouldShowRateLimitModal() {
 		return true;
 	}
 }
-  function showRateLimitModal({ retryAfterMs = null } = {}) {
+function showRateLimitModal({ retryAfterMs = null } = {}) {
 	if (typeof document === "undefined") return;
 	if (!shouldShowRateLimitModal()) return;
-  
-	const Swal = (typeof window !== "undefined" && window.Swal) ? window.Swal : null;
+
+	const Swal = typeof window !== "undefined" && window.Swal ? window.Swal : null;
 	if (!Swal) return;
-  
+
 	const secs = retryAfterMs ? Math.max(1, Math.round(retryAfterMs / 1000)) : null;
-  
+
 	const msg =
-	  `Cloudflare Key/Value writes are being rate limited. Your change has not saved. ` +
-	  (secs ? `Try again in ~${secs}s.` : `Try again after 4:00pm Pacific Time`);
-  
+		`Cloudflare Key/Value writes are being rate limited. Your change has not saved. ` +
+		(secs ? `Try again in ~${secs}s.` : `Try again after 4:00pm Pacific Time`);
+
 	Swal.fire({
-	  icon: "warning",
-	  title: "Saving is temporarily rate limited",
-	  text: msg,
-	  footer: "If you get value from the site, buy Brennan a bottle and he'll pay more for Cloudflare.",
-	  confirmButtonText: "OK",
-	  customClass: {
-		popup: "stSwalPopup",
-		title: "stSwalTitle",
-		htmlContainer: "stSwalHtml",
-		confirmButton: "stSwalConfirm",
-		footer: "stSwalFooter",
-	  },
-	  buttonsStyling: false,
+		icon: "warning",
+		title: "Saving is temporarily rate limited",
+		text: msg,
+		footer:
+			"If you get value from the site, buy Brennan a bottle and he'll pay more for Cloudflare.",
+		confirmButtonText: "OK",
+		customClass: {
+			popup: "stSwalPopup",
+			title: "stSwalTitle",
+			htmlContainer: "stSwalHtml",
+			confirmButton: "stSwalConfirm",
+			footer: "stSwalFooter",
+		},
+		buttonsStyling: false,
 	});
-  }
-  
-  
+}
+
 /* ---------------- Errors ---------------- */
 
 export class AuthError extends Error {
@@ -266,7 +266,9 @@ export function clearAuth() {
 /* ---------------- JWT decode + validation (client-side best-effort) ---------------- */
 
 function b64UrlToJson(b64url) {
-	const b64 = String(b64url || "").replace(/-/g, "+").replace(/_/g, "/");
+	const b64 = String(b64url || "")
+		.replace(/-/g, "+")
+		.replace(/_/g, "/");
 	const pad = b64.length % 4 === 0 ? "" : "=".repeat(4 - (b64.length % 4));
 	const txt = atob(b64 + pad);
 	return JSON.parse(txt);
@@ -344,7 +346,8 @@ export function requireAuth({ leewaySeconds = 30 } = {}) {
 /* ---------------- Input validation helpers ---------------- */
 
 function validateScorePatchMap(obj) {
-	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError("score must be an object");
+	if (!obj || typeof obj !== "object" || Array.isArray(obj))
+		throw new TypeError("score must be an object");
 	const out = {};
 	for (const [k, v] of Object.entries(obj)) {
 		const kk = assertSmallStringKey(k, "score key");
@@ -372,7 +375,9 @@ function assertSmallStringKey(k, name = "key") {
 }
 
 function assertEmailPassword(email, password) {
-	const e = String(email || "").trim().toLowerCase();
+	const e = String(email || "")
+		.trim()
+		.toLowerCase();
 	const p = String(password || "");
 	if (!e || !e.includes("@")) throw new TypeError("Invalid email");
 	if (p.length < 8) throw new TypeError("Invalid password");
@@ -380,7 +385,9 @@ function assertEmailPassword(email, password) {
 }
 
 function assertEmailOnly(email) {
-	const e = String(email || "").trim().toLowerCase();
+	const e = String(email || "")
+		.trim()
+		.toLowerCase();
 	if (!e || !e.includes("@")) throw new TypeError("Invalid email");
 	return { email: e };
 }
@@ -388,7 +395,8 @@ function assertEmailOnly(email) {
 function validateStringArray(arr, name) {
 	if (!Array.isArray(arr)) throw new TypeError(`${name} must be an array`);
 	for (const v of arr) {
-		if (typeof v !== "string" || v.length > 256) throw new TypeError(`${name} must be an array of small strings`);
+		if (typeof v !== "string" || v.length > 256)
+			throw new TypeError(`${name} must be an array of small strings`);
 	}
 	return arr;
 }
@@ -419,7 +427,8 @@ function uniqStrings(arr) {
 }
 
 function validateEmailNotificationsV1(v) {
-	if (!v || typeof v !== "object" || Array.isArray(v)) throw new TypeError("emailNotifications must be an object");
+	if (!v || typeof v !== "object" || Array.isArray(v))
+		throw new TypeError("emailNotifications must be an object");
 	const version = Number(v.version);
 	if (version !== 1) throw new TypeError("emailNotifications.version must be 1");
 	if (!Array.isArray(v.rules)) throw new TypeError("emailNotifications.rules must be an array");
@@ -440,11 +449,18 @@ function validateEmailNotificationsV1(v) {
 		let filters = undefined;
 
 		if (filtersIn != null) {
-			if (!filtersIn || typeof filtersIn !== "object" || Array.isArray(filtersIn)) throw new TypeError("rule.filters must be object");
+			if (!filtersIn || typeof filtersIn !== "object" || Array.isArray(filtersIn))
+				throw new TypeError("rule.filters must be object");
 			const kwAnyRaw = Array.isArray(filtersIn.keywordsAny) ? filtersIn.keywordsAny : [];
 			const kwNoneRaw = Array.isArray(filtersIn.keywordsNone) ? filtersIn.keywordsNone : [];
-			const kwAny = uniqStrings(kwAnyRaw.map((x) => sanitizeKeyword(x)).filter(Boolean)).slice(0, 16);
-			const kwNone = uniqStrings(kwNoneRaw.map((x) => sanitizeKeyword(x)).filter(Boolean)).slice(0, 16);
+			const kwAny = uniqStrings(kwAnyRaw.map((x) => sanitizeKeyword(x)).filter(Boolean)).slice(
+				0,
+				16,
+			);
+			const kwNone = uniqStrings(kwNoneRaw.map((x) => sanitizeKeyword(x)).filter(Boolean)).slice(
+				0,
+				16,
+			);
 
 			const out = {};
 			if (kwAny.length) out.keywordsAny = kwAny;
@@ -453,13 +469,15 @@ function validateEmailNotificationsV1(v) {
 			// store filter
 			if (filtersIn.storeId != null) {
 				const s = String(filtersIn.storeId || "").trim();
-				if (!s || s.length > 64 || !/^[a-z0-9_-]+$/.test(s)) throw new TypeError("storeId must be a small slug");
+				if (!s || s.length > 64 || !/^[a-z0-9_-]+$/.test(s))
+					throw new TypeError("storeId must be a small slug");
 				out.storeId = s;
 			}
 
 			// across market (preserve false; default true for GLOBAL_NEW; not allowed for PRICE_DROP)
 			if (filtersIn.acrossMarket != null) {
-				if (typeof filtersIn.acrossMarket !== "boolean") throw new TypeError("acrossMarket must be boolean");
+				if (typeof filtersIn.acrossMarket !== "boolean")
+					throw new TypeError("acrossMarket must be boolean");
 				out.acrossMarket = filtersIn.acrossMarket;
 			}
 
@@ -481,11 +499,13 @@ function validateEmailNotificationsV1(v) {
 				}
 				if (filtersIn.minDropPct != null) {
 					const n = Number(filtersIn.minDropPct);
-					if (!Number.isFinite(n) || n < 0 || n > 100) throw new TypeError("minDropPct must be 0..100");
+					if (!Number.isFinite(n) || n < 0 || n > 100)
+						throw new TypeError("minDropPct must be 0..100");
 					out.minDropPct = n;
 				}
 				if (filtersIn.requireCheapestNow != null) {
-					if (typeof filtersIn.requireCheapestNow !== "boolean") throw new TypeError("requireCheapestNow must be boolean");
+					if (typeof filtersIn.requireCheapestNow !== "boolean")
+						throw new TypeError("requireCheapestNow must be boolean");
 					out.requireCheapestNow = filtersIn.requireCheapestNow;
 				}
 			}
@@ -503,7 +523,8 @@ function validateEmailNotificationsV1(v) {
 }
 
 function validateDetails(obj) {
-	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError("details must be an object");
+	if (!obj || typeof obj !== "object" || Array.isArray(obj))
+		throw new TypeError("details must be an object");
 	if (typeof obj.public !== "boolean") throw new TypeError("details.public must be boolean");
 
 	if (Object.prototype.hasOwnProperty.call(obj, "emailNotifications")) {
@@ -529,7 +550,8 @@ function validateDetails(obj) {
 	return obj;
 }
 function validateBoolMap(obj, name) {
-	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError(`${name} must be an object`);
+	if (!obj || typeof obj !== "object" || Array.isArray(obj))
+		throw new TypeError(`${name} must be an object`);
 	const out = {};
 	for (const [k, v] of Object.entries(obj)) {
 		out[assertSmallStringKey(k, `${name} key`)] = !!v;
@@ -539,7 +561,8 @@ function validateBoolMap(obj, name) {
 }
 
 function validateScoreMap(obj) {
-	if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new TypeError("score must be an object");
+	if (!obj || typeof obj !== "object" || Array.isArray(obj))
+		throw new TypeError("score must be an object");
 	const out = {};
 	for (const [k, v] of Object.entries(obj)) {
 		const kk = assertSmallStringKey(k, "score key");
@@ -630,7 +653,8 @@ async function requestJson(
 	const scope = authToken ? scopeFromToken(authToken) : "anon";
 
 	const wantCache = cache === undefined ? isGet : !!cache;
-	const ttlMs = cacheTtlMs === undefined ? DEFAULT_CACHE_TTL_MS : Math.max(0, Number(cacheTtlMs) || 0);
+	const ttlMs =
+		cacheTtlMs === undefined ? DEFAULT_CACHE_TTL_MS : Math.max(0, Number(cacheTtlMs) || 0);
 
 	if (wantCache && isGet && ttlMs > 0) {
 		const hit = cacheGet(scope, method, path);
@@ -659,35 +683,38 @@ async function requestJson(
 	const parsed = await readResponseBody(res);
 	const payload = parsed.kind === "json" ? parsed.value : null;
 	const msg =
-	  (payload && typeof payload === "object" && typeof payload.error === "string" && payload.error) ||
-	  (parsed.kind === "text" && String(parsed.value || "").trim()) ||
-	  `HTTP ${res.status}`;
-	
+		(payload &&
+			typeof payload === "object" &&
+			typeof payload.error === "string" &&
+			payload.error) ||
+		(parsed.kind === "text" && String(parsed.value || "").trim()) ||
+		`HTTP ${res.status}`;
+
 	if (!res.ok) {
-	  const isKvWriteLimit =
-		typeof msg === "string" &&
-		(/kv\s*put\(\)\s*limit exceeded/i.test(msg) ||
-		  /put\(\)\s*limit exceeded/i.test(msg) ||
-		  /kv.*limit exceeded/i.test(msg) ||
-		  /rate limit/i.test(msg));
-	
-	  if (isWrite && (res.status === 429 || isKvWriteLimit)) {
-		showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
-	  }
-	
-	  if (res.status === 401 || res.status === 403) {
-		throw new AuthError(msg, {
-		  reason: res.status === 401 ? "unauthorized" : "forbidden",
-		  status: res.status,
-		  url,
-		  body: payload,
-		  userId: authUserId,
-		});
-	  }
-	
-	  throw new ApiError(msg, { status: res.status, url, body: payload });
+		const isKvWriteLimit =
+			typeof msg === "string" &&
+			(/kv\s*put\(\)\s*limit exceeded/i.test(msg) ||
+				/put\(\)\s*limit exceeded/i.test(msg) ||
+				/kv.*limit exceeded/i.test(msg) ||
+				/rate limit/i.test(msg));
+
+		if (isWrite && (res.status === 429 || isKvWriteLimit)) {
+			showRateLimitModal({ retryAfterMs: parseRetryAfterMs(res) });
+		}
+
+		if (res.status === 401 || res.status === 403) {
+			throw new AuthError(msg, {
+				reason: res.status === 401 ? "unauthorized" : "forbidden",
+				status: res.status,
+				url,
+				body: payload,
+				userId: authUserId,
+			});
+		}
+
+		throw new ApiError(msg, { status: res.status, url, body: payload });
 	}
-	
+
 	const out = payload;
 
 	if (wantCache && isGet && ttlMs > 0) {
@@ -701,7 +728,12 @@ async function requestJson(
 
 export async function signup(email, password) {
 	const creds = assertEmailPassword(email, password);
-	const j = await requestJson("/signup", { method: "POST", body: creds, auth: false, cache: false });
+	const j = await requestJson("/signup", {
+		method: "POST",
+		body: creds,
+		auth: false,
+		cache: false,
+	});
 
 	// New flow: email verification required, no token returned.
 	if (j && typeof j === "object" && j.requiresVerify) {
@@ -717,7 +749,8 @@ export async function signup(email, password) {
 	// sanity: token sub should match
 	const p = decodeJwtPayload(token);
 	const sub = String(p?.sub || "");
-	if (sub && UUID_RE.test(sub) && sub !== userId) throw new ApiError("Token subject mismatch", { userId, sub });
+	if (sub && UUID_RE.test(sub) && sub !== userId)
+		throw new ApiError("Token subject mismatch", { userId, sub });
 
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
@@ -738,7 +771,8 @@ export async function login(email, password) {
 
 	const p = decodeJwtPayload(token);
 	const sub = String(p?.sub || "");
-	if (sub && UUID_RE.test(sub) && sub !== userId) throw new ApiError("Token subject mismatch", { userId, sub });
+	if (sub && UUID_RE.test(sub) && sub !== userId)
+		throw new ApiError("Token subject mismatch", { userId, sub });
 
 	lsSet(LS_TOKEN, token);
 	lsSet(LS_USERID, userId);
@@ -749,7 +783,12 @@ export async function login(email, password) {
 
 export async function requestPasswordReset(email) {
 	const e = assertEmailOnly(email);
-	return await requestJson("/password-reset/request", { method: "POST", body: e, auth: false, cache: false });
+	return await requestJson("/password-reset/request", {
+		method: "POST",
+		body: e,
+		auth: false,
+		cache: false,
+	});
 }
 
 export async function confirmPasswordReset(token, password) {
@@ -757,7 +796,12 @@ export async function confirmPasswordReset(token, password) {
 	if (p.length < 8) throw new TypeError("Invalid password");
 	const t = String(token || "").trim();
 	if (!t) throw new TypeError("Invalid token");
-	return await requestJson("/password-reset/confirm", { method: "POST", body: { token: t, password: p }, auth: false, cache: false });
+	return await requestJson("/password-reset/confirm", {
+		method: "POST",
+		body: { token: t, password: p },
+		auth: false,
+		cache: false,
+	});
 }
 
 export async function ping() {
@@ -799,7 +843,9 @@ function parseHashParams(hash) {
 	return new URLSearchParams(h.startsWith("#") ? h.slice(1) : h);
 }
 
-export function isOauthCallbackHash(hash = (typeof window !== "undefined" ? window.location.hash : "")) {
+export function isOauthCallbackHash(
+	hash = typeof window !== "undefined" ? window.location.hash : "",
+) {
 	const params = parseHashParams(hash);
 	return !!params.get("token");
 }
@@ -811,7 +857,7 @@ export function isOauthCallbackHash(hash = (typeof window !== "undefined" ? wind
  * Returns { token, userId, payload } if it consumed OAuth data, otherwise null.
  */
 export function consumeOauthCallbackHash({
-	hash = (typeof window !== "undefined" ? window.location.hash : ""),
+	hash = typeof window !== "undefined" ? window.location.hash : "",
 	clearHash = true,
 } = {}) {
 	const params = parseHashParams(hash);
@@ -851,7 +897,8 @@ export function consumeOauthCallbackHash({
 function acctPath(userId, resource) {
 	const uid = assertUuid(userId);
 	const r = String(resource || "").trim();
-	if (!["details", "favourites", "sampled", "score"].includes(r)) throw new TypeError("Invalid resource");
+	if (!["details", "favourites", "sampled", "score"].includes(r))
+		throw new TypeError("Invalid resource");
 	return `/u/${encodeURIComponent(uid)}/${encodeURIComponent(r)}`;
 }
 
@@ -908,11 +955,21 @@ export async function getFavourites(userId) {
 }
 
 export async function getSampled(userId) {
-	return await requestJson(acctPath(userId, "sampled"), { method: "GET", auth: false, token: getStoredToken(), cache: false });
+	return await requestJson(acctPath(userId, "sampled"), {
+		method: "GET",
+		auth: false,
+		token: getStoredToken(),
+		cache: false,
+	});
 }
 
 export async function getScore(userId) {
-	return await requestJson(acctPath(userId, "score"), { method: "GET", auth: false, token: getStoredToken(), cache: false });
+	return await requestJson(acctPath(userId, "score"), {
+		method: "GET",
+		auth: false,
+		token: getStoredToken(),
+		cache: false,
+	});
 }
 
 /* Convenience: current user (from stored auth) */
@@ -939,7 +996,12 @@ export async function getMyScore() {
 export async function putDetails(userId, detailsObj) {
 	const uid = assertUuid(userId);
 	const body = validateDetails(detailsObj);
-	const r = await requestJson(acctPath(uid, "details"), { method: "PUT", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "details"), {
+		method: "PUT",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCacheUpdate(uid, "details", body);
 	return r;
 }
@@ -947,7 +1009,12 @@ export async function putDetails(userId, detailsObj) {
 export async function putFavourites(userId, favouritesArray) {
 	const uid = assertUuid(userId);
 	const body = validateStringArray(favouritesArray, "favourites");
-	const r = await requestJson(acctPath(uid, "favourites"), { method: "PUT", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "favourites"), {
+		method: "PUT",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCacheUpdate(uid, "favourites", body);
 	return r;
 }
@@ -955,7 +1022,12 @@ export async function putFavourites(userId, favouritesArray) {
 export async function putSampled(userId, sampledArray) {
 	const uid = assertUuid(userId);
 	const body = validateStringArray(sampledArray, "sampled");
-	const r = await requestJson(acctPath(uid, "sampled"), { method: "PUT", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "sampled"), {
+		method: "PUT",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCacheUpdate(uid, "sampled", body);
 	return r;
 }
@@ -963,7 +1035,12 @@ export async function putSampled(userId, sampledArray) {
 export async function putScore(userId, scoreMap) {
 	const uid = assertUuid(userId);
 	const body = validateScoreMap(scoreMap);
-	const r = await requestJson(acctPath(uid, "score"), { method: "PUT", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "score"), {
+		method: "PUT",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCacheUpdate(uid, "score", body);
 	return r;
 }
@@ -973,7 +1050,12 @@ export async function putScore(userId, scoreMap) {
 export async function patchFavourites(userId, boolMap) {
 	const uid = assertUuid(userId);
 	const body = validateBoolMap(boolMap, "favourites");
-	const r = await requestJson(acctPath(uid, "favourites"), { method: "POST", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "favourites"), {
+		method: "POST",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCachePatch(uid, "favourites", body);
 	return r;
 }
@@ -981,7 +1063,12 @@ export async function patchFavourites(userId, boolMap) {
 export async function patchSampled(userId, boolMap) {
 	const uid = assertUuid(userId);
 	const body = validateBoolMap(boolMap, "sampled");
-	const r = await requestJson(acctPath(uid, "sampled"), { method: "POST", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "sampled"), {
+		method: "POST",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCachePatch(uid, "sampled", body);
 	return r;
 }
@@ -989,7 +1076,12 @@ export async function patchSampled(userId, boolMap) {
 export async function patchScore(userId, scorePatchMap) {
 	const uid = assertUuid(userId);
 	const body = validateScorePatchMap(scorePatchMap);
-	const r = await requestJson(acctPath(uid, "score"), { method: "POST", body, auth: true, cache: false });
+	const r = await requestJson(acctPath(uid, "score"), {
+		method: "POST",
+		body,
+		auth: true,
+		cache: false,
+	});
 	acctGetCachePatch(uid, "score", body);
 	return r;
 }
@@ -1050,12 +1142,12 @@ export async function patchMyScore(scoreMap) {
 	return await patchScore(userId, scoreMap);
 }
 
-
-export async function getShortlists({ cacheTtlMs = 60 * 60 * 1000 } = {}) { // 1 hour
+export async function getShortlists({ cacheTtlMs = 60 * 60 * 1000 } = {}) {
+	// 1 hour
 	return await requestJson("/shortlists", {
-	  method: "GET",
-	  auth: false,
-	  cache: true,
-	  cacheTtlMs,
+		method: "GET",
+		auth: false,
+		cache: true,
+		cacheTtlMs,
 	});
-  }
+}

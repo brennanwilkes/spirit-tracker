@@ -133,7 +133,11 @@ export function recommendSimilar(
 			if (k && k === pinnedSmws) {
 				const stores = it.stores ? it.stores.size : 0;
 				const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
-				pushTopK(cheap, { it, s: 1e9 + stores * 10 + hasPrice, itNorm: "", itRawToks: null }, MAX_CHEAP_KEEP);
+				pushTopK(
+					cheap,
+					{ it, s: 1e9 + stores * 10 + hasPrice, itNorm: "", itRawToks: null },
+					MAX_CHEAP_KEEP,
+				);
 				continue;
 			}
 		}
@@ -261,7 +265,6 @@ export function recommendSimilar(
 	return fallback.slice(0, limit).map((x) => x.it);
 }
 
-
 export function computeInitialPairsFast(
 	allAgg,
 	mappedSkus,
@@ -296,8 +299,8 @@ export function computeInitialPairsFast(
 			}
 		}
 	}
-	const rnd = mulberry32((s0 >>> 0) || 1);
-	const randInt = (n) => (n <= 1 ? 0 : ((rnd() * n) | 0));
+	const rnd = mulberry32(s0 >>> 0 || 1);
+	const randInt = (n) => (n <= 1 ? 0 : (rnd() * n) | 0);
 
 	function blocked(aSku, bSku) {
 		if (!aSku || !bSku || aSku === bSku) return true;
@@ -332,11 +335,11 @@ export function computeInitialPairsFast(
 	} else {
 		const itemsShuf = itemsAll.slice();
 		shuffleInPlace(itemsShuf, rnd);
-	
+
 		const WORK_CAP = Math.min(12000, itemsShuf.length);
 		workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 	}
-	
+
 	// Unmapped-only pool for initial suggestions
 	const work = workAll.filter((it) => it && !(mappedSkus && mappedSkus.has(String(it.sku || ""))));
 	if (!work.length) return [];
@@ -611,7 +614,6 @@ export function computeInitialPairsFast(
 	if (!DETERMINISTIC) shuffleInPlace(out, rnd);
 	return out.slice(0, limitPairs);
 }
-
 
 function fnv1a32u(str) {
 	let h = 0x811c9dc5;

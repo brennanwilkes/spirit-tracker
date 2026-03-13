@@ -21,37 +21,39 @@ import { favStarHtml } from "./fav_star.js";
  * @param {string}  [opts.skuHref=""]          - href for the SKU badge link
  * @returns {string} HTML string
  */
-export function itemCardHtml(item, {
-	showFavStar = false,
-	favOn = false,
-	priceStr = "",
-	storeLabel = "",
-	storeUrl = "",
-	badgesHtml = "",
-	showSkuBadge = true,
-	skuHref = "",
-} = {}) {
+export function itemCardHtml(
+	item,
+	{
+		showFavStar = false,
+		favOn = false,
+		priceStr = "",
+		storeLabel = "",
+		storeUrl = "",
+		badgesHtml = "",
+		showSkuBadge = true,
+		skuHref = "",
+	} = {},
+) {
 	const sku = String(item?.sku || "");
 	const name = String(item?.name || "(no name)");
 	const img = item?.img || "";
 
 	const star = showFavStar && sku ? favStarHtml(sku, favOn) : "";
 
-	const skuBadge = showSkuBadge && sku
-		? skuHref
-			? `<a class="badge mono skuLink" target="_blank" rel="noopener noreferrer" href="${esc(skuHref)}" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>`
-			: `<span class="badge mono">${esc(displaySku(sku))}</span>`
-		: "";
+	const skuBadge =
+		showSkuBadge && sku
+			? skuHref
+				? `<a class="badge mono skuLink" target="_blank" rel="noopener noreferrer" href="${esc(skuHref)}" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>`
+				: `<span class="badge mono">${esc(displaySku(sku))}</span>`
+			: "";
 
-	const storeHtml = storeLabel
+	const storeEl = storeLabel
 		? storeUrl
 			? `<a class="itemStore" href="${esc(storeUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
-			: `<div class="itemStore">${esc(storeLabel)}</div>`
+			: `<span class="itemStore">${esc(storeLabel)}</span>`
 		: "";
 
-	const priceSpan = priceStr
-		? `<span class="price">${esc(priceStr)}</span>`
-		: "";
+	const priceEl = priceStr ? `<span class="price">${esc(priceStr)}</span>` : "";
 
 	return `
 <div class="item${showFavStar ? " itemHasStar" : ""}" data-sku="${esc(sku)}">
@@ -63,11 +65,8 @@ export function itemCardHtml(item, {
   <div class="itemRow">
     <div class="thumbBox">${renderThumbHtml(img)}</div>
     <div class="itemBody">
-      ${storeHtml}
-      <div class="metaRow">
-        ${priceSpan}
-        ${badgesHtml}
-      </div>
+      <div class="itemLine1">${storeEl}${priceEl}</div>
+      <div class="metaRow">${badgesHtml}</div>
     </div>
   </div>
 </div>`;
