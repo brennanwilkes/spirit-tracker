@@ -42,7 +42,9 @@ function skuIsBC(allRows, skuKey) {
 
 function isABStoreLabel(label) {
 	const s = String(label || "").toLowerCase();
-	return s.includes("alberta") || s.includes("calgary") || s.includes("edmonton") || /\bab\b/.test(s);
+	return (
+		s.includes("alberta") || s.includes("calgary") || s.includes("edmonton") || /\bab\b/.test(s)
+	);
 }
 
 function skuIsAB(allRows, skuKey) {

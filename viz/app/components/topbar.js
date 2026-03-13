@@ -11,21 +11,13 @@ import { esc } from "../dom.js";
  * @returns {string} HTML string
  */
 export function topbarHtml({ backHref = "#/", title = "", titleBadge = "", rightHtml = "" } = {}) {
-	const back = backHref
-		? `<a href="${esc(backHref)}" class="btn btnSm">\u2190 Back</a>`
-		: "";
+	const back = backHref ? `<a href="${esc(backHref)}" class="btn btnSm">\u2190 Back</a>` : "";
 
-	const titlePart = title
-		? `<div class="h1" style="margin:0;">${esc(title)}</div>`
-		: "";
+	const titlePart = title ? `<div class="h1" style="margin:0;">${esc(title)}</div>` : "";
 
-	const badgePart = titleBadge
-		? `<span class="badge">${esc(titleBadge)}</span>`
-		: "";
+	const badgePart = titleBadge ? `<span class="badge">${esc(titleBadge)}</span>` : "";
 
-	const right = rightHtml
-		? `<div style="margin-left:auto;">${rightHtml}</div>`
-		: "";
+	const right = rightHtml ? `<div style="margin-left:auto;">${rightHtml}</div>` : "";
 
 	return `<div class="topbar">${back}${titlePart}${badgePart}${right}</div>`;
 }

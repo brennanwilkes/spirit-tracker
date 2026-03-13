@@ -104,8 +104,15 @@ export function resizeStatsChart() {
 }
 
 export async function drawOrUpdateChart(series, yBounds) {
-	const { labels, stores, seriesByStore, coverageSeriesByStore, marketMedianTrend, marketFloorTrend, valueMode } =
-		series;
+	const {
+		labels,
+		stores,
+		seriesByStore,
+		coverageSeriesByStore,
+		marketMedianTrend,
+		marketFloorTrend,
+		valueMode,
+	} = series;
 
 	const Chart = await ensureChartJs();
 	const canvas = document.getElementById("statsChart");
@@ -116,7 +123,8 @@ export async function drawOrUpdateChart(series, yBounds) {
 		.sort((a, b) => {
 			const av = a.v,
 				bv = b.v;
-			if (av === null && bv === null) return displayStoreName(a.s).localeCompare(displayStoreName(b.s));
+			if (av === null && bv === null)
+				return displayStoreName(a.s).localeCompare(displayStoreName(b.s));
 			if (av === null) return 1;
 			if (bv === null) return -1;
 			if (av !== bv) return av - bv; // cheapest (lowest index) first
@@ -207,7 +215,9 @@ export async function drawOrUpdateChart(series, yBounds) {
 	const tooltipLabel = (ctx2) => {
 		const v = ctx2.parsed?.y;
 		if (!Number.isFinite(v)) return `${ctx2.dataset.label}: (no data)`;
-		return isDollars ? `${ctx2.dataset.label}: ${formatSignedDollars(v)}` : `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
+		return isDollars
+			? `${ctx2.dataset.label}: ${formatSignedDollars(v)}`
+			: `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
 	};
 
 	const yTickCallback = (v) => {

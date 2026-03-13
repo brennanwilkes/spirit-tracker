@@ -1,5 +1,11 @@
 import { esc, renderThumbHtml } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
+import {
+	tokenizeQuery,
+	matchesAllTokens,
+	displaySku,
+	keySkuForRow,
+	parsePriceToNumber,
+} from "./sku.js";
 import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
@@ -188,17 +194,17 @@ export async function renderStore($app, storeLabelRaw) {
 	const [idx, rulesLoaded, fav] = await Promise.all([
 		loadIndex(),
 		loadSkuRules(),
-		loadMyFavouritesSet()
+		loadMyFavouritesSet(),
 	]);
-	
+
 	rulesCache = rulesLoaded;
 	const rules = rulesCache;
-	
+
 	for (const k of fav.set) {
 		const raw = String(k || "");
 		favSet.add(String(rules.canonicalSku(raw) || raw));
 	}
-		
+
 	// --- Recent (7d), most-recent per canonicalSku + store ---
 	const recent = await loadRecent().catch(() => null);
 	const recentItems = Array.isArray(recent?.items) ? recent.items : [];
@@ -360,7 +366,9 @@ export async function renderStore($app, storeLabelRaw) {
 	}
 
 	// Store-specific live rows only (in-stock for that store)
-	const rowsStoreLive = liveAll.filter((r) => normalizeStoreId(r.storeLabel || r.store || "") === storeNorm);
+	const rowsStoreLive = liveAll.filter(
+		(r) => normalizeStoreId(r.storeLabel || r.store || "") === storeNorm,
+	);
 
 	// Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
 	let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
@@ -385,11 +393,15 @@ export async function renderStore($app, storeLabelRaw) {
 
 		const diffVsOtherDollar = storePrice !== null && other !== null ? storePrice - other : null;
 		const diffVsOtherPct =
-			storePrice !== null && other !== null && other > 0 ? ((storePrice - other) / other) * 100 : null;
+			storePrice !== null && other !== null && other > 0
+				? ((storePrice - other) / other) * 100
+				: null;
 
 		const diffVsBestDollar = storePrice !== null && bestAll !== null ? storePrice - bestAll : null;
 		const diffVsBestPct =
-			storePrice !== null && bestAll !== null && bestAll > 0 ? ((storePrice - bestAll) / bestAll) * 100 : null;
+			storePrice !== null && bestAll !== null && bestAll > 0
+				? ((storePrice - bestAll) / bestAll) * 100
+				: null;
 
 		const firstSeenMs = firstSeenBySkuInStore.get(sku);
 		const firstSeen = firstSeenMs !== undefined ? firstSeenMs : null;
@@ -595,7 +607,9 @@ export async function renderStore($app, storeLabelRaw) {
 				: "";
 
 		const bestBadge =
-			!it._exclusive && !it._lastStock && it._isBest ? `<span class="badge badgeBest">Best Price</span>` : "";
+			!it._exclusive && !it._lastStock && it._isBest
+				? `<span class="badge badgeBest">Best Price</span>`
+				: "";
 
 		const diffBadge = priceBadgeHtml(it);
 		const exAnnot = it._exclusive || it._lastStock ? exclusiveAnnotHtml(it) : "";
@@ -612,22 +626,11 @@ export async function renderStore($app, storeLabelRaw) {
 		<div class="itemRow">
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
-            <div class="metaRow">
-              ${specialBadge}
-              ${bestBadge}
-              ${diffBadge}
-              ${exAnnot}
+            <div class="itemLine1">
+              ${href ? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabelShort)}</a>` : `<span class="itemStore">${esc(storeLabelShort)}</span>`}
               <span class="price">${esc(price)}</span>
-              ${
-					href
-						? `<a class="badge" href="${esc(
-								href,
-							)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(
-								storeLabelShort,
-							)}</a>`
-						: ``
-				}
             </div>
+            <div class="metaRow">${specialBadge}${bestBadge}${diffBadge}${exAnnot}</div>
           </div>
         </div>
       </div>
@@ -679,8 +682,10 @@ export async function renderStore($app, storeLabelRaw) {
 		shownExclusive += sliceEx.length;
 		shownCompare += sliceCo.length;
 
-		if (sliceEx.length) $resultsExclusive.insertAdjacentHTML("beforeend", sliceEx.map(renderCard).join(""));
-		if (sliceCo.length) $resultsCompare.insertAdjacentHTML("beforeend", sliceCo.map(renderCard).join(""));
+		if (sliceEx.length)
+			$resultsExclusive.insertAdjacentHTML("beforeend", sliceEx.map(renderCard).join(""));
+		if (sliceCo.length)
+			$resultsCompare.insertAdjacentHTML("beforeend", sliceCo.map(renderCard).join(""));
 
 		const total = totalFiltered();
 		const shown = totalShown();

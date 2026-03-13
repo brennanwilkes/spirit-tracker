@@ -1,6 +1,12 @@
 // viz/app/search_page.js
 import { esc, renderThumbHtml, prettyTs } from "./dom.js";
-import { tokenizeQuery, matchesAllTokens, displaySku, keySkuForRow, parsePriceToNumber } from "./sku.js";
+import {
+	tokenizeQuery,
+	matchesAllTokens,
+	displaySku,
+	keySkuForRow,
+	parsePriceToNumber,
+} from "./sku.js";
 import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
@@ -144,8 +150,10 @@ export function renderSearch($app) {
 
 	const LS_SORT = "viz:searchSort";
 	const LS_AVAIL = "viz:searchAvail";
-	if ($sort && localStorage.getItem(LS_SORT)) $sort.value = String(localStorage.getItem(LS_SORT) || "newest");
-	if ($avail && localStorage.getItem(LS_AVAIL)) $avail.value = String(localStorage.getItem(LS_AVAIL) || "all");
+	if ($sort && localStorage.getItem(LS_SORT))
+		$sort.value = String(localStorage.getItem(LS_SORT) || "newest");
+	if ($avail && localStorage.getItem(LS_AVAIL))
+		$avail.value = String(localStorage.getItem(LS_AVAIL) || "all");
 
 	const favSet = new Set();
 	installFavStars($results, favSet);
@@ -356,7 +364,8 @@ export function renderSearch($app) {
 			if (!Number.isFinite(beforeMin)) return null;
 
 			if (Math.abs(beforeMin - afterMin) > EPS) {
-				const isPriceEvt = e.kind === "price_down" || e.kind === "price_up" || e.kind === "price_change";
+				const isPriceEvt =
+					e.kind === "price_down" || e.kind === "price_up" || e.kind === "price_change";
 				// If the first movement of the CURRENT cheapest was caused by stock churn, do not badge/sort.
 				if (!isPriceEvt) return null;
 
@@ -446,7 +455,6 @@ export function renderSearch($app) {
 		const m = globalSaleMetaBySku.get(String(sku || ""));
 		return m && Number.isFinite(m.delta) ? m.delta : null;
 	}
-
 
 	function saleBadgeHtmlForSku(sku, mode) {
 		const sm = globalSaleMetaBySku.get(String(sku || "")) || null;
@@ -553,19 +561,25 @@ export function renderSearch($app) {
 
 				const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
-				const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
+				const stockBadge = stock.outOfStock
+					? `<span class="badge badgeBad">OUT OF STOCK</span>`
+					: "";
 				const specialBadge = stock.lastStock
 					? `<span class="badge badgeLastStock">Last Stock</span>`
 					: stock.exclusive
 						? `<span class="badge badgeExclusive">Exclusive</span>`
 						: "";
 
-				const storeHref = store && !stock.outOfStock ? urlForAgg(it, store) || String(it.sampleUrl || "").trim() : "";
-				const storeHtml = store && !stock.outOfStock
-					? storeHref
-						? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
-						: `<div class="itemStore">${esc(store)}${esc(plus)}</div>`
-					: "";
+				const storeHref =
+					store && !stock.outOfStock
+						? urlForAgg(it, store) || String(it.sampleUrl || "").trim()
+						: "";
+				const storeHtml =
+					store && !stock.outOfStock
+						? storeHref
+							? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
+							: `<div class="itemStore">${esc(store)}${esc(plus)}</div>`
+						: "";
 
 				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
@@ -581,13 +595,8 @@ export function renderSearch($app) {
                 ${renderThumbHtml(it.img)}
               </div>
               <div class="itemBody">
-                ${storeHtml}
-                <div class="metaRow">
-					<span class="price">${esc(price)}</span>
-					${saleBadge}
-					${stockBadge}
-					${specialBadge}
-                </div>
+                <div class="itemLine1">${storeHtml}<span class="price">${esc(price)}</span></div>
+                <div class="metaRow">${saleBadge}${stockBadge}${specialBadge}</div>
               </div>
             </div>
           </div>
@@ -720,7 +729,9 @@ export function renderSearch($app) {
 					const stock = stockMetaForSku(sku);
 					const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
 
-					const stockBadge = stock.outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
+					const stockBadge = stock.outOfStock
+						? `<span class="badge badgeBad">OUT OF STOCK</span>`
+						: "";
 					const specialBadge = stock.lastStock
 						? `<span class="badge badgeLastStock">Last Stock</span>`
 						: stock.exclusive
@@ -758,15 +769,8 @@ export function renderSearch($app) {
                   ${renderThumbHtml(img)}
                 </div>
                 <div class="itemBody">
-                  ${storeHtml}
-                  <div class="metaRow">
-                    <span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>
-                    <span class="price">${esc(priceLine)}</span>
-                    ${saleBadge}
-					${stockBadge}
-					${specialBadge}
-                    ${dateBadge}
-                  </div>
+                  <div class="itemLine1">${storeHtml}<span class="price">${esc(priceLine)}</span></div>
+                  <div class="metaRow"><span class="badge"${kindBadgeStyle}>${esc(kindLabel)}</span>${saleBadge}${stockBadge}${specialBadge}${dateBadge}</div>
                 </div>
               </div>
             </div>
@@ -825,17 +829,18 @@ export function renderSearch($app) {
 
 	// invalidate this run when you leave the page
 	window.addEventListener(
-	  "hashchange",
-	  () => { PREWARM_TOKEN++; },
-	  { once: true }
+		"hashchange",
+		() => {
+			PREWARM_TOKEN++;
+		},
+		{ once: true },
 	);
 
 	async function startPrewarm(listings, rules, recent, token) {
-	
 		const conn = navigator.connection;
 		if (conn?.saveData) return;
 		if (String(conn?.effectiveType || "").includes("2g")) return;
-	
+
 		let manifest = null;
 		try {
 			manifest = await fetchJson("./data/db_commits.json");
@@ -845,32 +850,32 @@ export function renderSearch($app) {
 		const files = manifest?.files || {};
 		const allDbFiles = Object.keys(files);
 		if (!allDbFiles.length) return;
-	
+
 		// dbFile -> storeLabel (for keySkuForRow stability)
 		const dbFileToStoreLabel = new Map();
-	
+
 		// sku -> Set(dbFile) (for prioritizing recent SKUs)
 		const skuToDbFiles = new Map();
-	
+
 		for (const r of Array.isArray(listings) ? listings : []) {
 			const dbFile = String(r?.dbFile || "").trim();
 			if (!dbFile) continue;
-	
+
 			if (!dbFileToStoreLabel.has(dbFile)) {
 				const sl = String(r?.storeLabel || r?.store || dbFile).trim();
 				dbFileToStoreLabel.set(dbFile, sl || dbFile);
 			}
-	
+
 			const skuKeyRaw = String(r?.sku || keySkuForRow(r) || "").trim();
 			if (!skuKeyRaw) continue;
 			const sku = String(rules?.canonicalSku ? rules.canonicalSku(skuKeyRaw) : skuKeyRaw);
 			if (!sku) continue;
-	
+
 			let set = skuToDbFiles.get(sku);
 			if (!set) skuToDbFiles.set(sku, (set = new Set()));
 			set.add(dbFile);
 		}
-	
+
 		// Priority dbFiles: stores that had events in last 3 days
 		const pri = new Set();
 		{
@@ -880,7 +885,7 @@ export function renderSearch($app) {
 			for (const r of items) {
 				const ms = eventMsRecent(r);
 				if (!(ms >= cutoffMs && ms <= nowMs)) continue;
-	
+
 				const rawSku = String(r?.sku || "").trim();
 				if (!rawSku) continue;
 				const sku = String(rules?.canonicalSku ? rules.canonicalSku(rawSku) : rawSku);
@@ -889,27 +894,27 @@ export function renderSearch($app) {
 				for (const dbFile of s) pri.add(dbFile);
 			}
 		}
-	
+
 		const queue = [...pri, ...allDbFiles.filter((x) => !pri.has(x))];
-	
+
 		const { owner, repo } = inferGithubOwnerRepo();
 		const limitNet = makeLimiter(2); // keep low: avoids jank + bandwidth spikes
 		const PER_FILE = 20; // bump to 40 if you want more coverage
-	
+
 		for (const dbFile of queue) {
 			if (token !== PREWARM_TOKEN) return;
 
 			if (document.visibilityState === "hidden") break;
-	
+
 			const arr = files[dbFile];
 			if (!Array.isArray(arr) || !arr.length) continue;
-	
+
 			const storeLabel = dbFileToStoreLabel.get(dbFile) || dbFile;
 			const shas = arr
 				.slice(-PER_FILE)
 				.map((c) => String(c?.sha || "").trim())
 				.filter(Boolean);
-	
+
 			for (const sha of shas) {
 				if (token !== PREWARM_TOKEN) return;
 
@@ -928,7 +933,6 @@ export function renderSearch($app) {
 			}
 		}
 	}
-
 
 	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet(), loadRecent().catch(() => null)])
 		.then(([idx, rules, fav, recent]) => {
@@ -1005,8 +1009,8 @@ export function renderSearch($app) {
 
 			allAgg = aggregateBySku(listings, rules.canonicalSku);
 			const missing = allAgg
-			.map((it) => String(it?.sku || ""))
-			.filter((sku) => sku && !firstSeenMsBySku.has(sku));
+				.map((it) => String(it?.sku || ""))
+				.filter((sku) => sku && !firstSeenMsBySku.has(sku));
 
 			if (missing.length) console.warn("Missing firstSeenAt for SKUs:", missing.slice(0, 50));
 			aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));

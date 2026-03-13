@@ -1,6 +1,10 @@
 import { esc } from "./dom.js";
 import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommits } from "./api.js";
-import { destroyStatsChart, drawOrUpdateChart, resizeStatsChart } from "./stats_page/stats_chart.js";
+import {
+	destroyStatsChart,
+	drawOrUpdateChart,
+	resizeStatsChart,
+} from "./stats_page/stats_chart.js";
 
 export { destroyStatsChart };
 
@@ -132,7 +136,15 @@ function matchesAllTokens(haystack, tokens) {
 
 function rowSearchText(r) {
 	const rep = r?.representative || {};
-	return [r?.canonSku, rep?.name, rep?.skuRaw, rep?.skuKey, rep?.categoryLabel, rep?.storeLabel, rep?.storeKey]
+	return [
+		r?.canonSku,
+		rep?.name,
+		rep?.skuRaw,
+		rep?.skuKey,
+		rep?.categoryLabel,
+		rep?.storeLabel,
+		rep?.storeKey,
+	]
 		.map((x) => String(x || "").trim())
 		.filter(Boolean)
 		.join(" | ")
@@ -377,7 +389,8 @@ async function loadRawSeries({ group, size, onStatus }) {
 	let commits = Array.isArray(manifest?.files?.[rel]) ? manifest.files[rel] : null;
 
 	if (!commits || !commits.length) {
-		if (typeof onStatus === "function") onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
+		if (typeof onStatus === "function")
+			onStatus(`Commits manifest missing for ${rel}; using GitHub API fallback…`);
 		commits = await loadCommitsFallback({ owner, repo, branch, relPath: rel });
 	}
 
@@ -397,7 +410,9 @@ async function loadRawSeries({ group, size, onStatus }) {
 	const limitNet = makeLimiter(NET_CONCURRENCY);
 
 	if (typeof onStatus === "function") onStatus(`Loading stores…`);
-	const newestReport = await limitNet(() => githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel }));
+	const newestReport = await limitNet(() =>
+		githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel }),
+	);
 
 	const stores = Array.isArray(newestReport?.stores) ? newestReport.stores.map(String) : [];
 	if (!stores.length) throw new Error(`No stores found in ${rel} at ${latestSha.slice(0, 7)}`);
@@ -537,7 +552,9 @@ function computeSeriesFromRaw(raw, filter) {
 			coverageSeriesByStore[s][i] = Number.isFinite(c) ? c : 0;
 		}
 
-		marketMedianSeries[i] = Number.isFinite(daily.marketMedianValue) ? daily.marketMedianValue : null;
+		marketMedianSeries[i] = Number.isFinite(daily.marketMedianValue)
+			? daily.marketMedianValue
+			: null;
 		marketFloorSeries[i] = Number.isFinite(daily.marketFloorValue) ? daily.marketFloorValue : null;
 
 		if (i === reportsByIdx.length - 1) {
@@ -924,7 +941,12 @@ export async function renderStats($app) {
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
-			const yBounds = computeYBounds(series.seriesByStore, [series.marketMedianTrend, series.marketFloorTrend], yMinSpan, yPad);
+			const yBounds = computeYBounds(
+				series.seriesByStore,
+				[series.marketMedianTrend, series.marketFloorTrend],
+				yMinSpan,
+				yPad,
+			);
 
 			await drawOrUpdateChart(series, yBounds);
 			resizeStatsChart();
@@ -964,7 +986,12 @@ export async function renderStats($app) {
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
-			const yBounds = computeYBounds(series.seriesByStore, [series.marketMedianTrend, series.marketFloorTrend], yMinSpan, yPad);
+			const yBounds = computeYBounds(
+				series.seriesByStore,
+				[series.marketMedianTrend, series.marketFloorTrend],
+				yMinSpan,
+				yPad,
+			);
 
 			await drawOrUpdateChart(series, yBounds);
 			resizeStatsChart();

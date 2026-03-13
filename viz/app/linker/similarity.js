@@ -228,7 +228,11 @@ export function similarityScore(aName, bName) {
 
 	const numGate = numberMismatchPenalty(aToks, bToks);
 
-	let s = numGate * (firstMatch * 3.0 + overlapTail * 2.2 * gate + levSim * (firstMatch ? 1.0 : 0.1 + 0.7 * contain));
+	let s =
+		numGate *
+		(firstMatch * 3.0 +
+			overlapTail * 2.2 * gate +
+			levSim * (firstMatch ? 1.0 : 0.1 + 0.7 * contain));
 
 	if (ageMatch) s *= 2.2;
 	else if (ageMismatch) s *= 0.18;
@@ -271,7 +275,8 @@ export function fastSimilarityScore(aTokens, bTokens, aNormName, bNormName) {
 	const denom = Math.max(1, Math.max(aTail.length, bTail.length));
 	const overlapTail = inter / denom;
 
-	const pref = firstMatch && a.slice(0, 10) && b.slice(0, 10) && a.slice(0, 10) === b.slice(0, 10) ? 0.2 : 0;
+	const pref =
+		firstMatch && a.slice(0, 10) && b.slice(0, 10) && a.slice(0, 10) === b.slice(0, 10) ? 0.2 : 0;
 
 	let gate = firstMatch ? 1.0 : Math.min(0.8, 0.06 + 0.95 * contain);
 	const smallN = Math.min(aTokF.length, bTokF.length);

@@ -164,7 +164,9 @@ export function applyPendingToMeta(meta) {
 
 	// merge links (dedupe by from→to)
 	const seenL = new Set(
-		base.links.map((x) => linkKey(String(x?.fromSku || "").trim(), String(x?.toSku || "").trim())).filter(Boolean),
+		base.links
+			.map((x) => linkKey(String(x?.fromSku || "").trim(), String(x?.toSku || "").trim()))
+			.filter(Boolean),
 	);
 	for (const x of overlay.links) {
 		const k = linkKey(x.fromSku, x.toSku);
@@ -176,7 +178,9 @@ export function applyPendingToMeta(meta) {
 	// merge ignores (dedupe by canonical pair key)
 	const seenI = new Set(
 		base.ignores
-			.map((x) => pairKey(String(x?.skuA || x?.a || "").trim(), String(x?.skuB || x?.b || "").trim()))
+			.map((x) =>
+				pairKey(String(x?.skuA || x?.a || "").trim(), String(x?.skuB || x?.b || "").trim()),
+			)
 			.filter(Boolean),
 	);
 	for (const x of overlay.ignores) {

@@ -119,7 +119,6 @@ function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, wa
 	return { liveMin, removedMin };
 }
 
-
 /* ---------------- Series cache (per dbFile + per skuKey) ---------------- */
 
 function cacheKeySeries(sku, dbFile, cacheBust, variantKey) {
@@ -173,17 +172,13 @@ function cacheBustForDbFile(manifest, dbFile, commits) {
 	return "no-sha";
 }
 
-
 /* ---------------- Page ---------------- */
 
 export async function renderItem($app, skuInput) {
 	destroyChart();
 
-	const [rules, fav] = await Promise.all([
-		loadSkuRules(),
-		loadMyFavouritesSet()
-	]);
-	
+	const [rules, fav] = await Promise.all([loadSkuRules(), loadMyFavouritesSet()]);
+
 	const sku = rules.canonicalSku(String(skuInput || ""));
 	const favSet = new Set();
 	for (const k of fav.set) {
@@ -195,7 +190,7 @@ export async function renderItem($app, skuInput) {
 		if (!el) return;
 		el.classList.toggle("isSaving", !!on);
 	}
-	
+
 	function flashSaved(el) {
 		if (!el) return;
 		el.classList.remove("isSaved");
@@ -204,8 +199,7 @@ export async function renderItem($app, skuInput) {
 		el.classList.add("isSaved");
 		setTimeout(() => el && el.classList.remove("isSaved"), 650);
 	}
-	
-		
+
 	$app.innerHTML = `
 		<div class="container">
 			<div class="topbar">
@@ -268,8 +262,7 @@ export async function renderItem($app, skuInput) {
 			</div>
 			</div>
 		`;
-  
-  
+
 	installFavStars($app, favSet);
 
 	document.getElementById("back").addEventListener("click", () => {
@@ -296,7 +289,6 @@ export async function renderItem($app, skuInput) {
 		if ($status) $status.textContent = txt;
 		if ($statusMobile) $statusMobile.textContent = txt;
 	};
-	  
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
@@ -325,11 +317,12 @@ export async function renderItem($app, skuInput) {
 			$score.focus();
 			// defer so selection sticks (esp. when focus came from a click)
 			setTimeout(() => {
-				try { $score.select(); } catch {}
+				try {
+					$score.select();
+				} catch {}
 			}, 0);
 		};
 
-			
 		$scoreWrap.addEventListener("click", (e) => {
 			if (e.target !== $score) focusAndSelectScore();
 		});
@@ -342,7 +335,9 @@ export async function renderItem($app, skuInput) {
 		// Tab focus into the input -> select current value for quick replace
 		$score.addEventListener("focus", () => {
 			setTimeout(() => {
-				try { $score.select(); } catch {}
+				try {
+					$score.select();
+				} catch {}
 			}, 0);
 		});
 	}
@@ -354,23 +349,23 @@ export async function renderItem($app, skuInput) {
 		if ($sampledBtn) $sampledBtn.classList.add("isLoginGate");
 		if ($scoreWrap) $scoreWrap.classList.add("isLoginGate");
 		if ($score) $score.readOnly = true;
-	  
+
 		if ($sampledBtn) {
-		  $sampledBtn.addEventListener("click", (e) => {
-			e.preventDefault();
-			openLogin();
-		  });
+			$sampledBtn.addEventListener("click", (e) => {
+				e.preventDefault();
+				openLogin();
+			});
 		}
-	  
+
 		if ($scoreWrap) {
-		  $scoreWrap.addEventListener("click", (e) => {
-			e.preventDefault();
-			openLogin();
-		  });
+			$scoreWrap.addEventListener("click", (e) => {
+				e.preventDefault();
+				openLogin();
+			});
 		}
-	  
+
 		if ($score) $score.addEventListener("focus", () => $score.blur());
-	  } else {
+	} else {
 		// Auth ok: load initial values
 		(async () => {
 			try {
@@ -394,27 +389,27 @@ export async function renderItem($app, skuInput) {
 		// Sampled toggle
 		if ($sampledBtn) {
 			$sampledBtn.addEventListener("click", async () => {
-			  const next = !$sampledBtn.classList.contains("isOn");
-			  setSampledUi(next);
-		
-			  setSaving($sampledBtn, true);
-			  try {
-				await setMySampled(cloudKey, next);
-				flashSaved($sampledBtn);
-			  } catch {
-				setSampledUi(!next);
-			  } finally {
-				setSaving($sampledBtn, false);
-			  }
+				const next = !$sampledBtn.classList.contains("isOn");
+				setSampledUi(next);
+
+				setSaving($sampledBtn, true);
+				try {
+					await setMySampled(cloudKey, next);
+					flashSaved($sampledBtn);
+				} catch {
+					setSampledUi(!next);
+				} finally {
+					setSaving($sampledBtn, false);
+				}
 			});
 		}
-		
+
 		// Score save
 		if ($score) {
 			const saveScore = async () => {
 				const raw = String($score.value || "").trim();
 				let toSend = null;
-			
+
 				if (raw !== "") {
 					const n = Number(raw);
 					if (Number.isFinite(n)) {
@@ -425,7 +420,7 @@ export async function renderItem($app, skuInput) {
 						toSend = null;
 					}
 				}
-			
+
 				setSaving($scoreWrap, true);
 				try {
 					await setMyScore(cloudKey, toSend);
@@ -519,7 +514,9 @@ export async function renderItem($app, skuInput) {
 		}
 	}
 
-	$thumbBox.innerHTML = bestImg ? renderThumbHtml(bestImg, "detailThumb") : `<div class="thumbPlaceholder"></div>`;
+	$thumbBox.innerHTML = bestImg
+		? renderThumbHtml(bestImg, "detailThumb")
+		: `<div class="thumbPlaceholder"></div>`;
 
 	// Render store links:
 	// - one link per store label (even if URL differs)
@@ -578,13 +575,15 @@ export async function renderItem($app, skuInput) {
 			return A.store.localeCompare(B.store);
 		});
 
-	setLinksHtml(linkRows
-		.map(({ store, r }) => {
-			const href = String(r.url || "").trim();
-			const suffix = Boolean(r?.removed) ? " (removed)" : "";
-			return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
-		})
-		.join(""));
+	setLinksHtml(
+		linkRows
+			.map(({ store, r }) => {
+				const href = String(r.url || "").trim();
+				const suffix = Boolean(r?.removed) ? " (removed)" : "";
+				return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
+			})
+			.join(""),
+	);
 
 	const gh = inferGithubOwnerRepo();
 	const owner = gh.owner;
@@ -601,9 +600,11 @@ export async function renderItem($app, skuInput) {
 	}
 	const dbFiles = [...byDbFileAll.keys()].sort();
 
-	setStatusText(isRemovedEverywhere
-		? `Item is removed everywhere (showing historical chart across ${dbFiles.length} store file(s))…`
-		: `Loading history for ${dbFiles.length} store file(s)...`);
+	setStatusText(
+		isRemovedEverywhere
+			? `Item is removed everywhere (showing historical chart across ${dbFiles.length} store file(s))…`
+			: `Loading history for ${dbFiles.length} store file(s)...`,
+	);
 
 	const manifest = await loadDbCommitsManifest();
 
@@ -647,7 +648,6 @@ export async function renderItem($app, skuInput) {
 			const u = String(r?.url || "").trim();
 			if (u) wantUrlsByVar.get(vk).add(u);
 		}
-
 
 		// Split rows by variant for "today" point
 		const rowsLiveByVar = new Map();
@@ -738,21 +738,25 @@ export async function renderItem($app, skuInput) {
 		}
 
 		let dayEntries = Array.from(byDay.entries())
-			.map(([date, arr]) => ({ date, commits: arr.slice().sort((a, b) => commitMs(a) - commitMs(b)) }))
+			.map(([date, arr]) => ({
+				date,
+				commits: arr.slice().sort((a, b) => commitMs(a) - commitMs(b)),
+			}))
 			.sort((a, b) => (a.date < b.date ? -1 : 1));
 
-		if (dayEntries.length > MAX_POINTS) dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
+		if (dayEntries.length > MAX_POINTS)
+			dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
 
 		// Aggressive global network fetch (dedup + throttled)
 		async function loadIndexAtSha(sha) {
 			const ck = `${sha}|${dbFile}`;
-		
+
 			const cached = fileIdxCache.get(ck);
 			if (cached) return cached;
-		
+
 			const prev = inflightFetch.get(ck);
 			if (prev) return prev;
-		
+
 			const p = limitNet(async () => {
 				const idbKey = `v1|${dbFile}|${sha}`;
 				const ix = await getOrBuildMinIndex(idbKey, async () => {
@@ -764,7 +768,7 @@ export async function renderItem($app, skuInput) {
 			}).finally(() => {
 				inflightFetch.delete(ck);
 			});
-		
+
 			inflightFetch.set(ck, p);
 			return p;
 		}
@@ -866,7 +870,12 @@ export async function renderItem($app, skuInput) {
 				} else if (endIsRemoved) {
 					// first removed day => show dot (prefer removed price; else last live earlier that day; else prev live)
 					if (!st.removedStreak) {
-						v = lastRemoved !== null ? lastRemoved : sameDayLastLive !== null ? sameDayLastLive : st.prevLive;
+						v =
+							lastRemoved !== null
+								? lastRemoved
+								: sameDayLastLive !== null
+									? sameDayLastLive
+									: st.prevLive;
 						st.removedStreak = true;
 					} else {
 						v = null; // days AFTER removal: no dot
@@ -900,7 +909,13 @@ export async function renderItem($app, skuInput) {
 			}
 
 			saveSeriesCache(sku, dbFile, cacheBust, vk, st.compactPoints);
-			out.push({ label: storeLabel, variantKey: vk, points: st.points, values: st.values, dates: st.dates });
+			out.push({
+				label: storeLabel,
+				variantKey: vk,
+				points: st.points,
+				values: st.values,
+				dates: st.dates,
+			});
 		}
 
 		return out;
@@ -960,28 +975,29 @@ export async function renderItem($app, skuInput) {
 	const storeSeries = Array.from(variantsByStore.entries()).map(([label, vars]) => {
 		const merged = mergeStorePoints(vars);
 		const todayVal = merged.points.has(todayKey) ? merged.points.get(todayKey) : null;
-		const lastVal = todayVal !== null ? todayVal : lastFiniteFromEnd(labels.map((d) => merged.points.get(d)));
+		const lastVal =
+			todayVal !== null ? todayVal : lastFiniteFromEnd(labels.map((d) => merged.points.get(d)));
 		return { label, vars, merged, sortVal: Number.isFinite(lastVal) ? lastVal : null };
 	});
 
-	const storeSeriesSorted = storeSeries
-		.slice()
-		.sort((a, b) => {
-			const av = a.sortVal,
-				bv = b.sortVal;
-			if (av === null && bv === null) return a.label.localeCompare(b.label);
-			if (av === null) return 1;
-			if (bv === null) return -1;
-			if (av !== bv) return av - bv;
-			return a.label.localeCompare(b.label);
-		});
+	const storeSeriesSorted = storeSeries.slice().sort((a, b) => {
+		const av = a.sortVal,
+			bv = b.sortVal;
+		if (av === null && bv === null) return a.label.localeCompare(b.label);
+		if (av === null) return 1;
+		if (bv === null) return -1;
+		if (av !== bv) return av - bv;
+		return a.label.localeCompare(b.label);
+	});
 
 	const colorMap = buildStoreColorMap(storeSeriesSorted.map((x) => x.label));
 
 	// --- If multiple points exist on a given date for the same store, only show the cheapest one ---
 	const winnerByStoreDate = new Map(); // `${store}|${date}` -> variantKey
 	for (const st of storeSeriesSorted) {
-		const vars = st.vars.slice().sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
+		const vars = st.vars
+			.slice()
+			.sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
 		for (const d of labels) {
 			let bestKey = null;
 			let bestVal = Infinity;
@@ -1005,7 +1021,9 @@ export async function renderItem($app, skuInput) {
 		const stroke = lighten(base, 0.25);
 
 		// stable ordering within store so colors don't flicker
-		const vars = st.vars.slice().sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
+		const vars = st.vars
+			.slice()
+			.sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
 
 		for (const s of vars) {
 			datasets.push({
@@ -1071,7 +1089,9 @@ export async function renderItem($app, skuInput) {
 
 	// Target price: pick 3 lowest per-store mins (distinct stores), then average (>=3 stores)
 	// Only show if there are at least 6 total unique price points (finite) across the chart.
-	const uniquePricePoints = new Set(allVals.filter((v) => Number.isFinite(v)).map((v) => Math.round(v * 100)));
+	const uniquePricePoints = new Set(
+		allVals.filter((v) => Number.isFinite(v)).map((v) => Math.round(v * 100)),
+	);
 	const hasEnoughUniquePoints = uniquePricePoints.size >= 6;
 
 	const storeMins = storeSeriesSorted
@@ -1159,7 +1179,8 @@ export async function renderItem($app, skuInput) {
 						// toggle all as a group
 						const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
 						for (const j of idxs) {
-							if (typeof chart.setDatasetVisibility === "function") chart.setDatasetVisibility(j, !anyVisible);
+							if (typeof chart.setDatasetVisibility === "function")
+								chart.setDatasetVisibility(j, !anyVisible);
 							else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
 						}
 						chart.update();
@@ -1185,7 +1206,10 @@ export async function renderItem($app, skuInput) {
 			// padding: { right: 18 }
 			// },
 			scales: {
-				x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
+				x: {
+					ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+					grid: { display: false },
+				},
 				y: {
 					...ySug,
 					ticks: {
@@ -1247,11 +1271,13 @@ export async function renderItem($app, skuInput) {
 		CHART.update();
 	}
 
-	setStatusText(manifest
-		? isRemovedEverywhere
-			? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
-			: `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${labels.length}.`
-		: isRemovedEverywhere
-			? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
-			: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`);
+	setStatusText(
+		manifest
+			? isRemovedEverywhere
+				? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
+				: `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${labels.length}.`
+			: isRemovedEverywhere
+				? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
+				: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`,
+	);
 }

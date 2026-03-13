@@ -45,9 +45,7 @@ export function sortShortlist(items, mode = "score") {
 			return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
 		});
 	} else if (mode === "name") {
-		items.sort((a, b) =>
-			(String(a.name) + a.sku).localeCompare(String(b.name) + b.sku),
-		);
+		items.sort((a, b) => (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku));
 	} else {
 		// default: sort by weighted score descending (higher = better)
 		items.sort((a, b) => {
