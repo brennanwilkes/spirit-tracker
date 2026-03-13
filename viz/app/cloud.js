@@ -547,6 +547,14 @@ function validateDetails(obj) {
 		}
 	}
 
+	if (Object.prototype.hasOwnProperty.call(obj, "colorScheme")) {
+		if (obj.colorScheme == null) {
+			delete obj.colorScheme;
+		} else if (obj.colorScheme !== "light" && obj.colorScheme !== "dark") {
+			throw new TypeError("details.colorScheme must be 'light', 'dark', or null");
+		}
+	}
+
 	return obj;
 }
 function validateBoolMap(obj, name) {

@@ -14,3 +14,6 @@
 @media (prefers-color-scheme: light) {
   .pinnedItem { outline-color: #3d7fa8; border-color: #3d7fa8; }
 }
+
+html[data-theme="light"] .pinnedItem { outline-color: #3d7fa8; border-color: #3d7fa8; }
+html[data-theme="dark"] .pinnedItem { outline-color: #37566b; border-color: #37566b; }

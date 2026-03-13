@@ -126,3 +126,13 @@
   .oauthGithub:hover { border-color: rgba(0,0,0,0.30); }
   .miniLink:hover { color: #0f172a; }
 }
+
+html[data-theme="light"] .oauthIcon { background: rgba(0,0,0,0.03); }
+html[data-theme="light"] .oauthGithub { border-color: rgba(0,0,0,0.18); box-shadow: none; }
+html[data-theme="light"] .oauthGithub:hover { border-color: rgba(0,0,0,0.30); }
+html[data-theme="light"] .miniLink:hover { color: #0f172a; }
+
+html[data-theme="dark"] .oauthIcon { background: rgba(255,255,255,0.03); }
+html[data-theme="dark"] .oauthGithub { border-color: rgba(231,237,243,0.22); box-shadow: 0 0 0 1px rgba(231,237,243,0.08) inset; }
+html[data-theme="dark"] .oauthGithub:hover { border-color: rgba(231,237,243,0.35); }
+html[data-theme="dark"] .miniLink:hover { color: #E7EDF3; }

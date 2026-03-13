@@ -139,6 +139,12 @@
   .chartBox { background: #ffffff; }
 }
 
+html[data-theme="light"] .detailThumbBox { background: #f3f6fa; }
+html[data-theme="light"] .chartBox { background: #ffffff; }
+
+html[data-theme="dark"] .detailThumbBox { background: #0b0d10; }
+html[data-theme="dark"] .chartBox { background: #0f1318; }
+
 @media (max-width: 640px) {
   /* Item page: put thumb + controls on first row, title on its own full-width line */
   .detailHeader {
