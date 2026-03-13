@@ -95,3 +95,7 @@
 .rangeDual input[type="range"]::-moz-range-track { background: transparent; }
 .rangeDual input[type="range"]::-moz-range-progress { background: transparent; }
 .rangeDual input[type="range"]::-moz-range-thumb { pointer-events: all; }
+
+@media (prefers-color-scheme: light) {
+  .rangeDual .rangeFill { background: #3d7fa8; }
+}

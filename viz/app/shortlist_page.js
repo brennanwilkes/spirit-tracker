@@ -809,14 +809,12 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
-				<div class="starDock">
-					${wDock}
-					${favStarHtml(it.sku, favSet.has(it.sku))}
-				</div>
 				<div class="itemTitle">
 					<div class="itemName">${esc(it.name || "(no name)")}</div>
 					${sampledPill}
 					${scorePill}
+					${favStarHtml(it.sku, favSet.has(it.sku))}
+					${wDock}
 					<a class="badge mono skuLink"
 						style="flex:0 0 9ch; width:9ch; min-width:9ch; max-width:9ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
 						title="${esc(skuDisp)}"
