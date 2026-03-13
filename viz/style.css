@@ -149,7 +149,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .itemRow {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: stretch;
   padding: 10px 12px 12px;
 }
 
@@ -161,6 +161,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   border: 1px solid var(--border);
   background: #0b0d10;
   flex: 0 0 56px;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
