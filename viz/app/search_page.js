@@ -578,17 +578,17 @@ export function renderSearch($app) {
 					store && !stock.outOfStock
 						? storeHref
 							? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
-							: `<div class="itemStore">${esc(store)}${esc(plus)}</div>`
+							: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`
 						: "";
 
 				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 
 				return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
-				${favStarHtml(it.sku, favSet.has(it.sku))}
 				<div class="itemTitle">
               <div class="itemName">${esc(it.name || "(no name)")}</div>
               <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+              ${favStarHtml(it.sku, favSet.has(it.sku))}
             </div>
 				<div class="itemRow">
               <div class="thumbBox">
@@ -743,7 +743,7 @@ export function renderSearch($app) {
 					const storeHtml = storeLabel
 						? storeHref
 							? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
-							: `<div class="itemStore">${esc(storeLabel)}</div>`
+							: `<span class="itemStore">${esc(storeLabel)}</span>`
 						: "";
 
 					const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
@@ -759,10 +759,10 @@ export function renderSearch($app) {
 
 					return `
 					<div class="item itemHasStar" data-sku="${esc(sku)}">
-					${favStarHtml(sku, favSet.has(sku))}
 					<div class="itemTitle">
                 <div class="itemName">${esc(r.name || "(no name)")}</div>
                 <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
+                ${favStarHtml(sku, favSet.has(sku))}
               </div>
 					<div class="itemRow">
                 <div class="thumbBox">

@@ -124,6 +124,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 /* --- Item card --- */
 .item {
+  position: relative;
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
@@ -149,7 +150,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 10px 12px 12px;
 }
 
 .thumbBox {
@@ -204,7 +205,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
   gap: 8px;
   min-width: 0;
   overflow: hidden;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .itemStore {
@@ -221,6 +222,7 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 a.itemStore {
   color: var(--muted);
   text-decoration: none;
+  align-self: center;
 }
 a.itemStore:hover { color: var(--text); text-decoration: underline; }
 
@@ -592,17 +594,10 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 .toggleKnob.toggleOn::after { left: 21px; background: rgba(125,211,252,0.95); }
 
 /* --- Favourite star --- */
-.itemHasStar { position: relative; }
-.itemHasStar .skuLink { position: static; right: auto; top: auto; }
-.itemHasStar .itemName { padding-right: 0; }
-
+/* Star lives inside .itemTitle as last child; no absolute positioning needed */
 .itemHasStar .favStarBtn {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  top: auto;
-  transform: none;
-  z-index: 2;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .favStarBtn {
@@ -716,10 +711,6 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 /* ── 9. Mobile overrides (shared across all pages) ──────────────────────── */
 
 @media (max-width: 640px) {
-  .metaRow { flex-wrap: wrap; }
-
-  /* Hide fav stars on list cards (too dense on small screens) */
-  .itemHasStar .favStarBtn { display: none !important; }
 
   /* Top nav: wide button fills remaining space */
   .headerRight.headerButtons { width: 100%; }

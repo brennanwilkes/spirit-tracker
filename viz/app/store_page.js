@@ -617,11 +617,11 @@ export async function renderStore($app, storeLabelRaw) {
 		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 		return `
 		<div class="item itemHasStar" data-sku="${esc(it.sku)}">
-		${favStarHtml(it.sku, favSet.has(it.sku))}
 		<div class="itemTitle">
           <div class="itemName">${esc(it.name || "(no name)")}</div>
           <a class="badge mono skuLink" target="_blank" rel="noopener noreferrer"
              href="${esc(skuLink)}" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+          ${favStarHtml(it.sku, favSet.has(it.sku))}
         </div>
 		<div class="itemRow">
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>

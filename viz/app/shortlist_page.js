@@ -757,7 +757,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 			storeLabel && !it._outOfStock
 				? href
 					? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}${esc(plus)}</a>`
-					: `<div class="itemStore">${esc(storeLabel)}${esc(plus)}</div>`
+					: `<span class="itemStore">${esc(storeLabel)}${esc(plus)}</span>`
 				: "";
 
 		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
