@@ -122,8 +122,7 @@
   #links, #status { display: block; }
   .detailMobileLinks { display: none; }
 
-  /* Ensure row-gap between wrapped store link rows */
-  .detailLeft #links { row-gap: 8px; }
+  .detailLeft #links > a { margin: 3px; }
 
   .detailThumbBox {
     width: 96px;
