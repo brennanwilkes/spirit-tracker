@@ -636,7 +636,6 @@ export async function renderStore($app, storeLabelRaw) {
           <div class="thumbBox">${renderThumbHtml(it.img)}</div>
           <div class="itemBody">
             <div class="itemLine1">
-              ${href ? `<a class="itemStore" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">View</a>` : ""}
               <span class="price">${esc(price)}</span>
             </div>
             <div class="metaRow">${specialBadge}${bestBadge}${diffBadge}${exAnnot}</div>
