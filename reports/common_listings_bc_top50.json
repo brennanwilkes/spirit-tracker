@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-14T04:23:43.020Z",
+  "generatedAt": "2026-03-14T07:12:56.084Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3753,
-    "removedRows": 261,
-    "canonSkus": 1915,
+    "liveRows": 3750,
+    "removedRows": 265,
+    "canonSkus": 1913,
     "outputCount": 50
   },
   "rows": [
@@ -159,49 +159,6 @@
         "priceNum": 34.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/123422"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "gull": 169.99,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "LAGAVULIN 16YO",
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -850,6 +807,49 @@
       }
     },
     {
+      "canonSku": "207126",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc"
+      ],
+      "storePrices": {
+        "bcl": 169.99,
+        "gull": 169.99,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "Lagavulin - 16 Year Old Single Malt Scotch",
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "243824",
       "storeCount": 7,
       "stores": [
@@ -1402,6 +1402,48 @@
         "priceNum": 37.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1800"
+      }
+    },
+    {
+      "canonSku": "002220",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 34.99,
+        "bcl": 35.49,
+        "gull": 37.75,
+        "legacyliquor": 37.99,
+        "tudor": 54.99,
+        "vessel": 36.99
+      },
+      "representative": {
+        "name": "BACARDI GOLD 1.14L",
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "002220",
+        "skuKey": "002220",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4795735-bacardi-gold-1-14l",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4795735-bacardi-gold-1-14l"
       }
     },
     {
@@ -2073,47 +2115,6 @@
         "priceNum": 13.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml"
-      }
-    },
-    {
-      "canonSku": "002220",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 34.99,
-        "bcl": 35.49,
-        "gull": 37.75,
-        "tudor": 54.99,
-        "vessel": 36.99
-      },
-      "representative": {
-        "name": "BACARDI GOLD 1.14L",
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "002220",
-        "skuKey": "002220",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4795735-bacardi-gold-1-14l",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4795735-bacardi-gold-1-14l"
       }
     },
     {
