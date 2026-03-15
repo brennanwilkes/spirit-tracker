@@ -3,7 +3,7 @@ import { keySkuForRow } from "../sku.js";
 
 function isRealSkuKey(skuKey) {
 	const s = String(skuKey || "").trim();
-	return /^\d{6}$/.test(s);
+	return /^\d+$/.test(s);
 }
 
 function isSoftSkuKey(k) {
