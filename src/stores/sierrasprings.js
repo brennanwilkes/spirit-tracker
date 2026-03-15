@@ -18,7 +18,20 @@ function allowSierraUrlRumWhisky(item) {
 
 // Keep old name referenced historically in this store config
 const allowSierraSpiritsLiquorUrlRumWhisky = allowSierraUrlRumWhisky;
+function allowSierraOtherWhiskyRescue(item) {
+	return false;
+	const u = item && item.url ? String(item.url) : "";
+	const n = item && item.name ? String(item.name) : "";
+	const s = `${u} ${n}`.toLowerCase();
+	if (!/^https?:\/\/sierraspringsliquor\.ca\//.test(s)) return false;
 
+	if (/\b(vodka|gin|tequila|mezcal|brandy|cognac|pisco|ouzo|soju|beer|lager|ale|ipa|stout|porter|pilsner|cider|seltzer|cooler|radler|wine|cabernet|sauvignon|pinot|merlot|chardonnay|prosecco|rose|rosato|moscato|shiraz|grenache|malbec|rioja|chianti|amarone|cava|champagne|port|sherry|vermouth|liqueur|schnapps|bitters|syrup|mix(?:er|ology)?|cocktail|margarita|mojito|martini|caesar|lemonade|tea|mule|paloma|smash|4pk|6pk|8pk|12pk|15pk|18pk|24pk|30pk|36pk|355ml|330ml|341ml|355ml|458ml|473ml|500ml|710ml|king\s*can|tall\s*can|bottle|bottles|cans?)\b/.test(s)) return false;
+
+	if (/\b(whisk(?:e)?y|scotch|single\s*malt|bourbon|rye|campbeltown|islay|speyside|highland|lowland|irish)\b/.test(s)) return true;
+
+	return /\b(springbank|hazelburn|longrow|kilkerran|ardbeg|laphroaig|bruichladdich|octomore|bunnahabhain|kilchoman|kavalan|connemara|glendronach|glenfarclas|glenfiddich|glenlivet|glenmorangie|glengoyne|longmorn|mortlach|talisker|oban|tobermory|tomatin|tormore|benriach|macallan|jura|highland\s*park|royal\s*brackla|johnnie\s*walker|jameson|wiser'?s|forty\s*creek|alberta\s*premium|crown\s*royal|bearface|lot\s*40|lot40|woodford|jack\s*daniel'?s|pike\s*creek|pendleton|orphan\s*barrel)\b/.test(s);
+}
+	
 function formatWooStorePrice(prices) {
 	if (!prices) return null;
 
@@ -400,6 +413,14 @@ function createStore(defaultUa) {
 				startUrl: "https://sierraspringsliquor.ca/product-category/spirits/",
 				discoveryStartPage: 1,
 				perPage: 100,
+			},
+			{
+				key: "other",
+				label: "Other",
+				startUrl: "https://sierraspringsliquor.ca/product-category/other/",
+				discoveryStartPage: 1,
+				perPage: 100,
+				allowUrl: allowSierraOtherWhiskyRescue,
 			},
 		],
 	};
