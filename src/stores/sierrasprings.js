@@ -19,7 +19,6 @@ function allowSierraUrlRumWhisky(item) {
 // Keep old name referenced historically in this store config
 const allowSierraSpiritsLiquorUrlRumWhisky = allowSierraUrlRumWhisky;
 function allowSierraOtherWhiskyRescue(item) {
-	return false;
 	const u = item && item.url ? String(item.url) : "";
 	const n = item && item.name ? String(item.name) : "";
 	const s = `${u} ${n}`.toLowerCase();
@@ -29,9 +28,8 @@ function allowSierraOtherWhiskyRescue(item) {
 
 	if (/\b(whisk(?:e)?y|scotch|single\s*malt|bourbon|rye|campbeltown|islay|speyside|highland|lowland|irish)\b/.test(s)) return true;
 
-	return /\b(springbank|hazelburn|longrow|kilkerran|ardbeg|laphroaig|bruichladdich|octomore|bunnahabhain|kilchoman|kavalan|connemara|glendronach|glenfarclas|glenfiddich|glenlivet|glenmorangie|glengoyne|longmorn|mortlach|talisker|oban|tobermory|tomatin|tormore|benriach|macallan|jura|highland\s*park|royal\s*brackla|johnnie\s*walker|jameson|wiser'?s|forty\s*creek|alberta\s*premium|crown\s*royal|bearface|lot\s*40|lot40|woodford|jack\s*daniel'?s|pike\s*creek|pendleton|orphan\s*barrel)\b/.test(s);
-}
-	
+	return /\b(springbank|hazelburn|longrow|kilkerran|ardbeg|laphroaig|lagavulin|bruichladdich|octomore|bunnahabhain|kilchoman|bowmore|caol\s*ila|kavalan|yamazaki|hakushu|hibiki|nikka|yoichi|miyagikyo|chichibu|mars\s*komagatake|glenfarclas|glenfiddich|glenlivet|glenmorangie|glendronach|glenallachie|glengoyne|glenrothes|glenburgie|glenlossie|glentauchers|glen\s*garioch|glen\s*grant|glen\s*keith|glen\s*spey|glen\s*scotia|benriach|benromach|ben\s*nevis|balvenie|balblair|blair\s*athol|clynelish|cragganmore|cardhu|dalmore|dalwhinnie|deanston|dailuaine|edradour|fettercairn|glen\s*elgin|glen\s*ord|inchgower|knockando|longmorn|linkwood|ledaig|tobermory|mannochmore|miltonduff|mortlach|oban|old\s*pulteney|an\s*cnoc|royal\s*brackla|royal\s*lochnagar|strathisla|strathmill|speyburn|talisker|teaninich|tamdhu|tomatin|tomintoul|tormore|tullibardine|auchroisk|aultmore|ardmore|ardnamurchan|arran|loch\s*lomond|lochlea|bladnoch|macallan|jura|highland\s*park|scapa|torabhaig|connemara|bushmills|redbreast|green\s*spot|yellow\s*spot|blue\s*spot|midleton|powers|teeling|roe\s*&?\s*co|jack\s*daniel'?s|woodford|maker'?s\s*mark|wild\s*turkey|buffalo\s*trace|eagle\s*rare|blanton'?s|elijah\s*craig|old\s*forester|four\s*roses|heaven\s*hill|knob\s*creek|basil\s*hayden|pike\s*creek|lot\s*40|lot40|forty\s*creek|crown\s*royal|alberta\s*premium|bearface|canadian\s*club|caribou\s*crossing|pendleton|orphan\s*barrel|cadenhead'?s|signatory(?:\s*vintage)?|gordon\s*&\s*macphail|connoisseurs?\s*choice|douglas\s*laing|old\s*particular|hunter\s*laing|old\s*malt\s*cask|adelphi|single\s*malts?\s*of\s*scotland|s\.?m\.?o\.?s\.?|scotch\s*malt\s*whisk(?:e)?y\s*society|s\.?m\.?w\.?s\.?|berry'?s(?:\s*own)?|berry\s*bros\.?\s*&\s*rudd|rest\s*&\s*be\s*thankful|wemyss|that\s*boutique-y\s*whisky\s*company|tbwc|elements\s*of\s*islay|blackadder|duncan\s*taylor|north\s*star|north\s*star\s*spirits|elixir\s*distillers|creative\s*whisky\s*company|chapter\s*7|single\s*cask\s*nation|whisky\s*agency|scotch\s*universe|hidden\s*spirits|liquid\s*treasures|archives|the\s*ultimate\s*whisky\s*company|brora|port\s*ellen|rosebank|littlemill|st\.?\s*magdalene|caperdonich|imperial|convalmore|coleburn|banff|dallas\s*dhu|pittyvaich|glenury\s*royal|port\s*dundas|cambus|carsebridge)\b/.test(s);
+}	
 function formatWooStorePrice(prices) {
 	if (!prices) return null;
 
