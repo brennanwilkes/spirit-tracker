@@ -10,7 +10,7 @@ export function clearSkuRulesCache() {
 
 function normalizeImplicitSkuKey(k) {
 	const s = String(k || "").trim();
-	const m = s.match(/^id:(\d{1,6})$/i);
+	const m = s.match(/^id:(\d+)$/i);
 	if (m) return String(m[1]).padStart(6, "0");
 	return s;
 }

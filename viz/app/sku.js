@@ -23,7 +23,7 @@ export function makeSyntheticSku(r) {
 export function keySkuForRow(r) {
 	const real0 = String(r?.sku || "").trim();
 	if (real0) {
-		const m = real0.match(/^id:(\d{1,6})$/i);
+		const m = real0.match(/^id:(\d+)$/i);
 		return m ? String(m[1]).padStart(6, "0") : real0;
 	}
 	return makeSyntheticSku(r);
