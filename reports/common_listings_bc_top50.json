@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-15T04:38:32.243Z",
+  "generatedAt": "2026-03-15T07:16:49.740Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3750,
-    "removedRows": 265,
-    "canonSkus": 1913,
+    "liveRows": 3747,
+    "removedRows": 268,
+    "canonSkus": 1910,
     "outputCount": 50
   },
   "rows": [
@@ -2077,6 +2077,48 @@
       }
     },
     {
+      "canonSku": "115490",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 75.19,
+        "bcl": 88.99,
+        "legacyliquor": 93.04,
+        "strath": 88.31,
+        "tudor": 88.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "BOWMORE 12YO SHERRY OAK",
+        "price": "$75.19",
+        "priceNum": 75.19,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "303821",
+        "skuKey": "303821",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$75.19",
+        "priceNum": 75.19,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak"
+      }
+    },
+    {
       "canonSku": "000596",
       "storeCount": 5,
       "stores": [
@@ -2115,47 +2157,6 @@
         "priceNum": 13.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml"
-      }
-    },
-    {
-      "canonSku": "115490",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 75.19,
-        "bcl": 88.99,
-        "legacyliquor": 93.04,
-        "strath": 88.31,
-        "tudor": 88.99
-      },
-      "representative": {
-        "name": "BOWMORE 12YO SHERRY OAK",
-        "price": "$75.19",
-        "priceNum": 75.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "303821",
-        "skuKey": "303821",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$75.19",
-        "priceNum": 75.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5122688-bowmore-12yo-sherry-oak"
       }
     }
   ]
