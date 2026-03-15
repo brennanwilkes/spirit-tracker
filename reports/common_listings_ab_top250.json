@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-15T08:02:45.542Z",
+  "generatedAt": "2026-03-15T08:10:32.899Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8052,
+    "liveRows": 8148,
     "removedRows": 909,
-    "canonSkus": 4550,
+    "canonSkus": 4624,
     "outputCount": 250
   },
   "rows": [
@@ -4799,6 +4799,47 @@
       }
     },
     {
+      "canonSku": "110291",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 225,
+        "craftcellars": 224.99,
+        "kegncork": 224.96,
+        "kwm": 225.99,
+        "sierrasprings": 215
+      },
+      "representative": {
+        "name": "Glengoyne 18 Year Old",
+        "price": "$224.99",
+        "priceNum": 224.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "133765",
+        "skuKey": "133765",
+        "url": "https://craftcellars.ca/products/glengoyne-18-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$215.00",
+        "priceNum": 215,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/other/glengoyne-18-yr-43-2/"
+      }
+    },
+    {
       "canonSku": "110703",
       "storeCount": 5,
       "stores": [
@@ -9484,46 +9525,6 @@
         "priceNum": 129.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/still-austin-cask-strength-rye-58-abv"
-      }
-    },
-    {
-      "canonSku": "110291",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 225,
-        "craftcellars": 224.99,
-        "kegncork": 224.96,
-        "kwm": 225.99
-      },
-      "representative": {
-        "name": "Glengoyne 18 Year Old",
-        "price": "$224.99",
-        "priceNum": 224.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "133765",
-        "skuKey": "133765",
-        "url": "https://craftcellars.ca/products/glengoyne-18-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$224.96",
-        "priceNum": 224.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/glengoyne-18-yo-700-ml/"
       }
     },
     {
