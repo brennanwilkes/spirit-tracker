@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-15T01:13:12.835Z",
+  "generatedAt": "2026-03-15T04:38:32.648Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8038,
-    "removedRows": 913,
-    "canonSkus": 4548,
+    "liveRows": 8058,
+    "removedRows": 903,
+    "canonSkus": 4554,
     "outputCount": 50
   },
   "rows": [
@@ -159,6 +159,49 @@
         "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/the-dalmore-12-year-old"
+      }
+    },
+    {
+      "canonSku": "770315",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "craftcellars": 102.99,
+        "kegncork": 99.96,
+        "kwm": 104.99,
+        "maltsandgrains": 102.59,
+        "sierrasprings": 102.75,
+        "willowpark": 103.99
+      },
+      "representative": {
+        "name": "Glenmorangie 12 Year Old The Lasanta",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "770315",
+        "skuKey": "770315",
+        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
       }
     },
     {
@@ -354,7 +397,7 @@
         "craftcellars": 96.99,
         "kegncork": 101.96,
         "kwm": 99.99,
-        "sierrasprings": 95.13,
+        "sierrasprings": 83.7,
         "willowpark": 98.99
       },
       "representative": {
@@ -850,6 +893,49 @@
       }
     },
     {
+      "canonSku": "413410",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
+      }
+    },
+    {
       "canonSku": "444190",
       "storeCount": 7,
       "stores": [
@@ -1191,49 +1277,6 @@
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
-      }
-    },
-    {
-      "canonSku": "770315",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "craftcellars": 102.99,
-        "kegncork": 99.96,
-        "kwm": 104.99,
-        "maltsandgrains": 102.59,
-        "willowpark": 103.99
-      },
-      "representative": {
-        "name": "Glenmorangie 12 Year Old The Lasanta",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "770315",
-        "skuKey": "770315",
-        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
       }
     },
     {
@@ -2119,48 +2162,6 @@
         "priceNum": 44.66,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/bumbu-craft-rum-35-abv/"
-      }
-    },
-    {
-      "canonSku": "413410",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "willowpark": 119.99
-      },
-      "representative": {
-        "name": "Glendronach 12 Year",
-        "price": "$83.99",
-        "priceNum": 83.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$83.99",
-        "priceNum": 83.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
       }
     }
   ]

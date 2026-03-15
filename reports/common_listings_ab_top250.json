@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-15T01:13:12.985Z",
+  "generatedAt": "2026-03-15T04:38:32.811Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8038,
-    "removedRows": 913,
-    "canonSkus": 4548,
+    "liveRows": 8058,
+    "removedRows": 903,
+    "canonSkus": 4554,
     "outputCount": 250
   },
   "rows": [
@@ -159,6 +159,49 @@
         "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/the-dalmore-12-year-old"
+      }
+    },
+    {
+      "canonSku": "770315",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "craftcellars": 102.99,
+        "kegncork": 99.96,
+        "kwm": 104.99,
+        "maltsandgrains": 102.59,
+        "sierrasprings": 102.75,
+        "willowpark": 103.99
+      },
+      "representative": {
+        "name": "Glenmorangie 12 Year Old The Lasanta",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "770315",
+        "skuKey": "770315",
+        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
       }
     },
     {
@@ -354,7 +397,7 @@
         "craftcellars": 96.99,
         "kegncork": 101.96,
         "kwm": 99.99,
-        "sierrasprings": 95.13,
+        "sierrasprings": 83.7,
         "willowpark": 98.99
       },
       "representative": {
@@ -893,6 +936,49 @@
       }
     },
     {
+      "canonSku": "413410",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
+      }
+    },
+    {
       "canonSku": "444190",
       "storeCount": 7,
       "stores": [
@@ -1320,49 +1406,6 @@
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
-      }
-    },
-    {
-      "canonSku": "770315",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "craftcellars": 102.99,
-        "kegncork": 99.96,
-        "kwm": 104.99,
-        "maltsandgrains": 102.59,
-        "willowpark": 103.99
-      },
-      "representative": {
-        "name": "Glenmorangie 12 Year Old The Lasanta",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "770315",
-        "skuKey": "770315",
-        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
       }
     },
     {
@@ -1996,6 +2039,48 @@
         "priceNum": 91.32,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/bulleit-barrel-strength-batch-no-8/"
+      }
+    },
+    {
+      "canonSku": "114799",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "craftcellars": 78.99,
+        "kwm": 79.99,
+        "maltsandgrains": 82.22,
+        "sierrasprings": 98.94,
+        "willowpark": 74.99
+      },
+      "representative": {
+        "name": "Glenmorangie 12 Year Old The Original",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "114799",
+        "skuKey": "114799",
+        "url": "https://www.bswliquor.com/products/glenmorangie-12-yr-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenmorangie-12-yr-old"
       }
     },
     {
@@ -3004,48 +3089,6 @@
         "priceNum": 105,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glendronach-port-wood"
-      }
-    },
-    {
-      "canonSku": "413410",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "willowpark": 119.99
-      },
-      "representative": {
-        "name": "Glendronach 12 Year",
-        "price": "$83.99",
-        "priceNum": 83.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$83.99",
-        "priceNum": 83.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
       }
     },
     {
@@ -4076,7 +4119,7 @@
         "coop": 64.99,
         "kegncork": 66.96,
         "kwm": 64.99,
-        "sierrasprings": 70.37,
+        "sierrasprings": 78.94,
         "willowpark": 62.99
       },
       "representative": {
@@ -4715,6 +4758,88 @@
       }
     },
     {
+      "canonSku": "108649",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 170,
+        "coop": 174.99,
+        "kegncork": 169.96,
+        "sierrasprings": 165,
+        "willowpark": 144.99
+      },
+      "representative": {
+        "name": "Aberlour 'A'bunadh Alba' Speyside Single Malt Scotch Whisky",
+        "price": "$144.99",
+        "priceNum": 144.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "108649",
+        "skuKey": "108649",
+        "url": "https://www.willowpark.net/products/aberlour-abunadh-alba-speyside-single-malt-scotch-whisky",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$144.99",
+        "priceNum": 144.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/aberlour-abunadh-alba-speyside-single-malt-scotch-whisky"
+      }
+    },
+    {
+      "canonSku": "110703",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "craftcellars": 102.99,
+        "kegncork": 99.96,
+        "maltsandgrains": 104.61,
+        "sierrasprings": 99.99
+      },
+      "representative": {
+        "name": "Arran Machrie Moor 10 Year Old",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "110703",
+        "skuKey": "110703",
+        "url": "https://www.bswliquor.com/products/the-arran-malt-machrie-moor-10-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/the-arran-malt-machrie-moor-10-year-old"
+      }
+    },
+    {
       "canonSku": "111167",
       "storeCount": 5,
       "stores": [
@@ -4835,47 +4960,6 @@
         "priceNum": 79.9,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-club-invitation-18-high-proof-58-abv/"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "craftcellars": 78.99,
-        "kwm": 79.99,
-        "maltsandgrains": 82.22,
-        "willowpark": 74.99
-      },
-      "representative": {
-        "name": "Glenmorangie 12 Year Old The Original",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "114799",
-        "skuKey": "114799",
-        "url": "https://www.bswliquor.com/products/glenmorangie-12-yr-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenmorangie-12-yr-old"
       }
     },
     {
@@ -7790,47 +7874,6 @@
       }
     },
     {
-      "canonSku": "821872",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 135,
-        "coop": 144.99,
-        "craftcellars": 139.99,
-        "sierrasprings": 134.18,
-        "willowpark": 139.99
-      },
-      "representative": {
-        "name": "GLEN GARIOCH VIRGIN OAK 2",
-        "price": "$134.18",
-        "priceNum": 134.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "821872",
-        "skuKey": "821872",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/glen-garioch-virgin-oak-2/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$134.18",
-        "priceNum": 134.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/glen-garioch-virgin-oak-2/"
-      }
-    },
-    {
       "canonSku": "834178",
       "storeCount": 5,
       "stores": [
@@ -8723,6 +8766,46 @@
       }
     },
     {
+      "canonSku": "039159",
+      "storeCount": 4,
+      "stores": [
+        "coop",
+        "craftcellars",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "coop": 57.99,
+        "craftcellars": 63.99,
+        "sierrasprings": 58.94,
+        "willowpark": 64.49
+      },
+      "representative": {
+        "name": "ARRAN SINGLE MALT BARREL RESERVE",
+        "price": "$58.94",
+        "priceNum": 58.94,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "829592",
+        "skuKey": "829592",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/island-scotch-whisky-whisky-2-2/arran-american-oak-barrel-reserve-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "coop",
+        "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/worldofwhisky#/product/2204"
+      }
+    },
+    {
       "canonSku": "041384",
       "storeCount": 4,
       "stores": [
@@ -9323,46 +9406,6 @@
       }
     },
     {
-      "canonSku": "108649",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 170,
-        "coop": 174.99,
-        "kegncork": 169.96,
-        "willowpark": 144.99
-      },
-      "representative": {
-        "name": "Aberlour 'A'bunadh Alba' Speyside Single Malt Scotch Whisky",
-        "price": "$144.99",
-        "priceNum": 144.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "108649",
-        "skuKey": "108649",
-        "url": "https://www.willowpark.net/products/aberlour-abunadh-alba-speyside-single-malt-scotch-whisky",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$144.99",
-        "priceNum": 144.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/aberlour-abunadh-alba-speyside-single-malt-scotch-whisky"
-      }
-    },
-    {
       "canonSku": "109393",
       "storeCount": 4,
       "stores": [
@@ -9440,46 +9483,6 @@
         "priceNum": 224.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/glengoyne-18-yo-700-ml/"
-      }
-    },
-    {
-      "canonSku": "110703",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "craftcellars": 102.99,
-        "kegncork": 99.96,
-        "maltsandgrains": 104.61
-      },
-      "representative": {
-        "name": "Arran Machrie Moor 10 Year Old",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "110703",
-        "skuKey": "110703",
-        "url": "https://www.bswliquor.com/products/the-arran-malt-machrie-moor-10-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/the-arran-malt-machrie-moor-10-year-old"
       }
     },
     {
@@ -9963,6 +9966,46 @@
       }
     },
     {
+      "canonSku": "821872",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 135,
+        "coop": 144.99,
+        "craftcellars": 139.99,
+        "willowpark": 139.99
+      },
+      "representative": {
+        "name": "Glen Garioch Virgin Oak No.2 48% ABV",
+        "price": "$135.00",
+        "priceNum": 135,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "821872",
+        "skuKey": "821872",
+        "url": "https://www.bswliquor.com/products/glen-garioch-virgin-oak-2",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$135.00",
+        "priceNum": 135,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glen-garioch-virgin-oak-2"
+      }
+    },
+    {
       "canonSku": "829591",
       "storeCount": 4,
       "stores": [
@@ -10080,45 +10123,6 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/rye/barrel-craft-stellum-rye-whisky-58-12-abv/"
-      }
-    },
-    {
-      "canonSku": "039159",
-      "storeCount": 3,
-      "stores": [
-        "coop",
-        "craftcellars",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "coop": 57.99,
-        "craftcellars": 63.99,
-        "willowpark": 64.49
-      },
-      "representative": {
-        "name": "Arran Barrel Reserve Island Single Malt Scotch Whisky",
-        "price": "$63.99",
-        "priceNum": 63.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "829592",
-        "skuKey": "829592",
-        "url": "https://craftcellars.ca/products/arran-barrel-reserve-island-single-malt-scotch-whisky-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "coop",
-        "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/worldofwhisky#/product/2204"
       }
     },
     {
