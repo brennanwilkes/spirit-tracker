@@ -28,6 +28,7 @@
     --include-ties           Include all SKUs tied at the cutoff (size may exceed --top)
 */
 
+const fs = require("fs");
 const path = require("path");
 const { getStoreRegions } = require("../src/stores/index");
 const { ensureDir, readJson, listDbFiles: _listDbFiles, storeKeyFromDbPath } = require("./lib/db");
