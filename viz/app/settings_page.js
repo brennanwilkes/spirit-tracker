@@ -1,5 +1,6 @@
 // viz/app/settings_page.js
 import { esc } from "./dom.js";
+import { goBack } from "./nav.js";
 import { AuthError, getAuthStatus, getMyDetails, putDetails } from "./cloud.js";
 import { applyColorScheme } from "./theme.js";
 
@@ -125,11 +126,7 @@ export async function renderSettings($app) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => {
-		const last = sessionStorage.getItem("viz:lastRoute");
-		if (last && last !== location.hash) location.hash = last;
-		else location.hash = "#/";
-	});
+	document.getElementById("back").addEventListener("click", () => goBack());
 
 	const $switch = document.getElementById("publicSwitch");
 	const $isPublic = document.getElementById("isPublic");

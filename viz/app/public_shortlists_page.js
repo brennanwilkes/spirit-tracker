@@ -2,10 +2,10 @@
 // CSS is in app/public_shortlists_page/public_shortlists_page.css, loaded via index.html
 import { esc } from "./dom.js";
 import { getShortlists } from "./cloud.js";
+import { goBack, navigateTo } from "./nav.js";
 
 function goTo(uuid) {
-	sessionStorage.setItem("viz:lastRoute", location.hash);
-	location.hash = `#/shortlist/${encodeURIComponent(uuid)}`;
+	navigateTo(`#/shortlist/${encodeURIComponent(uuid)}`);
 }
 
 export async function renderPublicShortlists($app) {
@@ -22,11 +22,7 @@ export async function renderPublicShortlists($app) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => {
-		const last = sessionStorage.getItem("viz:lastRoute");
-		if (last && last !== location.hash) location.hash = last;
-		else location.hash = "#/";
-	});
+	document.getElementById("back").addEventListener("click", () => goBack());
 
 	const $list = document.getElementById("list");
 

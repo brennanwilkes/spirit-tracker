@@ -1,5 +1,6 @@
 // viz/app/linker_page.js
 import { esc, renderThumbHtml } from "./dom.js";
+import { goBack } from "./nav.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -145,7 +146,7 @@ export async function renderSkuLinker($app) {
     </div>
   `;
 
-	document.getElementById("back").addEventListener("click", () => (location.hash = "#/"));
+	document.getElementById("back").addEventListener("click", () => goBack());
 
 	const $qL = document.getElementById("qL");
 	const $qR = document.getElementById("qR");

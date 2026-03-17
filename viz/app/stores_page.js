@@ -1,6 +1,7 @@
 // viz/app/stores_page.js
 import { esc } from "./dom.js";
 import { storesByRegion } from "./stores.js";
+import { goBack, navigateTo } from "./nav.js";
 
 const BC_STORES = storesByRegion("bc");
 const AB_STORES = storesByRegion("ab");
@@ -12,8 +13,7 @@ const AB_STORES = storesByRegion("ab");
 ================================= */
 
 function goToStore(label) {
-	sessionStorage.setItem("viz:lastRoute", location.hash);
-	location.hash = `#/store/${encodeURIComponent(label)}`;
+	navigateTo(`#/store/${encodeURIComponent(label)}`);
 }
 
 function renderStoreRow(store) {
@@ -77,11 +77,7 @@ export function renderStores($app) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => {
-		const last = sessionStorage.getItem("viz:lastRoute");
-		if (last && last !== location.hash) location.hash = last;
-		else location.hash = "#/";
-	});
+	document.getElementById("back").addEventListener("click", () => goBack());
 
 	$app.addEventListener("click", (e) => {
 		const row = e.target.closest(".row");

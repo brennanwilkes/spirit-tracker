@@ -1,5 +1,6 @@
 // viz/app/shortlist_page.js
 import { esc, renderThumbHtml } from "./dom.js";
+import { goBack, navigateTo } from "./nav.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -157,11 +158,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => {
-		const last = sessionStorage.getItem("viz:lastRoute");
-		if (last && last !== location.hash) location.hash = last;
-		else location.hash = "#/";
-	});
+	document.getElementById("back").addEventListener("click", () => goBack());
 
 	const $q = document.getElementById("q");
 	const $clear = document.getElementById("clearSearch");
@@ -601,10 +598,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	function stepForPrice(p) {
 		const x = Number.isFinite(p) ? p : boundMax;
-		if (x < 120) return 5;
-		if (x < 250) return 10;
-		if (x < 600) return 25;
-		return 100;
+		if (x < 120)  return 5;
+		if (x < 250)  return 10;
+		if (x < 600)  return 25;
+		if (x < 2000) return 100;
+		return 1000;
 	}
 	function roundToStep(p) {
 		const step = stepForPrice(p);
@@ -1247,8 +1245,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (!el) return;
 		const sku = el.getAttribute("data-sku") || "";
 		if (!sku) return;
-		sessionStorage.setItem("viz:lastRoute", location.hash);
-		location.hash = `#/item/${encodeURIComponent(sku)}`;
+		navigateTo(`#/item/${encodeURIComponent(sku)}`);
 	});
 
 	// Infinite scroll
