@@ -2,11 +2,21 @@
 // Centralised back-button / navigation helpers.
 // All pages should use these instead of touching sessionStorage directly.
 
-const LAST_ROUTE_KEY = "viz:lastRoute";
+const STACK_KEY = "viz:navStack";
+
+function getStack() {
+	try { return JSON.parse(sessionStorage.getItem(STACK_KEY) || "[]"); }
+	catch { return []; }
+}
+function setStack(arr) {
+	sessionStorage.setItem(STACK_KEY, JSON.stringify(arr));
+}
 
 /** Save the current hash so goBack() can return here. */
 export function saveCurrentRoute() {
-	sessionStorage.setItem(LAST_ROUTE_KEY, location.hash);
+	const stack = getStack();
+	stack.push(location.hash);
+	setStack(stack);
 }
 
 /**
@@ -14,9 +24,10 @@ export function saveCurrentRoute() {
  * `fallback` (default "#/") if no saved route exists.
  */
 export function goBack(fallback = "#/") {
-	const last = sessionStorage.getItem(LAST_ROUTE_KEY);
-	if (last && last !== location.hash) location.hash = last;
-	else location.hash = fallback;
+	const stack = getStack();
+	const prev = stack.pop();
+	setStack(stack);
+	location.hash = prev ?? fallback;
 }
 
 /**

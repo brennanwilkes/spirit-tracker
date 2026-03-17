@@ -13,40 +13,6 @@ import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { normalizeStoreId, storeById } from "./stores.js";
 
-function readLinkHrefForSkuInStore(listingsLive, canonSku, storeLabelNorm) {
-	// Prefer the most recent-ish url if multiple exist; stable enough for viz.
-	let bestUrl = "";
-	let bestScore = -1;
-
-	function scoreUrl(u) {
-		if (!u) return -1;
-		let s = u.length;
-		if (/\bproduct\/\d+\//.test(u)) s += 50;
-		if (/[a-z0-9-]{8,}/i.test(u)) s += 10;
-		return s;
-	}
-
-	for (const r of listingsLive) {
-		if (!r || r.removed) continue;
-		const store = normalizeStoreId(r.storeLabel || r.store || "");
-		if (store !== storeLabelNorm) continue;
-
-		const skuKey = String(rulesCache?.canonicalSku(keySkuForRow(r)) || keySkuForRow(r));
-		if (skuKey !== canonSku) continue;
-
-		const u = String(r.url || "").trim();
-		const sc = scoreUrl(u);
-		if (sc > bestScore) {
-			bestScore = sc;
-			bestUrl = u;
-		} else if (sc === bestScore && u && bestUrl && u < bestUrl) {
-			bestUrl = u;
-		}
-	}
-	return bestUrl;
-}
-
-// small module-level cache so we can reuse in readLinkHrefForSkuInStore
 let rulesCache = null;
 
 export async function renderStore($app, storeLabelRaw) {
@@ -288,24 +254,8 @@ export async function renderStore($app, storeLabelRaw) {
 		return Number.isFinite(ms) ? ms : null;
 	}
 
-	// Build earliest "first in DB (for this store)" timestamp per canonical SKU (includes removed rows)
+	// Build firstSeenBySkuInStore and everStoresBySku in one pass (includes removed rows)
 	const firstSeenBySkuInStore = new Map(); // sku -> ms
-	for (const r of listingsAll) {
-		if (!r) continue;
-		const store = normalizeStoreId(r.storeLabel || r.store || "");
-		if (store !== storeNorm) continue;
-
-		const skuKey = keySkuForRow(r);
-		const sku = String(rules.canonicalSku(skuKey) || skuKey);
-
-		const ms = dateMsFromRow(r);
-		if (ms === null) continue;
-
-		const prev = firstSeenBySkuInStore.get(sku);
-		if (prev === undefined || ms < prev) firstSeenBySkuInStore.set(sku, ms);
-	}
-
-	// Build "ever seen" store presence per canonical SKU (includes removed rows)
 	const everStoresBySku = new Map(); // sku -> Set(storeLabelNorm)
 	for (const r of listingsAll) {
 		if (!r) continue;
@@ -318,6 +268,14 @@ export async function renderStore($app, storeLabelRaw) {
 		let ss = everStoresBySku.get(sku);
 		if (!ss) everStoresBySku.set(sku, (ss = new Set()));
 		ss.add(store);
+
+		if (store === storeNorm) {
+			const ms = dateMsFromRow(r);
+			if (ms !== null) {
+				const prev = firstSeenBySkuInStore.get(sku);
+				if (prev === undefined || ms < prev) firstSeenBySkuInStore.set(sku, ms);
+			}
+		}
 	}
 
 	// Build global per-canonical-SKU live store presence + min prices
@@ -368,8 +326,32 @@ export async function renderStore($app, storeLabelRaw) {
 		(r) => normalizeStoreId(r.storeLabel || r.store || "") === storeNorm,
 	);
 
+	// Build href map in one pass through rowsStoreLive (already filtered to this store)
+	const _hrefBySku = new Map(); // sku -> { u, sc }
+	for (const r of rowsStoreLive) {
+		const skuKey = keySkuForRow(r);
+		const sku = String(rules.canonicalSku(skuKey) || skuKey);
+		const u = String(r.url || "").trim();
+		if (!u) continue;
+		let sc = u.length;
+		if (/\bproduct\/\d+\//.test(u)) sc += 50;
+		if (/[a-z0-9-]{8,}/i.test(u)) sc += 10;
+		const prev = _hrefBySku.get(sku);
+		if (!prev || sc > prev.sc || (sc === prev.sc && u < prev.u)) {
+			_hrefBySku.set(sku, { u, sc });
+		}
+	}
+
 	// Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
 	let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
+
+	// Flatten href map to strings, with sampleUrl fallback from aggregated items
+	const hrefBySku = new Map();
+	for (const it of items) {
+		const sku = String(it.sku || "");
+		const entry = _hrefBySku.get(sku);
+		hrefBySku.set(sku, entry?.u || String(it.sampleUrl || "").trim());
+	}
 
 	// Decorate each item with pricing comparisons + exclusivity
 	const EPS = 0.01;
@@ -424,16 +406,6 @@ export async function renderStore($app, storeLabelRaw) {
 			_hasSaleMeta: !!sm,
 		};
 	});
-
-	// Precompute store hrefs once so renderCard doesn't scan liveAll per card
-	const hrefBySku = new Map();
-	for (const it of items) {
-		const sku = String(it.sku || "");
-		if (!hrefBySku.has(sku)) {
-			const storeHref = readLinkHrefForSkuInStore(liveAll, sku, storeNorm);
-			hrefBySku.set(sku, storeHref || String(it.sampleUrl || "").trim());
-		}
-	}
 
 	// ---- Max price slider (exponential mapping + clicky rounding) ----
 	const MIN_PRICE = 25;
