@@ -3,11 +3,10 @@
 const { cleanText } = require("../utils/html");
 const { normalizeCspc } = require("../utils/sku");
 const { padLeft, padRight } = require("../utils/string");
-const { humanBytes } = require("../utils/bytes");
+const { kbStr, secStr, pageStr, pctStr } = require("../utils/format");
+const { normalizeAbsUrl: _normUrl } = require("../utils/url");
 
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { buildDbObject, writeJsonAtomic } = require("../tracker/db");
-const { addCategoryResultToReport } = require("../tracker/report");
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
 const BSW_ALGOLIA_APP_ID = "25TO6MPUL0";
 const BSW_ALGOLIA_API_KEY = "1aa0c19fe6a0931340570bd358c2c9d2";
@@ -143,40 +142,8 @@ async function bswFetchAlgoliaPage(ctx, collectionId, ruleContext, page0, hitsPe
 	});
 }
 
-function kbStr(bytes) {
-	return humanBytes(bytes).padStart(8, " ");
-}
 
-function secStr(ms) {
-	const s = Number.isFinite(ms) ? ms / 1000 : 0;
-	const tenths = Math.round(s * 10) / 10;
-	let out;
-	if (tenths < 10) out = `${tenths.toFixed(1)}s`;
-	else out = `${Math.round(s)}s`;
-	return out.padStart(7, " ");
-}
-
-function pageStr(i, total) {
-	const leftW = String(total).length;
-	return `${padLeft(i, leftW)}/${total}`;
-}
-
-function pctStr(done, total) {
-	const pct = total ? Math.floor((done / total) * 100) : 0;
-	return `${padLeft(pct, 3)}%`;
-}
-
-function bswNormalizeAbsUrl(raw) {
-	const s = String(raw || "").trim();
-	if (!s) return "";
-	if (s.startsWith("//")) return `https:${s}`;
-	if (/^https?:\/\//i.test(s)) return s;
-	try {
-		return new URL(s, "https://www.bswliquor.com/").toString();
-	} catch {
-		return s;
-	}
-}
+const bswNormalizeAbsUrl = (raw) => _normUrl(raw, "https://www.bswliquor.com/");
 
 function bswNormalizeImg(v) {
 	if (!v) return "";
@@ -266,43 +233,7 @@ async function scanCategoryBSWAlgolia(ctx, prevDb, report) {
 		ctx.logger.warn(`${ctx.catPrefixOut} | BSW missing collectionId; defaulting to 1 page with 0 items.`);
 
 		const discovered = new Map();
-		const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(
-			prevDb,
-			discovered,
-			{ storeLabel: ctx.store.name },
-		);
-		const dbObj = buildDbObject(ctx, merged);
-		writeJsonAtomic(ctx.dbFile, dbObj);
-
-		ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${dbObj.count} items)`);
-
-		const elapsed = Date.now() - t0;
-		report.categories.push({
-			store: ctx.store.name,
-			label: ctx.cat.label,
-			key: ctx.cat.key,
-			dbFile: ctx.dbFile,
-			scannedPages: 1,
-			discoveredUnique: 0,
-			newCount: newItems.length,
-			updatedCount: updatedItems.length,
-			removedCount: removedItems.length,
-			restoredCount: restoredItems.length,
-			elapsedMs: elapsed,
-		});
-		report.totals.newCount += newItems.length;
-		report.totals.updatedCount += updatedItems.length;
-		report.totals.removedCount += removedItems.length;
-		report.totals.restoredCount += restoredItems.length;
-		addCategoryResultToReport(
-			report,
-			ctx.store.name,
-			ctx.cat.label,
-			newItems,
-			updatedItems,
-			removedItems,
-			restoredItems,
-		);
+		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 1 });
 		return;
 	}
 
@@ -367,52 +298,14 @@ async function scanCategoryBSWAlgolia(ctx, prevDb, report) {
 		`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`,
 	);
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-		storeLabel: ctx.store.name,
-	});
-
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${dbObj.count} items)`);
-
-	const elapsed = Date.now() - t0;
-	ctx.logger.ok(
-		`${ctx.catPrefixOut} | Done in ${secStr(elapsed)}. New=${newItems.length} Updated=${updatedItems.length} Removed=${removedItems.length} Restored=${restoredItems.length} Total(DB)=${merged.size}`,
-	);
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: scanPages,
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		elapsedMs: elapsed,
-	});
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
-
-	addCategoryResultToReport(
-		report,
-		ctx.store.name,
-		ctx.cat.label,
-		newItems,
-		updatedItems,
-		removedItems,
-		restoredItems,
-	);
+	const { merged } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: scanPages });
+	ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${merged.size} items)`);
 }
 
 function createStore(defaultUa) {
 	return {
 		key: "bsw",
+		region: "AB",
 		name: "BSW",
 		host: "www.bswliquor.com",
 		ua: defaultUa,

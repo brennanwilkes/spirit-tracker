@@ -1,24 +1,11 @@
 #!/usr/bin/env node
 "use strict";
 
-const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-
-function runGit(args) {
-	return execFileSync("git", args, { encoding: "utf8" }).trimEnd();
-}
-
-function listDbFiles(dbDir) {
-	try {
-		return fs
-			.readdirSync(dbDir, { withFileTypes: true })
-			.filter((e) => e.isFile() && e.name.endsWith(".json"))
-			.map((e) => path.join(dbDir, e.name));
-	} catch {
-		return [];
-	}
-}
+const { runGit } = require("./lib/git");
+const { listDbFiles } = require("./lib/db");
+const { dateOnly } = require("./lib/sku");
 
 function listCommonListingReportFiles(reportsDir) {
 	try {
@@ -31,11 +18,6 @@ function listCommonListingReportFiles(reportsDir) {
 	} catch {
 		return [];
 	}
-}
-
-function dateOnly(iso) {
-	const m = String(iso ?? "").match(/^(\d{4}-\d{2}-\d{2})/);
-	return m ? m[1] : "";
 }
 
 function buildCommitPayloadForFiles({ repoRoot, relFiles, maxRawPerFile, maxDaysPerFile }) {

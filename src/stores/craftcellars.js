@@ -7,10 +7,9 @@ const { decodeHtml, stripTags, extractFirstImgUrl } = require("../utils/html");
 const { sanitizeName } = require("../utils/text");
 const { normalizeCspc, normalizeSkuKey, pickBetterSku, needsSkuDetail } = require("../utils/sku");
 const { makePageUrlShopifyQueryPage } = require("../utils/url");
+const { normalizeShopifyProductUrl, shopifyPriceFromCents, pickShopifyInStockVariant } = require("../utils/shopify");
 
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { buildDbObject, writeJsonAtomic } = require("../tracker/db");
-const { addCategoryResultToReport } = require("../tracker/report");
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
 /* ---------------- Debug helpers ---------------- */
 
@@ -51,16 +50,8 @@ function craftCellarsIsEmptyListingPage(html) {
 	return false;
 }
 
-function canonicalizeCraftProductUrl(raw) {
-	try {
-		const u = new URL(String(raw));
-		u.search = "";
-		u.hash = "";
-		return u.toString();
-	} catch {
-		return String(raw || "");
-	}
-}
+const canonicalizeCraftProductUrl = (raw) => normalizeShopifyProductUrl(raw);
+
 
 function extractShopifyCardPrice(block) {
 	const b = String(block || "");
@@ -145,11 +136,7 @@ function usdFromShopifyPriceStr(s) {
 	return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-function usdFromCents(cents) {
-	const n = Number(cents);
-	if (!Number.isFinite(n)) return "";
-	return usdFromShopifyPriceStr(String(n / 100));
-}
+const usdFromCents = shopifyPriceFromCents;
 
 function cfgNum(v, fallback) {
 	return Number.isFinite(v) ? v : fallback;
@@ -337,10 +324,6 @@ function isAvailableFromProductsJson(p) {
 	return variants.some((v) => v && v.available === true);
 }
 
-function pickVariantFromProductsJson(p) {
-	const variants = Array.isArray(p?.variants) ? p.variants : [];
-	return variants.find((v) => v && v.available === true) || variants[0] || null;
-}
 
 function pickImageFromProductsJson(p) {
 	let img = "";
@@ -415,10 +398,6 @@ async function fetchProductJs(ctx, handle) {
 	return await p;
 }
 
-function pickVariantFromProductJs(js) {
-	const variants = Array.isArray(js?.variants) ? js.variants : [];
-	return variants.find((v) => v && v.available === true) || variants[0] || null;
-}
 
 /**
  * Craft Cellars:
@@ -475,7 +454,7 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 			// - use products.json if variants include `available`
 			// - else fallback to product.js
 			let available = isAvailableFromProductsJson(p);
-			let v = pickVariantFromProductsJson(p);
+			let v = pickShopifyInStockVariant(p?.variants);
 			let sku = normalizeCspc(v?.sku || "");
 			let price = v?.price ? usdFromShopifyPriceStr(v.price) : "";
 
@@ -490,7 +469,7 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 					continue;
 				}
 
-				const jv = pickVariantFromProductJs(js);
+				const jv = pickShopifyInStockVariant(js?.variants);
 				sku = normalizeCspc(jv?.sku || sku);
 				price = jv?.price ? usdFromCents(jv.price) : price;
 				available = true;
@@ -574,9 +553,7 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 			});
 		}
 
-		const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-			storeLabel: ctx.store.name,
-		});
+		const { removedItems } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: pagesFetched });
 
 		// Extra debug: show why things got removed (first N)
 		if (isDebugEnabled(ctx) && removedItems?.length) {
@@ -592,40 +569,6 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 				});
 			}
 		}
-
-		const dbObj = buildDbObject(ctx, merged);
-		writeJsonAtomic(ctx.dbFile, dbObj);
-
-		const elapsed = Date.now() - t0;
-
-		report.categories.push({
-			store: ctx.store.name,
-			label: ctx.cat.label,
-			key: ctx.cat.key,
-			dbFile: ctx.dbFile,
-			scannedPages: pagesFetched,
-			discoveredUnique: discovered.size,
-			newCount: newItems.length,
-			updatedCount: updatedItems.length,
-			removedCount: removedItems.length,
-			restoredCount: restoredItems.length,
-			elapsedMs: elapsed,
-		});
-
-		report.totals.newCount += newItems.length;
-		report.totals.updatedCount += updatedItems.length;
-		report.totals.removedCount += removedItems.length;
-		report.totals.restoredCount += restoredItems.length;
-
-		addCategoryResultToReport(
-			report,
-			ctx.store.name,
-			ctx.cat.label,
-			newItems,
-			updatedItems,
-			removedItems,
-			restoredItems,
-		);
 		return;
 	}
 
@@ -760,40 +703,13 @@ async function scanCategoryCraftCellars(ctx, prevDb, report) {
 	ctx.logger.ok(`${ctx.catPrefixOut} | SKU fallback pages=${skuPagesFetched}`);
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-		storeLabel: ctx.store.name,
-	});
-
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	const elapsed = Date.now() - t0;
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: htmlPagesFetched,
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		elapsedMs: elapsed,
-	});
-
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
-
-	addCategoryResultToReport(report, ctx.store.name, ctx.cat.label, newItems, updatedItems, removedItems, restoredItems);
+	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: htmlPagesFetched });
 }
 
 function createStore(defaultUa) {
 	return {
 		key: "craftcellars",
+		region: "AB",
 		name: "Craft Cellars",
 		host: "craftcellars.ca",
 		ua: defaultUa,

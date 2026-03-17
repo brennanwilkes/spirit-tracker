@@ -1,13 +1,13 @@
 "use strict";
 
 const { cleanText } = require("../utils/html");
-const { normalizeCspc, pickBetterSku } = require("../utils/sku");
-const { humanBytes } = require("../utils/bytes");
-const { padLeft, padRight } = require("../utils/string");
+const { normalizeCspc, pickBetterSku, needsSkuDetail } = require("../utils/sku");
+const { padLeft, padRight, firstNonEmptyStr } = require("../utils/string");
+const { kbStr, secStr, pageStr, cad: money } = require("../utils/format");
+const { normalizeAbsUrl: _normUrl } = require("../utils/url");
+const { shopifyGqlPost } = require("../utils/shopify");
 
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { buildDbObject, writeJsonAtomic } = require("../tracker/db");
-const { addCategoryResultToReport } = require("../tracker/report");
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
 /* ---------------- constants ---------------- */
 
@@ -16,62 +16,11 @@ const BASE = `https://${HOST}`;
 const STORE_ID = "TUDOR_HOUSE_0";
 const GQL_URL = "https://production-storefront-api-mlwv4nj3rq-uc.a.run.app/graphql";
 
-/* ---------------- formatting ---------------- */
-
-function kbStr(bytes) {
-	return humanBytes(bytes).padStart(8, " ");
-}
-function secStr(ms) {
-	const s = Number.isFinite(ms) ? ms / 1000 : 0;
-	const t = Math.round(s * 10) / 10;
-	return (t < 10 ? `${t.toFixed(1)}s` : `${Math.round(s)}s`).padStart(7, " ");
-}
-function pageStr(i, total) {
-	const w = String(total).length;
-	return `${padLeft(i, w)}/${total}`;
-}
-
 /* ---------------- helpers ---------------- */
 
-function money(n) {
-	const x = Number(n);
-	return Number.isFinite(x) ? `$${x.toFixed(2)}` : "";
-}
+const normalizeAbsUrl = (raw) => _normUrl(raw, `${BASE}/`);
 
-function firstNonEmptyStr(...vals) {
-	for (const v of vals) {
-		const s = typeof v === "string" ? v.trim() : "";
-		if (s) return s;
-		if (Array.isArray(v)) {
-			for (const a of v) {
-				if (typeof a === "string" && a.trim()) return a.trim();
-				if (a && typeof a === "object") {
-					const u = String(a.url || a.src || a.image || "").trim();
-					if (u) return u;
-				}
-			}
-		}
-	}
-	return "";
-}
-
-function normalizeAbsUrl(raw) {
-	const s = String(raw || "").trim();
-	if (!s) return "";
-	if (s.startsWith("//")) return `https:${s}`;
-	if (/^https?:\/\//i.test(s)) return s;
-	try {
-		return new URL(s, `${BASE}/`).toString();
-	} catch {
-		return s;
-	}
-}
-
-// Treat u:* as synthetic (URL-hash fallback) and eligible for repair.
-function isSyntheticSku(sku) {
-	const s = String(sku || "").trim();
-	return !s || /^u:/i.test(s);
-}
+const isSyntheticSku = needsSkuDetail;
 
 // If SKU is <6 chars, namespace it (per your request) to reduce collisions.
 // Also: DO NOT run numeric SKUs through normalizeCspc (some normalizers hash arbitrary strings).
@@ -191,21 +140,6 @@ function pickInStockVariantWithFallback(p) {
 	return inStock || vs[0] || null;
 }
 
-/* ---------------- GraphQL ---------------- */
-
-async function tudorGql(ctx, label, query, variables) {
-	return await ctx.http.fetchJsonWithRetry(GQL_URL, label, ctx.store.ua, {
-		method: "POST",
-		headers: {
-			Accept: "application/json",
-			"content-type": "application/json",
-			Origin: BASE,
-			Referer: `${BASE}/`,
-		},
-		body: JSON.stringify({ query, variables }),
-	});
-}
-
 /* ---------------- GQL queries ---------------- */
 
 const PRODUCTS_QUERY = `
@@ -312,7 +246,7 @@ async function fetchProductsPage(ctx, cursor) {
 		quantityMin: null,
 	};
 
-	const r = await tudorGql(ctx, `tudor:gql:products:${ctx.cat.key}`, PRODUCTS_QUERY, vars);
+	const r = await shopifyGqlPost(ctx, GQL_URL, `tudor:gql:products:${ctx.cat.key}`, PRODUCTS_QUERY, vars);
 
 	if (r?.status !== 200 || !r?.json?.data?.products) {
 		const errs = Array.isArray(r?.json?.errors) ? r.json.errors : [];
@@ -332,7 +266,7 @@ async function fetchProductBySku(ctx, sku) {
 	if (!ctx._tudorSkuCache) ctx._tudorSkuCache = new Map();
 	if (ctx._tudorSkuCache.has(s)) return ctx._tudorSkuCache.get(s);
 
-	const r = await tudorGql(ctx, `tudor:gql:bySku:${ctx.cat.key}:${s}`, PRODUCTS_BY_SKU_QUERY, {
+	const r = await shopifyGqlPost(ctx, GQL_URL, `tudor:gql:bySku:${ctx.cat.key}:${s}`, PRODUCTS_BY_SKU_QUERY, {
 		sku: s,
 		storeId: STORE_ID,
 	});
@@ -619,43 +553,7 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 		`${ctx.catPrefixOut} | Unique products: ${discovered.size} | detail(html=${htmlUsed}/${htmlBudget}, gql=${gqlUsed}/${gqlBudget})`,
 	);
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-		storeLabel: ctx.store.name,
-	});
-
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	const elapsed = Date.now() - t0;
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: done,
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		elapsedMs: elapsed,
-	});
-
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
-
-	addCategoryResultToReport(
-		report,
-		ctx.store.name,
-		ctx.cat.label,
-		newItems,
-		updatedItems,
-		removedItems,
-		restoredItems,
-	);
+	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: done });
 }
 
 /* ---------------- store ---------------- */
@@ -663,6 +561,7 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 function createStore(defaultUa) {
 	return {
 		key: "tudor",
+		region: "BC",
 		name: "Tudor House",
 		host: HOST,
 		ua: defaultUa,

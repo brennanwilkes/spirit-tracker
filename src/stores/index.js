@@ -17,6 +17,10 @@ const { createStore: createVessel } = require("./vessel");
 const { createStore: createWillowPark } = require("./willowpark");
 const { createStore: createArc } = require("./arc");
 
+function getStoreRegions() {
+	return Object.fromEntries(createStores().map((s) => [s.key, s.region || "unknown"]));
+}
+
 function createStores({ defaultUa } = {}) {
 	return [
 		createKWM(defaultUa),
@@ -38,4 +42,4 @@ function createStores({ defaultUa } = {}) {
 	];
 }
 
-module.exports = { createStores, parseProductsSierra };
+module.exports = { createStores, getStoreRegions, parseProductsSierra };

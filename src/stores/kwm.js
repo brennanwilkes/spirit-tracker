@@ -7,37 +7,12 @@ const { normalizeCspc } = require("../utils/sku");
 const { normalizeBaseUrl } = require("../utils/url");
 const { parallelMapStaggered } = require("../utils/async");
 
-const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
+const { kbStr, secStr, pageStr, pctStr } = require("../utils/format");
 
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { buildDbObject, writeJsonAtomic } = require("../tracker/db");
-const { addCategoryResultToReport } = require("../tracker/report");
+const { avoidMassRemoval } = require("../tracker/merge");
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
-/* ---------------- formatting (matches category_scan-ish output) ---------------- */
-
-function kbStr(bytes) {
-	return humanBytes(bytes).padStart(8, " ");
-}
-
-function secStr(ms) {
-	const s = Number.isFinite(ms) ? ms / 1000 : 0;
-	const tenths = Math.round(s * 10) / 10;
-	let out;
-	if (tenths < 10) out = `${tenths.toFixed(1)}s`;
-	else out = `${Math.round(s)}s`;
-	return out.padStart(7, " ");
-}
-
-function pageStr(i, total) {
-	const leftW = String(total).length;
-	return `${padLeft(i, leftW)}/${total}`;
-}
-
-function pctStr(done, total) {
-	const pct = total ? Math.floor((done / total) * 100) : 0;
-	return `${padLeft(pct, 3)}%`;
-}
 
 /* ---------------- paging ---------------- */
 
@@ -479,47 +454,10 @@ async function scanCategoryKWM(ctx, prevDb, report) {
 
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
-	// Safety: avoid mass removals if scan is clearly partial
-	if (prevDb?.byUrl?.size && discovered.size && discovered.size / prevDb.byUrl.size < 0.6) {
-		ctx.logger.warn(
-			`${ctx.catPrefixOut} | Partial scan (${discovered.size}/${prevDb.byUrl.size}); preserving DB to avoid removals.`,
-		);
-		for (const [k, v] of prevDb.byUrl.entries()) if (!discovered.has(k)) discovered.set(k, v);
-	}
+	avoidMassRemoval(prevDb, discovered, ctx, "kwm partial scan");
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-		storeLabel: ctx.store.name,
-	});
-
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	const elapsed = Date.now() - t0;
-	ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${dbObj.count} items)`);
-	ctx.logger.ok(
-		`${ctx.catPrefixOut} | Done in ${secStr(elapsed)}. New=${newItems.length} Updated=${updatedItems.length} Removed=${removedItems.length} Restored=${restoredItems.length} Total(DB)=${merged.size}`,
-	);
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: scanPages,
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		elapsedMs: elapsed,
-	});
-
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
-
-	addCategoryResultToReport(report, ctx.store.name, ctx.cat.label, newItems, updatedItems, removedItems, restoredItems);
+	const { merged } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: scanPages });
+	ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${merged.size} items)`);
 }
 
 /* ---------------- store ---------------- */
@@ -527,6 +465,7 @@ async function scanCategoryKWM(ctx, prevDb, report) {
 function createStore(defaultUa) {
 	return {
 		key: "kwm",
+		region: "AB",
 		name: "Kensington Wine Market",
 		host: "kensingtonwinemarket.com",
 		ua: defaultUa,

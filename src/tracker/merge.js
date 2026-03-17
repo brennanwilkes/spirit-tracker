@@ -207,4 +207,29 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 	return { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems };
 }
 
-module.exports = { mergeDiscoveredIntoDb };
+/**
+ * If discovered < 60% of previous item count, restore old active items to avoid
+ * a partial scrape (network glitch, site change) wiping out good historical data.
+ * Returns true if protection was triggered.
+ */
+function avoidMassRemoval(prevDb, discovered, ctx, reason) {
+	const prevSize = prevDb?.byUrl?.size || 0;
+	const discSize = discovered?.size || 0;
+
+	if (prevSize <= 0 || discSize <= 0) return false;
+
+	const ratio = discSize / Math.max(1, prevSize);
+	if (ratio >= 0.6) return false;
+
+	ctx.logger.warn?.(
+		`${ctx.catPrefixOut} | Partial scan (${discSize}/${prevSize}); preserving DB to avoid mass removals (${reason}).`,
+	);
+
+	for (const [u, it] of prevDb.byUrl.entries()) {
+		if (!it || it.removed) continue;
+		if (!discovered.has(u)) discovered.set(u, it);
+	}
+	return true;
+}
+
+module.exports = { mergeDiscoveredIntoDb, avoidMassRemoval };

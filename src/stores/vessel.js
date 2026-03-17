@@ -1,41 +1,10 @@
 "use strict";
 
 const { decodeHtml, cleanText, extractFirstImgUrl } = require("../utils/html");
-const { normalizeCspc } = require("../utils/sku");
-const { normalizeBaseUrl } = require("../utils/url");
+const { normalizeBaseUrl, normalizeAbsUrl: _normUrl } = require("../utils/url");
+const { normalizeShopifyProductUrl, extractShopifySkuFromImgPath } = require("../utils/shopify");
 
-function normalizeAbsUrl(raw) {
-	const s = String(raw || "").trim();
-	if (!s) return "";
-	if (s.startsWith("//")) return `https:${s}`;
-	if (/^https?:\/\//i.test(s)) return s;
-	try {
-		return new URL(s, "https://vesselliquor.com/").toString();
-	} catch {
-		return s;
-	}
-}
-
-// Strip noisy Shopify/tracking params so URLs stay stable.
-// Keep only "variant" since it can represent a distinct product configuration.
-function normalizeShopifyProductUrl(rawUrl) {
-	try {
-		const u = new URL(String(rawUrl || ""));
-		u.hash = "";
-
-		const keep = new Set(["variant"]);
-		for (const k of [...u.searchParams.keys()]) {
-			if (!keep.has(k)) u.searchParams.delete(k);
-		}
-
-		if ([...u.searchParams.keys()].length === 0) u.search = "";
-		if (u.pathname.length > 1) u.pathname = u.pathname.replace(/\/+$/, "");
-
-		return u.toString();
-	} catch {
-		return String(rawUrl || "");
-	}
-}
+const normalizeAbsUrl = (raw) => _normUrl(raw, "https://vesselliquor.com/");
 
 function makeVesselPageUrl(baseUrl, pageNum) {
 	const u = new URL(normalizeBaseUrl(baseUrl));
@@ -75,22 +44,6 @@ function vesselExtractPrice(block) {
 	return "";
 }
 
-function vesselExtractSkuFromImgOrBlock(imgUrl, block) {
-	const cspc = normalizeCspc(imgUrl) || "";
-	if (cspc) return cspc;
-
-	try {
-		const u = new URL(String(imgUrl || ""));
-		const m = u.pathname.match(/\/(\d{1,11})\.(?:jpe?g|png|webp)$/i);
-		if (m && m[1]) return `id:${m[1]}`;
-	} catch {}
-
-	const s = String(block || "");
-	const m2 = s.match(/\/cdn\/shop\/(?:products|files)\/(\d{1,11})\.(?:jpe?g|png|webp)/i);
-	if (m2 && m2[1]) return `id:${m2[1]}`;
-
-	return "";
-}
 
 function vesselCardToItem(block, base) {
 	if (!vesselLooksInStock(block)) return null;
@@ -101,7 +54,7 @@ function vesselCardToItem(block, base) {
 	let url = "";
 	try {
 		url = new URL(decodeHtml(hrefM[1]), base).toString();
-		url = normalizeShopifyProductUrl(url);
+		url = normalizeShopifyProductUrl(url, { keepVariant: true });
 	} catch {
 		return null;
 	}
@@ -117,7 +70,7 @@ function vesselCardToItem(block, base) {
 	const price = vesselExtractPrice(block);
 
 	// Prefer numeric filename SKU like 67424.jpg (works for 5-digit too)
-	const sku = vesselExtractSkuFromImgOrBlock(img, block);
+	const sku = extractShopifySkuFromImgPath(img, block);
 
 	return { name, price, url, sku, img };
 }
@@ -144,6 +97,7 @@ function parseProductsVessel(html, ctx) {
 function createStore(defaultUa) {
 	return {
 		key: "vessel",
+		region: "BC",
 		name: "Vessel Liquor",
 		host: "vesselliquor.com",
 		ua: defaultUa,

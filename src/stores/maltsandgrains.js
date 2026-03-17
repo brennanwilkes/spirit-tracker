@@ -89,6 +89,7 @@ function parseProductsMaltsAndGrains(html, ctx) {
 function createStore(defaultUa) {
 	return {
 		key: "maltsandgrains",
+		region: "AB",
 		name: "Malts & Grains",
 		host: "maltsandgrains.store",
 		ua: defaultUa,

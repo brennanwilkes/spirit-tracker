@@ -127,6 +127,17 @@ function extractFirstImgUrl(html, baseUrl) {
 	return "";
 }
 
+/**
+ * Split an HTML string on <li class="...product..."> boundaries.
+ * Returns an array of block strings, each starting with its full opening <li> tag.
+ */
+function splitLiProductBlocks(html) {
+	const re = /<li\b[^>]*class=["'][^"']*\bproduct\b[^"']*["'][^>]*>/gi;
+	const parts = String(html).split(re);
+	const matches = [...String(html).matchAll(re)];
+	return matches.map((m, i) => m[0] + parts[i + 1]);
+}
+
 module.exports = {
 	stripTags,
 	cleanText,
@@ -134,4 +145,5 @@ module.exports = {
 	escapeRe,
 	extractHtmlAttr,
 	extractFirstImgUrl,
+	splitLiProductBlocks,
 };

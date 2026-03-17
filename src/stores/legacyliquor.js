@@ -1,16 +1,12 @@
 "use strict";
 
 const { normalizeCspc, normalizeSkuKey } = require("../utils/sku");
-const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
+const { kbStr, secStr, pageStr, pctStr, cad } = require("../utils/format");
+const { normalizeAbsUrl: _normUrl } = require("../utils/url");
+const { shopifyGqlPost } = require("../utils/shopify");
 
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { buildDbObject, writeJsonAtomic } = require("../tracker/db");
-const { addCategoryResultToReport } = require("../tracker/report");
-
-function kbStr(bytes) {
-	return humanBytes(bytes).padStart(8, " ");
-}
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
 function normalizeLegacySku(rawSku, { storeLabel, url }) {
 	const raw = String(rawSku ?? "").trim();
@@ -25,42 +21,7 @@ function normalizeLegacySku(rawSku, { storeLabel, url }) {
 	return normalizeSkuKey(raw, { storeLabel, url });
 }
 
-function secStr(ms) {
-	const s = Number.isFinite(ms) ? ms / 1000 : 0;
-	const tenths = Math.round(s * 10) / 10;
-	let out;
-	if (tenths < 10) out = `${tenths.toFixed(1)}s`;
-	else out = `${Math.round(s)}s`;
-	return out.padStart(7, " ");
-}
-
-function pageStr(i, total) {
-	const leftW = String(total).length;
-	return `${padLeft(i, leftW)}/${total}`;
-}
-
-function pctStr(done, total) {
-	const pct = total ? Math.floor((done / total) * 100) : 0;
-	return `${padLeft(pct, 3)}%`;
-}
-
-function cad(n) {
-	const x = Number(n);
-	if (!Number.isFinite(x)) return "";
-	return `$${x.toFixed(2)}`;
-}
-
-function normalizeAbsUrl(raw) {
-	const s = String(raw || "").trim();
-	if (!s) return "";
-	if (s.startsWith("//")) return `https:${s}`;
-	if (/^https?:\/\//i.test(s)) return s;
-	try {
-		return new URL(s, "https://www.legacyliquorstore.com/").toString();
-	} catch {
-		return s;
-	}
-}
+const normalizeAbsUrl = (raw) => _normUrl(raw, "https://www.legacyliquorstore.com/");
 
 const LEGACY_GQL_URL = "https://production-storefront-api-hagnfhf3sq-uc.a.run.app/graphql";
 
@@ -180,49 +141,32 @@ function legacyProductToItem(p, ctx) {
 }
 
 async function legacyFetchPage(ctx, pageCursor, pageLimit) {
-	const body = {
-		query: PRODUCTS_QUERY,
-		variables: {
-			allTags: ctx.cat.allTags || null,
-			anyTags: null,
-			collectionSlug: null,
-			countries: null,
-			isBestSeller: null,
-			isNewArrival: null,
-			isFeatured: null,
-			isFeaturedOnHomepage: null,
-			isOnSale: null,
-			isStaffPick: null,
-			pageCursor: pageCursor || null,
-			pageLimit: pageLimit,
-			pointsMin: null,
-			priceMin: null,
-			priceMax: null,
-			quantityMin: null,
-			regions: null,
-			brandValue: null,
-			searchValue: null,
-			sortOrder: "asc",
-			sortBy: "name",
-			storeId: "LL",
-		},
+	const variables = {
+		allTags: ctx.cat.allTags || null,
+		anyTags: null,
+		collectionSlug: null,
+		countries: null,
+		isBestSeller: null,
+		isNewArrival: null,
+		isFeatured: null,
+		isFeaturedOnHomepage: null,
+		isOnSale: null,
+		isStaffPick: null,
+		pageCursor: pageCursor || null,
+		pageLimit: pageLimit,
+		pointsMin: null,
+		priceMin: null,
+		priceMax: null,
+		quantityMin: null,
+		regions: null,
+		brandValue: null,
+		searchValue: null,
+		sortOrder: "asc",
+		sortBy: "name",
+		storeId: "LL",
 	};
 
-	return await ctx.http.fetchJsonWithRetry(
-		LEGACY_GQL_URL,
-		`legacy:${ctx.cat.key}:${pageCursor || "first"}`,
-		ctx.store.ua,
-		{
-			method: "POST",
-			headers: {
-				Accept: "application/json",
-				"content-type": "application/json",
-				Origin: "https://www.legacyliquorstore.com",
-				Referer: "https://www.legacyliquorstore.com/",
-			},
-			body: JSON.stringify(body),
-		},
-	);
+	return await shopifyGqlPost(ctx, LEGACY_GQL_URL, `legacy:${ctx.cat.key}:${pageCursor || "first"}`, PRODUCTS_QUERY, variables);
 }
 
 async function scanCategoryLegacyLiquor(ctx, prevDb, report) {
@@ -273,49 +217,13 @@ async function scanCategoryLegacyLiquor(ctx, prevDb, report) {
 		cursor = next;
 	}
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-		storeLabel: ctx.store.name,
-	});
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	const elapsed = Date.now() - t0;
-	ctx.logger.ok(
-		`${ctx.catPrefixOut} | Done in ${secStr(elapsed)}. New=${newItems.length} Updated=${updatedItems.length} Removed=${removedItems.length} Restored=${restoredItems.length} Total(DB)=${merged.size}`,
-	);
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: Math.max(1, page),
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		elapsedMs: elapsed,
-	});
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
-
-	addCategoryResultToReport(
-		report,
-		ctx.store.name,
-		ctx.cat.label,
-		newItems,
-		updatedItems,
-		removedItems,
-		restoredItems,
-	);
+	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: Math.max(1, page) });
 }
 
 function createStore(defaultUa) {
 	return {
 		key: "legacyliquor",
+		region: "BC",
 		name: "Legacy Liquor",
 		host: "www.legacyliquorstore.com",
 		ua: defaultUa,

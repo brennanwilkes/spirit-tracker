@@ -47,10 +47,23 @@ function makePageUrlShopifyQueryPage(baseUrl, pageNum) {
 	return u.toString();
 }
 
+function normalizeAbsUrl(raw, baseUrl) {
+	const s = String(raw || "").trim();
+	if (!s) return "";
+	let u = s;
+	if (u.startsWith("//")) u = `https:${u}`;
+	try {
+		return baseUrl ? new URL(u, baseUrl).toString() : new URL(u).toString();
+	} catch {
+		return u;
+	}
+}
+
 module.exports = {
 	normalizeBaseUrl,
 	makePageUrl,
 	makePageUrlForCtx,
 	makePageUrlQueryParam,
 	makePageUrlShopifyQueryPage,
+	normalizeAbsUrl,
 };

@@ -4,6 +4,7 @@
 const { decodeHtml, stripTags, extractFirstImgUrl, cleanText } = require("../utils/html");
 const { makePageUrlShopifyQueryPage } = require("../utils/url");
 const { needsSkuDetail, pickBetterSku, normalizeCspc } = require("../utils/sku");
+const { normalizeShopifyProductUrl } = require("../utils/shopify");
 
 function extractSkuFromUrlOrHref(hrefOrUrl) {
 	const s = String(hrefOrUrl || "");
@@ -27,18 +28,7 @@ function extractSkuFromWillowBlock(block) {
 	return "";
 }
 
-function canonicalizeWillowUrl(raw) {
-	try {
-		const u = new URL(String(raw));
-		u.search = "";
-		u.hash = "";
-		const m = u.pathname.match(/^\/collections\/[^/]+\/products\/([^/]+)\/?$/i);
-		if (m) u.pathname = `/products/${m[1]}`;
-		return u.toString();
-	} catch {
-		return String(raw || "");
-	}
-}
+const canonicalizeWillowUrl = (raw) => normalizeShopifyProductUrl(raw, { collectionsToProducts: true });
 
 // Prefer exact decimal from visually-hidden spans.
 // Fallback: reconstruct from $39<sup>99</sup>.
@@ -291,6 +281,7 @@ async function willowRepairDiscoveredItems(ctx, discovered, prevDb) {
 function createStore(defaultUa) {
 	return {
 		key: "willowpark",
+		region: "AB",
 		name: "Willow Park",
 		host: "www.willowpark.net",
 		ua: defaultUa,

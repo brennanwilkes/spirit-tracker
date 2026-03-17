@@ -2,12 +2,15 @@
 
 const { decodeHtml, cleanText, extractFirstImgUrl } = require("../utils/html");
 const { normalizeSkuKey } = require("../utils/sku");
-const { extractPriceFromTmbBlock } = require("../utils/woocommerce");
+const {
+	extractPriceFromTmbBlock,
+	formatWooStorePrice,
+	parseWooStoreProductsJson,
+	getWooCategoryId,
+} = require("../utils/woocommerce");
 
 // Tracker internals (store-only override; no global changes)
-const { writeJsonAtomic, buildDbObject } = require("../tracker/db");
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { addCategoryResultToReport } = require("../tracker/report");
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
 function allowSierraUrlRumWhisky(item) {
 	const u = item && item.url ? String(item.url) : "";
@@ -34,64 +37,7 @@ function allowSierraOtherWhiskyRescue(item) {
 	return false;
 }
 
-function formatWooStorePrice(prices) {
-	if (!prices) return null;
 
-	const minor = Number.isFinite(prices.currency_minor_unit) ? prices.currency_minor_unit : 2;
-	const raw = prices.price ?? prices.regular_price ?? prices.sale_price;
-	if (raw == null) return null;
-
-	const n = Number(String(raw).replace(/[^\d]/g, ""));
-	if (!Number.isFinite(n)) return null;
-
-	const value = (n / Math.pow(10, minor)).toFixed(minor);
-	const prefix = prices.currency_prefix ?? prices.currency_symbol ?? "$";
-	const suffix = prices.currency_suffix ?? "";
-	return `${prefix}${value}${suffix}`;
-}
-
-function parseWooStoreProductsJson(payload, ctx) {
-	const items = [];
-
-	let data = null;
-	try {
-		data = JSON.parse(payload);
-	} catch (_) {
-		return items;
-	}
-
-	if (!Array.isArray(data)) return items;
-
-	for (const p of data) {
-		const url = p && p.permalink ? String(p.permalink) : "";
-		if (!url) continue;
-
-		const name = p && p.name ? cleanText(decodeHtml(String(p.name))) : "";
-		if (!name) continue;
-
-		const price = formatWooStorePrice(p.prices);
-
-		const rawSku =
-			typeof p?.sku === "string" && p.sku.trim() ? p.sku.trim() : p && (p.id ?? p.id === 0) ? String(p.id) : "";
-
-		const taggedSku = /^\d{1,11}$/.test(rawSku) ? `id:${rawSku}` : rawSku;
-		const sku = normalizeSkuKey(taggedSku, { storeLabel: ctx?.store?.name, url });
-
-		const img =
-			p.images && Array.isArray(p.images) && p.images[0] && p.images[0].src ? String(p.images[0].src) : null;
-
-		const item = { name, price, url, sku, img };
-
-		const allowUrl = ctx?.cat?.allowUrl;
-		if (typeof allowUrl === "function" && !allowUrl(item)) continue;
-
-		items.push(item);
-	}
-
-	const uniq = new Map();
-	for (const it of items) uniq.set(it.url, it);
-	return [...uniq.values()];
-}
 
 function parseWooProductsHtml(html, ctx) {
 	const s = String(html || "");
@@ -210,38 +156,7 @@ function parseProductsSierra(body, ctx) {
 	return woo;
 }
 
-function extractProductCatTermId(html) {
-	const s = String(html || "");
-	// Typical body classes contain: "tax-product_cat term-<slug> term-1131 ..."
-	const m = s.match(/tax-product_cat[^"']{0,400}\bterm-(\d{1,10})\b/i) || s.match(/\bterm-(\d{1,10})\b/i);
-	if (!m) return null;
-	const n = Number(m[1]);
-	return Number.isFinite(n) ? n : null;
-}
 
-async function getWooCategoryIdForCat(ctx) {
-	// allow manual override if you ever want it
-	if (Number.isFinite(ctx?.cat?.wooCategoryId)) return ctx.cat.wooCategoryId;
-
-	// cache per category object
-	if (Number.isFinite(ctx?.cat?._wooCategoryId)) return ctx.cat._wooCategoryId;
-
-	// infer from the HTML category page so startUrl stays stable (DB filenames stay stable)
-	const { text, finalUrl } = await ctx.http.fetchTextWithRetry(ctx.cat.startUrl, "discover", ctx.store.ua);
-	const id = extractProductCatTermId(text);
-
-	if (!id) {
-		ctx.logger.warn(
-			`${ctx.catPrefixOut} | Could not infer product_cat term id from category page; falling back to HTML parsing only.`,
-		);
-		ctx.cat._wooCategoryId = null;
-		return null;
-	}
-
-	ctx.logger.ok(`${ctx.catPrefixOut} | Woo category id: ${id} (${finalUrl || ctx.cat.startUrl})`);
-	ctx.cat._wooCategoryId = id;
-	return id;
-}
 
 /**
  * Sierra Springs: override scan to use Woo Store API pagination
@@ -254,7 +169,7 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 	const perPage = Number.isFinite(ctx.cat.perPage) ? ctx.cat.perPage : 100;
 	const discovered = new Map();
 
-	const catId = await getWooCategoryIdForCat(ctx);
+	const catId = await getWooCategoryId(ctx);
 	if (!catId) return;
 
 	const apiBase = new URL(`https://${ctx.store.host}/wp-json/wc/store/v1/products`);
@@ -327,49 +242,9 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 
 	logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems } = mergeDiscoveredIntoDb(
-		prevDb,
-		discovered,
-		{ storeLabel: ctx.store.name },
-	);
-
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	logger.ok(`${ctx.catPrefixOut} | DB saved: ${logger.dim(ctx.dbFile)} (${dbObj.count} items)`);
-
-	const elapsedMs = Date.now() - t0;
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: Math.max(0, page),
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		metaChangedCount: metaChangedItems.length,
-		elapsedMs,
-	});
-
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
+	const { merged, metaChangedItems } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: Math.max(0, page) });
+	logger.ok(`${ctx.catPrefixOut} | DB saved: ${logger.dim(ctx.dbFile)} (${merged.size} items)`);
 	report.totals.metaChangedCount += metaChangedItems.length;
-
-	addCategoryResultToReport(
-		report,
-		ctx.store.name,
-		ctx.cat.label,
-		newItems,
-		updatedItems,
-		removedItems,
-		restoredItems,
-	);
 }
 
 function createStore(defaultUa) {
@@ -377,6 +252,7 @@ function createStore(defaultUa) {
 
 	return {
 		key: "sierrasprings",
+		region: "AB",
 		name: "Sierra Springs",
 		host: "sierraspringsliquor.ca",
 		ua,

@@ -28,39 +28,15 @@
     --include-ties           Include all SKUs tied at the cutoff (size may exceed --top)
 */
 
-const fs = require("fs");
 const path = require("path");
+const { getStoreRegions } = require("../src/stores/index");
+const { ensureDir, readJson, listDbFiles: _listDbFiles, storeKeyFromDbPath } = require("./lib/db");
+const { priceToNumber } = require("./lib/sku");
 
 /* ---------------- helpers ---------------- */
 
-function ensureDir(dir) {
-	fs.mkdirSync(dir, { recursive: true });
-}
-
-function readJson(p) {
-	try {
-		return JSON.parse(fs.readFileSync(p, "utf8"));
-	} catch {
-		return null;
-	}
-}
-
 function listDbFiles() {
-	const dir = path.join(process.cwd(), "data", "db");
-	try {
-		return fs
-			.readdirSync(dir, { withFileTypes: true })
-			.filter((e) => e.isFile() && e.name.endsWith(".json"))
-			.map((e) => path.join(dir, e.name));
-	} catch {
-		return [];
-	}
-}
-
-function priceToNumber(v) {
-	const s = String(v ?? "").replace(/[^0-9.]/g, "");
-	const n = Number(s);
-	return Number.isFinite(n) ? n : null;
+	return _listDbFiles(path.join(process.cwd(), "data", "db"));
 }
 
 function hasRealSku6(s) {
@@ -69,13 +45,6 @@ function hasRealSku6(s) {
 
 function isSyntheticSkuKey(k) {
 	return String(k || "").startsWith("u:");
-}
-
-function storeKeyFromDbPath(abs) {
-	const base = path.basename(abs);
-	const m = base.match(/^([^_]+)__.+\.json$/i);
-	const k = m ? m[1] : base.replace(/\.json$/i, "");
-	return String(k || "").toLowerCase();
 }
 
 function stableRowSort(a, b) {
@@ -120,23 +89,12 @@ function canonicalize(k, skuMap) {
 
 /* ---------------- grouping ---------------- */
 
-const BC_STORE_KEYS = new Set([
-	"gull",
-	"strath",
-	"bcl",
-	"legacy",
-	"legacyliquor",
-	"tudor",
-	"vessel",
-	"vintage",
-	"arc",
-]);
+const _storeRegions = getStoreRegions();
 
 function groupAllowsStore(group, storeKey) {
-	const k = String(storeKey || "").toLowerCase();
-	if (group === "bc") return BC_STORE_KEYS.has(k);
-	if (group === "ab") return !BC_STORE_KEYS.has(k);
-	return true; // all
+	if (group === "all") return true;
+	const region = (_storeRegions[String(storeKey || "").toLowerCase()] || "").toUpperCase();
+	return region === group.toUpperCase();
 }
 
 /* ---------------- args ---------------- */

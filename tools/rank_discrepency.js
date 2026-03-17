@@ -3,6 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { normalizeImplicitSkuKey } = require("./lib/sku");
 
 /* ---------------- IO ---------------- */
 
@@ -108,12 +109,6 @@ function pickName(row) {
 
 /* ---------------- sku_links union-find grouping + ignores ---------------- */
 
-function normalizeImplicitSkuKey(k) {
-	const s = String(k || "").trim();
-	const m = s.match(/^id:(\d{1,6})$/i);
-	if (m) return String(m[1]).padStart(6, "0");
-	return s;
-}
 
 function canonicalPairKey(a, b) {
 	const x = normalizeImplicitSkuKey(a);
