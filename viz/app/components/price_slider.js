@@ -33,10 +33,11 @@ export function createPriceSlider({ sliderEl, labelEl, boundMax, minPrice = 25, 
 
 	function stepForPrice(p) {
 		const x = Number.isFinite(p) ? p : MAX;
-		if (x < 120) return 5;
-		if (x < 250) return 10;
-		if (x < 600) return 25;
-		return 100;
+		if (x < 120)  return 5;
+		if (x < 250)  return 10;
+		if (x < 600)  return 25;
+		if (x < 2000) return 100;
+		return 1000;
 	}
 
 	function roundToStep(p) {

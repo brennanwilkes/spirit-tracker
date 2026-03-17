@@ -1,4 +1,5 @@
 import { esc, renderThumbHtml, dateOnly } from "./dom.js";
+import { goBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
@@ -265,11 +266,7 @@ export async function renderItem($app, skuInput) {
 
 	installFavStars($app, favSet);
 
-	document.getElementById("back").addEventListener("click", () => {
-		const last = sessionStorage.getItem("viz:lastRoute");
-		if (last && last !== location.hash) location.hash = last;
-		else location.hash = "#/";
-	});
+	document.getElementById("back").addEventListener("click", () => goBack());
 
 	const $title = document.getElementById("title");
 	const $links = document.getElementById("links");

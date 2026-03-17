@@ -1,4 +1,5 @@
 import { esc } from "./dom.js";
+import { goBack } from "./nav.js";
 import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommits } from "./api.js";
 import {
 	destroyStatsChart,
@@ -177,14 +178,13 @@ function rowPriceNum(r, stores) {
 
 /* ---------------- price slider mapping (store-page-ish, but faster low-end) ---------------- */
 
-// faster low-end: coarser step sizes early so you jump past $10/$20 quickly
 function stepForPrice(p, boundMax) {
 	const x = Number.isFinite(p) ? p : boundMax;
-	if (x < 50) return 10;
-	if (x < 120) return 25;
-	if (x < 250) return 25;
-	if (x < 600) return 50;
-	return 100;
+	if (x < 120)  return 5;
+	if (x < 250)  return 10;
+	if (x < 600)  return 25;
+	if (x < 2000) return 100;
+	return 1000;
 }
 function roundToStep(p, boundMax) {
 	const step = stepForPrice(p, boundMax);
@@ -781,33 +781,30 @@ export async function renderStats($app) {
 		if ($status) $status.textContent = String(msg || "");
 	};
 
-	document.getElementById("back")?.addEventListener("click", () => {
-		location.hash = "#/";
-	});
+	document.getElementById("back")?.addEventListener("click", () => goBack());
 
-	// allow 0 as the floor
-	let boundMin = 0;
+	// log scale requires a positive floor; EFF_MIN is the scale base
+	const EFF_MIN = 15;
+	let boundMin = EFF_MIN;
 	let boundMax = 1000;
 
 	let selectedMinPrice = boundMin;
 	let selectedMaxPrice = boundMax;
 
-	// faster early ramp: use sqrt easing so early motion moves faster up the range
+	// log/exponential scale: fine precision at low prices, coarse at high
 	function priceFromT(t) {
 		t = clamp(t, 0, 1);
-		if (boundMax <= boundMin) return boundMin;
-		// sqrt easing (fast early)
-		const te = Math.sqrt(t);
-		return boundMin + (boundMax - boundMin) * te;
+		if (boundMax <= EFF_MIN) return EFF_MIN;
+		const ratio = boundMax / EFF_MIN;
+		return EFF_MIN * Math.exp(Math.log(ratio) * t);
 	}
 
 	function tFromPrice(price) {
 		if (!Number.isFinite(price)) return 1;
-		if (boundMax <= boundMin) return 1;
-		const p = clamp(price, boundMin, boundMax);
-		const lin = (p - boundMin) / (boundMax - boundMin);
-		// inverse of sqrt easing
-		return lin * lin;
+		if (boundMax <= EFF_MIN) return 1;
+		const p = clamp(price, EFF_MIN, boundMax);
+		const ratio = boundMax / EFF_MIN;
+		return Math.log(p / EFF_MIN) / Math.log(ratio);
 	}
 
 	function clampAndRound(p) {
@@ -897,8 +894,7 @@ export async function renderStats($app) {
 			const newestReport = raw.reportsByIdx[raw.reportsByIdx.length - 1];
 			const b = computePriceBoundsFromReport(newestReport, raw.stores);
 
-			// floor is ALWAYS 0 now
-			boundMin = 0;
+			boundMin = EFF_MIN;
 			boundMax = Number.isFinite(b.max) && b.max > 0 ? Math.ceil(b.max) : 1000;
 
 			const saved = loadFilterPrefs(group, size);
