@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-16T21:58:36.570Z",
+  "generatedAt": "2026-03-17T01:11:45.857Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8177,
-    "removedRows": 916,
+    "liveRows": 8178,
+    "removedRows": 915,
     "canonSkus": 4627,
     "outputCount": 1000
   },
@@ -33520,6 +33520,45 @@
       }
     },
     {
+      "canonSku": "899340",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 110,
+        "craftcellars": 79.99,
+        "maltsandgrains": 112.31
+      },
+      "representative": {
+        "name": "The Senator Barrel Proof Whiskey",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "899340",
+        "skuKey": "899340",
+        "url": "https://craftcellars.ca/products/the-senator-barrel-proof-whiskey-58-39-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/the-senator-barrel-proof-whiskey-58-39-abv"
+      }
+    },
+    {
       "canonSku": "000042",
       "storeCount": 2,
       "stores": [
@@ -39635,44 +39674,6 @@
         "priceNum": 74.09,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/899249/sweet-wee-scallywag-alberta-edition"
-      }
-    },
-    {
-      "canonSku": "899340",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 110,
-        "maltsandgrains": 112.31
-      },
-      "representative": {
-        "name": "The Senator Barrel Proof Whiskey 58.39% ABV",
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "899340",
-        "skuKey": "899340",
-        "url": "https://www.bswliquor.com/products/the-senator-barrel-proof-whiskey",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/the-senator-barrel-proof-whiskey"
       }
     }
   ]
