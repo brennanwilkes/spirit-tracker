@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-17T01:11:44.640Z",
+  "generatedAt": "2026-03-17T07:17:36.386Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 11922,
-    "removedRows": 1187,
-    "canonSkus": 5436,
+    "liveRows": 11912,
+    "removedRows": 1204,
+    "canonSkus": 5433,
     "outputCount": 50
   },
   "rows": [
@@ -100,6 +100,65 @@
       }
     },
     {
+      "canonSku": "057706",
+      "storeCount": 15,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork"
+      ],
+      "storePrices": {
+        "arc": 75.49,
+        "bcl": 74.99,
+        "bsw": 74.99,
+        "coop": 89.99,
+        "craftcellars": 86.99,
+        "gull": 83.45,
+        "kwm": 86.99,
+        "legacyliquor": 83.51,
+        "maltsandgrains": 91.58,
+        "sierrasprings": 89.42,
+        "strath": 80.87,
+        "tudor": 74.99,
+        "vessel": 74.99,
+        "vintage": 75.57,
+        "willowpark": 84.99
+      },
+      "representative": {
+        "name": "ARDBEG - WEE BEASTIE 5 YEAR OLD",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "057706",
+        "skuKey": "057706",
+        "url": "https://www.bcliquorstores.com/product/57706",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/57706"
+      }
+    },
+    {
       "canonSku": "560474",
       "storeCount": 15,
       "stores": [
@@ -156,64 +215,6 @@
         "priceNum": 79.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
-      }
-    },
-    {
-      "canonSku": "057706",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 75.49,
-        "bcl": 74.99,
-        "bsw": 74.99,
-        "coop": 89.99,
-        "craftcellars": 86.99,
-        "gull": 83.45,
-        "kwm": 86.99,
-        "legacyliquor": 83.51,
-        "maltsandgrains": 91.58,
-        "sierrasprings": 89.42,
-        "strath": 80.87,
-        "tudor": 74.99,
-        "vintage": 75.57,
-        "willowpark": 84.99
-      },
-      "representative": {
-        "name": "ARDBEG - WEE BEASTIE 5 YEAR OLD",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "057706",
-        "skuKey": "057706",
-        "url": "https://www.bcliquorstores.com/product/57706",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/57706"
       }
     },
     {
@@ -474,7 +475,7 @@
       "storePrices": {
         "bcl": 109.99,
         "bsw": 84.99,
-        "craftcellars": 115.99,
+        "craftcellars": 80.99,
         "gull": 108.99,
         "kegncork": 114.96,
         "kwm": 96.99,
@@ -487,22 +488,22 @@
         "willowpark": 117.49
       },
       "representative": {
-        "name": "Bruichladdich Port Charlotte 10 Year Old",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich Port Charlotte 10",
+        "price": "$80.99",
+        "priceNum": 80.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "806524",
         "skuKey": "806524",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
+        "price": "$80.99",
+        "priceNum": 80.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10"
       }
     },
     {
