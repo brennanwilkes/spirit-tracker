@@ -1,9 +1,10 @@
 // src/stores/gull.js
 "use strict";
 
-const { decodeHtml, cleanText, extractFirstImgUrl } = require("../utils/html");
+const { decodeHtml, cleanText, extractFirstImgUrl, splitLiProductBlocks } = require("../utils/html");
 const { normalizeCspc, pickBetterSku, needsSkuDetail } = require("../utils/sku");
 const { makePageUrl } = require("../utils/url");
+const { createMinIntervalLimiter } = require("../utils/async");
 
 function looksInStock(block) {
 	const s = String(block || "");
@@ -87,22 +88,6 @@ function extractGullSkuFromProductPage(html) {
 	return "";
 }
 
-// Serial limiter: ensures at least minIntervalMs between request starts.
-function createMinIntervalLimiter(minIntervalMs) {
-	let lastStart = 0;
-	let chain = Promise.resolve();
-
-	return async function schedule(fn) {
-		chain = chain.then(async () => {
-			const now = Date.now();
-			const waitMs = Math.max(0, lastStart + minIntervalMs - now);
-			if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
-			lastStart = Date.now();
-			return fn();
-		});
-		return chain;
-	};
-}
 
 async function fetchWith429Backoff(url, { fetchFn, headers, maxRetries = 2 }) {
 	let attempt = 0;
@@ -164,17 +149,13 @@ async function hydrateGullSkus(items, { fetchFn, ua, minIntervalMs = 12000, maxR
 }
 
 function parseProductsGull(html, ctx) {
-	const s = String(html || "");
-	const items = [];
-
-	// split on <li class="product ...">
-	const parts = s.split(/<li\b[^>]*class=["'][^"']*\bproduct\b[^"']*["'][^>]*>/i);
-	if (parts.length <= 1) return items;
+	const blocks = splitLiProductBlocks(String(html || ""));
+	if (!blocks.length) return [];
 
 	const base = `https://${(ctx && ctx.store && ctx.store.host) || "gullliquorstore.com"}/`;
+	const items = [];
 
-	for (let i = 1; i < parts.length; i++) {
-		const block = '<li class="product"' + parts[i];
+	for (const block of blocks) {
 
 		if (!looksInStock(block)) continue;
 
@@ -218,6 +199,7 @@ function parseProductsGull(html, ctx) {
 function createStore(defaultUa) {
 	return {
 		key: "gull",
+		region: "BC",
 		name: "Gull Liquor",
 		host: "gullliquorstore.com",
 		ua: defaultUa,

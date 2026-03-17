@@ -2,8 +2,8 @@
 
 const { setTimeout: sleep } = require("timers/promises");
 
-const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight, padLeftV, padRightV } = require("../utils/string");
+const { kbStr, secStr, pageStr, pctStr } = require("../utils/format");
 const { normalizeBaseUrl, makePageUrlForCtx } = require("../utils/url");
 const { parallelMapStaggered } = require("../utils/async");
 
@@ -15,28 +15,6 @@ const ACTION_W = 24;
 const STATUS_W = 4;
 const PROG_W = 4;
 
-function kbStr(bytes) {
-	return humanBytes(bytes).padStart(8, " ");
-}
-
-function secStr(ms) {
-	const s = Number.isFinite(ms) ? ms / 1000 : 0;
-	const tenths = Math.round(s * 10) / 10;
-	let out;
-	if (tenths < 10) out = `${tenths.toFixed(1)}s`;
-	else out = `${Math.round(s)}s`;
-	return out.padStart(7, " ");
-}
-
-function pctStr(done, total) {
-	const pct = total ? Math.floor((done / total) * 100) : 0;
-	return `${padLeft(pct, 3)}%`;
-}
-
-function pageStr(i, total) {
-	const leftW = String(total).length;
-	return `${padLeft(i, leftW)}/${total}`;
-}
 
 function actionCell(s) {
 	return padRightV(String(s), ACTION_W);

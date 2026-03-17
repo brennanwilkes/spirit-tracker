@@ -3,33 +3,9 @@
 
 const fs = require("fs");
 const path = require("path");
-const { execFileSync } = require("child_process");
-
-function ensureDir(dir) {
-	fs.mkdirSync(dir, { recursive: true });
-}
-
-function listJsonFiles(dir) {
-	const out = [];
-	try {
-		for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-			if (!ent.isFile()) continue;
-			if (!String(ent.name || "").endsWith(".json")) continue;
-			out.push(path.join(dir, ent.name));
-		}
-	} catch {
-		// ignore
-	}
-	return out;
-}
-
-function readJson(file) {
-	try {
-		return JSON.parse(fs.readFileSync(file, "utf8"));
-	} catch {
-		return null;
-	}
-}
+const { gitShowJson } = require("./lib/git");
+const { ensureDir, listJsonFiles, readJson } = require("./lib/db");
+const { normalizeCspc, fnv1a32 } = require("./lib/sku");
 
 function readDbCommitsOrNull(repoRoot) {
 	const p = path.join(repoRoot, "viz", "data", "db_commits.json");
@@ -38,32 +14,6 @@ function readDbCommitsOrNull(repoRoot) {
 	} catch {
 		return null;
 	}
-}
-
-function gitShowJson(sha, filePath) {
-	try {
-		const txt = execFileSync("git", ["show", `${sha}:${filePath}`], {
-			encoding: "utf8",
-			stdio: ["ignore", "pipe", "pipe"],
-		});
-		return JSON.parse(txt);
-	} catch {
-		return null;
-	}
-}
-
-function normalizeCspc(v) {
-	const m = String(v ?? "").match(/\b(\d{6})\b/);
-	return m ? m[1] : "";
-}
-
-function fnv1a32(str) {
-	let h = 0x811c9dc5;
-	for (let i = 0; i < str.length; i++) {
-		h ^= str.charCodeAt(i);
-		h = Math.imul(h, 0x01000193);
-	}
-	return (h >>> 0).toString(16).padStart(8, "0");
 }
 
 // Normalize URL to a stable key: host + path (no scheme/query/hash), no trailing slash

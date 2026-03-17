@@ -1,31 +1,12 @@
 "use strict";
 
 const { normalizeSkuKey } = require("../utils/sku");
-const { humanBytes } = require("../utils/bytes");
 const { padLeft, padRight } = require("../utils/string");
+const { kbStr, secStr, pageStr, pctStr } = require("../utils/format");
 
-const { mergeDiscoveredIntoDb } = require("../tracker/merge");
-const { buildDbObject, writeJsonAtomic } = require("../tracker/db");
-const { addCategoryResultToReport } = require("../tracker/report");
+const { avoidMassRemoval } = require("../tracker/merge");
+const { finalizeCategoryScan } = require("../tracker/finalize");
 
-/* ---------------- formatting ---------------- */
-
-function kbStr(bytes) {
-	return humanBytes(bytes).padStart(8, " ");
-}
-function secStr(ms) {
-	const s = Number.isFinite(ms) ? ms / 1000 : 0;
-	const t = Math.round(s * 10) / 10;
-	return (t < 10 ? `${t.toFixed(1)}s` : `${Math.round(s)}s`).padStart(7, " ");
-}
-function pageStr(i, total) {
-	const w = String(total).length;
-	return `${padLeft(i, w)}/${total}`;
-}
-function pctStr(done, total) {
-	const pct = total ? Math.floor((done / total) * 100) : 0;
-	return `${padLeft(pct, 3)}%`;
-}
 
 /* ---------------- co-op specifics ---------------- */
 
@@ -211,18 +192,6 @@ async function fetchCategoryPage(ctx, categoryId, page) {
 	return r;
 }
 
-function avoidMassRemoval(prevDb, discovered, ctx) {
-	const prev = prevDb?.size || 0;
-	const curr = discovered.size;
-	if (!prev || !curr) return;
-	if (curr / prev >= 0.6) return;
-
-	ctx.logger.warn(`${ctx.catPrefixOut} | Partial scan (${curr}/${prev}); preserving DB`);
-
-	for (const [k, v] of prevDb.entries()) {
-		if (!discovered.has(k)) discovered.set(k, v);
-	}
-}
 
 async function scanCategoryCoop(ctx, prevDb, report) {
 	const t0 = Date.now();
@@ -264,47 +233,11 @@ async function scanCategoryCoop(ctx, prevDb, report) {
 		if (!arr.length) break;
 	}
 
-	if (prevDb) avoidMassRemoval(prevDb, discovered, ctx);
+	avoidMassRemoval(prevDb, discovered, ctx, "coop api");
 
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products: ${discovered.size}`);
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems } = mergeDiscoveredIntoDb(prevDb, discovered, {
-		storeLabel: ctx.store.name,
-	});
-
-	const dbObj = buildDbObject(ctx, merged);
-	writeJsonAtomic(ctx.dbFile, dbObj);
-
-	const elapsed = Date.now() - t0;
-
-	report.categories.push({
-		store: ctx.store.name,
-		label: ctx.cat.label,
-		key: ctx.cat.key,
-		dbFile: ctx.dbFile,
-		scannedPages: done,
-		discoveredUnique: discovered.size,
-		newCount: newItems.length,
-		updatedCount: updatedItems.length,
-		removedCount: removedItems.length,
-		restoredCount: restoredItems.length,
-		elapsedMs: elapsed,
-	});
-
-	report.totals.newCount += newItems.length;
-	report.totals.updatedCount += updatedItems.length;
-	report.totals.removedCount += removedItems.length;
-	report.totals.restoredCount += restoredItems.length;
-
-	addCategoryResultToReport(
-		report,
-		ctx.store.name,
-		ctx.cat.label,
-		newItems,
-		updatedItems,
-		removedItems,
-		restoredItems,
-	);
+	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: done });
 }
 
 /* ---------------- store ---------------- */
@@ -312,6 +245,7 @@ async function scanCategoryCoop(ctx, prevDb, report) {
 function createStore(defaultUa) {
 	return {
 		key: "coop",
+		region: "AB",
 		name: "Co-op World of Whisky",
 		host: "shoponlinewhisky-wine.coopwinespiritsbeer.com",
 		ua: defaultUa,

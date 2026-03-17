@@ -1,85 +1,14 @@
 #!/usr/bin/env node
 "use strict";
 
-const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-
-function runGit(args) {
-	return execFileSync("git", args, { encoding: "utf8" }).trimEnd();
-}
-
-function gitShowJson(sha, filePath) {
-	try {
-		const txt = execFileSync("git", ["show", `${sha}:${filePath}`], {
-			encoding: "utf8",
-			stdio: ["ignore", "pipe", "pipe"], // silence git fatal spam
-		});
-		return JSON.parse(txt);
-	} catch {
-		return null;
-	}
-}
-
-function gitFileExistsAtSha(sha, filePath) {
-	if (!sha) return false;
-	try {
-		execFileSync("git", ["cat-file", "-e", `${sha}:${filePath}`], {
-			stdio: ["ignore", "ignore", "ignore"],
-		});
-		return true;
-	} catch {
-		return false;
-	}
-}
-
-function gitListTreeFiles(sha, dirRel) {
-	try {
-		const out = runGit(["ls-tree", "-r", "--name-only", sha, dirRel]);
-		return out
-			.split(/\r?\n/)
-			.map((s) => s.trim())
-			.filter(Boolean);
-	} catch {
-		return [];
-	}
-}
-
-function readJsonFileOrNull(filePath) {
-	try {
-		return JSON.parse(fs.readFileSync(filePath, "utf8"));
-	} catch {
-		return null;
-	}
-}
-
-function normalizeCspc(v) {
-	const m = String(v ?? "").match(/\b(\d{6})\b/);
-	return m ? m[1] : "";
-}
+const { runGit, gitShowJson, gitFileExistsAtSha, gitListTreeFiles } = require("./lib/git");
+const { readJson: readJsonFileOrNull } = require("./lib/db");
+const { normalizeCspc, fnv1a32, normalizeImplicitSkuKey, priceToNumber, dateOnly } = require("./lib/sku");
 
 function normPriceStr(p) {
 	return String(p ?? "").trim();
-}
-
-function priceToNumber(v) {
-	const s = String(v ?? "").replace(/[^0-9.]/g, "");
-	const n = Number(s);
-	return Number.isFinite(n) ? n : null;
-}
-
-function dateOnly(iso) {
-	const m = String(iso ?? "").match(/^(\d{4}-\d{2}-\d{2})/);
-	return m ? m[1] : "";
-}
-
-function fnv1a32(str) {
-	let h = 0x811c9dc5;
-	for (let i = 0; i < str.length; i++) {
-		h ^= str.charCodeAt(i);
-		h = Math.imul(h, 0x01000193);
-	}
-	return (h >>> 0).toString(16).padStart(8, "0");
 }
 
 function makeSyntheticSku(storeLabel, url) {
@@ -89,19 +18,6 @@ function makeSyntheticSku(storeLabel, url) {
 	return `u:${fnv1a32(`${store}|${u}`)}`;
 }
 
-function normalizeImplicitSkuKey(k) {
-	const s = String(k ?? "").trim();
-  
-	const idm = s.match(/^id:(\d{1,6})$/i);
-	if (idm) return String(idm[1]).padStart(6, "0");
-  
-	// fallback: grab a digit run (supports 6-8+ digit SKUs)
-	const m = s.match(/\b(\d{6,10})\b/);
-	if (m) return m[1];
-  
-	return s;
-  }
-  
   
   function keySkuForItem(it, storeLabel) {
 	const real0 = String(it?.sku ?? "").trim();

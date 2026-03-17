@@ -1,7 +1,8 @@
 "use strict";
 
-const { decodeHtml, cleanText, stripTags, extractFirstImgUrl } = require("../utils/html");
+const { decodeHtml, cleanText, stripTags, extractFirstImgUrl, splitLiProductBlocks } = require("../utils/html");
 const { makePageUrlQueryParam } = require("../utils/url");
+const { normalizeSkuKey } = require("../utils/sku");
 
 function makePageUrlKegNCork(baseUrl, pageNum) {
 	return makePageUrlQueryParam(baseUrl, "page", pageNum);
@@ -13,11 +14,10 @@ function parseProductsKegNCork(html, ctx) {
 
 	const base = `https://${(ctx && ctx.store && ctx.store.host) || "kegncork.com"}/`;
 
-	const blocks = s.split(/<li\b[^>]*class=["'][^"']*\bproduct\b[^"']*["'][^>]*>/i);
-	ctx.logger?.dbg?.(`parseProductsKegNCork: li.product blocks=${Math.max(0, blocks.length - 1)} bytes=${s.length}`);
+	const blocks = splitLiProductBlocks(s);
+	ctx.logger?.dbg?.(`parseProductsKegNCork: li.product blocks=${blocks.length} bytes=${s.length}`);
 
-	for (let i = 1; i < blocks.length; i++) {
-		const block = "<li" + blocks[i];
+	for (const block of blocks) {
 
 		const mTitle = block.match(
 			/<h4\b[^>]*class=["'][^"']*\bcard-title\b[^"']*["'][^>]*>[\s\S]*?<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i,
@@ -41,7 +41,10 @@ function parseProductsKegNCork(html, ctx) {
 
 		const img = extractFirstImgUrl(block, base);
 
-		items.push({ name, price, url, img });
+		const rawSku = block.match(/\bdata-product_sku=["']([^"']+)["']/i)?.[1] || "";
+		const sku = normalizeSkuKey(rawSku, { storeLabel: "Keg N Cork", url });
+
+		items.push({ name, price, url, sku, img });
 	}
 
 	const uniq = new Map();
@@ -52,6 +55,7 @@ function parseProductsKegNCork(html, ctx) {
 function createStore(defaultUa) {
 	return {
 		key: "kegncork",
+		region: "AB",
 		name: "Keg N Cork",
 		host: "kegncork.com",
 		ua: defaultUa,

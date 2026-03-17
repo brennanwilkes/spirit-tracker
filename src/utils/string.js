@@ -26,4 +26,25 @@ function padLeftV(s, n) {
 	return w >= n ? s : " ".repeat(n - w) + s;
 }
 
-module.exports = { padRight, padLeft, stripAnsi, padRightV, padLeftV };
+/**
+ * Returns the first non-empty string from its arguments.
+ * Values may be strings, arrays of strings, or arrays of objects with url/src/image keys.
+ */
+function firstNonEmptyStr(...vals) {
+	for (const v of vals) {
+		const s = typeof v === "string" ? v.trim() : "";
+		if (s) return s;
+		if (Array.isArray(v)) {
+			for (const a of v) {
+				if (typeof a === "string" && a.trim()) return a.trim();
+				if (a && typeof a === "object") {
+					const u = String(a.url || a.src || a.image || "").trim();
+					if (u) return u;
+				}
+			}
+		}
+	}
+	return "";
+}
+
+module.exports = { padRight, padLeft, stripAnsi, padRightV, padLeftV, firstNonEmptyStr };

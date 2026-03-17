@@ -27,6 +27,7 @@ jobs:
         with:
           ref: data
           fetch-depth: 0
+          lfs: true
 
       - name: Configure Pages
         uses: actions/configure-pages@v4

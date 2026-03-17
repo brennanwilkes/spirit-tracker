@@ -20,4 +20,13 @@ function salePctOff(oldPriceStr, newPriceStr) {
 	return Math.round(((oldN - newN) / oldN) * 100);
 }
 
-module.exports = { normPrice, priceToNumber, salePctOff };
+// Extract the first "$X.XX" or "$X,XXX.XX" from a string (strips whitespace/commas).
+function extractPrice(str) {
+	const s = String(str || "");
+	const m = s.match(/\$\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\$\s*\d+(?:\.\d{2})?/);
+	if (!m) return "";
+	const raw = m[0].replace(/\s+/g, "");
+	return raw.replace(/,/g, "");
+}
+
+module.exports = { normPrice, priceToNumber, salePctOff, extractPrice };
