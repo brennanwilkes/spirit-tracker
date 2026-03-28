@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-28T19:11:33.626Z",
+  "generatedAt": "2026-03-28T21:54:34.611Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,8 +34,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12030,
-    "removedRows": 1361,
+    "liveRows": 12023,
+    "removedRows": 1368,
     "canonSkus": 5474,
     "outputCount": 250
   },
@@ -2360,61 +2360,6 @@
       }
     },
     {
-      "canonSku": "052050",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 30.09,
-        "bcl": 29.49,
-        "bsw": 33.99,
-        "craftcellars": 26.99,
-        "gull": 31.25,
-        "legacyliquor": 30.99,
-        "sierrasprings": 28.47,
-        "strath": 29.66,
-        "tudor": 29.49,
-        "vessel": 29.99,
-        "willowpark": 32.49
-      },
-      "representative": {
-        "name": "The Famous Grouse 750Ml",
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "052050",
-        "skuKey": "052050",
-        "url": "https://craftcellars.ca/products/the-famous-grouse-750ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/the-famous-grouse-750ml"
-      }
-    },
-    {
       "canonSku": "101967",
       "storeCount": 11,
       "stores": [
@@ -3725,6 +3670,60 @@
         "priceNum": 64.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1"
+      }
+    },
+    {
+      "canonSku": "052050",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 30.09,
+        "bcl": 29.49,
+        "bsw": 33.99,
+        "gull": 31.25,
+        "legacyliquor": 30.99,
+        "sierrasprings": 28.47,
+        "strath": 29.66,
+        "tudor": 29.49,
+        "vessel": 29.99,
+        "willowpark": 32.49
+      },
+      "representative": {
+        "name": "The Famous Grouse (40% abv)",
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "052050",
+        "skuKey": "052050",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/blended-scotch-whisky-whisky/the-famous-grouse-40-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/blended-scotch-whisky-whisky/the-famous-grouse-40-abv/"
       }
     },
     {
@@ -11860,57 +11859,6 @@
       }
     },
     {
-      "canonSku": "106192",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "strath",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "kegncork",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bsw": 185,
-        "craftcellars": 185.99,
-        "gull": 234.99,
-        "kwm": 186.99,
-        "maltsandgrains": 199.9,
-        "strath": 235.35,
-        "willowpark": 175.99
-      },
-      "representative": {
-        "name": "Port Askaig 17 Year Old Islay Single Malt - Limited Edition 2023",
-        "price": "$175.99",
-        "priceNum": 175.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "106192",
-        "skuKey": "106192",
-        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$175.99",
-        "priceNum": 175.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt"
-      }
-    },
-    {
       "canonSku": "108063",
       "storeCount": 7,
       "stores": [
@@ -13335,6 +13283,56 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask"
+      }
+    },
+    {
+      "canonSku": "106192",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "strath",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bsw": 185,
+        "gull": 234.99,
+        "kwm": 186.99,
+        "maltsandgrains": 199.9,
+        "strath": 235.35,
+        "willowpark": 175.99
+      },
+      "representative": {
+        "name": "Port Askaig 17 Year Old Islay Single Malt - Limited Edition 2023",
+        "price": "$175.99",
+        "priceNum": 175.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "106192",
+        "skuKey": "106192",
+        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$175.99",
+        "priceNum": 175.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt"
       }
     }
   ]
