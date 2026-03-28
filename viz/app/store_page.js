@@ -6,6 +6,7 @@ import {
 	displaySku,
 	keySkuForRow,
 	parsePriceToNumber,
+	normSearchText,
 } from "./sku.js";
 import { loadIndex, loadRecent } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
@@ -348,6 +349,26 @@ export async function renderStore($app, storeLabelRaw) {
 
 	// Aggregate in this store, grouped by canonical SKU (so mappings count as same bottle)
 	let items = aggregateBySku(rowsStoreLive, rules.canonicalSku);
+
+	// Supplement each item's searchText with names from all live stores for the same
+	// canonical SKU. Fixes: a product named differently at this store (e.g., "CRN57° - 18
+	// Years Old") is still findable by its globally-known name ("THE CAIRN 18YO").
+	{
+		const globalNamesBySku = new Map();
+		for (const r of liveAll) {
+			const skuKey = keySkuForRow(r);
+			const sku = String(rules.canonicalSku(skuKey) || skuKey);
+			const name = normSearchText(String(r?.name || ""));
+			if (!name || !sku) continue;
+			let names = globalNamesBySku.get(sku);
+			if (!names) globalNamesBySku.set(sku, (names = []));
+			names.push(name);
+		}
+		for (const it of items) {
+			const extras = globalNamesBySku.get(String(it.sku || "")) || [];
+			if (extras.length > 0) it.searchText = it.searchText + " " + extras.join(" ");
+		}
+	}
 
 	// Flatten href map to strings, with sampleUrl fallback from aggregated items
 	const hrefBySku = new Map();
