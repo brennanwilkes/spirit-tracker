@@ -53,8 +53,27 @@ jobs:
           ts="$(date +%s)"
           sig="$( (printf "%s" "${ts}."; cat pack.json) | openssl dgst -sha256 -hmac "${EMAIL_PACK_HMAC_SECRET}" -hex | awk '{print $2}' )"
 
-          curl -sS -X POST "https://spirit-tracker-api.brennan-a53.workers.dev/email" \
+          response="$(curl -sS --fail-with-body -X POST "https://spirit-tracker-api.brennan-a53.workers.dev/email" \
             -H "Content-Type: application/json" \
             -H "X-Spirit-Timestamp: ${ts}" \
             -H "X-Spirit-Signature: v1=${sig}" \
-            --data-binary @pack.json
+            --data-binary @pack.json)"
+
+          echo "=== Email Dispatch Summary ==="
+          echo "$response" | jq -r '"Attempted : \(.email.attempted)  |  Sent: \(.email.sent)  |  Failed: \(.email.failed)"'
+
+          sent_count="$(echo "$response" | jq '.sent | length')"
+          if [ "$sent_count" -gt 0 ]; then
+            echo ""
+            echo "Sent ($sent_count):"
+            echo "$response" | jq -r '.sent[] | "  [\(.uuid)]  skus: \(.skus | join(", "))"'
+          else
+            echo "No emails sent."
+          fi
+
+          failed_count="$(echo "$response" | jq '.failures | length')"
+          if [ "$failed_count" -gt 0 ]; then
+            echo ""
+            echo "Failures ($failed_count):"
+            echo "$response" | jq -r '.failures[] | "  [\(.uuid)]  error: \(.error)"'
+          fi
