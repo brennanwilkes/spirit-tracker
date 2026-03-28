@@ -144,7 +144,7 @@ export async function drawOrUpdateChart(series, yBounds) {
 		return {
 			label: displayStoreName(s),
 			data: Array.isArray(seriesByStore[s]) ? seriesByStore[s] : labels.map(() => null),
-			spanGaps: false,
+			spanGaps: true,
 			tension: 0.15,
 			backgroundColor: base,
 			borderColor: stroke,
@@ -157,11 +157,20 @@ export async function drawOrUpdateChart(series, yBounds) {
 			// legend / fallback width
 			borderWidth: borderWidthFromCoverage(lastCov),
 
-			// width varies over time using coverage at segment end (p1)
+			// width and dash vary per segment; dashed + faded when spanning a gap
 			segment: {
 				borderWidth: (ctx3) => {
+					if (ctx3.p0.skip || ctx3.p1.skip) return 1;
 					const i = ctx3.p1DataIndex ?? ctx3.p0DataIndex ?? 0;
 					return borderWidthFromCoverage(covArr[i] ?? 0);
+				},
+				borderDash: (ctx3) => (ctx3.p0.skip || ctx3.p1.skip ? [4, 4] : []),
+				borderColor: (ctx3) => {
+					if (!(ctx3.p0.skip || ctx3.p1.skip)) return stroke;
+					const m = stroke.replace("#", "");
+					if (m.length !== 6) return stroke;
+					const n = parseInt(m, 16);
+					return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},0.25)`;
 				},
 			},
 		};
@@ -170,7 +179,7 @@ export async function drawOrUpdateChart(series, yBounds) {
 	datasets.push({
 		label: "Market Median",
 		data: Array.isArray(marketMedianTrend) ? marketMedianTrend : labels.map(() => null),
-		spanGaps: false,
+		spanGaps: true,
 		tension: 0.15,
 		backgroundColor: "rgba(160,160,160,0.9)",
 		borderColor: "rgba(160,160,160,0.9)",
@@ -179,12 +188,17 @@ export async function drawOrUpdateChart(series, yBounds) {
 		pointHoverRadius: 0,
 		pointHitRadius: 6,
 		borderWidth: 1.75,
+		segment: {
+			borderColor: (ctx3) =>
+				ctx3.p0.skip || ctx3.p1.skip ? "rgba(160,160,160,0.2)" : "rgba(160,160,160,0.9)",
+			borderDash: (ctx3) => (ctx3.p0.skip || ctx3.p1.skip ? [2, 6] : [6, 4]),
+		},
 	});
 
 	datasets.push({
 		label: "Market Floor",
 		data: Array.isArray(marketFloorTrend) ? marketFloorTrend : labels.map(() => null),
-		spanGaps: false,
+		spanGaps: true,
 		tension: 0.15,
 		backgroundColor: "rgba(160,160,160,0.9)",
 		borderColor: "rgba(160,160,160,0.9)",
@@ -193,6 +207,11 @@ export async function drawOrUpdateChart(series, yBounds) {
 		pointHoverRadius: 0,
 		pointHitRadius: 6,
 		borderWidth: 1.75,
+		segment: {
+			borderColor: (ctx3) =>
+				ctx3.p0.skip || ctx3.p1.skip ? "rgba(160,160,160,0.2)" : "rgba(160,160,160,0.9)",
+			borderDash: (ctx3) => (ctx3.p0.skip || ctx3.p1.skip ? [2, 6] : [6, 4]),
+		},
 	});
 
 	const isDollars = valueMode === "dollars";
