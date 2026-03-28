@@ -1,6 +1,6 @@
 // viz/app/linker_page.js
 import { esc, renderThumbHtml } from "./dom.js";
-import { goBack } from "./nav.js";
+import { goBack, peekBack } from "./nav.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -87,7 +87,7 @@ export async function renderSkuLinker($app) {
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
       <div class="topbar">
-        <button id="back" class="btn">← Back</button>
+        <a id="back" class="btn" href="${peekBack()}">← Back</a>
 		<div style="display:flex; align-items:center; gap:8px;">
 			<span class="badge">Temp</span>
 			<input
@@ -146,7 +146,11 @@ export async function renderSkuLinker($app) {
     </div>
   `;
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	const $qL = document.getElementById("qL");
 	const $qR = document.getElementById("qR");

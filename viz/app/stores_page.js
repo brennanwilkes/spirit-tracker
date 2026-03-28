@@ -1,7 +1,7 @@
 // viz/app/stores_page.js
 import { esc } from "./dom.js";
 import { storesByRegion } from "./stores.js";
-import { goBack, navigateTo } from "./nav.js";
+import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 
 const BC_STORES = storesByRegion("bc");
 const AB_STORES = storesByRegion("ab");
@@ -12,8 +12,8 @@ const AB_STORES = storesByRegion("ab");
    Rendering
 ================================= */
 
-function goToStore(label) {
-	navigateTo(`#/store/${encodeURIComponent(label)}`);
+function goToStore(e, label) {
+	openOrNavigateTo(e, `#/store/${encodeURIComponent(label)}`);
 }
 
 function renderStoreRow(store) {
@@ -47,7 +47,7 @@ export function renderStores($app) {
 	$app.innerHTML = `
 		<div class="container storesPage">
 			<div class="topbar">
-				<button id="back" class="btn">← Back</button>
+				<a id="back" class="btn" href="${peekBack()}">← Back</a>
 				<div class="h1" style="margin:0;">Stores</div>
 			</div>
 
@@ -77,14 +77,18 @@ export function renderStores($app) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	$app.addEventListener("click", (e) => {
 		const row = e.target.closest(".row");
 		if (!row) return;
 		const label = row.getAttribute("data-label");
 		if (!label) return;
-		goToStore(label);
+		goToStore(e, label);
 	});
 
 	$app.addEventListener("keydown", (e) => {
