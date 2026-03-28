@@ -30,36 +30,38 @@ export async function renderStore($app, storeLabelRaw) {
 
       <div class="card">
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <div id="priceWrap" style="display:flex; align-items:center; gap:10px; width:100%;">
-            <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div id="priceWrap" style="display:flex; align-items:center; gap:10px; flex: 1 1 auto; min-width: 0;">
+              <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
 
-            <input
-              id="maxPrice"
-              type="range"
-              min="0"
-              max="1000"
-              step="1"
-              value="1000"
-              style="
-                flex: 1 1 auto;
-                width: 100%;
-                height: 18px;
-                accent-color: #9aa3b2;
-                opacity: .85;
-              "
-            />
+              <input
+                id="maxPrice"
+                type="range"
+                min="0"
+                max="1000"
+                step="1"
+                value="1000"
+                style="
+                  flex: 1 1 auto;
+                  width: 100%;
+                  height: 18px;
+                  accent-color: #9aa3b2;
+                  opacity: .85;
+                "
+              />
 
-            <div
-              class="badge mono"
-              id="maxPriceLabel"
-              style="
-                width: 120px;
-                text-align: right;
-                white-space: nowrap;
-                opacity: .9;
-                flex: 0 0 auto;
-              "
-            ></div>
+              <div
+                class="badge mono"
+                id="maxPriceLabel"
+                style="
+                  width: 120px;
+                  text-align: right;
+                  white-space: nowrap;
+                  opacity: .9;
+                  flex: 0 0 auto;
+                "
+              ></div>
+            </div>
 
             <div style="display:flex; align-items:center; gap:6px; flex: 0 0 auto;">
               <span class="small" style="white-space:nowrap; opacity:.75;">Type</span>
