@@ -178,6 +178,10 @@ function cacheBustForDbFile(manifest, dbFile, commits) {
 export async function renderItem($app, skuInput) {
 	destroyChart();
 
+	// Kick off independent fetches immediately — no dependency on rules/sku
+	const idxPromise = loadIndex();
+	const manifestPromise = loadDbCommitsManifest();
+
 	const [rules, fav] = await Promise.all([loadSkuRules(), loadMyFavouritesSet()]);
 
 	const sku = rules.canonicalSku(String(skuInput || ""));
@@ -466,7 +470,7 @@ export async function renderItem($app, skuInput) {
 		}
 	}
 
-	const idx = await loadIndex();
+	const idx = await idxPromise;
 	const all = Array.isArray(idx.items) ? idx.items : [];
 
 	// include toSku + all fromSkus mapped to it
@@ -630,7 +634,7 @@ export async function renderItem($app, skuInput) {
 			: `Loading history… (0 / ${dbFiles.length})`,
 	);
 
-	const manifest = await loadDbCommitsManifest();
+	const manifest = await manifestPromise;
 
 	// Shared caches across all stores
 	const fileIdxCache = new Map(); // ck(sha|path) -> min-index object
@@ -640,8 +644,15 @@ export async function renderItem($app, skuInput) {
 	// Tuning knobs:
 	// - keep compute modest: only a few stores processed simultaneously
 	// - make network aggressive: many file-at-sha fetches in-flight globally
+	// - on slow/mobile connections, reduce concurrency to avoid saturating bandwidth
 	const DBFILE_CONCURRENCY = 3;
-	const NET_CONCURRENCY = 16;
+	const conn = navigator.connection;
+	const isSlowNet =
+		conn?.effectiveType === "2g" ||
+		conn?.effectiveType === "3g" ||
+		(conn?.downlink ?? 10) < 2 ||
+		(!conn && window.innerWidth <= 640);
+	const NET_CONCURRENCY = isSlowNet ? 4 : 16;
 	const limitNet = makeLimiter(NET_CONCURRENCY);
 
 	const MAX_POINTS = 260;
