@@ -108,7 +108,7 @@
 
 /* ── Mobile: show links row, rework header grid ─────────────────────────── */
 
-#links, #status { display: none; }
+#links, #status, #loadingBar { display: none; }
 
 .detailMobileLinks {
   display: block;
@@ -119,7 +119,7 @@
 
 @media (min-width: 641px) {
   /* Restore the desktop column with links + status */
-  #links, #status { display: block; }
+  #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
 
   .detailLeft #links > a { margin: 3px; }
