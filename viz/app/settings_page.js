@@ -3,6 +3,7 @@ import { esc } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
 import { AuthError, getAuthStatus, getMyDetails, putDetails } from "./cloud.js";
 import { applyColorScheme } from "./theme.js";
+import { SPIRIT_TYPE_LIST } from "./spirit_types.js";
 
 function isAuthErr(e) {
 	return e && (e.name === "AuthError" || e instanceof AuthError);
@@ -287,6 +288,8 @@ export async function renderSettings($app) {
 
 		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
 
+		if (Array.isArray(f.spiritTypes) && !f.spiritTypes.length) delete f.spiritTypes;
+
 		if (f.acrossMarket !== undefined && typeof f.acrossMarket !== "boolean") delete f.acrossMarket;
 
 		if (f.requireCheapestNow !== true) delete f.requireCheapestNow;
@@ -397,6 +400,9 @@ export async function renderSettings($app) {
 
 				const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
 
+				const useTypes = Array.isArray(f.spiritTypes) && f.spiritTypes.length > 0;
+				const activeTypes = new Set(useTypes ? f.spiritTypes : []);
+
 				const useKwAny = Array.isArray(f.keywordsAny);
 				const useKwNone = Array.isArray(f.keywordsNone);
 
@@ -467,6 +473,23 @@ export async function renderSettings($app) {
 							<select data-i="${i}" data-k="storeId" class="stSelect" ${useStore ? "" : "disabled"}>
 								${storeOptionsHtml(storeSel)}
 							</select>
+						</div>
+
+						<div class="stRuleRow">
+							<label data-i="${i}" data-k="useTypes" class="switch mini ${useTypes ? "isOn" : ""}" style="cursor:pointer;">
+								<input type="checkbox" ${useTypes ? "checked" : ""} />
+								<div class="switchLabel">
+									<div class="switchStatus ${useTypes ? "" : "muted"}">Filter by spirit type</div>
+								</div>
+								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
+							</label>
+							<div class="stRuleTypeChecks ${useTypes ? "" : "stRuleTypeChecksDisabled"}">
+								${SPIRIT_TYPE_LIST.map(({ id, label }) => `
+								<label class="stRuleTypeOption">
+									<input type="checkbox" data-i="${i}" data-k="spiritType" value="${esc(id)}" ${activeTypes.has(id) ? "checked" : ""} ${useTypes ? "" : "disabled"} />
+									<span>${esc(label)}</span>
+								</label>`).join("")}
+							</div>
 						</div>
 
 						<div class="stRuleRow">
@@ -647,6 +670,14 @@ export async function renderSettings($app) {
 				return;
 			}
 
+			if (dk === "useTypes") {
+				if (!cb.checked) delete f.spiritTypes;
+				// When enabling, keep existing spiritTypes if any, else leave undefined (no filter = all)
+				setRuleAt(i, { ...cur, filters: f });
+				renderRules();
+				return;
+			}
+
 			if (dk === "useKwAny") {
 				if (cb.checked) f.keywordsAny = Array.isArray(f.keywordsAny) ? f.keywordsAny : [];
 				else delete f.keywordsAny;
@@ -725,6 +756,19 @@ export async function renderSettings($app) {
 		if (k === "storeId") {
 			f.storeId = String(el.value || "").trim();
 			setRuleAt(i, { ...cur, filters: f });
+			return;
+		}
+
+		if (k === "spiritType" && el.type === "checkbox") {
+			const val = String(el.value || "");
+			const cur2 = { ...rules[i] };
+			const f2 = ensureFilters(cur2);
+			const types = new Set(Array.isArray(f2.spiritTypes) ? f2.spiritTypes : []);
+			if (el.checked) types.add(val);
+			else types.delete(val);
+			if (types.size) f2.spiritTypes = [...types];
+			else delete f2.spiritTypes;
+			setRuleAt(i, { ...cur2, filters: f2 });
 			return;
 		}
 	});

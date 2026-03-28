@@ -25,6 +25,7 @@ import {
 	getShortlists,
 } from "./cloud.js";
 import { computeScore } from "./shortlist_page/shortlist_scoring.js";
+import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -133,6 +134,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 							<option value="salePct">Sale %</option>
 							<option value="saleAbs">Sale $</option>
 						</select>
+
+						<span class="mobileBreak" aria-hidden="true"></span>
+
+						<span class="small" style="opacity:.8;">Type</span>
+						${spiritFilterHtml({ containerId: "slSpiritFilter", triggerId: "slSpiritFilterTrigger", panelId: "slSpiritFilterPanel", labelId: "slSpiritFilterLabel" })}
 					</div>
 
 					<div id="priceWrap" style="align-items:center; gap:10px; width:100%;">
@@ -181,6 +187,17 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const LS_SORT = `viz:shortlistSort:${accountUuid}`;
 	const LS_STORE = `viz:shortlistStore:${accountUuid}`;
 	const LS_MAX = `viz:shortlistMaxPrice:${accountUuid}`;
+	const LS_TYPE = `viz:shortlistType:${accountUuid}`;
+
+	const $slSpiritFilter  = document.getElementById("slSpiritFilter");
+	const $slSpiritTrigger = document.getElementById("slSpiritFilterTrigger");
+	const $slSpiritPanel   = document.getElementById("slSpiritFilterPanel");
+	const $slSpiritLabel   = document.getElementById("slSpiritFilterLabel");
+	let selectedTypeSet = new Set();
+	try {
+		const saved = JSON.parse(localStorage.getItem(LS_TYPE) || "[]");
+		if (Array.isArray(saved)) selectedTypeSet = new Set(saved);
+	} catch {}
 
 	$q.value = String(localStorage.getItem(LS_Q) || "");
 	if (localStorage.getItem(LS_SORT)) $sort.value = String(localStorage.getItem(LS_SORT) || "");
@@ -998,6 +1015,16 @@ export async function renderShortlist($app, accountUuidRaw) {
 			base = base.filter((it) => it && it._liveStoreNorms && it._liveStoreNorms.has(storeNeed));
 		}
 
+		// Spirit type filter
+		if (selectedTypeSet.size) {
+			base = base.filter((it) => {
+				const st = it?.spiritTypes;
+				if (!st || !st.size) return true;
+				for (const t of selectedTypeSet) { if (st.has(t)) return true; }
+				return false;
+			});
+		}
+
 		// Compute "view" fields based on store filter
 		const EPS = 0.01;
 		for (const it of base) {
@@ -1327,4 +1354,18 @@ export async function renderShortlist($app, accountUuidRaw) {
 		updateMaxPriceLabel();
 		applyFilter();
 	});
+
+	if ($slSpiritFilter) {
+		installSpiritFilter({
+			$container: $slSpiritFilter,
+			$trigger:   $slSpiritTrigger,
+			$panel:     $slSpiritPanel,
+			$label:     $slSpiritLabel,
+			selectedSet: selectedTypeSet,
+			onChange: () => {
+				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
+				applyFilter();
+			},
+		});
+	}
 }

@@ -1,5 +1,6 @@
 import { normImg } from "./dom.js";
 import { parsePriceToNumber, keySkuForRow, normSearchText } from "./sku.js";
+import { resolveItemSpiritTypes } from "./spirit_types.js";
 
 // Build one row per *canonical* SKU (after applying sku map) + combined searchable text
 export function aggregateBySku(listings, canonicalizeSkuFn) {
@@ -33,6 +34,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
 				stores: new Set(), // LIVE stores only
 				storesEver: new Set(), // live + removed presence (history)
 				sampleUrl: url || "",
+				spiritTypes: new Set(), // normalized spirit type ids from all rows
 				_searchParts: [],
 				searchText: "",
 
@@ -41,6 +43,10 @@ export function aggregateBySku(listings, canonicalizeSkuFn) {
 			};
 			bySku.set(sku, agg);
 		}
+
+		// Collect spirit types from this row's category + URL (null = unclassifiable, skip)
+		const sts = resolveItemSpiritTypes(r?.category || "", r?.url || "", r?.name || "");
+		if (sts) for (const st of sts) agg.spiritTypes.add(st);
 
 		if (storeLabel) {
 			agg.storesEver.add(storeLabel);

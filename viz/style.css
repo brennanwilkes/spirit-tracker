@@ -400,6 +400,101 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 .selectSmall:hover { border-color: #2f3a46; color: var(--text); cursor: pointer; }
 .selectSmall:focus { border-color: #37566b; outline: 1px solid #37566b; color: var(--text); }
 
+/* ── Spirit type multi-select dropdown ─────────────────────────────────── */
+
+.spiritFilter {
+  position: relative;
+  flex: 1 1 0;
+}
+
+/* Trigger button inherits .selectSmall styles; these add width + text-align */
+.spiritFilterTrigger {
+  width: 100%;
+  text-align: left;
+}
+.spiritFilterTrigger.is-open,
+.spiritFilterTrigger:focus {
+  border-color: #37566b;
+  outline: 1px solid #37566b;
+  color: var(--text);
+}
+.spiritFilterTrigger.is-active { color: var(--text); }
+
+.spiritFilterPanel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 140px;
+  z-index: 100;
+  background: #0f1318;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.spiritFilterOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+  user-select: none;
+}
+.spiritFilterOption:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); }
+.spiritFilterOption input[type="checkbox"] { display: none; }
+
+.spiritFilterCheck {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: transparent;
+  position: relative;
+  transition: border-color 0.1s, background 0.1s;
+}
+.spiritFilterOption input:checked ~ .spiritFilterCheck {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.spiritFilterOption input:checked ~ .spiritFilterCheck::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 6px;
+  height: 9px;
+  border: 2px solid #0b0d10;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+.spiritFilterOption input:checked ~ span:last-of-type { color: var(--text); }
+
+/* Settings-page rule: inline spirit type checkboxes */
+.stRuleTypeChecks {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.stRuleTypeChecksDisabled { opacity: 0.4; pointer-events: none; }
+.stRuleTypeOption {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.stRuleTypeOption input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+.stRuleTypeOption input:checked + span { color: var(--text); }
+
 /* --- Store selector bar (search page) --- */
 .storeBarWrap { margin-top: 12px; }
 

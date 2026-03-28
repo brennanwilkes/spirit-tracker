@@ -280,6 +280,66 @@ function storeIdFromDbPath(p) {
   return (parts[0] || "").trim() || "unknown";
 }
 
+function categoryFromDbPath(p) {
+  const base = path.posix.basename(p);
+  const parts = base.split("__");
+  return (parts[1] || "").trim();
+}
+
+const CATEGORY_TO_TYPES = {
+  "rum": ["rum"], "rum-cane-spirit": ["rum"], "spirits-rum": ["rum"],
+  "whisky": ["whisky"], "whisky-whiskey": ["whisky"], "spirits-whiskey": ["whisky"],
+  "american-whiskey": ["whisky"], "bourbon-whiskey": ["whisky"], "canadian-whisky": ["whisky"],
+  "world-whisky": ["whisky"], "scotch": ["whisky"], "scotch-whisky": ["whisky"],
+  "scotch-selections": ["whisky"], "scottish-blends": ["whisky"],
+  "scottish-single-malts": ["whisky"], "single-malt-whisky": ["whisky"],
+  "spirits-scotch": ["whisky"], "whiskey-scotch": ["whisky"],
+  "gin": ["gin"], "spirits-gin": ["gin"],
+  "spirits-liquor": ["rum", "whisky"],
+  "all-minus-gin-tequila-mezcal": ["rum", "whisky"],
+  "fine-rare": ["whisky"],
+  "other": ["whisky"],
+  "spirits": ["rum", "whisky", "gin"],
+};
+
+function categoryToSpiritTypes(categoryKey) {
+  const k = String(categoryKey || "").toLowerCase().trim();
+  return CATEGORY_TO_TYPES[k] || null;
+}
+
+const _RUM_FINISH = /\b(rum|rhum)\b.{0,25}\b(cask|finish|fnsh|barrel|barrique)\b/i;
+const _RUM = /\b(rum|rhum)\b/i;
+const _WHISKY_CO = /\b(whisk(?:e)?y|scotch|single malt|blended malt|bourbon|rye|peated|islay|speyside|highland|lowland|campbeltown|irish|japanese)\b/i;
+const _RUM_BRANDS = /\b(appleton|mount gay|doorly'?s|foursquare|worthy park|hampden|long pond|river antoine|clairin|angostura|paranubes|el dorado|diplomatico|zacapa|plantation|planteray|velier|rum sponge)\b/i;
+
+function resolveItemSpiritTypes(categoryKey, url, name) {
+  const k = String(categoryKey || "").toLowerCase().trim();
+
+  if (k === "all-minus-gin-tequila-mezcal") {
+    const t = `${String(name || "")} ${String(url || "")}`.toLowerCase();
+    const hasRum      = _RUM.test(t) || _RUM_BRANDS.test(t);
+    const hasRumFinish = _RUM_FINISH.test(t);
+    const hasWhiskyCo  = _WHISKY_CO.test(t);
+    const rumFinishOnly = hasRum && hasRumFinish && hasWhiskyCo;
+    return (hasRum && !rumFinishOnly) ? ["rum"] : ["whisky"];
+  }
+  if (k === "spirits-liquor") {
+    const u = String(url || "").toLowerCase();
+    const hasRum    = /\brum\b/.test(u);
+    const hasWhisky = /\bwhisk/.test(u);
+    if (hasRum && !hasWhisky) return ["rum"];
+    if (hasWhisky && !hasRum) return ["whisky"];
+    return ["rum", "whisky"];
+  }
+  return categoryToSpiritTypes(k);
+}
+
+const TYPE_ORDER = ["rum", "whisky", "gin"];
+
+function sortedSpiritTypes(typeSet) {
+  return TYPE_ORDER.filter((t) => typeSet.has(t));
+}
+
 function ensureIndex() {
   return {
     byStoreCanon: new Map(), // storeId -> Map(canonSku -> listing)
@@ -287,6 +347,7 @@ function ensureIndex() {
     inStockStores: new Map(), // canonSku -> Set(storeId) (removed=false)
     storeLabelById: new Map(), // storeId -> storeLabel
     skuKeysByCanon: new Map(), // canonSku -> Set(skuKey)
+    spiritTypesByCanon: new Map(), // canonSku -> Set(spiritType)
     metaCandidatesByCanon: new Map(), // canonSku -> listing (best name/img candidate)
   };
 }
@@ -308,6 +369,12 @@ function upsertIndex(idx, it) {
   if (!idx.skuKeysByCanon.has(it.canonSku)) idx.skuKeysByCanon.set(it.canonSku, new Set());
   if (it.skuKey) idx.skuKeysByCanon.get(it.canonSku).add(it.skuKey);
 
+  if (it.spiritTypes) {
+    if (!idx.spiritTypesByCanon.has(it.canonSku)) idx.spiritTypesByCanon.set(it.canonSku, new Set());
+    const ts = idx.spiritTypesByCanon.get(it.canonSku);
+    for (const t of it.spiritTypes) ts.add(t);
+  }
+
   if (!it.removed) {
     if (!idx.inStockStores.has(it.canonSku)) idx.inStockStores.set(it.canonSku, new Set());
     idx.inStockStores.get(it.canonSku).add(it.storeId);
@@ -323,6 +390,7 @@ function ingestDbObject(idx, obj, { dbPath, canonicalSku }) {
 
   const storeId = storeIdFromDbPath(dbPath);
   const storeLabel = String(obj.storeLabel || obj.store || storeId);
+  const dbCategory = categoryFromDbPath(dbPath);
 
   const items = Array.isArray(obj.items) ? obj.items : [];
   for (const row of items) {
@@ -354,6 +422,7 @@ function ingestDbObject(idx, obj, { dbPath, canonicalSku }) {
       url,
       img,
       removed,
+      spiritTypes: resolveItemSpiritTypes(dbCategory, url, name),
     });
   }
 }
@@ -622,11 +691,17 @@ function main() {
       if (maxPriceNum == null || o.priceNum > maxPriceNum) maxPriceNum = o.priceNum;
     }
 
+    const headTypes = headIdx.spiritTypesByCanon.get(canonSku);
+    const baseTypes = baseIdx.spiritTypesByCanon.get(canonSku);
+    const allTypes = new Set([...(headTypes || []), ...(baseTypes || [])]);
+    const spiritTypes = sortedSpiritTypes(allTypes);
+
     skus[canonSku] = {
       sku: canonSku,
       name,
       img,
       members,
+      ...(spiritTypes.length ? { spiritTypes } : {}),
       priceRangeNow: minPriceNum != null ? { min: minPriceNum, max: maxPriceNum ?? minPriceNum } : null,
       cheapestNow: bestNow
         ? { priceNum: bestNow.priceNum, storeIds: [...bestNow.storeIds].sort() }
