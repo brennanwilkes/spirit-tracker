@@ -22,13 +22,13 @@
   min-width: 96px;
 }
 
-/* Sort + Availability controls row */
+/* Sort + Availability + Type controls row */
 .searchControls {
   display: flex;
   gap: 10px;
   align-items: center;
   width: 100%;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: space-between;
 }
 
@@ -38,6 +38,12 @@
   gap: 8px;
   flex: 1 1 0;
   justify-content: center;
+}
+
+/* Type filter drops to its own line on mobile */
+.searchControlType {
+  flex: 1 1 100%;
+  justify-content: flex-start;
 }
 
 .searchControlLabel {
@@ -54,6 +60,11 @@
   .searchControl {
     flex: 0 0 auto;
     justify-content: flex-start;
+  }
+
+  /* Type rejoins the row on desktop */
+  .searchControlType {
+    flex: 0 0 auto;
   }
 
   .searchControl .selectSmall:not(.spiritFilterTrigger) {

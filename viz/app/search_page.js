@@ -136,7 +136,7 @@ export function renderSearch($app) {
               </select>
             </div>
 
-            <div class="searchControl">
+            <div class="searchControl searchControlType">
               <span class="small searchControlLabel">Type</span>
               ${spiritFilterHtml()}
             </div>
