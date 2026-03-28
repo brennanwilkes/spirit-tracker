@@ -30,7 +30,7 @@ export async function renderStore($app, storeLabelRaw) {
 
       <div class="card">
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+          <div class="storeFilterRow">
             <div id="priceWrap" style="display:flex; align-items:center; gap:10px; flex: 1 1 auto; min-width: 0;">
               <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
 
@@ -63,7 +63,7 @@ export async function renderStore($app, storeLabelRaw) {
               ></div>
             </div>
 
-            <div style="display:flex; align-items:center; gap:6px; flex: 0 0 auto;">
+            <div class="storeTypeFilter">
               <span class="small" style="white-space:nowrap; opacity:.75;">Type</span>
               ${spiritFilterHtml()}
             </div>

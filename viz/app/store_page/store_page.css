@@ -1,3 +1,26 @@
+/* ── Price + type filter row ────────────────────────────────────────────── */
+
+.storeFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Type filter: own line on mobile, inline on desktop */
+.storeTypeFilter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 100%;
+}
+
+@media (min-width: 641px) {
+  .storeFilterRow { flex-wrap: nowrap; }
+  .storeTypeFilter { flex: 0 0 auto; }
+}
+
 /* ── Store page: two-column results layout ─────────────────────────────── */
 
 .containerStoreWide { max-width: 980px; }
