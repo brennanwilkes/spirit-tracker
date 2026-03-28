@@ -409,13 +409,16 @@ async function loadRawSeries({ group, size, onStatus }) {
 	const NET_CONCURRENCY = 10;
 	const limitNet = makeLimiter(NET_CONCURRENCY);
 
+	// Find stores from the newest commit that isn't an LFS pointer (older commits may still be LFS-tracked).
 	if (typeof onStatus === "function") onStatus(`Loading stores…`);
-	const newestReport = await limitNet(() =>
-		githubFetchFileAtSha({ owner, repo, sha: latestSha, path: rel }),
-	);
-
-	const stores = Array.isArray(newestReport?.stores) ? newestReport.stores.map(String) : [];
-	if (!stores.length) throw new Error(`No stores found in ${rel} at ${latestSha.slice(0, 7)}`);
+	let stores = [];
+	for (let i = commits.length - 1; i >= 0 && !stores.length; i--) {
+		try {
+			const rep = await githubFetchFileAtSha({ owner, repo, sha: commits[i].sha, path: rel });
+			stores = Array.isArray(rep?.stores) ? rep.stores.map(String) : [];
+		} catch {}
+	}
+	if (!stores.length) throw new Error(`No stores found in ${rel} — all commits may be LFS-tracked`);
 
 	const labels = commits.map((c) => String(c.date || "")).filter(Boolean);
 	const shaByIdx = commits.map((c) => String(c.sha || ""));
