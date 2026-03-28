@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-28T04:30:50.692Z",
+  "generatedAt": "2026-03-28T07:19:01.921Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3793,
-    "removedRows": 315,
-    "canonSkus": 1912,
+    "liveRows": 3789,
+    "removedRows": 319,
+    "canonSkus": 1911,
     "outputCount": 250
   },
   "rows": [
@@ -8781,46 +8781,6 @@
       }
     },
     {
-      "canonSku": "067433",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 44.99,
-        "bcl": 51.99,
-        "legacyliquor": 52.99,
-        "tudor": 51.99
-      },
-      "representative": {
-        "name": "APPLETON 12YO RARE CASKS",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "067433",
-        "skuKey": "067433",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4776163-appleton-12yo-rare-casks",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4776163-appleton-12yo-rare-casks"
-      }
-    },
-    {
       "canonSku": "070456",
       "storeCount": 4,
       "stores": [
@@ -10338,6 +10298,45 @@
         "priceNum": 58.09,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select"
+      }
+    },
+    {
+      "canonSku": "067433",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 51.99,
+        "legacyliquor": 52.99,
+        "tudor": 51.99
+      },
+      "representative": {
+        "name": "APPLETON ESTATE - 12YO RARE CASKS",
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "067433",
+        "skuKey": "067433",
+        "url": "https://www.bcliquorstores.com/product/67433",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/67433"
       }
     }
   ]
