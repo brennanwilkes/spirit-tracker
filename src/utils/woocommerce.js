@@ -104,7 +104,8 @@ function parseWooStoreProductsJson(payload, ctx) {
 		const img =
 			p.images && Array.isArray(p.images) && p.images[0] && p.images[0].src ? String(p.images[0].src) : null;
 
-		const item = { name, price, url, sku, img };
+		const wooId = p && Number.isFinite(Number(p.id)) && Number(p.id) > 0 ? Number(p.id) : null;
+		const item = { name, price, url, sku, img, ...(wooId ? { _wooProductId: wooId } : {}) };
 		const allowUrl = ctx?.cat?.allowUrl;
 		if (typeof allowUrl === "function" && !allowUrl(item)) continue;
 		items.push(item);

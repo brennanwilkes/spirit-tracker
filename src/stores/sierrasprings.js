@@ -1,5 +1,6 @@
 "use strict";
 
+const { setTimeout: sleep } = require("timers/promises");
 const { decodeHtml, cleanText, extractFirstImgUrl } = require("../utils/html");
 const { normalizeSkuKey } = require("../utils/sku");
 const {
@@ -158,6 +159,139 @@ function parseProductsSierra(body, ctx) {
 
 
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Sierra Springs: per-product shipping availability check
+ *
+ * Uses classic WooCommerce update_order_review AJAX to determine whether
+ * a product has non-local-pickup shipping options for an AB address.
+ * Runs after the WC Store API scan; non-shippable items are dropped from
+ * discovered so they are marked removed in the DB.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+const SS_WFACP_ID = "141983"; // WooFunnels checkout page ID — static for this store
+
+function ssCookieJar() {
+	const jar = new Map();
+	function ingest(res) {
+		const lines =
+			typeof res.headers.getSetCookie === "function"
+				? res.headers.getSetCookie()
+				: res.headers.get("set-cookie")
+				? [res.headers.get("set-cookie")]
+				: [];
+		for (const line of lines) {
+			const pair = line.split(";")[0].trim();
+			const eq = pair.indexOf("=");
+			if (eq > 0) jar.set(pair.slice(0, eq), pair);
+		}
+	}
+	function header() {
+		return [...jar.values()].join("; ");
+	}
+	return { ingest, header };
+}
+
+function ssParseShippingMethods(orderTableHtml) {
+	const row = orderTableHtml.match(/<tr[^>]*woocommerce-shipping-totals[^>]*>([\s\S]*?)<\/tr>/i)?.[0] || "";
+	const methods = [];
+	for (const m of row.matchAll(/<input[^>]+value=["']([^"']+)["'][^>]*>/gi)) {
+		if (!methods.includes(m[1])) methods.push(m[1]);
+	}
+	return methods;
+}
+
+/**
+ * Fetch the update_order_review security nonce once per category run.
+ * WP nonces for guest users are time-based (12h window, user ID 0, no session
+ * token), so the same nonce is valid for all per-product checks in a run.
+ * Returns the nonce string or null on failure.
+ */
+async function ssGetNonce(base, ua, log) {
+	try {
+		// A bare fetch (no session cookie) is enough — guest nonce is session-independent
+		log?.(`ssGetNonce: GET /checkouts/checkout/`);
+		const t0 = Date.now();
+		const res = await fetch(`${base}/checkouts/checkout/`, {
+			headers: { "user-agent": ua, accept: "text/html" },
+		});
+		const nonce = (await res.text()).match(/nonce.*?["']([a-f0-9]{10})["']/i)?.[1];
+		log?.(`ssGetNonce: HTTP ${res.status} (${Date.now() - t0}ms) nonce=${nonce ?? "NOT FOUND"}`);
+		return nonce ?? null;
+	} catch (e) {
+		log?.(`ssGetNonce: ERROR ${e.message}`);
+		return null;
+	}
+}
+
+/**
+ * Per-product shippability check using a fresh WC session each time.
+ * Creates its own cookie jar → add_to_cart (establishes session) →
+ * update_order_review with pre-fetched nonce → abandon session.
+ * No cart cleanup needed; stale sessions expire server-side.
+ */
+async function ssCheckProductShippable(base, productId, nonce, ua, log, label) {
+	const lbl = label ?? `id=${productId}`;
+	const cookies = ssCookieJar();
+
+	// Fresh session: add product to cart
+	log?.(`ssCheck ${lbl}: add_to_cart`);
+	const t0 = Date.now();
+	const addRes = await fetch(`${base}/?wc-ajax=add_to_cart`, {
+		method: "POST",
+		headers: {
+			"user-agent": ua,
+			"content-type": "application/x-www-form-urlencoded",
+			"x-requested-with": "XMLHttpRequest",
+		},
+		body: `product_id=${productId}&quantity=1`,
+	});
+	cookies.ingest(addRes);
+	log?.(`ssCheck ${lbl}: add_to_cart HTTP ${addRes.status} (${Date.now() - t0}ms)`);
+	if (!addRes.ok) throw new Error(`add_to_cart HTTP ${addRes.status}`);
+
+	// Check shipping methods for AB address
+	await sleep(150);
+	const postData = [
+		`security=${nonce}`,
+		"payment_method=weeconnectpay",
+		"country=CA", "state=AB", "postcode=T1X0L3", "city=Calgary",
+		"s_country=CA", "s_state=AB", "s_postcode=T1X0L3", "s_city=Calgary",
+		"has_full_address=true",
+		"post_data=payment_method%3Dweeconnectpay",
+		"shipping_method%5B0%5D=local_pickup%3A1",
+	].join("&");
+
+	log?.(`ssCheck ${lbl}: update_order_review`);
+	const t2 = Date.now();
+	const reviewRes = await fetch(
+		`${base}/?wc-ajax=update_order_review&wfacp_id=${SS_WFACP_ID}&wfacp_is_checkout_override=yes`,
+		{
+			method: "POST",
+			headers: {
+				"user-agent": ua,
+				"content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+				accept: "*/*",
+				"x-requested-with": "XMLHttpRequest",
+				origin: base,
+				referer: `${base}/checkouts/checkout/`,
+				cookie: cookies.header(),
+			},
+			body: postData,
+		},
+	);
+	const reviewData = await reviewRes.json().catch(() => null);
+	log?.(`ssCheck ${lbl}: update_order_review HTTP ${reviewRes.status} (${Date.now() - t2}ms)`);
+	if (!reviewData) throw new Error(`update_order_review HTTP ${reviewRes.status}`);
+
+	const orderTable = reviewData?.fragments?.[".woocommerce-checkout-review-order-table"] || "";
+	const methods = ssParseShippingMethods(orderTable);
+	const shippable = methods.length > 0 && methods.some((m) => !/^local.?pickup/i.test(m));
+	log?.(`ssCheck ${lbl}: methods=[${methods.join(", ")}] shippable=${shippable}`);
+
+	// Session abandoned — no cleanup needed; WC expires guest sessions server-side
+	return { shippable, methods };
+}
+
 /**
  * Sierra Springs: override scan to use Woo Store API pagination
  * while keeping original startUrl (so DB hashes and "source" stay unchanged).
@@ -241,6 +375,46 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 	}
 
 	logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
+
+	// ── Shipping availability check ────────────────────────────────────────────
+	// For each discovered item: if it's already removed in prevDb, skip (already
+	// unavailable). Otherwise check if shippable; if not, drop from discovered so
+	// it gets marked removed by finalizeCategoryScan.
+	// Each check uses a fresh WC session — no shared cart state to manage.
+	{
+		const base = `https://${ctx.store.host}`;
+		const dbg = (msg) => logger.dbg(msg);
+
+		const nonce = await ssGetNonce(base, ctx.store.ua, dbg);
+		if (!nonce) {
+			logger.warn(`${ctx.catPrefixOut} | Could not fetch nonce; shippable checks skipped`);
+		} else {
+			let checked = 0, dropped = 0;
+
+			for (const [url, it] of [...discovered.entries()]) {
+				// Skip items already marked removed in prevDb — no need to recheck
+				const prev = prevDb.byUrl.get(url);
+				if (prev?.removed) continue;
+
+				const productId = it._wooProductId
+					?? (/^id:(\d+)$/.test(String(it.sku || "")) ? Number(it.sku.slice(3)) : null);
+				if (!productId) continue; // synthetic u: SKU — skip
+
+				await sleep(400);
+				try {
+					const { shippable } = await ssCheckProductShippable(base, productId, nonce, ctx.store.ua, dbg, it.sku);
+					checked++;
+					if (!shippable) {
+						discovered.delete(url);
+						dropped++;
+					}
+				} catch (e) {
+					logger.warn(`${ctx.catPrefixOut} | shippable check failed ${it.sku}: ${e.message}`);
+				}
+			}
+			logger.ok(`${ctx.catPrefixOut} | Shippable checks: ${checked} checked, ${dropped} in-store-only dropped`);
+		}
+	}
 
 	const { merged, metaChangedItems } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: Math.max(0, page) });
 	logger.ok(`${ctx.catPrefixOut} | DB saved: ${logger.dim(ctx.dbFile)} (${merged.size} items)`);
