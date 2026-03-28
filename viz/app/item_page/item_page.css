@@ -183,3 +183,27 @@ html[data-theme="dark"] .chartBox { background: #0f1318; }
   /* Collapse the 10px grid row-gap: -10px + 4px links margin = 4px, matching links-to-status gap */
   .detailMobileLinks { margin-top: -10px; }
 }
+
+/* ── Loading progress bar ───────────────────────────────────────────────── */
+
+.loadingBar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+
+.loadingBar.loadingBarActive {
+  opacity: 1;
+}
+
+.loadingBarFill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.35s ease-out;
+}
