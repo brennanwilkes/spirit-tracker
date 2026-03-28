@@ -16,6 +16,7 @@ import { getAuthStatus, logoutAndReload } from "./cloud.js";
 import { inferGithubOwnerRepo, fetchJson, githubFetchFileAtSha } from "./api.js";
 import { getOrBuildMinIndex, buildMinIndex } from "./sha_min_index.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
+import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 
 let PREWARM_TOKEN = 0;
 
@@ -134,6 +135,11 @@ export function renderSearch($app) {
                 <option value="out">Out of stock only</option>
               </select>
             </div>
+
+            <div class="searchControl">
+              <span class="small searchControlLabel">Type</span>
+              ${spiritFilterHtml()}
+            </div>
           </div>
 
         </div>
@@ -151,10 +157,22 @@ export function renderSearch($app) {
 
 	const LS_SORT = "viz:searchSort";
 	const LS_AVAIL = "viz:searchAvail";
+	const LS_TYPE  = "viz:searchType";
 	if ($sort && localStorage.getItem(LS_SORT))
 		$sort.value = String(localStorage.getItem(LS_SORT) || "newest");
 	if ($avail && localStorage.getItem(LS_AVAIL))
 		$avail.value = String(localStorage.getItem(LS_AVAIL) || "all");
+
+	const $spiritFilter  = document.getElementById("spiritFilter");
+	const $spiritTrigger = document.getElementById("spiritFilterTrigger");
+	const $spiritPanel   = document.getElementById("spiritFilterPanel");
+	const $spiritLabel   = document.getElementById("spiritFilterLabel");
+
+	let selectedTypeSet = new Set();
+	try {
+		const saved = JSON.parse(localStorage.getItem(LS_TYPE) || "[]");
+		if (Array.isArray(saved)) selectedTypeSet = new Set(saved);
+	} catch {}
 
 	const favSet = new Set();
 	installFavStars($results, favSet);
@@ -278,6 +296,16 @@ export function renderSearch($app) {
 		if (m === "in") return !st.outOfStock;
 		if (m === "out") return !!st.outOfStock;
 		return true;
+	}
+
+	function passesType(it) {
+		if (!selectedTypeSet.size) return true;
+		const st = it?.spiritTypes;
+		if (!st || !st.size) return true;
+		for (const t of selectedTypeSet) {
+			if (st.has(t)) return true;
+		}
+		return false;
 	}
 
 	function eventMsRecent(r) {
@@ -649,6 +677,18 @@ export function renderSearch($app) {
 
 		let picked = Array.from(bySku.values());
 
+		// Spirit type filter (applied before market-wide filter for efficiency)
+		if (selectedTypeSet.size) {
+			picked = picked.filter(({ sku }) => {
+				const agg = aggBySku.get(sku);
+				if (!agg?.spiritTypes?.size) return true;
+				for (const t of selectedTypeSet) {
+					if (agg.spiritTypes.has(t)) return true;
+				}
+				return false;
+			});
+		}
+
 		// Market-wide filter: only surface events that represent a global change
 		picked = picked.filter((x) => {
 			const sku = String(x.sku || "");
@@ -823,7 +863,8 @@ export function renderSearch($app) {
 			return;
 		}
 
-		const matches = allAgg.filter((it) => matchesAllTokens(it.searchText, tokens));
+		const typeFiltered = selectedTypeSet.size ? allAgg.filter(passesType) : allAgg;
+		const matches = typeFiltered.filter((it) => matchesAllTokens(it.searchText, tokens));
 
 		const wantCodes = new Set(smwsDistilleryCodesForQueryPrefix($q.value));
 		if (!wantCodes.size) {
@@ -833,7 +874,7 @@ export function renderSearch($app) {
 
 		const seen = new Set(matches.map((it) => String(it?.sku || "")));
 		const extra = [];
-		for (const it of allAgg) {
+		for (const it of typeFiltered) {
 			const sku = String(it?.sku || "");
 			if (!sku || seen.has(sku)) continue;
 			const dCode = smwsDistilleryCodeFromName(it?.name || "");
@@ -1085,6 +1126,20 @@ export function renderSearch($app) {
 		$avail.addEventListener("change", () => {
 			localStorage.setItem(LS_AVAIL, String($avail.value || "all"));
 			renderCurrent();
+		});
+	}
+
+	if ($spiritFilter) {
+		installSpiritFilter({
+			$container: $spiritFilter,
+			$trigger:   $spiritTrigger,
+			$panel:     $spiritPanel,
+			$label:     $spiritLabel,
+			selectedSet: selectedTypeSet,
+			onChange: () => {
+				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
+				renderCurrent();
+			},
 		});
 	}
 }

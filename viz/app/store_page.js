@@ -1,5 +1,6 @@
 import { esc, renderThumbHtml } from "./dom.js";
 import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
+import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -59,6 +60,13 @@ export async function renderStore($app, storeLabelRaw) {
                 flex: 0 0 auto;
               "
             ></div>
+          </div>
+
+          <div class="searchControls">
+            <div class="searchControl">
+              <span class="small searchControlLabel">Type</span>
+              ${spiritFilterHtml()}
+            </div>
           </div>
 
           <div style="display:flex; gap:10px; align-items:center; width:100%;">
@@ -156,6 +164,18 @@ export async function renderStore($app, storeLabelRaw) {
 	const LS_CMP_MODE = `viz:storeCompareMode:${storeNorm}`;
 	const savedCmpMode = String(localStorage.getItem(LS_CMP_MODE) || "");
 	if (savedCmpMode) $cmpMode.value = savedCmpMode;
+
+	// Persist spirit type filter per store
+	const LS_TYPE = `viz:storeType:${storeNorm}`;
+	const $spiritFilter = document.getElementById("spiritFilter");
+	const $spiritTrigger = document.getElementById("spiritFilterTrigger");
+	const $spiritPanel   = document.getElementById("spiritFilterPanel");
+	const $spiritLabel   = document.getElementById("spiritFilterLabel");
+	let selectedTypeSet = new Set();
+	try {
+		const saved = JSON.parse(localStorage.getItem(LS_TYPE) || "[]");
+		if (Array.isArray(saved)) selectedTypeSet = new Set(saved);
+	} catch {}
 
 	$resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
 	$resultsCompare.innerHTML = ``;
@@ -792,6 +812,15 @@ export async function renderStore($app, storeLabelRaw) {
 
 		let base = items;
 
+		if (selectedTypeSet.size) {
+			base = base.filter((it) => {
+				const st = it?.spiritTypes;
+				if (!st || !st.size) return true;
+				for (const t of selectedTypeSet) { if (st.has(t)) return true; }
+				return false;
+			});
+		}
+
 		if (tokens.length) {
 			base = base.filter((it) => matchesAllTokens(it.searchText, tokens));
 		}
@@ -893,4 +922,18 @@ export async function renderStore($app, storeLabelRaw) {
 		updateMaxPriceLabel();
 		applyFilter();
 	});
+
+	if ($spiritFilter) {
+		installSpiritFilter({
+			$container: $spiritFilter,
+			$trigger:   $spiritTrigger,
+			$panel:     $spiritPanel,
+			$label:     $spiritLabel,
+			selectedSet: selectedTypeSet,
+			onChange: () => {
+				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
+				applyFilter();
+			},
+		});
+	}
 }
