@@ -222,6 +222,7 @@ export async function renderItem($app, skuInput) {
 						<!-- DESKTOP links/status stay here -->
 						<div id="links" class="links"></div>
 						<div class="small" id="status"></div>
+						<div class="loadingBar" id="loadingBar"><div class="loadingBarFill"></div></div>
 					</div>
 
 					<div class="detailRight">
@@ -255,6 +256,7 @@ export async function renderItem($app, skuInput) {
 				<div class="detailMobileLinks">
 				<div id="linksMobile" class="links"></div>
 				<div class="small" id="statusMobile"></div>
+				<div class="loadingBar" id="loadingBarMobile"><div class="loadingBarFill"></div></div>
 				</div>
 
 				<div class="chartBox">
@@ -280,6 +282,27 @@ export async function renderItem($app, skuInput) {
 
 	const $linksMobile = document.getElementById("linksMobile");
 	const $statusMobile = document.getElementById("statusMobile");
+	const $loadingBar = document.getElementById("loadingBar");
+	const $loadingBarMobile = document.getElementById("loadingBarMobile");
+
+	function setProgress(done, total) {
+		const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+		for (const $bar of [$loadingBar, $loadingBarMobile]) {
+			if (!$bar) continue;
+			const $fill = $bar.querySelector(".loadingBarFill");
+			if ($fill) $fill.style.width = pct + "%";
+			$bar.classList.toggle("loadingBarActive", pct > 0 && pct < 100);
+		}
+	}
+
+	function clearProgress() {
+		for (const $bar of [$loadingBar, $loadingBarMobile]) {
+			if (!$bar) continue;
+			$bar.classList.remove("loadingBarActive");
+			const $fill = $bar.querySelector(".loadingBarFill");
+			if ($fill) $fill.style.width = "0%";
+		}
+	}
 
 	const setLinksHtml = (html) => {
 		if ($links) $links.innerHTML = html;
@@ -603,8 +626,8 @@ export async function renderItem($app, skuInput) {
 
 	setStatusText(
 		isRemovedEverywhere
-			? `Item is removed everywhere (showing historical chart across ${dbFiles.length} store file(s))…`
-			: `Loading history for ${dbFiles.length} store file(s)...`,
+			? `Removed everywhere — loading history (0 / ${dbFiles.length})…`
+			: `Loading history… (0 / ${dbFiles.length})`,
 	);
 
 	const manifest = await loadDbCommitsManifest();
@@ -922,10 +945,21 @@ export async function renderItem($app, skuInput) {
 		return out;
 	}
 
+	let doneFiles = 0;
 	const results = await mapLimit(dbFiles, DBFILE_CONCURRENCY, async (dbFile) => {
 		try {
-			return await processDbFile(dbFile); // array
+			const r = await processDbFile(dbFile); // array
+			doneFiles++;
+			setStatusText(
+				isRemovedEverywhere
+					? `Removed everywhere — loading history (${doneFiles} / ${dbFiles.length})…`
+					: `Loading history… (${doneFiles} / ${dbFiles.length})`,
+			);
+			setProgress(doneFiles, dbFiles.length);
+			return r;
 		} catch {
+			doneFiles++;
+			setProgress(doneFiles, dbFiles.length);
 			return [];
 		}
 	});
@@ -943,6 +977,7 @@ export async function renderItem($app, skuInput) {
 
 	const labels = [...allDatesSet].sort();
 	if (!labels.length || !series.length) {
+		clearProgress();
 		setStatusText("No historical points found.");
 		return;
 	}
@@ -1272,6 +1307,7 @@ export async function renderItem($app, skuInput) {
 		CHART.update();
 	}
 
+	clearProgress();
 	setStatusText(
 		manifest
 			? isRemovedEverywhere
