@@ -1,5 +1,5 @@
 import { esc } from "./dom.js";
-import { goBack } from "./nav.js";
+import { goBack, peekBack } from "./nav.js";
 import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommits } from "./api.js";
 import {
 	destroyStatsChart,
@@ -698,7 +698,7 @@ export async function renderStats($app) {
       <div class="header">
         <div class="headerRow1">
           <div class="statsHeaderLeft">
-            <button id="back" class="btn">← Back</button>
+            <a id="back" class="btn" href="${peekBack()}">← Back</a>
             <div class="statsTitleStack">
               <h1 class="h1">Price % Difference for Common Bottles</h1>
               <div class="small" id="statsStatus">Loading…</div>
@@ -781,7 +781,11 @@ export async function renderStats($app) {
 		if ($status) $status.textContent = String(msg || "");
 	};
 
-	document.getElementById("back")?.addEventListener("click", () => goBack());
+	document.getElementById("back")?.addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	// log scale requires a positive floor; EFF_MIN is the scale base
 	const EFF_MIN = 15;

@@ -2,17 +2,17 @@
 // CSS is in app/public_shortlists_page/public_shortlists_page.css, loaded via index.html
 import { esc } from "./dom.js";
 import { getShortlists } from "./cloud.js";
-import { goBack, navigateTo } from "./nav.js";
+import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 
-function goTo(uuid) {
-	navigateTo(`#/shortlist/${encodeURIComponent(uuid)}`);
+function goTo(e, uuid) {
+	openOrNavigateTo(e, `#/shortlist/${encodeURIComponent(uuid)}`);
 }
 
 export async function renderPublicShortlists($app) {
 	$app.innerHTML = `
 		<div class="container shortlistsPage">
 			<div class="topbar">
-				<button id="back" class="btn">← Back</button>
+				<a id="back" class="btn" href="${peekBack()}">← Back</a>
 				<div class="h1" style="margin:0;">Public shortlists</div>
 			</div>
 
@@ -22,7 +22,11 @@ export async function renderPublicShortlists($app) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	const $list = document.getElementById("list");
 
@@ -58,7 +62,7 @@ export async function renderPublicShortlists($app) {
 		if (!row) return;
 		const uuid = String(row.getAttribute("data-uuid") || "");
 		if (!uuid) return;
-		goTo(uuid);
+		goTo(e, uuid);
 	});
 
 	$list.addEventListener("keydown", (e) => {

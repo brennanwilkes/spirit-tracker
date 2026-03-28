@@ -1,5 +1,5 @@
 import { esc, renderThumbHtml, dateOnly } from "./dom.js";
-import { goBack } from "./nav.js";
+import { goBack, peekBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
@@ -204,7 +204,7 @@ export async function renderItem($app, skuInput) {
 	$app.innerHTML = `
 		<div class="container">
 			<div class="topbar">
-				<button id="back" class="btn">← Back</button>
+				<a id="back" class="btn" href="${peekBack()}">← Back</a>
 				<span class="badge mono">${esc(displaySku(sku))}</span>
 			</div>
 
@@ -266,7 +266,11 @@ export async function renderItem($app, skuInput) {
 
 	installFavStars($app, favSet);
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	const $title = document.getElementById("title");
 	const $links = document.getElementById("links");

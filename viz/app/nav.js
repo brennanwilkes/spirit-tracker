@@ -38,3 +38,24 @@ export function navigateTo(hash) {
 	saveCurrentRoute();
 	location.hash = hash;
 }
+
+/**
+ * Return the hash that goBack() would navigate to, without modifying the stack.
+ * Use this to set the `href` on a back-button anchor at render time.
+ */
+export function peekBack(fallback = "#/") {
+	const stack = getStack();
+	return stack[stack.length - 1] ?? fallback;
+}
+
+/**
+ * Navigate to `hash`, but if a modifier key (Ctrl/Meta/Shift) is held, open
+ * in a new tab instead. Pass the originating click event as `e`.
+ */
+export function openOrNavigateTo(e, hash) {
+	if (e.ctrlKey || e.metaKey || e.shiftKey) {
+		window.open(location.href.replace(/#.*/, "") + hash);
+		return;
+	}
+	navigateTo(hash);
+}

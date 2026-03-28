@@ -15,7 +15,7 @@ import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js
 import { getAuthStatus, logoutAndReload } from "./cloud.js";
 import { inferGithubOwnerRepo, fetchJson, githubFetchFileAtSha } from "./api.js";
 import { getOrBuildMinIndex, buildMinIndex } from "./sha_min_index.js";
-import { saveCurrentRoute, navigateTo } from "./nav.js";
+import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 
 let PREWARM_TOKEN = 0;
 
@@ -609,7 +609,7 @@ export function renderSearch($app) {
 				const sku = el.getAttribute("data-sku") || "";
 				if (!sku) return;
 				saveQuery($q.value);
-				navigateTo(`#/item/${encodeURIComponent(sku)}`);
+				openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 			});
 		}
 	}
@@ -808,7 +808,7 @@ export function renderSearch($app) {
 				const sku = el.getAttribute("data-sku") || "";
 				if (!sku) return;
 				saveQuery($q.value);
-				navigateTo(`#/item/${encodeURIComponent(sku)}`);
+				openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 			});
 		}
 	}

@@ -1,6 +1,6 @@
 // viz/app/settings_page.js
 import { esc } from "./dom.js";
-import { goBack } from "./nav.js";
+import { goBack, peekBack } from "./nav.js";
 import { AuthError, getAuthStatus, getMyDetails, putDetails } from "./cloud.js";
 import { applyColorScheme } from "./theme.js";
 
@@ -27,7 +27,7 @@ export async function renderSettings($app) {
 	$app.innerHTML = `
 		<div class="container settingsWrap">
 			<div class="topbar">
-				<button id="back" class="btn">← Back</button>
+				<a id="back" class="btn" href="${peekBack()}">← Back</a>
 				<div class="h1 settingsTitle" style="margin:0;">Settings</div>
 			</div>
 
@@ -126,7 +126,11 @@ export async function renderSettings($app) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	const $switch = document.getElementById("publicSwitch");
 	const $isPublic = document.getElementById("isPublic");

@@ -1,5 +1,5 @@
 import { esc, renderThumbHtml } from "./dom.js";
-import { goBack, navigateTo } from "./nav.js";
+import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -22,7 +22,7 @@ export async function renderStore($app, storeLabelRaw) {
 	$app.innerHTML = `
     <div class="container containerStoreWide">
       <div class="topbar">
-        <button id="back" class="btn">← Back</button>
+        <a id="back" class="btn" href="${peekBack()}">← Back</a>
         <span class="badge">${esc(storeLabelShort || "Store")}</span>
       </div>
 
@@ -111,7 +111,11 @@ export async function renderStore($app, storeLabelRaw) {
     </div>
   `;
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	const $q = document.getElementById("q");
 	const $status = document.getElementById("status");
@@ -691,7 +695,7 @@ export async function renderStore($app, storeLabelRaw) {
 		if (!el) return;
 		const sku = el.getAttribute("data-sku") || "";
 		if (!sku) return;
-		navigateTo(`#/item/${encodeURIComponent(sku)}`);
+		openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 	});
 
 	function sortExclusiveInPlace(arr) {

@@ -1,6 +1,6 @@
 // viz/app/shortlist_page.js
 import { esc, renderThumbHtml } from "./dom.js";
-import { goBack, navigateTo } from "./nav.js";
+import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -107,7 +107,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	$app.innerHTML = `
         <div class="container shortlistPage">
             <div class="topbar">
-                <button id="back" class="btn">← Back</button>
+                <a id="back" class="btn" href="${peekBack()}">← Back</a>
 
                 <div style="display:flex; align-items:center; gap:10px; margin-left:10px; min-width:0;">
                     <div id="slTitle" class="h1" style="margin:0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Shortlist</div>
@@ -158,7 +158,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 		</div>
 	`;
 
-	document.getElementById("back").addEventListener("click", () => goBack());
+	document.getElementById("back").addEventListener("click", (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+		e.preventDefault();
+		goBack();
+	});
 
 	const $q = document.getElementById("q");
 	const $clear = document.getElementById("clearSearch");
@@ -1245,7 +1249,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (!el) return;
 		const sku = el.getAttribute("data-sku") || "";
 		if (!sku) return;
-		navigateTo(`#/item/${encodeURIComponent(sku)}`);
+		openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 	});
 
 	// Infinite scroll
