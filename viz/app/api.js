@@ -110,15 +110,94 @@ export async function githubListCommits({ owner, repo, branch, path }) {
 	return Array.isArray(page1) ? page1 : [];
 }
 
+const RAW_CACHE_NAME = "stviz:raw:v1";
+const MEM = new Map(); // session-only microcache
+
+// Parse a Git LFS pointer file. Returns { oid, size } or null if not a pointer.
+function parseLfsPointer(txt) {
+	const lines = (txt || "").trim().split(/\r?\n/);
+	if (!lines[0]?.startsWith("version https://git-lfs.github.com/spec/v1")) return null;
+	let oid = null, size = null;
+	for (const line of lines) {
+		const m1 = line.match(/^oid sha256:([0-9a-f]{64})$/);
+		if (m1) oid = m1[1];
+		const m2 = line.match(/^size (\d+)$/);
+		if (m2) size = parseInt(m2[1], 10);
+	}
+	return oid && Number.isFinite(size) ? { oid, size } : null;
+}
+
+// Call GitHub LFS Batch API for a single object and return the CDN download URL.
+async function githubLfsBatchUrl({ owner, repo, oid, size }) {
+	const url = `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}.git/info/lfs/objects/batch`;
+	const res = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/vnd.git-lfs+json",
+			"Accept": "application/vnd.git-lfs+json",
+		},
+		body: JSON.stringify({
+			operation: "download",
+			transfers: ["basic"],
+			objects: [{ oid, size }],
+		}),
+	});
+	if (!res.ok) throw new Error(`LFS batch API HTTP ${res.status}`);
+	const data = await res.json();
+	const href = data?.objects?.[0]?.actions?.download?.href;
+	if (!href) throw new Error(`LFS batch: no download href for oid ${oid.slice(0, 8)}`);
+	return href;
+}
+
+const LFS_CACHE_KEY_PREFIX = "stviz://lfs/";
+
+// Fetch and cache LFS object content by OID (stable key, never expires).
+async function fetchLfsContent({ owner, repo, oid, size }) {
+	// Session cache (keyed by OID, not CDN URL which is time-limited)
+	const lfsKey = `${LFS_CACHE_KEY_PREFIX}${oid}`;
+	const memHit = MEM.get(lfsKey);
+	if (typeof memHit === "string") return memHit;
+
+	// Persistent cache
+	if (globalThis.caches) {
+		const cache = await caches.open(RAW_CACHE_NAME);
+		const hit = await cache.match(lfsKey);
+		if (hit) {
+			const txt = await hit.text();
+			MEM.set(lfsKey, txt);
+			return txt;
+		}
+	}
+
+	// Resolve via LFS batch API then fetch from CDN
+	const cdnUrl = await githubLfsBatchUrl({ owner, repo, oid, size });
+	const cdnRes = await fetch(cdnUrl);
+	if (!cdnRes.ok) throw new Error(`LFS CDN HTTP ${cdnRes.status} for oid ${oid.slice(0, 8)}`);
+	const txt = await cdnRes.text();
+	MEM.set(lfsKey, txt);
+
+	if (globalThis.caches) {
+		const cache = await caches.open(RAW_CACHE_NAME);
+		await cache.put(lfsKey, new Response(txt));
+	}
+
+	return txt;
+}
+
 export async function githubFetchFileAtSha({ owner, repo, sha, path }) {
 	const cleanPath = String(path || "").replace(/^\/+/, "");
 	const raw = `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(sha)}/${cleanPath}`;
 	const txt = await fetchTextImmutableCached(raw);
+
+	const lfs = parseLfsPointer(txt);
+	if (lfs) {
+		// LFS-tracked file: resolve actual content via batch API → CDN, cached by OID.
+		const actual = await fetchLfsContent({ owner, repo, ...lfs });
+		return JSON.parse(actual);
+	}
+
 	return JSON.parse(txt);
 }
-
-const RAW_CACHE_NAME = "stviz:raw:v1";
-const MEM = new Map(); // session-only microcache
 
 async function fetchTextImmutableCached(url) {
 	// session cache
