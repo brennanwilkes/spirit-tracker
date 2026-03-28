@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-28T01:38:46.393Z",
+  "generatedAt": "2026-03-28T02:11:53.861Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 3769,
-    "removedRows": 312,
-    "canonSkus": 1899,
+    "liveRows": 3793,
+    "removedRows": 315,
+    "canonSkus": 1912,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 36.99,
+        "gull": 37.99,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 36.99,
+        "vessel": 41.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "JAMESON - IRISH",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://www.bcliquorstores.com/product/10157",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/10157"
+      }
+    },
     {
       "canonSku": "057706",
       "storeCount": 8,
@@ -377,49 +420,6 @@
       }
     },
     {
-      "canonSku": "560474",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 102.99,
-        "bcl": 104.99,
-        "gull": 105.99,
-        "legacyliquor": 129.06,
-        "strath": 113.09,
-        "tudor": 104.99,
-        "vessel": 99.99,
-        "vintage": 123.39
-      },
-      "representative": {
-        "name": "Ardbeg - 10 Year Old Single Malt Scotch",
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://vesselliquor.com/products/ardbeg-10-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ardbeg-10-year-old-single-malt-scotch"
-      }
-    },
-    {
       "canonSku": "000042",
       "storeCount": 7,
       "stores": [
@@ -632,49 +632,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 36.99,
-        "gull": 37.99,
-        "strath": 39.57,
-        "tudor": 36.99,
-        "vessel": 41.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://www.bcliquorstores.com/product/10157",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/10157"
       }
     },
     {
@@ -1234,6 +1191,49 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
+      "canonSku": "560474",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 102.99,
+        "bcl": 104.99,
+        "gull": 105.99,
+        "legacyliquor": 129.06,
+        "strath": 113.09,
+        "tudor": 104.99,
+        "vintage": 123.39
+      },
+      "representative": {
+        "name": "ARDBEG 10 YO",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
       }
     },
     {
