@@ -671,8 +671,14 @@ export async function renderSettings($app) {
 			}
 
 			if (dk === "useTypes") {
-				if (!cb.checked) delete f.spiritTypes;
-				// When enabling, keep existing spiritTypes if any, else leave undefined (no filter = all)
+				if (cb.checked) {
+					// Keep existing selection if any; otherwise default to all types pre-checked
+					if (!Array.isArray(f.spiritTypes) || !f.spiritTypes.length) {
+						f.spiritTypes = SPIRIT_TYPE_LIST.map(({ id }) => id);
+					}
+				} else {
+					delete f.spiritTypes;
+				}
 				setRuleAt(i, { ...cur, filters: f });
 				renderRules();
 				return;

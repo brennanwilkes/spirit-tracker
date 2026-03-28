@@ -60,11 +60,9 @@ export async function renderStore($app, storeLabelRaw) {
                 flex: 0 0 auto;
               "
             ></div>
-          </div>
 
-          <div class="searchControls">
-            <div class="searchControl">
-              <span class="small searchControlLabel">Type</span>
+            <div style="display:flex; align-items:center; gap:6px; flex: 0 0 auto;">
+              <span class="small" style="white-space:nowrap; opacity:.75;">Type</span>
               ${spiritFilterHtml()}
             </div>
           </div>
