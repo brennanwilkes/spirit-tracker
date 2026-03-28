@@ -404,12 +404,12 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 
 .spiritFilter {
   position: relative;
-  flex: 1 1 0;
+  flex: 0 0 auto;
 }
 
-/* Trigger button inherits .selectSmall styles; these add width + text-align */
+/* Trigger button inherits .selectSmall styles; fixed width so layout doesn't shift */
 .spiritFilterTrigger {
-  width: 100%;
+  width: 120px;
   text-align: left;
 }
 .spiritFilterTrigger.is-open,
