@@ -300,6 +300,13 @@ function createStore(defaultUa) {
 				perPage: 100,
 				allowUrl: allowSierraOtherWhiskyRescue,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://sierraspringsliquor.ca/product-category/gin/",
+				discoveryStartPage: 1,
+				perPage: 100,
+			},
 		],
 	};
 }

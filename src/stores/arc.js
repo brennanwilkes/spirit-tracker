@@ -188,6 +188,14 @@ function createStore(defaultUa) {
 				arcSubCategory: "Whiskey",
 				sortBy: "price_desc",
 			},
+			{
+				key: "spirits-gin",
+				label: "Spirits - Gin",
+				startUrl: "https://kelownaharveyave.armstrong.coop/products?category=Spirits&sub_category=Gin",
+				arcCategory: "Spirits",
+				arcSubCategory: "Gin",
+				sortBy: "price_desc",
+			},
 		],
 	};
 }

@@ -306,6 +306,12 @@ function createStore(defaultUa) {
 				startUrl: "https://www.willowpark.net/collections/rum?filter.v.availability=1",
 				discoveryStartPage: 3,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://www.willowpark.net/collections/gin?filter.v.availability=1",
+				discoveryStartPage: 3,
+			},
 		],
 	};
 }

@@ -489,6 +489,12 @@ function createStore(defaultUa) {
 				startUrl: "https://kensingtonwinemarket.com/products/liqu/rum/",
 				discoveryStartPage: 20,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://kensingtonwinemarket.com/products/liqu/gin/",
+				discoveryStartPage: 20,
+			},
 		],
 	};
 }

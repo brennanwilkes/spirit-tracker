@@ -102,6 +102,12 @@ function createStore(defaultUa) {
 				discoveryStartPage: 15,
 				allowUrl: allowMaltsExcludeGinTequilaMezcal,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://maltsandgrains.store/product-category/gin/page/1/",
+				discoveryStartPage: 2,
+			},
 		],
 	};
 }

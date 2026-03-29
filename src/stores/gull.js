@@ -232,6 +232,16 @@ function createStore(defaultUa) {
 				pageStaggerMs: 10000,
 				discoveryDelayMs: 10000,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://gullliquorstore.com/product-category/spirits/?spirit_type=gin",
+				discoveryStartPage: 3,
+				discoveryStep: 2,
+				pageConcurrency: 1,
+				pageStaggerMs: 10000,
+				discoveryDelayMs: 10000,
+			},
 		],
 	};
 }

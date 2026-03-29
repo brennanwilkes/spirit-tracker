@@ -225,7 +225,11 @@ function classifyCraftProduct(p, ctx) {
 
 	// Hard negatives (but allow strong rum/whisky overrides below)
 	const NEG =
-		/\b(wine|bubbles|champagne|prosecco|beer|cider|sake|non-alcoholic|mezcal|tequila|vodka|gin|grappa|cognac|brandy|armagnac|calvados|liqueur|cream|syrup|vermouth|mixer|tonic|soda|yearbook|advent calendar)\b/i;
+		/\b(wine|bubbles|champagne|prosecco|beer|cider|sake|non-alcoholic|mezcal|tequila|vodka|grappa|cognac|brandy|armagnac|calvados|liqueur|cream|syrup|vermouth|mixer|tonic|soda|yearbook|advent calendar)\b/i;
+
+	// Gin signal: checked on title+tags only to avoid false positives from
+	// "gin distillery" mentions in whisky body copy.
+	const GIN = /\bgin\b/i;
 
 	// Rum signals
 	const RUM = /\b(rum|rhum)\b/i;
@@ -291,6 +295,10 @@ function classifyCraftProduct(p, ctx) {
 			) || WHISKY_BRANDS.test(titleTags);
 		if (!titleTagsWhisky) return "rum";
 	}
+
+	// 1.5) Gin: checked after rum so rum-barrel-aged gins don't slip through,
+	//      but before whisky so gin isn't misclassified as "other".
+	if (GIN.test(titleTags) && !rumHit && !whiskySpecificHit && !whiskyAnyHit) return "gin";
 
 	// 2) Whisky if brand rescue hits
 	if (whiskyBrandHit) return "whisky";
@@ -738,6 +746,16 @@ function createStore(defaultUa) {
 				startUrl: "https://craftcellars.ca/collections/rum?filter.v.availability=1",
 				mode: "global_products_json",
 				kind: "rum",
+				pageConcurrency: 1,
+				jsonPageDelayMs: 0,
+				skuPageDelayMs: 0,
+			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://craftcellars.ca/collections/gin?filter.v.availability=1",
+				mode: "global_products_json",
+				kind: "gin",
 				pageConcurrency: 1,
 				jsonPageDelayMs: 0,
 				skuPageDelayMs: 0,

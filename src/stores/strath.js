@@ -463,6 +463,41 @@ function createStore(defaultUa) {
 					},
 				},
 			},
+			{
+				key: "spirits-gin",
+				label: "Spirits - Gin",
+				apiCategorySlug: "gin",
+				startUrl:
+					"https://www.strathliquor.com/spirits/?_sfm__stock_status=instock&_sfm__regular_price=0+600&_sfm_product_type=Gin&_sfm_product_abv=0+75&orderby=date",
+				diviLoadMore: {
+					endpoint: "https://www.strathliquor.com/wp-json/divi-ajax-filter/v1/loadmore",
+					baseBody: {
+						security: "",
+						query: "",
+						page: 1,
+						layoutid: "none",
+						posttype: "product",
+						noresults: "none",
+						sortorder: "date ID",
+						sortasc: "DESC",
+						gridstyle: "off",
+						columnscount: "5",
+						resultcount: "on",
+						countposition: "top",
+						shortcode_name: "[de_loop_template_shortcode]",
+						postnumber: "100",
+						loadmoretext: "Load More",
+						link_wholegrid: "",
+						is_loadmore: "on",
+						loop_var:
+							'{"loop_style":"on","loop_templates":"custom-template","show_variations":"off","show_excerpt_list_view":"off","enable_overlay":"on","show_featured_image":"on","show_read_more":"off","show_author":"on","show_date":"on","date_format":"F j, Y","show_categories":"on","show_categories_count":"off","show_content":"off","show_comments":"off","excerpt_length":"270","excerpt_more":"...","meta_separator":"|","read_more_text":"Read More","button_fullwidth":"off","custom_loop_template":"custom-template.php"}',
+						show_rating: "on",
+						show_price: "on",
+						show_excerpt: "",
+						show_add_to_cart: "on",
+					},
+				},
+			},
 		],
 	};
 }

@@ -241,6 +241,12 @@ function createStore(defaultUa) {
 				startUrl: "https://www.legacyliquorstore.com/LL/category/spirits/rum",
 				allTags: ["spirits", "rum"],
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://www.legacyliquorstore.com/LL/category/spirits/gin",
+				allTags: ["spirits", "gin"],
+			},
 		],
 	};
 }

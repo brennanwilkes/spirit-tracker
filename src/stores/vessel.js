@@ -121,6 +121,13 @@ function createStore(defaultUa) {
 				discoveryStartPage: 20,
 				discoveryStep: 10,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://vesselliquor.com/collections/gin?sort_by=title-ascending&filter.v.availability=1",
+				discoveryStartPage: 20,
+				discoveryStep: 10,
+			},
 		],
 	};
 }

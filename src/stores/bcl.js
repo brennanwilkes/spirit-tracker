@@ -249,6 +249,13 @@ function createStore(defaultUa) {
 					"https://www.bcliquorstores.com/product-catalogue?category=spirits&type=rum&sort=featuredProducts:desc&page=1",
 				bclType: "rum",
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl:
+					"https://www.bcliquorstores.com/product-catalogue?category=spirits&type=gin&sort=featuredProducts:desc&page=1",
+				bclType: "gin",
+			},
 		],
 	};
 }

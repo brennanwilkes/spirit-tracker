@@ -329,6 +329,12 @@ function createStore(defaultUa) {
 				startUrl: "https://www.bswliquor.com/collections/whisky?page=1",
 				bswRuleContext: "whisky",
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://www.bswliquor.com/collections/gin?page=1",
+				bswRuleContext: "gin",
+			},
 		],
 	};
 }

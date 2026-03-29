@@ -591,6 +591,14 @@ function createStore(defaultUa) {
 				tudorSubSlug: "scotch-selections",
 				tudorAllTags: ["spirits", "scotch-selections"],
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: `${BASE}/${STORE_ID}/category/spirits/gin`,
+				tudorRootSlug: "spirits",
+				tudorSubSlug: "gin",
+				tudorAllTags: ["spirits", "gin"],
+			},
 		],
 	};
 }
