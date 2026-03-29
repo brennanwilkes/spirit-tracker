@@ -129,6 +129,13 @@ function createStore(defaultUa) {
 				vsCategory: "40 SPIRITS",
 				vsSubCategory: "RUM",
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://shop.vintagespirits.ca/products?category=40+SPIRITS&sub_category=GIN",
+				vsCategory: "40 SPIRITS",
+				vsSubCategory: "GIN",
+			},
 		],
 	};
 }

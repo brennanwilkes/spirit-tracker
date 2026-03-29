@@ -74,6 +74,12 @@ function createStore(defaultUa) {
 				startUrl: "https://kegncork.com/rum/?page=1",
 				discoveryStartPage: 1,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				startUrl: "https://kegncork.com/gin/?page=1",
+				discoveryStartPage: 1,
+			},
 		],
 	};
 }

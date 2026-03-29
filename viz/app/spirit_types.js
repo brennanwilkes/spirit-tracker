@@ -31,7 +31,8 @@ const CATEGORY_TO_TYPES = {
 	"whiskey-scotch":               ["whisky"],
 
 	// ── Gin ──────────────────────────────────────────────────────────────────
-	// (no keys yet; added here when gin stores are scraped)
+	"gin":                          ["gin"],
+	"spirits-gin":                  ["gin"], // ARC / Strath naming convention
 
 	// ── Mixed rum+whisky DBs (allowUrl-filtered at scrape time) ─────────────
 	"spirits-liquor":               ["rum", "whisky"], // sierrasprings: URL-filtered to rum|whiskey

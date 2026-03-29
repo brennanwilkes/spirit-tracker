@@ -311,6 +311,13 @@ function createStore(defaultUa) {
 				coopCategoryId: 24,
 				startUrl: `${REFERER}#/category/spirits_rum`,
 			},
+			{
+				key: "gin",
+				label: "Gin",
+				coopSlug: "spirits_gin",
+				coopCategoryId: 22,
+				startUrl: `${REFERER}#/category/spirits_gin`,
+			},
 		],
 	};
 }
