@@ -474,6 +474,18 @@ function validateEmailNotificationsV1(v) {
 				out.storeId = s;
 			}
 
+			// spirit type filter
+			if (filtersIn.spiritTypes != null) {
+				if (!Array.isArray(filtersIn.spiritTypes))
+					throw new TypeError("spiritTypes must be an array");
+				const types = [...new Set(
+					filtersIn.spiritTypes
+						.map((t) => String(t || "").toLowerCase().trim())
+						.filter(Boolean)
+				)];
+				if (types.length) out.spiritTypes = types;
+			}
+
 			// across market (preserve false; default true for GLOBAL_NEW; not allowed for PRICE_DROP)
 			if (filtersIn.acrossMarket != null) {
 				if (typeof filtersIn.acrossMarket !== "boolean")
