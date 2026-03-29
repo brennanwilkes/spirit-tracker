@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T00:28:40.919Z",
+  "generatedAt": "2026-03-29T04:39:42.853Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -28,7 +28,7 @@
   "totals": {
     "liveRows": 4432,
     "removedRows": 321,
-    "canonSkus": 2222,
+    "canonSkus": 2221,
     "outputCount": 960
   },
   "rows": [
@@ -15316,6 +15316,45 @@
       }
     },
     {
+      "canonSku": "109336",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "strath",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "storePrices": {
+        "bcl": 59.99,
+        "strath": 73.83,
+        "vintage": 73.83
+      },
+      "representative": {
+        "name": "BAREKSTEN - BOTANICAL GIN",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "444649",
+        "skuKey": "444649",
+        "url": "https://www.bcliquorstores.com/product/444649",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/444649"
+      }
+    },
+    {
       "canonSku": "109895",
       "storeCount": 3,
       "stores": [
@@ -20230,45 +20269,6 @@
       }
     },
     {
-      "canonSku": "444649",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "strath",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "storePrices": {
-        "bcl": 59.99,
-        "strath": 73.83,
-        "vintage": 73.83
-      },
-      "representative": {
-        "name": "BAREKSTEN - BOTANICAL GIN",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "444649",
-        "skuKey": "444649",
-        "url": "https://www.bcliquorstores.com/product/444649",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/444649"
-      }
-    },
-    {
       "canonSku": "447381",
       "storeCount": 3,
       "stores": [
@@ -20539,6 +20539,45 @@
         "priceNum": 105.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4662457-equiano-rum"
+      }
+    },
+    {
+      "canonSku": "475073",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "gull": 54.95,
+        "tudor": 64.99
+      },
+      "representative": {
+        "name": "JODHPUR SPICY",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "475073",
+        "skuKey": "475073",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721035-jodhpur-spicy",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721035-jodhpur-spicy"
       }
     },
     {
@@ -35543,44 +35582,6 @@
         "priceNum": 24.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5106447-jodhpur-mandore-gin"
-      }
-    },
-    {
-      "canonSku": "495198",
-      "storeCount": 2,
-      "stores": [
-        "gull",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 54.95,
-        "tudor": 64.99
-      },
-      "representative": {
-        "name": "Jodhpur – Spicy Gin 700ml",
-        "price": "$54.95",
-        "priceNum": 54.95,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "495198",
-        "skuKey": "495198",
-        "url": "https://gullliquorstore.com/product/jodhpur-spicy-gin-700m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$54.95",
-        "priceNum": 54.95,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/jodhpur-spicy-gin-700m/"
       }
     },
     {
