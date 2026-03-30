@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T21:55:49.960Z",
+  "generatedAt": "2026-03-30T01:12:13.537Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9101,
-    "removedRows": 1059,
-    "canonSkus": 5253,
+    "liveRows": 9095,
+    "removedRows": 1065,
+    "canonSkus": 5252,
     "outputCount": 1000
   },
   "rows": [
@@ -159,49 +159,6 @@
         "priceNum": 89.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
-      }
-    },
-    {
-      "canonSku": "778827",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 76.99,
-        "craftcellars": 56.99,
-        "kegncork": 76.96,
-        "kwm": 59.99,
-        "maltsandgrains": 74.9,
-        "sierrasprings": 71.32,
-        "willowpark": 83.49
-      },
-      "representative": {
-        "name": "Craigellachie 13 Year Old",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "864533",
-        "skuKey": "864533",
-        "url": "https://craftcellars.ca/products/craigellachie-13-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/craigellachie-13-year-old"
       }
     },
     {
@@ -1578,6 +1535,49 @@
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
+      }
+    },
+    {
+      "canonSku": "778827",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 76.99,
+        "kegncork": 76.96,
+        "kwm": 59.99,
+        "maltsandgrains": 74.9,
+        "sierrasprings": 71.32,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "Craigellachie 13 Year",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "864533",
+        "skuKey": "864533",
+        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
       }
     },
     {
@@ -9153,47 +9153,6 @@
       }
     },
     {
-      "canonSku": "873553",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "craftcellars": 79.99,
-        "kegncork": 99.96,
-        "kwm": 101.99,
-        "sierrasprings": 95.13
-      },
-      "representative": {
-        "name": "Bruichladdich Islay Barley 2013",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "873553",
-        "skuKey": "873553",
-        "url": "https://www.bswliquor.com/products/bruichladdich-islay-barely-2013",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-islay-barely-2013"
-      }
-    },
-    {
       "canonSku": "873908",
       "storeCount": 5,
       "stores": [
@@ -10118,6 +10077,46 @@
         "priceNum": 33.33,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/tennessee/jack-daniels-old-no-7-tennessee-whisky-40-abv-3/"
+      }
+    },
+    {
+      "canonSku": "052050",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 33.99,
+        "craftcellars": 26.99,
+        "sierrasprings": 28.47,
+        "willowpark": 32.49
+      },
+      "representative": {
+        "name": "The Famous Grouse 750Ml",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "052050",
+        "skuKey": "052050",
+        "url": "https://craftcellars.ca/products/the-famous-grouse-750ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/the-famous-grouse-750ml"
       }
     },
     {
@@ -15481,46 +15480,6 @@
       }
     },
     {
-      "canonSku": "732883",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "craftcellars": 58.99,
-        "maltsandgrains": 88.9,
-        "sierrasprings": 81
-      },
-      "representative": {
-        "name": "Wild Turkey Rare Breed",
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "794972",
-        "skuKey": "794972",
-        "url": "https://craftcellars.ca/products/wild-turkey-rare-breed-58-4-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/wild-turkey-rare-breed-58-4-abv"
-      }
-    },
-    {
       "canonSku": "733799",
       "storeCount": 4,
       "stores": [
@@ -17481,6 +17440,46 @@
       }
     },
     {
+      "canonSku": "873553",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "kegncork": 99.96,
+        "kwm": 101.99,
+        "sierrasprings": 95.13
+      },
+      "representative": {
+        "name": "Bruichladdich Islay Barley 2013",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "873553",
+        "skuKey": "873553",
+        "url": "https://www.bswliquor.com/products/bruichladdich-islay-barely-2013",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-islay-barely-2013"
+      }
+    },
+    {
       "canonSku": "878390",
       "storeCount": 4,
       "stores": [
@@ -18978,45 +18977,6 @@
         "priceNum": 55.94,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/white-rum-spirits-liquor/bacardi-superior-rum-40-abv/"
-      }
-    },
-    {
-      "canonSku": "052050",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 33.99,
-        "sierrasprings": 28.47,
-        "willowpark": 32.49
-      },
-      "representative": {
-        "name": "The Famous Grouse (40% abv)",
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "052050",
-        "skuKey": "052050",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/blended-scotch-whisky-whisky/the-famous-grouse-40-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/blended-scotch-whisky-whisky/the-famous-grouse-40-abv/"
       }
     },
     {
@@ -21006,45 +20966,6 @@
         "priceNum": 47.51,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/cooler/canadian-whisky-cooler/crown-royal-reserve-12-yo/"
-      }
-    },
-    {
-      "canonSku": "112008",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 137,
-        "craftcellars": 109.99,
-        "kegncork": 139.96
-      },
-      "representative": {
-        "name": "Raasay Quercus Humboldt II Oak Cask",
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "112008",
-        "skuKey": "112008",
-        "url": "https://craftcellars.ca/products/raasay-quercus-humboldt-ii-oak-cask-50-7-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/raasay-quercus-humboldt-ii-oak-cask-50-7-abv"
       }
     },
     {
@@ -29199,6 +29120,45 @@
       }
     },
     {
+      "canonSku": "732883",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "maltsandgrains": 88.9,
+        "sierrasprings": 81
+      },
+      "representative": {
+        "name": "Wild Turkey Rare Breed Barrel Proof Bourbon",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "794972",
+        "skuKey": "794972",
+        "url": "https://www.bswliquor.com/products/wild-turkey-rare-breed-bourbon-58-40",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/wild-turkey-rare-breed-bourbon-58-40"
+      }
+    },
+    {
       "canonSku": "741502",
       "storeCount": 3,
       "stores": [
@@ -33138,45 +33098,6 @@
       }
     },
     {
-      "canonSku": "871436",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 92.99,
-        "craftcellars": 93.99,
-        "kegncork": 93.96
-      },
-      "representative": {
-        "name": "Trails End 10 Year Old Bourbon",
-        "price": "$92.99",
-        "priceNum": 92.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "871436",
-        "skuKey": "871436",
-        "url": "https://www.bswliquor.com/products/trails-end-10-year-old-kentucky-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$92.99",
-        "priceNum": 92.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/trails-end-10-year-old-kentucky-bourbon"
-      }
-    },
-    {
       "canonSku": "872831",
       "storeCount": 3,
       "stores": [
@@ -33720,45 +33641,6 @@
         "priceNum": 74.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/wormtub"
-      }
-    },
-    {
-      "canonSku": "883719",
-      "storeCount": 3,
-      "stores": [
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "craftcellars": 59.99,
-        "kegncork": 57.96,
-        "maltsandgrains": 60.06
-      },
-      "representative": {
-        "name": "Whistlepig Piggyback Bourbon",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "883719",
-        "skuKey": "883719",
-        "url": "https://craftcellars.ca/products/whistlepig-piggyback-bourbon-50-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$57.96",
-        "priceNum": 57.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/whistlepig-piggyback-6-yo-bourbon-750-ml/"
       }
     },
     {
@@ -39536,6 +39418,44 @@
       }
     },
     {
+      "canonSku": "112008",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 137,
+        "kegncork": 139.96
+      },
+      "representative": {
+        "name": "Raasay Quercus Humboldt II Oak Cask 50.7% ABV",
+        "price": "$137.00",
+        "priceNum": 137,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "112008",
+        "skuKey": "112008",
+        "url": "https://www.bswliquor.com/products/raasay-quercus-humboldtii-oak-cask",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$137.00",
+        "priceNum": 137,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/raasay-quercus-humboldtii-oak-cask"
+      }
+    },
+    {
       "canonSku": "113344",
       "storeCount": 2,
       "stores": [
@@ -39723,6 +39643,82 @@
         "priceNum": 87.49,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aglc-arran-port-cask-finish-715574"
+      }
+    },
+    {
+      "canonSku": "871436",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 92.99,
+        "kegncork": 93.96
+      },
+      "representative": {
+        "name": "Trails End 10 Year Old Bourbon",
+        "price": "$92.99",
+        "priceNum": 92.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "871436",
+        "skuKey": "871436",
+        "url": "https://www.bswliquor.com/products/trails-end-10-year-old-kentucky-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$92.99",
+        "priceNum": 92.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/trails-end-10-year-old-kentucky-bourbon"
+      }
+    },
+    {
+      "canonSku": "883719",
+      "storeCount": 2,
+      "stores": [
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "kegncork": 57.96,
+        "maltsandgrains": 60.06
+      },
+      "representative": {
+        "name": "PIGGYBACK 6 YO 50% BRBN",
+        "price": "$60.06",
+        "priceNum": 60.06,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "883719",
+        "skuKey": "883719",
+        "url": "https://maltsandgrains.store/product/piggyback-6-yo-50-brbn/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$57.96",
+        "priceNum": 57.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/whistlepig-piggyback-6-yo-bourbon-750-ml/"
       }
     }
   ]

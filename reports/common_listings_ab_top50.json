@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T21:55:49.370Z",
+  "generatedAt": "2026-03-30T01:12:12.901Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9101,
-    "removedRows": 1059,
-    "canonSkus": 5253,
+    "liveRows": 9095,
+    "removedRows": 1065,
+    "canonSkus": 5252,
     "outputCount": 50
   },
   "rows": [
@@ -159,49 +159,6 @@
         "priceNum": 89.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
-      }
-    },
-    {
-      "canonSku": "778827",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 76.99,
-        "craftcellars": 56.99,
-        "kegncork": 76.96,
-        "kwm": 59.99,
-        "maltsandgrains": 74.9,
-        "sierrasprings": 71.32,
-        "willowpark": 83.49
-      },
-      "representative": {
-        "name": "Craigellachie 13 Year Old",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "864533",
-        "skuKey": "864533",
-        "url": "https://craftcellars.ca/products/craigellachie-13-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/craigellachie-13-year-old"
       }
     },
     {
@@ -1535,6 +1492,49 @@
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
+      }
+    },
+    {
+      "canonSku": "778827",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 76.99,
+        "kegncork": 76.96,
+        "kwm": 59.99,
+        "maltsandgrains": 74.9,
+        "sierrasprings": 71.32,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "Craigellachie 13 Year",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "864533",
+        "skuKey": "864533",
+        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
       }
     },
     {
