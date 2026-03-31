@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-30T22:03:22.016Z",
+  "generatedAt": "2026-03-31T01:14:22.391Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13375,
-    "removedRows": 1554,
-    "canonSkus": 6339,
+    "liveRows": 13372,
+    "removedRows": 1557,
+    "canonSkus": 6338,
     "outputCount": 1000
   },
   "rows": [
@@ -1243,62 +1243,6 @@
       }
     },
     {
-      "canonSku": "118775",
-      "storeCount": 12,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "kegncork",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 89.99,
-        "bsw": 59.99,
-        "coop": 79.99,
-        "craftcellars": 79.99,
-        "gull": 91.99,
-        "kwm": 79.99,
-        "legacyliquor": 90.99,
-        "maltsandgrains": 84.9,
-        "sierrasprings": 76.09,
-        "tudor": 89.99,
-        "vessel": 89.99,
-        "willowpark": 80.49
-      },
-      "representative": {
-        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "813356",
-        "skuKey": "813356",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
-      }
-    },
-    {
       "canonSku": "141495",
       "storeCount": 12,
       "stores": [
@@ -1800,6 +1744,62 @@
         "priceNum": 52.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591124-auchentoshan-12yo"
+      }
+    },
+    {
+      "canonSku": "778827",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "willowpark"
+      ],
+      "missingStores": [
+        "gull",
+        "legacyliquor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 78.49,
+        "bcl": 79.99,
+        "bsw": 69.99,
+        "coop": 76.99,
+        "craftcellars": 56.99,
+        "kegncork": 76.96,
+        "kwm": 59.99,
+        "maltsandgrains": 74.9,
+        "sierrasprings": 71.32,
+        "strath": 82.53,
+        "tudor": 83.99,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "Craigellachie 13 Year Old",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "864533",
+        "skuKey": "864533",
+        "url": "https://craftcellars.ca/products/craigellachie-13-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/craigellachie-13-year-old"
       }
     },
     {
@@ -2354,6 +2354,61 @@
       }
     },
     {
+      "canonSku": "118775",
+      "storeCount": 11,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "craftcellars",
+        "kegncork",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 89.99,
+        "bsw": 59.99,
+        "coop": 79.99,
+        "gull": 91.99,
+        "kwm": 79.99,
+        "legacyliquor": 90.99,
+        "maltsandgrains": 84.9,
+        "sierrasprings": 76.09,
+        "tudor": 89.99,
+        "vessel": 89.99,
+        "willowpark": 80.49
+      },
+      "representative": {
+        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "813356",
+        "skuKey": "813356",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
+      }
+    },
+    {
       "canonSku": "134692",
       "storeCount": 11,
       "stores": [
@@ -2791,61 +2846,6 @@
         "priceNum": 65.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591506-aberfeldy-12yo"
-      }
-    },
-    {
-      "canonSku": "778827",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 78.49,
-        "bcl": 79.99,
-        "bsw": 69.99,
-        "coop": 76.99,
-        "kegncork": 76.96,
-        "kwm": 59.99,
-        "maltsandgrains": 74.9,
-        "sierrasprings": 71.32,
-        "strath": 82.53,
-        "tudor": 83.99,
-        "willowpark": 83.49
-      },
-      "representative": {
-        "name": "Craigellachie 13 Year",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "864533",
-        "skuKey": "864533",
-        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
       }
     },
     {
@@ -16424,56 +16424,6 @@
       }
     },
     {
-      "canonSku": "137096",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "maltsandgrains",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 271.89,
-        "bsw": 240,
-        "craftcellars": 243.99,
-        "gull": 259.99,
-        "maltsandgrains": 250.11,
-        "strath": 289.05
-      },
-      "representative": {
-        "name": "Gordon & MacPhail Connoisseurs Choice Clynelish 2008 17 Year Old Whisky on the West Coast Barrel Pick",
-        "price": "$240.00",
-        "priceNum": 240,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "137096",
-        "skuKey": "137096",
-        "url": "https://www.bswliquor.com/products/cc-clynelish-2008-311776",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$240.00",
-        "priceNum": 240,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/cc-clynelish-2008-311776"
-      }
-    },
-    {
       "canonSku": "137285",
       "storeCount": 6,
       "stores": [
@@ -23348,6 +23298,55 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bushmills-16-year-old"
+      }
+    },
+    {
+      "canonSku": "137096",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bsw",
+        "gull",
+        "maltsandgrains",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 271.89,
+        "bsw": 240,
+        "gull": 259.99,
+        "maltsandgrains": 250.11,
+        "strath": 289.05
+      },
+      "representative": {
+        "name": "Gordon & MacPhail Connoisseurs Choice Clynelish 2008 17 Year Old Whisky on the West Coast Barrel Pick",
+        "price": "$240.00",
+        "priceNum": 240,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "137096",
+        "skuKey": "137096",
+        "url": "https://www.bswliquor.com/products/cc-clynelish-2008-311776",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$240.00",
+        "priceNum": 240,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/cc-clynelish-2008-311776"
       }
     },
     {
@@ -33894,54 +33893,6 @@
         "priceNum": 229.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/singleton-of-glen-ord-17-year-old-special-release-2025"
-      }
-    },
-    {
-      "canonSku": "131340",
-      "storeCount": 4,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kwm"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 259.99,
-        "bsw": 230,
-        "craftcellars": 269.99,
-        "kwm": 267.99
-      },
-      "representative": {
-        "name": "Talisker 14 Year Old 2025 Special Releases 53.9% ABV",
-        "price": "$230.00",
-        "priceNum": 230,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "131340",
-        "skuKey": "131340",
-        "url": "https://www.bswliquor.com/products/talisker-14yo-sr25",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$230.00",
-        "priceNum": 230,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/talisker-14yo-sr25"
       }
     },
     {
@@ -48425,6 +48376,53 @@
         "priceNum": 32.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/alberta-premium-golden-rye-9-yo"
+      }
+    },
+    {
+      "canonSku": "131340",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "bsw",
+        "kwm"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 259.99,
+        "bsw": 230,
+        "kwm": 267.99
+      },
+      "representative": {
+        "name": "Talisker 14 Year Old 2025 Special Releases 53.9% ABV",
+        "price": "$230.00",
+        "priceNum": 230,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "131340",
+        "skuKey": "131340",
+        "url": "https://www.bswliquor.com/products/talisker-14yo-sr25",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$230.00",
+        "priceNum": 230,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-14yo-sr25"
       }
     },
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-30T22:03:23.321Z",
+  "generatedAt": "2026-03-31T01:14:23.576Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9069,
-    "removedRows": 1106,
-    "canonSkus": 5258,
+    "liveRows": 9066,
+    "removedRows": 1109,
+    "canonSkus": 5257,
     "outputCount": 250
   },
   "rows": [
@@ -159,6 +159,49 @@
         "priceNum": 89.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
+      }
+    },
+    {
+      "canonSku": "778827",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 76.99,
+        "craftcellars": 56.99,
+        "kegncork": 76.96,
+        "kwm": 59.99,
+        "maltsandgrains": 74.9,
+        "sierrasprings": 71.32,
+        "willowpark": 83.49
+      },
+      "representative": {
+        "name": "Craigellachie 13 Year Old",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "864533",
+        "skuKey": "864533",
+        "url": "https://craftcellars.ca/products/craigellachie-13-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/craigellachie-13-year-old"
       }
     },
     {
@@ -374,49 +417,6 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-14-year-old-quinta-ruban-1"
-      }
-    },
-    {
-      "canonSku": "118775",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 59.99,
-        "coop": 79.99,
-        "craftcellars": 79.99,
-        "kwm": 79.99,
-        "maltsandgrains": 84.9,
-        "sierrasprings": 76.09,
-        "willowpark": 80.49
-      },
-      "representative": {
-        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "813356",
-        "skuKey": "813356",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
       }
     },
     {
@@ -1366,49 +1366,6 @@
       }
     },
     {
-      "canonSku": "778827",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 76.99,
-        "kegncork": 76.96,
-        "kwm": 59.99,
-        "maltsandgrains": 74.9,
-        "sierrasprings": 71.32,
-        "willowpark": 83.49
-      },
-      "representative": {
-        "name": "Craigellachie 13 Year",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "864533",
-        "skuKey": "864533",
-        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
-      }
-    },
-    {
       "canonSku": "822536",
       "storeCount": 7,
       "stores": [
@@ -1996,6 +1953,48 @@
         "priceNum": 160,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1"
+      }
+    },
+    {
+      "canonSku": "118775",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 59.99,
+        "coop": 79.99,
+        "kwm": 79.99,
+        "maltsandgrains": 84.9,
+        "sierrasprings": 76.09,
+        "willowpark": 80.49
+      },
+      "representative": {
+        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "813356",
+        "skuKey": "813356",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
       }
     },
     {
