@@ -14,6 +14,7 @@
  *   #/stores          stores directory
  */
 
+import { syncStackOnBrowserNav } from "./nav.js";
 import { destroyChart } from "./item_page.js";
 import { renderSearch } from "./search_page.js";
 import { renderItem } from "./item_page.js";
@@ -120,7 +121,17 @@ function route() {
 	return renderSearch($app);
 }
 
-window.addEventListener("hashchange", route);
+// popstate fires on browser back/forward but NOT on programmatic location.hash changes.
+// Use it to detect browser-initiated navigation and keep our sessionStorage nav stack in sync.
+let _browserNav = false;
+window.addEventListener("popstate", () => { _browserNav = true; });
+window.addEventListener("hashchange", (e) => {
+	if (_browserNav) {
+		_browserNav = false;
+		syncStackOnBrowserNav(new URL(e.oldURL).hash);
+	}
+	route();
+});
 route();
 
 // Sync color scheme from account in background

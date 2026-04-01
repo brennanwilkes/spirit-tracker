@@ -22,12 +22,32 @@ export function saveCurrentRoute() {
 /**
  * Navigate back to wherever saveCurrentRoute() was last called, or to
  * `fallback` (default "#/") if no saved route exists.
+ * Skips stale entries that match the current hash (can happen when the
+ * browser's native back button was used before this is called).
  */
 export function goBack(fallback = "#/") {
 	const stack = getStack();
-	const prev = stack.pop();
+	let prev = stack.pop();
 	setStack(stack);
-	location.hash = prev ?? fallback;
+	// Skip entries that are already the current page (stale from browser back).
+	while (prev === location.hash && stack.length > 0) {
+		prev = stack.pop();
+		setStack(stack);
+	}
+	location.hash = (prev && prev !== location.hash) ? prev : fallback;
+}
+
+/**
+ * Called by main.js when a browser-initiated hashchange is detected (via
+ * popstate). Pops the top of the stack if it matches the hash we just left,
+ * keeping our custom stack in sync with browser history.
+ */
+export function syncStackOnBrowserNav(oldHash) {
+	const stack = getStack();
+	if (stack.length > 0 && stack[stack.length - 1] === oldHash) {
+		stack.pop();
+		setStack(stack);
+	}
 }
 
 /**

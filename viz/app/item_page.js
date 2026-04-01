@@ -652,7 +652,7 @@ export async function renderItem($app, skuInput) {
 		conn?.effectiveType === "3g" ||
 		(conn?.downlink ?? 10) < 2 ||
 		(!conn && window.innerWidth <= 640);
-	const NET_CONCURRENCY = isSlowNet ? 4 : 16;
+	const NET_CONCURRENCY = isSlowNet ? 8 : 16;
 	const limitNet = makeLimiter(NET_CONCURRENCY);
 
 	const MAX_POINTS = 260;
@@ -782,6 +782,8 @@ export async function renderItem($app, skuInput) {
 		if (dayEntries.length > MAX_POINTS)
 			dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
 
+		totalDaysAll += dayEntries.length;
+
 		// Aggressive global network fetch (dedup + throttled)
 		async function loadIndexAtSha(sha) {
 			const ck = `${sha}|${dbFile}`;
@@ -808,16 +810,16 @@ export async function renderItem($app, skuInput) {
 			return p;
 		}
 
-		// Prefetch the last sha for each day (these are always needed)
+		// Kick off prefetches into the background queue — don't block processing.
+		// inflightFetch deduplicates, so the day-processing loop below picks up
+		// each already-inflight promise rather than starting a new fetch.
 		{
-			const shas = [];
 			for (const day of dayEntries) {
 				const arr = day.commits;
 				if (!arr?.length) continue;
 				const sha = String(arr[arr.length - 1]?.sha || "");
-				if (sha) shas.push(sha);
+				if (sha) loadIndexAtSha(sha).catch(() => null);
 			}
-			await Promise.all(shas.map((sha) => loadIndexAtSha(sha).catch(() => null)));
 		}
 
 		// Build series for variants missing from cache
@@ -924,6 +926,18 @@ export async function renderItem($app, skuInput) {
 				st.compactPoints.push({ date: d, price: v });
 				st.dates.push(d);
 			}
+
+			doneDaysAll++;
+			const totalLabel =
+				dbFiles.length > 1
+					? `${dbFiles.length} stores × ~${Math.round(totalDaysAll / dbFiles.length)} days`
+					: `${totalDaysAll} days`;
+			setStatusText(
+				isRemovedEverywhere
+					? `Removed everywhere — loading history… day ${doneDaysAll} / ${totalDaysAll} (${totalLabel})`
+					: `Loading history… day ${doneDaysAll} / ${totalDaysAll} (${totalLabel})`,
+			);
+			setProgress(doneDaysAll, totalDaysAll);
 		}
 
 		// Add "today" point per variant ONLY if listing currently exists for that variant in this store/dbFile
@@ -957,6 +971,8 @@ export async function renderItem($app, skuInput) {
 	}
 
 	let doneFiles = 0;
+	let totalDaysAll = 0; // sum of dayEntries.length across all dbFiles (grows as each file starts)
+	let doneDaysAll = 0;  // total individual days processed so far (across all files)
 	const results = await mapLimit(dbFiles, DBFILE_CONCURRENCY, async (dbFile) => {
 		try {
 			const r = await processDbFile(dbFile); // array
