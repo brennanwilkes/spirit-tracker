@@ -655,7 +655,7 @@ export async function renderItem($app, skuInput) {
 	const NET_CONCURRENCY = isSlowNet ? 8 : 16;
 	const limitNet = makeLimiter(NET_CONCURRENCY);
 
-	const MAX_POINTS = 260;
+	const MAX_POINTS = window.innerWidth <= 640 ? 7 : 260;
 
 	// process ONE dbFile, but return MULTIPLE series: one per skuKey that exists in this file
 	async function processDbFile(dbFile) {
