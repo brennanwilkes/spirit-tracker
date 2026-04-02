@@ -117,9 +117,8 @@ function legacyProductToItem(p, ctx) {
 	if (!slug) return null;
 
 	const base = "https://www.legacyliquorstore.com";
-	// Matches observed pattern: /LL/product/spirits/<category>/<slug>
 	const url = new URL(
-		`/LL/product/spirits/${encodeURIComponent(ctx.cat.key)}/${encodeURIComponent(slug)}`,
+		`/product/spirits/${encodeURIComponent(slug)}`,
 		base,
 	).toString();
 
@@ -167,6 +166,23 @@ async function legacyFetchPage(ctx, pageCursor, pageLimit) {
 	};
 
 	return await shopifyGqlPost(ctx, LEGACY_GQL_URL, `legacy:${ctx.cat.key}:${pageCursor || "first"}`, PRODUCTS_QUERY, variables);
+}
+
+function upgradeOldLegacyUrls(prevDb) {
+	const hasOld = prevDb?.byUrl && [...prevDb.byUrl.keys()].some(
+		u => /\/LL\/product\/spirits\//.test(u)
+	);
+	if (!hasOld) return prevDb;
+
+	const newByUrl = new Map();
+	for (const [url, item] of prevDb.byUrl.entries()) {
+		const upgraded = url.replace(
+			/^(https?:\/\/[^/]+)\/LL\/product\/spirits\/[^/]+\/(.+)$/,
+			"$1/product/spirits/$2"
+		);
+		newByUrl.set(upgraded, upgraded !== url ? { ...item, url: upgraded } : item);
+	}
+	return { ...prevDb, byUrl: newByUrl };
 }
 
 async function scanCategoryLegacyLiquor(ctx, prevDb, report) {
@@ -217,7 +233,7 @@ async function scanCategoryLegacyLiquor(ctx, prevDb, report) {
 		cursor = next;
 	}
 
-	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: Math.max(1, page) });
+	finalizeCategoryScan(ctx, upgradeOldLegacyUrls(prevDb), discovered, report, { t0, scannedPages: Math.max(1, page) });
 }
 
 function createStore(defaultUa) {
