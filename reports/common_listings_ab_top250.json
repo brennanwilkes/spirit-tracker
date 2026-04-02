@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-02T04:37:59.276Z",
+  "generatedAt": "2026-04-02T07:21:59.728Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9076,
-    "removedRows": 1144,
-    "canonSkus": 5261,
+    "liveRows": 9109,
+    "removedRows": 1138,
+    "canonSkus": 5274,
     "outputCount": 250
   },
   "rows": [
+    {
+      "canonSku": "349670",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 82.99,
+        "coop": 92.99,
+        "craftcellars": 92.99,
+        "kegncork": 93.96,
+        "kwm": 94.99,
+        "maltsandgrains": 98.43,
+        "sierrasprings": 76.09,
+        "willowpark": 88.99
+      },
+      "representative": {
+        "name": "GLENFARCLAS 12 YR 43%",
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "349670",
+        "skuKey": "349670",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
+      }
+    },
     {
       "canonSku": "368456",
       "storeCount": 8,
@@ -374,6 +417,49 @@
         "priceNum": 83.7,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/single-malt-whiskey/tamdhu-12-year-old-700ml/"
+      }
+    },
+    {
+      "canonSku": "074548",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 75.99,
+        "craftcellars": 59.99,
+        "kegncork": 76.96,
+        "kwm": 79.99,
+        "maltsandgrains": 84.9,
+        "sierrasprings": 74.18
+      },
+      "representative": {
+        "name": "Benromach 10 Year Old Speyside Single Malt",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "837223",
+        "skuKey": "837223",
+        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv"
       }
     },
     {
@@ -913,7 +999,7 @@
         "craftcellars": 50.99,
         "kegncork": 50.96,
         "maltsandgrains": 49.9,
-        "sierrasprings": 44.99,
+        "sierrasprings": 57.04,
         "willowpark": 34.99
       },
       "representative": {
@@ -1065,49 +1151,6 @@
       }
     },
     {
-      "canonSku": "349670",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kwm"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "coop": 92.99,
-        "craftcellars": 92.99,
-        "kegncork": 93.96,
-        "maltsandgrains": 98.43,
-        "sierrasprings": 76.09,
-        "willowpark": 88.99
-      },
-      "representative": {
-        "name": "GLENFARCLAS 12 YR 43%",
-        "price": "$76.09",
-        "priceNum": 76.09,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "349670",
-        "skuKey": "349670",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$76.09",
-        "priceNum": 76.09,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
-      }
-    },
-    {
       "canonSku": "380717",
       "storeCount": 7,
       "stores": [
@@ -1148,6 +1191,92 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfarclas-15-year-old-1"
+      }
+    },
+    {
+      "canonSku": "444190",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 80.99,
+        "coop": 84.99,
+        "craftcellars": 83.99,
+        "kegncork": 71.96,
+        "kwm": 84.99,
+        "sierrasprings": 71.32,
+        "willowpark": 64.99
+      },
+      "representative": {
+        "name": "Glengoyne 10 Year Old Highland Single Malt Scotch Whisky",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "444190",
+        "skuKey": "444190",
+        "url": "https://www.willowpark.net/products/aglc-glengoyne-10yr-444190",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/aglc-glengoyne-10yr-444190"
+      }
+    },
+    {
+      "canonSku": "448826",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 84.99,
+        "craftcellars": 86.99,
+        "kegncork": 84.96,
+        "kwm": 89.99,
+        "maltsandgrains": 87.17,
+        "sierrasprings": 94.18
+      },
+      "representative": {
+        "name": "Glen Scotia 10 Year Old",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "880542",
+        "skuKey": "880542",
+        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt"
       }
     },
     {
@@ -1704,48 +1833,6 @@
         "priceNum": 114.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
-      }
-    },
-    {
-      "canonSku": "074548",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 75.99,
-        "craftcellars": 59.99,
-        "kwm": 79.99,
-        "maltsandgrains": 84.9,
-        "sierrasprings": 74.18
-      },
-      "representative": {
-        "name": "Benromach 10 Year Old Speyside Single Malt",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "837223",
-        "skuKey": "837223",
-        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv"
       }
     },
     {
@@ -2925,48 +3012,6 @@
       }
     },
     {
-      "canonSku": "444190",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 80.99,
-        "coop": 84.99,
-        "craftcellars": 83.99,
-        "kwm": 84.99,
-        "sierrasprings": 71.32,
-        "willowpark": 64.99
-      },
-      "representative": {
-        "name": "Glengoyne 10 Year Old Highland Single Malt Scotch Whisky",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "444190",
-        "skuKey": "444190",
-        "url": "https://www.willowpark.net/products/aglc-glengoyne-10yr-444190",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/aglc-glengoyne-10yr-444190"
-      }
-    },
-    {
       "canonSku": "445665",
       "storeCount": 6,
       "stores": [
@@ -3006,48 +3051,6 @@
         "priceNum": 121,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-the-organic-2011"
-      }
-    },
-    {
-      "canonSku": "448826",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 84.99,
-        "craftcellars": 86.99,
-        "kegncork": 84.96,
-        "maltsandgrains": 87.17,
-        "sierrasprings": 94.18
-      },
-      "representative": {
-        "name": "Glen Scotia 10 Year Old",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "880542",
-        "skuKey": "880542",
-        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt"
       }
     },
     {
@@ -3426,6 +3429,48 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/high-west-rendevous-rye"
+      }
+    },
+    {
+      "canonSku": "636845",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 92.99,
+        "craftcellars": 106.99,
+        "kegncork": 104.96,
+        "kwm": 107.99,
+        "maltsandgrains": 112.71,
+        "sierrasprings": 82.75
+      },
+      "representative": {
+        "name": "REDBREAST 12 YEAR OLD 40%",
+        "price": "$82.75",
+        "priceNum": 82.75,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "636845",
+        "skuKey": "636845",
+        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+      },
+      "cheapest": {
+        "price": "$82.75",
+        "priceNum": 82.75,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/"
       }
     },
     {
@@ -5373,47 +5418,6 @@
         "priceNum": 112,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/tomintoul-14-year-old"
-      }
-    },
-    {
-      "canonSku": "117308",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 140,
-        "coop": 169.99,
-        "craftcellars": 106.99,
-        "kwm": 169.99,
-        "sierrasprings": 164.66
-      },
-      "representative": {
-        "name": "High West Midwinter Nights Dram Act 12",
-        "price": "$106.99",
-        "priceNum": 106.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "117308",
-        "skuKey": "117308",
-        "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$106.99",
-        "priceNum": 106.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv"
       }
     },
     {
@@ -7546,47 +7550,6 @@
         "priceNum": 34.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/buffalo-trace"
-      }
-    },
-    {
-      "canonSku": "636845",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 92.99,
-        "craftcellars": 106.99,
-        "kegncork": 104.96,
-        "maltsandgrains": 112.71,
-        "sierrasprings": 82.75
-      },
-      "representative": {
-        "name": "REDBREAST 12 YEAR OLD 40%",
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "636845",
-        "skuKey": "636845",
-        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/"
       }
     },
     {
@@ -9943,6 +9906,46 @@
         "priceNum": 99.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bunnahabhain-toiteach-a-dha-1"
+      }
+    },
+    {
+      "canonSku": "117308",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 140,
+        "coop": 169.99,
+        "craftcellars": 106.99,
+        "sierrasprings": 164.66
+      },
+      "representative": {
+        "name": "High West Midwinter Nights Dram Act 12",
+        "price": "$106.99",
+        "priceNum": 106.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "117308",
+        "skuKey": "117308",
+        "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$106.99",
+        "priceNum": 106.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv"
       }
     },
     {

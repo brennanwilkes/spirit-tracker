@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-02T04:37:58.978Z",
+  "generatedAt": "2026-04-02T07:21:59.428Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9076,
-    "removedRows": 1144,
-    "canonSkus": 5261,
+    "liveRows": 9109,
+    "removedRows": 1138,
+    "canonSkus": 5274,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "349670",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 82.99,
+        "coop": 92.99,
+        "craftcellars": 92.99,
+        "kegncork": 93.96,
+        "kwm": 94.99,
+        "maltsandgrains": 98.43,
+        "sierrasprings": 76.09,
+        "willowpark": 88.99
+      },
+      "representative": {
+        "name": "GLENFARCLAS 12 YR 43%",
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "349670",
+        "skuKey": "349670",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
+      }
+    },
     {
       "canonSku": "368456",
       "storeCount": 8,
@@ -374,6 +417,49 @@
         "priceNum": 83.7,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/single-malt-whiskey/tamdhu-12-year-old-700ml/"
+      }
+    },
+    {
+      "canonSku": "074548",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 75.99,
+        "craftcellars": 59.99,
+        "kegncork": 76.96,
+        "kwm": 79.99,
+        "maltsandgrains": 84.9,
+        "sierrasprings": 74.18
+      },
+      "representative": {
+        "name": "Benromach 10 Year Old Speyside Single Malt",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "837223",
+        "skuKey": "837223",
+        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv"
       }
     },
     {
@@ -870,7 +956,7 @@
         "craftcellars": 50.99,
         "kegncork": 50.96,
         "maltsandgrains": 49.9,
-        "sierrasprings": 44.99,
+        "sierrasprings": 57.04,
         "willowpark": 34.99
       },
       "representative": {
@@ -1019,49 +1105,6 @@
         "priceNum": 44.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/knob-creek-bourbon"
-      }
-    },
-    {
-      "canonSku": "349670",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kwm"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "coop": 92.99,
-        "craftcellars": 92.99,
-        "kegncork": 93.96,
-        "maltsandgrains": 98.43,
-        "sierrasprings": 76.09,
-        "willowpark": 88.99
-      },
-      "representative": {
-        "name": "GLENFARCLAS 12 YR 43%",
-        "price": "$76.09",
-        "priceNum": 76.09,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "349670",
-        "skuKey": "349670",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$76.09",
-        "priceNum": 76.09,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
       }
     },
     {
@@ -1618,48 +1661,6 @@
         "priceNum": 114.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
-      }
-    },
-    {
-      "canonSku": "074548",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 75.99,
-        "craftcellars": 59.99,
-        "kwm": 79.99,
-        "maltsandgrains": 84.9,
-        "sierrasprings": 74.18
-      },
-      "representative": {
-        "name": "Benromach 10 Year Old Speyside Single Malt",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "837223",
-        "skuKey": "837223",
-        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv"
       }
     },
     {
