@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-02T19:20:07.602Z",
+  "generatedAt": "2026-04-02T22:03:14.307Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13553,
-    "removedRows": 1469,
-    "canonSkus": 6364,
+    "liveRows": 13556,
+    "removedRows": 1568,
+    "canonSkus": 6290,
     "outputCount": 50
   },
   "rows": [
@@ -1076,6 +1076,63 @@
       }
     },
     {
+      "canonSku": "677666",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "sierrasprings",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 74.99,
+        "bcl": 79.99,
+        "bsw": 64.99,
+        "coop": 74.99,
+        "craftcellars": 73.99,
+        "gull": 82.99,
+        "kegncork": 73.96,
+        "kwm": 74.99,
+        "legacyliquor": 84.51,
+        "maltsandgrains": 67.48,
+        "strath": 80.05,
+        "tudor": 79.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Ledaig 10 Year Old",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "752144",
+        "skuKey": "752144",
+        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
+      }
+    },
+    {
       "canonSku": "780196",
       "storeCount": 13,
       "stores": [
@@ -1737,15 +1794,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "741531",
         "skuKey": "741531",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
       },
       "cheapest": {
         "price": "$133.23",
         "priceNum": 133.23,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
       }
     },
     {
@@ -1802,62 +1859,6 @@
         "priceNum": 52.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591124-auchentoshan-12yo"
-      }
-    },
-    {
-      "canonSku": "677666",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 74.99,
-        "bcl": 79.99,
-        "bsw": 64.99,
-        "coop": 74.99,
-        "gull": 82.99,
-        "kegncork": 73.96,
-        "kwm": 74.99,
-        "legacyliquor": 84.51,
-        "maltsandgrains": 67.48,
-        "strath": 80.05,
-        "tudor": 79.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "Ledaig 10 Year Old",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "752144",
-        "skuKey": "752144",
-        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
       }
     },
     {
@@ -2057,7 +2058,7 @@
         "craftcellars": 37.99,
         "gull": 26.99,
         "legacyliquor": 31.99,
-        "sierrasprings": 29.99,
+        "sierrasprings": 33.99,
         "strath": 31.31,
         "vessel": 28.99,
         "vintage": 33.39

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-02T19:20:08.002Z",
+  "generatedAt": "2026-04-02T22:03:14.694Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13553,
-    "removedRows": 1469,
-    "canonSkus": 6364,
+    "liveRows": 13556,
+    "removedRows": 1568,
+    "canonSkus": 6290,
     "outputCount": 250
   },
   "rows": [
@@ -1133,6 +1133,63 @@
       }
     },
     {
+      "canonSku": "677666",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "sierrasprings",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 74.99,
+        "bcl": 79.99,
+        "bsw": 64.99,
+        "coop": 74.99,
+        "craftcellars": 73.99,
+        "gull": 82.99,
+        "kegncork": 73.96,
+        "kwm": 74.99,
+        "legacyliquor": 84.51,
+        "maltsandgrains": 67.48,
+        "strath": 80.05,
+        "tudor": 79.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Ledaig 10 Year Old",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "752144",
+        "skuKey": "752144",
+        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
+      }
+    },
+    {
       "canonSku": "780196",
       "storeCount": 13,
       "stores": [
@@ -1906,71 +1963,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "741531",
         "skuKey": "741531",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
       },
       "cheapest": {
         "price": "$133.23",
         "priceNum": 133.23,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
-      }
-    },
-    {
-      "canonSku": "636845",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 92.99,
-        "bcl": 90.99,
-        "bsw": 92.99,
-        "craftcellars": 106.99,
-        "gull": 99.99,
-        "kegncork": 104.96,
-        "kwm": 107.99,
-        "legacyliquor": 98.99,
-        "maltsandgrains": 112.71,
-        "sierrasprings": 82.75,
-        "tudor": 94.99,
-        "vessel": 95.99
-      },
-      "representative": {
-        "name": "REDBREAST 12 YEAR OLD 40%",
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "636845",
-        "skuKey": "636845",
-        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/"
+        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
       }
     },
     {
@@ -2027,62 +2028,6 @@
         "priceNum": 52.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591124-auchentoshan-12yo"
-      }
-    },
-    {
-      "canonSku": "677666",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 74.99,
-        "bcl": 79.99,
-        "bsw": 64.99,
-        "coop": 74.99,
-        "gull": 82.99,
-        "kegncork": 73.96,
-        "kwm": 74.99,
-        "legacyliquor": 84.51,
-        "maltsandgrains": 67.48,
-        "strath": 80.05,
-        "tudor": 79.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "Ledaig 10 Year Old",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "752144",
-        "skuKey": "752144",
-        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
       }
     },
     {
@@ -2282,7 +2227,7 @@
         "craftcellars": 37.99,
         "gull": 26.99,
         "legacyliquor": 31.99,
-        "sierrasprings": 29.99,
+        "sierrasprings": 33.99,
         "strath": 31.31,
         "vessel": 28.99,
         "vintage": 33.39
@@ -3120,15 +3065,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "349670",
         "skuKey": "349670",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://sierraspringsliquor.ca/shop/other/glenfarclas-12-year-old-43-abv/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
       },
       "cheapest": {
         "price": "$76.09",
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/other/glenfarclas-12-year-old-43-abv/"
       }
     },
     {
@@ -3404,6 +3349,61 @@
         "priceNum": 99.9,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/oban-little-bay-43-abv/"
+      }
+    },
+    {
+      "canonSku": "636845",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 92.99,
+        "bcl": 90.99,
+        "bsw": 92.99,
+        "craftcellars": 106.99,
+        "gull": 99.99,
+        "kegncork": 104.96,
+        "kwm": 107.99,
+        "legacyliquor": 98.99,
+        "maltsandgrains": 112.71,
+        "tudor": 94.99,
+        "vessel": 95.99
+      },
+      "representative": {
+        "name": "REDBREAST 12 YEAR OLD SINGLE POT STILL",
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "636845",
+        "skuKey": "636845",
+        "url": "https://www.bcliquorstores.com/product/636845",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/636845"
       }
     },
     {
@@ -8097,58 +8097,6 @@
       }
     },
     {
-      "canonSku": "083097",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "kwm",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 6.49,
-        "bcl": 6.79,
-        "bsw": 8.69,
-        "gull": 7.05,
-        "kwm": 8.59,
-        "sierrasprings": 6.56,
-        "tudor": 21.99,
-        "vessel": 6.99
-      },
-      "representative": {
-        "name": "ALBERTA PREMIUM 200ML",
-        "price": "$6.49",
-        "priceNum": 6.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "083097",
-        "skuKey": "083097",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591700-alberta-premium-200ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$6.49",
-        "priceNum": 6.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591700-alberta-premium-200ml"
-      }
-    },
-    {
       "canonSku": "099449",
       "storeCount": 8,
       "stores": [
@@ -9134,58 +9082,6 @@
         "priceNum": 110,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/old-pulteney-15-year-old"
-      }
-    },
-    {
-      "canonSku": "195651",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 71.99,
-        "bsw": 79.99,
-        "coop": 79.99,
-        "craftcellars": 81.99,
-        "kwm": 74.99,
-        "sierrasprings": 72.99,
-        "strath": 73.44,
-        "tudor": 76.99
-      },
-      "representative": {
-        "name": "FORTY CREEK - CONFEDERATION OAK RESERVE",
-        "price": "$71.99",
-        "priceNum": 71.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "471235",
-        "skuKey": "471235",
-        "url": "https://www.bcliquorstores.com/product/471235",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$71.99",
-        "priceNum": 71.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/471235"
       }
     },
     {
@@ -10529,15 +10425,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "782668",
         "skuKey": "782668",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://sierraspringsliquor.ca/shop/other/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
       },
       "cheapest": {
         "price": "$45.60",
         "priceNum": 45.6,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/other/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/"
       }
     },
     {
@@ -10642,58 +10538,6 @@
         "priceNum": 55.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591053-jameson-black-barrel"
-      }
-    },
-    {
-      "canonSku": "647834",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 70.99,
-        "bsw": 56.99,
-        "coop": 64.99,
-        "gull": 69.99,
-        "legacyliquor": 74.35,
-        "sierrasprings": 71.32,
-        "tudor": 67.99,
-        "vessel": 67.49
-      },
-      "representative": {
-        "name": "The Glenlivet Founder's Reserve",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "769635",
-        "skuKey": "769635",
-        "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1"
       }
     },
     {
@@ -11043,15 +10887,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "743098",
         "skuKey": "743098",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv-3/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://sierraspringsliquor.ca/shop/other/alberta-premium-40-abv-3/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
       },
       "cheapest": {
         "price": "$30.99",
         "priceNum": 30.99,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv-3/"
+        "url": "https://sierraspringsliquor.ca/shop/other/alberta-premium-40-abv-3/"
       }
     },
     {
@@ -11310,57 +11154,6 @@
       }
     },
     {
-      "canonSku": "009043",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 18.29,
-        "bcl": 18.49,
-        "bsw": 21.99,
-        "gull": 19.99,
-        "sierrasprings": 17.04,
-        "tudor": 27.99,
-        "vessel": 18.99
-      },
-      "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$17.04",
-        "priceNum": 17.04,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "009043",
-        "skuKey": "009043",
-        "url": "https://sierraspringsliquor.ca/shop/other/crown-royal-2/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$17.04",
-        "priceNum": 17.04,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/crown-royal-2/"
-      }
-    },
-    {
       "canonSku": "035238",
       "storeCount": 7,
       "stores": [
@@ -11409,6 +11202,57 @@
         "priceNum": 41.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5079954-the-famous-grouse-1-14l"
+      }
+    },
+    {
+      "canonSku": "083097",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "kwm",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 6.49,
+        "bcl": 6.79,
+        "bsw": 8.69,
+        "gull": 7.05,
+        "kwm": 8.59,
+        "tudor": 21.99,
+        "vessel": 6.99
+      },
+      "representative": {
+        "name": "ALBERTA PREMIUM 200ML",
+        "price": "$6.49",
+        "priceNum": 6.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "083097",
+        "skuKey": "083097",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591700-alberta-premium-200ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$6.49",
+        "priceNum": 6.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591700-alberta-premium-200ml"
       }
     },
     {
@@ -12891,6 +12735,57 @@
       }
     },
     {
+      "canonSku": "195651",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 71.99,
+        "bsw": 79.99,
+        "coop": 79.99,
+        "craftcellars": 81.99,
+        "kwm": 74.99,
+        "strath": 73.44,
+        "tudor": 76.99
+      },
+      "representative": {
+        "name": "FORTY CREEK - CONFEDERATION OAK RESERVE",
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "471235",
+        "skuKey": "471235",
+        "url": "https://www.bcliquorstores.com/product/471235",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/471235"
+      }
+    },
+    {
       "canonSku": "205164",
       "storeCount": 7,
       "stores": [
@@ -13146,6 +13041,57 @@
       }
     },
     {
+      "canonSku": "647834",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 70.99,
+        "bsw": 56.99,
+        "coop": 64.99,
+        "gull": 69.99,
+        "legacyliquor": 74.35,
+        "tudor": 67.99,
+        "vessel": 67.49
+      },
+      "representative": {
+        "name": "The Glenlivet Founder's Reserve",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "769635",
+        "skuKey": "769635",
+        "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1"
+      }
+    },
+    {
       "canonSku": "817192",
       "storeCount": 7,
       "stores": [
@@ -13194,6 +13140,56 @@
         "priceNum": 62.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/loch-lomond-12-yr"
+      }
+    },
+    {
+      "canonSku": "009043",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 18.29,
+        "bcl": 18.49,
+        "bsw": 21.99,
+        "gull": 19.99,
+        "tudor": 27.99,
+        "vessel": 18.99
+      },
+      "representative": {
+        "name": "CROWN ROYAL 375ML",
+        "price": "$18.29",
+        "priceNum": 18.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "009043",
+        "skuKey": "009043",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591990-crown-royal-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$18.29",
+        "priceNum": 18.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591990-crown-royal-375ml"
       }
     },
     {
