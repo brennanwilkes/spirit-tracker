@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-02T18:50:29.459Z",
+  "generatedAt": "2026-04-02T19:20:07.602Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13548,
-    "removedRows": 1473,
-    "canonSkus": 6370,
+    "liveRows": 13553,
+    "removedRows": 1469,
+    "canonSkus": 6364,
     "outputCount": 50
   },
   "rows": [
@@ -1048,7 +1048,7 @@
         "coop": 104.99,
         "craftcellars": 106.99,
         "kegncork": 101.96,
-        "kwm": 72.79,
+        "kwm": 103.99,
         "legacyliquor": 110.8,
         "maltsandgrains": 107.48,
         "sierrasprings": 98.94,
@@ -1057,22 +1057,22 @@
         "vessel": 99.99
       },
       "representative": {
-        "name": "Lagavulin 8 Year",
-        "price": "$72.79",
-        "priceNum": 72.79,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Lagavulin 8 Year Old",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "780828",
         "skuKey": "780828",
-        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$72.79",
-        "priceNum": 72.79,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year"
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1"
       }
     },
     {
@@ -1858,6 +1858,117 @@
         "priceNum": 64.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
+      }
+    },
+    {
+      "canonSku": "783842",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 55.59,
+        "bcl": 57.99,
+        "bsw": 60.99,
+        "coop": 59.99,
+        "craftcellars": 61.99,
+        "gull": 57.99,
+        "kegncork": 67.96,
+        "kwm": 61.99,
+        "legacyliquor": 59.99,
+        "tudor": 57.99,
+        "vessel": 59.99,
+        "willowpark": 58.99
+      },
+      "representative": {
+        "name": "MONKEY SHOULDER",
+        "price": "$55.59",
+        "priceNum": 55.59,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "789768",
+        "skuKey": "789768",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$55.59",
+        "priceNum": 55.59,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
+      }
+    },
+    {
+      "canonSku": "000984",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 23.99,
+        "bcl": 23.49,
+        "bsw": 22.99,
+        "coop": 27.99,
+        "craftcellars": 28.99,
+        "gull": 25,
+        "kwm": 27.99,
+        "legacyliquor": 24.99,
+        "sierrasprings": 19.04,
+        "tudor": 21.99,
+        "vessel": 22.49
+      },
+      "representative": {
+        "name": "Alberta Premium (40% abv)",
+        "price": "$19.04",
+        "priceNum": 19.04,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "000984",
+        "skuKey": "000984",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$19.04",
+        "priceNum": 19.04,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/"
       }
     },
     {
@@ -2683,115 +2794,6 @@
         "priceNum": 59.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
-      }
-    },
-    {
-      "canonSku": "783842",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 55.59,
-        "bcl": 57.99,
-        "bsw": 60.99,
-        "coop": 59.99,
-        "craftcellars": 61.99,
-        "gull": 57.99,
-        "kegncork": 67.96,
-        "kwm": 61.99,
-        "legacyliquor": 59.99,
-        "vessel": 59.99,
-        "willowpark": 58.99
-      },
-      "representative": {
-        "name": "MONKEY SHOULDER",
-        "price": "$55.59",
-        "priceNum": 55.59,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "789768",
-        "skuKey": "789768",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$55.59",
-        "priceNum": 55.59,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
-      }
-    },
-    {
-      "canonSku": "000984",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 23.99,
-        "bcl": 23.49,
-        "bsw": 22.99,
-        "craftcellars": 28.99,
-        "gull": 25,
-        "kwm": 27.99,
-        "legacyliquor": 24.99,
-        "sierrasprings": 19.04,
-        "tudor": 21.99,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "Alberta Premium (40% abv)",
-        "price": "$19.04",
-        "priceNum": 19.04,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "000984",
-        "skuKey": "000984",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$19.04",
-        "priceNum": 19.04,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/alberta-premium-40-abv/"
       }
     },
     {
