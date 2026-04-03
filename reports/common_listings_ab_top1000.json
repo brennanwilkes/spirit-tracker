@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-03T01:17:02.185Z",
+  "generatedAt": "2026-04-03T04:43:37.984Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9183,
-    "removedRows": 1167,
-    "canonSkus": 5251,
+    "liveRows": 9112,
+    "removedRows": 1238,
+    "canonSkus": 5195,
     "outputCount": 1000
   },
   "rows": [
@@ -5301,47 +5301,6 @@
       }
     },
     {
-      "canonSku": "110291",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 225,
-        "craftcellars": 179.99,
-        "kegncork": 224.96,
-        "kwm": 225.99,
-        "sierrasprings": 190.48
-      },
-      "representative": {
-        "name": "Glengoyne 18 Year Old",
-        "price": "$179.99",
-        "priceNum": 179.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "133765",
-        "skuKey": "133765",
-        "url": "https://craftcellars.ca/products/glengoyne-18-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$179.99",
-        "priceNum": 179.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glengoyne-18-year-old"
-      }
-    },
-    {
       "canonSku": "111946",
       "storeCount": 5,
       "stores": [
@@ -9868,25 +9827,25 @@
         "bsw": 32.99,
         "coop": 36.99,
         "craftcellars": 37.99,
-        "sierrasprings": 29.99
+        "sierrasprings": 33.99
       },
       "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Crown Royal Canadian Whisky 750ml",
+        "price": "$32.99",
+        "priceNum": 32.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "001487",
         "skuKey": "001487",
-        "url": "https://sierraspringsliquor.ca/shop/other/crown-royal/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://www.bswliquor.com/products/crown-royal-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/crown-royal/"
+        "price": "$32.99",
+        "priceNum": 32.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/crown-royal-whisky"
       }
     },
     {
@@ -11250,6 +11209,46 @@
       }
     },
     {
+      "canonSku": "110291",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 225,
+        "craftcellars": 179.99,
+        "kegncork": 224.96,
+        "kwm": 225.99
+      },
+      "representative": {
+        "name": "Glengoyne 18 Year Old",
+        "price": "$179.99",
+        "priceNum": 179.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "133765",
+        "skuKey": "133765",
+        "url": "https://craftcellars.ca/products/glengoyne-18-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$179.99",
+        "priceNum": 179.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glengoyne-18-year-old"
+      }
+    },
+    {
       "canonSku": "110765",
       "storeCount": 4,
       "stores": [
@@ -11847,46 +11846,6 @@
         "priceNum": 39.9,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/eau-claire-stampede-rye-whisky-cls/"
-      }
-    },
-    {
-      "canonSku": "127327",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 99.99,
-        "kegncork": 97.96,
-        "kwm": 99.99,
-        "sierrasprings": 92.99
-      },
-      "representative": {
-        "name": "FORTY CREEK TRIPLE",
-        "price": "$92.99",
-        "priceNum": 92.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "127327",
-        "skuKey": "127327",
-        "url": "https://sierraspringsliquor.ca/shop/other/forty-creek-triple/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$92.99",
-        "priceNum": 92.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/forty-creek-triple/"
       }
     },
     {
@@ -16607,46 +16566,6 @@
         "priceNum": 53.23,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/rye/basil-haydens-dark-rye-40-abv/"
-      }
-    },
-    {
-      "canonSku": "795231",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 230,
-        "craftcellars": 227.99,
-        "kegncork": 229.96,
-        "sierrasprings": 179.89
-      },
-      "representative": {
-        "name": "Pendleton Directors Reserve 20 Year Old Canadian Whisky",
-        "price": "$227.99",
-        "priceNum": 227.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "795231",
-        "skuKey": "795231",
-        "url": "https://craftcellars.ca/products/pendleton-directors-reserve-20-year-old-canadian-whisky-40-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$179.89",
-        "priceNum": 179.89,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/pendleton-directors-reserve-40/"
       }
     },
     {
@@ -22463,6 +22382,45 @@
         "priceNum": 36.99,
         "storeKey": "coop",
         "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/worldofwhisky#/product/4576"
+      }
+    },
+    {
+      "canonSku": "127327",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "kegncork": 97.96,
+        "kwm": 99.99
+      },
+      "representative": {
+        "name": "Forty Creek - Niagara Triple Reserve",
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "127327",
+        "skuKey": "127327",
+        "url": "https://www.bswliquor.com/products/forty-creek-niagara-triple-reserve",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$97.96",
+        "priceNum": 97.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/forty-creek-niagara-triple-reserve-750-ml/"
       }
     },
     {
@@ -29564,6 +29522,45 @@
       }
     },
     {
+      "canonSku": "795231",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 230,
+        "craftcellars": 227.99,
+        "kegncork": 229.96
+      },
+      "representative": {
+        "name": "Pendleton Directors Reserve 20 Year Old Canadian Whisky",
+        "price": "$227.99",
+        "priceNum": 227.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "795231",
+        "skuKey": "795231",
+        "url": "https://craftcellars.ca/products/pendleton-directors-reserve-20-year-old-canadian-whisky-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$227.99",
+        "priceNum": 227.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/pendleton-directors-reserve-20-year-old-canadian-whisky-40-abv"
+      }
+    },
+    {
       "canonSku": "799722",
       "storeCount": 3,
       "stores": [
@@ -35795,22 +35792,22 @@
         "sierrasprings": 53.09
       },
       "representative": {
-        "name": "CANADIAN CLUB PREMIUM 1.75L",
+        "name": "Canadian Club (40% abv) 1.75",
         "price": "$53.09",
         "priceNum": 53.09,
         "storeKey": "sierrasprings",
         "storeLabel": "Sierra Springs",
         "skuRaw": "034637",
         "skuKey": "034637",
-        "url": "https://sierraspringsliquor.ca/shop/other/canadian-club-premium-3/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/canadian-club-40-abv-3/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$53.09",
         "priceNum": 53.09,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/canadian-club-premium-3/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/canadian-club-40-abv-3/"
       }
     },
     {
