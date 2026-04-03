@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-03T07:21:50.092Z",
+  "generatedAt": "2026-04-03T19:16:15.943Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13530,
-    "removedRows": 1624,
-    "canonSkus": 6284,
+    "liveRows": 13563,
+    "removedRows": 1613,
+    "canonSkus": 6305,
     "outputCount": 50
   },
   "rows": [
@@ -1524,6 +1524,62 @@
       }
     },
     {
+      "canonSku": "224496",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "willowpark"
+      ],
+      "missingStores": [
+        "gull",
+        "sierrasprings",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 183.09,
+        "bcl": 194.99,
+        "bsw": 185,
+        "coop": 218.99,
+        "craftcellars": 165.99,
+        "kegncork": 199.96,
+        "kwm": 211.99,
+        "legacyliquor": 204.48,
+        "maltsandgrains": 210.29,
+        "strath": 189.92,
+        "tudor": 205.99,
+        "willowpark": 209.99
+      },
+      "representative": {
+        "name": "Glen Grant 18 Year Old",
+        "price": "$165.99",
+        "priceNum": 165.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "794243",
+        "skuKey": "794243",
+        "url": "https://craftcellars.ca/products/glen-grant-18-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$165.99",
+        "priceNum": 165.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glen-grant-18-year-old"
+      }
+    },
+    {
       "canonSku": "238097",
       "storeCount": 12,
       "stores": [
@@ -2682,61 +2738,6 @@
         "priceNum": 62.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/highland-park-orkney-single-malt-12-year-old-43-abv"
-      }
-    },
-    {
-      "canonSku": "224496",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "gull",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 183.09,
-        "bcl": 194.99,
-        "bsw": 185,
-        "coop": 218.99,
-        "craftcellars": 165.99,
-        "kegncork": 199.96,
-        "kwm": 211.99,
-        "legacyliquor": 204.48,
-        "strath": 189.92,
-        "tudor": 205.99,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Glen Grant 18 Year Old",
-        "price": "$165.99",
-        "priceNum": 165.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "794243",
-        "skuKey": "794243",
-        "url": "https://craftcellars.ca/products/glen-grant-18-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$165.99",
-        "priceNum": 165.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glen-grant-18-year-old"
       }
     },
     {
