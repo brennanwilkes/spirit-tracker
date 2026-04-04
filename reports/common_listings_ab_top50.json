@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-04T07:25:38.185Z",
+  "generatedAt": "2026-04-04T19:18:41.066Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9079,
-    "removedRows": 1302,
-    "canonSkus": 5191,
+    "liveRows": 9054,
+    "removedRows": 1328,
+    "canonSkus": 5182,
     "outputCount": 50
   },
   "rows": [
@@ -119,49 +119,6 @@
       }
     },
     {
-      "canonSku": "413410",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "craftcellars": 72.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "sierrasprings": 107.51,
-        "willowpark": 119.99
-      },
-      "representative": {
-        "name": "Glendronach 12 Year Old",
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv"
-      }
-    },
-    {
       "canonSku": "736561",
       "storeCount": 8,
       "stores": [
@@ -245,49 +202,6 @@
         "priceNum": 89.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-la-santa-12-year-old"
-      }
-    },
-    {
-      "canonSku": "002838",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop"
-      ],
-      "storePrices": {
-        "bsw": 84.99,
-        "craftcellars": 80.99,
-        "kegncork": 114.96,
-        "kwm": 87.29,
-        "maltsandgrains": 120.89,
-        "sierrasprings": 104.66,
-        "willowpark": 117.49
-      },
-      "representative": {
-        "name": "Bruichladdich Port Charlotte 10",
-        "price": "$80.99",
-        "priceNum": 80.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "806524",
-        "skuKey": "806524",
-        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$80.99",
-        "priceNum": 80.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10"
       }
     },
     {
@@ -1108,6 +1022,49 @@
       }
     },
     {
+      "canonSku": "413410",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
+      }
+    },
+    {
       "canonSku": "530352",
       "storeCount": 7,
       "stores": [
@@ -1449,6 +1406,48 @@
         "priceNum": 62.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bunnahabhain-stuiereadair"
+      }
+    },
+    {
+      "canonSku": "002838",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "kegncork": 114.96,
+        "kwm": 87.29,
+        "maltsandgrains": 120.89,
+        "sierrasprings": 104.66,
+        "willowpark": 117.49
+      },
+      "representative": {
+        "name": "Bruichladdich Port Charlotte 10 Year Old",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "806524",
+        "skuKey": "806524",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
       }
     },
     {
