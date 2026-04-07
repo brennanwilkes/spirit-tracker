@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-07T01:14:32.397Z",
+  "generatedAt": "2026-04-07T04:40:20.826Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9041,
-    "removedRows": 1590,
-    "canonSkus": 5168,
+    "liveRows": 9159,
+    "removedRows": 1473,
+    "canonSkus": 5193,
     "outputCount": 50
   },
   "rows": [
@@ -1577,48 +1577,6 @@
       }
     },
     {
-      "canonSku": "092466",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "coop": 69.99,
-        "craftcellars": 53.99,
-        "kegncork": 69.96,
-        "maltsandgrains": 73.35,
-        "sierrasprings": 66.99
-      },
-      "representative": {
-        "name": "Old Forester 1870 Original Batch",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "834326",
-        "skuKey": "834326",
-        "url": "https://craftcellars.ca/products/old-forester-1870-original-batch-45-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/old-forester-1870-original-batch-45-abv"
-      }
-    },
-    {
       "canonSku": "101967",
       "storeCount": 6,
       "stores": [
@@ -2078,6 +2036,47 @@
         "priceNum": 79.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
+      }
+    },
+    {
+      "canonSku": "092466",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kwm",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 62.99,
+        "coop": 69.99,
+        "kegncork": 69.96,
+        "maltsandgrains": 73.35,
+        "sierrasprings": 66.99
+      },
+      "representative": {
+        "name": "Old Forester 1870 Original Batch Bourbon",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "834326",
+        "skuKey": "834326",
+        "url": "https://www.bswliquor.com/products/old-forester-1870",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-forester-1870"
       }
     },
     {
