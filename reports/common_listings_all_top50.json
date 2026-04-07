@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-07T16:14:14.396Z",
+  "generatedAt": "2026-04-07T19:21:00.993Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13616,
-    "removedRows": 1815,
-    "canonSkus": 6299,
+    "liveRows": 13635,
+    "removedRows": 1799,
+    "canonSkus": 6298,
     "outputCount": 50
   },
   "rows": [
@@ -330,6 +330,63 @@
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
+      }
+    },
+    {
+      "canonSku": "002838",
+      "storeCount": 13,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 109.99,
+        "bsw": 84.99,
+        "craftcellars": 115.99,
+        "gull": 108.99,
+        "kegncork": 114.96,
+        "kwm": 96.99,
+        "legacyliquor": 117.9,
+        "maltsandgrains": 120.89,
+        "sierrasprings": 104.66,
+        "strath": 108.96,
+        "tudor": 111.99,
+        "vessel": 109.99,
+        "willowpark": 117.49
+      },
+      "representative": {
+        "name": "Bruichladdich Port Charlotte 10 Year Old",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "806524",
+        "skuKey": "806524",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
       }
     },
     {
@@ -875,7 +932,7 @@
         "coop": 104.99,
         "craftcellars": 106.99,
         "kegncork": 101.96,
-        "kwm": 103.99,
+        "kwm": 72.79,
         "legacyliquor": 110.8,
         "maltsandgrains": 107.48,
         "sierrasprings": 98.94,
@@ -884,22 +941,22 @@
         "vessel": 99.99
       },
       "representative": {
-        "name": "Lagavulin 8 Year Old",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Lagavulin 8 Year",
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "780828",
         "skuKey": "780828",
-        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1"
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year"
       }
     },
     {
@@ -1014,62 +1071,6 @@
         "priceNum": 54.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
-      }
-    },
-    {
-      "canonSku": "002838",
-      "storeCount": 12,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "maltsandgrains",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 109.99,
-        "bsw": 84.99,
-        "craftcellars": 115.99,
-        "gull": 108.99,
-        "kegncork": 114.96,
-        "kwm": 96.99,
-        "legacyliquor": 117.9,
-        "sierrasprings": 104.66,
-        "strath": 108.96,
-        "tudor": 111.99,
-        "vessel": 109.99,
-        "willowpark": 117.49
-      },
-      "representative": {
-        "name": "Bruichladdich Port Charlotte 10 Year Old",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "806524",
-        "skuKey": "806524",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
       }
     },
     {

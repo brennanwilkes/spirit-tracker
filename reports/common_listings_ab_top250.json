@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-07T16:14:16.466Z",
+  "generatedAt": "2026-04-07T19:21:03.120Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9178,
-    "removedRows": 1456,
-    "canonSkus": 5191,
+    "liveRows": 9190,
+    "removedRows": 1447,
+    "canonSkus": 5190,
     "outputCount": 250
   },
   "rows": [
@@ -288,6 +288,49 @@
         "priceNum": 57.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/craigellachie-13-year-old"
+      }
+    },
+    {
+      "canonSku": "002838",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "craftcellars": 115.99,
+        "kegncork": 114.96,
+        "kwm": 96.99,
+        "maltsandgrains": 120.89,
+        "sierrasprings": 104.66,
+        "willowpark": 117.49
+      },
+      "representative": {
+        "name": "Bruichladdich Port Charlotte 10 Year Old",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "806524",
+        "skuKey": "806524",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
       }
     },
     {
@@ -1385,27 +1428,27 @@
         "coop": 104.99,
         "craftcellars": 106.99,
         "kegncork": 101.96,
-        "kwm": 103.99,
+        "kwm": 72.79,
         "maltsandgrains": 107.48,
         "sierrasprings": 98.94
       },
       "representative": {
-        "name": "Lagavulin 8 Year Old",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Lagavulin 8 Year",
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "780828",
         "skuKey": "780828",
-        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1"
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year"
       }
     },
     {
@@ -1624,48 +1667,6 @@
       }
     },
     {
-      "canonSku": "002838",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 84.99,
-        "craftcellars": 115.99,
-        "kegncork": 114.96,
-        "kwm": 96.99,
-        "sierrasprings": 104.66,
-        "willowpark": 117.49
-      },
-      "representative": {
-        "name": "Bruichladdich Port Charlotte 10 Year Old",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "806524",
-        "skuKey": "806524",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
-      }
-    },
-    {
       "canonSku": "021758",
       "storeCount": 6,
       "stores": [
@@ -1789,6 +1790,48 @@
         "priceNum": 59.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv"
+      }
+    },
+    {
+      "canonSku": "092466",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "kwm",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 62.99,
+        "coop": 69.99,
+        "craftcellars": 74.99,
+        "kegncork": 69.96,
+        "maltsandgrains": 73.35,
+        "sierrasprings": 66.99
+      },
+      "representative": {
+        "name": "Old Forester 1870 Original Batch Bourbon",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "834326",
+        "skuKey": "834326",
+        "url": "https://www.bswliquor.com/products/old-forester-1870",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-forester-1870"
       }
     },
     {
@@ -4474,47 +4517,6 @@
       }
     },
     {
-      "canonSku": "092466",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "coop": 69.99,
-        "kegncork": 69.96,
-        "maltsandgrains": 73.35,
-        "sierrasprings": 66.99
-      },
-      "representative": {
-        "name": "Old Forester 1870 Original Batch Bourbon",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "834326",
-        "skuKey": "834326",
-        "url": "https://www.bswliquor.com/products/old-forester-1870",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/old-forester-1870"
-      }
-    },
-    {
       "canonSku": "096953",
       "storeCount": 5,
       "stores": [
@@ -5004,6 +5006,47 @@
         "priceNum": 105,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/torabhaig-cnoc-na-moine"
+      }
+    },
+    {
+      "canonSku": "106192",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 185,
+        "craftcellars": 185.99,
+        "kwm": 186.99,
+        "maltsandgrains": 199.9,
+        "willowpark": 175.99
+      },
+      "representative": {
+        "name": "Port Askaig 17 Year Old Islay Single Malt - Limited Edition 2023",
+        "price": "$175.99",
+        "priceNum": 175.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "106192",
+        "skuKey": "106192",
+        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$175.99",
+        "priceNum": 175.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt"
       }
     },
     {
@@ -5827,6 +5870,47 @@
       }
     },
     {
+      "canonSku": "137251",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 71.99,
+        "craftcellars": 44.99,
+        "kegncork": 61.96,
+        "kwm": 61.99,
+        "maltsandgrains": 57.48
+      },
+      "representative": {
+        "name": "Green River Kentucky Straight Bourbon",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "137251",
+        "skuKey": "137251",
+        "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon"
+      }
+    },
+    {
       "canonSku": "138495",
       "storeCount": 5,
       "stores": [
@@ -6275,6 +6359,47 @@
         "priceNum": 94.99,
         "storeKey": "coop",
         "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/worldofwhisky#/product/2892"
+      }
+    },
+    {
+      "canonSku": "262918",
+      "storeCount": 5,
+      "stores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "coop": 659.99,
+        "kegncork": 634.96,
+        "kwm": 684.99,
+        "maltsandgrains": 724.9,
+        "willowpark": 690.99
+      },
+      "representative": {
+        "name": "Arran 25 Year",
+        "price": "$684.99",
+        "priceNum": 684.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "842235",
+        "skuKey": "842235",
+        "url": "https://kensingtonwinemarket.com/product/842235/arran-25-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$634.96",
+        "priceNum": 634.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/the-arran-malt-25-yo-700-ml/"
       }
     },
     {
@@ -7959,47 +8084,6 @@
       }
     },
     {
-      "canonSku": "784271",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "craftcellars": 75.99,
-        "kegncork": 104.96,
-        "kwm": 99.99,
-        "sierrasprings": 95.13
-      },
-      "representative": {
-        "name": "Kilkerran 12 Year Old",
-        "price": "$75.99",
-        "priceNum": 75.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "784271",
-        "skuKey": "784271",
-        "url": "https://craftcellars.ca/products/kilkerran-12-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$75.99",
-        "priceNum": 75.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/kilkerran-12-year-old"
-      }
-    },
-    {
       "canonSku": "785116",
       "storeCount": 5,
       "stores": [
@@ -8038,6 +8122,47 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-miyagikyo-single-malt-japanese-whi-2"
+      }
+    },
+    {
+      "canonSku": "807875",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 46.99,
+        "coop": 68.99,
+        "craftcellars": 69.99,
+        "kegncork": 67.96,
+        "sierrasprings": 61.8
+      },
+      "representative": {
+        "name": "Wild Turkey Longbranch Kentucky Straight Bourbon",
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "807875",
+        "skuKey": "807875",
+        "url": "https://www.bswliquor.com/products/wild-turkey-longbranch-bourbon-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/wild-turkey-longbranch-bourbon-1"
       }
     },
     {
@@ -9576,46 +9701,6 @@
       }
     },
     {
-      "canonSku": "106192",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 185,
-        "craftcellars": 185.99,
-        "kwm": 186.99,
-        "willowpark": 175.99
-      },
-      "representative": {
-        "name": "Port Askaig 17 Year Old Islay Single Malt - Limited Edition 2023",
-        "price": "$175.99",
-        "priceNum": 175.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "106192",
-        "skuKey": "106192",
-        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$175.99",
-        "priceNum": 175.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/port-askaig-17-year-old-islay-limited-edition-single-malt"
-      }
-    },
-    {
       "canonSku": "110291",
       "storeCount": 4,
       "stores": [
@@ -9816,46 +9901,6 @@
       }
     },
     {
-      "canonSku": "137251",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 71.99,
-        "craftcellars": 44.99,
-        "kegncork": 61.96,
-        "kwm": 61.99
-      },
-      "representative": {
-        "name": "Green River Kentucky Straight Bourbon",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "137251",
-        "skuKey": "137251",
-        "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon"
-      }
-    },
-    {
       "canonSku": "205164",
       "storeCount": 4,
       "stores": [
@@ -9933,46 +9978,6 @@
         "priceNum": 46.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/high-west-american-prairie-bourbon-1"
-      }
-    },
-    {
-      "canonSku": "262918",
-      "storeCount": 4,
-      "stores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "coop": 659.99,
-        "kegncork": 634.96,
-        "kwm": 684.99,
-        "willowpark": 690.99
-      },
-      "representative": {
-        "name": "Arran 25 Year",
-        "price": "$684.99",
-        "priceNum": 684.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "842235",
-        "skuKey": "842235",
-        "url": "https://kensingtonwinemarket.com/product/842235/arran-25-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$634.96",
-        "priceNum": 634.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/the-arran-malt-25-yo-700-ml/"
       }
     },
     {
@@ -10176,6 +10181,46 @@
       }
     },
     {
+      "canonSku": "784271",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "kegncork": 104.96,
+        "kwm": 99.99,
+        "sierrasprings": 95.13
+      },
+      "representative": {
+        "name": "Kilkerran 12 Year Old",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "784271",
+        "skuKey": "784271",
+        "url": "https://www.bswliquor.com/products/kilkerran-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/kilkerran-12-year-old-1"
+      }
+    },
+    {
       "canonSku": "786192",
       "storeCount": 4,
       "stores": [
@@ -10213,46 +10258,6 @@
         "priceNum": 404.66,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/el-dorado-25-year-rum-43-abv/"
-      }
-    },
-    {
-      "canonSku": "807875",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 46.99,
-        "coop": 68.99,
-        "craftcellars": 69.99,
-        "sierrasprings": 61.8
-      },
-      "representative": {
-        "name": "Wild Turkey Longbranch Kentucky Straight Bourbon",
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "807875",
-        "skuKey": "807875",
-        "url": "https://www.bswliquor.com/products/wild-turkey-longbranch-bourbon-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/wild-turkey-longbranch-bourbon-1"
       }
     },
     {
