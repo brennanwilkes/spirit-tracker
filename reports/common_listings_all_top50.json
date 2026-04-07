@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-06T21:58:50.256Z",
+  "generatedAt": "2026-04-07T01:14:30.619Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13474,
-    "removedRows": 1954,
-    "canonSkus": 6275,
+    "liveRows": 13479,
+    "removedRows": 1949,
+    "canonSkus": 6276,
     "outputCount": 50
   },
   "rows": [
@@ -2132,6 +2132,61 @@
       }
     },
     {
+      "canonSku": "011136",
+      "storeCount": 11,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 102.97,
+        "bsw": 82.99,
+        "coop": 109.99,
+        "craftcellars": 84.99,
+        "kegncork": 86.96,
+        "kwm": 109.99,
+        "sierrasprings": 96.09,
+        "strath": 109.79,
+        "tudor": 108.99,
+        "vessel": 109.99,
+        "willowpark": 99.99
+      },
+      "representative": {
+        "name": "Benriach The Twelve 12 Year Old",
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "839932",
+        "skuKey": "839932",
+        "url": "https://www.bswliquor.com/products/benriach-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/benriach-12-year-old-1"
+      }
+    },
+    {
       "canonSku": "017577",
       "storeCount": 11,
       "stores": [
@@ -2789,60 +2844,6 @@
         "priceNum": 57.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/craigellachie-13-year-old"
-      }
-    },
-    {
-      "canonSku": "011136",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 102.97,
-        "bsw": 82.99,
-        "coop": 109.99,
-        "kegncork": 86.96,
-        "kwm": 109.99,
-        "sierrasprings": 96.09,
-        "strath": 109.79,
-        "tudor": 108.99,
-        "vessel": 109.99,
-        "willowpark": 99.99
-      },
-      "representative": {
-        "name": "Benriach The Twelve 12 Year Old",
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "839932",
-        "skuKey": "839932",
-        "url": "https://www.bswliquor.com/products/benriach-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/benriach-12-year-old-1"
       }
     }
   ]
