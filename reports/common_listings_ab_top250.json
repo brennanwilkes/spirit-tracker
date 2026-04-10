@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-10T07:23:49.135Z",
+  "generatedAt": "2026-04-10T19:19:16.322Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8444,
-    "removedRows": 2474,
-    "canonSkus": 5021,
+    "liveRows": 8445,
+    "removedRows": 2477,
+    "canonSkus": 5023,
     "outputCount": 250
   },
   "rows": [
@@ -506,49 +506,6 @@
       }
     },
     {
-      "canonSku": "448826",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 84.99,
-        "craftcellars": 86.99,
-        "kegncork": 84.96,
-        "kwm": 89.99,
-        "maltsandgrains": 87.17,
-        "sierrasprings": 94.18
-      },
-      "representative": {
-        "name": "Glen Scotia 10 Year Old",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "880542",
-        "skuKey": "880542",
-        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt"
-      }
-    },
-    {
       "canonSku": "530352",
       "storeCount": 7,
       "stores": [
@@ -611,27 +568,27 @@
         "coop": 104.99,
         "craftcellars": 106.99,
         "kegncork": 101.96,
-        "kwm": 72.79,
+        "kwm": 103.99,
         "maltsandgrains": 107.48,
         "sierrasprings": 98.94
       },
       "representative": {
-        "name": "Lagavulin 8 Year",
-        "price": "$72.79",
-        "priceNum": 72.79,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Lagavulin 8 Year Old",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "780828",
         "skuKey": "780828",
-        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$72.79",
-        "priceNum": 72.79,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year"
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/lagavulin-8-year-old-1"
       }
     },
     {
@@ -1727,6 +1684,48 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfarclas-15-year-old-1"
+      }
+    },
+    {
+      "canonSku": "448826",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "craftcellars": 86.99,
+        "kegncork": 84.96,
+        "kwm": 89.99,
+        "maltsandgrains": 87.17,
+        "sierrasprings": 94.18
+      },
+      "representative": {
+        "name": "Glen Scotia 10 Year Old",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "880542",
+        "skuKey": "880542",
+        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glen-scotia-10-year-old-single-malt"
       }
     },
     {
@@ -4961,26 +4960,67 @@
         "bsw": 107,
         "coop": 114.99,
         "craftcellars": 109.99,
-        "kwm": 76.99,
+        "kwm": 109.99,
         "willowpark": 111.49
       },
       "representative": {
-        "name": "Clynelish 14 Year",
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Clynelish 14 Year Old",
+        "price": "$107.00",
+        "priceNum": 107,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "717914",
         "skuKey": "717914",
-        "url": "https://kensingtonwinemarket.com/product/717914/clynelish-14-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://www.bswliquor.com/products/clynelish-14-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/717914/clynelish-14-year"
+        "price": "$107.00",
+        "priceNum": 107,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/clynelish-14-year-old-1"
+      }
+    },
+    {
+      "canonSku": "741044",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 91.99,
+        "coop": 89.99,
+        "craftcellars": 92.99,
+        "kegncork": 91.96,
+        "kwm": 93.99
+      },
+      "representative": {
+        "name": "Dictador Solera System 20 Year Old Rum",
+        "price": "$91.99",
+        "priceNum": 91.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "741044",
+        "skuKey": "741044",
+        "url": "https://www.bswliquor.com/products/dictador-20-year-old",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "coop",
+        "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/store/world-of-whisky/products/110811290-dictador-rum-20-yr"
       }
     },
     {
@@ -5391,47 +5431,6 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-yoichi-single-malt-japanese-whisky-1"
-      }
-    },
-    {
-      "canonSku": "814021",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 91.99,
-        "coop": 94.99,
-        "craftcellars": 93.99,
-        "kwm": 94.99,
-        "sierrasprings": 81.99
-      },
-      "representative": {
-        "name": "BASIL HAYDEN’S 10 YEAR OLD",
-        "price": "$81.99",
-        "priceNum": 81.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "814021",
-        "skuKey": "814021",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/basil-haydens-10-year-bourbon-40-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$81.99",
-        "priceNum": 81.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/basil-haydens-10-year-bourbon-40-abv/"
       }
     },
     {
@@ -8285,46 +8284,6 @@
       }
     },
     {
-      "canonSku": "741044",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 91.99,
-        "craftcellars": 92.99,
-        "kegncork": 91.96,
-        "kwm": 93.99
-      },
-      "representative": {
-        "name": "Dictador Solera System 20 Year Old Rum",
-        "price": "$91.99",
-        "priceNum": 91.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "741044",
-        "skuKey": "741044",
-        "url": "https://www.bswliquor.com/products/dictador-20-year-old",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
-      },
-      "cheapest": {
-        "price": "$91.96",
-        "priceNum": 91.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/dictador-rum-20-year-700-ml/"
-      }
-    },
-    {
       "canonSku": "742539",
       "storeCount": 4,
       "stores": [
@@ -8885,6 +8844,46 @@
       }
     },
     {
+      "canonSku": "814021",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 91.99,
+        "coop": 94.99,
+        "craftcellars": 93.99,
+        "sierrasprings": 81.99
+      },
+      "representative": {
+        "name": "BASIL HAYDEN’S 10 YEAR OLD",
+        "price": "$81.99",
+        "priceNum": 81.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "814021",
+        "skuKey": "814021",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/basil-haydens-10-year-bourbon-40-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$81.99",
+        "priceNum": 81.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/basil-haydens-10-year-bourbon-40-abv/"
+      }
+    },
+    {
       "canonSku": "821872",
       "storeCount": 4,
       "stores": [
@@ -9082,6 +9081,46 @@
         "priceNum": 105,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/benriach-12-year-old-smoky"
+      }
+    },
+    {
+      "canonSku": "865229",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 52.99,
+        "craftcellars": 53.99,
+        "maltsandgrains": 54.9,
+        "sierrasprings": 50.99
+      },
+      "representative": {
+        "name": "JIM BEAM SINGLE BARREL 54%",
+        "price": "$50.99",
+        "priceNum": 50.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "865229",
+        "skuKey": "865229",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/jim-beam-single-barrel-kentucky-straight-bourbon-54-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$50.99",
+        "priceNum": 50.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/jim-beam-single-barrel-kentucky-straight-bourbon-54-abv/"
       }
     },
     {
@@ -10098,45 +10137,6 @@
         "priceNum": 87.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/726110/arran-amarone-cask-finish"
-      }
-    },
-    {
-      "canonSku": "865229",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 52.99,
-        "maltsandgrains": 54.9,
-        "sierrasprings": 50.99
-      },
-      "representative": {
-        "name": "JIM BEAM SINGLE BARREL 54%",
-        "price": "$50.99",
-        "priceNum": 50.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "865229",
-        "skuKey": "865229",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/jim-beam-single-barrel-kentucky-straight-bourbon-54-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$50.99",
-        "priceNum": 50.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/jim-beam-single-barrel-kentucky-straight-bourbon-54-abv/"
       }
     },
     {
