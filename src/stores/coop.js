@@ -1,246 +1,175 @@
 "use strict";
 
+const { randomUUID } = require("crypto");
 const { normalizeSkuKey } = require("../utils/sku");
-const { padLeft, padRight } = require("../utils/string");
-const { kbStr, secStr, pageStr, pctStr } = require("../utils/format");
-
+const { parallelMapStaggered } = require("../utils/async");
 const { avoidMassRemoval } = require("../tracker/merge");
 const { finalizeCategoryScan } = require("../tracker/finalize");
 
-
-/* ---------------- co-op specifics ---------------- */
-
 const BASE = "https://shoponlinewhisky-wine.coopwinespiritsbeer.com";
-const REFERER = `${BASE}/worldofwhisky`;
+const GRAPHQL = `${BASE}/graphql`;
+const SHOP_ID = "16689540";
+const ZONE_ID = "856";
+const POSTAL_CODE = "T2P3B6";
+// Calgary coordinates — matched to the T2P3B6 postal code used for pricing zone
+const LATITUDE = 51.048341;
+const LONGITUDE = -114.069908;
 
-function coopHeaders(ctx, sourcepage) {
-	const coop = ctx.store.coop;
-	return {
-		Accept: "application/json, text/javascript, */*; q=0.01",
-		"Content-Type": "application/json",
-		Origin: BASE,
-		Referer: REFERER,
+const HASH_COLLECTION = "5573f6ef85bfad81463b431985396705328c5ac3283c4e183aa36c6aad1afafe";
+const HASH_ITEMS = "5116339819ff07f207fd38f949a8a7f58e52cc62223b535405b087e3076ebf2f";
+// DefaultShop — returns retailerInventorySessionToken required for SubjectProductsQuery
+const HASH_DEFAULT_SHOP = "607e5aea2e2f7b3d8bf89bb7f657ce5c13bc12f89f70a7f7e6b2f1c13ded18a8";
+// SubjectProductsQuery — fetches item IDs for a whisky subcategory (subject)
+const HASH_SUBJECT = "d08c45dbb44fa9bd673f20b59cd17e23451c992a1e1c1dec06f994025c61965c";
 
-		// these 4 are required on their API calls (matches browser)
-		SessionKey: coop.sessionKey,
-		chainID: coop.chainId,
-		storeID: coop.storeId,
-		appVersion: coop.appVersion,
+const HEADERS = {
+	"x-client-identifier": "web",
+	accept: "*/*",
+	"content-type": "application/json",
+};
 
-		AUTH_TOKEN: "null",
-		CONNECTION_ID: "null",
-		SESSION_ID: coop.sessionId || "null",
-		TIMESTAMP: String(Date.now()),
-		sourcepage,
-	};
-}
-
-async function coopFetchText(ctx, url, label, { headers } = {}) {
-	return await ctx.http.fetchTextWithRetry(url, label, ctx.store.ua, {
-		method: "GET",
-		headers: headers || {},
-	});
-}
-
-function extractVar(html, re) {
-	const m = String(html || "").match(re);
-	return m ? String(m[1] || "").trim() : "";
-}
-
-async function ensureCoopBootstrap(ctx) {
-	const coop = ctx.store.coop;
-	if (coop.sessionKey && coop.chainId && coop.storeId && coop.appVersion) return;
-
-	const r = await coopFetchText(ctx, REFERER, "coop:bootstrap", {
-		headers: {
-			Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-			Referer: REFERER,
-		},
-	});
-
-	const html = r?.text || "";
-	if (r?.status !== 200 || !html) {
-		throw new Error(`coop bootstrap failed: GET ${REFERER} => ${r.status}`);
-	}
-
-	// Values are in <script> var SESSIONKEY = "..."; etc.
-	coop.sessionKey = extractVar(html, /var\s+SESSIONKEY\s*=\s*"([^"]+)"/i);
-	coop.chainId = extractVar(html, /var\s+chainID\s*=\s*"([^"]+)"/i);
-	coop.storeId = extractVar(html, /var\s+store_unique_id\s*=\s*"([^"]+)"/i);
-	coop.appVersion = extractVar(html, /var\s+CLIENTVERSION\s*=\s*"([^"]+)"/i);
-
-	if (!coop.sessionKey || !coop.chainId || !coop.storeId || !coop.appVersion) {
-		throw new Error(
-			`coop bootstrap missing values: sessionKey=${!!coop.sessionKey} chainId=${!!coop.chainId} storeId=${!!coop.storeId} appVersion=${!!coop.appVersion}`,
-		);
-	}
-}
-
+// GET the store page with ?unauth-refresh=1 to receive __Host-instacart_sid in Set-Cookie.
+// Then call DefaultShop to obtain the retailerInventorySessionToken for subject queries.
 async function ensureCoopSession(ctx) {
-	const coop = ctx.store.coop;
-	if (coop.sessionId) return;
-	await ensureCoopBootstrap(ctx);
-
-	const r = await ctx.http.fetchJsonWithRetry(
-		`${BASE}/api/account/createsession`,
-		`coop:createsession`,
+	if (ctx.store.coop.sessionBooted) return;
+	ctx.store.coop.sessionBooted = true; // set before await — host throttler serialises same-host reqs
+	await ctx.http.fetchTextWithRetry(
+		`${BASE}/store/world-of-whisky?unauth-refresh=1`,
+		"coop:session",
 		ctx.store.ua,
-		{
-			method: "POST",
-			headers: coopHeaders(ctx, "/worldofwhisky"),
-			// browser sends Content-Length: 0; easiest equivalent:
-			body: "",
-		},
 	);
-
-	const sid = r?.json?.SessionID || r?.json?.sessionID || r?.json?.sessionId || r?.json?.SessionId || "";
-
-	if (!sid) {
-		throw new Error(`createSession: missing SessionID (status=${r?.status})`);
-	}
-
-	coop.sessionId = sid;
-	coop.anonymousUserId = r?.json?.AnonymousUserID ?? null;
+	const r = await ctx.http.fetchJsonWithRetry(
+		graphqlUrl("DefaultShop", {
+			postalCode: POSTAL_CODE,
+			coordinates: { latitude: LATITUDE, longitude: LONGITUDE },
+			addressId: null,
+		}, HASH_DEFAULT_SHOP),
+		"coop:token",
+		ctx.store.ua,
+		{ headers: HEADERS },
+	);
+	ctx.store.coop.inventoryToken = r?.json?.data?.defaultShop?.retailerInventorySessionToken || "";
 }
 
-function normalizeAbsUrl(raw) {
-	const s = String(raw || "").trim();
-	if (!s) return "";
-	if (s.startsWith("//")) return `https:${s}`;
-	if (/^https?:\/\//i.test(s)) return s;
-	try {
-		return new URL(s, `${BASE}/`).toString();
-	} catch {
-		return s;
-	}
+function graphqlUrl(operationName, vars, hash) {
+	const variables = encodeURIComponent(JSON.stringify(vars));
+	const extensions = encodeURIComponent(
+		JSON.stringify({ persistedQuery: { version: 1, sha256Hash: hash } }),
+	);
+	return `${GRAPHQL}?operationName=${operationName}&variables=${variables}&extensions=${extensions}`;
 }
 
-function productUrlFromId(productId) {
-	return `${REFERER}#/product/${encodeURIComponent(String(productId))}`;
+async function fetchCollectionIds(ctx, slug) {
+	const vars = {
+		shopId: SHOP_ID,
+		postalCode: POSTAL_CODE,
+		zoneId: ZONE_ID,
+		slug,
+		filters: [],
+		pageViewId: randomUUID(),
+		itemsDisplayType: "collections_items_grid",
+		first: 1,
+		pageSource: "browse",
+	};
+	const r = await ctx.http.fetchJsonWithRetry(
+		graphqlUrl("CollectionProductsWithFeaturedProducts", vars, HASH_COLLECTION),
+		`coop:ids:${slug}`,
+		ctx.store.ua,
+		{ headers: HEADERS },
+	);
+	return Array.isArray(r?.json?.data?.collectionProducts?.itemIds)
+		? r.json.data.collectionProducts.itemIds
+		: [];
 }
 
-function productFromApi(p) {
-	if (!p || p.IsActive === false) return null;
+// Subject pages (whisky subcategories) use SubjectProductsQuery.
+// The subject id is the "n{digits}" prefix of the subject slug.
+async function fetchSubjectIds(ctx, subjectSlug) {
+	const subjectId = subjectSlug.match(/^(n\d+)/)?.[1] || subjectSlug;
+	const vars = {
+		retailerInventorySessionToken: ctx.store.coop.inventoryToken,
+		id: subjectId,
+		filters: [],
+		first: 1,
+		pageViewId: randomUUID(),
+		pageSource: "browse_subject_items_grid",
+		shopId: SHOP_ID,
+		postalCode: POSTAL_CODE,
+		zoneId: ZONE_ID,
+	};
+	const r = await ctx.http.fetchJsonWithRetry(
+		graphqlUrl("SubjectProductsQuery", vars, HASH_SUBJECT),
+		`coop:subj:${subjectSlug}`,
+		ctx.store.ua,
+		{ headers: HEADERS },
+	);
+	return Array.isArray(r?.json?.data?.collectionSubjectProducts?.itemIds)
+		? r.json.data.collectionSubjectProducts.itemIds
+		: [];
+}
 
-	const name = String(p.Name || "").trim();
+async function fetchItemBatch(ctx, ids) {
+	const vars = { ids, shopId: SHOP_ID, zoneId: ZONE_ID, postalCode: POSTAL_CODE };
+	const r = await ctx.http.fetchJsonWithRetry(
+		graphqlUrl("Items", vars, HASH_ITEMS),
+		`coop:items:b${ids.length}`,
+		ctx.store.ua,
+		{ headers: HEADERS },
+	);
+	return Array.isArray(r?.json?.data?.items) ? r.json.data.items : [];
+}
+
+function itemFromApi(raw) {
+	if (!raw?.name || !raw?.productId) return null;
+	if (raw.availability?.available === false) return null;
+
+	const name = String(raw.name).trim();
 	if (!name) return null;
 
-	const productId = p.ProductID;
-	if (!productId) return null;
+	const url = `${BASE}/store/world-of-whisky/products/${raw.evergreenUrl || raw.productId}`;
+	const price = raw.price?.viewSection?.itemCard?.priceString || "";
 
-	const url = productUrlFromId(productId);
-
-	const price = p?.CountDetails?.PriceText || (Number.isFinite(p?.Price) ? `$${Number(p.Price).toFixed(2)}` : "");
-
-	const upc = String(p.UPC || "").trim();
-
-	let rawKey = "";
-	if (upc) rawKey = `upc:${upc}`;
-	else if (p.ProductStoreID) rawKey = `id:${String(p.ProductStoreID).trim()}`;
-	else if (p.ProductID) rawKey = `id:${String(p.ProductID).trim()}`;
-
+	const lookupStr = String(raw.viewSection?.retailerLookupCodeString || "");
+	const upcMatch = lookupStr.match(/UPC:\s*(\d+)/);
+	const rawKey = upcMatch ? `upc:${upcMatch[1]}` : `id:${raw.productId}`;
 	const sku = normalizeSkuKey(rawKey, { storeLabel: "Co-op World of Whisky", url });
 
-	const img = normalizeAbsUrl(p.ImageURL);
+	const img = raw.viewSection?.itemImage?.url || "";
 
-	return {
-		name,
-		price,
-		url,
-		sku,
-		upc,
-		productId,
-		productStoreId: p.ProductStoreID || null,
-		img,
-	};
+	return { name, price, url, sku, img };
 }
-
-/* ---------------- scanner ---------------- */
-
-async function fetchCategoryPage(ctx, categoryId, page) {
-	await ensureCoopSession(ctx);
-
-	const doReq = () =>
-		ctx.http.fetchJsonWithRetry(
-			`${BASE}/api/v2/products/category/${categoryId}`,
-			`coop:${ctx.cat.key}:p${page}`,
-			ctx.store.ua,
-			{
-				method: "POST",
-				headers: coopHeaders(ctx, `/category/${ctx.cat.coopSlug}`),
-				body: JSON.stringify({
-					page,
-					Filters: {
-						Filters: [],
-						LastSelectedFilter: null,
-						SearchWithinTerm: null,
-					},
-					orderby: null,
-				}),
-			},
-		);
-
-	let r = await doReq();
-
-	// one fast retry on invalid_session: refresh SessionID and repeat
-	if (r?.json?.type === "invalid_session") {
-		ctx.store.coop.sessionId = "";
-		await ensureCoopSession(ctx);
-		r = await doReq();
-	}
-
-	return r;
-}
-
 
 async function scanCategoryCoop(ctx, prevDb, report) {
 	const t0 = Date.now();
+	await ensureCoopSession(ctx);
 	const discovered = new Map();
 
-	const maxPages = ctx.config.maxPages === null ? 500 : Math.min(ctx.config.maxPages, 500);
+	const itemIds = ctx.cat.coopSubject
+		? await fetchSubjectIds(ctx, ctx.cat.coopSubject)
+		: await fetchCollectionIds(ctx, ctx.cat.coopSlug);
+	ctx.logger.ok(`${ctx.catPrefixOut} | IDs fetched: ${itemIds.length}`);
 
-	let done = 0;
+	const batches = [];
+	for (let i = 0; i < itemIds.length; i += 24) batches.push(itemIds.slice(i, i + 24));
 
-	for (let page = 1; page <= maxPages; page++) {
-		let r;
-		try {
-			r = await fetchCategoryPage(ctx, ctx.cat.coopCategoryId, page);
-		} catch (e) {
-			ctx.logger.warn(`${ctx.catPrefixOut} | page ${page} failed: ${e?.message || e}`);
-			break;
+	const batchResults = await parallelMapStaggered(
+		batches,
+		ctx.config.concurrency,
+		ctx.config.staggerMs,
+		(ids) => fetchItemBatch(ctx, ids),
+	);
+
+	for (const items of batchResults) {
+		for (const raw of items) {
+			const it = itemFromApi(raw);
+			if (it) discovered.set(it.url, it);
 		}
-
-		const arr = Array.isArray(r?.json?.Products?.Result) ? r.json.Products.Result : [];
-
-		done++;
-
-		let kept = 0;
-		for (const p of arr) {
-			const it = productFromApi(p);
-			if (!it) continue;
-			discovered.set(it.url, it);
-			kept++;
-		}
-
-		ctx.logger.ok(
-			`${ctx.catPrefixOut} | Page ${padLeft(page, 3)} | ${String(r.status || "").padEnd(
-				3,
-			)} | items=${padLeft(kept, 3)} | bytes=${kbStr(
-				r.bytes,
-			)} | ${padRight(ctx.http.inflightStr(), 11)} | ${secStr(r.ms)}`,
-		);
-
-		if (!arr.length) break;
 	}
 
-	avoidMassRemoval(prevDb, discovered, ctx, "coop api");
-
+	avoidMassRemoval(prevDb, discovered, ctx, "coop graphql");
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products: ${discovered.size}`);
-
-	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: done });
+	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: batches.length });
 }
-
-/* ---------------- store ---------------- */
 
 function createStore(defaultUa) {
 	return {
@@ -250,73 +179,47 @@ function createStore(defaultUa) {
 		host: "shoponlinewhisky-wine.coopwinespiritsbeer.com",
 		ua: defaultUa,
 		scanCategory: scanCategoryCoop,
-
-		// put your captured values here (or pull from env)
-		coop: {
-			sessionKey: "",
-			chainId: "",
-			storeId: "",
-			appVersion: "",
-			sessionId: "", // set by ensureCoopSession()
-			anonymousUserId: null,
-		},
-
+		coop: { sessionBooted: false, inventoryToken: "" },
 		categories: [
 			{
 				key: "canadian-whisky",
 				label: "Canadian Whisky",
-				coopSlug: "canadian_whisky",
-				coopCategoryId: 4,
-				startUrl: `${REFERER}#/category/canadian_whisky`,
+				coopSlug: "n-whiskey-64174",
+				coopSubject: "n19049482045000700-canadian-72112",
+				startUrl: `${BASE}/store/world-of-whisky/collections/n-whiskey-64174/subjects/n19049482045000700-canadian-72112`,
 			},
 			{
 				key: "bourbon-whiskey",
 				label: "Bourbon Whiskey",
-				coopSlug: "bourbon_whiskey",
-				coopCategoryId: 9,
-				startUrl: `${REFERER}#/category/bourbon_whiskey`,
+				coopSlug: "n-whiskey-64174",
+				coopSubject: "n19049482149000724-bourbon-96052",
+				startUrl: `${BASE}/store/world-of-whisky/collections/n-whiskey-64174/subjects/n19049482149000724-bourbon-96052`,
 			},
 			{
 				key: "scottish-single-malts",
 				label: "Scottish Single Malts",
-				coopSlug: "scottish_single_malts",
-				coopCategoryId: 6,
-				startUrl: `${REFERER}#/category/scottish_single_malts`,
-			},
-			{
-				key: "scottish-blends",
-				label: "Scottish Whisky Blends",
-				coopSlug: "scottish_whisky_blends",
-				coopCategoryId: 5,
-				startUrl: `${REFERER}#/category/scottish_whisky_blends`,
+				coopSlug: "n-whiskey-64174",
+				coopSubject: "n19049482132000720-scotch-54519",
+				startUrl: `${BASE}/store/world-of-whisky/collections/n-whiskey-64174/subjects/n19049482132000720-scotch-54519`,
 			},
 			{
 				key: "american-whiskey",
 				label: "American Whiskey",
-				coopSlug: "american_whiskey",
-				coopCategoryId: 8,
-				startUrl: `${REFERER}#/category/american_whiskey`,
-			},
-			{
-				key: "world-whisky",
-				label: "World Whisky",
-				coopSlug: "world_international",
-				coopCategoryId: 10,
-				startUrl: `${REFERER}#/category/world_international`,
+				coopSlug: "n-whiskey-64174",
+				coopSubject: "n19049482064000704-american-89138",
+				startUrl: `${BASE}/store/world-of-whisky/collections/n-whiskey-64174/subjects/n19049482064000704-american-89138`,
 			},
 			{
 				key: "rum",
 				label: "Rum",
-				coopSlug: "spirits_rum",
-				coopCategoryId: 24,
-				startUrl: `${REFERER}#/category/spirits_rum`,
+				coopSlug: "n-rum-66987",
+				startUrl: `${BASE}/store/world-of-whisky/collections/n-rum-66987`,
 			},
 			{
 				key: "gin",
 				label: "Gin",
-				coopSlug: "spirits_gin",
-				coopCategoryId: 22,
-				startUrl: `${REFERER}#/category/spirits_gin`,
+				coopSlug: "n-gin-88900",
+				startUrl: `${BASE}/store/world-of-whisky/collections/n-gin-88900`,
 			},
 		],
 	};
