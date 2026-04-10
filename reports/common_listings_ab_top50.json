@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-10T01:16:32.873Z",
+  "generatedAt": "2026-04-10T04:46:47.610Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_ab_top50.json",
-      "cutoffStoreCount": 5
+      "cutoffStoreCount": 6
     }
   },
   "storeCount": 8,
@@ -26,12 +26,98 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8201,
+    "liveRows": 8450,
     "removedRows": 2467,
-    "canonSkus": 4822,
+    "canonSkus": 5036,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "368456",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 79.99,
+        "craftcellars": 89.99,
+        "kegncork": 88.96,
+        "kwm": 78.99,
+        "maltsandgrains": 91.73,
+        "sierrasprings": 89.42,
+        "willowpark": 90.99
+      },
+      "representative": {
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "761474",
+        "skuKey": "761474",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+      }
+    },
+    {
+      "canonSku": "413410",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "craftcellars": 72.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year Old",
+        "price": "$72.99",
+        "priceNum": 72.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$72.99",
+        "priceNum": 72.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv"
+      }
+    },
     {
       "canonSku": "002838",
       "storeCount": 7,
@@ -73,6 +159,178 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
+      }
+    },
+    {
+      "canonSku": "057706",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "coop": 89.99,
+        "craftcellars": 86.99,
+        "kwm": 86.99,
+        "maltsandgrains": 91.58,
+        "sierrasprings": 89.42,
+        "willowpark": 84.99
+      },
+      "representative": {
+        "name": "Ardbeg Wee Beastie 5 Year Old",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "835689",
+        "skuKey": "835689",
+        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old"
+      }
+    },
+    {
+      "canonSku": "063672",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "coop": 99.99,
+        "craftcellars": 96.99,
+        "kegncork": 101.96,
+        "kwm": 99.99,
+        "sierrasprings": 83.7,
+        "willowpark": 98.99
+      },
+      "representative": {
+        "name": "TAMDHU 12-YEAR-OLD 700ML",
+        "price": "$83.70",
+        "priceNum": 83.7,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "845147",
+        "skuKey": "845147",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/single-malt-whiskey/tamdhu-12-year-old-700ml/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$83.70",
+        "priceNum": 83.7,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/single-malt-whiskey/tamdhu-12-year-old-700ml/"
+      }
+    },
+    {
+      "canonSku": "099449",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "coop": 89.99,
+        "craftcellars": 89.99,
+        "kegncork": 110.96,
+        "kwm": 114.99,
+        "maltsandgrains": 113.04,
+        "willowpark": 106.99
+      },
+      "representative": {
+        "name": "Glenmorangie 14 Year Old The Quinta Ruban",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "740388",
+        "skuKey": "740388",
+        "url": "https://www.bswliquor.com/products/glenmorangie-14-year-old-quinta-ruban-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenmorangie-14-year-old-quinta-ruban-1"
+      }
+    },
+    {
+      "canonSku": "118775",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 59.99,
+        "coop": 79.99,
+        "craftcellars": 79.99,
+        "kwm": 79.99,
+        "maltsandgrains": 84.9,
+        "sierrasprings": 63.99,
+        "willowpark": 80.99
+      },
+      "representative": {
+        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "813356",
+        "skuKey": "813356",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
       }
     },
     {
@@ -162,89 +420,89 @@
       }
     },
     {
-      "canonSku": "368456",
+      "canonSku": "530352",
       "storeCount": 7,
       "stores": [
         "bsw",
+        "coop",
         "craftcellars",
-        "kegncork",
         "kwm",
         "maltsandgrains",
         "sierrasprings",
         "willowpark"
       ],
       "missingStores": [
-        "coop"
+        "kegncork"
       ],
       "storePrices": {
-        "bsw": 69.99,
-        "craftcellars": 89.99,
-        "kegncork": 88.96,
-        "kwm": 78.99,
-        "maltsandgrains": 91.73,
-        "sierrasprings": 89.42,
-        "willowpark": 90.99
+        "bsw": 165,
+        "coop": 189.99,
+        "craftcellars": 186.99,
+        "kwm": 189.99,
+        "maltsandgrains": 195.42,
+        "sierrasprings": 185.61,
+        "willowpark": 199.99
       },
       "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$69.99",
-        "priceNum": 69.99,
+        "name": "Glenfiddich 18 Year Old Small Batch",
+        "price": "$165.00",
+        "priceNum": 165,
         "storeKey": "bsw",
         "storeLabel": "BSW",
-        "skuRaw": "761474",
-        "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "skuRaw": "895283",
+        "skuKey": "895283",
+        "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml",
         "categoryLabel": "Scotch Whisky",
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
+        "price": "$165.00",
+        "priceNum": 165,
         "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+        "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml"
       }
     },
     {
-      "canonSku": "413410",
+      "canonSku": "665257",
       "storeCount": 7,
       "stores": [
         "bsw",
+        "coop",
         "craftcellars",
         "kegncork",
         "kwm",
         "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
+        "sierrasprings"
       ],
       "missingStores": [
-        "coop"
+        "willowpark"
       ],
       "storePrices": {
         "bsw": 89.99,
-        "craftcellars": 72.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "sierrasprings": 107.51,
-        "willowpark": 119.99
+        "coop": 104.99,
+        "craftcellars": 106.99,
+        "kegncork": 101.96,
+        "kwm": 72.79,
+        "maltsandgrains": 107.48,
+        "sierrasprings": 98.94
       },
       "representative": {
-        "name": "Glendronach 12 Year Old",
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "name": "Lagavulin 8 Year",
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "780828",
+        "skuKey": "780828",
+        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv"
+        "price": "$72.79",
+        "priceNum": 72.79,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year"
       }
     },
     {
@@ -419,45 +677,45 @@
       }
     },
     {
-      "canonSku": "057706",
+      "canonSku": "021758",
       "storeCount": 6,
       "stores": [
         "bsw",
+        "coop",
         "craftcellars",
+        "kegncork",
         "kwm",
-        "maltsandgrains",
-        "sierrasprings",
         "willowpark"
       ],
       "missingStores": [
-        "coop",
-        "kegncork"
+        "maltsandgrains",
+        "sierrasprings"
       ],
       "storePrices": {
-        "bsw": 74.99,
-        "craftcellars": 86.99,
-        "kwm": 86.99,
-        "maltsandgrains": 91.58,
-        "sierrasprings": 89.42,
-        "willowpark": 84.99
+        "bsw": 125,
+        "coop": 154.99,
+        "craftcellars": 123.99,
+        "kegncork": 149.96,
+        "kwm": 154.99,
+        "willowpark": 149.99
       },
       "representative": {
-        "name": "Ardbeg Wee Beastie 5 Year Old",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "835689",
-        "skuKey": "835689",
-        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "name": "Ardbeg Corryvreckan",
+        "price": "$123.99",
+        "priceNum": 123.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739100",
+        "skuKey": "739100",
+        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old"
+        "price": "$123.99",
+        "priceNum": 123.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
       }
     },
     {
@@ -500,90 +758,6 @@
         "priceNum": 58.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/black-tot-rum"
-      }
-    },
-    {
-      "canonSku": "063672",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 84.99,
-        "craftcellars": 96.99,
-        "kegncork": 101.96,
-        "kwm": 99.99,
-        "sierrasprings": 83.7,
-        "willowpark": 98.99
-      },
-      "representative": {
-        "name": "TAMDHU 12-YEAR-OLD 700ML",
-        "price": "$83.70",
-        "priceNum": 83.7,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "845147",
-        "skuKey": "845147",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/single-malt-whiskey/tamdhu-12-year-old-700ml/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$83.70",
-        "priceNum": 83.7,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/single-malt-whiskey/tamdhu-12-year-old-700ml/"
-      }
-    },
-    {
-      "canonSku": "099449",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "craftcellars": 89.99,
-        "kegncork": 110.96,
-        "kwm": 114.99,
-        "maltsandgrains": 113.04,
-        "willowpark": 106.99
-      },
-      "representative": {
-        "name": "Glenmorangie 14 Year Old The Quinta Ruban",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "740388",
-        "skuKey": "740388",
-        "url": "https://www.bswliquor.com/products/glenmorangie-14-year-old-quinta-ruban-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenmorangie-14-year-old-quinta-ruban-1"
       }
     },
     {
@@ -668,48 +842,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-12-yr-old"
-      }
-    },
-    {
-      "canonSku": "118775",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 59.99,
-        "craftcellars": 79.99,
-        "kwm": 79.99,
-        "maltsandgrains": 84.9,
-        "sierrasprings": 63.99,
-        "willowpark": 80.99
-      },
-      "representative": {
-        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "813356",
-        "skuKey": "813356",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
       }
     },
     {
@@ -1133,6 +1265,48 @@
       }
     },
     {
+      "canonSku": "285734",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 175,
+        "coop": 239.99,
+        "craftcellars": 230.99,
+        "kegncork": 228.96,
+        "kwm": 234.99,
+        "willowpark": 199.99
+      },
+      "representative": {
+        "name": "Glenmorangie 18 Year Old",
+        "price": "$175.00",
+        "priceNum": 175,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "285734",
+        "skuKey": "285734",
+        "url": "https://www.bswliquor.com/products/glenmorangie-18-year-old-extremely-rare-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$175.00",
+        "priceNum": 175,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenmorangie-18-year-old-extremely-rare-1"
+      }
+    },
+    {
       "canonSku": "291302",
       "storeCount": 6,
       "stores": [
@@ -1301,48 +1475,6 @@
       }
     },
     {
-      "canonSku": "530352",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 165,
-        "craftcellars": 186.99,
-        "kwm": 189.99,
-        "maltsandgrains": 195.42,
-        "sierrasprings": 185.61,
-        "willowpark": 199.99
-      },
-      "representative": {
-        "name": "Glenfiddich 18 Year Old Small Batch",
-        "price": "$165.00",
-        "priceNum": 165,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "895283",
-        "skuKey": "895283",
-        "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$165.00",
-        "priceNum": 165,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml"
-      }
-    },
-    {
       "canonSku": "569137",
       "storeCount": 6,
       "stores": [
@@ -1382,48 +1514,6 @@
         "priceNum": 99.9,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/oban-little-bay-43-abv/"
-      }
-    },
-    {
-      "canonSku": "665257",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "craftcellars": 106.99,
-        "kegncork": 101.96,
-        "kwm": 72.79,
-        "maltsandgrains": 107.48,
-        "sierrasprings": 98.94
-      },
-      "representative": {
-        "name": "Lagavulin 8 Year",
-        "price": "$72.79",
-        "priceNum": 72.79,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "780828",
-        "skuKey": "780828",
-        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$72.79",
-        "priceNum": 72.79,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/780828/lagavulin-8-year"
       }
     },
     {
@@ -1592,47 +1682,6 @@
         "priceNum": 62.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bunnahabhain-stuiereadair"
-      }
-    },
-    {
-      "canonSku": "021758",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 125,
-        "craftcellars": 123.99,
-        "kegncork": 149.96,
-        "kwm": 154.99,
-        "willowpark": 149.99
-      },
-      "representative": {
-        "name": "Ardbeg Corryvreckan",
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "739100",
-        "skuKey": "739100",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
       }
     },
     {
@@ -2043,47 +2092,6 @@
         "priceNum": 614.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/lowland-scotch-whisky-whisky-2-2/auchentoshan-1988-px-cask-single-malt-whisky-49-7-abv/"
-      }
-    },
-    {
-      "canonSku": "285734",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 175,
-        "craftcellars": 230.99,
-        "kegncork": 228.96,
-        "kwm": 234.99,
-        "willowpark": 199.99
-      },
-      "representative": {
-        "name": "Glenmorangie 18 Year Old",
-        "price": "$175.00",
-        "priceNum": 175,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "285734",
-        "skuKey": "285734",
-        "url": "https://www.bswliquor.com/products/glenmorangie-18-year-old-extremely-rare-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$175.00",
-        "priceNum": 175,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenmorangie-18-year-old-extremely-rare-1"
       }
     },
     {
