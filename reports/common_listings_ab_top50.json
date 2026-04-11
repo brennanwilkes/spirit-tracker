@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T04:34:58.834Z",
+  "generatedAt": "2026-04-11T07:19:55.492Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8447,
-    "removedRows": 2476,
-    "canonSkus": 5023,
+    "liveRows": 8460,
+    "removedRows": 2474,
+    "canonSkus": 5032,
     "outputCount": 50
   },
   "rows": [
@@ -1476,6 +1476,48 @@
       }
     },
     {
+      "canonSku": "560474",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "craftcellars": 79.99,
+        "kegncork": 99.96,
+        "maltsandgrains": 89.17,
+        "sierrasprings": 100.85,
+        "willowpark": 94.49
+      },
+      "representative": {
+        "name": "Ardbeg 10 Year Old Scotch Whisky",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
+      }
+    },
+    {
       "canonSku": "569137",
       "storeCount": 6,
       "stores": [
@@ -2093,47 +2135,6 @@
         "priceNum": 614.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/lowland-scotch-whisky-whisky-2-2/auchentoshan-1988-px-cask-single-malt-whisky-49-7-abv/"
-      }
-    },
-    {
-      "canonSku": "560474",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm"
-      ],
-      "storePrices": {
-        "bsw": 84.99,
-        "craftcellars": 79.99,
-        "maltsandgrains": 89.17,
-        "sierrasprings": 100.85,
-        "willowpark": 94.49
-      },
-      "representative": {
-        "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
     }
   ]

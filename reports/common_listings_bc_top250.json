@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T04:34:58.307Z",
+  "generatedAt": "2026-04-11T07:19:54.958Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -27,7 +27,7 @@
   ],
   "totals": {
     "liveRows": 4452,
-    "removedRows": 359,
+    "removedRows": 360,
     "canonSkus": 2230,
     "outputCount": 250
   },
@@ -96,26 +96,26 @@
         "legacyliquor": 83.51,
         "strath": 80.87,
         "tudor": 79.99,
-        "vessel": 74.99,
+        "vessel": 79.99,
         "vintage": 75.57
       },
       "representative": {
-        "name": "Ardbeg - Wee Beastie 5 Year Old Single Malt Scotch",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "ARDBEG WEE BEASTIE 5YO",
+        "price": "$75.49",
+        "priceNum": 75.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "057706",
         "skuKey": "057706",
-        "url": "https://vesselliquor.com/products/ardbeg-wee-beastie-5-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4590771-ardbeg-wee-beastie-5yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
       },
       "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ardbeg-wee-beastie-5-year-old-single-malt-scotch"
+        "price": "$75.49",
+        "priceNum": 75.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4590771-ardbeg-wee-beastie-5yo"
       }
     },
     {
@@ -569,7 +569,7 @@
         "gull": 26.99,
         "legacyliquor": 31.99,
         "strath": 31.31,
-        "vessel": 28.99,
+        "vessel": 31.99,
         "vintage": 33.39
       },
       "representative": {
@@ -5425,7 +5425,7 @@
         "arc": 42.69,
         "bcl": 45.99,
         "gull": 48.5,
-        "strath": 44.3,
+        "strath": 46.76,
         "tudor": 45.99
       },
       "representative": {
@@ -8387,6 +8387,46 @@
       }
     },
     {
+      "canonSku": "012746",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 138.39,
+        "legacyliquor": 162.37,
+        "strath": 142.83,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "GLEN SCOTIA 15YO",
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "012746",
+        "skuKey": "012746",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
+      }
+    },
+    {
       "canonSku": "012912",
       "storeCount": 4,
       "stores": [
@@ -10165,7 +10205,7 @@
         "arc": 55.99,
         "bcl": 59.99,
         "legacyliquor": 60.44,
-        "vessel": 57.49
+        "vessel": 59.99
       },
       "representative": {
         "name": "JAMESON BLACK BARREL",
@@ -10184,45 +10224,6 @@
         "priceNum": 55.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591053-jameson-black-barrel"
-      }
-    },
-    {
-      "canonSku": "012746",
-      "storeCount": 3,
-      "stores": [
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 162.37,
-        "strath": 142.83,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "Glen Scotia - 15 Year Old Single Malt Scotch",
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "012746",
-        "skuKey": "012746",
-        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch"
       }
     },
     {
