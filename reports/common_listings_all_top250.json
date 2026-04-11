@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T07:19:54.119Z",
+  "generatedAt": "2026-04-11T19:15:22.957Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12912,
-    "removedRows": 2834,
-    "canonSkus": 6189,
+    "liveRows": 12898,
+    "removedRows": 2848,
+    "canonSkus": 6190,
     "outputCount": 250
   },
   "rows": [
@@ -75,7 +75,7 @@
         "maltsandgrains": 91.58,
         "sierrasprings": 89.42,
         "strath": 80.87,
-        "tudor": 79.99,
+        "tudor": 74.99,
         "vessel": 79.99,
         "vintage": 75.57,
         "willowpark": 84.99
@@ -133,7 +133,7 @@
         "maltsandgrains": 114.62,
         "sierrasprings": 98.94,
         "strath": 120.53,
-        "tudor": 120.99,
+        "tudor": 110.99,
         "vessel": 109.99,
         "vintage": 133.83,
         "willowpark": 103.49
@@ -1431,7 +1431,7 @@
         "maltsandgrains": 89.17,
         "sierrasprings": 100.85,
         "strath": 113.09,
-        "tudor": 114.99,
+        "tudor": 104.99,
         "vintage": 123.39,
         "willowpark": 94.49
       },
@@ -1487,7 +1487,7 @@
         "legacyliquor": 109.83,
         "sierrasprings": 80.99,
         "strath": 105.66,
-        "tudor": 106.99,
+        "tudor": 89.99,
         "vessel": 89.99,
         "willowpark": 85.99
       },
@@ -1786,61 +1786,6 @@
         "priceNum": 54.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/diplomatico-exclusive-reserve"
-      }
-    },
-    {
-      "canonSku": "021758",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "arc": 182.59,
-        "bsw": 125,
-        "coop": 154.99,
-        "craftcellars": 123.99,
-        "kegncork": 149.96,
-        "kwm": 154.99,
-        "strath": 192.4,
-        "tudor": 209.99,
-        "vessel": 199.99,
-        "vintage": 179.04,
-        "willowpark": 149.99
-      },
-      "representative": {
-        "name": "Ardbeg Corryvreckan",
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "739100",
-        "skuKey": "739100",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
       }
     },
     {
@@ -2370,7 +2315,7 @@
         "kwm": 117.99,
         "legacyliquor": 142.73,
         "sierrasprings": 107.51,
-        "tudor": 124.99,
+        "tudor": 112.99,
         "vessel": 109.99,
         "willowpark": 128.99
       },
@@ -2989,6 +2934,60 @@
         "priceNum": 82.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/benriach-12-year-old-1"
+      }
+    },
+    {
+      "canonSku": "021758",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 182.59,
+        "bsw": 125,
+        "coop": 154.99,
+        "craftcellars": 123.99,
+        "kwm": 154.99,
+        "strath": 192.4,
+        "tudor": 209.99,
+        "vessel": 199.99,
+        "vintage": 179.04,
+        "willowpark": 149.99
+      },
+      "representative": {
+        "name": "Ardbeg Corryvreckan",
+        "price": "$123.99",
+        "priceNum": 123.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739100",
+        "skuKey": "739100",
+        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$123.99",
+        "priceNum": 123.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
       }
     },
     {
@@ -3616,7 +3615,7 @@
         "kwm": 94.99,
         "maltsandgrains": 98.43,
         "sierrasprings": 76.09,
-        "tudor": 110.99,
+        "tudor": 105.99,
         "vessel": 104.99,
         "willowpark": 88.99
       },
@@ -5590,7 +5589,7 @@
         "legacyliquor": 108.88,
         "maltsandgrains": 113.03,
         "sierrasprings": 99.9,
-        "tudor": 104.99,
+        "tudor": 99.99,
         "vessel": 104.99,
         "willowpark": 103.49
       },
@@ -5696,27 +5695,27 @@
         "craftcellars": 343.99,
         "kwm": 349.99,
         "maltsandgrains": 360.47,
-        "tudor": 299.99,
+        "tudor": 249.99,
         "vessel": 259.99,
         "willowpark": 349.99
       },
       "representative": {
-        "name": "Highland Park - 18 Year Old Single Malt Scotch",
-        "price": "$259.99",
-        "priceNum": 259.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "HIGHLAND PARK 18 YR OLD",
+        "price": "$249.99",
+        "priceNum": 249.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
         "skuRaw": "500231",
         "skuKey": "500231",
-        "url": "https://vesselliquor.com/products/highland-park-18-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/highland-park-18yr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
       },
       "cheapest": {
-        "price": "$259.99",
-        "priceNum": 259.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/highland-park-18-year-old-single-malt-scotch"
+        "price": "$249.99",
+        "priceNum": 249.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/highland-park-18yr-ml-420"
       }
     },
     {
@@ -6954,7 +6953,7 @@
         "bsw": 59.99,
         "gull": 69.99,
         "sierrasprings": 67.51,
-        "tudor": 70.99,
+        "tudor": 66.99,
         "vessel": 69.99,
         "willowpark": 70.49
       },
@@ -7372,7 +7371,7 @@
         "maltsandgrains": 60.8,
         "sierrasprings": 45.61,
         "strath": 46.76,
-        "tudor": 45.99
+        "tudor": 42.99
       },
       "representative": {
         "name": "JAMESON TRIPLE TRIPLE IRISH WHISKEY",
@@ -7942,7 +7941,7 @@
         "gull": 79.65,
         "legacyliquor": 89.58,
         "strath": 82.53,
-        "tudor": 84.99,
+        "tudor": 79.99,
         "vessel": 84.99,
         "vintage": 89.48
       },
@@ -8515,7 +8514,7 @@
         "kwm": 84.99,
         "legacyliquor": 82.61,
         "sierrasprings": 71.32,
-        "tudor": 75.99,
+        "tudor": 71.99,
         "willowpark": 64.99
       },
       "representative": {
@@ -8879,26 +8878,26 @@
         "gull": 43.05,
         "legacyliquor": 45.76,
         "sierrasprings": 48.56,
-        "tudor": 42.99,
+        "tudor": 40.99,
         "willowpark": 47.99
       },
       "representative": {
-        "name": "Captain Morgan Original Spiced Caribbean Rum 1.14L",
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "745026",
-        "skuKey": "745026",
-        "url": "https://www.bswliquor.com/products/captain-morgan-spiced-rum-8",
+        "name": "Captain Morgan Original Spiced Rum",
+        "price": "$40.99",
+        "priceNum": 40.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "500538",
+        "skuKey": "500538",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-l-360",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+        "dbFile": "data/db/tudor__rum__9eb7c606.json"
       },
       "cheapest": {
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/captain-morgan-spiced-rum-8"
+        "price": "$40.99",
+        "priceNum": 40.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-l-360"
       }
     },
     {
@@ -8983,7 +8982,7 @@
         "gull": 114.15,
         "legacyliquor": 113.99,
         "sierrasprings": 93.22,
-        "tudor": 108.99,
+        "tudor": 104.49,
         "willowpark": 93.49
       },
       "representative": {
@@ -9087,7 +9086,7 @@
         "gull": 184.99,
         "maltsandgrains": 184.59,
         "sierrasprings": 190.37,
-        "tudor": 184.99,
+        "tudor": 154.99,
         "willowpark": 186.99
       },
       "representative": {
@@ -10109,7 +10108,7 @@
         "kegncork": 65.96,
         "legacyliquor": 75.57,
         "strath": 66,
-        "tudor": 69.99
+        "tudor": 64.99
       },
       "representative": {
         "name": "TAMNAVULIN SHERRY CASK SPEYSIDE SINGLE",
@@ -10466,7 +10465,7 @@
         "gull": 174.99,
         "kwm": 174.99,
         "legacyliquor": 176.76,
-        "tudor": 174.99
+        "tudor": 167.99
       },
       "representative": {
         "name": "The Macallan 12 Year Old Sherry Oak",
@@ -10619,7 +10618,7 @@
         "gull": 88.45,
         "legacyliquor": 88.45,
         "sierrasprings": 73.99,
-        "tudor": 83.99
+        "tudor": 80.49
       },
       "representative": {
         "name": "Jameson Irish Whiskey 1.75L",
@@ -13201,7 +13200,7 @@
         "bsw": 56.99,
         "gull": 69.99,
         "legacyliquor": 74.35,
-        "tudor": 70.99,
+        "tudor": 67.99,
         "vessel": 67.99
       },
       "representative": {
