@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T19:15:24.271Z",
+  "generatedAt": "2026-04-12T01:15:56.123Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8450,
-    "removedRows": 2484,
+    "liveRows": 8447,
+    "removedRows": 2487,
     "canonSkus": 5033,
     "outputCount": 50
   },
@@ -73,49 +73,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
-      }
-    },
-    {
-      "canonSku": "413410",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "craftcellars": 72.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "sierrasprings": 107.51,
-        "willowpark": 119.99
-      },
-      "representative": {
-        "name": "Glendronach 12 Year Old",
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv"
       }
     },
     {
@@ -460,6 +417,49 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/glenfarclas-12-year-old-43-abv/"
+      }
+    },
+    {
+      "canonSku": "413410",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
       }
     },
     {

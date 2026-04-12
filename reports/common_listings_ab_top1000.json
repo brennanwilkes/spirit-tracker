@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T19:15:24.864Z",
+  "generatedAt": "2026-04-12T01:15:56.742Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8450,
-    "removedRows": 2484,
+    "liveRows": 8447,
+    "removedRows": 2487,
     "canonSkus": 5033,
     "outputCount": 1000
   },
@@ -73,49 +73,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
-      }
-    },
-    {
-      "canonSku": "413410",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "craftcellars": 72.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "sierrasprings": 107.51,
-        "willowpark": 119.99
-      },
-      "representative": {
-        "name": "Glendronach 12 Year Old",
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv"
       }
     },
     {
@@ -503,6 +460,49 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/glenfarclas-12-year-old-43-abv/"
+      }
+    },
+    {
+      "canonSku": "413410",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
       }
     },
     {
@@ -6533,46 +6533,6 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask"
-      }
-    },
-    {
-      "canonSku": "029450",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 99.99,
-        "craftcellars": 96.99,
-        "kwm": 99.99,
-        "sierrasprings": 94.18
-      },
-      "representative": {
-        "name": "GLENFIDDICH PROJECT XX",
-        "price": "$94.18",
-        "priceNum": 94.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "120470",
-        "skuKey": "120470",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$94.18",
-        "priceNum": 94.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/"
       }
     },
     {
@@ -15873,6 +15833,45 @@
         "priceNum": 89.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/jp-wisers-18-yo-750-ml/"
+      }
+    },
+    {
+      "canonSku": "029450",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "kwm": 99.99,
+        "sierrasprings": 94.18
+      },
+      "representative": {
+        "name": "GLENFIDDICH PROJECT XX",
+        "price": "$94.18",
+        "priceNum": 94.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "120470",
+        "skuKey": "120470",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$94.18",
+        "priceNum": 94.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/"
       }
     },
     {
