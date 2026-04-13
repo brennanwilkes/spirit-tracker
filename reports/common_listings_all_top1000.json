@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T04:49:22.072Z",
+  "generatedAt": "2026-04-13T07:37:06.882Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,15 +34,15 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13206,
-    "removedRows": 2763,
-    "canonSkus": 6196,
+    "liveRows": 13202,
+    "removedRows": 2768,
+    "canonSkus": 6198,
     "outputCount": 1000
   },
   "rows": [
     {
       "canonSku": "057706",
-      "storeCount": 15,
+      "storeCount": 14,
       "stores": [
         "arc",
         "bcl",
@@ -50,7 +50,6 @@
         "coop",
         "craftcellars",
         "gull",
-        "kwm",
         "legacyliquor",
         "maltsandgrains",
         "sierrasprings",
@@ -61,7 +60,8 @@
         "willowpark"
       ],
       "missingStores": [
-        "kegncork"
+        "kegncork",
+        "kwm"
       ],
       "storePrices": {
         "arc": 75.49,
@@ -70,7 +70,6 @@
         "coop": 89.99,
         "craftcellars": 86.99,
         "gull": 83.45,
-        "kwm": 86.99,
         "legacyliquor": 83.51,
         "maltsandgrains": 91.58,
         "sierrasprings": 89.42,
@@ -383,63 +382,6 @@
         "priceNum": 44.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bumbu-craft-rum"
-      }
-    },
-    {
-      "canonSku": "316844",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 27.99,
-        "bsw": 27.99,
-        "craftcellars": 36.99,
-        "gull": 27.49,
-        "kwm": 36.99,
-        "legacyliquor": 31.81,
-        "maltsandgrains": 35.2,
-        "sierrasprings": 31.32,
-        "tudor": 29.99,
-        "vessel": 27.99,
-        "vintage": 33.83,
-        "willowpark": 34.99
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -1171,6 +1113,62 @@
         "priceNum": 120,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/oban-14-year-old-1"
+      }
+    },
+    {
+      "canonSku": "316844",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "strath",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 27.99,
+        "bsw": 27.99,
+        "craftcellars": 36.99,
+        "gull": 27.49,
+        "kwm": 36.99,
+        "legacyliquor": 31.81,
+        "maltsandgrains": 35.2,
+        "sierrasprings": 31.32,
+        "tudor": 29.99,
+        "vintage": 33.83,
+        "willowpark": 34.99
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -2307,7 +2305,7 @@
       "storePrices": {
         "arc": 110.99,
         "bcl": 124.99,
-        "bsw": 94.99,
+        "bsw": 99.99,
         "craftcellars": 83.99,
         "gull": 114.99,
         "kwm": 117.99,
@@ -3202,60 +3200,6 @@
         "priceNum": 44.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 69.99,
-        "bcl": 75.99,
-        "bsw": 69.99,
-        "craftcellars": 78.99,
-        "gull": 80.65,
-        "kwm": 79.99,
-        "maltsandgrains": 82.22,
-        "sierrasprings": 68.99,
-        "vessel": 74.99,
-        "willowpark": 75.49
-      },
-      "representative": {
-        "name": "GLENMORANGIE 12 YR OLD",
-        "price": "$68.99",
-        "priceNum": 68.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "114799",
-        "skuKey": "114799",
-        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$68.99",
-        "priceNum": 68.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/"
       }
     },
     {
@@ -4866,6 +4810,59 @@
         "priceNum": 64.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/105447/jura-12-year-old"
+      }
+    },
+    {
+      "canonSku": "114799",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 69.99,
+        "bcl": 75.99,
+        "bsw": 69.99,
+        "craftcellars": 78.99,
+        "gull": 80.65,
+        "kwm": 79.99,
+        "maltsandgrains": 82.22,
+        "sierrasprings": 68.99,
+        "willowpark": 75.49
+      },
+      "representative": {
+        "name": "GLENMORANGIE 12 YR OLD",
+        "price": "$68.99",
+        "priceNum": 68.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "114799",
+        "skuKey": "114799",
+        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+      },
+      "cheapest": {
+        "price": "$68.99",
+        "priceNum": 68.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/"
       }
     },
     {
@@ -8923,7 +8920,7 @@
       ],
       "storePrices": {
         "bcl": 108.99,
-        "bsw": 74.99,
+        "bsw": 84.99,
         "craftcellars": 98.99,
         "gull": 114.15,
         "legacyliquor": 113.99,
@@ -8933,8 +8930,8 @@
       },
       "representative": {
         "name": "The Glenlivet 15 Year Old French Oak Reserve",
-        "price": "$74.99",
-        "priceNum": 74.99,
+        "price": "$84.99",
+        "priceNum": 84.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "716552",
@@ -8944,8 +8941,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
+        "price": "$84.99",
+        "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenlivet-15-year-old-french-oak-reserve"
       }
@@ -21823,55 +21820,6 @@
       }
     },
     {
-      "canonSku": "133963",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 89.99,
-        "craftcellars": 81.99,
-        "kegncork": 79.96,
-        "maltsandgrains": 85.98
-      },
-      "representative": {
-        "name": "Angel's Envy Bourbon",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "133963",
-        "skuKey": "133963",
-        "url": "https://www.bswliquor.com/products/angels-envy-bourbon-2",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/angels-envy-bourbon-2"
-      }
-    },
-    {
       "canonSku": "134972",
       "storeCount": 5,
       "stores": [
@@ -24004,7 +23952,7 @@
       "storePrices": {
         "bcl": 34.99,
         "legacyliquor": 35.65,
-        "sierrasprings": 190.37,
+        "sierrasprings": 171.32,
         "tudor": 34.49,
         "vessel": 32.99
       },
@@ -27497,54 +27445,6 @@
         "priceNum": 20.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/9845"
-      }
-    },
-    {
-      "canonSku": "012746",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 138.39,
-        "legacyliquor": 162.37,
-        "strath": 142.83,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "GLEN SCOTIA 15YO",
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "012746",
-        "skuKey": "012746",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
       }
     },
     {
@@ -31100,6 +31000,54 @@
       }
     },
     {
+      "canonSku": "133963",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 89.99,
+        "craftcellars": 81.99,
+        "maltsandgrains": 85.98
+      },
+      "representative": {
+        "name": "Angel's Envy Bourbon",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "133963",
+        "skuKey": "133963",
+        "url": "https://www.bswliquor.com/products/angels-envy-bourbon-2",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/angels-envy-bourbon-2"
+      }
+    },
+    {
       "canonSku": "133981",
       "storeCount": 4,
       "stores": [
@@ -31363,15 +31311,15 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 180,
+        "bsw": 230,
         "kwm": 249.99,
         "maltsandgrains": 257.9,
         "tudor": 249.99
       },
       "representative": {
         "name": "Angel's Envy 10 Year Old Cask Strength 2025",
-        "price": "$180.00",
-        "priceNum": 180,
+        "price": "$230.00",
+        "priceNum": 230,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "136155",
@@ -31381,8 +31329,8 @@
         "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$180.00",
-        "priceNum": 180,
+        "price": "$230.00",
+        "priceNum": 230,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/angels-envy-10yo-cask-strength"
       }
@@ -36067,7 +36015,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 36.99,
+        "bsw": 39.99,
         "craftcellars": 35.99,
         "kwm": 43.99,
         "sierrasprings": 40.99
@@ -39726,6 +39674,53 @@
         "priceNum": 117,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/matsui-mizunara-cask"
+      }
+    },
+    {
+      "canonSku": "012746",
+      "storeCount": 3,
+      "stores": [
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "legacyliquor": 162.37,
+        "strath": 142.83,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "Glen Scotia - 15 Year Old Single Malt Scotch",
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "012746",
+        "skuKey": "012746",
+        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch"
       }
     },
     {
@@ -45604,53 +45599,6 @@
       }
     },
     {
-      "canonSku": "377994",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "bsw",
-        "craftcellars"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 38.79,
-        "bsw": 44.99,
-        "craftcellars": 50.99
-      },
-      "representative": {
-        "name": "JACK DANIELS GENTLEMAN JACK",
-        "price": "$38.79",
-        "priceNum": 38.79,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "377994",
-        "skuKey": "377994",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588842-jack-daniels-gentleman-jack",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$38.79",
-        "priceNum": 38.79,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588842-jack-daniels-gentleman-jack"
-      }
-    },
-    {
       "canonSku": "379597",
       "storeCount": 3,
       "stores": [
@@ -49014,6 +48962,52 @@
         "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/brothers-bond-straight-bourbon-whiskey"
+      }
+    },
+    {
+      "canonSku": "377994",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "craftcellars"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 44.99,
+        "craftcellars": 50.99
+      },
+      "representative": {
+        "name": "Gentleman Jack Double Mellowed Tennessee Whiskey",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "377994",
+        "skuKey": "377994",
+        "url": "https://www.bswliquor.com/products/gentleman-jack",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/gentleman-jack"
       }
     },
     {

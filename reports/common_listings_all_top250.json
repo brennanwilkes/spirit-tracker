@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T04:49:21.682Z",
+  "generatedAt": "2026-04-13T07:37:06.487Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,15 +34,15 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13206,
-    "removedRows": 2763,
-    "canonSkus": 6196,
+    "liveRows": 13202,
+    "removedRows": 2768,
+    "canonSkus": 6198,
     "outputCount": 250
   },
   "rows": [
     {
       "canonSku": "057706",
-      "storeCount": 15,
+      "storeCount": 14,
       "stores": [
         "arc",
         "bcl",
@@ -50,7 +50,6 @@
         "coop",
         "craftcellars",
         "gull",
-        "kwm",
         "legacyliquor",
         "maltsandgrains",
         "sierrasprings",
@@ -61,7 +60,8 @@
         "willowpark"
       ],
       "missingStores": [
-        "kegncork"
+        "kegncork",
+        "kwm"
       ],
       "storePrices": {
         "arc": 75.49,
@@ -70,7 +70,6 @@
         "coop": 89.99,
         "craftcellars": 86.99,
         "gull": 83.45,
-        "kwm": 86.99,
         "legacyliquor": 83.51,
         "maltsandgrains": 91.58,
         "sierrasprings": 89.42,
@@ -383,63 +382,6 @@
         "priceNum": 44.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bumbu-craft-rum"
-      }
-    },
-    {
-      "canonSku": "316844",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 27.99,
-        "bsw": 27.99,
-        "craftcellars": 36.99,
-        "gull": 27.49,
-        "kwm": 36.99,
-        "legacyliquor": 31.81,
-        "maltsandgrains": 35.2,
-        "sierrasprings": 31.32,
-        "tudor": 29.99,
-        "vessel": 27.99,
-        "vintage": 33.83,
-        "willowpark": 34.99
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -1171,6 +1113,62 @@
         "priceNum": 120,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/oban-14-year-old-1"
+      }
+    },
+    {
+      "canonSku": "316844",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "strath",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 27.99,
+        "bsw": 27.99,
+        "craftcellars": 36.99,
+        "gull": 27.49,
+        "kwm": 36.99,
+        "legacyliquor": 31.81,
+        "maltsandgrains": 35.2,
+        "sierrasprings": 31.32,
+        "tudor": 29.99,
+        "vintage": 33.83,
+        "willowpark": 34.99
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -2307,7 +2305,7 @@
       "storePrices": {
         "arc": 110.99,
         "bcl": 124.99,
-        "bsw": 94.99,
+        "bsw": 99.99,
         "craftcellars": 83.99,
         "gull": 114.99,
         "kwm": 117.99,
@@ -3202,60 +3200,6 @@
         "priceNum": 44.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 69.99,
-        "bcl": 75.99,
-        "bsw": 69.99,
-        "craftcellars": 78.99,
-        "gull": 80.65,
-        "kwm": 79.99,
-        "maltsandgrains": 82.22,
-        "sierrasprings": 68.99,
-        "vessel": 74.99,
-        "willowpark": 75.49
-      },
-      "representative": {
-        "name": "GLENMORANGIE 12 YR OLD",
-        "price": "$68.99",
-        "priceNum": 68.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "114799",
-        "skuKey": "114799",
-        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$68.99",
-        "priceNum": 68.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/"
       }
     },
     {
@@ -4866,6 +4810,59 @@
         "priceNum": 64.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/105447/jura-12-year-old"
+      }
+    },
+    {
+      "canonSku": "114799",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 69.99,
+        "bcl": 75.99,
+        "bsw": 69.99,
+        "craftcellars": 78.99,
+        "gull": 80.65,
+        "kwm": 79.99,
+        "maltsandgrains": 82.22,
+        "sierrasprings": 68.99,
+        "willowpark": 75.49
+      },
+      "representative": {
+        "name": "GLENMORANGIE 12 YR OLD",
+        "price": "$68.99",
+        "priceNum": 68.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "114799",
+        "skuKey": "114799",
+        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/",
+        "categoryLabel": "Other",
+        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+      },
+      "cheapest": {
+        "price": "$68.99",
+        "priceNum": 68.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/other/glenmorangie-12-yr-old/"
       }
     },
     {
@@ -8923,7 +8920,7 @@
       ],
       "storePrices": {
         "bcl": 108.99,
-        "bsw": 74.99,
+        "bsw": 84.99,
         "craftcellars": 98.99,
         "gull": 114.15,
         "legacyliquor": 113.99,
@@ -8933,8 +8930,8 @@
       },
       "representative": {
         "name": "The Glenlivet 15 Year Old French Oak Reserve",
-        "price": "$74.99",
-        "priceNum": 74.99,
+        "price": "$84.99",
+        "priceNum": 84.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "716552",
@@ -8944,8 +8941,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
+        "price": "$84.99",
+        "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenlivet-15-year-old-french-oak-reserve"
       }
