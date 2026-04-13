@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T07:37:06.882Z",
+  "generatedAt": "2026-04-13T16:14:45.896Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,8 +34,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13202,
-    "removedRows": 2768,
+    "liveRows": 13201,
+    "removedRows": 2769,
     "canonSkus": 6198,
     "outputCount": 1000
   },
@@ -35992,54 +35992,6 @@
       }
     },
     {
-      "canonSku": "605063",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 39.99,
-        "craftcellars": 35.99,
-        "kwm": 43.99,
-        "sierrasprings": 40.99
-      },
-      "representative": {
-        "name": "Buffalo Trace",
-        "price": "$35.99",
-        "priceNum": 35.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "714233",
-        "skuKey": "714233",
-        "url": "https://craftcellars.ca/products/buffalo-trace",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$35.99",
-        "priceNum": 35.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/buffalo-trace"
-      }
-    },
-    {
       "canonSku": "610501",
       "storeCount": 4,
       "stores": [
@@ -46301,6 +46253,53 @@
         "priceNum": 84.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/502322"
+      }
+    },
+    {
+      "canonSku": "605063",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 39.99,
+        "kwm": 43.99,
+        "sierrasprings": 40.99
+      },
+      "representative": {
+        "name": "Buffalo Trace Bourbon",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "714233",
+        "skuKey": "714233",
+        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1"
       }
     },
     {
