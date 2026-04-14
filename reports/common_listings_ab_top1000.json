@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T22:06:53.918Z",
+  "generatedAt": "2026-04-14T01:17:13.352Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8430,
-    "removedRows": 2729,
-    "canonSkus": 5029,
+    "liveRows": 8433,
+    "removedRows": 2726,
+    "canonSkus": 5030,
     "outputCount": 1000
   },
   "rows": [
@@ -73,6 +73,49 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+      }
+    },
+    {
+      "canonSku": "413410",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 89.99,
+        "coop": 104.99,
+        "craftcellars": 72.99,
+        "kegncork": 115.96,
+        "kwm": 83.99,
+        "maltsandgrains": 138.79,
+        "sierrasprings": 107.51,
+        "willowpark": 119.99
+      },
+      "representative": {
+        "name": "Glendronach 12 Year Old",
+        "price": "$72.99",
+        "priceNum": 72.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "866077",
+        "skuKey": "866077",
+        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$72.99",
+        "priceNum": 72.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glendronach-12-year-old-43-abv"
       }
     },
     {
@@ -417,49 +460,6 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/glenfarclas-12-year-old-43-abv/"
-      }
-    },
-    {
-      "canonSku": "413410",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "coop": 104.99,
-        "kegncork": 115.96,
-        "kwm": 83.99,
-        "maltsandgrains": 138.79,
-        "sierrasprings": 107.51,
-        "willowpark": 119.99
-      },
-      "representative": {
-        "name": "Glendronach 12 Year",
-        "price": "$83.99",
-        "priceNum": 83.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "866077",
-        "skuKey": "866077",
-        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$83.99",
-        "priceNum": 83.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/866077/glendronach-12-year"
       }
     },
     {
@@ -1221,48 +1221,6 @@
         "priceNum": 185,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-grant-18-year-old-2020-release"
-      }
-    },
-    {
-      "canonSku": "236740",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "craftcellars": 109.99,
-        "kegncork": 199.96,
-        "kwm": 122.99,
-        "maltsandgrains": 129.9,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Craigellachie 17 Year Old",
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "864257",
-        "skuKey": "864257",
-        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv"
       }
     },
     {
@@ -4082,6 +4040,47 @@
       }
     },
     {
+      "canonSku": "236740",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 150,
+        "kegncork": 199.96,
+        "kwm": 122.99,
+        "maltsandgrains": 129.9,
+        "willowpark": 209.99
+      },
+      "representative": {
+        "name": "Craigellachie 17 Year",
+        "price": "$122.99",
+        "priceNum": 122.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "864257",
+        "skuKey": "864257",
+        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$122.99",
+        "priceNum": 122.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year"
+      }
+    },
+    {
       "canonSku": "238725",
       "storeCount": 5,
       "stores": [
@@ -6617,6 +6616,46 @@
       }
     },
     {
+      "canonSku": "029450",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "craftcellars": 96.99,
+        "kwm": 99.99,
+        "sierrasprings": 94.18
+      },
+      "representative": {
+        "name": "GLENFIDDICH PROJECT XX",
+        "price": "$94.18",
+        "priceNum": 94.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "120470",
+        "skuKey": "120470",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$94.18",
+        "priceNum": 94.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/"
+      }
+    },
+    {
       "canonSku": "050647",
       "storeCount": 4,
       "stores": [
@@ -8894,6 +8933,46 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/angels-envy-rye-1"
+      }
+    },
+    {
+      "canonSku": "136155",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 230,
+        "craftcellars": 159.99,
+        "kwm": 249.99,
+        "maltsandgrains": 257.9
+      },
+      "representative": {
+        "name": "Angels Envy 10 Year Old Cask Strength",
+        "price": "$159.99",
+        "priceNum": 159.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "136155",
+        "skuKey": "136155",
+        "url": "https://craftcellars.ca/products/angels-envy-10-year-old-cask-strength",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$159.99",
+        "priceNum": 159.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/angels-envy-10-year-old-cask-strength"
       }
     },
     {
@@ -12294,6 +12373,46 @@
         "priceNum": 25.61,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/white-rum-spirits-liquor/flor-de-cana-extra-dry-4-years-40-abv/"
+      }
+    },
+    {
+      "canonSku": "732883",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "craftcellars": 58.99,
+        "maltsandgrains": 88.9,
+        "sierrasprings": 81
+      },
+      "representative": {
+        "name": "Wild Turkey Rare Breed",
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "794972",
+        "skuKey": "794972",
+        "url": "https://craftcellars.ca/products/wild-turkey-rare-breed-58-4-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/wild-turkey-rare-breed-58-4-abv"
       }
     },
     {
@@ -15754,45 +15873,6 @@
         "priceNum": 89.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/jp-wisers-18-yo-750-ml/"
-      }
-    },
-    {
-      "canonSku": "029450",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 99.99,
-        "kwm": 99.99,
-        "sierrasprings": 94.18
-      },
-      "representative": {
-        "name": "GLENFIDDICH PROJECT XX",
-        "price": "$94.18",
-        "priceNum": 94.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "120470",
-        "skuKey": "120470",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$94.18",
-        "priceNum": 94.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/glenfiddich-project-xx/"
       }
     },
     {
@@ -20983,45 +21063,6 @@
       }
     },
     {
-      "canonSku": "136155",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 230,
-        "kwm": 249.99,
-        "maltsandgrains": 257.9
-      },
-      "representative": {
-        "name": "Angel's Envy 10 Year Old Cask Strength 2025",
-        "price": "$230.00",
-        "priceNum": 230,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "136155",
-        "skuKey": "136155",
-        "url": "https://www.bswliquor.com/products/angels-envy-10yo-cask-strength",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$230.00",
-        "priceNum": 230,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/angels-envy-10yo-cask-strength"
-      }
-    },
-    {
       "canonSku": "136357",
       "storeCount": 3,
       "stores": [
@@ -25855,45 +25896,6 @@
         "priceNum": 57.04,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/amrut-peated-indian-single-malt-whisky-46-abv/"
-      }
-    },
-    {
-      "canonSku": "732883",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "maltsandgrains": 88.9,
-        "sierrasprings": 81
-      },
-      "representative": {
-        "name": "Wild Turkey Rare Breed Barrel Proof Bourbon",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "794972",
-        "skuKey": "794972",
-        "url": "https://www.bswliquor.com/products/wild-turkey-rare-breed-bourbon-58-40",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/wild-turkey-rare-breed-bourbon-58-40"
       }
     },
     {
