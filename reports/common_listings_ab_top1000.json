@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-14T07:24:57.331Z",
+  "generatedAt": "2026-04-14T16:13:26.083Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8431,
-    "removedRows": 2729,
+    "liveRows": 8444,
+    "removedRows": 2717,
     "canonSkus": 5030,
     "outputCount": 1000
   },
@@ -1224,6 +1224,48 @@
       }
     },
     {
+      "canonSku": "236740",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 150,
+        "craftcellars": 112.99,
+        "kegncork": 199.96,
+        "kwm": 122.99,
+        "maltsandgrains": 129.9,
+        "willowpark": 209.99
+      },
+      "representative": {
+        "name": "Craigellachie 17 Year Old",
+        "price": "$112.99",
+        "priceNum": 112.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "864257",
+        "skuKey": "864257",
+        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$112.99",
+        "priceNum": 112.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv"
+      }
+    },
+    {
       "canonSku": "238097",
       "storeCount": 6,
       "stores": [
@@ -1576,29 +1618,29 @@
       ],
       "storePrices": {
         "bsw": 49.99,
-        "craftcellars": 59.99,
+        "craftcellars": 41.99,
         "kegncork": 58.96,
         "kwm": 51.99,
         "maltsandgrains": 64.9,
         "sierrasprings": 57.04
       },
       "representative": {
-        "name": "Knob Creek 9 Year Old Kentucky Straight Bourbon",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Knob Creek 9 Year Old Small Batch Bourbon",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "326009",
         "skuKey": "326009",
-        "url": "https://www.bswliquor.com/products/knob-creek-bourbon",
+        "url": "https://craftcellars.ca/products/knob-creek-9yr-old-small-batch-bourbon",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/knob-creek-bourbon"
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/knob-creek-9yr-old-small-batch-bourbon"
       }
     },
     {
@@ -4040,47 +4082,6 @@
       }
     },
     {
-      "canonSku": "236740",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "kegncork": 199.96,
-        "kwm": 122.99,
-        "maltsandgrains": 129.9,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Craigellachie 17 Year",
-        "price": "$122.99",
-        "priceNum": 122.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "864257",
-        "skuKey": "864257",
-        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$122.99",
-        "priceNum": 122.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year"
-      }
-    },
-    {
       "canonSku": "238725",
       "storeCount": 5,
       "stores": [
@@ -5229,6 +5230,47 @@
       }
     },
     {
+      "canonSku": "753890",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "craftcellars": 79.99,
+        "kegncork": 104.96,
+        "kwm": 99.99,
+        "sierrasprings": 84.66
+      },
+      "representative": {
+        "name": "Longrow Peated Single Malt NV",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "753890",
+        "skuKey": "753890",
+        "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv"
+      }
+    },
+    {
       "canonSku": "756510",
       "storeCount": 5,
       "stores": [
@@ -5409,7 +5451,7 @@
       ],
       "storePrices": {
         "bsw": 36.99,
-        "craftcellars": 37.99,
+        "craftcellars": 38.99,
         "kwm": 38.99,
         "maltsandgrains": 39.86,
         "sierrasprings": 35.99
@@ -5636,6 +5678,47 @@
         "priceNum": 58.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/monkey-shoulder-blended-scotch"
+      }
+    },
+    {
+      "canonSku": "784271",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "craftcellars": 75.99,
+        "kegncork": 104.96,
+        "kwm": 99.99,
+        "sierrasprings": 95.13
+      },
+      "representative": {
+        "name": "Kilkerran 12 Year Old",
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "784271",
+        "skuKey": "784271",
+        "url": "https://craftcellars.ca/products/kilkerran-12-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/kilkerran-12-year-old"
       }
     },
     {
@@ -9695,6 +9778,46 @@
       }
     },
     {
+      "canonSku": "173886",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 76.99,
+        "craftcellars": 78.99,
+        "sierrasprings": 65.6,
+        "willowpark": 74.49
+      },
+      "representative": {
+        "name": "PORT ASKAIG 8 YR ISLAY SINGLE MALT",
+        "price": "$65.60",
+        "priceNum": 65.6,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "790467",
+        "skuKey": "790467",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/port-askaig-8-year-old-islay-single-malt-45-8-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$65.60",
+        "priceNum": 65.6,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/port-askaig-8-year-old-islay-single-malt-45-8-abv/"
+      }
+    },
+    {
       "canonSku": "177077",
       "storeCount": 4,
       "stores": [
@@ -12655,46 +12778,6 @@
       }
     },
     {
-      "canonSku": "753890",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "kegncork": 104.96,
-        "kwm": 99.99,
-        "sierrasprings": 84.66
-      },
-      "representative": {
-        "name": "LONGROW NV",
-        "price": "$84.66",
-        "priceNum": 84.66,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "753890",
-        "skuKey": "753890",
-        "url": "https://sierraspringsliquor.ca/shop/fine-rare/scotch-whisky/campbeltown/longrow-peated-whisky-46-abv/",
-        "categoryLabel": "Fine & Rare",
-        "dbFile": "data/db/sierrasprings__fine-rare__aef08fcd.json"
-      },
-      "cheapest": {
-        "price": "$84.66",
-        "priceNum": 84.66,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/fine-rare/scotch-whisky/campbeltown/longrow-peated-whisky-46-abv/"
-      }
-    },
-    {
       "canonSku": "757840",
       "storeCount": 4,
       "stores": [
@@ -12991,27 +13074,27 @@
       ],
       "storePrices": {
         "bsw": 69.99,
-        "craftcellars": 81.99,
+        "craftcellars": 55.99,
         "sierrasprings": 76.09,
         "willowpark": 83.99
       },
       "representative": {
-        "name": "Aberfeldy 12 Year Old",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Aberfeldy 12 Year Old Highland Single Malt",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "840932",
         "skuKey": "840932",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/aberfeldy-12-year-old-highland-single-malt-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old"
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/aberfeldy-12-year-old-highland-single-malt-40-abv"
       }
     },
     {
@@ -13052,46 +13135,6 @@
         "priceNum": 125,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/hibiki-harmony"
-      }
-    },
-    {
-      "canonSku": "784271",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "kegncork": 104.96,
-        "kwm": 99.99,
-        "sierrasprings": 95.13
-      },
-      "representative": {
-        "name": "Kilkerran 12 Year Old",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "784271",
-        "skuKey": "784271",
-        "url": "https://www.bswliquor.com/products/kilkerran-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/kilkerran-12-year-old-1"
       }
     },
     {
@@ -13932,6 +13975,46 @@
         "priceNum": 215,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/paul-john-mithuna-indian-single-malt"
+      }
+    },
+    {
+      "canonSku": "844630",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 94.99,
+        "craftcellars": 115.99,
+        "kwm": 109.99,
+        "maltsandgrains": 99.9
+      },
+      "representative": {
+        "name": "Laphroaig 10 Year Old Sherry Oak Finsh",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "844630",
+        "skuKey": "844630",
+        "url": "https://www.bswliquor.com/products/laphroaig-10-year-old-sherry-oak-finish",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/laphroaig-10-year-old-sherry-oak-finish"
       }
     },
     {
@@ -15890,7 +15973,7 @@
       ],
       "storePrices": {
         "bsw": 31.99,
-        "craftcellars": 41.99,
+        "craftcellars": 31.99,
         "sierrasprings": 33.33
       },
       "representative": {
@@ -22114,45 +22197,6 @@
       }
     },
     {
-      "canonSku": "173886",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 76.99,
-        "sierrasprings": 65.6,
-        "willowpark": 74.49
-      },
-      "representative": {
-        "name": "PORT ASKAIG 8 YR ISLAY SINGLE MALT",
-        "price": "$65.60",
-        "priceNum": 65.6,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "790467",
-        "skuKey": "790467",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/port-askaig-8-year-old-islay-single-malt-45-8-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$65.60",
-        "priceNum": 65.6,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/port-askaig-8-year-old-islay-single-malt-45-8-abv/"
-      }
-    },
-    {
       "canonSku": "186109",
       "storeCount": 3,
       "stores": [
@@ -25585,6 +25629,45 @@
       }
     },
     {
+      "canonSku": "661884",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "craftcellars": 108.99,
+        "willowpark": 179.99
+      },
+      "representative": {
+        "name": "Aberfeldy 21 Year Old Highland Single Malt Scotch Whisky",
+        "price": "$108.99",
+        "priceNum": 108.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "852543",
+        "skuKey": "852543",
+        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$108.99",
+        "priceNum": 108.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv"
+      }
+    },
+    {
       "canonSku": "670802",
       "storeCount": 3,
       "stores": [
@@ -25933,6 +26016,45 @@
         "priceNum": 57.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/glen-garioch-founders-reserve-48-abv/"
+      }
+    },
+    {
+      "canonSku": "740373",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 44.99,
+        "craftcellars": 42.99,
+        "sierrasprings": 44.5
+      },
+      "representative": {
+        "name": "1792 Small Batch Kentucky Straight Bourbon",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "740373",
+        "skuKey": "740373",
+        "url": "https://craftcellars.ca/products/online-only-1792-small-batch-kentucky-straight-bourbon-46-85-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/online-only-1792-small-batch-kentucky-straight-bourbon-46-85-abv"
       }
     },
     {
@@ -26440,6 +26562,45 @@
         "priceNum": 39.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ardmore-legacy"
+      }
+    },
+    {
+      "canonSku": "774862",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 54.99,
+        "craftcellars": 64.99,
+        "sierrasprings": 62.75
+      },
+      "representative": {
+        "name": "Bulleit 10 Year Aged Bourbon",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "774862",
+        "skuKey": "774862",
+        "url": "https://www.bswliquor.com/products/bulleit-10-year-old-bourbon-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bulleit-10-year-old-bourbon-1"
       }
     },
     {
@@ -27613,6 +27774,45 @@
       }
     },
     {
+      "canonSku": "840215",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 75.99,
+        "craftcellars": 77.99,
+        "kwm": 80.99
+      },
+      "representative": {
+        "name": "Romero Distilling Co Dark Rum Broubon Barrel Aged",
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "840215",
+        "skuKey": "840215",
+        "url": "https://www.bswliquor.com/products/romero-dark-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+      },
+      "cheapest": {
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/romero-dark-rum"
+      }
+    },
+    {
       "canonSku": "841351",
       "storeCount": 3,
       "stores": [
@@ -27808,45 +28008,6 @@
       }
     },
     {
-      "canonSku": "844630",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 94.99,
-        "kwm": 109.99,
-        "maltsandgrains": 99.9
-      },
-      "representative": {
-        "name": "Laphroaig 10 Year Old Sherry Oak Finsh",
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "844630",
-        "skuKey": "844630",
-        "url": "https://www.bswliquor.com/products/laphroaig-10-year-old-sherry-oak-finish",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/laphroaig-10-year-old-sherry-oak-finish"
-      }
-    },
-    {
       "canonSku": "844885",
       "storeCount": 3,
       "stores": [
@@ -28000,6 +28161,45 @@
         "priceNum": 60.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/old-perth-original"
+      }
+    },
+    {
+      "canonSku": "845176",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 59.99,
+        "craftcellars": 79.99,
+        "willowpark": 74.49
+      },
+      "representative": {
+        "name": "Old Perth Cask Strength 58.6%",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "845176",
+        "skuKey": "845176",
+        "url": "https://www.bswliquor.com/products/old-perth-cask-strength",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-perth-cask-strength"
       }
     },
     {
@@ -37314,44 +37514,6 @@
       }
     },
     {
-      "canonSku": "661884",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "willowpark": 179.99
-      },
-      "representative": {
-        "name": "Aberfeldy 21 Year Old",
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "852543",
-        "skuKey": "852543",
-        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1"
-      }
-    },
-    {
       "canonSku": "715574",
       "storeCount": 2,
       "stores": [
@@ -37466,44 +37628,6 @@
       }
     },
     {
-      "canonSku": "740373",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 44.99,
-        "sierrasprings": 44.5
-      },
-      "representative": {
-        "name": "1792 SMALL BATCH BOURBON",
-        "price": "$44.50",
-        "priceNum": 44.5,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "740373",
-        "skuKey": "740373",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-american/1792-small-batch-46-9-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$44.50",
-        "priceNum": 44.5,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-american/1792-small-batch-46-9-abv/"
-      }
-    },
-    {
       "canonSku": "743170",
       "storeCount": 2,
       "stores": [
@@ -37577,44 +37701,6 @@
         "priceNum": 180,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/tomatin-18-year-old"
-      }
-    },
-    {
-      "canonSku": "774862",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 54.99,
-        "sierrasprings": 62.75
-      },
-      "representative": {
-        "name": "Bulleit 10 Year Aged Bourbon",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "774862",
-        "skuKey": "774862",
-        "url": "https://www.bswliquor.com/products/bulleit-10-year-old-bourbon-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bulleit-10-year-old-bourbon-1"
       }
     },
     {
@@ -38226,44 +38312,6 @@
       }
     },
     {
-      "canonSku": "840215",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 75.99,
-        "kwm": 80.99
-      },
-      "representative": {
-        "name": "Romero Distilling Co Dark Rum Broubon Barrel Aged",
-        "price": "$75.99",
-        "priceNum": 75.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "840215",
-        "skuKey": "840215",
-        "url": "https://www.bswliquor.com/products/romero-dark-rum",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
-      },
-      "cheapest": {
-        "price": "$75.99",
-        "priceNum": 75.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/romero-dark-rum"
-      }
-    },
-    {
       "canonSku": "845098",
       "storeCount": 2,
       "stores": [
@@ -38299,44 +38347,6 @@
         "priceNum": 44.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/grants-12-year-old"
-      }
-    },
-    {
-      "canonSku": "845176",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 59.99,
-        "willowpark": 74.49
-      },
-      "representative": {
-        "name": "Old Perth Cask Strength 58.6%",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "845176",
-        "skuKey": "845176",
-        "url": "https://www.bswliquor.com/products/old-perth-cask-strength",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/old-perth-cask-strength"
       }
     },
     {
