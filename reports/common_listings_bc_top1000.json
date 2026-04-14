@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-14T04:45:18.592Z",
+  "generatedAt": "2026-04-14T07:24:56.373Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4436,
-    "removedRows": 376,
-    "canonSkus": 2228,
-    "outputCount": 958
+    "liveRows": 4432,
+    "removedRows": 387,
+    "canonSkus": 2227,
+    "outputCount": 959
   },
   "rows": [
     {
@@ -460,6 +460,49 @@
         "priceNum": 22.49,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml-pet"
+      }
+    },
+    {
+      "canonSku": "000570",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 28.69,
+        "bcl": 27.99,
+        "gull": 29.8,
+        "legacyliquor": 29.39,
+        "strath": 30.35,
+        "tudor": 27.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "BEEFEATER - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000570",
+        "skuKey": "000570",
+        "url": "https://www.bcliquorstores.com/product/570",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/570"
       }
     },
     {
@@ -979,49 +1022,6 @@
       }
     },
     {
-      "canonSku": "243824",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 148.99,
-        "bcl": 154.99,
-        "gull": 159.99,
-        "legacyliquor": 159.99,
-        "strath": 153.57,
-        "tudor": 154.99,
-        "vessel": 144.99
-      },
-      "representative": {
-        "name": "Oban - 14 Year Old Single Malt Scotch",
-        "price": "$144.99",
-        "priceNum": 144.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "243824",
-        "skuKey": "243824",
-        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$144.99",
-        "priceNum": 144.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch"
-      }
-    },
-    {
       "canonSku": "263304",
       "storeCount": 7,
       "stores": [
@@ -1299,7 +1299,7 @@
         "bcl": 79.99,
         "gull": 82.99,
         "legacyliquor": 84.51,
-        "strath": 80.05,
+        "strath": 81.7,
         "tudor": 79.99,
         "vessel": 79.99
       },
@@ -1406,48 +1406,6 @@
         "priceNum": 58.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
-      }
-    },
-    {
-      "canonSku": "000570",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 28.69,
-        "bcl": 27.99,
-        "gull": 29.8,
-        "legacyliquor": 29.39,
-        "strath": 30.35,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "BEEFEATER - LONDON DRY",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "000570",
-        "skuKey": "000570",
-        "url": "https://www.bcliquorstores.com/product/570",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/570"
       }
     },
     {
@@ -3047,6 +3005,48 @@
       }
     },
     {
+      "canonSku": "243824",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 148.99,
+        "bcl": 154.99,
+        "gull": 159.99,
+        "legacyliquor": 159.99,
+        "tudor": 154.99,
+        "vessel": 144.99
+      },
+      "representative": {
+        "name": "Oban - 14 Year Old Single Malt Scotch",
+        "price": "$144.99",
+        "priceNum": 144.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "243824",
+        "skuKey": "243824",
+        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$144.99",
+        "priceNum": 144.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "250013",
       "storeCount": 6,
       "stores": [
@@ -3845,48 +3845,6 @@
       }
     },
     {
-      "canonSku": "560474",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "gull",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 102.99,
-        "bcl": 114.99,
-        "legacyliquor": 129.06,
-        "strath": 113.09,
-        "tudor": 114.99,
-        "vintage": 123.39
-      },
-      "representative": {
-        "name": "ARDBEG 10 YO",
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
-      }
-    },
-    {
       "canonSku": "573352",
       "storeCount": 6,
       "stores": [
@@ -4136,48 +4094,6 @@
         "priceNum": 50.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/hendricks-gin-750-ml"
-      }
-    },
-    {
-      "canonSku": "665257",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 102.69,
-        "bcl": 105.99,
-        "legacyliquor": 110.8,
-        "strath": 104.83,
-        "tudor": 105.99,
-        "vessel": 104.99
-      },
-      "representative": {
-        "name": "LAGAVULIN 8YO",
-        "price": "$102.69",
-        "priceNum": 102.69,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "665257",
-        "skuKey": "665257",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591121-lagavulin-8yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$102.69",
-        "priceNum": 102.69,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591121-lagavulin-8yo"
       }
     },
     {
@@ -8492,6 +8408,47 @@
       }
     },
     {
+      "canonSku": "560474",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 102.99,
+        "bcl": 114.99,
+        "legacyliquor": 129.06,
+        "tudor": 114.99,
+        "vintage": 123.39
+      },
+      "representative": {
+        "name": "ARDBEG 10 YO",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
+      }
+    },
+    {
       "canonSku": "582973",
       "storeCount": 5,
       "stores": [
@@ -8694,6 +8651,47 @@
         "priceNum": 67.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenlivet-founders-reserve-single-malt-scotch-750-ml"
+      }
+    },
+    {
+      "canonSku": "665257",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "gull",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bcl": 105.99,
+        "legacyliquor": 110.8,
+        "strath": 104.83,
+        "tudor": 105.99
+      },
+      "representative": {
+        "name": "LAGAVULIN 8YO",
+        "price": "$102.69",
+        "priceNum": 102.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "665257",
+        "skuKey": "665257",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591121-lagavulin-8yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$102.69",
+        "priceNum": 102.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591121-lagavulin-8yo"
       }
     },
     {
@@ -9544,46 +9542,6 @@
       }
     },
     {
-      "canonSku": "012746",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 138.39,
-        "legacyliquor": 162.37,
-        "strath": 142.83,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "GLEN SCOTIA 15YO",
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "012746",
-        "skuKey": "012746",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
-      }
-    },
-    {
       "canonSku": "012912",
       "storeCount": 4,
       "stores": [
@@ -9981,6 +9939,46 @@
         "priceNum": 149.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/isle-of-jura-18-year-old-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "067433",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 44.99,
+        "bcl": 52.99,
+        "legacyliquor": 52.99,
+        "tudor": 51.99
+      },
+      "representative": {
+        "name": "APPLETON 12YO RARE CASKS",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "067433",
+        "skuKey": "067433",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4776163-appleton-12yo-rare-casks",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4776163-appleton-12yo-rare-casks"
       }
     },
     {
@@ -13002,7 +13000,7 @@
         "arc": 28.79,
         "bcl": 29.99,
         "legacyliquor": 30.92,
-        "vessel": 28.99
+        "vessel": 31.99
       },
       "representative": {
         "name": "HENDRICKS GIN 375ML",
@@ -14453,6 +14451,45 @@
       }
     },
     {
+      "canonSku": "012746",
+      "storeCount": 3,
+      "stores": [
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 162.37,
+        "strath": 142.83,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "Glen Scotia - 15 Year Old Single Malt Scotch",
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "012746",
+        "skuKey": "012746",
+        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "028691",
       "storeCount": 3,
       "stores": [
@@ -14762,45 +14799,6 @@
         "priceNum": 92.29,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591034-tamdhu-12yo"
-      }
-    },
-    {
-      "canonSku": "067433",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 52.99,
-        "legacyliquor": 52.99,
-        "tudor": 51.99
-      },
-      "representative": {
-        "name": "APPLETON ESTATE - 12YO RARE CASKS",
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "067433",
-        "skuKey": "067433",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/appleton-12-year-old-ml-360",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
-      },
-      "cheapest": {
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/appleton-12-year-old-ml-360"
       }
     },
     {
@@ -16052,45 +16050,6 @@
       }
     },
     {
-      "canonSku": "133853",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "legacyliquor",
-        "strath"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 399.99,
-        "legacyliquor": 399.99,
-        "strath": 404.53
-      },
-      "representative": {
-        "name": "NIKKA - FROM THE BARREL 40TH ANNIVERSARY LIMITED EDITION SET",
-        "price": "$399.99",
-        "priceNum": 399.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "773042",
-        "skuKey": "773042",
-        "url": "https://www.bcliquorstores.com/product/773042",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$399.99",
-        "priceNum": 399.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/773042"
-      }
-    },
-    {
       "canonSku": "134592",
       "storeCount": 3,
       "stores": [
@@ -16244,45 +16203,6 @@
         "priceNum": 115.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/678621"
-      }
-    },
-    {
-      "canonSku": "135324",
-      "storeCount": 3,
-      "stores": [
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vintage"
-      ],
-      "storePrices": {
-        "strath": 54.44,
-        "tudor": 56.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "Stillhead - Bartender's Rye",
-        "price": "$54.44",
-        "priceNum": 54.44,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "316012",
-        "skuKey": "316012",
-        "url": "https://www.strathliquor.com/product/stillhead-bartenders-rye/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$54.44",
-        "priceNum": 54.44,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/stillhead-bartenders-rye/"
       }
     },
     {
@@ -17219,45 +17139,6 @@
         "priceNum": 71.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/471235"
-      }
-    },
-    {
-      "canonSku": "201275",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "gull",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 56.49,
-        "gull": 62.99,
-        "strath": 62.7
-      },
-      "representative": {
-        "name": "ODD SOCIETY CANADIAN RYE",
-        "price": "$56.49",
-        "priceNum": 56.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "201275",
-        "skuKey": "201275",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587263-odd-society-canadian-rye",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$56.49",
-        "priceNum": 56.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587263-odd-society-canadian-rye"
       }
     },
     {
@@ -20086,7 +19967,7 @@
       "storePrices": {
         "arc": 65.69,
         "legacyliquor": 86.99,
-        "strath": 80.78
+        "strath": 89.48
       },
       "representative": {
         "name": "HEIGHTS OF ARROWS GIN",
@@ -21197,6 +21078,45 @@
         "priceNum": 211.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/530352"
+      }
+    },
+    {
+      "canonSku": "537589",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 57.99,
+        "strath": 58.57,
+        "tudor": 57.99
+      },
+      "representative": {
+        "name": "DEANSTON - VIRGIN OAK",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "537589",
+        "skuKey": "537589",
+        "url": "https://www.bcliquorstores.com/product/537589",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/537589"
       }
     },
     {
@@ -24337,6 +24257,44 @@
       }
     },
     {
+      "canonSku": "106258",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 47.69,
+        "strath": 51.91
+      },
+      "representative": {
+        "name": "ARBUTUS DISTILLERY GIN MIXER PACK",
+        "price": "$47.69",
+        "priceNum": 47.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "106258",
+        "skuKey": "106258",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586103-arbutus-distillery-gin-mixer-pack",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$47.69",
+        "priceNum": 47.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586103-arbutus-distillery-gin-mixer-pack"
+      }
+    },
+    {
       "canonSku": "106430",
       "storeCount": 2,
       "stores": [
@@ -24486,6 +24444,44 @@
         "priceNum": 149.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/107935"
+      }
+    },
+    {
+      "canonSku": "110432",
+      "storeCount": 2,
+      "stores": [
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "strath": 217.18,
+        "tudor": 229.99
+      },
+      "representative": {
+        "name": "Tamdhu - 15 Year Old",
+        "price": "$217.18",
+        "priceNum": 217.18,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
+        "skuRaw": "110432",
+        "skuKey": "110432",
+        "url": "https://www.strathliquor.com/product/tamdhu-15-year-old/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
+      },
+      "cheapest": {
+        "price": "$217.18",
+        "priceNum": 217.18,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/tamdhu-15-year-old/"
       }
     },
     {
@@ -25667,44 +25663,6 @@
       }
     },
     {
-      "canonSku": "126104",
-      "storeCount": 2,
-      "stores": [
-        "legacyliquor",
-        "strath"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 176.1,
-        "strath": 156.87
-      },
-      "representative": {
-        "name": "Ichiro's Malt - Double Distilleries",
-        "price": "$156.87",
-        "priceNum": 156.87,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "318629",
-        "skuKey": "318629",
-        "url": "https://www.strathliquor.com/product/ichiros-malt-double-distilleries/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$156.87",
-        "priceNum": 156.87,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/ichiros-malt-double-distilleries/"
-      }
-    },
-    {
       "canonSku": "127142",
       "storeCount": 2,
       "stores": [
@@ -26199,6 +26157,44 @@
       }
     },
     {
+      "canonSku": "133853",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 399.99,
+        "legacyliquor": 399.99
+      },
+      "representative": {
+        "name": "NIKKA - FROM THE BARREL 40TH ANNIVERSARY LIMITED EDITION SET",
+        "price": "$399.99",
+        "priceNum": 399.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "773042",
+        "skuKey": "773042",
+        "url": "https://www.bcliquorstores.com/product/773042",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$399.99",
+        "priceNum": 399.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/773042"
+      }
+    },
+    {
       "canonSku": "134037",
       "storeCount": 2,
       "stores": [
@@ -26234,6 +26230,44 @@
         "priceNum": 39.7,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/premium-canadian-dry-gin-seventh-heaven-750ml/"
+      }
+    },
+    {
+      "canonSku": "135324",
+      "storeCount": 2,
+      "stores": [
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "tudor": 56.99,
+        "vessel": 59.99
+      },
+      "representative": {
+        "name": "Stillhead Bartenders",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "316012",
+        "skuKey": "316012",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/stillhead-bartenders-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/stillhead-bartenders-ml-380"
       }
     },
     {
@@ -27678,6 +27712,44 @@
         "priceNum": 64.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/d1-london-gin-ml-350"
+      }
+    },
+    {
+      "canonSku": "201275",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "gull"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 56.49,
+        "gull": 62.99
+      },
+      "representative": {
+        "name": "ODD SOCIETY CANADIAN RYE",
+        "price": "$56.49",
+        "priceNum": 56.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "201275",
+        "skuKey": "201275",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587263-odd-society-canadian-rye",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$56.49",
+        "priceNum": 56.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587263-odd-society-canadian-rye"
       }
     },
     {
@@ -30417,44 +30489,6 @@
       }
     },
     {
-      "canonSku": "306220",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 398.59,
-        "strath": 399.74
-      },
-      "representative": {
-        "name": "G&M LINKWOOD 25YO DISTILLERY LABEL",
-        "price": "$398.59",
-        "priceNum": 398.59,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "306220",
-        "skuKey": "306220",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588111-g-m-linkwood-25yo-distillery-label",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$398.59",
-        "priceNum": 398.59,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588111-g-m-linkwood-25yo-distillery-label"
-      }
-    },
-    {
       "canonSku": "306415",
       "storeCount": 2,
       "stores": [
@@ -31744,44 +31778,6 @@
         "priceNum": 335.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588509-benromach-2002-21yo-bourbon-barrel-360"
-      }
-    },
-    {
-      "canonSku": "346893",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "gull"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 44.99,
-        "gull": 46.75
-      },
-      "representative": {
-        "name": "MOUNT GAY NAVY STRENGTH",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "346893",
-        "skuKey": "346893",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4762322-mount-gay-navy-strength",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4762322-mount-gay-navy-strength"
       }
     },
     {
@@ -36117,44 +36113,6 @@
       }
     },
     {
-      "canonSku": "537589",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 57.99,
-        "tudor": 57.99
-      },
-      "representative": {
-        "name": "DEANSTON - VIRGIN OAK",
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "537589",
-        "skuKey": "537589",
-        "url": "https://www.bcliquorstores.com/product/537589",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/537589"
-      }
-    },
-    {
       "canonSku": "547778",
       "storeCount": 2,
       "stores": [
@@ -36611,6 +36569,44 @@
       }
     },
     {
+      "canonSku": "667285",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "strath"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 50.99,
+        "strath": 52.79
+      },
+      "representative": {
+        "name": "BOWMORE - 9 YEAR OLD",
+        "price": "$50.99",
+        "priceNum": 50.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "667285",
+        "skuKey": "667285",
+        "url": "https://www.bcliquorstores.com/product/667285",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$50.99",
+        "priceNum": 50.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/667285"
+      }
+    },
+    {
       "canonSku": "667736",
       "storeCount": 2,
       "stores": [
@@ -36912,6 +36908,44 @@
         "priceNum": 177.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5098954-williamson-13yo-living-souls-batch-1"
+      }
+    },
+    {
+      "canonSku": "687026",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 137.29,
+        "strath": 141.18
+      },
+      "representative": {
+        "name": "TORABHAIG 7YO LIVING SOULS",
+        "price": "$137.29",
+        "priceNum": 137.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "687026",
+        "skuKey": "687026",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5172283-torabhaig-7yo-living-souls",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$137.29",
+        "priceNum": 137.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5172283-torabhaig-7yo-living-souls"
       }
     },
     {
