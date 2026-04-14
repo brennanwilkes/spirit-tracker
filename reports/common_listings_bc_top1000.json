@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-14T16:13:25.171Z",
+  "generatedAt": "2026-04-14T19:22:03.159Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4432,
-    "removedRows": 387,
-    "canonSkus": 2227,
-    "outputCount": 959
+    "liveRows": 4437,
+    "removedRows": 383,
+    "canonSkus": 2228,
+    "outputCount": 960
   },
   "rows": [
     {
@@ -740,27 +740,27 @@
         "bcl": 55.99,
         "gull": 58.65,
         "legacyliquor": 57.84,
-        "tudor": 54.99,
+        "tudor": 55.99,
         "vessel": 55.99,
         "vintage": 60.78
       },
       "representative": {
-        "name": "Empress Indigo",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "EMPRESS - 1908 INDIGO GIN",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "006968",
         "skuKey": "006968",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/empress-indigo-ml-350",
+        "url": "https://www.bcliquorstores.com/product/6968",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
       },
       "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/empress-indigo-ml-350"
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/6968"
       }
     },
     {
@@ -1108,6 +1108,49 @@
       }
     },
     {
+      "canonSku": "316844",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 27.99,
+        "gull": 27.49,
+        "legacyliquor": 31.81,
+        "tudor": 29.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
+      }
+    },
+    {
       "canonSku": "326223",
       "storeCount": 7,
       "stores": [
@@ -1127,7 +1170,7 @@
         "bcl": 39.99,
         "gull": 39.65,
         "legacyliquor": 40.99,
-        "tudor": 39.49,
+        "tudor": 39.99,
         "vessel": 39.99,
         "vintage": 40.78
       },
@@ -2520,7 +2563,7 @@
         "bcl": 56.99,
         "gull": 58.99,
         "legacyliquor": 57.99,
-        "tudor": 55.99,
+        "tudor": 56.99,
         "vessel": 53.99
       },
       "representative": {
@@ -2730,7 +2773,7 @@
         "bcl": 160.99,
         "legacyliquor": 166.4,
         "strath": 161.83,
-        "tudor": 159.99,
+        "tudor": 160.99,
         "vessel": 155.99
       },
       "representative": {
@@ -3212,48 +3255,6 @@
         "priceNum": 78.4,
         "storeKey": "strath",
         "url": "https://www.strathliquor.com/product/macaloneys-island-distillery-cath-na-aven/"
-      }
-    },
-    {
-      "canonSku": "316844",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 27.99,
-        "gull": 27.49,
-        "legacyliquor": 31.81,
-        "tudor": 29.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -4736,7 +4737,7 @@
         "bcl": 30.49,
         "gull": 28,
         "legacyliquor": 30.99,
-        "tudor": 29.99,
+        "tudor": 30.49,
         "vessel": 29.99
       },
       "representative": {
@@ -5433,26 +5434,26 @@
         "bcl": 30.99,
         "gull": 32.6,
         "legacyliquor": 31.99,
-        "tudor": 30.49,
+        "tudor": 30.99,
         "vessel": 32.99
       },
       "representative": {
-        "name": "BOODLES ORIGINAL LONDON DRY GIN",
-        "price": "$30.49",
-        "priceNum": 30.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "BOODLES - LONDON DRY",
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "091603",
         "skuKey": "091603",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/boodles-london-dry-ml-350",
+        "url": "https://www.bcliquorstores.com/product/91603",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
       },
       "cheapest": {
-        "price": "$30.49",
-        "priceNum": 30.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/boodles-london-dry-ml-350"
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/91603"
       }
     },
     {
@@ -5883,14 +5884,14 @@
       "storePrices": {
         "arc": 145.79,
         "bcl": 133.97,
-        "gull": 130.25,
+        "gull": 129.99,
         "legacyliquor": 148.99,
         "tudor": 148.99
       },
       "representative": {
         "name": "BOWMORE 15 SHERRY – 700M",
-        "price": "$130.25",
-        "priceNum": 130.25,
+        "price": "$129.99",
+        "priceNum": 129.99,
         "storeKey": "gull",
         "storeLabel": "Gull Liquor",
         "skuRaw": "303815",
@@ -5900,8 +5901,8 @@
         "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$130.25",
-        "priceNum": 130.25,
+        "price": "$129.99",
+        "priceNum": 129.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/bowmore-15-sherry-700m/"
       }
@@ -6295,7 +6296,7 @@
         "bcl": 37.99,
         "gull": 35.49,
         "legacyliquor": 43.99,
-        "tudor": 37.49
+        "tudor": 37.99
       },
       "representative": {
         "name": "PENDLETON WHISKEY",
@@ -6336,7 +6337,7 @@
         "bcl": 29.49,
         "gull": 30.35,
         "legacyliquor": 29.99,
-        "tudor": 28.99
+        "tudor": 29.49
       },
       "representative": {
         "name": "SPICEBOX WHISKY 750ML",
@@ -6683,6 +6684,47 @@
         "priceNum": 6.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/canadian-club-whisky-200-ml"
+      }
+    },
+    {
+      "canonSku": "254029",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.09,
+        "bcl": 60.99,
+        "legacyliquor": 74.95,
+        "tudor": 60.99,
+        "vessel": 59.99
+      },
+      "representative": {
+        "name": "LAPHROAIG SELECT",
+        "price": "$58.09",
+        "priceNum": 58.09,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "254029",
+        "skuKey": "254029",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$58.09",
+        "priceNum": 58.09,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select"
       }
     },
     {
@@ -7196,7 +7238,7 @@
         "gull": 36.95,
         "legacyliquor": 36.47,
         "strath": 39.04,
-        "tudor": 36.99,
+        "tudor": 39.99,
         "vintage": 38.17
       },
       "representative": {
@@ -7893,7 +7935,7 @@
         "bcl": 30.99,
         "gull": 32.8,
         "legacyliquor": 32.35,
-        "tudor": 30.49,
+        "tudor": 30.99,
         "vessel": 29.99
       },
       "representative": {
@@ -8016,7 +8058,7 @@
         "arc": 33.99,
         "gull": 36.3,
         "legacyliquor": 35.8,
-        "tudor": 34.99,
+        "tudor": 39.99,
         "vessel": 39.99
       },
       "representative": {
@@ -8058,7 +8100,7 @@
         "bcl": 63.99,
         "gull": 57.75,
         "strath": 62.7,
-        "tudor": 62.99
+        "tudor": 63.99
       },
       "representative": {
         "name": "Bushmills – 12 Year Old Irish Whiskey 750ml",
@@ -9119,26 +9161,26 @@
       "storePrices": {
         "bcl": 37.49,
         "gull": 38.9,
-        "tudor": 36.99,
+        "tudor": 37.49,
         "vessel": 37.99
       },
       "representative": {
-        "name": "GORDON'S DRY GIN",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "GORDONS - LONDON DRY",
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "000802",
         "skuKey": "000802",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/gordons-london-dry-l-350",
+        "url": "https://www.bcliquorstores.com/product/802",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
       },
       "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/gordons-london-dry-l-350"
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/802"
       }
     },
     {
@@ -9399,26 +9441,26 @@
       "storePrices": {
         "bcl": 25.99,
         "gull": 26.75,
-        "tudor": 25.49,
+        "tudor": 25.99,
         "vessel": 25.99
       },
       "representative": {
         "name": "BELL'S - ORIGINAL",
-        "price": "$25.49",
-        "priceNum": 25.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "008599",
         "skuKey": "008599",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bells-extra-special-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+        "url": "https://www.bcliquorstores.com/product/8599",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$25.49",
-        "priceNum": 25.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bells-extra-special-ml-380"
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/8599"
       }
     },
     {
@@ -9539,6 +9581,46 @@
         "priceNum": 89.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4586361-glen-scotia-double-cask"
+      }
+    },
+    {
+      "canonSku": "012746",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 138.39,
+        "legacyliquor": 162.37,
+        "strath": 142.83,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "GLEN SCOTIA 15YO",
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "012746",
+        "skuKey": "012746",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
       }
     },
     {
@@ -9960,7 +10042,7 @@
         "arc": 44.99,
         "bcl": 52.99,
         "legacyliquor": 52.99,
-        "tudor": 51.99
+        "tudor": 52.99
       },
       "representative": {
         "name": "APPLETON 12YO RARE CASKS",
@@ -10799,7 +10881,7 @@
       "storePrices": {
         "bcl": 36.99,
         "gull": 39.25,
-        "tudor": 36.49,
+        "tudor": 36.99,
         "vessel": 35.99
       },
       "representative": {
@@ -11279,7 +11361,7 @@
       "storePrices": {
         "bcl": 40.99,
         "gull": 39.1,
-        "tudor": 39.99,
+        "tudor": 40.99,
         "vessel": 37.99
       },
       "representative": {
@@ -11622,46 +11704,6 @@
       }
     },
     {
-      "canonSku": "254029",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.09,
-        "bcl": 60.99,
-        "legacyliquor": 74.95,
-        "tudor": 60.99
-      },
-      "representative": {
-        "name": "LAPHROAIG SELECT",
-        "price": "$58.09",
-        "priceNum": 58.09,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "254029",
-        "skuKey": "254029",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$58.09",
-        "priceNum": 58.09,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select"
-      }
-    },
-    {
       "canonSku": "256376",
       "storeCount": 4,
       "stores": [
@@ -11839,26 +11881,26 @@
       "storePrices": {
         "bcl": 44.99,
         "gull": 45.5,
-        "tudor": 43.99,
+        "tudor": 44.99,
         "vessel": 44.99
       },
       "representative": {
         "name": "WHYTE AND MACKAY - SPECIAL",
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "287474",
         "skuKey": "287474",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/whyte-mackay-whisk-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+        "url": "https://www.bcliquorstores.com/product/287474",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/whyte-mackay-whisk-l-380"
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/287474"
       }
     },
     {
@@ -12239,7 +12281,7 @@
       "storePrices": {
         "bcl": 34.99,
         "legacyliquor": 35.65,
-        "tudor": 34.49,
+        "tudor": 34.99,
         "vessel": 32.99
       },
       "representative": {
@@ -12879,26 +12921,26 @@
       "storePrices": {
         "bcl": 35.99,
         "gull": 37.8,
-        "tudor": 35.49,
+        "tudor": 35.99,
         "vessel": 36.99
       },
       "representative": {
-        "name": "Bacardi Superior Rum (PET)",
-        "price": "$35.49",
-        "priceNum": 35.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "BACARDI - SUPERIOR WHITE PET",
+        "price": "$35.99",
+        "priceNum": 35.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "486621",
         "skuKey": "486621",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/bacardi-plastic-l-360",
+        "url": "https://www.bcliquorstores.com/product/486621",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$35.49",
-        "priceNum": 35.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/bacardi-plastic-l-360"
+        "price": "$35.99",
+        "priceNum": 35.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/486621"
       }
     },
     {
@@ -12960,25 +13002,25 @@
         "bcl": 43.99,
         "gull": 43.05,
         "legacyliquor": 45.76,
-        "tudor": 42.99
+        "tudor": 43.99
       },
       "representative": {
-        "name": "Captain Morgan Original Spiced Rum",
-        "price": "$42.99",
-        "priceNum": 42.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "Captain Morgan – Spiced 1.14l",
+        "price": "$43.05",
+        "priceNum": 43.05,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
         "skuRaw": "500538",
         "skuKey": "500538",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-l-360",
+        "url": "https://gullliquorstore.com/product/captain-morgan-spice-1-14l/",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
       },
       "cheapest": {
-        "price": "$42.99",
-        "priceNum": 42.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-l-360"
+        "price": "$43.05",
+        "priceNum": 43.05,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/captain-morgan-spice-1-14l/"
       }
     },
     {
@@ -13040,7 +13082,7 @@
         "arc": 41.99,
         "bcl": 42.99,
         "legacyliquor": 44.73,
-        "tudor": 41.99
+        "tudor": 42.99
       },
       "representative": {
         "name": "PIKE CREEK 10 YEAR",
@@ -13479,26 +13521,26 @@
       "storePrices": {
         "bcl": 46.99,
         "gull": 47.95,
-        "tudor": 45.99,
+        "tudor": 46.99,
         "vessel": 46.99
       },
       "representative": {
-        "name": "Kraken Black Spiced",
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "THE KRAKEN - BLACK SPICED RUM",
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "677738",
         "skuKey": "677738",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/kraken-black-spiced-l-360",
+        "url": "https://www.bcliquorstores.com/product/677738",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/kraken-black-spiced-l-360"
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/677738"
       }
     },
     {
@@ -14448,45 +14490,6 @@
         "priceNum": 36.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/10102"
-      }
-    },
-    {
-      "canonSku": "012746",
-      "storeCount": 3,
-      "stores": [
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 162.37,
-        "strath": 142.83,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "Glen Scotia - 15 Year Old Single Malt Scotch",
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "012746",
-        "skuKey": "012746",
-        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch"
       }
     },
     {
@@ -20201,25 +20204,25 @@
       "storePrices": {
         "bcl": 40.99,
         "strath": 40.4,
-        "tudor": 39.99
+        "tudor": 40.99
       },
       "representative": {
-        "name": "JAMESON - CASKMATES AGED IN CRAFT BEER BARRELS",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "Jameson - Caskmates Stout Edition",
+        "price": "$40.40",
+        "priceNum": 40.4,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
         "skuRaw": "450072",
         "skuKey": "450072",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/jameson-cask-mates-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+        "url": "https://www.strathliquor.com/product/jameson-caskmates-stout-edition/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/jameson-cask-mates-ml-420"
+        "price": "$40.40",
+        "priceNum": 40.4,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/jameson-caskmates-stout-edition/"
       }
     },
     {
@@ -21332,7 +21335,7 @@
       "storePrices": {
         "bcl": 56.99,
         "gull": 54.7,
-        "tudor": 55.99
+        "tudor": 56.99
       },
       "representative": {
         "name": "Pendleton – 750ml",
@@ -22297,25 +22300,25 @@
       ],
       "storePrices": {
         "bcl": 57.99,
-        "tudor": 57.49
+        "tudor": 57.99
       },
       "representative": {
-        "name": "Forty Creek Barrel",
-        "price": "$57.49",
-        "priceNum": 57.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "FORTY CREEK - BARREL SELECT",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "468561",
         "skuKey": "468561",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/forty-creek-barrel-l-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+        "url": "https://www.bcliquorstores.com/product/468561",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$57.49",
-        "priceNum": 57.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/forty-creek-barrel-l-380"
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/468561"
       }
     },
     {
@@ -22620,44 +22623,6 @@
         "priceNum": 119.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/24763"
-      }
-    },
-    {
-      "canonSku": "033928",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "gull"
-      ],
-      "missingStores": [
-        "arc",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 56.49,
-        "gull": 59.1
-      },
-      "representative": {
-        "name": "J. P. WISER'S DELUXE",
-        "price": "$56.49",
-        "priceNum": 56.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "033928",
-        "skuKey": "033928",
-        "url": "https://www.bcliquorstores.com/product/33928",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$56.49",
-        "priceNum": 56.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/33928"
       }
     },
     {
@@ -28247,6 +28212,44 @@
       }
     },
     {
+      "canonSku": "216779",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 59.99,
+        "tudor": 59.99
+      },
+      "representative": {
+        "name": "DEWAR'S WHITE LABEL",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "216779",
+        "skuKey": "216779",
+        "url": "https://www.bcliquorstores.com/product/216779",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/216779"
+      }
+    },
+    {
       "canonSku": "219369",
       "storeCount": 2,
       "stores": [
@@ -31781,6 +31784,44 @@
       }
     },
     {
+      "canonSku": "346893",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "gull"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 44.99,
+        "gull": 46.75
+      },
+      "representative": {
+        "name": "MOUNT GAY NAVY STRENGTH",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "346893",
+        "skuKey": "346893",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4762322-mount-gay-navy-strength",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4762322-mount-gay-navy-strength"
+      }
+    },
+    {
       "canonSku": "350231",
       "storeCount": 2,
       "stores": [
@@ -35065,25 +35106,25 @@
       ],
       "storePrices": {
         "bcl": 43.99,
-        "tudor": 42.99
+        "tudor": 43.99
       },
       "representative": {
-        "name": "Ron Matusalem 15 Yr",
-        "price": "$42.99",
-        "priceNum": 42.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "RON MATUSALEM - 15 YEAR SOLERA GRAN RESERVA",
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "464222",
         "skuKey": "464222",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/ron-matusalem-15-yr-ml-360",
+        "url": "https://www.bcliquorstores.com/product/464222",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$42.99",
-        "priceNum": 42.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/ron-matusalem-15-yr-ml-360"
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/464222"
       }
     },
     {
