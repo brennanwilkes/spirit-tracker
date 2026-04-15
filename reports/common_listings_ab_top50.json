@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-15T16:15:01.671Z",
+  "generatedAt": "2026-04-15T19:22:18.882Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8689,
-    "removedRows": 2482,
-    "canonSkus": 5035,
+    "liveRows": 8729,
+    "removedRows": 2448,
+    "canonSkus": 5056,
     "outputCount": 50
   },
   "rows": [
@@ -54,25 +54,25 @@
         "kwm": 78.99,
         "maltsandgrains": 91.73,
         "sierrasprings": 89.42,
-        "willowpark": 90.99
+        "willowpark": 63.99
       },
       "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich 'The Classic Laddie' Islay Single Malt Scotch Whisky",
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://www.willowpark.net/products/connect-logistics-bruichladdich-classic-laddie-761474",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
       },
       "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/connect-logistics-bruichladdich-classic-laddie-761474"
       }
     },
     {
@@ -159,6 +159,49 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
+      }
+    },
+    {
+      "canonSku": "057706",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "coop": 89.99,
+        "craftcellars": 86.99,
+        "kwm": 89.99,
+        "maltsandgrains": 91.58,
+        "sierrasprings": 89.42,
+        "willowpark": 84.99
+      },
+      "representative": {
+        "name": "Ardbeg Wee Beastie 5 Year Old",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "835689",
+        "skuKey": "835689",
+        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old"
       }
     },
     {
@@ -677,45 +720,45 @@
       }
     },
     {
-      "canonSku": "057706",
+      "canonSku": "021758",
       "storeCount": 6,
       "stores": [
         "bsw",
         "coop",
         "craftcellars",
-        "maltsandgrains",
-        "sierrasprings",
+        "kegncork",
+        "kwm",
         "willowpark"
       ],
       "missingStores": [
-        "kegncork",
-        "kwm"
+        "maltsandgrains",
+        "sierrasprings"
       ],
       "storePrices": {
-        "bsw": 74.99,
-        "coop": 89.99,
-        "craftcellars": 86.99,
-        "maltsandgrains": 91.58,
-        "sierrasprings": 89.42,
-        "willowpark": 84.99
+        "bsw": 125,
+        "coop": 154.99,
+        "craftcellars": 123.99,
+        "kegncork": 154.96,
+        "kwm": 154.99,
+        "willowpark": 149.99
       },
       "representative": {
-        "name": "Ardbeg Wee Beastie 5 Year Old",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "835689",
-        "skuKey": "835689",
-        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "name": "Ardbeg Corryvreckan",
+        "price": "$123.99",
+        "priceNum": 123.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739100",
+        "skuKey": "739100",
+        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old"
+        "price": "$123.99",
+        "priceNum": 123.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
       }
     },
     {
@@ -1640,47 +1683,6 @@
         "priceNum": 62.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bunnahabhain-stuiereadair"
-      }
-    },
-    {
-      "canonSku": "021758",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 125,
-        "coop": 154.99,
-        "craftcellars": 123.99,
-        "kwm": 154.99,
-        "willowpark": 149.99
-      },
-      "representative": {
-        "name": "Ardbeg Corryvreckan",
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "739100",
-        "skuKey": "739100",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
       }
     },
     {
