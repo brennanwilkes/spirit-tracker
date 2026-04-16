@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-16T13:16:41.335Z",
+  "generatedAt": "2026-04-16T16:17:33.695Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12551,
-    "removedRows": 3469,
-    "canonSkus": 6089,
+    "liveRows": 12450,
+    "removedRows": 3573,
+    "canonSkus": 6070,
     "outputCount": 50
   },
   "rows": [
@@ -607,6 +607,62 @@
       }
     },
     {
+      "canonSku": "207126",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "kwm",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bsw": 140,
+        "craftcellars": 184.99,
+        "gull": 169.99,
+        "kegncork": 161.96,
+        "legacyliquor": 173.47,
+        "maltsandgrains": 175.8,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39,
+        "willowpark": 174.99
+      },
+      "representative": {
+        "name": "Lagavulin 16 Year Old",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
+      }
+    },
+    {
       "canonSku": "752142",
       "storeCount": 12,
       "stores": [
@@ -651,15 +707,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "752142",
         "skuKey": "752142",
-        "url": "https://sierraspringsliquor.ca/shop/other/bunnahabhain-12-years-46-3-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$70.37",
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/bunnahabhain-12-years-46-3-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
       }
     },
     {
@@ -1100,61 +1156,6 @@
         "priceNum": 104.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bsw",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "arc": 158.99,
-        "bsw": 140,
-        "gull": 169.99,
-        "kegncork": 161.96,
-        "legacyliquor": 173.47,
-        "maltsandgrains": 175.8,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39,
-        "willowpark": 174.99
-      },
-      "representative": {
-        "name": "Lagavulin 16 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {
@@ -2058,7 +2059,7 @@
         "kegncork": 99.96,
         "legacyliquor": 129.06,
         "maltsandgrains": 89.17,
-        "sierrasprings": 82.99,
+        "sierrasprings": 100.85,
         "tudor": 114.99,
         "vintage": 123.39,
         "willowpark": 94.49
@@ -2125,15 +2126,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "741531",
         "skuKey": "741531",
-        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
       },
       "cheapest": {
         "price": "$133.23",
         "priceNum": 133.23,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
       }
     },
     {

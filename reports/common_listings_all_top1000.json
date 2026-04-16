@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-16T13:16:42.109Z",
+  "generatedAt": "2026-04-16T16:17:34.465Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12551,
-    "removedRows": 3469,
-    "canonSkus": 6089,
+    "liveRows": 12450,
+    "removedRows": 3573,
+    "canonSkus": 6070,
     "outputCount": 1000
   },
   "rows": [
@@ -664,6 +664,62 @@
       }
     },
     {
+      "canonSku": "207126",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "kwm",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bsw": 140,
+        "craftcellars": 184.99,
+        "gull": 169.99,
+        "kegncork": 161.96,
+        "legacyliquor": 173.47,
+        "maltsandgrains": 175.8,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39,
+        "willowpark": 174.99
+      },
+      "representative": {
+        "name": "Lagavulin 16 Year Old",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
+      }
+    },
+    {
       "canonSku": "752142",
       "storeCount": 12,
       "stores": [
@@ -708,15 +764,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "752142",
         "skuKey": "752142",
-        "url": "https://sierraspringsliquor.ca/shop/other/bunnahabhain-12-years-46-3-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$70.37",
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/bunnahabhain-12-years-46-3-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
       }
     },
     {
@@ -1215,61 +1271,6 @@
       }
     },
     {
-      "canonSku": "207126",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bsw",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "arc": 158.99,
-        "bsw": 140,
-        "gull": 169.99,
-        "kegncork": 161.96,
-        "legacyliquor": 173.47,
-        "maltsandgrains": 175.8,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39,
-        "willowpark": 174.99
-      },
-      "representative": {
-        "name": "Lagavulin 16 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
-      }
-    },
-    {
       "canonSku": "238097",
       "storeCount": 11,
       "stores": [
@@ -1355,7 +1356,7 @@
         "kegncork": 88.96,
         "kwm": 78.99,
         "maltsandgrains": 91.73,
-        "sierrasprings": 68.99,
+        "sierrasprings": 89.42,
         "tudor": 86.99,
         "vessel": 84.99,
         "willowpark": 63.99
@@ -1432,61 +1433,6 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk"
-      }
-    },
-    {
-      "canonSku": "636845",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 92.99,
-        "bsw": 92.99,
-        "craftcellars": 106.99,
-        "gull": 99.99,
-        "kegncork": 104.96,
-        "kwm": 107.99,
-        "legacyliquor": 98.99,
-        "maltsandgrains": 112.71,
-        "sierrasprings": 82.75,
-        "tudor": 94.99,
-        "vessel": 89.99
-      },
-      "representative": {
-        "name": "REDBREAST 12 YEAR OLD 40%",
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "636845",
-        "skuKey": "636845",
-        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
-      },
-      "cheapest": {
-        "price": "$82.75",
-        "priceNum": 82.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/redbreast-12-year-old-40/"
       }
     },
     {
@@ -2658,7 +2604,7 @@
         "kegncork": 99.96,
         "legacyliquor": 129.06,
         "maltsandgrains": 89.17,
-        "sierrasprings": 82.99,
+        "sierrasprings": 100.85,
         "tudor": 114.99,
         "vintage": 123.39,
         "willowpark": 94.49
@@ -2779,15 +2725,69 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "741531",
         "skuKey": "741531",
-        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/balvenie-14-year-old-caribbean-cask-whisky-43-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
       },
       "cheapest": {
         "price": "$133.23",
         "priceNum": 133.23,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/balvenie-14-year-old-caribbean-cask-whisky-43-abv/"
+      }
+    },
+    {
+      "canonSku": "636845",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 92.99,
+        "bsw": 92.99,
+        "craftcellars": 106.99,
+        "gull": 99.99,
+        "kegncork": 104.96,
+        "kwm": 107.99,
+        "legacyliquor": 98.99,
+        "maltsandgrains": 112.71,
+        "tudor": 94.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "Redbreast - 12 Year Old Irish Whiskey",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "636845",
+        "skuKey": "636845",
+        "url": "https://vesselliquor.com/products/redbreast-12-year-old-irish-whiskey",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/redbreast-12-year-old-irish-whiskey"
       }
     },
     {
@@ -4586,15 +4586,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "770050",
         "skuKey": "770050",
-        "url": "https://sierraspringsliquor.ca/shop/other/oban-little-bay-43-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/oban-little-bay-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$99.90",
         "priceNum": 99.9,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/oban-little-bay-43-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/oban-little-bay-43-abv/"
       }
     },
     {
@@ -5513,28 +5513,28 @@
         "craftcellars": 78.99,
         "gull": 109.99,
         "kegncork": 77.96,
-        "sierrasprings": 65.99,
+        "sierrasprings": 73.99,
         "strath": 109.79,
         "tudor": 106.99,
         "vessel": 104.99
       },
       "representative": {
-        "name": "TOBERMORY 12YO 750ML",
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Tobermory 12 Year Old",
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "814945",
         "skuKey": "814945",
-        "url": "https://sierraspringsliquor.ca/shop/other/tobermory-12-year-46-3-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://www.bswliquor.com/products/tobermory-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/tobermory-12-year-46-3-abv/"
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/tobermory-12-year-old-1"
       }
     },
     {
@@ -6774,15 +6774,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "761963",
         "skuKey": "761963",
-        "url": "https://sierraspringsliquor.ca/shop/other/talisker-storm-45-8-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/talisker-storm-45-8-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$99.90",
         "priceNum": 99.9,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/talisker-storm-45-8-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/talisker-storm-45-8-abv/"
       }
     },
     {
@@ -10051,15 +10051,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "878512",
         "skuKey": "878512",
-        "url": "https://sierraspringsliquor.ca/shop/other/lagavulin-the-distillers-edition-2022-43-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/lagavulin-the-distillers-edition-2022-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$165.00",
         "priceNum": 165,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/lagavulin-the-distillers-edition-2022-43-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/lagavulin-the-distillers-edition-2022-43-abv/"
       }
     },
     {
@@ -10765,15 +10765,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "782668",
         "skuKey": "782668",
-        "url": "https://sierraspringsliquor.ca/shop/other/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
       },
       "cheapest": {
         "price": "$45.60",
         "priceNum": 45.6,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/"
       }
     },
     {
@@ -14324,15 +14324,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "878391",
         "skuKey": "878391",
-        "url": "https://sierraspringsliquor.ca/shop/other/elements-of-islay-sherry-cask-54-5-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/elements-of-islay-sherry-cask-54-5-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$98.94",
         "priceNum": 98.94,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/elements-of-islay-sherry-cask-54-5-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/elements-of-islay-sherry-cask-54-5-abv/"
       }
     },
     {
@@ -14933,6 +14933,56 @@
         "priceNum": 71.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/jack-daniels-single-barrel-750-ml/"
+      }
+    },
+    {
+      "canonSku": "484261",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "tudor",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bsw": 340,
+        "craftcellars": 309.99,
+        "gull": 399.99,
+        "kwm": 394.99,
+        "tudor": 460,
+        "willowpark": 369.99
+      },
+      "representative": {
+        "name": "Glenfarclas 25 Year Old J&G Grant",
+        "price": "$309.99",
+        "priceNum": 309.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "484261",
+        "skuKey": "484261",
+        "url": "https://craftcellars.ca/products/glenfarclas-25-year-old-j-g-grant",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$309.99",
+        "priceNum": 309.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glenfarclas-25-year-old-j-g-grant"
       }
     },
     {
@@ -15874,15 +15924,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "822536",
         "skuKey": "822536",
-        "url": "https://sierraspringsliquor.ca/shop/other/balblair-12-year-46-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/balblair-12-year-46-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$82.75",
         "priceNum": 82.75,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/balblair-12-year-46-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/balblair-12-year-46-abv/"
       }
     },
     {
@@ -17480,28 +17530,28 @@
       ],
       "storePrices": {
         "bsw": 200,
-        "craftcellars": 159.99,
+        "craftcellars": 149.99,
         "kegncork": 174.96,
         "kwm": 159.99,
         "maltsandgrains": 154.9
       },
       "representative": {
-        "name": "Laphroaig Cairdeas 10 Yr 52.4% – 2024",
-        "price": "$154.90",
-        "priceNum": 154.9,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
+        "name": "Laphroaig Cairdeas 2024 Cask Favorites",
+        "price": "$149.99",
+        "priceNum": 149.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "105540",
         "skuKey": "105540",
-        "url": "https://maltsandgrains.store/product/laphroaig-cairdeas-10-yr-52-4-2024/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+        "url": "https://craftcellars.ca/products/laphroaig-cairdeas-2024-52-4-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$154.90",
-        "priceNum": 154.9,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/laphroaig-cairdeas-10-yr-52-4-2024/"
+        "price": "$149.99",
+        "priceNum": 149.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/laphroaig-cairdeas-2024-52-4-abv"
       }
     },
     {
@@ -17885,15 +17935,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "110703",
         "skuKey": "110703",
-        "url": "https://sierraspringsliquor.ca/shop/other/the-arran-malt-machrie-moor-10-year-old/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/the-arran-malt-machrie-moor-10-year-old/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$99.99",
         "priceNum": 99.99,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/the-arran-malt-machrie-moor-10-year-old/"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/scotch-whisky-spirits/single-malt-whiskey-scotch-whisky-spirits/the-arran-malt-machrie-moor-10-year-old/"
       }
     },
     {
@@ -20151,6 +20201,55 @@
       }
     },
     {
+      "canonSku": "285577",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 49.09,
+        "bsw": 45.99,
+        "craftcellars": 46.99,
+        "gull": 51.2,
+        "legacyliquor": 55.99
+      },
+      "representative": {
+        "name": "Bundaberg Rum",
+        "price": "$45.99",
+        "priceNum": 45.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "522235",
+        "skuKey": "522235",
+        "url": "https://www.bswliquor.com/products/bundaberg-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+      },
+      "cheapest": {
+        "price": "$45.99",
+        "priceNum": 45.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bundaberg-rum"
+      }
+    },
+    {
       "canonSku": "303790",
       "storeCount": 5,
       "stores": [
@@ -22157,55 +22256,6 @@
         "priceNum": 23.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/malibu-ml-360"
-      }
-    },
-    {
-      "canonSku": "484261",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "gull",
-        "kwm",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bsw": 340,
-        "gull": 399.99,
-        "kwm": 394.99,
-        "tudor": 460,
-        "willowpark": 369.99
-      },
-      "representative": {
-        "name": "Glenfarclas 25 Year Old",
-        "price": "$340.00",
-        "priceNum": 340,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "484261",
-        "skuKey": "484261",
-        "url": "https://www.bswliquor.com/products/glenfarclas-25-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$340.00",
-        "priceNum": 340,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfarclas-25-year-old-1"
       }
     },
     {
@@ -24877,9 +24927,9 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "829592",
         "skuKey": "829592",
-        "url": "https://sierraspringsliquor.ca/shop/other/arran-american-oak-barrel-reserve-43-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/island-scotch-whisky-whisky-2-2/arran-american-oak-barrel-reserve-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$57.99",
@@ -27673,54 +27723,6 @@
       }
     },
     {
-      "canonSku": "124837",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "sierrasprings",
-        "strath"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 56.99,
-        "craftcellars": 57.99,
-        "sierrasprings": 56.99,
-        "strath": 57.74
-      },
-      "representative": {
-        "name": "Bearface Wilderness Series No.3",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "124837",
-        "skuKey": "124837",
-        "url": "https://www.bswliquor.com/products/bearface-wilderness-series-03",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bearface-wilderness-series-03"
-      }
-    },
-    {
       "canonSku": "125398",
       "storeCount": 4,
       "stores": [
@@ -30265,54 +30267,6 @@
       }
     },
     {
-      "canonSku": "285577",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bsw",
-        "gull",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 49.09,
-        "bsw": 45.99,
-        "gull": 51.2,
-        "legacyliquor": 55.99
-      },
-      "representative": {
-        "name": "Bundaberg Rum",
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "522235",
-        "skuKey": "522235",
-        "url": "https://www.bswliquor.com/products/bundaberg-rum",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
-      },
-      "cheapest": {
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bundaberg-rum"
-      }
-    },
-    {
       "canonSku": "287474",
       "storeCount": 4,
       "stores": [
@@ -32305,27 +32259,27 @@
       ],
       "storePrices": {
         "bsw": 55.99,
-        "craftcellars": 56.99,
+        "craftcellars": 43.99,
         "kegncork": 56.96,
         "sierrasprings": 57.99
       },
       "representative": {
-        "name": "Knob Creek Smoked Maple Bourbon",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Knob Creek Kentucky Straight Smoked Maple",
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "762247",
         "skuKey": "762247",
-        "url": "https://www.bswliquor.com/products/knob-creek-smoked-maple-bourbon-1",
+        "url": "https://craftcellars.ca/products/knob-creek-kentucky-straight-smoked-maple",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/knob-creek-smoked-maple-bourbon-1"
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/knob-creek-kentucky-straight-smoked-maple"
       }
     },
     {
@@ -40824,6 +40778,53 @@
       }
     },
     {
+      "canonSku": "124837",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "strath"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 56.99,
+        "craftcellars": 57.99,
+        "strath": 57.74
+      },
+      "representative": {
+        "name": "Bearface Wilderness Series No.3",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "124837",
+        "skuKey": "124837",
+        "url": "https://www.bswliquor.com/products/bearface-wilderness-series-03",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bearface-wilderness-series-03"
+      }
+    },
+    {
       "canonSku": "125395",
       "storeCount": 3,
       "stores": [
@@ -41761,6 +41762,53 @@
         "priceNum": 135.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/high-west-limited-whiskey-bourye"
+      }
+    },
+    {
+      "canonSku": "137253",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 83.99,
+        "craftcellars": 89.99,
+        "maltsandgrains": 78.99
+      },
+      "representative": {
+        "name": "Green River Full Proof Brbn 58.95%",
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "137253",
+        "skuKey": "137253",
+        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/"
       }
     },
     {
@@ -44807,15 +44855,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "740216",
         "skuKey": "740216",
-        "url": "https://sierraspringsliquor.ca/shop/other/glen-garioch-founders-reserve-48-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/glen-garioch-founders-reserve-48-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
       },
       "cheapest": {
         "price": "$57.99",
         "priceNum": 57.99,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/glen-garioch-founders-reserve-48-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/spirits/whisky-sc-single-mal/glen-garioch-founders-reserve-48-abv/"
       }
     },
     {
@@ -45089,15 +45137,15 @@
         "storeLabel": "Sierra Springs",
         "skuRaw": "777458",
         "skuKey": "777458",
-        "url": "https://sierraspringsliquor.ca/shop/other/talisker-port-ruighe-45-8-abv/",
-        "categoryLabel": "Other",
-        "dbFile": "data/db/sierrasprings__other__6d918490.json"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/talisker-port-ruighe-45-8-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
         "price": "$111.32",
         "priceNum": 111.32,
         "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/other/talisker-port-ruighe-45-8-abv/"
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/talisker-port-ruighe-45-8-abv/"
       }
     },
     {
@@ -48299,52 +48347,6 @@
         "priceNum": 230,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/talisker-14yo-sr25"
-      }
-    },
-    {
-      "canonSku": "137253",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 83.99,
-        "maltsandgrains": 78.99
-      },
-      "representative": {
-        "name": "Green River Full Proof Brbn 58.95%",
-        "price": "$78.99",
-        "priceNum": 78.99,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "137253",
-        "skuKey": "137253",
-        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$78.99",
-        "priceNum": 78.99,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/"
       }
     },
     {
