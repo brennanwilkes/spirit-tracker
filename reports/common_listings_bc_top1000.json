@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T04:43:56.911Z",
+  "generatedAt": "2026-04-18T07:21:01.752Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4459,
-    "removedRows": 377,
-    "canonSkus": 2230,
+    "liveRows": 4457,
+    "removedRows": 382,
+    "canonSkus": 2227,
     "outputCount": 964
   },
   "rows": [
@@ -5931,25 +5931,25 @@
         "bcl": 61.99,
         "gull": 61.5,
         "legacyliquor": 64.99,
-        "vessel": 59.99
+        "vessel": 62.99
       },
       "representative": {
-        "name": "Crown Royal - Whisky",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "Crown Royal 1.75l",
+        "price": "$61.50",
+        "priceNum": 61.5,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
         "skuRaw": "114694",
         "skuKey": "114694",
-        "url": "https://vesselliquor.com/products/crown-royal-whisky-1750-ml",
+        "url": "https://gullliquorstore.com/product/crown-royal-1-75l/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/crown-royal-whisky-1750-ml"
+        "price": "$61.50",
+        "priceNum": 61.5,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/crown-royal-1-75l/"
       }
     },
     {
@@ -6710,7 +6710,7 @@
         "bcl": 30.99,
         "legacyliquor": 31.99,
         "tudor": 30.99,
-        "vessel": 29.99
+        "vessel": 31.99
       },
       "representative": {
         "name": "TANQUERAY FLOR DE SEVILLA",
@@ -6956,7 +6956,7 @@
         "gull": 64.15,
         "legacyliquor": 63.99,
         "tudor": 59.99,
-        "vessel": 57.49
+        "vessel": 59.99
       },
       "representative": {
         "name": "HENDRICK'S - OASIUM",
@@ -7590,47 +7590,6 @@
         "priceNum": 134.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4589226-glendronach-portwood"
-      }
-    },
-    {
-      "canonSku": "406496",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 104.99,
-        "gull": 107.99,
-        "legacyliquor": 108.88,
-        "tudor": 104.99,
-        "vessel": 104.99
-      },
-      "representative": {
-        "name": "TALISKER - STORM",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "406496",
-        "skuKey": "406496",
-        "url": "https://www.bcliquorstores.com/product/406496",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/406496"
       }
     },
     {
@@ -12673,6 +12632,46 @@
       }
     },
     {
+      "canonSku": "406496",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 104.99,
+        "legacyliquor": 108.88,
+        "tudor": 104.99,
+        "vessel": 104.99
+      },
+      "representative": {
+        "name": "TALISKER - STORM",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "406496",
+        "skuKey": "406496",
+        "url": "https://www.bcliquorstores.com/product/406496",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/406496"
+      }
+    },
+    {
       "canonSku": "408425",
       "storeCount": 4,
       "stores": [
@@ -16845,45 +16844,6 @@
       }
     },
     {
-      "canonSku": "162569",
-      "storeCount": 3,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 34.55,
-        "legacyliquor": 38.43,
-        "tudor": 55.99
-      },
-      "representative": {
-        "name": "Resurrection Spirits – Gin 750ml",
-        "price": "$34.55",
-        "priceNum": 34.55,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "162569",
-        "skuKey": "162569",
-        "url": "https://gullliquorstore.com/product/resurrection-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$34.55",
-        "priceNum": 34.55,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/resurrection-gin-750m/"
-      }
-    },
-    {
       "canonSku": "162782",
       "storeCount": 3,
       "stores": [
@@ -17583,6 +17543,45 @@
         "priceNum": 16.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/grants-ml-380"
+      }
+    },
+    {
+      "canonSku": "216733",
+      "storeCount": 3,
+      "stores": [
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 47.55,
+        "tudor": 52.99,
+        "vessel": 49.99
+      },
+      "representative": {
+        "name": "Tofino Distillery Old Growth Cedar Gin 750ml",
+        "price": "$47.55",
+        "priceNum": 47.55,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "216733",
+        "skuKey": "216733",
+        "url": "https://gullliquorstore.com/product/tofino-distillery-old-growth-cedar-gin-750ml/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$47.55",
+        "priceNum": 47.55,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/tofino-distillery-old-growth-cedar-gin-750ml/"
       }
     },
     {
@@ -19065,6 +19064,45 @@
         "priceNum": 64.95,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/canadian-club-15-shr-750m/"
+      }
+    },
+    {
+      "canonSku": "357291",
+      "storeCount": 3,
+      "stores": [
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 89.4,
+        "tudor": 76.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Tofino Whiskey Org",
+        "price": "$76.99",
+        "priceNum": 76.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "357291",
+        "skuKey": "357291",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/tofino-whiskey-org-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$76.99",
+        "priceNum": 76.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/tofino-whiskey-org-ml-380"
       }
     },
     {
@@ -21213,6 +21251,45 @@
       }
     },
     {
+      "canonSku": "531687",
+      "storeCount": 3,
+      "stores": [
+        "gull",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 84.8,
+        "legacyliquor": 92.37,
+        "tudor": 89.99
+      },
+      "representative": {
+        "name": "OLD FORESTER 1897 – 750M",
+        "price": "$84.80",
+        "priceNum": 84.8,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "531687",
+        "skuKey": "531687",
+        "url": "https://gullliquorstore.com/product/old-forester-1897-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$84.80",
+        "priceNum": 84.8,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/old-forester-1897-750m/"
+      }
+    },
+    {
       "canonSku": "537589",
       "storeCount": 3,
       "stores": [
@@ -22715,6 +22792,44 @@
         "priceNum": 124.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/st-george-baller-750m/"
+      }
+    },
+    {
+      "canonSku": "015548",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 138.39,
+        "strath": 144.48
+      },
+      "representative": {
+        "name": "GLEN SCOTIA VICTORIANA",
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "015548",
+        "skuKey": "015548",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586721-glen-scotia-victoriana",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586721-glen-scotia-victoriana"
       }
     },
     {
@@ -26974,6 +27089,44 @@
       }
     },
     {
+      "canonSku": "162569",
+      "storeCount": 2,
+      "stores": [
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 38.43,
+        "tudor": 55.99
+      },
+      "representative": {
+        "name": "RESURRECTION RYE GIN | 1 x 750ML",
+        "price": "$38.43",
+        "priceNum": 38.43,
+        "storeKey": "legacyliquor",
+        "storeLabel": "Legacy Liquor",
+        "skuRaw": "162569",
+        "skuKey": "162569",
+        "url": "https://www.legacyliquorstore.com/product/spirits/resurrection-rye-gin-1-x-750ml",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/legacyliquor__gin__38a4e42d.json"
+      },
+      "cheapest": {
+        "price": "$38.43",
+        "priceNum": 38.43,
+        "storeKey": "legacyliquor",
+        "url": "https://www.legacyliquorstore.com/product/spirits/resurrection-rye-gin-1-x-750ml"
+      }
+    },
+    {
       "canonSku": "166892",
       "storeCount": 2,
       "stores": [
@@ -28263,44 +28416,6 @@
         "priceNum": 40.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4776144-tullamore-dew-xo-rum-finish"
-      }
-    },
-    {
-      "canonSku": "216733",
-      "storeCount": 2,
-      "stores": [
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "tudor": 52.99,
-        "vessel": 49.99
-      },
-      "representative": {
-        "name": "Tofino Distillery - Old Growth Cedar Gin",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "216733",
-        "skuKey": "216733",
-        "url": "https://vesselliquor.com/products/tofino-distillery-cedar-gin",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/tofino-distillery-cedar-gin"
       }
     },
     {
@@ -32332,44 +32447,6 @@
       }
     },
     {
-      "canonSku": "357291",
-      "storeCount": 2,
-      "stores": [
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "tudor": 76.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "Tofino Whiskey Org",
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "357291",
-        "skuKey": "357291",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/tofino-whiskey-org-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/tofino-whiskey-org-ml-380"
-      }
-    },
-    {
       "canonSku": "358341",
       "storeCount": 2,
       "stores": [
@@ -34574,44 +34651,6 @@
       }
     },
     {
-      "canonSku": "436772",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 21.97,
-        "tudor": 28.99
-      },
-      "representative": {
-        "name": "BEEFEATER - PEACH AND RASPBERRY GIN",
-        "price": "$21.97",
-        "priceNum": 21.97,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "436772",
-        "skuKey": "436772",
-        "url": "https://www.bcliquorstores.com/product/436772",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$21.97",
-        "priceNum": 21.97,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/436772"
-      }
-    },
-    {
       "canonSku": "437655",
       "storeCount": 2,
       "stores": [
@@ -36246,44 +36285,6 @@
       }
     },
     {
-      "canonSku": "531687",
-      "storeCount": 2,
-      "stores": [
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 92.37,
-        "tudor": 89.99
-      },
-      "representative": {
-        "name": "Old Forester 1897 Wr",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "531687",
-        "skuKey": "531687",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/old-forester-1897-wr-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/old-forester-1897-wr-ml-380"
-      }
-    },
-    {
       "canonSku": "531801",
       "storeCount": 2,
       "stores": [
@@ -36585,44 +36586,6 @@
         "priceNum": 99.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/tullibardine-500-s-f-ml-420"
-      }
-    },
-    {
-      "canonSku": "612580",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "gull"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 98.99,
-        "gull": 99.99
-      },
-      "representative": {
-        "name": "MICHTERS SOUR MASH",
-        "price": "$98.99",
-        "priceNum": 98.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "612580",
-        "skuKey": "612580",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4779929-michters-sour-mash",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$98.99",
-        "priceNum": 98.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4779929-michters-sour-mash"
       }
     },
     {
@@ -37117,6 +37080,44 @@
         "priceNum": 110.36,
         "storeKey": "legacyliquor",
         "url": "https://www.legacyliquorstore.com/product/spirits/goalong-single-malt-whisky-1-x-700ml"
+      }
+    },
+    {
+      "canonSku": "681641",
+      "storeCount": 2,
+      "stores": [
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 65.99,
+        "tudor": 69.99
+      },
+      "representative": {
+        "name": "STILLHEAD ISLAY CASK – 750M",
+        "price": "$65.99",
+        "priceNum": 65.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "681641",
+        "skuKey": "681641",
+        "url": "https://gullliquorstore.com/product/stillhead-islay-cask-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$65.99",
+        "priceNum": 65.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/stillhead-islay-cask-750m/"
       }
     },
     {
