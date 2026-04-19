@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T04:47:20.389Z",
+  "generatedAt": "2026-04-19T07:22:09.995Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12943,
-    "removedRows": 3516,
-    "canonSkus": 6256,
+    "liveRows": 12939,
+    "removedRows": 3520,
+    "canonSkus": 6254,
     "outputCount": 50
   },
   "rows": [
@@ -897,6 +897,62 @@
       }
     },
     {
+      "canonSku": "141495",
+      "storeCount": 12,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 200.99,
+        "bsw": 140,
+        "craftcellars": 165.99,
+        "kegncork": 164.96,
+        "kwm": 164.99,
+        "legacyliquor": 199,
+        "maltsandgrains": 174.9,
+        "sierrasprings": 163.7,
+        "strath": 218.83,
+        "tudor": 200.99,
+        "vessel": 199.99,
+        "willowpark": 169.99
+      },
+      "representative": {
+        "name": "Bowmore 18 Year Old",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "805160",
+        "skuKey": "805160",
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
+      }
+    },
+    {
       "canonSku": "185921",
       "storeCount": 12,
       "stores": [
@@ -1345,62 +1401,6 @@
       }
     },
     {
-      "canonSku": "780196",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 59.99,
-        "bsw": 57.99,
-        "craftcellars": 65.99,
-        "gull": 67.5,
-        "kegncork": 61.96,
-        "legacyliquor": 67.99,
-        "maltsandgrains": 63.15,
-        "sierrasprings": 54.99,
-        "strath": 65.18,
-        "tudor": 64.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "TOKI",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "780196",
-        "skuKey": "780196",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
-      }
-    },
-    {
       "canonSku": "011136",
       "storeCount": 11,
       "stores": [
@@ -1841,61 +1841,6 @@
       }
     },
     {
-      "canonSku": "141495",
-      "storeCount": 11,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "kegncork",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 200.99,
-        "bsw": 140,
-        "craftcellars": 165.99,
-        "kwm": 164.99,
-        "legacyliquor": 199,
-        "maltsandgrains": 174.9,
-        "sierrasprings": 163.7,
-        "strath": 218.83,
-        "tudor": 200.99,
-        "vessel": 199.99,
-        "willowpark": 169.99
-      },
-      "representative": {
-        "name": "Bowmore 18 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "805160",
-        "skuKey": "805160",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
-      }
-    },
-    {
       "canonSku": "177808",
       "storeCount": 11,
       "stores": [
@@ -2278,6 +2223,61 @@
         "priceNum": 59.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
+      }
+    },
+    {
+      "canonSku": "780196",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 59.99,
+        "bsw": 57.99,
+        "craftcellars": 65.99,
+        "gull": 67.5,
+        "legacyliquor": 67.99,
+        "maltsandgrains": 63.15,
+        "sierrasprings": 54.99,
+        "strath": 65.18,
+        "tudor": 64.99,
+        "vessel": 59.99
+      },
+      "representative": {
+        "name": "TOKI",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "780196",
+        "skuKey": "780196",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
       }
     },
     {
