@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T04:52:11.258Z",
+  "generatedAt": "2026-04-20T07:38:03.584Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4446,
-    "removedRows": 393,
-    "canonSkus": 2224,
+    "liveRows": 4438,
+    "removedRows": 401,
+    "canonSkus": 2223,
     "outputCount": 50
   },
   "rows": [
@@ -1366,48 +1366,6 @@
       }
     },
     {
-      "canonSku": "000984",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 23.99,
-        "bcl": 23.49,
-        "gull": 25,
-        "legacyliquor": 24.99,
-        "tudor": 21.99,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "Alberta Premium Rye Whisky PET",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "532655",
-        "skuKey": "532655",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380"
-      }
-    },
-    {
       "canonSku": "001412",
       "storeCount": 6,
       "stores": [
@@ -2161,6 +2119,47 @@
         "priceNum": 144.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "000984",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 23.99,
+        "bcl": 23.49,
+        "gull": 25,
+        "legacyliquor": 24.99,
+        "tudor": 21.99
+      },
+      "representative": {
+        "name": "Alberta Premium Rye Whisky PET",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "532655",
+        "skuKey": "532655",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380"
       }
     }
   ]
