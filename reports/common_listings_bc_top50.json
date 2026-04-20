@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T16:15:36.331Z",
+  "generatedAt": "2026-04-20T19:20:49.916Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4438,
-    "removedRows": 401,
-    "canonSkus": 2223,
+    "liveRows": 4445,
+    "removedRows": 398,
+    "canonSkus": 2225,
     "outputCount": 50
   },
   "rows": [
@@ -609,29 +609,29 @@
       "storePrices": {
         "arc": 28.99,
         "bcl": 29.99,
-        "gull": 26.99,
+        "gull": 29.65,
         "legacyliquor": 31.99,
         "strath": 31.31,
         "vessel": 31.99,
         "vintage": 33.39
       },
       "representative": {
-        "name": "Crown Royal 750ml",
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
+        "name": "CROWN ROYAL 750ML",
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "001487",
         "skuKey": "001487",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586638-crown-royal-750ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
       },
       "cheapest": {
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586638-crown-royal-750ml"
       }
     },
     {
@@ -1363,6 +1363,48 @@
         "priceNum": 58.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
+      }
+    },
+    {
+      "canonSku": "000984",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 23.99,
+        "bcl": 23.49,
+        "gull": 25,
+        "legacyliquor": 24.99,
+        "tudor": 21.99,
+        "vessel": 22.49
+      },
+      "representative": {
+        "name": "Alberta Premium Rye Whisky PET",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "532655",
+        "skuKey": "532655",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380"
       }
     },
     {
@@ -2119,47 +2161,6 @@
         "priceNum": 144.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "000984",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 23.99,
-        "bcl": 23.49,
-        "gull": 25,
-        "legacyliquor": 24.99,
-        "tudor": 21.99
-      },
-      "representative": {
-        "name": "Alberta Premium Rye Whisky PET",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "532655",
-        "skuKey": "532655",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380"
       }
     }
   ]
