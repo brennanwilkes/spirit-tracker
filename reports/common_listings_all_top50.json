@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T16:15:52.562Z",
+  "generatedAt": "2026-04-21T19:21:50.483Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12923,
-    "removedRows": 3580,
-    "canonSkus": 6265,
+    "liveRows": 12935,
+    "removedRows": 3572,
+    "canonSkus": 6264,
     "outputCount": 50
   },
   "rows": [
@@ -615,6 +615,62 @@
       }
     },
     {
+      "canonSku": "074548",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 59.29,
+        "bcl": 74.99,
+        "bsw": 69.99,
+        "craftcellars": 79.99,
+        "gull": 72.99,
+        "kwm": 79.99,
+        "legacyliquor": 77.99,
+        "maltsandgrains": 84.9,
+        "sierrasprings": 74.18,
+        "strath": 71.79,
+        "tudor": 74.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "BENROMACH 10YO",
+        "price": "$59.29",
+        "priceNum": 59.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "074548",
+        "skuKey": "074548",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$59.29",
+        "priceNum": 59.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
+      }
+    },
+    {
       "canonSku": "116752",
       "storeCount": 12,
       "stores": [
@@ -752,8 +808,8 @@
       "storePrices": {
         "arc": 77.19,
         "bcl": 73.99,
-        "bsw": 77.99,
-        "craftcellars": 94.99,
+        "bsw": 64.99,
+        "craftcellars": 63.99,
         "kwm": 88.99,
         "legacyliquor": 88.13,
         "maltsandgrains": 99.9,
@@ -764,22 +820,22 @@
         "willowpark": 82.99
       },
       "representative": {
-        "name": "LAPHROAIG - 10 YEAR OLD",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://www.bcliquorstores.com/product/135210",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "Laphroaig 10 Year Old",
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739119",
+        "skuKey": "739119",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/135210"
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
       }
     },
     {
@@ -920,11 +976,11 @@
       "storePrices": {
         "arc": 123.49,
         "bsw": 145,
-        "coop": 145.99,
+        "coop": 134.99,
         "craftcellars": 114.99,
         "gull": 119.99,
         "kwm": 149.99,
-        "maltsandgrains": 154.9,
+        "maltsandgrains": 109.99,
         "sierrasprings": 121.8,
         "strath": 137.87,
         "tudor": 139.99,
@@ -932,22 +988,22 @@
         "willowpark": 132.99
       },
       "representative": {
-        "name": "Benromach 15 Year Old Speyside Single Malt",
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Benromach 15 Yr 43% (750ml)",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
         "skuRaw": "774713",
         "skuKey": "774713",
-        "url": "https://craftcellars.ca/products/benromach-15-year-old-speyside-single-malt-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://maltsandgrains.store/product/benromach-15-yr-43-750ml/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/benromach-15-year-old-speyside-single-malt-43-abv"
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/benromach-15-yr-43-750ml/"
       }
     },
     {
@@ -1088,7 +1144,7 @@
       "storePrices": {
         "arc": 82.99,
         "bcl": 89.99,
-        "bsw": 82.99,
+        "bsw": 71.99,
         "craftcellars": 98.99,
         "gull": 79.99,
         "kwm": 89.99,
@@ -1100,22 +1156,22 @@
         "willowpark": 85.99
       },
       "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "name": "Laphroaig Quarter Casks",
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "724396",
+        "skuKey": "724396",
+        "url": "https://www.bswliquor.com/products/laphroaig-quarter-cask-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/laphroaig-quarter-cask-1"
       }
     },
     {
@@ -1503,61 +1559,6 @@
         "priceNum": 58.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/black-tot-rum"
-      }
-    },
-    {
-      "canonSku": "074548",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 59.29,
-        "bcl": 74.99,
-        "bsw": 69.99,
-        "gull": 72.99,
-        "kwm": 79.99,
-        "legacyliquor": 77.99,
-        "maltsandgrains": 84.9,
-        "sierrasprings": 74.18,
-        "strath": 71.79,
-        "tudor": 74.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "BENROMACH 10YO",
-        "price": "$59.29",
-        "priceNum": 59.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "074548",
-        "skuKey": "074548",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$59.29",
-        "priceNum": 59.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
       }
     },
     {
@@ -2192,10 +2193,10 @@
         "arc": 102.99,
         "bcl": 114.99,
         "bsw": 69.99,
-        "craftcellars": 79.99,
+        "craftcellars": 69.99,
         "kegncork": 99.96,
         "legacyliquor": 129.06,
-        "maltsandgrains": 89.17,
+        "maltsandgrains": 69.99,
         "sierrasprings": 100.85,
         "tudor": 114.99,
         "vintage": 123.39,
@@ -2328,61 +2329,6 @@
         "priceNum": 59.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/864533/craigellachie-13-year"
-      }
-    },
-    {
-      "canonSku": "780196",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 59.99,
-        "bsw": 57.99,
-        "craftcellars": 65.99,
-        "gull": 67.5,
-        "legacyliquor": 67.99,
-        "maltsandgrains": 63.15,
-        "sierrasprings": 54.99,
-        "strath": 65.18,
-        "tudor": 64.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "TOKI",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "780196",
-        "skuKey": "780196",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
       }
     },
     {
@@ -2761,6 +2707,60 @@
         "priceNum": 85.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "780196",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 59.99,
+        "bsw": 57.99,
+        "craftcellars": 65.99,
+        "gull": 67.5,
+        "legacyliquor": 67.99,
+        "sierrasprings": 54.99,
+        "strath": 65.18,
+        "tudor": 64.99,
+        "vessel": 59.99
+      },
+      "representative": {
+        "name": "TOKI",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "780196",
+        "skuKey": "780196",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
       }
     },
     {

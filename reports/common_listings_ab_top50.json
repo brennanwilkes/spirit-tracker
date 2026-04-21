@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T16:15:54.290Z",
+  "generatedAt": "2026-04-21T19:21:52.244Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8478,
-    "removedRows": 3178,
-    "canonSkus": 5089,
+    "liveRows": 8490,
+    "removedRows": 3170,
+    "canonSkus": 5086,
     "outputCount": 50
   },
   "rows": [
@@ -522,30 +522,30 @@
       ],
       "storePrices": {
         "bsw": 145,
-        "coop": 145.99,
+        "coop": 134.99,
         "craftcellars": 114.99,
         "kwm": 149.99,
-        "maltsandgrains": 154.9,
+        "maltsandgrains": 109.99,
         "sierrasprings": 121.8,
         "willowpark": 132.99
       },
       "representative": {
-        "name": "Benromach 15 Year Old Speyside Single Malt",
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Benromach 15 Yr 43% (750ml)",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
         "skuRaw": "774713",
         "skuKey": "774713",
-        "url": "https://craftcellars.ca/products/benromach-15-year-old-speyside-single-malt-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://maltsandgrains.store/product/benromach-15-yr-43-750ml/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/benromach-15-year-old-speyside-single-malt-43-abv"
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/benromach-15-yr-43-750ml/"
       }
     },
     {
@@ -589,6 +589,49 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
+      }
+    },
+    {
+      "canonSku": "530352",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork"
+      ],
+      "storePrices": {
+        "bsw": 165,
+        "coop": 189.99,
+        "craftcellars": 186.99,
+        "kwm": 189.99,
+        "maltsandgrains": 195.42,
+        "sierrasprings": 185.61,
+        "willowpark": 199.99
+      },
+      "representative": {
+        "name": "Glenfiddich 18 Year Old Small Batch",
+        "price": "$165.00",
+        "priceNum": 165,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "895283",
+        "skuKey": "895283",
+        "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$165.00",
+        "priceNum": 165,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-18-year-old-6x750ml"
       }
     },
     {
@@ -1519,48 +1562,6 @@
       }
     },
     {
-      "canonSku": "530352",
-      "storeCount": 6,
-      "stores": [
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "kegncork"
-      ],
-      "storePrices": {
-        "coop": 189.99,
-        "craftcellars": 186.99,
-        "kwm": 189.99,
-        "maltsandgrains": 195.42,
-        "sierrasprings": 185.61,
-        "willowpark": 199.99
-      },
-      "representative": {
-        "name": "GLENFIDDICH 18 YEAR OLD 6X750ML",
-        "price": "$185.61",
-        "priceNum": 185.61,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "895283",
-        "skuKey": "895283",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/glenfiddich-18-year-old-40v/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$185.61",
-        "priceNum": 185.61,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/glenfiddich-18-year-old-40v/"
-      }
-    },
-    {
       "canonSku": "560474",
       "storeCount": 6,
       "stores": [
@@ -1577,9 +1578,9 @@
       ],
       "storePrices": {
         "bsw": 69.99,
-        "craftcellars": 79.99,
+        "craftcellars": 69.99,
         "kegncork": 99.96,
-        "maltsandgrains": 89.17,
+        "maltsandgrains": 69.99,
         "sierrasprings": 100.85,
         "willowpark": 94.49
       },
