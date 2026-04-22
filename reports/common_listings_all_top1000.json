@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-22T13:16:16.941Z",
+  "generatedAt": "2026-04-22T16:14:52.458Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,8 +34,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13174,
-    "removedRows": 3333,
+    "liveRows": 13175,
+    "removedRows": 3332,
     "canonSkus": 6402,
     "outputCount": 1000
   },
@@ -8121,6 +8121,58 @@
       }
     },
     {
+      "canonSku": "210760",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "gull",
+        "maltsandgrains",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 109.99,
+        "bsw": 79.99,
+        "craftcellars": 75.99,
+        "kegncork": 94.96,
+        "kwm": 99.99,
+        "legacyliquor": 121.81,
+        "sierrasprings": 87.09,
+        "tudor": 119.99
+      },
+      "representative": {
+        "name": "Glenallachie 12 Year Old Speyside Single Malt",
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "805309",
+        "skuKey": "805309",
+        "url": "https://craftcellars.ca/products/glenallachie-12-year-old-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glenallachie-12-year-old-46-abv"
+      }
+    },
+    {
       "canonSku": "252312",
       "storeCount": 8,
       "stores": [
@@ -11662,57 +11714,6 @@
         "priceNum": 47.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/writers-tears-copper-pot-still-irish-whiskey"
-      }
-    },
-    {
-      "canonSku": "210760",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "bsw",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "craftcellars",
-        "gull",
-        "maltsandgrains",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 109.99,
-        "bsw": 79.99,
-        "kegncork": 94.96,
-        "kwm": 99.99,
-        "legacyliquor": 121.81,
-        "sierrasprings": 87.09,
-        "tudor": 119.99
-      },
-      "representative": {
-        "name": "The GlenAllachie 12 Year Old",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "805309",
-        "skuKey": "805309",
-        "url": "https://www.bswliquor.com/products/glenallachie-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenallachie-12-year-old-1"
       }
     },
     {
@@ -21618,7 +21619,7 @@
       "storePrices": {
         "bcl": 39.99,
         "bsw": 34.99,
-        "craftcellars": 38.99,
+        "craftcellars": 39.99,
         "kwm": 35.99,
         "willowpark": 38.49
       },
@@ -28481,6 +28482,54 @@
         "priceNum": 39.5,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/plantation-3-stars-750m/"
+      }
+    },
+    {
+      "canonSku": "072355",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "craftcellars": 70.99,
+        "sierrasprings": 70.99,
+        "vintage": 87.74
+      },
+      "representative": {
+        "name": "Woodford Reserve Double Oaked Bourbon",
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "072355",
+        "skuKey": "072355",
+        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon"
       }
     },
     {
@@ -36572,27 +36621,27 @@
       ],
       "storePrices": {
         "bsw": 39.99,
-        "craftcellars": 35.99,
+        "craftcellars": 46.99,
         "kwm": 43.99,
         "sierrasprings": 40.99
       },
       "representative": {
-        "name": "Buffalo Trace",
-        "price": "$35.99",
-        "priceNum": 35.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Buffalo Trace Bourbon",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "714233",
         "skuKey": "714233",
-        "url": "https://craftcellars.ca/products/buffalo-trace",
+        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$35.99",
-        "priceNum": 35.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/buffalo-trace"
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1"
       }
     },
     {
@@ -41033,53 +41082,6 @@
         "priceNum": 55.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/794071/plantation-oftd-69-barrel-proof"
-      }
-    },
-    {
-      "canonSku": "072355",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "sierrasprings",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "sierrasprings": 70.99,
-        "vintage": 87.74
-      },
-      "representative": {
-        "name": "WOODFORD RESERVE DOUBLE OAKED BOURBON",
-        "price": "$70.99",
-        "priceNum": 70.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "072355",
-        "skuKey": "072355",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$70.99",
-        "priceNum": 70.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/"
       }
     },
     {
