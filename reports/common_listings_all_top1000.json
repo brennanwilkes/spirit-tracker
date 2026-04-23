@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T16:25:11.082Z",
+  "generatedAt": "2026-04-23T19:21:33.544Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13214,
-    "removedRows": 3311,
-    "canonSkus": 6411,
+    "liveRows": 13210,
+    "removedRows": 3316,
+    "canonSkus": 6410,
     "outputCount": 1000
   },
   "rows": [
@@ -4772,59 +4772,6 @@
       }
     },
     {
-      "canonSku": "021097",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 72.69,
-        "bcl": 71.99,
-        "bsw": 44.99,
-        "gull": 76.99,
-        "legacyliquor": 79.99,
-        "sierrasprings": 70.37,
-        "tudor": 71.99,
-        "vessel": 72.99,
-        "willowpark": 72.49
-      },
-      "representative": {
-        "name": "The Glenlivet 12 Year Old",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "021097",
-        "skuKey": "021097",
-        "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1"
-      }
-    },
-    {
       "canonSku": "045898",
       "storeCount": 9,
       "stores": [
@@ -6932,6 +6879,58 @@
         "priceNum": 32.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bushmills-original-irish-whiskey"
+      }
+    },
+    {
+      "canonSku": "021097",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 72.69,
+        "bcl": 71.99,
+        "gull": 76.99,
+        "legacyliquor": 79.99,
+        "sierrasprings": 70.37,
+        "tudor": 71.99,
+        "vessel": 72.99,
+        "willowpark": 72.49
+      },
+      "representative": {
+        "name": "Glenlivet 12 Year Double Oak (40% abv)",
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "021097",
+        "skuKey": "021097",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenlivet-12-year-double-oak-40-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenlivet-12-year-double-oak-40-abv/"
       }
     },
     {
@@ -13964,6 +13963,56 @@
       }
     },
     {
+      "canonSku": "015548",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 138.39,
+        "bsw": 115,
+        "craftcellars": 129.99,
+        "kegncork": 129.96,
+        "kwm": 129.99,
+        "strath": 144.48
+      },
+      "representative": {
+        "name": "Glen Scotia Victoriana",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "774969",
+        "skuKey": "774969",
+        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask"
+      }
+    },
+    {
       "canonSku": "034637",
       "storeCount": 6,
       "stores": [
@@ -19356,55 +19405,6 @@
       }
     },
     {
-      "canonSku": "015548",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "strath"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "craftcellars": 129.99,
-        "kegncork": 129.96,
-        "kwm": 129.99,
-        "strath": 144.48
-      },
-      "representative": {
-        "name": "Glen Scotia Victoriana",
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "774969",
-        "skuKey": "774969",
-        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask"
-      }
-    },
-    {
       "canonSku": "017970",
       "storeCount": 5,
       "stores": [
@@ -20823,6 +20823,55 @@
         "priceNum": 625,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/the-macallan-18-year-old-double-cask"
+      }
+    },
+    {
+      "canonSku": "111055",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "coop",
+        "gull",
+        "kwm",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 97.69,
+        "coop": 99.99,
+        "gull": 99.99,
+        "kwm": 79.99,
+        "legacyliquor": 110.75
+      },
+      "representative": {
+        "name": "Lindores Abbey Bourbon Cask II",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "111055",
+        "skuKey": "111055",
+        "url": "https://kensingtonwinemarket.com/product/111055/lindores-abbey-bourbon-cask-ii",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/111055/lindores-abbey-bourbon-cask-ii"
       }
     },
     {
@@ -22538,6 +22587,55 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bushmills-16-year-old"
+      }
+    },
+    {
+      "canonSku": "137096",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bsw",
+        "gull",
+        "kwm",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 271.89,
+        "bsw": 240,
+        "gull": 259.99,
+        "kwm": 249.99,
+        "strath": 289.05
+      },
+      "representative": {
+        "name": "Gordon & MacPhail Connoisseurs Choice Clynelish 2008 17 Year Old \"Whisky on the West Coast\"",
+        "price": "$240.00",
+        "priceNum": 240,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "137096",
+        "skuKey": "137096",
+        "url": "https://www.bswliquor.com/products/cc-clynelish-2008-311776",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$240.00",
+        "priceNum": 240,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/cc-clynelish-2008-311776"
       }
     },
     {
@@ -29895,54 +29993,6 @@
       }
     },
     {
-      "canonSku": "111055",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "gull",
-        "kwm",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 97.69,
-        "gull": 99.99,
-        "kwm": 79.99,
-        "legacyliquor": 110.75
-      },
-      "representative": {
-        "name": "Lindores Abbey Bourbon Cask II",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "111055",
-        "skuKey": "111055",
-        "url": "https://kensingtonwinemarket.com/product/111055/lindores-abbey-bourbon-cask-ii",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/111055/lindores-abbey-bourbon-cask-ii"
-      }
-    },
-    {
       "canonSku": "111057",
       "storeCount": 4,
       "stores": [
@@ -32052,54 +32102,6 @@
         "priceNum": 114.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/ardnamurchan-sauternes-cask-peated-700-ml/"
-      }
-    },
-    {
-      "canonSku": "137096",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "gull",
-        "kwm",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 271.89,
-        "gull": 259.99,
-        "kwm": 249.99,
-        "strath": 289.05
-      },
-      "representative": {
-        "name": "G&M CC Clynelish 2008 WOTWC Cask",
-        "price": "$249.99",
-        "priceNum": 249.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "137096",
-        "skuKey": "137096",
-        "url": "https://kensingtonwinemarket.com/product/137096/g-m-cc-clynelish-2008-wotwc-cask",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$249.99",
-        "priceNum": 249.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/137096/g-m-cc-clynelish-2008-wotwc-cask"
       }
     },
     {

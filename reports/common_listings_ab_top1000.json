@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T16:25:12.636Z",
+  "generatedAt": "2026-04-23T19:21:35.038Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8760,
-    "removedRows": 2916,
-    "canonSkus": 5252,
+    "liveRows": 8756,
+    "removedRows": 2921,
+    "canonSkus": 5251,
     "outputCount": 1000
   },
   "rows": [
@@ -16669,45 +16669,6 @@
       }
     },
     {
-      "canonSku": "021097",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 44.99,
-        "sierrasprings": 70.37,
-        "willowpark": 72.49
-      },
-      "representative": {
-        "name": "The Glenlivet 12 Year Old",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "021097",
-        "skuKey": "021097",
-        "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1"
-      }
-    },
-    {
       "canonSku": "021949",
       "storeCount": 3,
       "stores": [
@@ -24544,6 +24505,45 @@
         "priceNum": 73.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/connect-logistics-penderyn-madeira-finish-842302"
+      }
+    },
+    {
+      "canonSku": "357140",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 500,
+        "craftcellars": 599.99,
+        "kwm": 399.99
+      },
+      "representative": {
+        "name": "Bowmore 22 Year Aston Martin Ed. 3",
+        "price": "$399.99",
+        "priceNum": 399.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "895888",
+        "skuKey": "895888",
+        "url": "https://kensingtonwinemarket.com/product/895888/bowmore-22-year-aston-martin-ed-3",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$399.99",
+        "priceNum": 399.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/895888/bowmore-22-year-aston-martin-ed-3"
       }
     },
     {
@@ -33373,6 +33373,44 @@
       }
     },
     {
+      "canonSku": "021097",
+      "storeCount": 2,
+      "stores": [
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "sierrasprings": 70.37,
+        "willowpark": 72.49
+      },
+      "representative": {
+        "name": "Glenlivet 12 Year Double Oak (40% abv)",
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "021097",
+        "skuKey": "021097",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenlivet-12-year-double-oak-40-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenlivet-12-year-double-oak-40-abv/"
+      }
+    },
+    {
       "canonSku": "021378",
       "storeCount": 2,
       "stores": [
@@ -38234,44 +38272,6 @@
         "priceNum": 35.13,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/ron-abuelo-7-years-40-abv/"
-      }
-    },
-    {
-      "canonSku": "753647",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 180,
-        "kegncork": 184.96
-      },
-      "representative": {
-        "name": "Tomatin 18 Year Old 46% ABV",
-        "price": "$180.00",
-        "priceNum": 180,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "753647",
-        "skuKey": "753647",
-        "url": "https://www.bswliquor.com/products/tomatin-18-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$180.00",
-        "priceNum": 180,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/tomatin-18-year-old"
       }
     },
     {
