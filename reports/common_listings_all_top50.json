@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T04:49:04.457Z",
+  "generatedAt": "2026-04-24T07:31:14.504Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_all_top50.json",
-      "cutoffStoreCount": 10
+      "cutoffStoreCount": 11
     }
   },
   "storeCount": 16,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13197,
-    "removedRows": 3329,
-    "canonSkus": 6408,
+    "liveRows": 13217,
+    "removedRows": 3330,
+    "canonSkus": 6420,
     "outputCount": 50
   },
   "rows": [
@@ -1201,7 +1201,7 @@
       "storePrices": {
         "arc": 102.99,
         "bcl": 114.99,
-        "bsw": 69.99,
+        "bsw": 74.99,
         "craftcellars": 69.99,
         "kegncork": 99.96,
         "kwm": 99.99,
@@ -1213,22 +1213,22 @@
         "willowpark": 94.49
       },
       "representative": {
-        "name": "Ardbeg 10 Year Old",
+        "name": "Ardbeg 10 Year Old Scotch Whisky",
         "price": "$69.99",
         "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "560474",
         "skuKey": "560474",
-        "url": "https://www.bswliquor.com/products/ardbeg-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
         "price": "$69.99",
         "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-10-year-old-1"
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
     },
     {
@@ -1481,7 +1481,7 @@
       "storePrices": {
         "arc": 58.99,
         "bcl": 59.99,
-        "bsw": 57.99,
+        "bsw": 47.99,
         "craftcellars": 65.99,
         "gull": 67.5,
         "kwm": 64.99,
@@ -1493,22 +1493,22 @@
         "vessel": 59.99
       },
       "representative": {
-        "name": "TOKI",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Suntory Toki Japanese Whisky",
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "780196",
         "skuKey": "780196",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/",
+        "url": "https://www.bswliquor.com/products/suntory-toki",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/suntory-toki"
       }
     },
     {
@@ -1674,6 +1674,61 @@
         "priceNum": 123.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
+      }
+    },
+    {
+      "canonSku": "034672",
+      "storeCount": 11,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "kegncork",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 129.99,
+        "bsw": 120,
+        "craftcellars": 139.99,
+        "gull": 134.99,
+        "kwm": 139.99,
+        "legacyliquor": 137.17,
+        "maltsandgrains": 143.09,
+        "sierrasprings": 114.18,
+        "strath": 130.44,
+        "vessel": 129.99,
+        "willowpark": 129.99
+      },
+      "representative": {
+        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
+        "price": "$114.18",
+        "priceNum": 114.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "787186",
+        "skuKey": "787186",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$114.18",
+        "priceNum": 114.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
       }
     },
     {
@@ -2032,7 +2087,7 @@
       "storePrices": {
         "arc": 183.09,
         "bcl": 194.99,
-        "bsw": 185,
+        "bsw": 160,
         "craftcellars": 212.99,
         "kegncork": 199.96,
         "kwm": 211.99,
@@ -2043,22 +2098,22 @@
         "willowpark": 209.99
       },
       "representative": {
-        "name": "GLEN GRANT 18YO",
-        "price": "$183.09",
-        "priceNum": 183.09,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "224496",
-        "skuKey": "224496",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587486-glen-grant-18yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+        "name": "The GlenGrant 18 Year Old",
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "794243",
+        "skuKey": "794243",
+        "url": "https://www.bswliquor.com/products/glen-grant-18-year-old-2020-release",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$183.09",
-        "priceNum": 183.09,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587486-glen-grant-18yo"
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glen-grant-18-year-old-2020-release"
       }
     },
     {
@@ -2550,60 +2605,6 @@
         "priceNum": 29.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "034672",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 129.99,
-        "bsw": 120,
-        "craftcellars": 139.99,
-        "gull": 134.99,
-        "kwm": 139.99,
-        "legacyliquor": 137.17,
-        "sierrasprings": 114.18,
-        "strath": 130.44,
-        "vessel": 129.99,
-        "willowpark": 129.99
-      },
-      "representative": {
-        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "787186",
-        "skuKey": "787186",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
       }
     },
     {
