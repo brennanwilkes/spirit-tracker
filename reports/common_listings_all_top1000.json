@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T19:19:09.470Z",
+  "generatedAt": "2026-04-24T22:08:18.810Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13337,
-    "removedRows": 3354,
-    "canonSkus": 6523,
+    "liveRows": 13342,
+    "removedRows": 3349,
+    "canonSkus": 6522,
     "outputCount": 1000
   },
   "rows": [
@@ -13872,6 +13872,56 @@
       }
     },
     {
+      "canonSku": "015548",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 138.39,
+        "bsw": 115,
+        "craftcellars": 129.99,
+        "kegncork": 129.96,
+        "kwm": 129.99,
+        "strath": 144.48
+      },
+      "representative": {
+        "name": "Glen Scotia Victoriana",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "774969",
+        "skuKey": "774969",
+        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask"
+      }
+    },
+    {
       "canonSku": "034637",
       "storeCount": 6,
       "stores": [
@@ -19410,55 +19460,6 @@
         "priceNum": 36.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/10102"
-      }
-    },
-    {
-      "canonSku": "015548",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bsw",
-        "kegncork",
-        "kwm",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 138.39,
-        "bsw": 115,
-        "kegncork": 129.96,
-        "kwm": 129.99,
-        "strath": 144.48
-      },
-      "representative": {
-        "name": "Glen Scotia Victoriana",
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "774969",
-        "skuKey": "774969",
-        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glen-scotia-victoriana-cask"
       }
     },
     {
@@ -31915,54 +31916,6 @@
         "priceNum": 54.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/speyburn-10-years-40-abv/"
-      }
-    },
-    {
-      "canonSku": "137248",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 73.99,
-        "craftcellars": 55.99,
-        "kegncork": 75.96,
-        "kwm": 76.99
-      },
-      "representative": {
-        "name": "Bardstown Kentucky Straight Bourbon",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "137248",
-        "skuKey": "137248",
-        "url": "https://craftcellars.ca/products/bardstown-kentucky-straight-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bardstown-kentucky-straight-bourbon"
       }
     },
     {
@@ -45005,6 +44958,53 @@
       }
     },
     {
+      "canonSku": "137248",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 73.99,
+        "kegncork": 75.96,
+        "kwm": 76.99
+      },
+      "representative": {
+        "name": "Bardstown Kentucky Straight Bourbon",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "137248",
+        "skuKey": "137248",
+        "url": "https://www.bswliquor.com/products/bardstown-kentucky-straight-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bardstown-kentucky-straight-bourbon"
+      }
+    },
+    {
       "canonSku": "137250",
       "storeCount": 3,
       "stores": [
@@ -45754,6 +45754,53 @@
         "priceNum": 85.99,
         "storeKey": "coop",
         "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/store/world-of-whisky/products/110808975-bakers-7-yr-kentucky-straight-bourbon-whiskey"
+      }
+    },
+    {
+      "canonSku": "325993",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 97.99,
+        "craftcellars": 110.99,
+        "kwm": 110.99
+      },
+      "representative": {
+        "name": "Booker's Bourbon Small Batch",
+        "price": "$97.99",
+        "priceNum": 97.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "325993",
+        "skuKey": "325993",
+        "url": "https://www.bswliquor.com/products/bookers-small-batch-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$97.99",
+        "priceNum": 97.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bookers-small-batch-bourbon"
       }
     },
     {
@@ -49258,52 +49305,6 @@
         "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/brothers-bond-straight-bourbon-whiskey"
-      }
-    },
-    {
-      "canonSku": "325993",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 97.99,
-        "kwm": 110.99
-      },
-      "representative": {
-        "name": "Booker's Bourbon Small Batch",
-        "price": "$97.99",
-        "priceNum": 97.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "325993",
-        "skuKey": "325993",
-        "url": "https://www.bswliquor.com/products/bookers-small-batch-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$97.99",
-        "priceNum": 97.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bookers-small-batch-bourbon"
       }
     },
     {
