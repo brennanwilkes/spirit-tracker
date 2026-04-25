@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-25T04:43:51.964Z",
+  "generatedAt": "2026-04-25T07:21:46.066Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8882,
-    "removedRows": 2941,
-    "canonSkus": 5356,
+    "liveRows": 8742,
+    "removedRows": 3083,
+    "canonSkus": 5252,
     "outputCount": 250
   },
   "rows": [
@@ -4510,47 +4510,6 @@
       }
     },
     {
-      "canonSku": "262918",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 675,
-        "kegncork": 634.96,
-        "kwm": 684.99,
-        "maltsandgrains": 724.9,
-        "willowpark": 690.99
-      },
-      "representative": {
-        "name": "Arran 25 Year Old",
-        "price": "$675.00",
-        "priceNum": 675,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "842235",
-        "skuKey": "842235",
-        "url": "https://www.bswliquor.com/products/arran-25-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$634.96",
-        "priceNum": 634.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/the-arran-malt-25-yo-700-ml/"
-      }
-    },
-    {
       "canonSku": "281717",
       "storeCount": 5,
       "stores": [
@@ -7998,6 +7957,46 @@
       }
     },
     {
+      "canonSku": "262918",
+      "storeCount": 4,
+      "stores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "kegncork": 634.96,
+        "kwm": 684.99,
+        "maltsandgrains": 724.9,
+        "willowpark": 690.99
+      },
+      "representative": {
+        "name": "Arran 25 Year",
+        "price": "$684.99",
+        "priceNum": 684.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "842235",
+        "skuKey": "842235",
+        "url": "https://kensingtonwinemarket.com/product/842235/arran-25-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$634.96",
+        "priceNum": 634.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/the-arran-malt-25-yo-700-ml/"
+      }
+    },
+    {
       "canonSku": "264232",
       "storeCount": 4,
       "stores": [
@@ -8275,46 +8274,6 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/rye/michters-us1-single-barrel-straight-rye-42-4-abv/"
-      }
-    },
-    {
-      "canonSku": "411036",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 165,
-        "kwm": 194.99,
-        "maltsandgrains": 234.24,
-        "sierrasprings": 165
-      },
-      "representative": {
-        "name": "Lagavulin Distillers Edition 2022",
-        "price": "$165.00",
-        "priceNum": 165,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "878512",
-        "skuKey": "878512",
-        "url": "https://www.bswliquor.com/products/lagavulin-distillers-edition-islay",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$165.00",
-        "priceNum": 165,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-distillers-edition-islay"
       }
     },
     {
@@ -10138,6 +10097,45 @@
         "priceNum": 66.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/dewars-double-double-21-year-old-small-batch-46-abv"
+      }
+    },
+    {
+      "canonSku": "411036",
+      "storeCount": 3,
+      "stores": [
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "willowpark"
+      ],
+      "storePrices": {
+        "kwm": 194.99,
+        "maltsandgrains": 234.24,
+        "sierrasprings": 165
+      },
+      "representative": {
+        "name": "LAGAVULIN DISTILLERS ED 2020",
+        "price": "$165.00",
+        "priceNum": 165,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "878512",
+        "skuKey": "878512",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/lagavulin-the-distillers-edition-2022-43-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$165.00",
+        "priceNum": 165,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/lagavulin-the-distillers-edition-2022-43-abv/"
       }
     },
     {
