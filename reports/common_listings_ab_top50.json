@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T04:52:59.995Z",
+  "generatedAt": "2026-04-26T07:24:42.980Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8721,
-    "removedRows": 3104,
+    "liveRows": 8715,
+    "removedRows": 3110,
     "canonSkus": 5246,
     "outputCount": 50
   },
@@ -678,6 +678,49 @@
       }
     },
     {
+      "canonSku": "560474",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "craftcellars": 69.99,
+        "kegncork": 99.96,
+        "kwm": 99.99,
+        "maltsandgrains": 69.99,
+        "sierrasprings": 100.85,
+        "willowpark": 94.49
+      },
+      "representative": {
+        "name": "Ardbeg 10 Year Old Scotch Whisky",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
+      }
+    },
+    {
       "canonSku": "736561",
       "storeCount": 7,
       "stores": [
@@ -1057,48 +1100,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-12-yr-old"
-      }
-    },
-    {
-      "canonSku": "117348",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 160,
-        "coop": 179.99,
-        "craftcellars": 182.99,
-        "kegncork": 181.96,
-        "kwm": 182.99,
-        "willowpark": 169.99
-      },
-      "representative": {
-        "name": "Glenfarclas 17 Year Old",
-        "price": "$160.00",
-        "priceNum": 160,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "134270",
-        "skuKey": "134270",
-        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$160.00",
-        "priceNum": 160,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1"
       }
     },
     {
@@ -1606,48 +1607,6 @@
       }
     },
     {
-      "canonSku": "560474",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "craftcellars": 69.99,
-        "kegncork": 99.96,
-        "kwm": 99.99,
-        "sierrasprings": 100.85,
-        "willowpark": 94.49
-      },
-      "representative": {
-        "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
-      }
-    },
-    {
       "canonSku": "569137",
       "storeCount": 6,
       "stores": [
@@ -1978,6 +1937,47 @@
         "priceNum": 91.32,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/bulleit-barrel-strength-batch-no-8/"
+      }
+    },
+    {
+      "canonSku": "117348",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 160,
+        "coop": 179.99,
+        "craftcellars": 182.99,
+        "kwm": 182.99,
+        "willowpark": 169.99
+      },
+      "representative": {
+        "name": "Glenfarclas 17 Year Old",
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "134270",
+        "skuKey": "134270",
+        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1"
       }
     },
     {

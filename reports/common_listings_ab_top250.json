@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T04:53:00.303Z",
+  "generatedAt": "2026-04-26T07:24:43.294Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8721,
-    "removedRows": 3104,
+    "liveRows": 8715,
+    "removedRows": 3110,
     "canonSkus": 5246,
     "outputCount": 250
   },
@@ -678,6 +678,49 @@
       }
     },
     {
+      "canonSku": "560474",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "craftcellars": 69.99,
+        "kegncork": 99.96,
+        "kwm": 99.99,
+        "maltsandgrains": 69.99,
+        "sierrasprings": 100.85,
+        "willowpark": 94.49
+      },
+      "representative": {
+        "name": "Ardbeg 10 Year Old Scotch Whisky",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
+      }
+    },
+    {
       "canonSku": "736561",
       "storeCount": 7,
       "stores": [
@@ -1099,48 +1142,6 @@
         "priceNum": 148,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-15-year-old-sherry"
-      }
-    },
-    {
-      "canonSku": "117348",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 160,
-        "coop": 179.99,
-        "craftcellars": 182.99,
-        "kegncork": 181.96,
-        "kwm": 182.99,
-        "willowpark": 169.99
-      },
-      "representative": {
-        "name": "Glenfarclas 17 Year Old",
-        "price": "$160.00",
-        "priceNum": 160,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "134270",
-        "skuKey": "134270",
-        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$160.00",
-        "priceNum": 160,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1"
       }
     },
     {
@@ -2149,48 +2150,6 @@
         "priceNum": 45.6,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/deanston-virgin-oak-highland-single-malt-scotch-whisky-46-3-abv/"
-      }
-    },
-    {
-      "canonSku": "560474",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "craftcellars": 69.99,
-        "kegncork": 99.96,
-        "kwm": 99.99,
-        "sierrasprings": 100.85,
-        "willowpark": 94.49
-      },
-      "representative": {
-        "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
     },
     {
@@ -3520,6 +3479,47 @@
         "priceNum": 84.49,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/bowmore-12-year-old-sherry-cask-single-malt-scotch-whisky"
+      }
+    },
+    {
+      "canonSku": "117348",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 160,
+        "coop": 179.99,
+        "craftcellars": 182.99,
+        "kwm": 182.99,
+        "willowpark": 169.99
+      },
+      "representative": {
+        "name": "Glenfarclas 17 Year Old",
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "134270",
+        "skuKey": "134270",
+        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfarclas-17-year-old-1"
       }
     },
     {
@@ -7229,46 +7229,6 @@
       }
     },
     {
-      "canonSku": "121006",
-      "storeCount": 4,
-      "stores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "kegncork": 124.96,
-        "kwm": 131.99,
-        "maltsandgrains": 134.9,
-        "willowpark": 118.99
-      },
-      "representative": {
-        "name": "Ardnahoe Islay Single Malt 'Infinite Loch'",
-        "price": "$118.99",
-        "priceNum": 118.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "121006",
-        "skuKey": "121006",
-        "url": "https://www.willowpark.net/products/ardnahoe-infinite-loch-121006",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$118.99",
-        "priceNum": 118.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/ardnahoe-infinite-loch-121006"
-      }
-    },
-    {
       "canonSku": "126606",
       "storeCount": 4,
       "stores": [
@@ -9971,6 +9931,45 @@
         "priceNum": 199.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/g-m-connoisseurs-choice-2009-bunnahabhain-whisky-explorers-pick-750-ml/"
+      }
+    },
+    {
+      "canonSku": "121006",
+      "storeCount": 3,
+      "stores": [
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "kwm": 131.99,
+        "maltsandgrains": 134.9,
+        "willowpark": 118.99
+      },
+      "representative": {
+        "name": "Ardnahoe Islay Single Malt 'Infinite Loch'",
+        "price": "$118.99",
+        "priceNum": 118.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "121006",
+        "skuKey": "121006",
+        "url": "https://www.willowpark.net/products/ardnahoe-infinite-loch-121006",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$118.99",
+        "priceNum": 118.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/ardnahoe-infinite-loch-121006"
       }
     },
     {
