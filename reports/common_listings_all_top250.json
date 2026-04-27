@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T04:58:40.941Z",
+  "generatedAt": "2026-04-27T07:49:43.738Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13143,
-    "removedRows": 3554,
-    "canonSkus": 6408,
+    "liveRows": 13136,
+    "removedRows": 3563,
+    "canonSkus": 6404,
     "outputCount": 250
   },
   "rows": [
@@ -412,7 +412,7 @@
       "storePrices": {
         "arc": 77.19,
         "bcl": 79.99,
-        "bsw": 64.99,
+        "bsw": 77.99,
         "craftcellars": 63.99,
         "gull": 73.99,
         "kwm": 88.99,
@@ -1375,7 +1375,7 @@
         "kegncork": 99.96,
         "kwm": 99.99,
         "legacyliquor": 129.06,
-        "maltsandgrains": 69.99,
+        "maltsandgrains": 104.9,
         "sierrasprings": 100.85,
         "tudor": 114.99,
         "vintage": 123.39,
@@ -1482,7 +1482,7 @@
       "storePrices": {
         "arc": 82.99,
         "bcl": 81.99,
-        "bsw": 71.99,
+        "bsw": 82.99,
         "craftcellars": 98.99,
         "gull": 79.99,
         "kwm": 89.99,
@@ -1494,22 +1494,22 @@
         "willowpark": 85.99
       },
       "representative": {
-        "name": "Laphroaig Quarter Casks",
-        "price": "$71.99",
-        "priceNum": 71.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "724396",
-        "skuKey": "724396",
-        "url": "https://www.bswliquor.com/products/laphroaig-quarter-cask-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$71.99",
-        "priceNum": 71.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/laphroaig-quarter-cask-1"
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     },
     {
@@ -3271,60 +3271,6 @@
       }
     },
     {
-      "canonSku": "001610",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.69,
-        "bcl": 30.99,
-        "bsw": 30.99,
-        "craftcellars": 33.99,
-        "gull": 31.6,
-        "legacyliquor": 32.54,
-        "strath": 31.31,
-        "tudor": 30.99,
-        "vessel": 29.99,
-        "willowpark": 33.99
-      },
-      "representative": {
-        "name": "Ballantine's - Finest Blended Scotch",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
-      }
-    },
-    {
       "canonSku": "010157",
       "storeCount": 10,
       "stores": [
@@ -4562,6 +4508,59 @@
         "priceNum": 25.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/gordons-london-dry-gin-750-ml"
+      }
+    },
+    {
+      "canonSku": "001610",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.69,
+        "bcl": 30.99,
+        "bsw": 30.99,
+        "craftcellars": 33.99,
+        "legacyliquor": 32.54,
+        "strath": 31.31,
+        "tudor": 30.99,
+        "vessel": 29.99,
+        "willowpark": 33.99
+      },
+      "representative": {
+        "name": "Ballantine's - Finest Blended Scotch",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
       }
     },
     {
@@ -6183,7 +6182,7 @@
         "gull": 42.15,
         "legacyliquor": 42.99,
         "sierrasprings": 44.61,
-        "tudor": 59.99,
+        "tudor": 40.99,
         "vessel": 39.99
       },
       "representative": {
