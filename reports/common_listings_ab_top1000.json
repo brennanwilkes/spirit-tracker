@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T22:02:45.973Z",
+  "generatedAt": "2026-04-27T01:19:00.915Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,55 +26,12 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8715,
-    "removedRows": 3111,
+    "liveRows": 8710,
+    "removedRows": 3116,
     "canonSkus": 5247,
     "outputCount": 1000
   },
   "rows": [
-    {
-      "canonSku": "368456",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 79.99,
-        "craftcellars": 89.99,
-        "kegncork": 88.96,
-        "kwm": 78.99,
-        "maltsandgrains": 91.73,
-        "sierrasprings": 89.42,
-        "willowpark": 90.99
-      },
-      "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "761474",
-        "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
-      }
-    },
     {
       "canonSku": "413410",
       "storeCount": 8,
@@ -589,6 +546,49 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
+      }
+    },
+    {
+      "canonSku": "368456",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 79.99,
+        "kegncork": 88.96,
+        "kwm": 78.99,
+        "maltsandgrains": 91.73,
+        "sierrasprings": 89.42,
+        "willowpark": 90.99
+      },
+      "representative": {
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "761474",
+        "skuKey": "761474",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -1520,48 +1520,6 @@
         "priceNum": 160,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-grant-18-year-old-2020-release"
-      }
-    },
-    {
-      "canonSku": "236740",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "craftcellars": 112.99,
-        "kegncork": 199.96,
-        "kwm": 122.99,
-        "maltsandgrains": 129.9,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Craigellachie 17 Year Old",
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "864257",
-        "skuKey": "864257",
-        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv"
       }
     },
     {
@@ -4468,6 +4426,47 @@
       }
     },
     {
+      "canonSku": "236740",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 150,
+        "kegncork": 199.96,
+        "kwm": 122.99,
+        "maltsandgrains": 129.9,
+        "willowpark": 209.99
+      },
+      "representative": {
+        "name": "Craigellachie 17 Year",
+        "price": "$122.99",
+        "priceNum": 122.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "864257",
+        "skuKey": "864257",
+        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$122.99",
+        "priceNum": 122.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year"
+      }
+    },
+    {
       "canonSku": "243824",
       "storeCount": 5,
       "stores": [
@@ -5818,47 +5817,6 @@
         "priceNum": 175,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/whistlepig-12-year-old-old-world"
-      }
-    },
-    {
-      "canonSku": "778187",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "craftcellars": 86.99,
-        "kegncork": 85.96,
-        "kwm": 86.99,
-        "willowpark": 87.49
-      },
-      "representative": {
-        "name": "Arran Quarter Cask The Bothy 56.2% ABV",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "778187",
-        "skuKey": "778187",
-        "url": "https://www.bswliquor.com/products/arran-quarter-cask-the-bothy-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/arran-quarter-cask-the-bothy-1"
       }
     },
     {
@@ -13325,6 +13283,46 @@
       }
     },
     {
+      "canonSku": "778187",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "kegncork": 85.96,
+        "kwm": 86.99,
+        "willowpark": 87.49
+      },
+      "representative": {
+        "name": "Arran Quarter Cask The Bothy 56.2% ABV",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "778187",
+        "skuKey": "778187",
+        "url": "https://www.bswliquor.com/products/arran-quarter-cask-the-bothy-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/arran-quarter-cask-the-bothy-1"
+      }
+    },
+    {
       "canonSku": "785116",
       "storeCount": 4,
       "stores": [
@@ -17506,45 +17504,6 @@
         "priceNum": 53.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bareksten-botanical-gin-1"
-      }
-    },
-    {
-      "canonSku": "109448",
-      "storeCount": 3,
-      "stores": [
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "craftcellars": 139.99,
-        "kegncork": 138.96,
-        "kwm": 139.99
-      },
-      "representative": {
-        "name": "Old Pulteney Pineau Des Charentes",
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "109448",
-        "skuKey": "109448",
-        "url": "https://craftcellars.ca/products/old-pulteney-pineau-des-charentes-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$138.96",
-        "priceNum": 138.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/old-pulteney-pineau-des-charentes-700-ml/"
       }
     },
     {
@@ -35545,6 +35504,44 @@
         "priceNum": 129.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/still-austin-cask-strength-rye-58-abv"
+      }
+    },
+    {
+      "canonSku": "109448",
+      "storeCount": 2,
+      "stores": [
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "kegncork": 138.96,
+        "kwm": 139.99
+      },
+      "representative": {
+        "name": "Old Pulteney Pineau des Charantes",
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "109448",
+        "skuKey": "109448",
+        "url": "https://kensingtonwinemarket.com/product/109448/old-pulteney-pineau-des-charantes",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$138.96",
+        "priceNum": 138.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/old-pulteney-pineau-des-charentes-700-ml/"
       }
     },
     {

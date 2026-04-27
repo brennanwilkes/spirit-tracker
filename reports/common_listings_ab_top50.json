@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T22:02:45.351Z",
+  "generatedAt": "2026-04-27T01:19:00.304Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,55 +26,12 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8715,
-    "removedRows": 3111,
+    "liveRows": 8710,
+    "removedRows": 3116,
     "canonSkus": 5247,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "368456",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 79.99,
-        "craftcellars": 89.99,
-        "kegncork": 88.96,
-        "kwm": 78.99,
-        "maltsandgrains": 91.73,
-        "sierrasprings": 89.42,
-        "willowpark": 90.99
-      },
-      "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "761474",
-        "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
-      }
-    },
     {
       "canonSku": "413410",
       "storeCount": 8,
@@ -589,6 +546,49 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
+      }
+    },
+    {
+      "canonSku": "368456",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 79.99,
+        "kegncork": 88.96,
+        "kwm": 78.99,
+        "maltsandgrains": 91.73,
+        "sierrasprings": 89.42,
+        "willowpark": 90.99
+      },
+      "representative": {
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "761474",
+        "skuKey": "761474",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -1355,48 +1355,6 @@
       }
     },
     {
-      "canonSku": "236740",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "craftcellars": 112.99,
-        "kegncork": 199.96,
-        "kwm": 122.99,
-        "maltsandgrains": 129.9,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Craigellachie 17 Year Old",
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "864257",
-        "skuKey": "864257",
-        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv"
-      }
-    },
-    {
       "canonSku": "249680",
       "storeCount": 6,
       "stores": [
@@ -2102,6 +2060,47 @@
         "priceNum": 614.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/lowland-scotch-whisky-whisky-2-2/auchentoshan-1988-px-cask-single-malt-whisky-49-7-abv/"
+      }
+    },
+    {
+      "canonSku": "236740",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 150,
+        "kegncork": 199.96,
+        "kwm": 122.99,
+        "maltsandgrains": 129.9,
+        "willowpark": 209.99
+      },
+      "representative": {
+        "name": "Craigellachie 17 Year",
+        "price": "$122.99",
+        "priceNum": 122.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "864257",
+        "skuKey": "864257",
+        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$122.99",
+        "priceNum": 122.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/864257/craigellachie-17-year"
       }
     },
     {
