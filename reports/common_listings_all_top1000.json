@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T19:24:14.492Z",
+  "generatedAt": "2026-04-28T22:13:52.826Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,8 +34,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13149,
-    "removedRows": 3587,
+    "liveRows": 13144,
+    "removedRows": 3592,
     "canonSkus": 6406,
     "outputCount": 1000
   },
@@ -1121,62 +1121,6 @@
       }
     },
     {
-      "canonSku": "202028",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "gull",
-        "sierrasprings",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 146.99,
-        "bcl": 160.99,
-        "bsw": 110,
-        "craftcellars": 104.99,
-        "kegncork": 132.96,
-        "kwm": 133.99,
-        "legacyliquor": 166.4,
-        "maltsandgrains": 139.9,
-        "strath": 161.83,
-        "tudor": 160.99,
-        "vessel": 155.99,
-        "willowpark": 131.49
-      },
-      "representative": {
-        "name": "Ardbeg Uigeadail",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "717559",
-        "skuKey": "717559",
-        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
-      }
-    },
-    {
       "canonSku": "238097",
       "storeCount": 12,
       "stores": [
@@ -2117,6 +2061,61 @@
         "priceNum": 26.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/177808"
+      }
+    },
+    {
+      "canonSku": "202028",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "gull",
+        "sierrasprings",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 146.99,
+        "bcl": 160.99,
+        "bsw": 110,
+        "kegncork": 132.96,
+        "kwm": 133.99,
+        "legacyliquor": 166.4,
+        "maltsandgrains": 139.9,
+        "strath": 161.83,
+        "tudor": 160.99,
+        "vessel": 155.99,
+        "willowpark": 131.49
+      },
+      "representative": {
+        "name": "Ardbeg Uigeadail 54.2% ABV",
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "717559",
+        "skuKey": "717559",
+        "url": "https://www.bswliquor.com/products/ardbeg-uigedail",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ardbeg-uigedail"
       }
     },
     {
@@ -11313,57 +11312,6 @@
       }
     },
     {
-      "canonSku": "132079",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 79.99,
-        "bsw": 59.99,
-        "craftcellars": 67.99,
-        "kwm": 67.99,
-        "tudor": 79.99,
-        "vessel": 84.99,
-        "willowpark": 65.49
-      },
-      "representative": {
-        "name": "Old Pulteney 12 Year Old",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "813431",
-        "skuKey": "813431",
-        "url": "https://www.bswliquor.com/products/old-pulteney-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/old-pulteney-12-year-old-1"
-      }
-    },
-    {
       "canonSku": "134592",
       "storeCount": 7,
       "stores": [
@@ -15103,6 +15051,56 @@
       }
     },
     {
+      "canonSku": "132079",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "bsw",
+        "kwm",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 79.99,
+        "bsw": 59.99,
+        "kwm": 67.99,
+        "tudor": 79.99,
+        "vessel": 84.99,
+        "willowpark": 65.49
+      },
+      "representative": {
+        "name": "Old Pulteney 12 Year Old",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "813431",
+        "skuKey": "813431",
+        "url": "https://www.bswliquor.com/products/old-pulteney-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-pulteney-12-year-old-1"
+      }
+    },
+    {
       "canonSku": "133439",
       "storeCount": 6,
       "stores": [
@@ -18000,56 +17998,6 @@
         "priceNum": 120,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1"
-      }
-    },
-    {
-      "canonSku": "679621",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "willowpark"
-      ],
-      "missingStores": [
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 108.09,
-        "bcl": 109.99,
-        "bsw": 107,
-        "coop": 114.99,
-        "craftcellars": 109.99,
-        "willowpark": 111.49
-      },
-      "representative": {
-        "name": "Clynelish 14 Year Old",
-        "price": "$107.00",
-        "priceNum": 107,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "717914",
-        "skuKey": "717914",
-        "url": "https://www.bswliquor.com/products/clynelish-14-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$107.00",
-        "priceNum": 107,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/clynelish-14-year-old-1"
       }
     },
     {
@@ -21980,55 +21928,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/angels-envy-bourbon-2"
-      }
-    },
-    {
-      "canonSku": "134972",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 65.99,
-        "bsw": 72.99,
-        "craftcellars": 73.99,
-        "kegncork": 73.96,
-        "kwm": 75.99
-      },
-      "representative": {
-        "name": "ALBERTA PREMIUM - CASK STRENGTH RYE 10 YEAR OLD",
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "650350",
-        "skuKey": "650350",
-        "url": "https://www.bcliquorstores.com/product/650350",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/650350"
       }
     },
     {
@@ -26344,6 +26243,55 @@
       }
     },
     {
+      "canonSku": "679621",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "willowpark"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 108.09,
+        "bcl": 109.99,
+        "bsw": 107,
+        "coop": 114.99,
+        "willowpark": 111.49
+      },
+      "representative": {
+        "name": "Clynelish 14 Year Old",
+        "price": "$107.00",
+        "priceNum": 107,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "717914",
+        "skuKey": "717914",
+        "url": "https://www.bswliquor.com/products/clynelish-14-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$107.00",
+        "priceNum": 107,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/clynelish-14-year-old-1"
+      }
+    },
+    {
       "canonSku": "698464",
       "storeCount": 5,
       "stores": [
@@ -27223,55 +27171,6 @@
         "priceNum": 1475,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ardbeg-25-year-old"
-      }
-    },
-    {
-      "canonSku": "855655",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 64.99,
-        "craftcellars": 75.99,
-        "kegncork": 72.96,
-        "maltsandgrains": 74.9,
-        "sierrasprings": 62.75
-      },
-      "representative": {
-        "name": "ZAYA ALTA FUERZA RUM 57.5%",
-        "price": "$62.75",
-        "priceNum": 62.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "855655",
-        "skuKey": "855655",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/zaya-alta-fuerza-rum-57-5-abv/",
-        "categoryLabel": "Spirits / Liquor",
-        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
-      },
-      "cheapest": {
-        "price": "$62.75",
-        "priceNum": 62.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/zaya-alta-fuerza-rum-57-5-abv/"
       }
     },
     {
@@ -28529,54 +28428,6 @@
         "priceNum": 149.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/isle-of-jura-18-year-old-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "069021",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bsw",
-        "craftcellars",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 106.89,
-        "bsw": 84.99,
-        "craftcellars": 62.99,
-        "tudor": 129.99
-      },
-      "representative": {
-        "name": "Amrut Peat Standard 46",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "735030",
-        "skuKey": "735030",
-        "url": "https://craftcellars.ca/products/amrut-peat-standard-46",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/amrut-peat-standard-46"
       }
     },
     {
@@ -31745,6 +31596,54 @@
         "priceNum": 43.49,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/diplomatico-planas"
+      }
+    },
+    {
+      "canonSku": "134972",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "bsw",
+        "kegncork",
+        "kwm"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 65.99,
+        "bsw": 72.99,
+        "kegncork": 73.96,
+        "kwm": 75.99
+      },
+      "representative": {
+        "name": "ALBERTA PREMIUM - CASK STRENGTH RYE 10 YEAR OLD",
+        "price": "$65.99",
+        "priceNum": 65.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "650350",
+        "skuKey": "650350",
+        "url": "https://www.bcliquorstores.com/product/650350",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$65.99",
+        "priceNum": 65.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/650350"
       }
     },
     {
@@ -38948,6 +38847,54 @@
       }
     },
     {
+      "canonSku": "855655",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 64.99,
+        "kegncork": 72.96,
+        "maltsandgrains": 74.9,
+        "sierrasprings": 62.75
+      },
+      "representative": {
+        "name": "ZAYA ALTA FUERZA RUM 57.5%",
+        "price": "$62.75",
+        "priceNum": 62.75,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "855655",
+        "skuKey": "855655",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/zaya-alta-fuerza-rum-57-5-abv/",
+        "categoryLabel": "Spirits / Liquor",
+        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+      },
+      "cheapest": {
+        "price": "$62.75",
+        "priceNum": 62.75,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/zaya-alta-fuerza-rum-57-5-abv/"
+      }
+    },
+    {
       "canonSku": "865229",
       "storeCount": 4,
       "stores": [
@@ -40842,6 +40789,53 @@
         "priceNum": 55.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/794071/plantation-oftd-69-barrel-proof"
+      }
+    },
+    {
+      "canonSku": "069021",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "bsw",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 106.89,
+        "bsw": 84.99,
+        "tudor": 129.99
+      },
+      "representative": {
+        "name": "Amrut Peated Indian Single Malt",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "735030",
+        "skuKey": "735030",
+        "url": "https://www.bswliquor.com/products/amrut-peated-single-malt",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/amrut-peated-single-malt"
       }
     },
     {
