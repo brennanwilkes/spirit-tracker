@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T05:00:45.763Z",
+  "generatedAt": "2026-04-28T07:48:53.719Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_all_top250.json",
-      "cutoffStoreCount": 7
+      "cutoffStoreCount": 6
     }
   },
   "storeCount": 16,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13137,
-    "removedRows": 3584,
-    "canonSkus": 6407,
+    "liveRows": 13113,
+    "removedRows": 3616,
+    "canonSkus": 6404,
     "outputCount": 250
   },
   "rows": [
@@ -327,63 +327,6 @@
         "priceNum": 95.23,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-105-j-g-grant-60-0-abv/"
-      }
-    },
-    {
-      "canonSku": "135210",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 77.19,
-        "bcl": 79.99,
-        "bsw": 77.99,
-        "craftcellars": 63.99,
-        "gull": 73.99,
-        "kwm": 88.99,
-        "legacyliquor": 88.13,
-        "maltsandgrains": 99.9,
-        "sierrasprings": 75.13,
-        "strath": 89.96,
-        "tudor": 73.99,
-        "vessel": 76.99,
-        "willowpark": 82.99
-      },
-      "representative": {
-        "name": "Laphroaig 10 Year Old",
-        "price": "$63.99",
-        "priceNum": 63.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "739119",
-        "skuKey": "739119",
-        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$63.99",
-        "priceNum": 63.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
       }
     },
     {
@@ -839,6 +782,62 @@
       }
     },
     {
+      "canonSku": "135210",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "legacyliquor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 77.19,
+        "bcl": 79.99,
+        "bsw": 77.99,
+        "craftcellars": 63.99,
+        "gull": 73.99,
+        "kwm": 88.99,
+        "maltsandgrains": 99.9,
+        "sierrasprings": 75.13,
+        "strath": 89.96,
+        "tudor": 73.99,
+        "vessel": 76.99,
+        "willowpark": 82.99
+      },
+      "representative": {
+        "name": "Laphroaig 10 Year Old",
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739119",
+        "skuKey": "739119",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
+      }
+    },
+    {
       "canonSku": "141495",
       "storeCount": 12,
       "stores": [
@@ -1175,59 +1174,59 @@
       }
     },
     {
-      "canonSku": "560474",
+      "canonSku": "546366",
       "storeCount": 12,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "craftcellars",
+        "gull",
         "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
-        "sierrasprings",
+        "strath",
         "tudor",
-        "vintage",
-        "willowpark"
+        "vessel"
       ],
       "missingStores": [
         "coop",
-        "gull",
-        "strath",
-        "vessel"
+        "sierrasprings",
+        "vintage",
+        "willowpark"
       ],
       "storePrices": {
-        "arc": 102.99,
-        "bcl": 114.99,
-        "bsw": 74.99,
-        "craftcellars": 69.99,
-        "kegncork": 99.96,
-        "kwm": 99.99,
-        "legacyliquor": 129.06,
-        "maltsandgrains": 104.9,
-        "sierrasprings": 100.85,
-        "tudor": 114.99,
-        "vintage": 123.39,
-        "willowpark": 94.49
+        "arc": 68.89,
+        "bcl": 67.99,
+        "bsw": 57.99,
+        "craftcellars": 67.99,
+        "gull": 71.65,
+        "kegncork": 66.96,
+        "kwm": 67.99,
+        "legacyliquor": 74.99,
+        "maltsandgrains": 67.9,
+        "strath": 68.48,
+        "tudor": 67.99,
+        "vessel": 69.99
       },
       "representative": {
-        "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
+        "name": "Nikka From The Barrel Japanese Whisky",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "546366",
+        "skuKey": "546366",
+        "url": "https://www.bswliquor.com/products/nikka-from-the-barrel",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/nikka-from-the-barrel"
       }
     },
     {
@@ -1784,61 +1783,6 @@
         "priceNum": 123.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
-      }
-    },
-    {
-      "canonSku": "034672",
-      "storeCount": 11,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "kegncork",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 129.99,
-        "bsw": 120,
-        "craftcellars": 139.99,
-        "gull": 134.99,
-        "kwm": 139.99,
-        "legacyliquor": 137.17,
-        "maltsandgrains": 143.09,
-        "sierrasprings": 114.18,
-        "strath": 130.44,
-        "vessel": 129.99,
-        "willowpark": 129.99
-      },
-      "representative": {
-        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "787186",
-        "skuKey": "787186",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
       }
     },
     {
@@ -2422,15 +2366,15 @@
         "gull": 204.99,
         "kegncork": 219.96,
         "kwm": 234.99,
-        "maltsandgrains": 179.9,
+        "maltsandgrains": 174.99,
         "strath": 201.48,
         "tudor": 201.99,
         "willowpark": 209.99
       },
       "representative": {
         "name": "Laphroaig Lore 48% (Cask Collection)",
-        "price": "$179.90",
-        "priceNum": 179.9,
+        "price": "$174.99",
+        "priceNum": 174.99,
         "storeKey": "maltsandgrains",
         "storeLabel": "Malts & Grains",
         "skuRaw": "780037",
@@ -2440,8 +2384,8 @@
         "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$179.90",
-        "priceNum": 179.9,
+        "price": "$174.99",
+        "priceNum": 174.99,
         "storeKey": "maltsandgrains",
         "url": "https://maltsandgrains.store/product/laphroaig-lore-48-cask-collection/"
       }
@@ -2777,58 +2721,58 @@
       }
     },
     {
-      "canonSku": "546366",
+      "canonSku": "560474",
       "storeCount": 11,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "craftcellars",
-        "gull",
+        "kegncork",
         "kwm",
         "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
         "sierrasprings",
+        "tudor",
         "vintage",
         "willowpark"
       ],
+      "missingStores": [
+        "coop",
+        "gull",
+        "maltsandgrains",
+        "strath",
+        "vessel"
+      ],
       "storePrices": {
-        "arc": 68.89,
-        "bcl": 67.99,
-        "bsw": 57.99,
-        "craftcellars": 67.99,
-        "gull": 71.65,
-        "kwm": 67.99,
-        "legacyliquor": 74.99,
-        "maltsandgrains": 67.9,
-        "strath": 68.48,
-        "tudor": 67.99,
-        "vessel": 69.99
+        "arc": 102.99,
+        "bcl": 114.99,
+        "bsw": 74.99,
+        "craftcellars": 69.99,
+        "kegncork": 99.96,
+        "kwm": 99.99,
+        "legacyliquor": 129.06,
+        "sierrasprings": 100.85,
+        "tudor": 114.99,
+        "vintage": 123.39,
+        "willowpark": 94.49
       },
       "representative": {
-        "name": "Nikka From The Barrel Japanese Whisky",
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "546366",
-        "skuKey": "546366",
-        "url": "https://www.bswliquor.com/products/nikka-from-the-barrel",
+        "name": "Ardbeg 10 Year Old Scotch Whisky",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/nikka-from-the-barrel"
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
     },
     {
@@ -3264,6 +3208,60 @@
         "priceNum": 31.42,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/irish-whiskey/jameson-irish-whiskey-40-abv/"
+      }
+    },
+    {
+      "canonSku": "034672",
+      "storeCount": 10,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "kegncork",
+        "legacyliquor",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 129.99,
+        "bsw": 120,
+        "craftcellars": 139.99,
+        "gull": 134.99,
+        "kwm": 139.99,
+        "maltsandgrains": 143.09,
+        "sierrasprings": 114.18,
+        "strath": 130.44,
+        "vessel": 129.99,
+        "willowpark": 129.99
+      },
+      "representative": {
+        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
+        "price": "$114.18",
+        "priceNum": 114.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "787186",
+        "skuKey": "787186",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$114.18",
+        "priceNum": 114.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
       }
     },
     {
@@ -4608,59 +4606,6 @@
         "priceNum": 48.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/chivas-regal-12-year-old-1"
-      }
-    },
-    {
-      "canonSku": "007880",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 61.99,
-        "bsw": 48.99,
-        "craftcellars": 56.99,
-        "gull": 68.99,
-        "legacyliquor": 67.99,
-        "tudor": 64.99,
-        "vessel": 65.99,
-        "willowpark": 54.49
-      },
-      "representative": {
-        "name": "Johnnie Walker Black Label 12 Year Old",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://www.bswliquor.com/products/johnnie-walker-black-label-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/johnnie-walker-black-label-1"
       }
     },
     {
@@ -6095,6 +6040,59 @@
       }
     },
     {
+      "canonSku": "770315",
+      "storeCount": 9,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 89.99,
+        "bsw": 89.99,
+        "coop": 104.99,
+        "craftcellars": 102.99,
+        "kegncork": 99.96,
+        "kwm": 104.99,
+        "maltsandgrains": 102.59,
+        "sierrasprings": 102.75,
+        "willowpark": 103.99
+      },
+      "representative": {
+        "name": "GLENMORANGIE - 12 YEAR OLD LASANTA SHERRY CASK FINISH",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "848754",
+        "skuKey": "848754",
+        "url": "https://www.bcliquorstores.com/product/848754",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/848754"
+      }
+    },
+    {
       "canonSku": "000935",
       "storeCount": 8,
       "stores": [
@@ -6352,6 +6350,58 @@
         "priceNum": 11.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
+      }
+    },
+    {
+      "canonSku": "007880",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 61.99,
+        "bsw": 48.99,
+        "craftcellars": 56.99,
+        "gull": 68.99,
+        "tudor": 64.99,
+        "vessel": 65.99,
+        "willowpark": 54.49
+      },
+      "representative": {
+        "name": "Johnnie Walker Black Label 12 Year Old",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://www.bswliquor.com/products/johnnie-walker-black-label-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/johnnie-walker-black-label-1"
       }
     },
     {
@@ -7759,58 +7809,6 @@
       }
     },
     {
-      "canonSku": "140448",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "vessel",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 90.99,
-        "craftcellars": 108.99,
-        "gull": 91.99,
-        "legacyliquor": 102.99,
-        "maltsandgrains": 99.99,
-        "strath": 93.27,
-        "tudor": 99.99,
-        "vintage": 97.3
-      },
-      "representative": {
-        "name": "SONS OF VAN WHEATED RYE WHISKY",
-        "price": "$90.99",
-        "priceNum": 90.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "230464",
-        "skuKey": "230464",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$90.99",
-        "priceNum": 90.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky"
-      }
-    },
-    {
       "canonSku": "165654",
       "storeCount": 8,
       "stores": [
@@ -9007,58 +9005,6 @@
       }
     },
     {
-      "canonSku": "600163",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 48.19,
-        "bcl": 47.99,
-        "bsw": 56.99,
-        "gull": 50.99,
-        "legacyliquor": 56.18,
-        "tudor": 52.99,
-        "vessel": 54.99,
-        "willowpark": 55.99
-      },
-      "representative": {
-        "name": "TANQUERAY - NO. TEN BATCH DISTILLED",
-        "price": "$47.99",
-        "priceNum": 47.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "600163",
-        "skuKey": "600163",
-        "url": "https://www.bcliquorstores.com/product/600163",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$47.99",
-        "priceNum": 47.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/600163"
-      }
-    },
-    {
       "canonSku": "603050",
       "storeCount": 8,
       "stores": [
@@ -9190,28 +9136,28 @@
         "bsw": 190,
         "craftcellars": 219.99,
         "legacyliquor": 239.15,
-        "maltsandgrains": 225.72,
+        "maltsandgrains": 169.99,
         "sierrasprings": 212.28,
         "tudor": 229.99,
         "willowpark": 224.99
       },
       "representative": {
-        "name": "The Dalmore 15 Year Old",
-        "price": "$190.00",
-        "priceNum": 190,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Dalmore 15 YO 40% (750ml)",
+        "price": "$169.99",
+        "priceNum": 169.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
         "skuRaw": "745048",
         "skuKey": "745048",
-        "url": "https://www.bswliquor.com/products/the-dalmore-15-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://maltsandgrains.store/product/dalmore-15-yo-40/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$190.00",
-        "priceNum": 190,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/the-dalmore-15-year-old"
+        "price": "$169.99",
+        "priceNum": 169.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/dalmore-15-yo-40/"
       }
     },
     {
@@ -9368,58 +9314,6 @@
         "priceNum": 41.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aviation-gin"
-      }
-    },
-    {
-      "canonSku": "770315",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 89.99,
-        "bsw": 89.99,
-        "craftcellars": 102.99,
-        "kegncork": 99.96,
-        "kwm": 104.99,
-        "maltsandgrains": 102.59,
-        "sierrasprings": 102.75,
-        "willowpark": 103.99
-      },
-      "representative": {
-        "name": "GLENMORANGIE - 12 YEAR OLD LASANTA SHERRY CASK FINISH",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "848754",
-        "skuKey": "848754",
-        "url": "https://www.bcliquorstores.com/product/848754",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/848754"
       }
     },
     {
@@ -12177,6 +12071,57 @@
       }
     },
     {
+      "canonSku": "600163",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 48.19,
+        "bcl": 47.99,
+        "bsw": 56.99,
+        "gull": 50.99,
+        "tudor": 52.99,
+        "vessel": 54.99,
+        "willowpark": 55.99
+      },
+      "representative": {
+        "name": "TANQUERAY - NO. TEN BATCH DISTILLED",
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "600163",
+        "skuKey": "600163",
+        "url": "https://www.bcliquorstores.com/product/600163",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$47.99",
+        "priceNum": 47.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/600163"
+      }
+    },
+    {
       "canonSku": "641035",
       "storeCount": 7,
       "stores": [
@@ -12427,56 +12372,6 @@
         "priceNum": 18.29,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591990-crown-royal-375ml"
-      }
-    },
-    {
-      "canonSku": "092466",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "kwm",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "craftcellars": 74.99,
-        "kegncork": 69.96,
-        "legacyliquor": 76.88,
-        "maltsandgrains": 73.35,
-        "sierrasprings": 66.99
-      },
-      "representative": {
-        "name": "Old Forester 1870 Original Batch Bourbon",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "834326",
-        "skuKey": "834326",
-        "url": "https://www.bswliquor.com/products/old-forester-1870",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/old-forester-1870"
       }
     },
     {
@@ -12827,6 +12722,56 @@
         "priceNum": 850,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfarclas-30-year-old-1"
+      }
+    },
+    {
+      "canonSku": "140448",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 90.99,
+        "craftcellars": 108.99,
+        "gull": 91.99,
+        "legacyliquor": 102.99,
+        "tudor": 99.99,
+        "vintage": 97.3
+      },
+      "representative": {
+        "name": "SONS OF VAN WHEATED RYE WHISKY",
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "230464",
+        "skuKey": "230464",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky"
       }
     },
     {
@@ -13227,6 +13172,55 @@
         "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1"
+      }
+    },
+    {
+      "canonSku": "092466",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 62.99,
+        "craftcellars": 74.99,
+        "kegncork": 69.96,
+        "maltsandgrains": 73.35,
+        "sierrasprings": 66.99
+      },
+      "representative": {
+        "name": "Old Forester 1870 Original Batch Bourbon",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "834326",
+        "skuKey": "834326",
+        "url": "https://www.bswliquor.com/products/old-forester-1870",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-forester-1870"
       }
     }
   ]
