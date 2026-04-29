@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T04:59:07.492Z",
+  "generatedAt": "2026-04-29T07:45:49.779Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8710,
-    "removedRows": 3145,
-    "canonSkus": 5237,
+    "liveRows": 8719,
+    "removedRows": 3152,
+    "canonSkus": 5242,
     "outputCount": 50
   },
   "rows": [
@@ -933,6 +933,48 @@
       }
     },
     {
+      "canonSku": "063102",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 76.99,
+        "coop": 74.99,
+        "craftcellars": 58.99,
+        "kwm": 79.99,
+        "sierrasprings": 66.56,
+        "willowpark": 79.49
+      },
+      "representative": {
+        "name": "Black Tot Rum",
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "832046",
+        "skuKey": "832046",
+        "url": "https://craftcellars.ca/products/black-tot-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/craftcellars__rum__31fd0044.json"
+      },
+      "cheapest": {
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/black-tot-rum"
+      }
+    },
+    {
       "canonSku": "101967",
       "storeCount": 6,
       "stores": [
@@ -1578,7 +1620,7 @@
         "maltsandgrains"
       ],
       "storePrices": {
-        "bsw": 74.99,
+        "bsw": 84.99,
         "craftcellars": 69.99,
         "kegncork": 99.96,
         "kwm": 99.99,
@@ -1812,47 +1854,6 @@
         "priceNum": 82.75,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/balblair-12-year-46-abv/"
-      }
-    },
-    {
-      "canonSku": "063102",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 76.99,
-        "craftcellars": 58.99,
-        "kwm": 79.99,
-        "sierrasprings": 66.56,
-        "willowpark": 79.49
-      },
-      "representative": {
-        "name": "Black Tot Rum",
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "832046",
-        "skuKey": "832046",
-        "url": "https://craftcellars.ca/products/black-tot-rum",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/craftcellars__rum__31fd0044.json"
-      },
-      "cheapest": {
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/black-tot-rum"
       }
     },
     {
