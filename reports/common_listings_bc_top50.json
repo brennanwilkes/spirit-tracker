@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T16:24:22.590Z",
+  "generatedAt": "2026-04-29T19:23:23.707Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4427,
-    "removedRows": 454,
-    "canonSkus": 2222,
+    "liveRows": 4429,
+    "removedRows": 453,
+    "canonSkus": 2220,
     "outputCount": 50
   },
   "rows": [
@@ -49,7 +49,7 @@
       "storePrices": {
         "arc": 38.99,
         "bcl": 39.99,
-        "gull": 38.6,
+        "gull": 41.35,
         "legacyliquor": 41.99,
         "strath": 39.57,
         "tudor": 36.99,
@@ -549,49 +549,6 @@
       }
     },
     {
-      "canonSku": "001222",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 24.09,
-        "bcl": 23.49,
-        "gull": 25,
-        "legacyliquor": 24.99,
-        "tudor": 23.49,
-        "vessel": 22.49,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "JP Wiser's - Special Blend Whisky",
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001222",
-        "skuKey": "001222",
-        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml"
-      }
-    },
-    {
       "canonSku": "001487",
       "storeCount": 7,
       "stores": [
@@ -632,6 +589,49 @@
         "priceNum": 27.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1487"
+      }
+    },
+    {
+      "canonSku": "001610",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.69,
+        "bcl": 30.99,
+        "gull": 33,
+        "legacyliquor": 32.54,
+        "strath": 31.31,
+        "tudor": 30.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "Ballantine's - Finest Blended Scotch",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
       }
     },
     {
@@ -1323,45 +1323,87 @@
       }
     },
     {
-      "canonSku": "001610",
+      "canonSku": "000984",
       "storeCount": 6,
       "stores": [
         "arc",
         "bcl",
+        "gull",
         "legacyliquor",
-        "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
-        "gull",
+        "strath",
         "vintage"
       ],
       "storePrices": {
-        "arc": 31.69,
-        "bcl": 30.99,
-        "legacyliquor": 32.54,
-        "strath": 31.31,
-        "tudor": 30.99,
-        "vessel": 29.99
+        "arc": 23.99,
+        "bcl": 23.49,
+        "gull": 25,
+        "legacyliquor": 24.99,
+        "tudor": 21.99,
+        "vessel": 22.49
       },
       "representative": {
-        "name": "Ballantine's - Finest Blended Scotch",
-        "price": "$29.99",
-        "priceNum": 29.99,
+        "name": "Alberta Premium Rye Whisky PET",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "532655",
+        "skuKey": "532655",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380"
+      }
+    },
+    {
+      "canonSku": "001222",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "strath",
+        "tudor"
+      ],
+      "storePrices": {
+        "arc": 24.09,
+        "bcl": 23.49,
+        "gull": 25,
+        "legacyliquor": 24.99,
+        "vessel": 22.49,
+        "vintage": 25.13
+      },
+      "representative": {
+        "name": "JP Wiser's - Special Blend Whisky",
+        "price": "$22.49",
+        "priceNum": 22.49,
         "storeKey": "vessel",
         "storeLabel": "Vessel Liquor",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
+        "skuRaw": "001222",
+        "skuKey": "001222",
+        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml",
         "categoryLabel": "Whisky",
         "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
+        "price": "$22.49",
+        "priceNum": 22.49,
         "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
+        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml"
       }
     },
     {
@@ -2034,47 +2076,6 @@
         "priceNum": 144.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/243824"
-      }
-    },
-    {
-      "canonSku": "000984",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 23.99,
-        "bcl": 23.49,
-        "legacyliquor": 24.99,
-        "tudor": 21.99,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "Alberta Premium Rye Whisky PET",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "532655",
-        "skuKey": "532655",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-plst-ml-380"
       }
     },
     {
