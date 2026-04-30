@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T16:17:05.915Z",
+  "generatedAt": "2026-04-30T19:22:12.765Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4437,
-    "removedRows": 452,
+    "liveRows": 4438,
+    "removedRows": 454,
     "canonSkus": 2217,
     "outputCount": 50
   },
@@ -463,46 +463,46 @@
       }
     },
     {
-      "canonSku": "001487",
+      "canonSku": "001222",
       "storeCount": 7,
       "stores": [
         "arc",
         "bcl",
         "gull",
         "legacyliquor",
-        "strath",
+        "tudor",
         "vessel",
         "vintage"
       ],
       "missingStores": [
-        "tudor"
+        "strath"
       ],
       "storePrices": {
-        "arc": 28.99,
-        "bcl": 27.99,
-        "gull": 29.65,
-        "legacyliquor": 31.99,
-        "strath": 31.31,
-        "vessel": 28.99,
-        "vintage": 33.39
+        "arc": 24.09,
+        "bcl": 23.49,
+        "gull": 25,
+        "legacyliquor": 24.99,
+        "tudor": 23.49,
+        "vessel": 22.49,
+        "vintage": 25.13
       },
       "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bcliquorstores.com/product/1487",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "JP Wiser's - Special Blend Whisky",
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001222",
+        "skuKey": "001222",
+        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1487"
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml"
       }
     },
     {
@@ -1364,48 +1364,6 @@
       }
     },
     {
-      "canonSku": "001222",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "strath",
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 24.09,
-        "bcl": 23.49,
-        "gull": 25,
-        "legacyliquor": 24.99,
-        "vessel": 22.49,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "JP Wiser's - Special Blend Whisky",
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001222",
-        "skuKey": "001222",
-        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml"
-      }
-    },
-    {
       "canonSku": "001412",
       "storeCount": 6,
       "stores": [
@@ -1448,6 +1406,48 @@
       }
     },
     {
+      "canonSku": "001487",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull",
+        "tudor"
+      ],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 27.99,
+        "legacyliquor": 31.99,
+        "strath": 31.31,
+        "vessel": 28.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "CROWN ROYAL",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://www.bcliquorstores.com/product/1487",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1487"
+      }
+    },
+    {
       "canonSku": "001800",
       "storeCount": 6,
       "stores": [
@@ -1467,7 +1467,7 @@
         "bcl": 40.99,
         "gull": 42.15,
         "legacyliquor": 42.99,
-        "tudor": 40.99,
+        "tudor": 59.99,
         "vessel": 37.49
       },
       "representative": {

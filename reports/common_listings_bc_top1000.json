@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T16:17:06.334Z",
+  "generatedAt": "2026-04-30T19:22:13.192Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4437,
-    "removedRows": 452,
+    "liveRows": 4438,
+    "removedRows": 454,
     "canonSkus": 2217,
-    "outputCount": 965
+    "outputCount": 968
   },
   "rows": [
     {
@@ -463,46 +463,46 @@
       }
     },
     {
-      "canonSku": "001487",
+      "canonSku": "001222",
       "storeCount": 7,
       "stores": [
         "arc",
         "bcl",
         "gull",
         "legacyliquor",
-        "strath",
+        "tudor",
         "vessel",
         "vintage"
       ],
       "missingStores": [
-        "tudor"
+        "strath"
       ],
       "storePrices": {
-        "arc": 28.99,
-        "bcl": 27.99,
-        "gull": 29.65,
-        "legacyliquor": 31.99,
-        "strath": 31.31,
-        "vessel": 28.99,
-        "vintage": 33.39
+        "arc": 24.09,
+        "bcl": 23.49,
+        "gull": 25,
+        "legacyliquor": 24.99,
+        "tudor": 23.49,
+        "vessel": 22.49,
+        "vintage": 25.13
       },
       "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bcliquorstores.com/product/1487",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "JP Wiser's - Special Blend Whisky",
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001222",
+        "skuKey": "001222",
+        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1487"
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml"
       }
     },
     {
@@ -1578,48 +1578,6 @@
       }
     },
     {
-      "canonSku": "001222",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "strath",
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 24.09,
-        "bcl": 23.49,
-        "gull": 25,
-        "legacyliquor": 24.99,
-        "vessel": 22.49,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "JP Wiser's - Special Blend Whisky",
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001222",
-        "skuKey": "001222",
-        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-special-blend-whisky-750-ml"
-      }
-    },
-    {
       "canonSku": "001412",
       "storeCount": 6,
       "stores": [
@@ -1662,6 +1620,48 @@
       }
     },
     {
+      "canonSku": "001487",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull",
+        "tudor"
+      ],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 27.99,
+        "legacyliquor": 31.99,
+        "strath": 31.31,
+        "vessel": 28.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "CROWN ROYAL",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://www.bcliquorstores.com/product/1487",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1487"
+      }
+    },
+    {
       "canonSku": "001800",
       "storeCount": 6,
       "stores": [
@@ -1681,7 +1681,7 @@
         "bcl": 40.99,
         "gull": 42.15,
         "legacyliquor": 42.99,
-        "tudor": 40.99,
+        "tudor": 59.99,
         "vessel": 37.49
       },
       "representative": {
@@ -5906,47 +5906,6 @@
       }
     },
     {
-      "canonSku": "134676",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 26.89,
-        "bcl": 26.99,
-        "gull": 31.75,
-        "tudor": 26.49,
-        "vessel": 27.49
-      },
-      "representative": {
-        "name": "FLOR DE CANA - ANEJO CLASICO 5 YEAR OLD",
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "134676",
-        "skuKey": "134676",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/flor-de-cana-5-yr-ml-360",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
-      },
-      "cheapest": {
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/flor-de-cana-5-yr-ml-360"
-      }
-    },
-    {
       "canonSku": "134692",
       "storeCount": 5,
       "stores": [
@@ -6108,6 +6067,47 @@
         "priceNum": 55.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/147929"
+      }
+    },
+    {
+      "canonSku": "161687",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 98.99,
+        "bcl": 104.99,
+        "gull": 99.99,
+        "tudor": 104.99,
+        "vessel": 99.99
+      },
+      "representative": {
+        "name": "CARIBOU CROSSING SINGLE BARREL",
+        "price": "$98.99",
+        "priceNum": 98.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "161687",
+        "skuKey": "161687",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4724975-caribou-crossing-single-barrel",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$98.99",
+        "priceNum": 98.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4724975-caribou-crossing-single-barrel"
       }
     },
     {
@@ -8035,47 +8035,6 @@
         "priceNum": 63.79,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590367-captain-morg-spiced-rum-1-75l"
-      }
-    },
-    {
-      "canonSku": "501668",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 27.49,
-        "gull": 26.35,
-        "legacyliquor": 28.99,
-        "tudor": 27.49,
-        "vessel": 25.99
-      },
-      "representative": {
-        "name": "Canadian Club - 100% Rye Whisky",
-        "price": "$25.99",
-        "priceNum": 25.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "501668",
-        "skuKey": "501668",
-        "url": "https://vesselliquor.com/products/canadian-club-100-rye-whisky-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$25.99",
-        "priceNum": 25.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/canadian-club-100-rye-whisky-750-ml"
       }
     },
     {
@@ -10940,6 +10899,46 @@
       }
     },
     {
+      "canonSku": "134676",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 26.89,
+        "bcl": 26.99,
+        "gull": 31.75,
+        "tudor": 26.49
+      },
+      "representative": {
+        "name": "FLOR DE CANA - ANEJO CLASICO 5 YEAR OLD",
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "134676",
+        "skuKey": "134676",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/flor-de-cana-5-yr-ml-360",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+      },
+      "cheapest": {
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/flor-de-cana-5-yr-ml-360"
+      }
+    },
+    {
       "canonSku": "138103",
       "storeCount": 4,
       "stores": [
@@ -11097,46 +11096,6 @@
         "priceNum": 70.79,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5103253-wolfburn-langskip-cask-strength"
-      }
-    },
-    {
-      "canonSku": "161687",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 98.99,
-        "bcl": 104.99,
-        "gull": 99.99,
-        "vessel": 99.99
-      },
-      "representative": {
-        "name": "CARIBOU CROSSING SINGLE BARREL",
-        "price": "$98.99",
-        "priceNum": 98.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "161687",
-        "skuKey": "161687",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4724975-caribou-crossing-single-barrel",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$98.99",
-        "priceNum": 98.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4724975-caribou-crossing-single-barrel"
       }
     },
     {
@@ -13057,6 +13016,46 @@
         "priceNum": 41.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/500538"
+      }
+    },
+    {
+      "canonSku": "501668",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 27.49,
+        "gull": 26.35,
+        "tudor": 27.49,
+        "vessel": 25.99
+      },
+      "representative": {
+        "name": "Canadian Club - 100% Rye Whisky",
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "501668",
+        "skuKey": "501668",
+        "url": "https://vesselliquor.com/products/canadian-club-100-rye-whisky-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/canadian-club-100-rye-whisky-750-ml"
       }
     },
     {
@@ -16127,45 +16126,6 @@
         "priceNum": 67.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/sheringham-whisky-750m-2/"
-      }
-    },
-    {
-      "canonSku": "126466",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 34.99,
-        "tudor": 36.99,
-        "vessel": 35.99
-      },
-      "representative": {
-        "name": "CANADIAN CLUB - CLASSIC 12 YEAR OLD",
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "455340",
-        "skuKey": "455340",
-        "url": "https://www.bcliquorstores.com/product/455340",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/455340"
       }
     },
     {
@@ -22404,6 +22364,44 @@
       }
     },
     {
+      "canonSku": "006291",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 34.99,
+        "tudor": 35.99
+      },
+      "representative": {
+        "name": "WAYNE GRETZKY - RED CASK WHISKY",
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "006291",
+        "skuKey": "006291",
+        "url": "https://www.bcliquorstores.com/product/6291",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/6291"
+      }
+    },
+    {
       "canonSku": "006361",
       "storeCount": 2,
       "stores": [
@@ -25859,6 +25857,44 @@
         "priceNum": 299.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/304276"
+      }
+    },
+    {
+      "canonSku": "126466",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 34.99,
+        "vessel": 35.99
+      },
+      "representative": {
+        "name": "CANADIAN CLUB - CLASSIC 12 YEAR OLD",
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "455340",
+        "skuKey": "455340",
+        "url": "https://www.bcliquorstores.com/product/455340",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/455340"
       }
     },
     {
@@ -36765,6 +36801,82 @@
         "priceNum": 53.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/hendricks-another-750m/"
+      }
+    },
+    {
+      "canonSku": "663685",
+      "storeCount": 2,
+      "stores": [
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 54.8,
+        "tudor": 56.99
+      },
+      "representative": {
+        "name": "BLACK TEARS SPICED RUM – 700M",
+        "price": "$54.80",
+        "priceNum": 54.8,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "663685",
+        "skuKey": "663685",
+        "url": "https://gullliquorstore.com/product/black-tears-spiced-700m/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$54.80",
+        "priceNum": 54.8,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/black-tears-spiced-700m/"
+      }
+    },
+    {
+      "canonSku": "663688",
+      "storeCount": 2,
+      "stores": [
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 93.1,
+        "tudor": 99.99
+      },
+      "representative": {
+        "name": "RON LA PROGRESIVA 13 – 700M",
+        "price": "$93.10",
+        "priceNum": 93.1,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "663688",
+        "skuKey": "663688",
+        "url": "https://gullliquorstore.com/product/ron-la-progresiva-13-700m/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$93.10",
+        "priceNum": 93.1,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/ron-la-progresiva-13-700m/"
       }
     },
     {
