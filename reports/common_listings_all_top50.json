@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:11:13.640Z",
+  "generatedAt": "2026-05-01T19:21:08.324Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13186,
-    "removedRows": 3659,
-    "canonSkus": 6457,
+    "liveRows": 13189,
+    "removedRows": 3657,
+    "canonSkus": 6454,
     "outputCount": 50
   },
   "rows": [
@@ -729,6 +729,63 @@
       }
     },
     {
+      "canonSku": "752142",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "maltsandgrains",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 99.99,
+        "bcl": 104.99,
+        "bsw": 72.99,
+        "craftcellars": 84.99,
+        "gull": 103.99,
+        "kegncork": 82.96,
+        "kwm": 83.99,
+        "legacyliquor": 110.99,
+        "sierrasprings": 70.37,
+        "strath": 107.31,
+        "tudor": 104.99,
+        "vessel": 104.99,
+        "willowpark": 78.49
+      },
+      "representative": {
+        "name": "BUNNAHABHAIN 12YO",
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "752142",
+        "skuKey": "752142",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
+      }
+    },
+    {
       "canonSku": "116752",
       "storeCount": 12,
       "stores": [
@@ -865,7 +922,7 @@
       ],
       "storePrices": {
         "bcl": 216.99,
-        "bsw": 140,
+        "bsw": 150,
         "craftcellars": 165.99,
         "kegncork": 164.96,
         "kwm": 164.99,
@@ -879,8 +936,8 @@
       },
       "representative": {
         "name": "Bowmore 18 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
+        "price": "$150.00",
+        "priceNum": 150,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "805160",
@@ -890,8 +947,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
+        "price": "$150.00",
+        "priceNum": 150,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
       }
@@ -1006,6 +1063,62 @@
         "priceNum": 114.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/benromach-15-year-old-speyside-single-malt-43-abv"
+      }
+    },
+    {
+      "canonSku": "202028",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "gull",
+        "sierrasprings",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 146.99,
+        "bcl": 160.99,
+        "bsw": 110,
+        "craftcellars": 104.99,
+        "kegncork": 132.96,
+        "kwm": 133.99,
+        "legacyliquor": 166.4,
+        "maltsandgrains": 139.9,
+        "strath": 161.83,
+        "tudor": 160.99,
+        "vessel": 155.99,
+        "willowpark": 131.49
+      },
+      "representative": {
+        "name": "Ardbeg Uigeadail",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "717559",
+        "skuKey": "717559",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
       }
     },
     {
@@ -1454,62 +1567,6 @@
         "priceNum": 64.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
-      }
-    },
-    {
-      "canonSku": "752142",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 99.99,
-        "bcl": 104.99,
-        "bsw": 72.99,
-        "gull": 103.99,
-        "kegncork": 82.96,
-        "kwm": 83.99,
-        "legacyliquor": 110.99,
-        "sierrasprings": 70.37,
-        "strath": 107.31,
-        "tudor": 104.99,
-        "vessel": 104.99,
-        "willowpark": 78.49
-      },
-      "representative": {
-        "name": "BUNNAHABHAIN 12YO",
-        "price": "$70.37",
-        "priceNum": 70.37,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "752142",
-        "skuKey": "752142",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$70.37",
-        "priceNum": 70.37,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/bunnahabhain-12-years-46-3-abv/"
       }
     },
     {
@@ -2119,61 +2176,6 @@
       }
     },
     {
-      "canonSku": "202028",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "gull",
-        "sierrasprings",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 146.99,
-        "bcl": 160.99,
-        "bsw": 110,
-        "kegncork": 132.96,
-        "kwm": 133.99,
-        "legacyliquor": 166.4,
-        "maltsandgrains": 139.9,
-        "strath": 161.83,
-        "tudor": 160.99,
-        "vessel": 155.99,
-        "willowpark": 131.49
-      },
-      "representative": {
-        "name": "Ardbeg Uigeadail 54.2% ABV",
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "717559",
-        "skuKey": "717559",
-        "url": "https://www.bswliquor.com/products/ardbeg-uigedail",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-uigedail"
-      }
-    },
-    {
       "canonSku": "204560",
       "storeCount": 11,
       "stores": [
@@ -2419,7 +2421,7 @@
       "storePrices": {
         "arc": 62.59,
         "bcl": 69.99,
-        "bsw": 47.99,
+        "bsw": 54.99,
         "coop": 68.99,
         "gull": 64.99,
         "kwm": 64.99,
@@ -2431,8 +2433,8 @@
       },
       "representative": {
         "name": "Bowmore 12 Year Old",
-        "price": "$47.99",
-        "priceNum": 47.99,
+        "price": "$54.99",
+        "priceNum": 54.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "726251",
@@ -2442,8 +2444,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$47.99",
-        "priceNum": 47.99,
+        "price": "$54.99",
+        "priceNum": 54.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-12-year-old-1"
       }
