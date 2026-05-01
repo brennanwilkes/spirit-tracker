@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T05:04:13.414Z",
+  "generatedAt": "2026-05-01T07:44:05.380Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4438,
-    "removedRows": 454,
-    "canonSkus": 2217,
+    "liveRows": 4446,
+    "removedRows": 451,
+    "canonSkus": 2219,
     "outputCount": 50
   },
   "rows": [
@@ -377,6 +377,49 @@
       }
     },
     {
+      "canonSku": "000042",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 24.49,
+        "bcl": 23.99,
+        "gull": 25.15,
+        "legacyliquor": 24.99,
+        "strath": 23.87,
+        "tudor": 23.49,
+        "vessel": 22.49
+      },
+      "representative": {
+        "name": "Canadian Club - Whisky",
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "766766",
+        "skuKey": "766766",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml-pet",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$22.49",
+        "priceNum": 22.49,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml-pet"
+      }
+    },
+    {
       "canonSku": "000570",
       "storeCount": 7,
       "stores": [
@@ -546,6 +589,49 @@
         "priceNum": 29.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "gull": 31.65,
+        "legacyliquor": 30.99,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1280,48 +1366,6 @@
       }
     },
     {
-      "canonSku": "000042",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 24.49,
-        "bcl": 23.99,
-        "gull": 25.15,
-        "legacyliquor": 24.99,
-        "strath": 23.87,
-        "tudor": 23.49
-      },
-      "representative": {
-        "name": "Canadian Club Whisky (PET)",
-        "price": "$23.49",
-        "priceNum": 23.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "766766",
-        "skuKey": "766766",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/canadian-club-plstc-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$23.49",
-        "priceNum": 23.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/canadian-club-plstc-ml-380"
-      }
-    },
-    {
       "canonSku": "000984",
       "storeCount": 6,
       "stores": [
@@ -1613,48 +1657,6 @@
         "priceNum": 37.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/53140"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 30.39,
-        "bcl": 27.49,
-        "gull": 31.65,
-        "legacyliquor": 30.99,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -2009,7 +2011,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 35.99,
+        "arc": 37.89,
         "bcl": 37.99,
         "gull": 36.6,
         "legacyliquor": 39.82,
