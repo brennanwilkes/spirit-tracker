@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T04:52:50.413Z",
+  "generatedAt": "2026-05-02T07:26:23.292Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8747,
-    "removedRows": 3201,
-    "canonSkus": 5288,
+    "liveRows": 8745,
+    "removedRows": 3207,
+    "canonSkus": 5292,
     "outputCount": 250
   },
   "rows": [
@@ -417,49 +417,6 @@
         "priceNum": 63.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfiddich-14yo-bourbon-barrel-reserve-43-abv/"
-      }
-    },
-    {
-      "canonSku": "124194",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 140,
-        "coop": 159.99,
-        "craftcellars": 154.99,
-        "kegncork": 151.96,
-        "kwm": 154.99,
-        "maltsandgrains": 159.9,
-        "willowpark": 154.99
-      },
-      "representative": {
-        "name": "Ardbeg Smokiverse 48.3% ABV",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "124194",
-        "skuKey": "124194",
-        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse"
       }
     },
     {
@@ -1184,6 +1141,48 @@
         "priceNum": 148,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-15-year-old-sherry"
+      }
+    },
+    {
+      "canonSku": "124194",
+      "storeCount": 6,
+      "stores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "coop": 159.99,
+        "craftcellars": 154.99,
+        "kegncork": 151.96,
+        "kwm": 154.99,
+        "maltsandgrains": 159.9,
+        "willowpark": 154.99
+      },
+      "representative": {
+        "name": "Ardbeg SMOKIVERSE",
+        "price": "$154.99",
+        "priceNum": 154.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "124194",
+        "skuKey": "124194",
+        "url": "https://craftcellars.ca/products/ardbeg-smokiverse",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$151.96",
+        "priceNum": 151.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/ardbeg-smokiverse-750-ml/"
       }
     },
     {
@@ -4016,6 +4015,47 @@
       }
     },
     {
+      "canonSku": "136371",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "craftcellars": 132.99,
+        "kegncork": 131.96,
+        "kwm": 134.99,
+        "maltsandgrains": 139.05
+      },
+      "representative": {
+        "name": "Bushmills 16 Year Old Irish Whiskey",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "746550",
+        "skuKey": "746550",
+        "url": "https://www.bswliquor.com/products/bushmills-16-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bushmills-16-year-old"
+      }
+    },
+    {
       "canonSku": "137128",
       "storeCount": 5,
       "stores": [
@@ -4605,7 +4645,7 @@
         "maltsandgrains"
       ],
       "storePrices": {
-        "bsw": 54.99,
+        "bsw": 47.99,
         "coop": 68.99,
         "kwm": 64.99,
         "sierrasprings": 65.99,
@@ -4613,8 +4653,8 @@
       },
       "representative": {
         "name": "Bowmore 12 Year Old",
-        "price": "$54.99",
-        "priceNum": 54.99,
+        "price": "$47.99",
+        "priceNum": 47.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "726251",
@@ -4624,8 +4664,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
+        "price": "$47.99",
+        "priceNum": 47.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-12-year-old-1"
       }
@@ -5056,7 +5096,7 @@
         "maltsandgrains"
       ],
       "storePrices": {
-        "bsw": 105,
+        "bsw": 85,
         "craftcellars": 136.99,
         "kwm": 117.99,
         "sierrasprings": 107.51,
@@ -5064,8 +5104,8 @@
       },
       "representative": {
         "name": "Bowmore 15 Year Old",
-        "price": "$105.00",
-        "priceNum": 105,
+        "price": "$85.00",
+        "priceNum": 85,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "726252",
@@ -5075,8 +5115,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$105.00",
-        "priceNum": 105,
+        "price": "$85.00",
+        "priceNum": 85,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-15-year-old"
       }
@@ -5120,47 +5160,6 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk"
-      }
-    },
-    {
-      "canonSku": "530345",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "craftcellars": 94.99,
-        "kwm": 97.99,
-        "maltsandgrains": 99.9,
-        "willowpark": 89.99
-      },
-      "representative": {
-        "name": "Glenfiddich 15 Year Old Solera",
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "728132",
-        "skuKey": "728132",
-        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
       }
     },
     {
@@ -7434,46 +7433,6 @@
       }
     },
     {
-      "canonSku": "136371",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "craftcellars": 132.99,
-        "kwm": 134.99,
-        "maltsandgrains": 139.05
-      },
-      "representative": {
-        "name": "Bushmills 16 Year Old Irish Whiskey",
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "746550",
-        "skuKey": "746550",
-        "url": "https://www.bswliquor.com/products/bushmills-16-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$115.00",
-        "priceNum": 115,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bushmills-16-year-old"
-      }
-    },
-    {
       "canonSku": "167294",
       "storeCount": 4,
       "stores": [
@@ -8151,6 +8110,46 @@
         "priceNum": 309.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/glenfarclas-25-year-old-j-g-grant"
+      }
+    },
+    {
+      "canonSku": "530345",
+      "storeCount": 4,
+      "stores": [
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "craftcellars": 94.99,
+        "kwm": 97.99,
+        "maltsandgrains": 99.9,
+        "willowpark": 89.99
+      },
+      "representative": {
+        "name": "Glenfiddich Solera 15 Year-Old Scotch Whisky",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "728132",
+        "skuKey": "728132",
+        "url": "https://www.willowpark.net/products/glenfiddich-15yr-res",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/glenfiddich-15yr-res"
       }
     },
     {

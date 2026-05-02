@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T04:52:49.316Z",
+  "generatedAt": "2026-05-02T07:26:22.321Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4447,
-    "removedRows": 451,
-    "canonSkus": 2217,
+    "liveRows": 4440,
+    "removedRows": 459,
+    "canonSkus": 2210,
     "outputCount": 50
   },
   "rows": [
@@ -331,6 +331,49 @@
         "priceNum": 158.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
+      }
+    },
+    {
+      "canonSku": "222554",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 27.59,
+        "bcl": 26.99,
+        "gull": 30.65,
+        "legacyliquor": 29.85,
+        "strath": 31.22,
+        "tudor": 28.49,
+        "vessel": 27.99,
+        "vintage": 32.09
+      },
+      "representative": {
+        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "222554",
+        "skuKey": "222554",
+        "url": "https://www.bcliquorstores.com/product/222554",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -933,49 +976,6 @@
         "priceNum": 85.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
-      }
-    },
-    {
-      "canonSku": "222554",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 27.59,
-        "bcl": 26.99,
-        "gull": 30.65,
-        "strath": 31.22,
-        "tudor": 28.49,
-        "vessel": 27.99,
-        "vintage": 32.09
-      },
-      "representative": {
-        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "222554",
-        "skuKey": "222554",
-        "url": "https://www.bcliquorstores.com/product/222554",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -1828,48 +1828,6 @@
       }
     },
     {
-      "canonSku": "007617",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 59.39,
-        "bcl": 62.99,
-        "gull": 62.85,
-        "legacyliquor": 64.99,
-        "tudor": 62.99,
-        "vessel": 62.49
-      },
-      "representative": {
-        "name": "CHIVAS REGAL 12YO",
-        "price": "$59.39",
-        "priceNum": 59.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "007617",
-        "skuKey": "007617",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$59.39",
-        "priceNum": 59.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo"
-      }
-    },
-    {
       "canonSku": "007880",
       "storeCount": 6,
       "stores": [
@@ -2161,6 +2119,47 @@
         "priceNum": 144.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/243824"
+      }
+    },
+    {
+      "canonSku": "007617",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 59.39,
+        "bcl": 62.99,
+        "gull": 62.85,
+        "tudor": 62.99,
+        "vessel": 62.49
+      },
+      "representative": {
+        "name": "CHIVAS REGAL 12YO",
+        "price": "$59.39",
+        "priceNum": 59.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "007617",
+        "skuKey": "007617",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$59.39",
+        "priceNum": 59.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo"
       }
     }
   ]

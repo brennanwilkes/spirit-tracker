@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T04:52:50.104Z",
+  "generatedAt": "2026-05-02T07:26:23.011Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8747,
-    "removedRows": 3201,
-    "canonSkus": 5288,
+    "liveRows": 8745,
+    "removedRows": 3207,
+    "canonSkus": 5292,
     "outputCount": 50
   },
   "rows": [
@@ -417,49 +417,6 @@
         "priceNum": 63.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfiddich-14yo-bourbon-barrel-reserve-43-abv/"
-      }
-    },
-    {
-      "canonSku": "124194",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 140,
-        "coop": 159.99,
-        "craftcellars": 154.99,
-        "kegncork": 151.96,
-        "kwm": 154.99,
-        "maltsandgrains": 159.9,
-        "willowpark": 154.99
-      },
-      "representative": {
-        "name": "Ardbeg Smokiverse 48.3% ABV",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "124194",
-        "skuKey": "124194",
-        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-smokiverse"
       }
     },
     {
@@ -1184,6 +1141,48 @@
         "priceNum": 148,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-15-year-old-sherry"
+      }
+    },
+    {
+      "canonSku": "124194",
+      "storeCount": 6,
+      "stores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "coop": 159.99,
+        "craftcellars": 154.99,
+        "kegncork": 151.96,
+        "kwm": 154.99,
+        "maltsandgrains": 159.9,
+        "willowpark": 154.99
+      },
+      "representative": {
+        "name": "Ardbeg SMOKIVERSE",
+        "price": "$154.99",
+        "priceNum": 154.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "124194",
+        "skuKey": "124194",
+        "url": "https://craftcellars.ca/products/ardbeg-smokiverse",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$151.96",
+        "priceNum": 151.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/ardbeg-smokiverse-750-ml/"
       }
     },
     {
