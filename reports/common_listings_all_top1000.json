@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T22:05:59.237Z",
+  "generatedAt": "2026-05-03T01:22:47.331Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,8 +34,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13171,
-    "removedRows": 3680,
+    "liveRows": 13170,
+    "removedRows": 3681,
     "canonSkus": 6452,
     "outputCount": 1000
   },
@@ -1790,61 +1790,6 @@
       }
     },
     {
-      "canonSku": "021758",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "arc": 182.59,
-        "bsw": 125,
-        "coop": 154.99,
-        "craftcellars": 123.99,
-        "kegncork": 154.96,
-        "kwm": 154.99,
-        "strath": 192.4,
-        "tudor": 209.99,
-        "vessel": 199.99,
-        "vintage": 179.04,
-        "willowpark": 149.99
-      },
-      "representative": {
-        "name": "Ardbeg Corryvreckan",
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "739100",
-        "skuKey": "739100",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$123.99",
-        "priceNum": 123.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-corryvreckan-57-1-abv"
-      }
-    },
-    {
       "canonSku": "034672",
       "storeCount": 11,
       "stores": [
@@ -3376,6 +3321,60 @@
         "priceNum": 31.42,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/irish-whiskey/jameson-irish-whiskey-40-abv/"
+      }
+    },
+    {
+      "canonSku": "021758",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bcl",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 182.59,
+        "bsw": 125,
+        "coop": 154.99,
+        "kegncork": 154.96,
+        "kwm": 154.99,
+        "strath": 192.4,
+        "tudor": 209.99,
+        "vessel": 199.99,
+        "vintage": 179.04,
+        "willowpark": 149.99
+      },
+      "representative": {
+        "name": "Ardbeg Corryvreckan 57.1% ABV",
+        "price": "$125.00",
+        "priceNum": 125,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "739100",
+        "skuKey": "739100",
+        "url": "https://www.bswliquor.com/products/ardbeg-corryvreckan-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$125.00",
+        "priceNum": 125,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ardbeg-corryvreckan-1"
       }
     },
     {
