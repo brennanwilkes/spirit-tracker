@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T05:01:19.024Z",
+  "generatedAt": "2026-05-04T07:53:07.780Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13133,
-    "removedRows": 3718,
-    "canonSkus": 6449,
+    "liveRows": 13121,
+    "removedRows": 3730,
+    "canonSkus": 6441,
     "outputCount": 50
   },
   "rows": [
@@ -101,13 +101,14 @@
     },
     {
       "canonSku": "249680",
-      "storeCount": 14,
+      "storeCount": 15,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "craftcellars",
         "gull",
+        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -119,8 +120,7 @@
         "willowpark"
       ],
       "missingStores": [
-        "coop",
-        "kegncork"
+        "coop"
       ],
       "storePrices": {
         "arc": 110.99,
@@ -128,6 +128,7 @@
         "bsw": 94.99,
         "craftcellars": 122.99,
         "gull": 125.99,
+        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -1980,7 +1981,7 @@
       "storePrices": {
         "arc": 124.69,
         "bcl": 129.99,
-        "bsw": 105,
+        "bsw": 94.99,
         "craftcellars": 122.99,
         "gull": 128.99,
         "kegncork": 121.96,
@@ -1992,8 +1993,8 @@
       },
       "representative": {
         "name": "Redbreast 12 Year Old Cask Strength Irish Whiskey",
-        "price": "$105.00",
-        "priceNum": 105,
+        "price": "$94.99",
+        "priceNum": 94.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "775251",
@@ -2003,8 +2004,8 @@
         "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$105.00",
-        "priceNum": 105,
+        "price": "$94.99",
+        "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/redbreast-12-year-old-cask-strength"
       }
@@ -2117,61 +2118,6 @@
         "priceNum": 26.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/177808"
-      }
-    },
-    {
-      "canonSku": "204560",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 72.99,
-        "bcl": 80.99,
-        "bsw": 74.99,
-        "coop": 89.99,
-        "craftcellars": 89.99,
-        "gull": 84.99,
-        "kwm": 79.99,
-        "legacyliquor": 83.49,
-        "tudor": 80.99,
-        "vessel": 79.99,
-        "willowpark": 84.49
-      },
-      "representative": {
-        "name": "HIGHLAND PARK 12YO",
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "204560",
-        "skuKey": "204560",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$72.99",
-        "priceNum": 72.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo"
       }
     },
     {
@@ -2717,6 +2663,60 @@
         "priceNum": 85.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "204560",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "gull",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 72.99,
+        "bcl": 80.99,
+        "bsw": 64.99,
+        "coop": 89.99,
+        "craftcellars": 89.99,
+        "kwm": 79.99,
+        "legacyliquor": 83.49,
+        "tudor": 80.99,
+        "vessel": 79.99,
+        "willowpark": 84.49
+      },
+      "representative": {
+        "name": "Highland Park 12 Year Old Viking Honour",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "204560",
+        "skuKey": "204560",
+        "url": "https://www.bswliquor.com/products/highland-park-12-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/highland-park-12-year-old"
       }
     },
     {
