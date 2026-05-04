@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T16:27:26.344Z",
+  "generatedAt": "2026-05-04T19:20:49.617Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_all_top250.json",
-      "cutoffStoreCount": 6
+      "cutoffStoreCount": 7
     }
   },
   "storeCount": 16,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13118,
-    "removedRows": 3733,
-    "canonSkus": 6441,
+    "liveRows": 13089,
+    "removedRows": 3767,
+    "canonSkus": 6418,
     "outputCount": 250
   },
   "rows": [
@@ -4292,6 +4292,59 @@
       }
     },
     {
+      "canonSku": "007617",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 59.39,
+        "bcl": 62.99,
+        "bsw": 48.99,
+        "craftcellars": 56.99,
+        "gull": 62.85,
+        "legacyliquor": 66.04,
+        "tudor": 62.99,
+        "vessel": 62.49,
+        "willowpark": 54.49
+      },
+      "representative": {
+        "name": "Chivas Regal 12 Year Old",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "007617",
+        "skuKey": "007617",
+        "url": "https://www.bswliquor.com/products/chivas-regal-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/chivas-regal-12-year-old-1"
+      }
+    },
+    {
       "canonSku": "007880",
       "storeCount": 9,
       "stores": [
@@ -4587,7 +4640,7 @@
         "kegncork": 134.96,
         "kwm": 136.99,
         "maltsandgrains": 139.74,
-        "strath": 149.44,
+        "strath": 141.57,
         "willowpark": 131.49
       },
       "representative": {
@@ -6017,7 +6070,7 @@
         "gull": 231.45,
         "kwm": 209.99,
         "maltsandgrains": 219.9,
-        "strath": 198.7,
+        "strath": 209.74,
         "tudor": 249.99,
         "willowpark": 199.99
       },
@@ -6508,58 +6561,6 @@
         "priceNum": 11.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
-      "canonSku": "007617",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 59.39,
-        "bcl": 62.99,
-        "bsw": 48.99,
-        "craftcellars": 56.99,
-        "gull": 62.85,
-        "tudor": 62.99,
-        "vessel": 62.49,
-        "willowpark": 54.49
-      },
-      "representative": {
-        "name": "Chivas Regal 12 Year Old",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "007617",
-        "skuKey": "007617",
-        "url": "https://www.bswliquor.com/products/chivas-regal-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/chivas-regal-12-year-old-1"
       }
     },
     {
@@ -10699,6 +10700,57 @@
       }
     },
     {
+      "canonSku": "105607",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "strath"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 150,
+        "coop": 149.99,
+        "craftcellars": 151.99,
+        "gull": 134.99,
+        "kegncork": 149.96,
+        "kwm": 151.99,
+        "strath": 134.57
+      },
+      "representative": {
+        "name": "Alberta Distillers - Rare Batch 23 Year Issue 1",
+        "price": "$134.57",
+        "priceNum": 134.57,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
+        "skuRaw": "287692",
+        "skuKey": "287692",
+        "url": "https://www.strathliquor.com/product/alberta-distillers-rare-batch-23-year-issue-1/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
+      },
+      "cheapest": {
+        "price": "$134.57",
+        "priceNum": 134.57,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/alberta-distillers-rare-batch-23-year-issue-1/"
+      }
+    },
+    {
       "canonSku": "111952",
       "storeCount": 7,
       "stores": [
@@ -10747,6 +10799,57 @@
         "priceNum": 47.51,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/cooler/canadian-whisky-cooler/crown-royal-reserve-12-yo/"
+      }
+    },
+    {
+      "canonSku": "112273",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "maltsandgrains",
+        "sierrasprings",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bsw": 260,
+        "kegncork": 254.96,
+        "kwm": 249.99,
+        "legacyliquor": 324.04,
+        "strath": 284.92,
+        "tudor": 299.99,
+        "willowpark": 249.99
+      },
+      "representative": {
+        "name": "Ardbeg 17 Year",
+        "price": "$249.99",
+        "priceNum": 249.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "112273",
+        "skuKey": "112273",
+        "url": "https://kensingtonwinemarket.com/product/112273/ardbeg-17-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$249.99",
+        "priceNum": 249.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/112273/ardbeg-17-year"
       }
     },
     {
@@ -12731,56 +12834,6 @@
       }
     },
     {
-      "canonSku": "112273",
-      "storeCount": 6,
-      "stores": [
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "maltsandgrains",
-        "sierrasprings",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "kegncork": 254.96,
-        "kwm": 249.99,
-        "legacyliquor": 324.04,
-        "strath": 284.92,
-        "tudor": 299.99,
-        "willowpark": 249.99
-      },
-      "representative": {
-        "name": "Ardbeg 17 Year",
-        "price": "$249.99",
-        "priceNum": 249.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "112273",
-        "skuKey": "112273",
-        "url": "https://kensingtonwinemarket.com/product/112273/ardbeg-17-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$249.99",
-        "priceNum": 249.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/112273/ardbeg-17-year"
-      }
-    },
-    {
       "canonSku": "114837",
       "storeCount": 6,
       "stores": [
@@ -13178,55 +13231,6 @@
         "priceNum": 54.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1"
-      }
-    },
-    {
-      "canonSku": "120518",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 42.99,
-        "craftcellars": 43.99,
-        "gull": 40.05,
-        "legacyliquor": 43.99,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "Jim Beam - Black 7 Year Old Bourbon",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "537209",
-        "skuKey": "537209",
-        "url": "https://vesselliquor.com/products/jim-beam-black-7-year-old-bourbon-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jim-beam-black-7-year-old-bourbon-750-ml"
       }
     }
   ]
