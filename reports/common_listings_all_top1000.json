@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T05:00:15.303Z",
+  "generatedAt": "2026-05-06T07:50:03.549Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13223,
-    "removedRows": 3673,
-    "canonSkus": 6458,
+    "liveRows": 13217,
+    "removedRows": 3680,
+    "canonSkus": 6456,
     "outputCount": 1000
   },
   "rows": [
@@ -101,13 +101,14 @@
     },
     {
       "canonSku": "249680",
-      "storeCount": 14,
+      "storeCount": 15,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "craftcellars",
         "gull",
+        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -119,8 +120,7 @@
         "willowpark"
       ],
       "missingStores": [
-        "coop",
-        "kegncork"
+        "coop"
       ],
       "storePrices": {
         "arc": 110.99,
@@ -128,6 +128,7 @@
         "bsw": 94.99,
         "craftcellars": 122.99,
         "gull": 125.99,
+        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -355,7 +356,7 @@
       "storePrices": {
         "arc": 34.89,
         "bcl": 34.49,
-        "bsw": 34.99,
+        "bsw": 24.99,
         "craftcellars": 34.99,
         "gull": 36.35,
         "legacyliquor": 35.76,
@@ -368,22 +369,22 @@
         "willowpark": 33.99
       },
       "representative": {
-        "name": "MOUNT GAY ECLIPSE AMBER RUM",
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Mount Gay Eclipse Amber Rum",
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "765148",
         "skuKey": "765148",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/mount-gay-eclipse-amber-rum-40-abv/",
-        "categoryLabel": "Spirits / Liquor",
-        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+        "url": "https://www.bswliquor.com/products/mount-gay-eclipse-rum-2",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/mount-gay-eclipse-amber-rum-40-abv/"
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/mount-gay-eclipse-rum-2"
       }
     },
     {
@@ -640,7 +641,7 @@
       "storePrices": {
         "arc": 29.99,
         "bcl": 29.99,
-        "bsw": 28.99,
+        "bsw": 31.99,
         "craftcellars": 36.99,
         "gull": 27.49,
         "kwm": 36.99,
@@ -1992,25 +1993,25 @@
         "sierrasprings": 114.18,
         "strath": 130.44,
         "vessel": 129.99,
-        "willowpark": 129.99
+        "willowpark": 96.99
       },
       "representative": {
-        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Macallan 12 Year-Old Double Cask Single Malt Scotch Whisky",
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
         "skuRaw": "787186",
         "skuKey": "787186",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://www.willowpark.net/products/macallan-12-year-old-double-cask",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
       },
       "cheapest": {
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/macallan-12-year-double-cask-58-2-abv/"
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/macallan-12-year-old-double-cask"
       }
     },
     {
@@ -2644,7 +2645,7 @@
       "storePrices": {
         "arc": 62.59,
         "bcl": 69.99,
-        "bsw": 47.99,
+        "bsw": 54.99,
         "coop": 68.99,
         "gull": 64.99,
         "kwm": 64.99,
@@ -2656,8 +2657,8 @@
       },
       "representative": {
         "name": "Bowmore 12 Year Old",
-        "price": "$47.99",
-        "priceNum": 47.99,
+        "price": "$54.99",
+        "priceNum": 54.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "726251",
@@ -2667,8 +2668,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$47.99",
-        "priceNum": 47.99,
+        "price": "$54.99",
+        "priceNum": 54.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-12-year-old-1"
       }
@@ -2809,7 +2810,7 @@
       "storePrices": {
         "arc": 110.99,
         "bcl": 112.99,
-        "bsw": 85,
+        "bsw": 105,
         "craftcellars": 136.99,
         "gull": 114.99,
         "kwm": 117.99,
@@ -2821,8 +2822,8 @@
       },
       "representative": {
         "name": "Bowmore 15 Year Old",
-        "price": "$85.00",
-        "priceNum": 85,
+        "price": "$105.00",
+        "priceNum": 105,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "726252",
@@ -2832,8 +2833,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$85.00",
-        "priceNum": 85,
+        "price": "$105.00",
+        "priceNum": 105,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bowmore-15-year-old"
       }
@@ -4110,7 +4111,7 @@
       "storePrices": {
         "arc": 33.99,
         "bcl": 32.99,
-        "bsw": 34.99,
+        "bsw": 26.99,
         "craftcellars": 39.99,
         "gull": 34.95,
         "kwm": 39.99,
@@ -4120,22 +4121,22 @@
         "willowpark": 37.99
       },
       "representative": {
-        "name": "THE KRAKEN - BLACK SPICED RUM",
-        "price": "$32.99",
-        "priceNum": 32.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "677719",
-        "skuKey": "677719",
-        "url": "https://www.bcliquorstores.com/product/677719",
+        "name": "The Kraken Black Spiced Rum",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "738786",
+        "skuKey": "738786",
+        "url": "https://www.bswliquor.com/products/kraken-black-spiced-rum-1",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$32.99",
-        "priceNum": 32.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/677719"
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/kraken-black-spiced-rum-1"
       }
     },
     {
@@ -4649,25 +4650,25 @@
         "sierrasprings": 70.37,
         "tudor": 71.99,
         "vessel": 72.99,
-        "willowpark": 72.49
+        "willowpark": 44.99
       },
       "representative": {
-        "name": "The Glenlivet 12 Year Old",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Glenlivet 12 Year Old Single Malt Scotch Whisky",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
         "skuRaw": "021097",
         "skuKey": "021097",
-        "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://www.willowpark.net/products/glenlivet-12yr-old",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
       },
       "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenlivet-12-year-old-1"
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/glenlivet-12yr-old"
       }
     },
     {
@@ -7431,7 +7432,7 @@
       "storePrices": {
         "arc": 130.89,
         "bcl": 115.99,
-        "bsw": 110,
+        "bsw": 115,
         "craftcellars": 129.99,
         "gull": 132.99,
         "kegncork": 129.96,
@@ -7440,8 +7441,8 @@
       },
       "representative": {
         "name": "Glenmorangie The Nectar 16 Year Old",
-        "price": "$110.00",
-        "priceNum": 110,
+        "price": "$115.00",
+        "priceNum": 115,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "118566",
@@ -7451,8 +7452,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$110.00",
-        "priceNum": 110,
+        "price": "$115.00",
+        "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenmorangie-nectar-dor-16yo"
       }
@@ -8211,7 +8212,7 @@
       "storePrices": {
         "arc": 58.09,
         "bcl": 61.99,
-        "bsw": 39.99,
+        "bsw": 57.99,
         "craftcellars": 77.99,
         "legacyliquor": 74.95,
         "sierrasprings": 70.37,
@@ -8220,8 +8221,8 @@
       },
       "representative": {
         "name": "Laphroaig Oak Select",
-        "price": "$39.99",
-        "priceNum": 39.99,
+        "price": "$57.99",
+        "priceNum": 57.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "783446",
@@ -8231,8 +8232,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
+        "price": "$57.99",
+        "priceNum": 57.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/laphroaig-select-1"
       }
@@ -9823,29 +9824,29 @@
       "storePrices": {
         "arc": 25.99,
         "bcl": 24.99,
-        "bsw": 23.99,
+        "bsw": 26.99,
         "gull": 27.05,
         "legacyliquor": 26.66,
         "sierrasprings": 27.51,
         "willowpark": 30.99
       },
       "representative": {
-        "name": "Bacardi Superior White Rum",
-        "price": "$23.99",
-        "priceNum": 23.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "820593",
-        "skuKey": "820593",
-        "url": "https://www.bswliquor.com/products/bacardi-white-rum",
+        "name": "BACARDI - SUPERIOR WHITE",
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000117",
+        "skuKey": "000117",
+        "url": "https://www.bcliquorstores.com/product/117",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$23.99",
-        "priceNum": 23.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bacardi-white-rum"
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/117"
       }
     },
     {
@@ -11251,29 +11252,29 @@
       "storePrices": {
         "arc": 63.89,
         "bcl": 61.99,
-        "bsw": 59.99,
+        "bsw": 64.99,
         "gull": 65.55,
         "legacyliquor": 64.99,
         "sierrasprings": 67.37,
         "vessel": 62.99
       },
       "representative": {
-        "name": "Crown Royal 1.75L",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "CROWN ROYAL",
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "114694",
         "skuKey": "114694",
-        "url": "https://www.bswliquor.com/products/crown-royal-whisky-3",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "url": "https://www.bcliquorstores.com/product/114694",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/crown-royal-whisky-3"
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/114694"
       }
     },
     {
@@ -11302,7 +11303,7 @@
       "storePrices": {
         "arc": 83.19,
         "bcl": 83.99,
-        "bsw": 71.99,
+        "bsw": 69.99,
         "gull": 88.45,
         "legacyliquor": 88.45,
         "sierrasprings": 73.99,
@@ -11310,8 +11311,8 @@
       },
       "representative": {
         "name": "Jameson Irish Whiskey 1.75L",
-        "price": "$71.99",
-        "priceNum": 71.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "786155",
@@ -11321,8 +11322,8 @@
         "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$71.99",
-        "priceNum": 71.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/jameson-irish-whiskey-5"
       }
@@ -12168,7 +12169,7 @@
       ],
       "storePrices": {
         "bcl": 77.99,
-        "bsw": 49.99,
+        "bsw": 42.99,
         "craftcellars": 75.99,
         "kwm": 76.99,
         "strath": 76.74,
@@ -12177,8 +12178,8 @@
       },
       "representative": {
         "name": "The Glen Grant 12 Year Old",
-        "price": "$49.99",
-        "priceNum": 49.99,
+        "price": "$42.99",
+        "priceNum": 42.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "794242",
@@ -12188,8 +12189,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
+        "price": "$42.99",
+        "priceNum": 42.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-grant-12-year-old-1"
       }
@@ -12906,57 +12907,6 @@
         "priceNum": 75.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/shelter-point-smoke-point-single-malt-whisky-53-abv"
-      }
-    },
-    {
-      "canonSku": "500546",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 63.79,
-        "bcl": 63.99,
-        "bsw": 56.99,
-        "gull": 67.7,
-        "sierrasprings": 59.75,
-        "tudor": 63.99,
-        "vessel": 64.99
-      },
-      "representative": {
-        "name": "Captain Morgan Original Spiced Caribbean Rum 1.75L",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "500546",
-        "skuKey": "500546",
-        "url": "https://www.bswliquor.com/products/captain-morgan-spiced-rum-2",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bsw__rum__110a6e5d.json"
-      },
-      "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/captain-morgan-spiced-rum-2"
       }
     },
     {
@@ -17518,56 +17468,6 @@
       }
     },
     {
-      "canonSku": "416647",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "maltsandgrains",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "craftcellars": 45.99,
-        "kwm": 64.99,
-        "legacyliquor": 79.99,
-        "sierrasprings": 54.18,
-        "strath": 68.61
-      },
-      "representative": {
-        "name": "Yellowstone Select Kentucky Straight Bourbon 93 Proof",
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "852451",
-        "skuKey": "852451",
-        "url": "https://craftcellars.ca/products/yellowstone-select-kentucky-straight-bourbon-93-proof",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/yellowstone-select-kentucky-straight-bourbon-93-proof"
-      }
-    },
-    {
       "canonSku": "417348",
       "storeCount": 6,
       "stores": [
@@ -18115,6 +18015,56 @@
         "priceNum": 46.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1"
+      }
+    },
+    {
+      "canonSku": "500546",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "sierrasprings",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 63.79,
+        "bcl": 63.99,
+        "bsw": 56.99,
+        "sierrasprings": 59.75,
+        "tudor": 63.99,
+        "vessel": 64.99
+      },
+      "representative": {
+        "name": "Captain Morgan Original Spiced Caribbean Rum 1.75L",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "500546",
+        "skuKey": "500546",
+        "url": "https://www.bswliquor.com/products/captain-morgan-spiced-rum-2",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/captain-morgan-spiced-rum-2"
       }
     },
     {
@@ -22106,55 +22056,6 @@
       }
     },
     {
-      "canonSku": "128044",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "kegncork",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 66.99,
-        "gull": 74.7,
-        "kegncork": 94.96,
-        "tudor": 112.99,
-        "vessel": 67.49
-      },
-      "representative": {
-        "name": "TEELING - SMALL BATCH IRISH WHISKEY",
-        "price": "$66.99",
-        "priceNum": 66.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "128044",
-        "skuKey": "128044",
-        "url": "https://www.bcliquorstores.com/product/128044",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$66.99",
-        "priceNum": 66.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/128044"
-      }
-    },
-    {
       "canonSku": "128906",
       "storeCount": 5,
       "stores": [
@@ -23968,55 +23869,6 @@
       }
     },
     {
-      "canonSku": "284359",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "gull",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 55.99,
-        "gull": 63.7,
-        "tudor": 66.99,
-        "vessel": 64.99,
-        "vintage": 66
-      },
-      "representative": {
-        "name": "PLANTERAY CUT & DRY COCONUT RUM",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "284359",
-        "skuKey": "284359",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum"
-      }
-    },
-    {
       "canonSku": "285577",
       "storeCount": 5,
       "stores": [
@@ -25046,6 +24898,55 @@
       }
     },
     {
+      "canonSku": "416647",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "strath"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 62.99,
+        "craftcellars": 45.99,
+        "kwm": 64.99,
+        "sierrasprings": 54.18,
+        "strath": 68.61
+      },
+      "representative": {
+        "name": "Yellowstone Select Kentucky Straight Bourbon 93 Proof",
+        "price": "$45.99",
+        "priceNum": 45.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "852451",
+        "skuKey": "852451",
+        "url": "https://craftcellars.ca/products/yellowstone-select-kentucky-straight-bourbon-93-proof",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$45.99",
+        "priceNum": 45.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/yellowstone-select-kentucky-straight-bourbon-93-proof"
+      }
+    },
+    {
       "canonSku": "423296",
       "storeCount": 5,
       "stores": [
@@ -25076,7 +24977,7 @@
         "gull": 369.99
       },
       "representative": {
-        "name": "Kavalan Solist Vihno Barrique Cask Taiwanese Single Malt Whisky 57.80% ABV",
+        "name": "Kavalan Solist Vihno Barrique Cask Taiwanese Single Malt Whisky 54.80% ABV",
         "price": "$245.00",
         "priceNum": 245,
         "storeKey": "bsw",
@@ -27813,29 +27714,29 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 129.99,
+        "bsw": 130,
         "craftcellars": 129.99,
         "kegncork": 135.96,
         "kwm": 134.99,
         "sierrasprings": 130.37
       },
       "representative": {
-        "name": "Glengoyne 15 Year Old",
+        "name": "Glengoyne 15 Years Old Highland Single Malt Whisky",
         "price": "$129.99",
         "priceNum": 129.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "880580",
         "skuKey": "880580",
-        "url": "https://www.bswliquor.com/products/glengoyne-15-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/glengoyne-15-years-old-highland-single-malt-whisky-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
         "price": "$129.99",
         "priceNum": 129.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glengoyne-15-year-old-1"
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glengoyne-15-years-old-highland-single-malt-whisky-43-abv"
       }
     },
     {
@@ -28203,27 +28104,27 @@
       ],
       "storePrices": {
         "bcl": 34.99,
-        "bsw": 36.99,
+        "bsw": 24.99,
         "sierrasprings": 39.99,
         "tudor": 35.99
       },
       "representative": {
-        "name": "WAYNE GRETZKY - RED CASK WHISKY",
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "006291",
-        "skuKey": "006291",
-        "url": "https://www.bcliquorstores.com/product/6291",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "Wayne Gretzky Red Cask Canadian Whisky",
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "796995",
+        "skuKey": "796995",
+        "url": "https://www.bswliquor.com/products/wayne-gretzky-red-cask-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/6291"
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/wayne-gretzky-red-cask-whisky"
       }
     },
     {
@@ -31251,6 +31152,54 @@
       }
     },
     {
+      "canonSku": "128044",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "kegncork",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 66.99,
+        "kegncork": 94.96,
+        "tudor": 112.99,
+        "vessel": 67.49
+      },
+      "representative": {
+        "name": "TEELING - SMALL BATCH IRISH WHISKEY",
+        "price": "$66.99",
+        "priceNum": 66.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "128044",
+        "skuKey": "128044",
+        "url": "https://www.bcliquorstores.com/product/128044",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$66.99",
+        "priceNum": 66.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/128044"
+      }
+    },
+    {
       "canonSku": "128997",
       "storeCount": 4,
       "stores": [
@@ -33340,26 +33289,26 @@
       "storePrices": {
         "arc": 64.69,
         "bcl": 62.99,
-        "bsw": 63.99,
+        "bsw": 58.99,
         "sierrasprings": 61.99
       },
       "representative": {
-        "name": "GIBSON’S FINEST STERLING",
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Gibson's Finest Sterling 1.75L",
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "215038",
         "skuKey": "215038",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/gibsons-finest-sterling-40-abv-2/",
+        "url": "https://www.bswliquor.com/products/gibsons-sterling-whisky-1",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/canadian-whisky/gibsons-finest-sterling-40-abv-2/"
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/gibsons-sterling-whisky-1"
       }
     },
     {
@@ -33984,6 +33933,54 @@
         "priceNum": 102.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/shelter-pt-cask-st-750m/"
+      }
+    },
+    {
+      "canonSku": "284359",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "gull",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 55.99,
+        "gull": 63.7,
+        "tudor": 66.99,
+        "vintage": 66
+      },
+      "representative": {
+        "name": "PLANTERAY CUT & DRY COCONUT RUM",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "284359",
+        "skuKey": "284359",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum"
       }
     },
     {
@@ -36746,7 +36743,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 30.99,
+        "bsw": 30.49,
         "gull": 27.05,
         "sierrasprings": 28.47,
         "tudor": 25.99
@@ -37514,28 +37511,28 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 74.99,
+        "bsw": 49.99,
         "gull": 69.4,
         "sierrasprings": 61.8,
         "tudor": 69.99
       },
       "representative": {
-        "name": "MOUNT GAY BLACK BARREL DOUBLE CASK BLEND",
-        "price": "$61.80",
-        "priceNum": 61.8,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Mount Gay Black Barrel Double Cask Blend Rum",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "844328",
         "skuKey": "844328",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/mount-gay-double-cask-blend-43-abv/",
-        "categoryLabel": "Spirits / Liquor",
-        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+        "url": "https://www.bswliquor.com/products/mount-gay-black-barrel-double-cask-blend",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$61.80",
-        "priceNum": 61.8,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/mount-gay-double-cask-blend-43-abv/"
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/mount-gay-black-barrel-double-cask-blend"
       }
     },
     {
@@ -38858,7 +38855,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 75.99,
+        "bsw": 79.99,
         "craftcellars": 76.99,
         "maltsandgrains": 79.9,
         "sierrasprings": 73.99
@@ -41557,14 +41554,14 @@
         "vintage"
       ],
       "storePrices": {
-        "bsw": 23.99,
+        "bsw": 26.99,
         "sierrasprings": 29.42,
         "willowpark": 32.49
       },
       "representative": {
         "name": "Bacardi Spiced Rum",
-        "price": "$23.99",
-        "priceNum": 23.99,
+        "price": "$26.99",
+        "priceNum": 26.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "823066",
@@ -41574,8 +41571,8 @@
         "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$23.99",
-        "priceNum": 23.99,
+        "price": "$26.99",
+        "priceNum": 26.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bacardi-spiced-rum-2"
       }
@@ -44472,7 +44469,7 @@
       ],
       "storePrices": {
         "bsw": 165,
-        "kwm": 249.99,
+        "kwm": 174.99,
         "tudor": 249.99
       },
       "representative": {
@@ -46633,7 +46630,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 29.99,
+        "bsw": 32.99,
         "craftcellars": 28.99,
         "sierrasprings": 37.99
       },
