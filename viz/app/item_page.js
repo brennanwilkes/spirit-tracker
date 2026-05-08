@@ -615,11 +615,11 @@ export async function renderItem($app, skuInput) {
 			if (bestKey !== null) winnerByStoreDate.set(`${st.label}|${d}`, bestKey);
 		}
 	}
-	const winKeyFor = (store, date) => winnerByStoreDate.get(`${store}|${date}`) || null;
+	const winKeyFor = (store, date) => winnerByStoreDate.get(`${store}|${date}`) ?? null;
 
 	// Build datasets: multiple lines per store, same label, same color, same stroke
 	const datasets = [];
-	const suppressDots = window.innerWidth <= 640 && labels.length > 50;
+	const suppressDots = window.innerWidth <= 640 && winnerByStoreDate.size > 50;
 	for (const st of storeSeriesSorted) {
 		const base = storeColor(st.label, colorMap);
 		const stroke = lighten(base, 0.25);
