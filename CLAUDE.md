@@ -71,6 +71,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `build_viz_index.js` | Generate `viz/data/index.json` |
 | `build_viz_commits.js` | Build commit history manifest |
 | `build_viz_recent.js` | Build `viz/data/recent.json` |
+| `build_viz_sku_cache.js` | Generate `viz/data/skus/{sku}.json` per-SKU price event files (LFS). Incremental by default; `--full-reindex` walks full git history. Run from `.worktrees/data/` |
 | `build_common_listings.js` | Top-N product lists by region (all/bc/ab) and size (50/250/1000) |
 | `build_email_event_pack.js` | Package email event bundles |
 | `diff_report.js` | Compare two report files |

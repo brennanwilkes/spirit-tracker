@@ -115,6 +115,7 @@ done
 "$NODE_BIN" tools/build_viz_index.js
 "$NODE_BIN" tools/build_viz_commits.js
 "$NODE_BIN" tools/build_viz_recent.js
+"$NODE_BIN" tools/build_viz_sku_cache.js
 
 # Stage only data/report/viz outputs
 git add -A data/db reports viz/data

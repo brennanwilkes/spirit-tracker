@@ -2,17 +2,14 @@ import { esc, renderThumbHtml, dateOnly } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
-import { inferGithubOwnerRepo, githubListCommits, githubFetchFileAtSha, fetchJson } from "./api.js";
+import { fetchJson } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
-import { getOrBuildMinIndex, buildMinIndex, minForVariant } from "./sha_min_index.js";
 import {
-	BC_STORE_NAMES,
 	isBcStoreLabel,
 	weightedMeanByDuration,
-	meanFinite,
 	minFinite,
 	medianFinite,
 	lastFiniteFromEnd,
@@ -32,145 +29,73 @@ export function destroyChart() {
 	}
 }
 
-/* ---------------- Small async helpers ---------------- */
+/* ---------------- SKU history from pre-built cache files ---------------- */
 
-async function mapLimit(list, limit, fn) {
-	const out = new Array(list.length);
-	let i = 0;
-	const n = Math.max(1, Math.floor(limit || 1));
-	const workers = Array.from({ length: n }, async () => {
-		while (true) {
-			const idx = i++;
-			if (idx >= list.length) return;
-			out[idx] = await fn(list[idx], idx);
-		}
-	});
-	await Promise.all(workers);
-	return out;
-}
+async function loadSkuHistory(skuGroup, today) {
+	const fetches = [...skuGroup].map((sku) =>
+		fetchJson(`./data/skus/${encodeURIComponent(sku)}.json`).catch(() => null),
+	);
+	const results = await Promise.all(fetches);
 
-// Global limiter for aggressive network concurrency (shared across ALL stores/files)
-function makeLimiter(max) {
-	let active = 0;
-	const q = [];
-	const runNext = () => {
-		while (active < max && q.length) {
-			active++;
-			const { fn, resolve, reject } = q.shift();
-			Promise.resolve()
-				.then(fn)
-				.then(resolve, reject)
-				.finally(() => {
-					active--;
-					runNext();
-				});
-		}
-	};
-	return (fn) =>
-		new Promise((resolve, reject) => {
-			q.push({ fn, resolve, reject });
-			runNext();
-		});
-}
+	const allDatesSet = new Set();
+	allDatesSet.add(today);
 
-function findMinPricesForSkuGroupInDb(obj, wantRealSkus, skuKeys, storeLabel, wantUrls) {
-	const items = Array.isArray(obj?.items) ? obj.items : [];
-	let liveMin = null;
-	let removedMin = null;
-
-	const consider = (isRemoved, priceVal) => {
-		const p = parsePriceToNumber(priceVal);
-		if (p === null) return;
-		if (!isRemoved) liveMin = liveMin === null ? p : Math.min(liveMin, p);
-		else removedMin = removedMin === null ? p : Math.min(removedMin, p);
-	};
-
-	const urlSet = wantUrls instanceof Set ? wantUrls : new Set();
-	const skuKeySet = new Set((Array.isArray(skuKeys) ? skuKeys : []).map((s) => String(s || "")));
-
-	for (const it of items) {
-		if (!it) continue;
-
-		const isRemoved = Boolean(it.removed);
-		const url = String(it.url || "");
-
-		// 0) URL match (critical for u: keys when storeLabel changes over time)
-		if (url && urlSet.size && urlSet.has(url)) {
-			consider(isRemoved, it.price);
-			continue;
-		}
-
-		// 1) Real SKU match (fast path)
-		const real = String(it.sku || "").trim();
-		if (real && wantRealSkus && wantRealSkus.has(real)) {
-			consider(isRemoved, it.price);
-			continue;
-		}
-
-		// 2) Fallback: keySkuForRow match (still useful for real SKUs and stable labels)
-		if (skuKeySet.size) {
-			const row = { sku: real, url, storeLabel: storeLabel || "", store: "" };
-			const kk = keySkuForRow(row);
-			if (skuKeySet.has(String(kk || ""))) {
-				consider(isRemoved, it.price);
+	for (const cache of results) {
+		if (!cache?.stores) continue;
+		for (const store of Object.values(cache.stores)) {
+			for (const ev of Array.isArray(store?.events) ? store.events : []) {
+				const d = dateOnly(ev.ts);
+				if (d) allDatesSet.add(d);
 			}
 		}
 	}
 
-	return { liveMin, removedMin };
-}
+	const labels = [...allDatesSet].sort();
+	const series = [];
 
-/* ---------------- Series cache (per dbFile + per skuKey) ---------------- */
+	for (const cache of results) {
+		if (!cache?.sku || !cache.stores) continue;
+		const sku = cache.sku;
 
-function cacheKeySeries(sku, dbFile, cacheBust, variantKey) {
-	return `stviz:v6:series:${cacheBust}:${sku}:${dbFile}:${variantKey || ""}`;
-}
+		for (const [dbFile, store] of Object.entries(cache.stores)) {
+			const events = Array.isArray(store?.events) ? store.events : [];
+			if (!events.length) continue;
 
-function loadSeriesCache(sku, dbFile, cacheBust, variantKey) {
-	try {
-		const raw = localStorage.getItem(cacheKeySeries(sku, dbFile, cacheBust, variantKey));
-		if (!raw) return null;
-		const obj = JSON.parse(raw);
-		if (!obj || !Array.isArray(obj.points)) return null;
-		return obj;
-	} catch {
-		return null;
+			// Last event per day wins (events are chronological)
+			const dayEventMap = new Map();
+			for (const ev of events) {
+				const d = dateOnly(ev.ts);
+				if (d) dayEventMap.set(d, ev);
+			}
+
+			const points = new Map();
+			const values = [];
+			const dates = [];
+			let currentPrice = null;
+			let isActive = false;
+
+			for (const date of labels) {
+				const ev = dayEventMap.get(date);
+				if (ev) {
+					if ("p" in ev) {
+						currentPrice = parsePriceToNumber(ev.p);
+						isActive = true;
+					} else {
+						currentPrice = null;
+						isActive = false;
+					}
+				}
+				const v = isActive ? currentPrice : null;
+				points.set(date, v);
+				if (v !== null) values.push(v);
+				dates.push(date);
+			}
+
+			series.push({ label: store.label || dbFile, variantKey: sku, points, values, dates });
+		}
 	}
-}
 
-function saveSeriesCache(sku, dbFile, cacheBust, variantKey, points) {
-	try {
-		localStorage.setItem(
-			cacheKeySeries(sku, dbFile, cacheBust, variantKey),
-			JSON.stringify({ savedAt: Date.now(), points }),
-		);
-	} catch {}
-}
-
-let DB_COMMITS = null;
-
-async function loadDbCommitsManifest() {
-	if (DB_COMMITS) return DB_COMMITS;
-	try {
-		DB_COMMITS = await fetchJson("./data/db_commits.json");
-		return DB_COMMITS;
-	} catch {
-		DB_COMMITS = null;
-		return null;
-	}
-}
-
-function cacheBustForDbFile(manifest, dbFile, commits) {
-	const arr = manifest?.files?.[dbFile];
-	if (Array.isArray(arr) && arr.length) {
-		const sha = String(arr[arr.length - 1]?.sha || "");
-		if (sha) return sha;
-	}
-	if (Array.isArray(commits) && commits.length) {
-		const sha = String(commits[commits.length - 1]?.sha || "");
-		if (sha) return sha;
-	}
-	return "no-sha";
+	return { series, labels };
 }
 
 /* ---------------- Page ---------------- */
@@ -180,7 +105,6 @@ export async function renderItem($app, skuInput) {
 
 	// Kick off independent fetches immediately — no dependency on rules/sku
 	const idxPromise = loadIndex();
-	const manifestPromise = loadDbCommitsManifest();
 
 	const [rules, fav] = await Promise.all([loadSkuRules(), loadMyFavouritesSet()]);
 
@@ -613,396 +537,12 @@ export async function renderItem($app, skuInput) {
 			.join(""),
 	);
 
-	const gh = inferGithubOwnerRepo();
-	const owner = gh.owner;
-	const repo = gh.repo;
-	const branch = "data";
-
-	// Group DB files by historical presence (LIVE or REMOVED rows).
-	const byDbFileAll = new Map();
-	for (const r of allRows) {
-		if (!r.dbFile) continue;
-		const k = String(r.dbFile);
-		if (!byDbFileAll.has(k)) byDbFileAll.set(k, []);
-		byDbFileAll.get(k).push(r);
-	}
-	const dbFiles = [...byDbFileAll.keys()].sort();
-
-	setStatusText(
-		isRemovedEverywhere
-			? `Removed everywhere — loading history (0 / ${dbFiles.length})…`
-			: `Loading history… (0 / ${dbFiles.length})`,
-	);
-
-	const manifest = await manifestPromise;
-
-	// Shared caches across all stores
-	const fileIdxCache = new Map(); // ck(sha|path) -> min-index object
-	const inflightFetch = new Map(); // ck -> Promise
 	const today = dateOnly(idx.generatedAt || new Date().toISOString());
 
-	// Tuning knobs:
-	// - keep compute modest: only a few stores processed simultaneously
-	// - make network aggressive: many file-at-sha fetches in-flight globally
-	// - on slow/mobile connections, reduce concurrency to avoid saturating bandwidth
-	const DBFILE_CONCURRENCY = 3;
-	const conn = navigator.connection;
-	const isSlowNet =
-		conn?.effectiveType === "2g" ||
-		conn?.effectiveType === "3g" ||
-		(conn?.downlink ?? 10) < 2 ||
-		(!conn && window.innerWidth <= 640);
-	const NET_CONCURRENCY = isSlowNet ? 8 : 16;
-	const limitNet = makeLimiter(NET_CONCURRENCY);
+	setStatusText(isRemovedEverywhere ? "Removed everywhere — loading history…" : "Loading history…");
 
-	const MAX_POINTS = window.innerWidth <= 640 ? 7 : 260;
+	const { series, labels } = await loadSkuHistory(skuGroup, today);
 
-	// process ONE dbFile, but return MULTIPLE series: one per skuKey that exists in this file
-	async function processDbFile(dbFile) {
-		const rowsAll = byDbFileAll.get(dbFile) || [];
-		if (!rowsAll.length) return [];
-
-		const storeLabel = String(rowsAll[0]?.storeLabel || rowsAll[0]?.store || dbFile);
-
-		// Variant keys in this store/dbFile (e.g. ["805160","141495"])
-		const variantKeys = Array.from(
-			new Set(
-				rowsAll
-					.map((r) => String(keySkuForRow(r) || "").trim())
-					.filter(Boolean)
-					.filter((k) => skuGroup.has(k)),
-			),
-		).sort();
-
-		const wantUrlsByVar = new Map(); // vk -> Set(urls)
-		for (const vk of variantKeys) wantUrlsByVar.set(vk, new Set());
-
-		for (const r of rowsAll) {
-			const vk = String(keySkuForRow(r) || "").trim();
-			if (!vk || !wantUrlsByVar.has(vk)) continue;
-			const u = String(r?.url || "").trim();
-			if (u) wantUrlsByVar.get(vk).add(u);
-		}
-
-		// Split rows by variant for "today" point
-		const rowsLiveByVar = new Map();
-		for (const r of rowsAll) {
-			const k = String(keySkuForRow(r) || "").trim();
-			if (!k || !variantKeys.includes(k)) continue;
-			if (!Boolean(r?.removed)) {
-				if (!rowsLiveByVar.has(k)) rowsLiveByVar.set(k, []);
-				rowsLiveByVar.get(k).push(r);
-			}
-		}
-
-		// Build commits list (prefer manifest)
-		let commits = [];
-		if (manifest && manifest.files && Array.isArray(manifest.files[dbFile])) {
-			commits = manifest.files[dbFile];
-		} else {
-			try {
-				let apiCommits = await githubListCommits({ owner, repo, branch, path: dbFile });
-				apiCommits = apiCommits.slice().reverse();
-				commits = apiCommits
-					.map((c) => {
-						const sha = String(c?.sha || "");
-						const dIso = c?.commit?.committer?.date || c?.commit?.author?.date || "";
-						const d = dateOnly(dIso);
-						return sha && d ? { sha, date: d, ts: String(dIso || "") } : null;
-					})
-					.filter(Boolean);
-			} catch {
-				commits = [];
-			}
-		}
-
-		// Chronological sort
-		commits = commits
-			.slice()
-			.filter((c) => c && c.date && c.sha)
-			.sort((a, b) => {
-				const da = String(a.date || "");
-				const db = String(b.date || "");
-				const ta = Date.parse(String(a.ts || "")) || (da ? Date.parse(da + "T00:00:00Z") : 0) || 0;
-				const tb = Date.parse(String(b.ts || "")) || (db ? Date.parse(db + "T00:00:00Z") : 0) || 0;
-				return ta - tb;
-			});
-
-		const cacheBust = cacheBustForDbFile(manifest, dbFile, commits);
-
-		// If all variants cached, return cached series
-		const cachedOut = [];
-		let missing = 0;
-		for (const vk of variantKeys) {
-			const cached = loadSeriesCache(sku, dbFile, cacheBust, vk);
-			if (!cached?.points?.length) {
-				missing++;
-				continue;
-			}
-			const points = new Map();
-			const values = [];
-			const dates = [];
-			for (const p of cached.points) {
-				const d = String(p.date || "");
-				const v = p.price === null ? null : Number(p.price);
-				if (!d) continue;
-				const vv = Number.isFinite(v) ? v : null;
-				points.set(d, vv);
-				if (vv !== null) values.push(vv);
-				dates.push(d);
-			}
-			cachedOut.push({ label: storeLabel, variantKey: vk, points, values, dates });
-		}
-		if (missing === 0) return cachedOut;
-
-		// Group commits by day (keep ALL commits per day; needed for add+remove same day)
-		const byDay = new Map(); // date -> commits[]
-		for (const c of commits) {
-			const d = String(c?.date || "");
-			if (!d) continue;
-			let arr = byDay.get(d);
-			if (!arr) byDay.set(d, (arr = []));
-			arr.push(c);
-		}
-
-		function commitMs(c) {
-			const d = String(c?.date || "");
-			const t = Date.parse(String(c?.ts || ""));
-			if (Number.isFinite(t)) return t;
-			return d ? Date.parse(d + "T00:00:00Z") || 0 : 0;
-		}
-
-		let dayEntries = Array.from(byDay.entries())
-			.map(([date, arr]) => ({
-				date,
-				commits: arr.slice().sort((a, b) => commitMs(a) - commitMs(b)),
-			}))
-			.sort((a, b) => (a.date < b.date ? -1 : 1));
-
-		if (dayEntries.length > MAX_POINTS)
-			dayEntries = dayEntries.slice(dayEntries.length - MAX_POINTS);
-
-		totalDaysAll += dayEntries.length;
-
-		// Aggressive global network fetch (dedup + throttled)
-		async function loadIndexAtSha(sha) {
-			const ck = `${sha}|${dbFile}`;
-
-			const cached = fileIdxCache.get(ck);
-			if (cached) return cached;
-
-			const prev = inflightFetch.get(ck);
-			if (prev) return prev;
-
-			const p = limitNet(async () => {
-				const idbKey = `v1|${dbFile}|${sha}`;
-				const ix = await getOrBuildMinIndex(idbKey, async () => {
-					const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
-					return buildMinIndex(obj, storeLabel, parsePriceToNumber, keySkuForRow);
-				});
-				fileIdxCache.set(ck, ix);
-				return ix;
-			}).finally(() => {
-				inflightFetch.delete(ck);
-			});
-
-			inflightFetch.set(ck, p);
-			return p;
-		}
-
-		// Kick off prefetches into the background queue — don't block processing.
-		// inflightFetch deduplicates, so the day-processing loop below picks up
-		// each already-inflight promise rather than starting a new fetch.
-		{
-			for (const day of dayEntries) {
-				const arr = day.commits;
-				if (!arr?.length) continue;
-				const sha = String(arr[arr.length - 1]?.sha || "");
-				if (sha) loadIndexAtSha(sha).catch(() => null);
-			}
-		}
-
-		// Build series for variants missing from cache
-		const out = cachedOut.slice();
-
-		const state = new Map(); // vk -> { points, values, dates, compactPoints, removedStreak, prevLive }
-		for (const vk of variantKeys) {
-			if (out.some((s) => s.variantKey === vk)) continue;
-			state.set(vk, {
-				points: new Map(),
-				values: [],
-				dates: [],
-				compactPoints: [],
-				removedStreak: false,
-				prevLive: null,
-			});
-		}
-
-		for (const day of dayEntries) {
-			const d = String(day.date || "");
-			const dayCommits = Array.isArray(day.commits) ? day.commits : [];
-			if (!d || !dayCommits.length) continue;
-
-			const last = dayCommits[dayCommits.length - 1];
-			const lastSha = String(last?.sha || "");
-			if (!lastSha) continue;
-
-			let ixLast;
-			try {
-				ixLast = await loadIndexAtSha(lastSha);
-			} catch {
-				continue;
-			}
-
-			for (const [vk, st] of state.entries()) {
-				const wantUrls = wantUrlsByVar.get(vk) || new Set();
-				const lastMin = minForVariant(ixLast, vk, wantUrls);
-
-				const lastLive = lastMin.liveMin;
-				const lastRemoved = lastMin.removedMin;
-
-				// end-of-day removed state: no live but removed exists
-				const endIsRemoved = lastLive === null && lastRemoved !== null;
-
-				// If end-of-day is removed, find the LAST live price earlier the same day
-				let sameDayLastLive = null;
-				if (endIsRemoved && dayCommits.length > 1) {
-					const firstSha = String(dayCommits[0]?.sha || "");
-					if (firstSha) {
-						try {
-							const ixFirst = await loadIndexAtSha(firstSha);
-							const firstMin = minForVariant(ixFirst, vk, wantUrls);
-							if (firstMin.liveMin !== null) {
-								const candidates = [];
-								for (let i = 0; i < dayCommits.length - 1; i++) {
-									const sha = String(dayCommits[i]?.sha || "");
-									if (sha) candidates.push(sha);
-								}
-								await Promise.all(candidates.map((sha) => loadIndexAtSha(sha).catch(() => null)));
-
-								for (let i = dayCommits.length - 2; i >= 0; i--) {
-									const sha = String(dayCommits[i]?.sha || "");
-									if (!sha) continue;
-									try {
-										const ix = await loadIndexAtSha(sha);
-										const m = minForVariant(ix, vk, wantUrls);
-										if (m.liveMin !== null) {
-											sameDayLastLive = m.liveMin;
-											break;
-										}
-									} catch {}
-								}
-							}
-						} catch {}
-					}
-				}
-
-				let v = null;
-
-				if (lastLive !== null) {
-					// live at end-of-day
-					v = lastLive;
-					st.removedStreak = false;
-					st.prevLive = lastLive;
-				} else if (endIsRemoved) {
-					// first removed day => show dot (prefer removed price; else last live earlier that day; else prev live)
-					if (!st.removedStreak) {
-						v =
-							lastRemoved !== null
-								? lastRemoved
-								: sameDayLastLive !== null
-									? sameDayLastLive
-									: st.prevLive;
-						st.removedStreak = true;
-					} else {
-						v = null; // days AFTER removal: no dot
-					}
-				} else {
-					v = null;
-				}
-
-				st.points.set(d, v);
-				if (v !== null) st.values.push(v);
-				st.compactPoints.push({ date: d, price: v });
-				st.dates.push(d);
-			}
-
-			doneDaysAll++;
-			const totalLabel =
-				dbFiles.length > 1
-					? `${dbFiles.length} stores × ~${Math.round(totalDaysAll / dbFiles.length)} days`
-					: `${totalDaysAll} days`;
-			setStatusText(
-				isRemovedEverywhere
-					? `Removed everywhere — loading history… day ${doneDaysAll} / ${totalDaysAll} (${totalLabel})`
-					: `Loading history… day ${doneDaysAll} / ${totalDaysAll} (${totalLabel})`,
-			);
-			setProgress(doneDaysAll, totalDaysAll);
-		}
-
-		// Add "today" point per variant ONLY if listing currently exists for that variant in this store/dbFile
-		for (const [vk, st] of state.entries()) {
-			const rowsLive = rowsLiveByVar.get(vk) || [];
-			if (rowsLive.length) {
-				let curMin = null;
-				for (const r of rowsLive) {
-					const p = parsePriceToNumber(r.price);
-					if (p !== null) curMin = curMin === null ? p : Math.min(curMin, p);
-				}
-				if (curMin !== null) {
-					st.points.set(today, curMin);
-					st.values.push(curMin);
-					st.compactPoints.push({ date: today, price: curMin });
-					st.dates.push(today);
-				}
-			}
-
-			saveSeriesCache(sku, dbFile, cacheBust, vk, st.compactPoints);
-			out.push({
-				label: storeLabel,
-				variantKey: vk,
-				points: st.points,
-				values: st.values,
-				dates: st.dates,
-			});
-		}
-
-		return out;
-	}
-
-	let doneFiles = 0;
-	let totalDaysAll = 0; // sum of dayEntries.length across all dbFiles (grows as each file starts)
-	let doneDaysAll = 0;  // total individual days processed so far (across all files)
-	const results = await mapLimit(dbFiles, DBFILE_CONCURRENCY, async (dbFile) => {
-		try {
-			const r = await processDbFile(dbFile); // array
-			doneFiles++;
-			setStatusText(
-				isRemovedEverywhere
-					? `Removed everywhere — loading history (${doneFiles} / ${dbFiles.length})…`
-					: `Loading history… (${doneFiles} / ${dbFiles.length})`,
-			);
-			setProgress(doneFiles, dbFiles.length);
-			return r;
-		} catch {
-			doneFiles++;
-			setProgress(doneFiles, dbFiles.length);
-			return [];
-		}
-	});
-
-	const allDatesSet = new Set();
-	const series = []; // per (store, variant)
-
-	for (const arr of results) {
-		for (const r of Array.isArray(arr) ? arr : []) {
-			if (!r) continue;
-			series.push(r);
-			for (const d of r.dates) allDatesSet.add(d);
-		}
-	}
-
-	const labels = [...allDatesSet].sort();
 	if (!labels.length || !series.length) {
 		clearProgress();
 		setStatusText("No historical points found.");
@@ -1336,12 +876,8 @@ export async function renderItem($app, skuInput) {
 
 	clearProgress();
 	setStatusText(
-		manifest
-			? isRemovedEverywhere
-				? `History loaded (removed everywhere). Source=prebuilt manifest. Points=${labels.length}.`
-				: `History loaded from prebuilt manifest (multi-commit/day) + current run. Points=${labels.length}.`
-			: isRemovedEverywhere
-				? `History loaded (removed everywhere). Source=GitHub API fallback. Points=${labels.length}.`
-				: `History loaded (GitHub API fallback; multi-commit/day) + current run. Points=${labels.length}.`,
+		isRemovedEverywhere
+			? `History loaded (removed everywhere). Points=${labels.length}.`
+			: `History loaded. Points=${labels.length}.`,
 	);
 }
