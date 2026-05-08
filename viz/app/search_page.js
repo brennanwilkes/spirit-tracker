@@ -16,18 +16,6 @@ import { getAuthStatus, logoutAndReload } from "./cloud.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 
-let PREWARM_TOKEN = 0;
-
-function idleTick(timeoutMs = 1200) {
-	return new Promise((resolve) => {
-		if ("requestIdleCallback" in window) {
-			requestIdleCallback(() => resolve(), { timeout: timeoutMs });
-		} else {
-			setTimeout(resolve, 150);
-		}
-	});
-}
-
 
 export function renderSearch($app) {
 	const auth = getAuthStatus();
@@ -865,60 +853,6 @@ export function renderSearch($app) {
 
 	$results.innerHTML = `<div class="small">Loading index…</div>`;
 
-	const myToken = ++PREWARM_TOKEN;
-
-	// invalidate this run when you leave the page
-	window.addEventListener(
-		"hashchange",
-		() => {
-			PREWARM_TOKEN++;
-		},
-		{ once: true },
-	);
-
-	async function startPrewarm(listings, rules, recent, token) {
-		const conn = navigator.connection;
-		if (conn?.saveData) return;
-		if (String(conn?.effectiveType || "").includes("2g")) return;
-
-		// Priority: canonical SKUs with recent events (last 3 days)
-		const priSkus = new Set();
-		{
-			const nowMs = Date.now();
-			const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
-			for (const r of Array.isArray(recent?.items) ? recent.items : []) {
-				const ms = eventMsRecent(r);
-				if (!(ms >= cutoffMs && ms <= nowMs)) continue;
-				const rawSku = String(r?.sku || "").trim();
-				if (!rawSku) continue;
-				const sku = String(rules?.canonicalSku ? rules.canonicalSku(rawSku) : rawSku);
-				if (sku) priSkus.add(sku);
-			}
-		}
-
-		const allCanonSkus = new Set();
-		for (const r of Array.isArray(listings) ? listings : []) {
-			const rawSku = String(r?.sku || keySkuForRow(r) || "").trim();
-			if (!rawSku) continue;
-			const sku = String(rules?.canonicalSku ? rules.canonicalSku(rawSku) : rawSku);
-			if (sku) allCanonSkus.add(sku);
-		}
-
-		const queue = [...priSkus, ...[...allCanonSkus].filter((s) => !priSkus.has(s))];
-
-		for (const canonSku of queue) {
-			if (token !== PREWARM_TOKEN) return;
-			if (document.visibilityState === "hidden") break;
-
-			await idleTick();
-			if (token !== PREWARM_TOKEN) return;
-
-			const group = rules?.groupForCanonical ? rules.groupForCanonical(canonSku) : new Set([canonSku]);
-			for (const rawSku of group) {
-				fetch(`./data/skus/${encodeURIComponent(rawSku)}.json`).catch(() => {});
-			}
-		}
-	}
 
 	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet(), loadRecent().catch(() => null)])
 		.then(([idx, rules, fav, recent]) => {
@@ -1008,7 +942,6 @@ export function renderSearch($app) {
 			if (recentCache) rebuildRecentMeta(recentCache, rules.canonicalSku);
 			renderCurrent();
 
-			setTimeout(() => startPrewarm(listings, rules, recentCache, myToken), 600);
 		})
 		.catch((e) => {
 			$results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
