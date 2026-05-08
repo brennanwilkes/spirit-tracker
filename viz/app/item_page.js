@@ -619,6 +619,7 @@ export async function renderItem($app, skuInput) {
 
 	// Build datasets: multiple lines per store, same label, same color, same stroke
 	const datasets = [];
+	const suppressDots = window.innerWidth <= 640 && labels.length > 50;
 	for (const st of storeSeriesSorted) {
 		const base = storeColor(st.label, colorMap);
 		const stroke = lighten(base, 0.25);
@@ -641,12 +642,14 @@ export async function renderItem($app, skuInput) {
 				pointBorderColor: stroke,
 				borderWidth: datasetStrokeWidth(base),
 				pointRadius: (ctx) => {
+					if (suppressDots) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
 					return ctx.dataset.variantKey === winKeyFor(ctx.dataset.label, d) ? 3 : 0;
 				},
 				pointHoverRadius: (ctx) => {
+					if (suppressDots) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
