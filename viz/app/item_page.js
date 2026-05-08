@@ -50,7 +50,18 @@ async function loadSkuHistory(skuGroup, today) {
 		}
 	}
 
-	const labels = [...allDatesSet].sort();
+	// Expand to every calendar day so the x-axis has proportional time spacing
+	// and forward-fill produces a dot on every in-stock day.
+	const allDatesArray = [...allDatesSet].sort();
+	const minDate = allDatesArray[0];
+	const maxDate = allDatesArray[allDatesArray.length - 1];
+	const labels = [];
+	const cursor = new Date(minDate + "T12:00:00Z");
+	const endMs = new Date(maxDate + "T12:00:00Z").getTime();
+	while (cursor.getTime() <= endMs) {
+		labels.push(cursor.toISOString().slice(0, 10));
+		cursor.setUTCDate(cursor.getUTCDate() + 1);
+	}
 	const series = [];
 
 	for (const cache of results) {
@@ -813,7 +824,7 @@ export async function renderItem($app, skuInput) {
 			// },
 			scales: {
 				x: {
-					ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+					ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth <= 640 ? 3 : 12 },
 					grid: { display: false },
 				},
 				y: {
