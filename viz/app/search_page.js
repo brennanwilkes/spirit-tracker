@@ -13,8 +13,6 @@ import { loadSkuRules } from "./mapping.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, logoutAndReload } from "./cloud.js";
-import { inferGithubOwnerRepo, fetchJson, githubFetchFileAtSha } from "./api.js";
-import { getOrBuildMinIndex, buildMinIndex } from "./sha_min_index.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 
@@ -30,28 +28,6 @@ function idleTick(timeoutMs = 1200) {
 	});
 }
 
-function makeLimiter(max) {
-	let active = 0;
-	const q = [];
-	const runNext = () => {
-		while (active < max && q.length) {
-			active++;
-			const { fn, resolve, reject } = q.shift();
-			Promise.resolve()
-				.then(fn)
-				.then(resolve, reject)
-				.finally(() => {
-					active--;
-					runNext();
-				});
-		}
-	};
-	return (fn) =>
-		new Promise((resolve, reject) => {
-			q.push({ fn, resolve, reject });
-			runNext();
-		});
-}
 
 export function renderSearch($app) {
 	const auth = getAuthStatus();
@@ -905,95 +881,41 @@ export function renderSearch($app) {
 		if (conn?.saveData) return;
 		if (String(conn?.effectiveType || "").includes("2g")) return;
 
-		let manifest = null;
-		try {
-			manifest = await fetchJson("./data/db_commits.json");
-		} catch {
-			return;
-		}
-		const files = manifest?.files || {};
-		const allDbFiles = Object.keys(files);
-		if (!allDbFiles.length) return;
-
-		// dbFile -> storeLabel (for keySkuForRow stability)
-		const dbFileToStoreLabel = new Map();
-
-		// sku -> Set(dbFile) (for prioritizing recent SKUs)
-		const skuToDbFiles = new Map();
-
-		for (const r of Array.isArray(listings) ? listings : []) {
-			const dbFile = String(r?.dbFile || "").trim();
-			if (!dbFile) continue;
-
-			if (!dbFileToStoreLabel.has(dbFile)) {
-				const sl = String(r?.storeLabel || r?.store || dbFile).trim();
-				dbFileToStoreLabel.set(dbFile, sl || dbFile);
-			}
-
-			const skuKeyRaw = String(r?.sku || keySkuForRow(r) || "").trim();
-			if (!skuKeyRaw) continue;
-			const sku = String(rules?.canonicalSku ? rules.canonicalSku(skuKeyRaw) : skuKeyRaw);
-			if (!sku) continue;
-
-			let set = skuToDbFiles.get(sku);
-			if (!set) skuToDbFiles.set(sku, (set = new Set()));
-			set.add(dbFile);
-		}
-
-		// Priority dbFiles: stores that had events in last 3 days
-		const pri = new Set();
+		// Priority: canonical SKUs with recent events (last 3 days)
+		const priSkus = new Set();
 		{
 			const nowMs = Date.now();
 			const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
-			const items = Array.isArray(recent?.items) ? recent.items : [];
-			for (const r of items) {
+			for (const r of Array.isArray(recent?.items) ? recent.items : []) {
 				const ms = eventMsRecent(r);
 				if (!(ms >= cutoffMs && ms <= nowMs)) continue;
-
 				const rawSku = String(r?.sku || "").trim();
 				if (!rawSku) continue;
 				const sku = String(rules?.canonicalSku ? rules.canonicalSku(rawSku) : rawSku);
-				const s = skuToDbFiles.get(sku);
-				if (!s) continue;
-				for (const dbFile of s) pri.add(dbFile);
+				if (sku) priSkus.add(sku);
 			}
 		}
 
-		const queue = [...pri, ...allDbFiles.filter((x) => !pri.has(x))];
+		const allCanonSkus = new Set();
+		for (const r of Array.isArray(listings) ? listings : []) {
+			const rawSku = String(r?.sku || keySkuForRow(r) || "").trim();
+			if (!rawSku) continue;
+			const sku = String(rules?.canonicalSku ? rules.canonicalSku(rawSku) : rawSku);
+			if (sku) allCanonSkus.add(sku);
+		}
 
-		const { owner, repo } = inferGithubOwnerRepo();
-		const limitNet = makeLimiter(2); // keep low: avoids jank + bandwidth spikes
-		const PER_FILE = 20; // bump to 40 if you want more coverage
+		const queue = [...priSkus, ...[...allCanonSkus].filter((s) => !priSkus.has(s))];
 
-		for (const dbFile of queue) {
+		for (const canonSku of queue) {
 			if (token !== PREWARM_TOKEN) return;
-
 			if (document.visibilityState === "hidden") break;
 
-			const arr = files[dbFile];
-			if (!Array.isArray(arr) || !arr.length) continue;
+			await idleTick();
+			if (token !== PREWARM_TOKEN) return;
 
-			const storeLabel = dbFileToStoreLabel.get(dbFile) || dbFile;
-			const shas = arr
-				.slice(-PER_FILE)
-				.map((c) => String(c?.sha || "").trim())
-				.filter(Boolean);
-
-			for (const sha of shas) {
-				if (token !== PREWARM_TOKEN) return;
-
-				await idleTick();
-				if (token !== PREWARM_TOKEN) return;
-
-				await limitNet(async () => {
-					if (token !== PREWARM_TOKEN) return;
-
-					const idbKey = `v1|${dbFile}|${sha}`;
-					await getOrBuildMinIndex(idbKey, async () => {
-						const obj = await githubFetchFileAtSha({ owner, repo, sha, path: dbFile });
-						return buildMinIndex(obj, storeLabel, parsePriceToNumber, keySkuForRow);
-					});
-				}).catch(() => {});
+			const group = rules?.groupForCanonical ? rules.groupForCanonical(canonSku) : new Set([canonSku]);
+			for (const rawSku of group) {
+				fetch(`./data/skus/${encodeURIComponent(rawSku)}.json`).catch(() => {});
 			}
 		}
 	}
