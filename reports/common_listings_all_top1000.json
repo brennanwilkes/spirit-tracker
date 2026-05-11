@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T13:48:01.265Z",
+  "generatedAt": "2026-05-11T16:45:41.647Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13315,
-    "removedRows": 3667,
-    "canonSkus": 6547,
+    "liveRows": 13327,
+    "removedRows": 3655,
+    "canonSkus": 6548,
     "outputCount": 1000
   },
   "rows": [
@@ -11878,6 +11878,57 @@
       }
     },
     {
+      "canonSku": "210760",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 109.99,
+        "bsw": 79.99,
+        "coop": 92.99,
+        "craftcellars": 75.99,
+        "legacyliquor": 121.81,
+        "sierrasprings": 87.09,
+        "tudor": 119.99
+      },
+      "representative": {
+        "name": "Glenallachie 12 Year Old Speyside Single Malt",
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "805309",
+        "skuKey": "805309",
+        "url": "https://craftcellars.ca/products/glenallachie-12-year-old-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glenallachie-12-year-old-46-abv"
+      }
+    },
+    {
       "canonSku": "224499",
       "storeCount": 7,
       "stores": [
@@ -16103,56 +16154,6 @@
         "priceNum": 71.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/471235"
-      }
-    },
-    {
-      "canonSku": "210760",
-      "storeCount": 6,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 109.99,
-        "bsw": 79.99,
-        "coop": 92.99,
-        "legacyliquor": 121.81,
-        "sierrasprings": 87.09,
-        "tudor": 119.99
-      },
-      "representative": {
-        "name": "The GlenAllachie 12 Year Old",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "805309",
-        "skuKey": "805309",
-        "url": "https://www.bswliquor.com/products/glenallachie-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenallachie-12-year-old-1"
       }
     },
     {
@@ -20426,6 +20427,55 @@
         "priceNum": 101.8,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/glenglassaugh-12-year-old-45%abv/"
+      }
+    },
+    {
+      "canonSku": "103747",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 39.99,
+        "craftcellars": 31.99,
+        "kwm": 47.99,
+        "maltsandgrains": 45.05,
+        "sierrasprings": 39
+      },
+      "representative": {
+        "name": "Makers Mark Kentucky Straight Bourbon",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "103747",
+        "skuKey": "103747",
+        "url": "https://craftcellars.ca/products/maker-s-mark-kentucky-straight-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/maker-s-mark-kentucky-straight-bourbon"
       }
     },
     {
@@ -28886,6 +28936,54 @@
       }
     },
     {
+      "canonSku": "072355",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "sierrasprings",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "craftcellars": 69.99,
+        "sierrasprings": 70.99,
+        "vintage": 87.74
+      },
+      "representative": {
+        "name": "Woodford Reserve Double Oaked Bourbon",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "072355",
+        "skuKey": "072355",
+        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon"
+      }
+    },
+    {
       "canonSku": "082628",
       "storeCount": 4,
       "stores": [
@@ -29747,54 +29845,6 @@
         "priceNum": 47.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/traveller-whiskey"
-      }
-    },
-    {
-      "canonSku": "103747",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 39.99,
-        "kwm": 47.99,
-        "maltsandgrains": 45.05,
-        "sierrasprings": 39
-      },
-      "representative": {
-        "name": "MAKER’S MARK",
-        "price": "$39.00",
-        "priceNum": 39,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "103747",
-        "skuKey": "103747",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/makers-mark-kentucky-straight-bourbon-45-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$39.00",
-        "priceNum": 39,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/makers-mark-kentucky-straight-bourbon-45-abv/"
       }
     },
     {
@@ -36806,6 +36856,54 @@
       }
     },
     {
+      "canonSku": "740373",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 49.99,
+        "craftcellars": 42.99,
+        "kegncork": 59.96,
+        "sierrasprings": 53.23
+      },
+      "representative": {
+        "name": "1792 Small Batch Kentucky Straight Bourbon",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "740373",
+        "skuKey": "740373",
+        "url": "https://craftcellars.ca/products/online-only-1792-small-batch-kentucky-straight-bourbon-46-85-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/online-only-1792-small-batch-kentucky-straight-bourbon-46-85-abv"
+      }
+    },
+    {
       "canonSku": "741044",
       "storeCount": 4,
       "stores": [
@@ -40525,53 +40623,6 @@
         "priceNum": 149.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/isle-of-jura-18-year-old-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "072355",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "sierrasprings",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "sierrasprings": 70.99,
-        "vintage": 87.74
-      },
-      "representative": {
-        "name": "WOODFORD RESERVE DOUBLE OAKED BOURBON",
-        "price": "$70.99",
-        "priceNum": 70.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "072355",
-        "skuKey": "072355",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$70.99",
-        "priceNum": 70.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/"
       }
     },
     {
@@ -46353,53 +46404,6 @@
         "priceNum": 57.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/highland-scotch-whisky-whisky-2-2/glen-garioch-founders-reserve-48-abv/"
-      }
-    },
-    {
-      "canonSku": "740373",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 49.99,
-        "kegncork": 59.96,
-        "sierrasprings": 53.23
-      },
-      "representative": {
-        "name": "1792 Small Batch Bourbon",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "740373",
-        "skuKey": "740373",
-        "url": "https://www.bswliquor.com/products/1792-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/1792-bourbon"
       }
     },
     {
