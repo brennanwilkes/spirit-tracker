@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T16:45:42.287Z",
+  "generatedAt": "2026-05-11T19:32:31.061Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4422,
-    "removedRows": 501,
+    "liveRows": 4424,
+    "removedRows": 500,
     "canonSkus": 2212,
-    "outputCount": 962
+    "outputCount": 963
   },
   "rows": [
     {
@@ -2334,6 +2334,48 @@
       }
     },
     {
+      "canonSku": "045898",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 55.29,
+        "bcl": 52.99,
+        "gull": 55.75,
+        "legacyliquor": 59.91,
+        "tudor": 54.99,
+        "vessel": 55.99
+      },
+      "representative": {
+        "name": "BACARDI - SUPERIOR WHITE",
+        "price": "$52.99",
+        "priceNum": 52.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "045898",
+        "skuKey": "045898",
+        "url": "https://www.bcliquorstores.com/product/45898",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$52.99",
+        "priceNum": 52.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/45898"
+      }
+    },
+    {
       "canonSku": "054213",
       "storeCount": 6,
       "stores": [
@@ -2625,48 +2667,6 @@
         "priceNum": 129.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/303815"
-      }
-    },
-    {
-      "canonSku": "131870",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 52.99,
-        "bcl": 51.99,
-        "gull": 58.99,
-        "legacyliquor": 57.99,
-        "tudor": 56.99,
-        "vessel": 52.99
-      },
-      "representative": {
-        "name": "BUSHMILLS - 10 YEAR OLD SINGLE MALT",
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "131870",
-        "skuKey": "131870",
-        "url": "https://www.bcliquorstores.com/product/131870",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/131870"
       }
     },
     {
@@ -5004,47 +5004,6 @@
       }
     },
     {
-      "canonSku": "045898",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 55.29,
-        "bcl": 52.99,
-        "gull": 55.75,
-        "tudor": 54.99,
-        "vessel": 55.99
-      },
-      "representative": {
-        "name": "BACARDI - SUPERIOR WHITE",
-        "price": "$52.99",
-        "priceNum": 52.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "045898",
-        "skuKey": "045898",
-        "url": "https://www.bcliquorstores.com/product/45898",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$52.99",
-        "priceNum": 52.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/45898"
-      }
-    },
-    {
       "canonSku": "058779",
       "storeCount": 5,
       "stores": [
@@ -5944,6 +5903,47 @@
         "priceNum": 239.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5208069-jp-wisers-24yo-750ml"
+      }
+    },
+    {
+      "canonSku": "131870",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 52.99,
+        "bcl": 51.99,
+        "gull": 58.99,
+        "tudor": 56.99,
+        "vessel": 52.99
+      },
+      "representative": {
+        "name": "BUSHMILLS - 10 YEAR OLD SINGLE MALT",
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "131870",
+        "skuKey": "131870",
+        "url": "https://www.bcliquorstores.com/product/131870",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/131870"
       }
     },
     {
@@ -18346,45 +18346,6 @@
       }
     },
     {
-      "canonSku": "285577",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "gull",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "bcl",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 49.09,
-        "gull": 51.2,
-        "legacyliquor": 55.99
-      },
-      "representative": {
-        "name": "BUNDABERG ORIGINAL U. P. RUM",
-        "price": "$49.09",
-        "priceNum": 49.09,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "285577",
-        "skuKey": "285577",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4644647-bundaberg-original-u-p-rum",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$49.09",
-        "priceNum": 49.09,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4644647-bundaberg-original-u-p-rum"
-      }
-    },
-    {
       "canonSku": "285734",
       "storeCount": 3,
       "stores": [
@@ -21193,6 +21154,45 @@
       }
     },
     {
+      "canonSku": "520577",
+      "storeCount": 3,
+      "stores": [
+        "gull",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 46.5,
+        "strath": 46.18,
+        "tudor": 48.99
+      },
+      "representative": {
+        "name": "Powers - Gold Label",
+        "price": "$46.18",
+        "priceNum": 46.18,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
+        "skuRaw": "520577",
+        "skuKey": "520577",
+        "url": "https://www.strathliquor.com/product/powers-gold-label/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
+      },
+      "cheapest": {
+        "price": "$46.18",
+        "priceNum": 46.18,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/powers-gold-label/"
+      }
+    },
+    {
       "canonSku": "530352",
       "storeCount": 3,
       "stores": [
@@ -21973,6 +21973,45 @@
       }
     },
     {
+      "canonSku": "754838",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 2800,
+        "legacyliquor": 2871.63,
+        "tudor": 2800
+      },
+      "representative": {
+        "name": "THE DALMORE - 25 YEAR OLD",
+        "price": "$2800.00",
+        "priceNum": 2800,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "754838",
+        "skuKey": "754838",
+        "url": "https://www.bcliquorstores.com/product/754838",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$2800.00",
+        "priceNum": 2800,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/754838"
+      }
+    },
+    {
       "canonSku": "755778",
       "storeCount": 3,
       "stores": [
@@ -22641,7 +22680,7 @@
       ],
       "storePrices": {
         "bcl": 81.99,
-        "tudor": 110.99
+        "tudor": 85.99
       },
       "representative": {
         "name": "CHIVAS REGAL - 12 YEAR OLD",
@@ -30149,6 +30188,44 @@
       }
     },
     {
+      "canonSku": "285577",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "gull"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 49.09,
+        "gull": 51.2
+      },
+      "representative": {
+        "name": "BUNDABERG ORIGINAL U. P. RUM",
+        "price": "$49.09",
+        "priceNum": 49.09,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "285577",
+        "skuKey": "285577",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4644647-bundaberg-original-u-p-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$49.09",
+        "priceNum": 49.09,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4644647-bundaberg-original-u-p-rum"
+      }
+    },
+    {
       "canonSku": "286509",
       "storeCount": 2,
       "stores": [
@@ -35963,44 +36040,6 @@
       }
     },
     {
-      "canonSku": "520577",
-      "storeCount": 2,
-      "stores": [
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "strath": 46.18,
-        "tudor": 48.99
-      },
-      "representative": {
-        "name": "Powers - Gold Label",
-        "price": "$46.18",
-        "priceNum": 46.18,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "520577",
-        "skuKey": "520577",
-        "url": "https://www.strathliquor.com/product/powers-gold-label/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$46.18",
-        "priceNum": 46.18,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/powers-gold-label/"
-      }
-    },
-    {
       "canonSku": "522100",
       "storeCount": 2,
       "stores": [
@@ -36074,6 +36113,44 @@
         "priceNum": 27.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/woodford-distillers-ml-380"
+      }
+    },
+    {
+      "canonSku": "530890",
+      "storeCount": 2,
+      "stores": [
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 108.98,
+        "tudor": 112.99
+      },
+      "representative": {
+        "name": "Rabbithole - Dareringer PX Sherry Finished Bourbon | 1 x 750ML",
+        "price": "$108.98",
+        "priceNum": 108.98,
+        "storeKey": "legacyliquor",
+        "storeLabel": "Legacy Liquor",
+        "skuRaw": "530890",
+        "skuKey": "530890",
+        "url": "https://www.legacyliquorstore.com/product/spirits/rabbit-hole-dareringer-bourbon-1-x-750ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/legacyliquor__whisky__6231543b.json"
+      },
+      "cheapest": {
+        "price": "$108.98",
+        "priceNum": 108.98,
+        "storeKey": "legacyliquor",
+        "url": "https://www.legacyliquorstore.com/product/spirits/rabbit-hole-dareringer-bourbon-1-x-750ml"
       }
     },
     {
@@ -37290,44 +37367,6 @@
         "priceNum": 184.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/signatory-glendullen-700m/"
-      }
-    },
-    {
-      "canonSku": "754838",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 2800,
-        "tudor": 2800
-      },
-      "representative": {
-        "name": "THE DALMORE - 25 YEAR OLD",
-        "price": "$2800.00",
-        "priceNum": 2800,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "754838",
-        "skuKey": "754838",
-        "url": "https://www.bcliquorstores.com/product/754838",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$2800.00",
-        "priceNum": 2800,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/754838"
       }
     },
     {
