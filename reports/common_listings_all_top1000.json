@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T05:13:45.394Z",
+  "generatedAt": "2026-05-11T08:10:21.311Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13325,
-    "removedRows": 3657,
-    "canonSkus": 6549,
+    "liveRows": 13315,
+    "removedRows": 3667,
+    "canonSkus": 6547,
     "outputCount": 1000
   },
   "rows": [
@@ -186,7 +186,7 @@
         "bcl": 129.97,
         "bsw": 115,
         "coop": 129.99,
-        "craftcellars": 130.99,
+        "craftcellars": 131.99,
         "gull": 139.99,
         "kegncork": 130.96,
         "kwm": 134.99,
@@ -243,7 +243,7 @@
         "bcl": 116.99,
         "bsw": 89.99,
         "coop": 104.99,
-        "craftcellars": 104.99,
+        "craftcellars": 109.99,
         "gull": 123.25,
         "kegncork": 115.96,
         "kwm": 83.99,
@@ -300,7 +300,7 @@
       "storePrices": {
         "bcl": 109.99,
         "bsw": 84.99,
-        "craftcellars": 115.99,
+        "craftcellars": 81.99,
         "gull": 108.99,
         "kegncork": 114.96,
         "kwm": 96.99,
@@ -313,22 +313,22 @@
         "willowpark": 117.49
       },
       "representative": {
-        "name": "Bruichladdich Port Charlotte 10 Year Old",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich Port Charlotte 10",
+        "price": "$81.99",
+        "priceNum": 81.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "806524",
         "skuKey": "806524",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
+        "price": "$81.99",
+        "priceNum": 81.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10"
       }
     },
     {
@@ -472,7 +472,7 @@
         "arc": 77.19,
         "bcl": 79.99,
         "bsw": 77.99,
-        "craftcellars": 94.99,
+        "craftcellars": 63.99,
         "gull": 73.99,
         "kwm": 88.99,
         "legacyliquor": 88.13,
@@ -484,22 +484,79 @@
         "willowpark": 82.99
       },
       "representative": {
-        "name": "Laphroaig – 10 Year Old 750ml",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://gullliquorstore.com/product/laphroaig-10-year-ol-750m/",
+        "name": "Laphroaig 10 Year Old",
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739119",
+        "skuKey": "739119",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
+      }
+    },
+    {
+      "canonSku": "316844",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 29.99,
+        "bsw": 31.99,
+        "craftcellars": 36.99,
+        "gull": 27.49,
+        "kwm": 36.99,
+        "legacyliquor": 31.81,
+        "maltsandgrains": 35.2,
+        "sierrasprings": 31.32,
+        "tudor": 29.99,
+        "vessel": 29.99,
+        "vintage": 33.83,
+        "willowpark": 34.99
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$27.49",
+        "priceNum": 27.49,
         "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-10-year-ol-750m/"
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -529,7 +586,7 @@
         "bcl": 84.99,
         "bsw": 69.99,
         "coop": 79.99,
-        "craftcellars": 56.99,
+        "craftcellars": 89.99,
         "gull": 84.99,
         "kegncork": 88.96,
         "kwm": 78.99,
@@ -541,22 +598,22 @@
         "willowpark": 90.99
       },
       "representative": {
-        "name": "Bruichladdich Scottish Barley Laddie",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv"
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -697,9 +754,9 @@
       ],
       "storePrices": {
         "bcl": 89.99,
-        "bsw": 67.99,
+        "bsw": 61.99,
         "coop": 59.99,
-        "craftcellars": 79.99,
+        "craftcellars": 78.99,
         "gull": 91.99,
         "kwm": 79.99,
         "legacyliquor": 90.99,
@@ -710,16 +767,16 @@
         "willowpark": 80.99
       },
       "representative": {
-        "name": "GLENFIDDICH 14YO BOURBON BARREL RESERVE",
-        "price": "$63.99",
-        "priceNum": 63.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "813356",
         "skuKey": "813356",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfiddich-14yo-bourbon-barrel-reserve-43-abv/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
         "price": "$59.99",
@@ -1121,62 +1178,6 @@
       }
     },
     {
-      "canonSku": "316844",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "legacyliquor",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.99,
-        "bsw": 31.99,
-        "craftcellars": 36.99,
-        "gull": 27.49,
-        "kwm": 36.99,
-        "maltsandgrains": 35.2,
-        "sierrasprings": 31.32,
-        "tudor": 29.99,
-        "vessel": 29.99,
-        "vintage": 33.83,
-        "willowpark": 34.99
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
-      }
-    },
-    {
       "canonSku": "521992",
       "storeCount": 12,
       "stores": [
@@ -1203,7 +1204,7 @@
         "arc": 85.89,
         "bcl": 92.99,
         "bsw": 79.99,
-        "craftcellars": 91.99,
+        "craftcellars": 84.99,
         "gull": 94.25,
         "kegncork": 84.96,
         "kwm": 92.99,
@@ -1259,7 +1260,7 @@
         "arc": 68.89,
         "bcl": 67.99,
         "bsw": 57.99,
-        "craftcellars": 64.99,
+        "craftcellars": 67.99,
         "gull": 71.65,
         "kegncork": 66.96,
         "kwm": 67.99,
@@ -1315,7 +1316,7 @@
         "arc": 102.99,
         "bcl": 114.99,
         "bsw": 84.99,
-        "craftcellars": 79.99,
+        "craftcellars": 69.99,
         "kegncork": 99.96,
         "kwm": 99.99,
         "legacyliquor": 129.06,
@@ -1327,8 +1328,8 @@
       },
       "representative": {
         "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$79.99",
-        "priceNum": 79.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "560474",
@@ -1338,8 +1339,8 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
@@ -1540,7 +1541,7 @@
         "bcl": 79.99,
         "bsw": 64.99,
         "coop": 74.99,
-        "craftcellars": 73.99,
+        "craftcellars": 74.99,
         "gull": 82.99,
         "kwm": 74.99,
         "legacyliquor": 84.51,
@@ -1595,7 +1596,7 @@
         "arc": 28.69,
         "bcl": 27.99,
         "bsw": 31.99,
-        "craftcellars": 29.99,
+        "craftcellars": 31.99,
         "gull": 29.8,
         "legacyliquor": 29.39,
         "maltsandgrains": 33.66,
@@ -1925,7 +1926,7 @@
         "arc": 75.59,
         "bsw": 76.99,
         "coop": 74.99,
-        "craftcellars": 58.99,
+        "craftcellars": 78.99,
         "gull": 84.99,
         "kwm": 79.99,
         "legacyliquor": 94.02,
@@ -1935,22 +1936,22 @@
         "willowpark": 79.49
       },
       "representative": {
-        "name": "Black Tot Rum",
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "BLACK TOT RUM FINEST CARIBBEAN",
+        "price": "$66.56",
+        "priceNum": 66.56,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
         "skuRaw": "832046",
         "skuKey": "832046",
-        "url": "https://craftcellars.ca/products/black-tot-rum",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/craftcellars__rum__31fd0044.json"
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/black-tot-rum-46-2-abv/",
+        "categoryLabel": "Spirits / Liquor",
+        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
       },
       "cheapest": {
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/black-tot-rum"
+        "price": "$66.56",
+        "priceNum": 66.56,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/dark/black-tot-rum-46-2-abv/"
       }
     },
     {
@@ -2089,7 +2090,7 @@
       "storePrices": {
         "arc": 46.39,
         "bcl": 50.99,
-        "bsw": 49.99,
+        "bsw": 39.99,
         "gull": 48.25,
         "legacyliquor": 58.99,
         "sierrasprings": 42.75,
@@ -2100,22 +2101,22 @@
         "willowpark": 47.99
       },
       "representative": {
-        "name": "PLANTATION PINEAPPLE RUM",
-        "price": "$42.75",
-        "priceNum": 42.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "774462",
-        "skuKey": "774462",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/plantation-pineapple-rum-40-abv/",
-        "categoryLabel": "Spirits / Liquor",
-        "dbFile": "data/db/sierrasprings__spirits-liquor__d44c4074.json"
+        "name": "Plantation - Planteray Stiggin's Fancy Pineapple Original Dark Rum",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "116752",
+        "skuKey": "116752",
+        "url": "https://www.bswliquor.com/products/planteray-stiggins-fancy-pineapple-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$42.75",
-        "priceNum": 42.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits-liquor/rum-spirits-liquor/golden/plantation-pineapple-rum-40-abv/"
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/planteray-stiggins-fancy-pineapple-rum"
       }
     },
     {
@@ -2145,7 +2146,7 @@
         "arc": 54.99,
         "bcl": 67.99,
         "bsw": 62.99,
-        "craftcellars": 90.99,
+        "craftcellars": 70.99,
         "gull": 64.99,
         "kwm": 70.99,
         "legacyliquor": 77.16,
@@ -2200,7 +2201,7 @@
         "arc": 29.49,
         "bcl": 26.99,
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 28.6,
         "legacyliquor": 30.99,
         "sierrasprings": 31.32,
@@ -2254,7 +2255,7 @@
       "storePrices": {
         "arc": 72.99,
         "bcl": 80.99,
-        "bsw": 64.99,
+        "bsw": 74.99,
         "coop": 89.99,
         "craftcellars": 61.99,
         "gull": 84.99,
@@ -2528,7 +2529,7 @@
       ],
       "storePrices": {
         "arc": 73.59,
-        "bsw": 54.99,
+        "bsw": 49.99,
         "coop": 62.99,
         "craftcellars": 64.99,
         "gull": 76.6,
@@ -2541,8 +2542,8 @@
       },
       "representative": {
         "name": "El Dorado 15 Year Old Rum",
-        "price": "$54.99",
-        "priceNum": 54.99,
+        "price": "$49.99",
+        "priceNum": 49.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "411124",
@@ -2552,8 +2553,8 @@
         "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
+        "price": "$49.99",
+        "priceNum": 49.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/el-dorado-15-year-old"
       }
@@ -2585,7 +2586,7 @@
         "arc": 134.19,
         "bsw": 105,
         "coop": 129.99,
-        "craftcellars": 120.99,
+        "craftcellars": 139.99,
         "gull": 139.1,
         "kegncork": 132.96,
         "maltsandgrains": 133.51,
@@ -2639,7 +2640,7 @@
       "storePrices": {
         "arc": 48.79,
         "bcl": 47.99,
-        "bsw": 36.99,
+        "bsw": 32.99,
         "coop": 39.99,
         "gull": 51,
         "kegncork": 43.96,
@@ -2650,22 +2651,22 @@
         "willowpark": 40.99
       },
       "representative": {
-        "name": "El Dorado 12 YO 40% (6/Cs)",
-        "price": "$34.89",
-        "priceNum": 34.89,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
+        "name": "El Dorado 12 Year Old Rum",
+        "price": "$32.99",
+        "priceNum": 32.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "912402",
         "skuKey": "912402",
-        "url": "https://maltsandgrains.store/product/el-dorado-12-yo-40-6-cs/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+        "url": "https://www.bswliquor.com/products/el-dorado-12-year-old",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$34.89",
-        "priceNum": 34.89,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/el-dorado-12-yo-40-6-cs/"
+        "price": "$32.99",
+        "priceNum": 32.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/el-dorado-12-year-old"
       }
     },
     {
@@ -2695,7 +2696,7 @@
         "arc": 110.99,
         "bcl": 112.99,
         "bsw": 105,
-        "craftcellars": 79.99,
+        "craftcellars": 136.99,
         "gull": 114.99,
         "kwm": 117.99,
         "legacyliquor": 142.73,
@@ -2706,21 +2707,21 @@
       },
       "representative": {
         "name": "Bowmore 15 Year Old",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$105.00",
+        "priceNum": 105,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "726252",
         "skuKey": "726252",
-        "url": "https://craftcellars.ca/products/bowmore-15-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bowmore-15-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bowmore-15-year-old-43-abv"
+        "price": "$105.00",
+        "priceNum": 105,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bowmore-15-year-old"
       }
     },
     {
@@ -2915,7 +2916,7 @@
         "arc": 65.99,
         "bcl": 69.99,
         "bsw": 69.99,
-        "craftcellars": 81.99,
+        "craftcellars": 55.99,
         "gull": 66.65,
         "kwm": 75.99,
         "legacyliquor": 84.24,
@@ -2925,22 +2926,22 @@
         "willowpark": 83.99
       },
       "representative": {
-        "name": "ABERFELDY 12YO",
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "773002",
-        "skuKey": "773002",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591506-aberfeldy-12yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+        "name": "Aberfeldy 12 Year Old Highland Single Malt",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "840932",
+        "skuKey": "840932",
+        "url": "https://craftcellars.ca/products/aberfeldy-12-year-old-highland-single-malt-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591506-aberfeldy-12yo"
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/aberfeldy-12-year-old-highland-single-malt-40-abv"
       }
     },
     {
@@ -3025,7 +3026,7 @@
         "arc": 23.99,
         "bcl": 23.49,
         "bsw": 22.99,
-        "craftcellars": 20.99,
+        "craftcellars": 28.99,
         "gull": 25,
         "kwm": 27.99,
         "legacyliquor": 24.99,
@@ -3510,8 +3511,8 @@
       "storePrices": {
         "arc": 124.69,
         "bcl": 129.99,
-        "bsw": 94.99,
-        "craftcellars": 121.99,
+        "bsw": 105,
+        "craftcellars": 122.99,
         "gull": 128.99,
         "kegncork": 121.96,
         "kwm": 124.99,
@@ -3520,22 +3521,22 @@
         "willowpark": 124.49
       },
       "representative": {
-        "name": "Redbreast 12 Year Old Cask Strength Irish Whiskey",
+        "name": "Redbreast 12 YO 58.1% B1/22",
         "price": "$94.99",
         "priceNum": 94.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
         "skuRaw": "775251",
         "skuKey": "775251",
-        "url": "https://www.bswliquor.com/products/redbreast-12-year-old-cask-strength",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "url": "https://maltsandgrains.store/product/redbreast-12-yo-cs-57-4/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
         "price": "$94.99",
         "priceNum": 94.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/redbreast-12-year-old-cask-strength"
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/redbreast-12-yo-cs-57-4/"
       }
     },
     {
@@ -3780,7 +3781,7 @@
       "storePrices": {
         "bcl": 110.99,
         "bsw": 82.99,
-        "craftcellars": 65.99,
+        "craftcellars": 92.99,
         "kegncork": 93.96,
         "kwm": 94.99,
         "maltsandgrains": 98.43,
@@ -3790,22 +3791,22 @@
         "willowpark": 88.99
       },
       "representative": {
-        "name": "Glenfarclas 12 Year Old J & G Grant",
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "GLENFARCLAS 12 YR 43%",
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
         "skuRaw": "349670",
         "skuKey": "349670",
-        "url": "https://craftcellars.ca/products/glenfarclas-12-year-old-j-g-grant",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glenfarclas-12-year-old-j-g-grant"
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
       }
     },
     {
@@ -5115,7 +5116,7 @@
       "storePrices": {
         "arc": 161.59,
         "bcl": 168.99,
-        "bsw": 125,
+        "bsw": 140,
         "craftcellars": 163.99,
         "kwm": 164.99,
         "legacyliquor": 183.79,
@@ -5125,8 +5126,8 @@
       },
       "representative": {
         "name": "Redbreast 15 Year Old Irish Whiskey",
-        "price": "$125.00",
-        "priceNum": 125,
+        "price": "$140.00",
+        "priceNum": 140,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "774960",
@@ -5136,8 +5137,8 @@
         "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$125.00",
-        "priceNum": 125,
+        "price": "$140.00",
+        "priceNum": 140,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/redbreast-15-year-old"
       }
@@ -5220,8 +5221,8 @@
       ],
       "storePrices": {
         "arc": 92.19,
-        "bsw": 74.99,
-        "craftcellars": 73.99,
+        "bsw": 92.99,
+        "craftcellars": 104.99,
         "gull": 93.99,
         "kegncork": 102.96,
         "legacyliquor": 104.99,
@@ -5230,22 +5231,22 @@
         "vessel": 89.99
       },
       "representative": {
-        "name": "Makers Mark Cask Strength",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "895260",
-        "skuKey": "895260",
-        "url": "https://craftcellars.ca/products/maker-s-mark-cask-strength-2023-55-abv",
+        "name": "Maker's Mark - Cask Strength Bourbon",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "264232",
+        "skuKey": "264232",
+        "url": "https://vesselliquor.com/products/makers-mark-cask-strength-bourbon",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/maker-s-mark-cask-strength-2023-55-abv"
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/makers-mark-cask-strength-bourbon"
       }
     },
     {
@@ -6015,7 +6016,7 @@
       ],
       "storePrices": {
         "arc": 100.25,
-        "bsw": 94.99,
+        "bsw": 87.99,
         "coop": 109.99,
         "craftcellars": 113.99,
         "gull": 119.99,
@@ -6026,8 +6027,8 @@
       },
       "representative": {
         "name": "El Dorado 21 Year Old Special Reserve Rum",
-        "price": "$94.99",
-        "priceNum": 94.99,
+        "price": "$87.99",
+        "priceNum": 87.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "730868",
@@ -6037,8 +6038,8 @@
         "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
+        "price": "$87.99",
+        "priceNum": 87.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/el-dorado-21-year-old"
       }
@@ -7165,7 +7166,7 @@
         "bcl": 94.99,
         "bsw": 79.99,
         "coop": 89.99,
-        "craftcellars": 89.99,
+        "craftcellars": 90.99,
         "kegncork": 110.96,
         "kwm": 114.99,
         "maltsandgrains": 113.04,
@@ -8673,7 +8674,7 @@
         "arc": 37.39,
         "bcl": 38.99,
         "bsw": 46.99,
-        "craftcellars": 47.99,
+        "craftcellars": 40.99,
         "gull": 38.85,
         "legacyliquor": 40.52,
         "tudor": 38.99,
@@ -8724,7 +8725,7 @@
       "storePrices": {
         "arc": 33.99,
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 36.3,
         "legacyliquor": 35.8,
         "tudor": 39.99,
@@ -8828,7 +8829,7 @@
       "storePrices": {
         "arc": 17.99,
         "bcl": 17.99,
-        "bsw": 19.99,
+        "bsw": 20.99,
         "gull": 20.9,
         "strath": 21.65,
         "tudor": 18.99,
@@ -10092,57 +10093,6 @@
       }
     },
     {
-      "canonSku": "006968",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 49.99,
-        "bcl": 49.99,
-        "gull": 50.65,
-        "legacyliquor": 57.84,
-        "tudor": 55.99,
-        "vessel": 49.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "EMPRESS 1908 INDIGO 750ML",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml",
-        "categoryLabel": "Spirits - Gin",
-        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
-      }
-    },
-    {
       "canonSku": "012743",
       "storeCount": 7,
       "stores": [
@@ -10780,7 +10730,7 @@
       "storePrices": {
         "bsw": 110,
         "coop": 149.99,
-        "craftcellars": 125.99,
+        "craftcellars": 151.99,
         "gull": 134.99,
         "kegncork": 149.96,
         "kwm": 151.99,
@@ -11392,7 +11342,7 @@
       "storePrices": {
         "bcl": 79.99,
         "bsw": 59.99,
-        "craftcellars": 69.99,
+        "craftcellars": 67.99,
         "kwm": 67.99,
         "tudor": 79.99,
         "vessel": 89.99,
@@ -11571,57 +11521,6 @@
       }
     },
     {
-      "canonSku": "140448",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 90.99,
-        "gull": 91.99,
-        "kwm": 109.99,
-        "legacyliquor": 102.99,
-        "maltsandgrains": 113.6,
-        "tudor": 99.99,
-        "vintage": 97.3
-      },
-      "representative": {
-        "name": "SONS OF VAN WHEATED RYE WHISKY",
-        "price": "$90.99",
-        "priceNum": 90.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "230464",
-        "skuKey": "230464",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$90.99",
-        "priceNum": 90.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky"
-      }
-    },
-    {
       "canonSku": "144860",
       "storeCount": 7,
       "stores": [
@@ -11699,28 +11598,28 @@
         "arc": 58.19,
         "bcl": 64.99,
         "bsw": 49.99,
-        "craftcellars": 41.99,
+        "craftcellars": 56.99,
         "kegncork": 55.96,
         "tudor": 64.99,
         "willowpark": 53.49
       },
       "representative": {
-        "name": "Don Papa Rum",
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Don Papa Single Island Rum",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "823006",
         "skuKey": "823006",
-        "url": "https://craftcellars.ca/products/don-papa-rum",
+        "url": "https://www.bswliquor.com/products/don-papa-rum",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/craftcellars__rum__31fd0044.json"
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/don-papa-rum"
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/don-papa-rum"
       }
     },
     {
@@ -11749,7 +11648,7 @@
       "storePrices": {
         "arc": 157.89,
         "bsw": 110,
-        "craftcellars": 112.99,
+        "craftcellars": 111.99,
         "kwm": 113.99,
         "sierrasprings": 114.18,
         "tudor": 169.99,
@@ -12616,7 +12515,7 @@
       "storePrices": {
         "bcl": 62.99,
         "bsw": 53.99,
-        "craftcellars": 61.99,
+        "craftcellars": 58.99,
         "legacyliquor": 66.19,
         "strath": 63.53,
         "tudor": 62.99,
@@ -12819,7 +12718,7 @@
       ],
       "storePrices": {
         "bsw": 86.99,
-        "craftcellars": 75.99,
+        "craftcellars": 89.99,
         "gull": 89.45,
         "legacyliquor": 97.99,
         "strath": 88.31,
@@ -12827,22 +12726,22 @@
         "vessel": 89.99
       },
       "representative": {
-        "name": "Shelter Point Smoke Point Single Malt Whisky",
-        "price": "$75.99",
-        "priceNum": 75.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Shelter Point Smoke Point Canadian Single Malt Whisky",
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "879861",
         "skuKey": "879861",
-        "url": "https://craftcellars.ca/products/shelter-point-smoke-point-single-malt-whisky-53-abv",
+        "url": "https://www.bswliquor.com/products/smoke-point-single-malt-whisky-1",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$75.99",
-        "priceNum": 75.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/shelter-point-smoke-point-single-malt-whisky-53-abv"
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/smoke-point-single-malt-whisky-1"
       }
     },
     {
@@ -13807,6 +13706,56 @@
       }
     },
     {
+      "canonSku": "006968",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 49.99,
+        "legacyliquor": 57.84,
+        "tudor": 55.99,
+        "vessel": 49.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "EMPRESS 1908 INDIGO 750ML",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
+      }
+    },
+    {
       "canonSku": "009043",
       "storeCount": 6,
       "stores": [
@@ -14280,7 +14229,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 36.99,
+        "bsw": 37.99,
         "craftcellars": 36.99,
         "kegncork": 39.96,
         "kwm": 37.99,
@@ -14291,19 +14240,19 @@
         "name": "Adelphi Private Stock Blend",
         "price": "$36.99",
         "priceNum": 36.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "740315",
         "skuKey": "740315",
-        "url": "https://www.bswliquor.com/products/adelphi-private-stock-blend",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/adelphi-private-stock-blend",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
         "price": "$36.99",
         "priceNum": 36.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/adelphi-private-stock-blend"
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/adelphi-private-stock-blend"
       }
     },
     {
@@ -14532,7 +14481,7 @@
       "storePrices": {
         "bcl": 99.97,
         "bsw": 110,
-        "craftcellars": 115.99,
+        "craftcellars": 110.99,
         "kwm": 114.99,
         "strath": 111.44,
         "willowpark": 110.49
@@ -15232,28 +15181,28 @@
       "storePrices": {
         "bcl": 125.99,
         "bsw": 135,
-        "craftcellars": 139.99,
+        "craftcellars": 97.99,
         "kegncork": 122.96,
         "kwm": 125.99,
         "sierrasprings": 157.99
       },
       "representative": {
-        "name": "ISLE OF RAASAY - CASK STRENGTH",
-        "price": "$125.99",
-        "priceNum": 125.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "230511",
-        "skuKey": "230511",
-        "url": "https://www.bcliquorstores.com/product/230511",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "Raasay GMM Single Cask Peated Chinkapin",
+        "price": "$97.99",
+        "priceNum": 97.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "124215",
+        "skuKey": "124215",
+        "url": "https://craftcellars.ca/products/raasay-gmm-single-cask-peated-chinkapin",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$122.96",
-        "priceNum": 122.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/raasay-hebridean-single-malt-700-ml/"
+        "price": "$97.99",
+        "priceNum": 97.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/raasay-gmm-single-cask-peated-chinkapin"
       }
     },
     {
@@ -15704,6 +15653,56 @@
         "priceNum": 332.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/bruichladdich-octomore-16-3-700-ml/"
+      }
+    },
+    {
+      "canonSku": "140448",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "gull",
+        "kwm",
+        "maltsandgrains",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 90.99,
+        "gull": 91.99,
+        "kwm": 109.99,
+        "maltsandgrains": 113.6,
+        "tudor": 99.99,
+        "vintage": 97.3
+      },
+      "representative": {
+        "name": "SONS OF VAN WHEATED RYE WHISKY",
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "230464",
+        "skuKey": "230464",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4827078-sons-of-van-wheated-rye-whisky"
       }
     },
     {
@@ -16331,29 +16330,29 @@
       ],
       "storePrices": {
         "bsw": 150,
-        "craftcellars": 204.99,
+        "craftcellars": 109.99,
         "kegncork": 199.96,
         "kwm": 179.99,
         "maltsandgrains": 129.9,
         "willowpark": 209.99
       },
       "representative": {
-        "name": "Craigellachie 17 Yr 46% – Speyside",
-        "price": "$129.90",
-        "priceNum": 129.9,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
+        "name": "Craigellachie 17 Year Old",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "864257",
         "skuKey": "864257",
-        "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$129.90",
-        "priceNum": 129.9,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/"
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/craigellachie-17-year-old-speyside-single-malt-46-abv"
       }
     },
     {
@@ -16481,29 +16480,29 @@
       ],
       "storePrices": {
         "bcl": 319.99,
-        "bsw": 275,
+        "bsw": 320,
         "craftcellars": 369.99,
         "kwm": 379.99,
         "sierrasprings": 368.47,
         "tudor": 324.99
       },
       "representative": {
-        "name": "Midleton Very Rare Irish Whiskey 2024",
-        "price": "$275.00",
-        "priceNum": 275,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "886467",
-        "skuKey": "886467",
-        "url": "https://www.bswliquor.com/products/midleton-very-rare-irish-whiskey",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "name": "MIDLETON - VERY RARE 2024",
+        "price": "$319.99",
+        "priceNum": 319.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "249505",
+        "skuKey": "249505",
+        "url": "https://www.bcliquorstores.com/product/249505",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$275.00",
-        "priceNum": 275,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/midleton-very-rare-irish-whiskey"
+        "price": "$319.99",
+        "priceNum": 319.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/249505"
       }
     },
     {
@@ -16881,7 +16880,7 @@
       ],
       "storePrices": {
         "bsw": 41.99,
-        "craftcellars": 47.99,
+        "craftcellars": 48.99,
         "kegncork": 47.96,
         "kwm": 49.99,
         "maltsandgrains": 49.9,
@@ -16981,29 +16980,29 @@
       ],
       "storePrices": {
         "bsw": 46.99,
-        "craftcellars": 37.99,
+        "craftcellars": 52.99,
         "kegncork": 52.96,
         "kwm": 53.99,
         "strath": 59.04,
         "vintage": 73.83
       },
       "representative": {
-        "name": "High West Double Rye Whisky",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "High West Double Rye",
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "748540",
         "skuKey": "748540",
-        "url": "https://craftcellars.ca/products/high-west-double-rye-whisky",
+        "url": "https://www.bswliquor.com/products/high-west-double-rye",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/high-west-double-rye-whisky"
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/high-west-double-rye"
       }
     },
     {
@@ -17154,56 +17153,6 @@
         "priceNum": 51.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/empress-cucumber-ml-350"
-      }
-    },
-    {
-      "canonSku": "326009",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 49.99,
-        "craftcellars": 41.99,
-        "kegncork": 58.96,
-        "kwm": 51.99,
-        "maltsandgrains": 64.9,
-        "sierrasprings": 57.04
-      },
-      "representative": {
-        "name": "Knob Creek 9 Year Old Small Batch Bourbon",
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "326009",
-        "skuKey": "326009",
-        "url": "https://craftcellars.ca/products/knob-creek-9yr-old-small-batch-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/knob-creek-9yr-old-small-batch-bourbon"
       }
     },
     {
@@ -17382,7 +17331,7 @@
       "storePrices": {
         "bcl": 89.99,
         "bsw": 57.99,
-        "craftcellars": 64.99,
+        "craftcellars": 70.99,
         "kwm": 69.99,
         "tudor": 89.99,
         "willowpark": 69.99
@@ -17782,7 +17731,7 @@
       "storePrices": {
         "bcl": 89.99,
         "bsw": 74.99,
-        "craftcellars": 76.99,
+        "craftcellars": 75.99,
         "kegncork": 75.96,
         "kwm": 77.99,
         "strath": 85
@@ -18032,28 +17981,28 @@
       "storePrices": {
         "bcl": 495,
         "bsw": 450,
-        "craftcellars": 539.99,
+        "craftcellars": 409.99,
         "kwm": 559.99,
         "legacyliquor": 571.73,
         "tudor": 550
       },
       "representative": {
-        "name": "The Dalmore 18 Year Old",
-        "price": "$450.00",
-        "priceNum": 450,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Dalmore 18 Year Old",
+        "price": "$409.99",
+        "priceNum": 409.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "877858",
         "skuKey": "877858",
-        "url": "https://www.bswliquor.com/products/dalmore-18-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/dalmore-18-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$450.00",
-        "priceNum": 450,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/dalmore-18-year-old"
+        "price": "$409.99",
+        "priceNum": 409.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/dalmore-18-year-old"
       }
     },
     {
@@ -18332,7 +18281,7 @@
       "storePrices": {
         "bcl": 339.99,
         "bsw": 295,
-        "craftcellars": 307.99,
+        "craftcellars": 308.99,
         "tudor": 339.99,
         "vintage": 334.7,
         "willowpark": 309.99
@@ -18581,7 +18530,7 @@
       ],
       "storePrices": {
         "bcl": 67.99,
-        "bsw": 54.99,
+        "bsw": 56.99,
         "gull": 69.99,
         "legacyliquor": 74.35,
         "tudor": 70.99,
@@ -18589,8 +18538,8 @@
       },
       "representative": {
         "name": "The Glenlivet Founder's Reserve",
-        "price": "$54.99",
-        "priceNum": 54.99,
+        "price": "$56.99",
+        "priceNum": 56.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "769635",
@@ -18600,8 +18549,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
+        "price": "$56.99",
+        "priceNum": 56.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenlivet-founders-reserve-1"
       }
@@ -18632,28 +18581,28 @@
       "storePrices": {
         "bsw": 160,
         "coop": 209.99,
-        "craftcellars": 204.99,
+        "craftcellars": 112.99,
         "kwm": 207.99,
         "tudor": 320,
         "willowpark": 179.99
       },
       "representative": {
-        "name": "Aberfeldy 21 Year Old",
-        "price": "$160.00",
-        "priceNum": 160,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Aberfeldy 21 Year Old Highland Single Malt Scotch Whisky",
+        "price": "$112.99",
+        "priceNum": 112.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "852543",
         "skuKey": "852543",
-        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$160.00",
-        "priceNum": 160,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1"
+        "price": "$112.99",
+        "priceNum": 112.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv"
       }
     },
     {
@@ -19230,7 +19179,7 @@
       ],
       "storePrices": {
         "bsw": 25.99,
-        "craftcellars": 27.99,
+        "craftcellars": 28.99,
         "gull": 24.99,
         "tudor": 23.99,
         "willowpark": 28.49
@@ -20357,28 +20306,28 @@
       ],
       "storePrices": {
         "bsw": 92.99,
-        "craftcellars": 95.99,
+        "craftcellars": 73.99,
         "kegncork": 94.96,
         "kwm": 93.99,
         "maltsandgrains": 118.86
       },
       "representative": {
-        "name": "Gold Cock Peated Single Malt Whisky",
-        "price": "$92.99",
-        "priceNum": 92.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Gold Cock Single Malt Peated Whisky",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "101914",
         "skuKey": "101914",
-        "url": "https://www.bswliquor.com/products/gold-cock-single-malt-whisky-peated",
+        "url": "https://craftcellars.ca/products/gold-cock-single-malt-peated-whisky-45-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$92.99",
-        "priceNum": 92.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/gold-cock-single-malt-whisky-peated"
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/gold-cock-single-malt-peated-whisky-45-abv"
       }
     },
     {
@@ -20455,7 +20404,7 @@
       ],
       "storePrices": {
         "bsw": 102,
-        "craftcellars": 103.99,
+        "craftcellars": 104.99,
         "maltsandgrains": 106.78,
         "sierrasprings": 101.8,
         "tudor": 104.99
@@ -21340,7 +21289,7 @@
         "bsw": 22.49,
         "gull": 19.85,
         "strath": 19.74,
-        "tudor": 36.49
+        "tudor": 18.99
       },
       "representative": {
         "name": "GIBSONS RARE 12YO 375ML",
@@ -23052,28 +23001,28 @@
       ],
       "storePrices": {
         "bsw": 72.99,
-        "craftcellars": 44.99,
+        "craftcellars": 64.99,
         "kegncork": 61.96,
         "kwm": 61.99,
         "maltsandgrains": 57.48
       },
       "representative": {
-        "name": "Green River Kentucky Straight Bourbon",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Green River Bourbon 45%",
+        "price": "$57.48",
+        "priceNum": 57.48,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
         "skuRaw": "137251",
         "skuKey": "137251",
-        "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://maltsandgrains.store/product/green-river-bourbon-45/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/green-river-kentucky-straight-bourbon"
+        "price": "$57.48",
+        "priceNum": 57.48,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/green-river-bourbon-45/"
       }
     },
     {
@@ -23249,27 +23198,27 @@
       "storePrices": {
         "bcl": 264.99,
         "bsw": 185,
-        "craftcellars": 149.99,
+        "craftcellars": 219.99,
         "kwm": 209.99,
         "tudor": 279.99
       },
       "representative": {
         "name": "Bushmills 21 Year Old Irish Whiskey",
-        "price": "$149.99",
-        "priceNum": 149.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$185.00",
+        "priceNum": 185,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "728368",
         "skuKey": "728368",
-        "url": "https://craftcellars.ca/products/bushmills-21-year-old-irish-whiskey",
+        "url": "https://www.bswliquor.com/products/bushmills-21-year-old",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$149.99",
-        "priceNum": 149.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bushmills-21-year-old-irish-whiskey"
+        "price": "$185.00",
+        "priceNum": 185,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bushmills-21-year-old"
       }
     },
     {
@@ -23493,28 +23442,28 @@
       ],
       "storePrices": {
         "bsw": 79.99,
-        "craftcellars": 66.99,
+        "craftcellars": 95.99,
         "gull": 97.99,
         "tudor": 99.99,
         "willowpark": 90.49
       },
       "representative": {
-        "name": "Dewars Double Double 21 Year Old Small Batch",
-        "price": "$66.99",
-        "priceNum": 66.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Dewar's 21 Year Old Double Double 375ml",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "864259",
         "skuKey": "864259",
-        "url": "https://craftcellars.ca/products/dewars-double-double-21-year-old-small-batch-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/dewars-double-double-21-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$66.99",
-        "priceNum": 66.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/dewars-double-double-21-year-old-small-batch-46-abv"
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/dewars-double-double-21-year-old"
       }
     },
     {
@@ -23935,27 +23884,27 @@
       "storePrices": {
         "arc": 49.09,
         "bsw": 45.99,
-        "craftcellars": 42.99,
+        "craftcellars": 46.99,
         "gull": 51.2,
         "legacyliquor": 55.99
       },
       "representative": {
         "name": "Bundaberg Rum",
-        "price": "$42.99",
-        "priceNum": 42.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$45.99",
+        "priceNum": 45.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "522235",
         "skuKey": "522235",
-        "url": "https://craftcellars.ca/products/bundaberg-rum",
+        "url": "https://www.bswliquor.com/products/bundaberg-rum",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/craftcellars__rum__31fd0044.json"
+        "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$42.99",
-        "priceNum": 42.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bundaberg-rum"
+        "price": "$45.99",
+        "priceNum": 45.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bundaberg-rum"
       }
     },
     {
@@ -24250,6 +24199,55 @@
         "priceNum": 53.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/317526"
+      }
+    },
+    {
+      "canonSku": "326009",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 49.99,
+        "kegncork": 58.96,
+        "kwm": 51.99,
+        "maltsandgrains": 64.9,
+        "sierrasprings": 57.04
+      },
+      "representative": {
+        "name": "Knob Creek 9 Year Old Kentucky Straight Bourbon",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "326009",
+        "skuKey": "326009",
+        "url": "https://www.bswliquor.com/products/knob-creek-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/knob-creek-bourbon"
       }
     },
     {
@@ -24963,28 +24961,28 @@
       ],
       "storePrices": {
         "bsw": 62.99,
-        "craftcellars": 45.99,
+        "craftcellars": 64.99,
         "kwm": 64.99,
         "sierrasprings": 54.18,
         "strath": 68.61
       },
       "representative": {
-        "name": "Yellowstone Select Kentucky Straight Bourbon 93 Proof",
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "YELLOWSTONE SELECT 93 PROOF",
+        "price": "$54.18",
+        "priceNum": 54.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
         "skuRaw": "852451",
         "skuKey": "852451",
-        "url": "https://craftcellars.ca/products/yellowstone-select-kentucky-straight-bourbon-93-proof",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/yellowstone-select-93-proof-46-5-abv/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
-        "price": "$45.99",
-        "priceNum": 45.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/yellowstone-select-kentucky-straight-bourbon-93-proof"
+        "price": "$54.18",
+        "priceNum": 54.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/yellowstone-select-93-proof-46-5-abv/"
       }
     },
     {
@@ -25797,7 +25795,7 @@
       "storePrices": {
         "bcl": 48.99,
         "bsw": 48.99,
-        "craftcellars": 44.99,
+        "craftcellars": 47.99,
         "gull": 40.3,
         "tudor": 43.99
       },
@@ -25846,7 +25844,7 @@
       "storePrices": {
         "arc": 11.59,
         "bcl": 11.99,
-        "bsw": 12.49,
+        "bsw": 12.99,
         "gull": 12.7,
         "vessel": 11.99
       },
@@ -25944,7 +25942,7 @@
       "storePrices": {
         "bcl": 159.99,
         "bsw": 120,
-        "craftcellars": 134.99,
+        "craftcellars": 164.99,
         "kwm": 164.99,
         "maltsandgrains": 159.89
       },
@@ -26090,28 +26088,28 @@
       ],
       "storePrices": {
         "bsw": 120,
-        "craftcellars": 136.99,
+        "craftcellars": 109.99,
         "kegncork": 134.96,
         "kwm": 119.99,
         "willowpark": 129.49
       },
       "representative": {
-        "name": "Aberfeldy 16 Year",
-        "price": "$119.99",
-        "priceNum": 119.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Aberfeldy 16 Year Old",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "864254",
         "skuKey": "864254",
-        "url": "https://kensingtonwinemarket.com/product/864254/aberfeldy-16-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://craftcellars.ca/products/aberfeldy-16-year-old-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$119.99",
-        "priceNum": 119.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/864254/aberfeldy-16-year"
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/aberfeldy-16-year-old-40-abv"
       }
     },
     {
@@ -26726,7 +26724,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 66.99,
+        "bsw": 74.99,
         "legacyliquor": 89.35,
         "maltsandgrains": 64.18,
         "strath": 90.79,
@@ -26776,7 +26774,7 @@
       ],
       "storePrices": {
         "bsw": 77.99,
-        "craftcellars": 85.99,
+        "craftcellars": 82.99,
         "kwm": 82.99,
         "maltsandgrains": 89.9,
         "sierrasprings": 76.09
@@ -27167,7 +27165,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 67.99,
+        "bsw": 91.99,
         "coop": 94.99,
         "craftcellars": 65.99,
         "kwm": 94.99,
@@ -27707,28 +27705,28 @@
       ],
       "storePrices": {
         "bsw": 120,
-        "craftcellars": 87.99,
+        "craftcellars": 120.99,
         "kegncork": 120.96,
         "maltsandgrains": 126.38,
         "sierrasprings": 114.18
       },
       "representative": {
-        "name": "Redwood Empire Rocket Top Rye Whiskey",
-        "price": "$87.99",
-        "priceNum": 87.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "REDWOOD EMPIRE ROCKET TOP RYE WHISKEY",
+        "price": "$114.18",
+        "priceNum": 114.18,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
         "skuRaw": "879735",
         "skuKey": "879735",
-        "url": "https://craftcellars.ca/products/redwood-empire-rocket-top-rye-whiskey-50-abv",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/redwood-empire-rocket-top-rye-whisky-50-abv/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
-        "price": "$87.99",
-        "priceNum": 87.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/redwood-empire-rocket-top-rye-whiskey-50-abv"
+        "price": "$114.18",
+        "priceNum": 114.18,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/redwood-empire-rocket-top-rye-whisky-50-abv/"
       }
     },
     {
@@ -27903,15 +27901,15 @@
       ],
       "storePrices": {
         "bsw": 150,
-        "craftcellars": 114.99,
+        "craftcellars": 146.99,
         "kegncork": 145.96,
         "kwm": 149.99,
         "sierrasprings": 149.42
       },
       "representative": {
         "name": "Raasay Na Sia Unpeated Ex-Rye Single Cask",
-        "price": "$114.99",
-        "priceNum": 114.99,
+        "price": "$146.99",
+        "priceNum": 146.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "897628",
@@ -27921,10 +27919,10 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/raasay-na-sia-unpeated-ex-rye-single-cask-61-5-abv"
+        "price": "$145.96",
+        "priceNum": 145.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/raasay-na-sia-unpeated-ex-rye-single-cask-700-ml/"
       }
     },
     {
@@ -28817,26 +28815,26 @@
       "storePrices": {
         "arc": 106.89,
         "bsw": 84.99,
-        "craftcellars": 81.99,
+        "craftcellars": 85.99,
         "tudor": 129.99
       },
       "representative": {
-        "name": "Amrut Peat Standard 46",
-        "price": "$81.99",
-        "priceNum": 81.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Amrut Peated Indian Single Malt",
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "735030",
         "skuKey": "735030",
-        "url": "https://craftcellars.ca/products/amrut-peat-standard-46",
+        "url": "https://www.bswliquor.com/products/amrut-peated-single-malt",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$81.99",
-        "priceNum": 81.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/amrut-peat-standard-46"
+        "price": "$84.99",
+        "priceNum": 84.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/amrut-peated-single-malt"
       }
     },
     {
@@ -29872,14 +29870,14 @@
       ],
       "storePrices": {
         "bsw": 200,
-        "craftcellars": 159.99,
+        "craftcellars": 119.99,
         "kegncork": 174.96,
         "kwm": 159.99
       },
       "representative": {
         "name": "Laphroaig Cairdeas 2024 Cask Favorites",
-        "price": "$159.99",
-        "priceNum": 159.99,
+        "price": "$119.99",
+        "priceNum": 119.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "105540",
@@ -29889,8 +29887,8 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$159.99",
-        "priceNum": 159.99,
+        "price": "$119.99",
+        "priceNum": 119.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/laphroaig-cairdeas-2024-52-4-abv"
       }
@@ -31984,7 +31982,7 @@
       ],
       "storePrices": {
         "bsw": 57.99,
-        "craftcellars": 58.99,
+        "craftcellars": 54.99,
         "sierrasprings": 54.18,
         "tudor": 89.99
       },
@@ -32032,27 +32030,27 @@
       ],
       "storePrices": {
         "bsw": 73.99,
-        "craftcellars": 55.99,
+        "craftcellars": 79.99,
         "kegncork": 75.96,
         "kwm": 76.99
       },
       "representative": {
         "name": "Bardstown Kentucky Straight Bourbon",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "137248",
         "skuKey": "137248",
-        "url": "https://craftcellars.ca/products/bardstown-kentucky-straight-bourbon",
+        "url": "https://www.bswliquor.com/products/bardstown-kentucky-straight-bourbon",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bardstown-kentucky-straight-bourbon"
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bardstown-kentucky-straight-bourbon"
       }
     },
     {
@@ -32080,27 +32078,27 @@
       ],
       "storePrices": {
         "bsw": 83.99,
-        "craftcellars": 62.99,
+        "craftcellars": 89.99,
         "kegncork": 84.96,
         "maltsandgrains": 89.9
       },
       "representative": {
-        "name": "Bardstown Bottled In Bond Wheated Bourbon",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Bardstown Wheated Bottled-in-Bond Bourbon",
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "137250",
         "skuKey": "137250",
-        "url": "https://craftcellars.ca/products/bardstown-bottled-in-bond-wheated-bourbon",
+        "url": "https://www.bswliquor.com/products/bardstown-bottled-in-bond-ks-bourbon",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bardstown-bottled-in-bond-wheated-bourbon"
+        "price": "$83.99",
+        "priceNum": 83.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bardstown-bottled-in-bond-ks-bourbon"
       }
     },
     {
@@ -32128,27 +32126,27 @@
       ],
       "storePrices": {
         "bsw": 83.99,
-        "craftcellars": 62.99,
+        "craftcellars": 89.99,
         "kegncork": 84.96,
         "maltsandgrains": 78.99
       },
       "representative": {
-        "name": "Green River Kentucky Straight Full Proof Bourbon",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Green River Full Proof Brbn 58.95%",
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
         "skuRaw": "137253",
         "skuKey": "137253",
-        "url": "https://craftcellars.ca/products/green-river-full-proof-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/green-river-full-proof-bourbon"
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/green-river-full-proof-brbn-58-95/"
       }
     },
     {
@@ -34384,27 +34382,27 @@
       ],
       "storePrices": {
         "bsw": 84.99,
-        "craftcellars": 39.99,
+        "craftcellars": 98.99,
         "gull": 79.99,
         "maltsandgrains": 101.12
       },
       "representative": {
-        "name": "Rossville Union Master Crafted Straight Rye Whiskey",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "871385",
-        "skuKey": "871385",
-        "url": "https://craftcellars.ca/products/rossville-union-master-crafted-straight-rye-whiskey-47-abv",
+        "name": "ROSSVILLE UNION RYE – 700M",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "364334",
+        "skuKey": "364334",
+        "url": "https://gullliquorstore.com/product/rossville-union-rye-700m/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/rossville-union-master-crafted-straight-rye-whiskey-47-abv"
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/rossville-union-rye-700m/"
       }
     },
     {
@@ -34768,7 +34766,7 @@
       ],
       "storePrices": {
         "bsw": 77.99,
-        "craftcellars": 85.99,
+        "craftcellars": 82.99,
         "kwm": 84.99,
         "sierrasprings": 76.09
       },
@@ -35536,7 +35534,7 @@
       ],
       "storePrices": {
         "bsw": 44.99,
-        "craftcellars": 45.99,
+        "craftcellars": 49.99,
         "sierrasprings": 47.51,
         "strath": 57.3
       },
@@ -35632,27 +35630,27 @@
       ],
       "storePrices": {
         "bsw": 55.99,
-        "craftcellars": 56.99,
+        "craftcellars": 43.99,
         "kegncork": 56.96,
         "sierrasprings": 57.99
       },
       "representative": {
-        "name": "Knob Creek Smoked Maple Bourbon",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Knob Creek Kentucky Straight Smoked Maple",
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "762247",
         "skuKey": "762247",
-        "url": "https://www.bswliquor.com/products/knob-creek-smoked-maple-bourbon-1",
+        "url": "https://craftcellars.ca/products/knob-creek-kentucky-straight-smoked-maple",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/knob-creek-smoked-maple-bourbon-1"
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/knob-creek-kentucky-straight-smoked-maple"
       }
     },
     {
@@ -36160,7 +36158,7 @@
       ],
       "storePrices": {
         "bsw": 81.99,
-        "craftcellars": 78.99,
+        "craftcellars": 83.99,
         "kwm": 84.99,
         "sierrasprings": 76.09
       },
@@ -36880,27 +36878,27 @@
       ],
       "storePrices": {
         "bsw": 53.99,
-        "craftcellars": 65.99,
+        "craftcellars": 41.99,
         "kwm": 66.99,
         "sierrasprings": 60.85
       },
       "representative": {
-        "name": "Maker's Mark 46 Bourbon",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Makers Mark 46",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "742539",
         "skuKey": "742539",
-        "url": "https://www.bswliquor.com/products/makers-mark-46-bourbon-1",
+        "url": "https://craftcellars.ca/products/maker-s-mark-46",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/makers-mark-46-bourbon-1"
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/maker-s-mark-46"
       }
     },
     {
@@ -37696,27 +37694,27 @@
       ],
       "storePrices": {
         "bsw": 41.99,
-        "craftcellars": 37.99,
+        "craftcellars": 47.99,
         "kwm": 47.99,
         "maltsandgrains": 49.9
       },
       "representative": {
-        "name": "Larceny Kentucky Straight Bourbon Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Larceny Small Batch Kentucky Straight Bourbon",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "874053",
         "skuKey": "874053",
-        "url": "https://craftcellars.ca/products/larceny-kentucky-straight-bourbon-whiskey-46-abv",
+        "url": "https://www.bswliquor.com/products/larceny-kentucky-straight-bourbon-whiske",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/larceny-kentucky-straight-bourbon-whiskey-46-abv"
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/larceny-kentucky-straight-bourbon-whiske"
       }
     },
     {
@@ -37792,7 +37790,7 @@
       ],
       "storePrices": {
         "bsw": 66.99,
-        "craftcellars": 67.99,
+        "craftcellars": 64.99,
         "kwm": 67.99,
         "sierrasprings": 53.23
       },
@@ -41023,14 +41021,14 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 145,
+        "bsw": 110,
         "craftcellars": 147.99,
         "maltsandgrains": 147.41
       },
       "representative": {
         "name": "Plantation - Planteray Grand Terroir-Cru Vintage 2010 Rum",
-        "price": "$145.00",
-        "priceNum": 145,
+        "price": "$110.00",
+        "priceNum": 110,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "103777",
@@ -41040,8 +41038,8 @@
         "dbFile": "data/db/bsw__rum__110a6e5d.json"
       },
       "cheapest": {
-        "price": "$145.00",
-        "priceNum": 145,
+        "price": "$110.00",
+        "priceNum": 110,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/rum-land-series-panama-2010"
       }
@@ -42904,26 +42902,26 @@
       ],
       "storePrices": {
         "bsw": 79.99,
-        "craftcellars": 81.99,
+        "craftcellars": 64.99,
         "kwm": 79.99
       },
       "representative": {
-        "name": "Clermont Steep American Single Malt Whiskey",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Clermont Steep American Single Malt",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "117718",
         "skuKey": "117718",
-        "url": "https://www.bswliquor.com/products/clermont-steep-american-single-malt",
+        "url": "https://craftcellars.ca/products/clermont-steep-american-single-malt-47-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/clermont-steep-american-single-malt"
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/clermont-steep-american-single-malt-47-abv"
       }
     },
     {
@@ -43937,14 +43935,14 @@
         "willowpark"
       ],
       "storePrices": {
-        "craftcellars": 143.99,
+        "craftcellars": 144.99,
         "legacyliquor": 176.1,
         "maltsandgrains": 144.9
       },
       "representative": {
         "name": "Ichiros Malt Double Distilleries Malt",
-        "price": "$143.99",
-        "priceNum": 143.99,
+        "price": "$144.99",
+        "priceNum": 144.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "126104",
@@ -43954,10 +43952,10 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$143.99",
-        "priceNum": 143.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ichiro-s-malt-double-distilleries-malt"
+        "price": "$144.90",
+        "priceNum": 144.9,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/ichiros-dbl-distilleries-46-5-malt/"
       }
     },
     {
@@ -44691,25 +44689,25 @@
       "storePrices": {
         "bcl": 129.99,
         "bsw": 115,
-        "craftcellars": 89.99
+        "craftcellars": 136.99
       },
       "representative": {
-        "name": "Dewars Double Double 27 Year Old",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Dewar's 27 Year Old Double Double 375ml",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "881613",
         "skuKey": "881613",
-        "url": "https://craftcellars.ca/products/dewars-double-double-27-year-old-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/dewars-27-year-old-double-double-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/dewars-double-double-27-year-old-46-abv"
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/dewars-27-year-old-double-double-1"
       }
     },
     {
@@ -45066,7 +45064,7 @@
       ],
       "storePrices": {
         "bsw": 97.99,
-        "craftcellars": 110.99,
+        "craftcellars": 111.99,
         "kwm": 110.99
       },
       "representative": {
@@ -45207,26 +45205,26 @@
       ],
       "storePrices": {
         "bcl": 2199.99,
-        "craftcellars": 1989.99,
+        "craftcellars": 2599.99,
         "willowpark": 2499.99
       },
       "representative": {
-        "name": "Bruichladdich 30 Year Old",
-        "price": "$1,989.99",
-        "priceNum": 1989.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "899880",
-        "skuKey": "899880",
-        "url": "https://craftcellars.ca/products/bruichladdich-30-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "name": "BRUICHLADDICH - 30 YEAR OLD",
+        "price": "$2199.99",
+        "priceNum": 2199.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "354071",
+        "skuKey": "354071",
+        "url": "https://www.bcliquorstores.com/product/354071",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$1,989.99",
-        "priceNum": 1989.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bruichladdich-30-year-old"
+        "price": "$2199.99",
+        "priceNum": 2199.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/354071"
       }
     },
     {
@@ -46005,14 +46003,14 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 39.99,
+        "bsw": 37.99,
         "kwm": 43.99,
         "sierrasprings": 40.99
       },
       "representative": {
         "name": "Buffalo Trace Bourbon",
-        "price": "$39.99",
-        "priceNum": 39.99,
+        "price": "$37.99",
+        "priceNum": 37.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "714233",
@@ -46022,8 +46020,8 @@
         "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
+        "price": "$37.99",
+        "priceNum": 37.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1"
       }
@@ -46476,26 +46474,26 @@
       ],
       "storePrices": {
         "bsw": 32.99,
-        "craftcellars": 37.99,
+        "craftcellars": 28.99,
         "sierrasprings": 37.99
       },
       "representative": {
-        "name": "Wild Turkey Kentucky Straight Bourbon",
-        "price": "$32.99",
-        "priceNum": 32.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Wild Turkey 81 Proof",
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "748910",
         "skuKey": "748910",
-        "url": "https://www.bswliquor.com/products/wild-turkey-81-bourbon-1",
+        "url": "https://craftcellars.ca/products/wild-turkey-81-proof",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$32.99",
-        "priceNum": 32.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/wild-turkey-81-bourbon-1"
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/wild-turkey-81-proof"
       }
     },
     {
@@ -48435,26 +48433,26 @@
         "willowpark"
       ],
       "storePrices": {
-        "craftcellars": 169.99,
+        "craftcellars": 106.99,
         "sierrasprings": 164.66
       },
       "representative": {
-        "name": "HIGH WEST MIDWINTER NIGHT’S DRAM ACT 12",
-        "price": "$164.66",
-        "priceNum": 164.66,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "High West Midwinter Nights Dram Act 12",
+        "price": "$106.99",
+        "priceNum": 106.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "117308",
         "skuKey": "117308",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/high-west-midwinter-nights-dram-act-12/",
+        "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$164.66",
-        "priceNum": 164.66,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/high-west-midwinter-nights-dram-act-12/"
+        "price": "$106.99",
+        "priceNum": 106.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv"
       }
     },
     {
