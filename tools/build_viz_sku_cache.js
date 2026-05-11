@@ -147,6 +147,7 @@ function itemsToSkuMap(items) {
 
 function runIncremental(skuCacheDir, dbFilePaths) {
 	const caches = new Map(); // sku -> cache object (batched writes)
+	const dirtySkus = new Set();
 	let totalEvents = 0;
 
 	for (const relPath of dbFilePaths) {
@@ -168,13 +169,16 @@ function runIncremental(skuCacheDir, dbFilePaths) {
 			const store = getOrInitStore(cache, relPath, storeLabel);
 			const prevState = getLastState(store.events);
 
-			if (addEventIfChanged(store.events, prevState, price, removed, ts)) totalEvents++;
+			if (addEventIfChanged(store.events, prevState, price, removed, ts)) {
+				totalEvents++;
+				dirtySkus.add(sku);
+			}
 		}
 	}
 
-	for (const [sku, data] of caches) writeCache(skuCacheDir, sku, data);
+	for (const sku of dirtySkus) writeCache(skuCacheDir, sku, caches.get(sku));
 	process.stdout.write(
-		`Incremental: ${totalEvents} events across ${caches.size} SKUs (${dbFilePaths.length} store files)\n`,
+		`Incremental: ${totalEvents} events across ${dirtySkus.size} SKUs updated (${caches.size} checked, ${dbFilePaths.length} store files)\n`,
 	);
 }
 
