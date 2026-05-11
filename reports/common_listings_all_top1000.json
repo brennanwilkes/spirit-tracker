@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T19:32:30.421Z",
+  "generatedAt": "2026-05-11T22:16:24.560Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,8 +34,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13322,
-    "removedRows": 3663,
+    "liveRows": 13319,
+    "removedRows": 3666,
     "canonSkus": 6542,
     "outputCount": 1000
   },
@@ -16307,6 +16307,56 @@
       }
     },
     {
+      "canonSku": "234821",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 28.89,
+        "bcl": 30.99,
+        "gull": 32.8,
+        "legacyliquor": 31.99,
+        "tudor": 30.99,
+        "vessel": 31.99
+      },
+      "representative": {
+        "name": "TANQUERAY FLOR DE SEVILLA",
+        "price": "$28.89",
+        "priceNum": 28.89,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "234821",
+        "skuKey": "234821",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5070084-tanqueray-flor-de-sevilla",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$28.89",
+        "priceNum": 28.89,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5070084-tanqueray-flor-de-sevilla"
+      }
+    },
+    {
       "canonSku": "236740",
       "storeCount": 6,
       "stores": [
@@ -18632,28 +18682,28 @@
       "storePrices": {
         "bsw": 160,
         "coop": 209.99,
-        "craftcellars": 112.99,
+        "craftcellars": 204.99,
         "kwm": 207.99,
         "tudor": 320,
         "willowpark": 179.99
       },
       "representative": {
-        "name": "Aberfeldy 21 Year Old Highland Single Malt Scotch Whisky",
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Aberfeldy 21 Year Old",
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "852543",
         "skuKey": "852543",
-        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv"
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1"
       }
     },
     {
@@ -25723,6 +25773,55 @@
       }
     },
     {
+      "canonSku": "485956",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 46.99,
+        "craftcellars": 53.99,
+        "kwm": 53.99,
+        "maltsandgrains": 57,
+        "sierrasprings": 50.37
+      },
+      "representative": {
+        "name": "Elijah Craig Small Batch Kentucky Straight Bourbon",
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "547729",
+        "skuKey": "547729",
+        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1"
+      }
+    },
+    {
       "canonSku": "486621",
       "storeCount": 5,
       "stores": [
@@ -28836,54 +28935,6 @@
         "priceNum": 39.5,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/plantation-3-stars-750m/"
-      }
-    },
-    {
-      "canonSku": "072355",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "sierrasprings",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "craftcellars": 69.99,
-        "sierrasprings": 70.99,
-        "vintage": 87.74
-      },
-      "representative": {
-        "name": "Woodford Reserve Double Oaked Bourbon",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "072355",
-        "skuKey": "072355",
-        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon"
       }
     },
     {
@@ -35847,54 +35898,6 @@
       }
     },
     {
-      "canonSku": "485956",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 46.99,
-        "kwm": 53.99,
-        "maltsandgrains": 57,
-        "sierrasprings": 50.37
-      },
-      "representative": {
-        "name": "Elijah Craig Small Batch Kentucky Straight Bourbon",
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "547729",
-        "skuKey": "547729",
-        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1"
-      }
-    },
-    {
       "canonSku": "487061",
       "storeCount": 4,
       "stores": [
@@ -37620,54 +37623,6 @@
         "priceNum": 135,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/hibiki-harmony"
-      }
-    },
-    {
-      "canonSku": "778187",
-      "storeCount": 4,
-      "stores": [
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "craftcellars": 86.99,
-        "kegncork": 85.96,
-        "kwm": 86.99,
-        "willowpark": 87.49
-      },
-      "representative": {
-        "name": "Arran The Bothy Quarter Cask",
-        "price": "$86.99",
-        "priceNum": 86.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "778187",
-        "skuKey": "778187",
-        "url": "https://craftcellars.ca/products/arran-the-bothy-quarter-cask-56-2-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$85.96",
-        "priceNum": 85.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/arran-malt-quarter-cask-the-bothy-700ml/"
       }
     },
     {
@@ -40670,6 +40625,53 @@
         "priceNum": 149.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/isle-of-jura-18-year-old-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "072355",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "sierrasprings",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "sierrasprings": 70.99,
+        "vintage": 87.74
+      },
+      "representative": {
+        "name": "WOODFORD RESERVE DOUBLE OAKED BOURBON",
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "072355",
+        "skuKey": "072355",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/"
       }
     },
     {
@@ -46642,6 +46644,53 @@
       }
     },
     {
+      "canonSku": "778187",
+      "storeCount": 3,
+      "stores": [
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "kegncork": 85.96,
+        "kwm": 86.99,
+        "willowpark": 87.49
+      },
+      "representative": {
+        "name": "Arran Quarter Cask 56.2",
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "778187",
+        "skuKey": "778187",
+        "url": "https://kensingtonwinemarket.com/product/778187/arran-quarter-cask-56-2",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$85.96",
+        "priceNum": 85.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/arran-malt-quarter-cask-the-bothy-700ml/"
+      }
+    },
+    {
       "canonSku": "786192",
       "storeCount": 3,
       "stores": [
@@ -48457,52 +48506,6 @@
         "priceNum": 106.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/high-west-midwinter-night-s-dram-act-12-49-3-abv"
-      }
-    },
-    {
-      "canonSku": "117991",
-      "storeCount": 2,
-      "stores": [
-        "craftcellars",
-        "strath"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "craftcellars": 629.99,
-        "strath": 637.66
-      },
-      "representative": {
-        "name": "Glenallachie 21 Year Old Cask Strength Batch 5",
-        "price": "$629.99",
-        "priceNum": 629.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "117991",
-        "skuKey": "117991",
-        "url": "https://craftcellars.ca/products/glenallachie-21-year-old-cask-strength-batch-5",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$629.99",
-        "priceNum": 629.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glenallachie-21-year-old-cask-strength-batch-5"
       }
     },
     {

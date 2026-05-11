@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T19:32:31.986Z",
+  "generatedAt": "2026-05-11T22:16:26.111Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8898,
-    "removedRows": 3163,
-    "canonSkus": 5376,
+    "liveRows": 8895,
+    "removedRows": 3166,
+    "canonSkus": 5375,
     "outputCount": 1000
   },
   "rows": [
@@ -5369,6 +5369,47 @@
       }
     },
     {
+      "canonSku": "485956",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 46.99,
+        "craftcellars": 53.99,
+        "kwm": 53.99,
+        "maltsandgrains": 57,
+        "sierrasprings": 50.37
+      },
+      "representative": {
+        "name": "Elijah Craig Small Batch Kentucky Straight Bourbon",
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "547729",
+        "skuKey": "547729",
+        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1"
+      }
+    },
+    {
       "canonSku": "503649",
       "storeCount": 5,
       "stores": [
@@ -5755,27 +5796,27 @@
       "storePrices": {
         "bsw": 160,
         "coop": 209.99,
-        "craftcellars": 112.99,
+        "craftcellars": 204.99,
         "kwm": 207.99,
         "willowpark": 179.99
       },
       "representative": {
-        "name": "Aberfeldy 21 Year Old Highland Single Malt Scotch Whisky",
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Aberfeldy 21 Year Old",
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "852543",
         "skuKey": "852543",
-        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$112.99",
-        "priceNum": 112.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/aberfeldy-21-year-old-highland-single-malt-scotch-whisky-40-abv"
+        "price": "$160.00",
+        "priceNum": 160,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/aberfeldy-21-year-old-1"
       }
     },
     {
@@ -12091,46 +12132,6 @@
       }
     },
     {
-      "canonSku": "480624",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 54.99,
-        "craftcellars": 62.99,
-        "kegncork": 61.96,
-        "sierrasprings": 52.28
-      },
-      "representative": {
-        "name": "WOODFORD RESERVE KENTUCKY BOURBON",
-        "price": "$52.28",
-        "priceNum": 52.28,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "480624",
-        "skuKey": "480624",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-2/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$52.28",
-        "priceNum": 52.28,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-2/"
-      }
-    },
-    {
       "canonSku": "484261",
       "storeCount": 4,
       "stores": [
@@ -12168,46 +12169,6 @@
         "priceNum": 309.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/glenfarclas-25-year-old-j-g-grant"
-      }
-    },
-    {
-      "canonSku": "485956",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 46.99,
-        "kwm": 53.99,
-        "maltsandgrains": 57,
-        "sierrasprings": 50.37
-      },
-      "representative": {
-        "name": "Elijah Craig Small Batch Kentucky Straight Bourbon",
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "547729",
-        "skuKey": "547729",
-        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/elijah-craig-small-batch-bourbon-1"
       }
     },
     {
@@ -13608,46 +13569,6 @@
         "priceNum": 135,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/hibiki-harmony"
-      }
-    },
-    {
-      "canonSku": "778187",
-      "storeCount": 4,
-      "stores": [
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "craftcellars": 86.99,
-        "kegncork": 85.96,
-        "kwm": 86.99,
-        "willowpark": 87.49
-      },
-      "representative": {
-        "name": "Arran The Bothy Quarter Cask",
-        "price": "$86.99",
-        "priceNum": 86.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "778187",
-        "skuKey": "778187",
-        "url": "https://craftcellars.ca/products/arran-the-bothy-quarter-cask-56-2-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$85.96",
-        "priceNum": 85.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/arran-malt-quarter-cask-the-bothy-700ml/"
       }
     },
     {
@@ -16899,45 +16820,6 @@
         "priceNum": 50.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/appleton-12-year-old-rare-casks-3"
-      }
-    },
-    {
-      "canonSku": "072355",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "craftcellars": 69.99,
-        "sierrasprings": 70.99
-      },
-      "representative": {
-        "name": "Woodford Reserve Double Oaked Bourbon",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "072355",
-        "skuKey": "072355",
-        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon"
       }
     },
     {
@@ -20448,6 +20330,45 @@
         "priceNum": 329.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/johnnie-walker-blue-lunar-horse-131831"
+      }
+    },
+    {
+      "canonSku": "131914",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 535,
+        "craftcellars": 549.99,
+        "kwm": 549.99
+      },
+      "representative": {
+        "name": "GlenAllachie 21 Year Old Cask Strength Batch 6",
+        "price": "$535.00",
+        "priceNum": 535,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "131914",
+        "skuKey": "131914",
+        "url": "https://www.bswliquor.com/products/ga-21-years-old-cask-strength-batch-6",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$535.00",
+        "priceNum": 535,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ga-21-years-old-cask-strength-batch-6"
       }
     },
     {
@@ -25872,6 +25793,45 @@
       }
     },
     {
+      "canonSku": "480624",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 54.99,
+        "kegncork": 61.96,
+        "sierrasprings": 52.28
+      },
+      "representative": {
+        "name": "WOODFORD RESERVE KENTUCKY BOURBON",
+        "price": "$52.28",
+        "priceNum": 52.28,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "480624",
+        "skuKey": "480624",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-2/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$52.28",
+        "priceNum": 52.28,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-45-2-abv-2/"
+      }
+    },
+    {
       "canonSku": "485461",
       "storeCount": 3,
       "stores": [
@@ -27390,6 +27350,45 @@
         "priceNum": 111.32,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/islay-scotch-whisky-whisky-2-2/talisker-port-ruighe-45-8-abv/"
+      }
+    },
+    {
+      "canonSku": "778187",
+      "storeCount": 3,
+      "stores": [
+        "kegncork",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "kegncork": 85.96,
+        "kwm": 86.99,
+        "willowpark": 87.49
+      },
+      "representative": {
+        "name": "Arran Quarter Cask 56.2",
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "778187",
+        "skuKey": "778187",
+        "url": "https://kensingtonwinemarket.com/product/778187/arran-quarter-cask-56-2",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$85.96",
+        "priceNum": 85.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/arran-malt-quarter-cask-the-bothy-700ml/"
       }
     },
     {
@@ -33439,6 +33438,44 @@
       }
     },
     {
+      "canonSku": "072355",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "sierrasprings": 70.99
+      },
+      "representative": {
+        "name": "WOODFORD RESERVE DOUBLE OAKED BOURBON",
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "072355",
+        "skuKey": "072355",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
+      },
+      "cheapest": {
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/bourbon/woodford-reserve-double-oaked-bourbon-750ml/"
+      }
+    },
+    {
       "canonSku": "076792",
       "storeCount": 2,
       "stores": [
@@ -36476,44 +36513,6 @@
         "priceNum": 230,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/talisker-14yo-sr25"
-      }
-    },
-    {
-      "canonSku": "131914",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 535,
-        "kwm": 549.99
-      },
-      "representative": {
-        "name": "GlenAllachie 21 Year Old Cask Strength Batch 6",
-        "price": "$535.00",
-        "priceNum": 535,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "131914",
-        "skuKey": "131914",
-        "url": "https://www.bswliquor.com/products/ga-21-years-old-cask-strength-batch-6",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$535.00",
-        "priceNum": 535,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ga-21-years-old-cask-strength-batch-6"
       }
     },
     {
