@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T16:40:17.743Z",
+  "generatedAt": "2026-05-12T19:35:51.155Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13328,
-    "removedRows": 3669,
-    "canonSkus": 6549,
+    "liveRows": 13340,
+    "removedRows": 3679,
+    "canonSkus": 6561,
     "outputCount": 250
   },
   "rows": [
@@ -101,14 +101,13 @@
     },
     {
       "canonSku": "249680",
-      "storeCount": 15,
+      "storeCount": 14,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "craftcellars",
         "gull",
-        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -120,7 +119,8 @@
         "willowpark"
       ],
       "missingStores": [
-        "coop"
+        "coop",
+        "kegncork"
       ],
       "storePrices": {
         "arc": 110.99,
@@ -128,7 +128,6 @@
         "bsw": 94.99,
         "craftcellars": 122.99,
         "gull": 125.99,
-        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -195,7 +194,7 @@
         "strath": 118.05,
         "tudor": 116.99,
         "vessel": 114.99,
-        "willowpark": 119.99
+        "willowpark": 106.49
       },
       "representative": {
         "name": "Glendronach 12 Year",
@@ -252,7 +251,7 @@
         "strath": 108.96,
         "tudor": 111.99,
         "vessel": 109.99,
-        "willowpark": 117.49
+        "willowpark": 96.49
       },
       "representative": {
         "name": "Bruichladdich Port Charlotte 10 Year Old",
@@ -415,7 +414,7 @@
         "bcl": 129.97,
         "bsw": 115,
         "coop": 129.99,
-        "craftcellars": 130.99,
+        "craftcellars": 131.99,
         "gull": 139.99,
         "kwm": 134.99,
         "legacyliquor": 147.79,
@@ -471,7 +470,7 @@
         "arc": 77.19,
         "bcl": 79.99,
         "bsw": 77.99,
-        "craftcellars": 94.99,
+        "craftcellars": 63.99,
         "gull": 73.99,
         "kwm": 88.99,
         "legacyliquor": 88.13,
@@ -483,22 +482,22 @@
         "willowpark": 82.99
       },
       "representative": {
-        "name": "Laphroaig – 10 Year Old 750ml",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://gullliquorstore.com/product/laphroaig-10-year-ol-750m/",
+        "name": "Laphroaig 10 Year Old",
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739119",
+        "skuKey": "739119",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-10-year-ol-750m/"
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
       }
     },
     {
@@ -642,7 +641,7 @@
         "bcl": 84.99,
         "bsw": 69.99,
         "coop": 79.99,
-        "craftcellars": 56.99,
+        "craftcellars": 89.99,
         "gull": 84.99,
         "kegncork": 88.96,
         "kwm": 78.99,
@@ -651,25 +650,25 @@
         "sierrasprings": 89.42,
         "tudor": 86.99,
         "vessel": 84.99,
-        "willowpark": 90.99
+        "willowpark": 77.99
       },
       "representative": {
-        "name": "Bruichladdich Scottish Barley Laddie",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv"
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -1156,7 +1155,7 @@
         "strath": 61.65,
         "tudor": 58.99,
         "vessel": 59.99,
-        "willowpark": 48.99
+        "willowpark": 48.49
       },
       "representative": {
         "name": "Bumbu The Original Rum",
@@ -1260,7 +1259,7 @@
         "arc": 68.89,
         "bcl": 67.99,
         "bsw": 57.99,
-        "craftcellars": 64.99,
+        "craftcellars": 67.99,
         "gull": 71.65,
         "kegncork": 66.96,
         "kwm": 67.99,
@@ -1316,7 +1315,7 @@
         "arc": 102.99,
         "bcl": 114.99,
         "bsw": 84.99,
-        "craftcellars": 79.99,
+        "craftcellars": 69.99,
         "kegncork": 99.96,
         "kwm": 99.99,
         "legacyliquor": 129.06,
@@ -1328,8 +1327,8 @@
       },
       "representative": {
         "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$79.99",
-        "priceNum": 79.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "560474",
@@ -1339,8 +1338,8 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
@@ -1492,7 +1491,7 @@
         "sierrasprings": 56.09,
         "tudor": 61.99,
         "vessel": 57.99,
-        "willowpark": 63.99
+        "willowpark": 63.49
       },
       "representative": {
         "name": "AUCHENTOSHAN 12YO",
@@ -1541,7 +1540,7 @@
         "bcl": 79.99,
         "bsw": 64.99,
         "coop": 74.99,
-        "craftcellars": 73.99,
+        "craftcellars": 74.99,
         "gull": 82.99,
         "kwm": 74.99,
         "legacyliquor": 84.51,
@@ -1596,7 +1595,7 @@
         "arc": 28.69,
         "bcl": 27.99,
         "bsw": 31.99,
-        "craftcellars": 29.99,
+        "craftcellars": 31.99,
         "gull": 29.8,
         "legacyliquor": 29.39,
         "maltsandgrains": 33.66,
@@ -2201,7 +2200,7 @@
         "arc": 54.99,
         "bcl": 67.99,
         "bsw": 62.99,
-        "craftcellars": 90.99,
+        "craftcellars": 70.99,
         "gull": 64.99,
         "kwm": 70.99,
         "legacyliquor": 77.16,
@@ -2256,7 +2255,7 @@
         "arc": 29.49,
         "bcl": 26.99,
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 28.6,
         "legacyliquor": 30.99,
         "sierrasprings": 31.32,
@@ -2696,7 +2695,7 @@
         "arc": 110.99,
         "bcl": 112.99,
         "bsw": 105,
-        "craftcellars": 79.99,
+        "craftcellars": 136.99,
         "gull": 114.99,
         "kwm": 117.99,
         "legacyliquor": 142.73,
@@ -2707,21 +2706,21 @@
       },
       "representative": {
         "name": "Bowmore 15 Year Old",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$105.00",
+        "priceNum": 105,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "726252",
         "skuKey": "726252",
-        "url": "https://craftcellars.ca/products/bowmore-15-year-old-43-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bowmore-15-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bowmore-15-year-old-43-abv"
+        "price": "$105.00",
+        "priceNum": 105,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bowmore-15-year-old"
       }
     },
     {
@@ -3026,7 +3025,7 @@
         "arc": 23.99,
         "bcl": 23.49,
         "bsw": 22.99,
-        "craftcellars": 20.99,
+        "craftcellars": 28.99,
         "gull": 25,
         "kwm": 27.99,
         "legacyliquor": 24.99,
@@ -3727,7 +3726,7 @@
       "storePrices": {
         "bcl": 110.99,
         "bsw": 82.99,
-        "craftcellars": 65.99,
+        "craftcellars": 92.99,
         "kegncork": 93.96,
         "kwm": 94.99,
         "maltsandgrains": 98.43,
@@ -3737,22 +3736,22 @@
         "willowpark": 88.99
       },
       "representative": {
-        "name": "Glenfarclas 12 Year Old J & G Grant",
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "GLENFARCLAS 12 YR 43%",
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
         "skuRaw": "349670",
         "skuKey": "349670",
-        "url": "https://craftcellars.ca/products/glenfarclas-12-year-old-j-g-grant",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
       },
       "cheapest": {
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/glenfarclas-12-year-old-j-g-grant"
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/whisky-2/scotch-whisky-whisky-2-2/speyside-scotch-whisky-whisky-2-2/glenfarclas-12-year-old-43-abv/"
       }
     },
     {
@@ -4851,7 +4850,7 @@
         "arc": 124.69,
         "bcl": 129.99,
         "bsw": 105,
-        "craftcellars": 121.99,
+        "craftcellars": 90.99,
         "gull": 128.99,
         "kegncork": 121.96,
         "kwm": 124.99,
@@ -4859,22 +4858,22 @@
         "willowpark": 124.49
       },
       "representative": {
-        "name": "Redbreast 12 Year Old Cask Strength Irish Whiskey",
-        "price": "$105.00",
-        "priceNum": 105,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Redbreast 12 Year Old Cask Strength Edition",
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "775251",
         "skuKey": "775251",
-        "url": "https://www.bswliquor.com/products/redbreast-12-year-old-cask-strength",
+        "url": "https://craftcellars.ca/products/redbreast-12-year-old-cask-strength-edition-58-1-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$105.00",
-        "priceNum": 105,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/redbreast-12-year-old-cask-strength"
+        "price": "$90.99",
+        "priceNum": 90.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/redbreast-12-year-old-cask-strength-edition-58-1-abv"
       }
     },
     {
@@ -6983,6 +6982,58 @@
       }
     },
     {
+      "canonSku": "067424",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "bsw",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 36.99,
+        "bsw": 39.99,
+        "gull": 40.7,
+        "legacyliquor": 40.99,
+        "sierrasprings": 37.99,
+        "tudor": 41.99,
+        "vessel": 36.99,
+        "willowpark": 43.99
+      },
+      "representative": {
+        "name": "APPLETON ESTATE - 8 YO RESERVE",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "067424",
+        "skuKey": "067424",
+        "url": "https://www.bcliquorstores.com/product/67424",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/67424"
+      }
+    },
+    {
       "canonSku": "072009",
       "storeCount": 8,
       "stores": [
@@ -7114,28 +7165,28 @@
         "bsw": 97.99,
         "coop": 102.99,
         "gull": 103.6,
-        "kwm": 99.99,
+        "kwm": 69.99,
         "strath": 102.35,
         "tudor": 106.99,
         "willowpark": 101.49
       },
       "representative": {
-        "name": "Caol Ila 12 Year Old Single Malt Whisky",
-        "price": "$97.99",
-        "priceNum": 97.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Caol Ila 12 Year",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "717241",
         "skuKey": "717241",
-        "url": "https://www.bswliquor.com/products/caol-ila-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://kensingtonwinemarket.com/product/717241/caol-ila-12-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$97.99",
-        "priceNum": 97.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/caol-ila-12-year-old-1"
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/717241/caol-ila-12-year"
       }
     },
     {
@@ -7217,11 +7268,11 @@
         "bcl": 94.99,
         "bsw": 79.99,
         "coop": 89.99,
-        "craftcellars": 89.99,
+        "craftcellars": 90.99,
         "kegncork": 110.96,
         "kwm": 114.99,
         "maltsandgrains": 113.04,
-        "willowpark": 106.99
+        "willowpark": 85.49
       },
       "representative": {
         "name": "Glenmorangie 14 Year Old The Quinta Ruban",
@@ -7793,7 +7844,7 @@
         "gull": 96.3,
         "legacyliquor": 95,
         "tudor": 89.99,
-        "willowpark": 85.99
+        "willowpark": 85.49
       },
       "representative": {
         "name": "Ron Zacapa Centenario Sistema Solera No. 23 Gran Reserva Rum",
@@ -8776,7 +8827,7 @@
       "storePrices": {
         "arc": 33.99,
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 36.3,
         "legacyliquor": 35.8,
         "tudor": 39.99,
@@ -10349,57 +10400,6 @@
       }
     },
     {
-      "canonSku": "067424",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "bsw",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 36.99,
-        "bsw": 39.99,
-        "gull": 40.7,
-        "legacyliquor": 40.99,
-        "sierrasprings": 37.99,
-        "tudor": 41.99,
-        "willowpark": 43.99
-      },
-      "representative": {
-        "name": "APPLETON ESTATE - 8 YO RESERVE",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "067424",
-        "skuKey": "067424",
-        "url": "https://www.bcliquorstores.com/product/67424",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/67424"
-      }
-    },
-    {
       "canonSku": "067433",
       "storeCount": 7,
       "stores": [
@@ -10782,7 +10782,7 @@
       "storePrices": {
         "bsw": 110,
         "coop": 149.99,
-        "craftcellars": 125.99,
+        "craftcellars": 151.99,
         "gull": 134.99,
         "kegncork": 149.96,
         "kwm": 151.99,

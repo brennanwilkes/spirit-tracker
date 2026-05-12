@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T16:40:17.335Z",
+  "generatedAt": "2026-05-12T19:35:50.769Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13328,
-    "removedRows": 3669,
-    "canonSkus": 6549,
+    "liveRows": 13340,
+    "removedRows": 3679,
+    "canonSkus": 6561,
     "outputCount": 50
   },
   "rows": [
@@ -101,14 +101,13 @@
     },
     {
       "canonSku": "249680",
-      "storeCount": 15,
+      "storeCount": 14,
       "stores": [
         "arc",
         "bcl",
         "bsw",
         "craftcellars",
         "gull",
-        "kegncork",
         "kwm",
         "legacyliquor",
         "maltsandgrains",
@@ -120,7 +119,8 @@
         "willowpark"
       ],
       "missingStores": [
-        "coop"
+        "coop",
+        "kegncork"
       ],
       "storePrices": {
         "arc": 110.99,
@@ -128,7 +128,6 @@
         "bsw": 94.99,
         "craftcellars": 122.99,
         "gull": 125.99,
-        "kegncork": 109.96,
         "kwm": 109.99,
         "legacyliquor": 132.99,
         "maltsandgrains": 114.62,
@@ -195,7 +194,7 @@
         "strath": 118.05,
         "tudor": 116.99,
         "vessel": 114.99,
-        "willowpark": 119.99
+        "willowpark": 106.49
       },
       "representative": {
         "name": "Glendronach 12 Year",
@@ -252,7 +251,7 @@
         "strath": 108.96,
         "tudor": 111.99,
         "vessel": 109.99,
-        "willowpark": 117.49
+        "willowpark": 96.49
       },
       "representative": {
         "name": "Bruichladdich Port Charlotte 10 Year Old",
@@ -415,7 +414,7 @@
         "bcl": 129.97,
         "bsw": 115,
         "coop": 129.99,
-        "craftcellars": 130.99,
+        "craftcellars": 131.99,
         "gull": 139.99,
         "kwm": 134.99,
         "legacyliquor": 147.79,
@@ -471,7 +470,7 @@
         "arc": 77.19,
         "bcl": 79.99,
         "bsw": 77.99,
-        "craftcellars": 94.99,
+        "craftcellars": 63.99,
         "gull": 73.99,
         "kwm": 88.99,
         "legacyliquor": 88.13,
@@ -483,22 +482,22 @@
         "willowpark": 82.99
       },
       "representative": {
-        "name": "Laphroaig – 10 Year Old 750ml",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://gullliquorstore.com/product/laphroaig-10-year-ol-750m/",
+        "name": "Laphroaig 10 Year Old",
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "739119",
+        "skuKey": "739119",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-10-year-ol-750m/"
+        "price": "$63.99",
+        "priceNum": 63.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
       }
     },
     {
@@ -642,7 +641,7 @@
         "bcl": 84.99,
         "bsw": 69.99,
         "coop": 79.99,
-        "craftcellars": 56.99,
+        "craftcellars": 89.99,
         "gull": 84.99,
         "kegncork": 88.96,
         "kwm": 78.99,
@@ -651,25 +650,25 @@
         "sierrasprings": 89.42,
         "tudor": 86.99,
         "vessel": 84.99,
-        "willowpark": 90.99
+        "willowpark": 77.99
       },
       "representative": {
-        "name": "Bruichladdich Scottish Barley Laddie",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv"
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -1156,7 +1155,7 @@
         "strath": 61.65,
         "tudor": 58.99,
         "vessel": 59.99,
-        "willowpark": 48.99
+        "willowpark": 48.49
       },
       "representative": {
         "name": "Bumbu The Original Rum",
@@ -1260,7 +1259,7 @@
         "arc": 68.89,
         "bcl": 67.99,
         "bsw": 57.99,
-        "craftcellars": 64.99,
+        "craftcellars": 67.99,
         "gull": 71.65,
         "kegncork": 66.96,
         "kwm": 67.99,
@@ -1316,7 +1315,7 @@
         "arc": 102.99,
         "bcl": 114.99,
         "bsw": 84.99,
-        "craftcellars": 79.99,
+        "craftcellars": 69.99,
         "kegncork": 99.96,
         "kwm": 99.99,
         "legacyliquor": 129.06,
@@ -1328,8 +1327,8 @@
       },
       "representative": {
         "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$79.99",
-        "priceNum": 79.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "560474",
@@ -1339,8 +1338,8 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
@@ -1492,7 +1491,7 @@
         "sierrasprings": 56.09,
         "tudor": 61.99,
         "vessel": 57.99,
-        "willowpark": 63.99
+        "willowpark": 63.49
       },
       "representative": {
         "name": "AUCHENTOSHAN 12YO",
@@ -1541,7 +1540,7 @@
         "bcl": 79.99,
         "bsw": 64.99,
         "coop": 74.99,
-        "craftcellars": 73.99,
+        "craftcellars": 74.99,
         "gull": 82.99,
         "kwm": 74.99,
         "legacyliquor": 84.51,
@@ -2091,7 +2090,7 @@
         "arc": 54.99,
         "bcl": 67.99,
         "bsw": 62.99,
-        "craftcellars": 90.99,
+        "craftcellars": 70.99,
         "gull": 64.99,
         "kwm": 70.99,
         "legacyliquor": 77.16,
@@ -2146,7 +2145,7 @@
         "arc": 29.49,
         "bcl": 26.99,
         "bsw": 31.99,
-        "craftcellars": 34.99,
+        "craftcellars": 35.99,
         "gull": 28.6,
         "legacyliquor": 30.99,
         "sierrasprings": 31.32,
