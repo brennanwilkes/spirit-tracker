@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-13T05:04:57.938Z",
+  "generatedAt": "2026-05-13T07:57:53.257Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4424,
-    "removedRows": 504,
+    "liveRows": 4416,
+    "removedRows": 512,
     "canonSkus": 2213,
     "outputCount": 250
   },
@@ -73,49 +73,6 @@
         "priceNum": 27.49,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 30.39,
-        "bcl": 27.49,
-        "gull": 28.95,
-        "legacyliquor": 30.99,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -310,7 +267,7 @@
         "gull": 47.9,
         "legacyliquor": 47.27,
         "strath": 47.74,
-        "tudor": 44.99,
+        "tudor": 45.99,
         "vessel": 42.99,
         "vintage": 40.78
       },
@@ -718,6 +675,49 @@
         "priceNum": 29.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "gull": 28.95,
+        "legacyliquor": 30.99,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1170,7 +1170,7 @@
         "bcl": 40.99,
         "gull": 39.65,
         "legacyliquor": 40.99,
-        "tudor": 39.99,
+        "tudor": 40.99,
         "vessel": 42.99,
         "vintage": 40.78
       },
@@ -1513,26 +1513,26 @@
         "bcl": 26.99,
         "gull": 28.3,
         "legacyliquor": 27.99,
-        "tudor": 26.49,
+        "tudor": 26.99,
         "vessel": 27.99
       },
       "representative": {
-        "name": "GORDON'S DRY GIN",
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
+        "name": "GORDONS - LONDON DRY",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "001040",
         "skuKey": "001040",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/gordons-gin-ml-350",
+        "url": "https://www.bcliquorstores.com/product/1040",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
       },
       "cheapest": {
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/gordons-gin-ml-350"
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1040"
       }
     },
     {
@@ -2964,48 +2964,6 @@
       }
     },
     {
-      "canonSku": "238097",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 110.99,
-        "bcl": 109.99,
-        "gull": 128.1,
-        "legacyliquor": 124.67,
-        "tudor": 119.99,
-        "vessel": 119.99
-      },
-      "representative": {
-        "name": "DALWHINNIE - 15 YEAR OLD",
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "238097",
-        "skuKey": "238097",
-        "url": "https://www.bcliquorstores.com/product/238097",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/238097"
-      }
-    },
-    {
       "canonSku": "243824",
       "storeCount": 6,
       "stores": [
@@ -3804,48 +3762,6 @@
       }
     },
     {
-      "canonSku": "741502",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 54.19,
-        "bcl": 53.49,
-        "gull": 54.95,
-        "legacyliquor": 58.32,
-        "tudor": 55.99,
-        "vessel": 54.99
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$53.49",
-        "priceNum": 53.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "928374",
-        "skuKey": "928374",
-        "url": "https://www.bcliquorstores.com/product/928374",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$53.49",
-        "priceNum": 53.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/928374"
-      }
-    },
-    {
       "canonSku": "773002",
       "storeCount": 6,
       "stores": [
@@ -4277,7 +4193,7 @@
         "arc": 30.49,
         "bcl": 31.49,
         "gull": 33.4,
-        "tudor": 30.99,
+        "tudor": 31.49,
         "vessel": 31.99
       },
       "representative": {
@@ -5548,7 +5464,7 @@
         "bcl": 47.99,
         "gull": 41.99,
         "legacyliquor": 47.99,
-        "tudor": 46.99,
+        "tudor": 47.99,
         "vessel": 47.99
       },
       "representative": {
@@ -5940,6 +5856,47 @@
       }
     },
     {
+      "canonSku": "238097",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 110.99,
+        "bcl": 109.99,
+        "gull": 128.1,
+        "tudor": 119.99,
+        "vessel": 119.99
+      },
+      "representative": {
+        "name": "DALWHINNIE - 15 YEAR OLD",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "238097",
+        "skuKey": "238097",
+        "url": "https://www.bcliquorstores.com/product/238097",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/238097"
+      }
+    },
+    {
       "canonSku": "242509",
       "storeCount": 5,
       "stores": [
@@ -6040,7 +5997,7 @@
         "arc": 7.79,
         "bcl": 7.99,
         "gull": 8.5,
-        "tudor": 23.49,
+        "tudor": 23.99,
         "vessel": 7.99
       },
       "representative": {
@@ -6491,7 +6448,7 @@
         "bcl": 37.99,
         "gull": 33.49,
         "legacyliquor": 38.99,
-        "tudor": 37.49,
+        "tudor": 37.99,
         "vessel": 36.99
       },
       "representative": {
@@ -6900,7 +6857,7 @@
       "storePrices": {
         "bcl": 32.49,
         "gull": 31.5,
-        "tudor": 31.99,
+        "tudor": 32.49,
         "vessel": 32.99,
         "vintage": 35.57
       },
@@ -7580,47 +7537,6 @@
       }
     },
     {
-      "canonSku": "560474",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 102.99,
-        "bcl": 114.99,
-        "legacyliquor": 129.06,
-        "tudor": 114.99,
-        "vintage": 123.39
-      },
-      "representative": {
-        "name": "ARDBEG 10 YO",
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
-      }
-    },
-    {
       "canonSku": "601757",
       "storeCount": 5,
       "stores": [
@@ -7823,6 +7739,47 @@
         "priceNum": 46.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/677738"
+      }
+    },
+    {
+      "canonSku": "741502",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 54.19,
+        "bcl": 53.49,
+        "gull": 54.95,
+        "tudor": 55.99,
+        "vessel": 54.99
+      },
+      "representative": {
+        "name": "JAMESON - IRISH",
+        "price": "$53.49",
+        "priceNum": 53.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "928374",
+        "skuKey": "928374",
+        "url": "https://www.bcliquorstores.com/product/928374",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$53.49",
+        "priceNum": 53.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/928374"
       }
     },
     {
@@ -8088,7 +8045,7 @@
         "arc": 24.09,
         "bcl": 35.99,
         "gull": 35.75,
-        "tudor": 34.99
+        "tudor": 35.99
       },
       "representative": {
         "name": "CAPTAIN MORGAN WHITE 750ML",
@@ -9907,6 +9864,46 @@
         "priceNum": 32.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/goslings-black-seal-rum"
+      }
+    },
+    {
+      "canonSku": "560474",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 102.99,
+        "bcl": 114.99,
+        "legacyliquor": 129.06,
+        "vintage": 123.39
+      },
+      "representative": {
+        "name": "ARDBEG 10 YO",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
       }
     },
     {

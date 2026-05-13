@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-13T05:04:57.733Z",
+  "generatedAt": "2026-05-13T07:57:53.045Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,55 +26,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4424,
-    "removedRows": 504,
+    "liveRows": 4416,
+    "removedRows": 512,
     "canonSkus": 2213,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "002691",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 30.39,
-        "bcl": 27.49,
-        "gull": 28.95,
-        "legacyliquor": 30.99,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
-      }
-    },
     {
       "canonSku": "010157",
       "storeCount": 8,
@@ -267,7 +224,7 @@
         "gull": 47.9,
         "legacyliquor": 47.27,
         "strath": 47.74,
-        "tudor": 44.99,
+        "tudor": 45.99,
         "vessel": 42.99,
         "vintage": 40.78
       },
@@ -675,6 +632,49 @@
         "priceNum": 29.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "gull": 28.95,
+        "legacyliquor": 30.99,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1127,7 +1127,7 @@
         "bcl": 40.99,
         "gull": 39.65,
         "legacyliquor": 40.99,
-        "tudor": 39.99,
+        "tudor": 40.99,
         "vessel": 42.99,
         "vintage": 40.78
       },
