@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-13T16:41:40.490Z",
+  "generatedAt": "2026-05-13T19:37:02.395Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,55 +26,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4416,
-    "removedRows": 512,
-    "canonSkus": 2213,
+    "liveRows": 4428,
+    "removedRows": 502,
+    "canonSkus": 2212,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "010157",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "legacyliquor": 41.99,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
-      }
-    },
     {
       "canonSku": "057706",
       "storeCount": 8,
@@ -675,6 +632,49 @@
         "priceNum": 27.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -1466,29 +1466,29 @@
       ],
       "storePrices": {
         "arc": 39.59,
-        "bcl": 40.99,
+        "bcl": 31.78,
         "gull": 42.15,
         "legacyliquor": 42.99,
         "tudor": 59.99,
         "vessel": 37.49
       },
       "representative": {
-        "name": "JP Wiser's - Deluxe Whisky",
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "J.P. WISER'S DELUXE",
+        "price": "$31.78",
+        "priceNum": 31.78,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "001800",
         "skuKey": "001800",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://www.bcliquorstores.com/product/1800",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
+        "price": "$31.78",
+        "priceNum": 31.78,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1800"
       }
     },
     {
@@ -1886,7 +1886,7 @@
       ],
       "storePrices": {
         "bcl": 27.99,
-        "gull": 31.15,
+        "gull": 29.1,
         "legacyliquor": 30.99,
         "strath": 29.66,
         "tudor": 29.49,
