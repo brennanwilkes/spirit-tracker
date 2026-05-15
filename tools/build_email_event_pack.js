@@ -68,6 +68,21 @@ function priceToNumber(p) {
   return Number.isFinite(n) ? n : NaN;
 }
 
+const skuHistoryCache = new Map();
+function loadSkuHistory(canonSku) {
+  if (skuHistoryCache.has(canonSku)) return skuHistoryCache.get(canonSku);
+  const p = path.join(process.cwd(), "viz/data/skus", `${canonSku}.json`);
+  let obj = null;
+  try {
+    const txt = fs.readFileSync(p, "utf8");
+    obj = JSON.parse(txt);
+  } catch {
+    obj = null;
+  }
+  skuHistoryCache.set(canonSku, obj);
+  return obj;
+}
+
 function normImg(v) {
   const s = String(v || "").trim();
   if (!s) return "";
@@ -526,6 +541,22 @@ function main() {
     return;
   }
 
+  // Commit timestamps used for 24h flip-flop suppression window.
+  // We look back 24h from head, but cap the upper bound at baseTimeMs so the
+  // head commit's own scrape (whose ts < headTimeMs but >= baseTimeMs) can't
+  // match itself.
+  function commitTimeMs(sha) {
+    try {
+      const iso = runGit(["show", "-s", "--format=%cI", sha]);
+      const parsed = Date.parse(iso);
+      return Number.isFinite(parsed) ? parsed : Date.now();
+    } catch {
+      return Date.now();
+    }
+  }
+  const headTimeMs = commitTimeMs(headSha);
+  const baseTimeMs = commitTimeMs(baseSha);
+
   // SKU links from requested head commit
   const skuLinksObj = gitShowJson(headSha, skuLinksPath) || null;
   const links = skuLinksObj && Array.isArray(skuLinksObj.links) ? skuLinksObj.links : [];
@@ -567,9 +598,57 @@ function main() {
     return { baseSeen, baseInCount, headInCount, marketNew, marketReturn, marketOut };
   }
 
+  // 24h flip-flop suppression: returns true if a transition of the same kind
+  // (and, for price drops, to an equal-or-lower price) already fired for this
+  // (sku, store) pair within the prior 24 hours. We walk consecutive pairs in
+  // the SKU history cache and detect transitions, not just states.
+  const WINDOW_MS = 48 * 60 * 60 * 1000;
+  function isFlipFlop(ev) {
+    if (ev.eventType === "GLOBAL_NEW") return false;
+    const hist = loadSkuHistory(ev.sku);
+    if (!hist || !hist.stores) return false;
+
+    const prefix = `data/db/${ev.storeId}__`;
+    const newN = ev.eventType === "PRICE_DROP" ? priceToNumber(ev.newPrice) : NaN;
+    if (ev.eventType === "PRICE_DROP" && !Number.isFinite(newN)) return false;
+
+    for (const [key, entry] of Object.entries(hist.stores)) {
+      if (!key.startsWith(prefix)) continue;
+      const list = entry && Array.isArray(entry.events) ? entry.events : [];
+      for (let i = 1; i < list.length; i++) {
+        const prev = list[i - 1];
+        const cur = list[i];
+        const ts = Date.parse(cur.ts);
+        if (!Number.isFinite(ts)) continue;
+        if (ts >= baseTimeMs) continue;
+        if (ts < headTimeMs - WINDOW_MS) continue;
+
+        const prevIn = prev.p != null;
+        const curIn = cur.p != null;
+
+        if (ev.eventType === "OUT_OF_STOCK") {
+          if (prevIn && !curIn) return true;
+        } else if (ev.eventType === "GLOBAL_RETURN") {
+          if (!prevIn && curIn) return true;
+        } else if (ev.eventType === "PRICE_DROP") {
+          if (prevIn && curIn) {
+            const oldN = priceToNumber(prev.p);
+            const curN = priceToNumber(cur.p);
+            if (Number.isFinite(oldN) && Number.isFinite(curN) && curN < oldN && curN <= newN) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   // Events (store-level), normalized over base->head
   const events = [];
   const affectedCanon = new Set();
+  let suppressedCount = 0;
+  const suppressedByType = {};
 
   const storeIds = new Set([...baseIdx.byStoreCanon.keys(), ...headIdx.byStoreCanon.keys()]);
   for (const storeId of storeIds) {
@@ -639,7 +718,7 @@ function main() {
       const id = `${eventType}|${canonSku}|${storeId}`;
       const marketId = `${eventType}|${canonSku}`;
 
-      events.push({
+      const eventObj = {
         id,
         marketId, // dedupe key when filters.acrossMarket === true
         eventType,
@@ -653,8 +732,15 @@ function main() {
         baseInStockCount: mi.baseInCount,
         headInStockCount: mi.headInCount,
         ...payload
-      });
+      };
 
+      if (isFlipFlop(eventObj)) {
+        suppressedCount++;
+        suppressedByType[eventType] = (suppressedByType[eventType] || 0) + 1;
+        continue;
+      }
+
+      events.push(eventObj);
       affectedCanon.add(canonSku);
     }
   }
@@ -727,6 +813,8 @@ function main() {
         acc[e.eventType] = (acc[e.eventType] || 0) + 1;
         return acc;
       }, {}),
+      suppressedCount,
+      suppressedByType,
     },
     skus,
     events,
