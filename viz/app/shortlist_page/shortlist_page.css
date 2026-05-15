@@ -9,21 +9,38 @@
   transform: none;
 }
 
-/* Store filter + sort: hide the desktop line-break, let them sit on one row */
-.shortlistPage .mobileBreak { display: none !important; }
-
-/* Store filter: slightly wider on mobile; no cap on desktop */
-.shortlistPage #storeFilter { max-width: 130px; }
+/* Filter grid: 2x2 on mobile (Store / Sort / Availability / Type), one row of 4 on desktop */
+.shortlistPage .slFilterGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
 @media (min-width: 641px) {
-  .shortlistPage #storeFilter { max-width: none; }
+  .shortlistPage .slFilterGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-/* Mobile: both selects expand to fill remaining row width evenly */
-.shortlistPage #storeFilter,
-.shortlistPage #sort { flex: 1 1 0; min-width: 0; }
-@media (min-width: 641px) {
-  .shortlistPage #storeFilter,
-  .shortlistPage #sort { flex: 0 0 auto; }
+.shortlistPage .slFilterCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.shortlistPage .slFilterLabel {
+  opacity: .8;
+}
+
+/* Inputs fill their cell on every breakpoint */
+.shortlistPage .slFilterCell .selectSmall,
+.shortlistPage .slFilterCell .spiritFilter,
+.shortlistPage .slFilterCell .spiritFilterTrigger {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Mobile: hide dense interactive controls; keep star and weighted score visible */
