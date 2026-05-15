@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T05:11:05.579Z",
+  "generatedAt": "2026-05-15T08:05:46.555Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,12 +26,98 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4429,
-    "removedRows": 504,
+    "liveRows": 4426,
+    "removedRows": 512,
     "canonSkus": 2210,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "002691",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "gull": 28.95,
+        "legacyliquor": 30.99,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
+      }
+    },
     {
       "canonSku": "057706",
       "storeCount": 8,
@@ -592,92 +678,6 @@
       }
     },
     {
-      "canonSku": "002691",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 30.39,
-        "bcl": 27.49,
-        "gull": 28.95,
-        "legacyliquor": 30.99,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
-      }
-    },
-    {
       "canonSku": "052050",
       "storeCount": 7,
       "stores": [
@@ -826,7 +826,7 @@
         "bcl": 79.99,
         "gull": 73.99,
         "legacyliquor": 88.13,
-        "strath": 85.23,
+        "strath": 75.05,
         "tudor": 73.99,
         "vessel": 76.99
       },
@@ -1237,6 +1237,49 @@
       }
     },
     {
+      "canonSku": "656546",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 81.99,
+        "gull": 74.99,
+        "legacyliquor": 109.83,
+        "strath": 100.1,
+        "tudor": 106.99,
+        "vessel": 84.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
+      }
+    },
+    {
       "canonSku": "677666",
       "storeCount": 7,
       "stores": [
@@ -1548,7 +1591,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 13.99,
+        "arc": 12.99,
         "bcl": 12.99,
         "gull": 15.35,
         "legacyliquor": 14.99,
@@ -1556,64 +1599,22 @@
         "vessel": 13.99
       },
       "representative": {
-        "name": "BACARDI - GOLD",
+        "name": "BACARDI GOLD 375ML",
         "price": "$12.99",
         "priceNum": 12.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "002808",
         "skuKey": "002808",
-        "url": "https://www.bcliquorstores.com/product/2808",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587945-bacardi-gold-375ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
       },
       "cheapest": {
         "price": "$12.99",
         "priceNum": 12.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2808"
-      }
-    },
-    {
-      "canonSku": "002838",
-      "storeCount": 6,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 109.99,
-        "gull": 108.99,
-        "legacyliquor": 117.9,
-        "strath": 108.96,
-        "tudor": 111.99,
-        "vessel": 109.99
-      },
-      "representative": {
-        "name": "Bruichladdich – Port Charlotte 10 Year 750ml",
-        "price": "$108.99",
-        "priceNum": 108.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "002838",
-        "skuKey": "002838",
-        "url": "https://gullliquorstore.com/product/bruichladdich-pc10-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$108.96",
-        "priceNum": 108.96,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/bruichladdich-port-charlotte-10-years-old/"
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587945-bacardi-gold-375ml"
       }
     },
     {
@@ -1869,48 +1870,6 @@
       }
     },
     {
-      "canonSku": "014910",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 37.89,
-        "bcl": 37.99,
-        "gull": 36.6,
-        "legacyliquor": 39.82,
-        "tudor": 34.99,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "BUSHMILLS IRISH WHISKEY",
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "014910",
-        "skuKey": "014910",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380"
-      }
-    },
-    {
       "canonSku": "017577",
       "storeCount": 6,
       "stores": [
@@ -1929,7 +1888,7 @@
         "bcl": 64.99,
         "gull": 74.95,
         "legacyliquor": 81.99,
-        "strath": 78.17,
+        "strath": 76.43,
         "tudor": 72.99,
         "vessel": 64.99
       },
@@ -2037,48 +1996,6 @@
       }
     },
     {
-      "canonSku": "656546",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 81.99,
-        "gull": 74.99,
-        "legacyliquor": 109.83,
-        "strath": 100.1,
-        "tudor": 106.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
       "canonSku": "780196",
       "storeCount": 6,
       "stores": [
@@ -2159,6 +2076,88 @@
         "priceNum": 34.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1412"
+      }
+    },
+    {
+      "canonSku": "002838",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 109.99,
+        "gull": 108.99,
+        "strath": 108.96,
+        "tudor": 111.99,
+        "vessel": 109.99
+      },
+      "representative": {
+        "name": "Bruichladdich – Port Charlotte 10 Year 750ml",
+        "price": "$108.99",
+        "priceNum": 108.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "002838",
+        "skuKey": "002838",
+        "url": "https://gullliquorstore.com/product/bruichladdich-pc10-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$108.96",
+        "priceNum": 108.96,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/bruichladdich-port-charlotte-10-years-old/"
+      }
+    },
+    {
+      "canonSku": "014910",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 37.89,
+        "bcl": 37.99,
+        "gull": 36.6,
+        "legacyliquor": 39.82,
+        "tudor": 34.99
+      },
+      "representative": {
+        "name": "BUSHMILLS IRISH WHISKEY",
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "014910",
+        "skuKey": "014910",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/bushmills-old-ml-380"
       }
     }
   ]
