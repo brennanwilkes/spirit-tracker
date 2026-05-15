@@ -889,9 +889,14 @@ export async function renderShortlist($app, accountUuidRaw) {
 	}
 
 	// ---- Paging ----
-	const PAGE_SIZE = 140;
+	// Smaller initial chunk on mobile: a single 140-card insertAdjacentHTML can block the
+	// main thread long enough to feel like a hang after switching the store filter.
+	const IS_MOBILE = !!window.matchMedia?.("(max-width: 640px)")?.matches;
+	const FIRST_CHUNK = IS_MOBILE ? 30 : 140;
+	const CHUNK_SIZE = IS_MOBILE ? 30 : 140;
 	let filtered = [];
 	let shown = 0;
+	let pendingChunkRaf = 0;
 
 	function setStatus() {
 		const total = filtered.length;
@@ -904,17 +909,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 			: `No matches.`;
 	}
 
-	function renderNext(reset) {
-		if (reset) {
-			$results.innerHTML = "";
-			shown = 0;
-		}
-
-		const slice = filtered.slice(shown, shown + PAGE_SIZE);
-		shown += slice.length;
-
-		if (slice.length) $results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
-
+	function updateSentinel() {
 		if (!filtered.length) {
 			$sentinel.textContent = "";
 		} else if (shown >= filtered.length) {
@@ -922,6 +917,40 @@ export async function renderShortlist($app, accountUuidRaw) {
 		} else {
 			$sentinel.textContent = `Showing ${shown} / ${filtered.length}…`;
 		}
+	}
+
+	function appendSlice(size) {
+		const slice = filtered.slice(shown, shown + size);
+		shown += slice.length;
+		if (slice.length) $results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
+		updateSentinel();
+	}
+
+	function renderNext(reset) {
+		if (pendingChunkRaf) {
+			cancelAnimationFrame(pendingChunkRaf);
+			pendingChunkRaf = 0;
+		}
+
+		if (reset) {
+			$results.innerHTML = "";
+			shown = 0;
+			appendSlice(FIRST_CHUNK);
+			// On mobile, drain remaining cards one frame at a time so the dropdown
+			// can repaint and touch/scroll stays responsive.
+			if (IS_MOBILE && shown < filtered.length) {
+				const drainNext = () => {
+					pendingChunkRaf = 0;
+					if (shown >= filtered.length) return;
+					appendSlice(CHUNK_SIZE);
+					if (shown < filtered.length) pendingChunkRaf = requestAnimationFrame(drainNext);
+				};
+				pendingChunkRaf = requestAnimationFrame(drainNext);
+			}
+			return;
+		}
+
+		appendSlice(CHUNK_SIZE);
 	}
 
 	function sortInPlace(arr) {
