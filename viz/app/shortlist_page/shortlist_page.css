@@ -24,20 +24,25 @@
 
 .shortlistPage .slFilterCell {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
   min-width: 0;
 }
 
 .shortlistPage .slFilterLabel {
   opacity: .8;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
-/* Inputs fill their cell on every breakpoint */
+/* Inputs flex-shrink to fill the remaining cell width without wrapping */
 .shortlistPage .slFilterCell .selectSmall,
 .shortlistPage .slFilterCell .spiritFilter,
 .shortlistPage .slFilterCell .spiritFilterTrigger {
-  width: 100%;
+  flex: 1 1 0;
+  width: auto;
   max-width: none;
   min-width: 0;
   box-sizing: border-box;
