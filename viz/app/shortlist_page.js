@@ -117,37 +117,39 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 			<div class="card">
 				<div style="display:flex; flex-direction:column; gap:10px;">
-					<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-						<span class="small" style="opacity:.8;">Store</span>
-						<select id="storeFilter" class="selectSmall" aria-label="Store filter">
-							<option value="">-</option>
-						</select>
+					<div class="slFilterGrid">
+						<div class="slFilterCell">
+							<span class="small slFilterLabel">Store</span>
+							<select id="storeFilter" class="selectSmall" aria-label="Store filter">
+								<option value="">-</option>
+							</select>
+						</div>
 
-						<span class="mobileBreak" aria-hidden="true"></span>
+						<div class="slFilterCell">
+							<span class="small slFilterLabel">Sort</span>
+							<select id="sort" class="selectSmall" aria-label="Shortlist sort">
+								<option value="weightedDesc">Weighted Score</option>
+								<option value="scoreDesc">Score</option>
+								<option value="priceAsc">Lowest Price</option>
+								<option value="priceDesc">Highest Price</option>
+								<option value="salePct">Sale %</option>
+								<option value="saleAbs">Sale $</option>
+							</select>
+						</div>
 
-						<span class="small" style="opacity:.8;">Sort</span>
-						<select id="sort" class="selectSmall" aria-label="Shortlist sort">
-							<option value="weightedDesc">Weighted Score</option>
-							<option value="scoreDesc">Score</option>
-							<option value="priceAsc">Lowest Price</option>
-							<option value="priceDesc">Highest Price</option>
-							<option value="salePct">Sale %</option>
-							<option value="saleAbs">Sale $</option>
-						</select>
+						<div class="slFilterCell">
+							<span class="small slFilterLabel">Availability</span>
+							<select id="avail" class="selectSmall" aria-label="Availability filter">
+								<option value="all">All</option>
+								<option value="in">In stock only</option>
+								<option value="out">Out of stock only</option>
+							</select>
+						</div>
 
-						<span class="mobileBreak" aria-hidden="true"></span>
-
-						<span class="small" style="opacity:.8;">Availability</span>
-						<select id="avail" class="selectSmall" aria-label="Availability filter">
-							<option value="all">All</option>
-							<option value="in">In stock only</option>
-							<option value="out">Out of stock only</option>
-						</select>
-
-						<span class="mobileBreak" aria-hidden="true"></span>
-
-						<span class="small" style="opacity:.8;">Type</span>
-						${spiritFilterHtml({ containerId: "slSpiritFilter", triggerId: "slSpiritFilterTrigger", panelId: "slSpiritFilterPanel", labelId: "slSpiritFilterLabel" })}
+						<div class="slFilterCell">
+							<span class="small slFilterLabel">Type</span>
+							${spiritFilterHtml({ containerId: "slSpiritFilter", triggerId: "slSpiritFilterTrigger", panelId: "slSpiritFilterPanel", labelId: "slSpiritFilterLabel" })}
+						</div>
 					</div>
 
 					<div id="priceWrap" style="align-items:center; gap:10px; width:100%;">
