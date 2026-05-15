@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T16:33:38.895Z",
+  "generatedAt": "2026-05-15T19:32:14.131Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4426,
-    "removedRows": 512,
-    "canonSkus": 2210,
+    "liveRows": 4430,
+    "removedRows": 508,
+    "canonSkus": 2208,
     "outputCount": 250
   },
   "rows": [
@@ -116,49 +116,6 @@
         "priceNum": 27.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2691"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "legacyliquor": 41.99,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -761,6 +718,49 @@
         "priceNum": 49.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -1705,6 +1705,48 @@
         "priceNum": 26.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1040"
+      }
+    },
+    {
+      "canonSku": "001412",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 35.69,
+        "bcl": 34.99,
+        "gull": 36.45,
+        "legacyliquor": 36.99,
+        "tudor": 34.99,
+        "vessel": 35.99
+      },
+      "representative": {
+        "name": "J.P. WISER'S - SPECIAL BLEND",
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001412",
+        "skuKey": "001412",
+        "url": "https://www.bcliquorstores.com/product/1412",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1412"
       }
     },
     {
@@ -4010,47 +4052,6 @@
         "priceNum": 33.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/alberta-premium-rye-whisky-1140-ml"
-      }
-    },
-    {
-      "canonSku": "001412",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 35.69,
-        "bcl": 34.99,
-        "gull": 36.45,
-        "tudor": 34.99,
-        "vessel": 35.99
-      },
-      "representative": {
-        "name": "J.P. WISER'S - SPECIAL BLEND",
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001412",
-        "skuKey": "001412",
-        "url": "https://www.bcliquorstores.com/product/1412",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1412"
       }
     },
     {
@@ -9513,6 +9514,46 @@
       }
     },
     {
+      "canonSku": "165654",
+      "storeCount": 4,
+      "stores": [
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 66.85,
+        "legacyliquor": 72.99,
+        "tudor": 69.99,
+        "vessel": 69.99
+      },
+      "representative": {
+        "name": "Rittenhouse – Straight Rye Whiskey 100 Proof 750ml",
+        "price": "$66.85",
+        "priceNum": 66.85,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "165654",
+        "skuKey": "165654",
+        "url": "https://gullliquorstore.com/product/rittenhouse-rye-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$66.85",
+        "priceNum": 66.85,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/rittenhouse-rye-750m/"
+      }
+    },
+    {
       "canonSku": "186329",
       "storeCount": 4,
       "stores": [
@@ -10185,45 +10226,6 @@
         "priceNum": 124.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4728456-redbreast-12yo-cask-strength"
-      }
-    },
-    {
-      "canonSku": "165654",
-      "storeCount": 3,
-      "stores": [
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 66.85,
-        "tudor": 69.99,
-        "vessel": 69.99
-      },
-      "representative": {
-        "name": "Rittenhouse – Straight Rye Whiskey 100 Proof 750ml",
-        "price": "$66.85",
-        "priceNum": 66.85,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "165654",
-        "skuKey": "165654",
-        "url": "https://gullliquorstore.com/product/rittenhouse-rye-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$66.85",
-        "priceNum": 66.85,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/rittenhouse-rye-750m/"
       }
     },
     {
