@@ -137,6 +137,15 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 						<span class="mobileBreak" aria-hidden="true"></span>
 
+						<span class="small" style="opacity:.8;">Availability</span>
+						<select id="avail" class="selectSmall" aria-label="Availability filter">
+							<option value="all">All</option>
+							<option value="in">In stock only</option>
+							<option value="out">Out of stock only</option>
+						</select>
+
+						<span class="mobileBreak" aria-hidden="true"></span>
+
 						<span class="small" style="opacity:.8;">Type</span>
 						${spiritFilterHtml({ containerId: "slSpiritFilter", triggerId: "slSpiritFilterTrigger", panelId: "slSpiritFilterPanel", labelId: "slSpiritFilterLabel" })}
 					</div>
@@ -181,6 +190,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const $maxPrice = document.getElementById("maxPrice");
 	const $maxPriceLabel = document.getElementById("maxPriceLabel");
 	const $priceWrap = document.getElementById("priceWrap");
+	const $avail = document.getElementById("avail");
 
 	// Persist per-account
 	const LS_Q = `viz:shortlistQuery:${accountUuid}`;
@@ -188,6 +198,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const LS_STORE = `viz:shortlistStore:${accountUuid}`;
 	const LS_MAX = `viz:shortlistMaxPrice:${accountUuid}`;
 	const LS_TYPE = `viz:shortlistType:${accountUuid}`;
+	const LS_AVAIL = `viz:shortlistAvail:${accountUuid}`;
 
 	const $slSpiritFilter  = document.getElementById("slSpiritFilter");
 	const $slSpiritTrigger = document.getElementById("slSpiritFilterTrigger");
@@ -203,6 +214,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 	if (localStorage.getItem(LS_SORT)) $sort.value = String(localStorage.getItem(LS_SORT) || "");
 	if (localStorage.getItem(LS_STORE))
 		$storeFilter.value = String(localStorage.getItem(LS_STORE) || "");
+	$avail.value = (localStorage.getItem(LS_AVAIL) !== null
+		? String(localStorage.getItem(LS_AVAIL))
+		: "in");
 
 	let savedMaxPrice = null;
 	{
@@ -296,6 +310,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const liveStoresBySku = new Map(); // sku -> Set(storeNorm)
 	const everStoresBySku = new Map(); // sku -> Set(storeNorm)
 	const liveMinPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> minPrice)
+	const lastPriceBySku = new Map(); // sku -> { price, ms } — most recent observed price across any row (live or removed). Used as fallback for OOS items.
 
 	for (const r of listingsAll) {
 		if (!r) continue;
@@ -312,6 +327,18 @@ export async function renderShortlist($app, accountUuidRaw) {
 			let ss = everStoresBySku.get(sku);
 			if (!ss) everStoresBySku.set(sku, (ss = new Set()));
 			ss.add(stNorm);
+		}
+
+		// last-seen price (includes removed rows). Pick most recent ts; tie-break by lowest price.
+		{
+			const p = parsePriceToNumber(r.price);
+			if (p !== null) {
+				const ms = tsValue(r);
+				const prev = lastPriceBySku.get(sku);
+				if (!prev || ms > prev.ms || (ms === prev.ms && p < prev.price)) {
+					lastPriceBySku.set(sku, { price: p, ms });
+				}
+			}
 		}
 
 		if (r.removed) continue;
@@ -556,7 +583,12 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		const best = bestStoreForSku(sku);
 		const bestStoreNorm = String(best.storeNorm || "");
-		const bestPriceNum = bestAllPrice(sku);
+		let bestPriceNum = bestAllPrice(sku);
+		// For OOS items, fall back to the most recent observed price (the price they were last seen for)
+		if (bestPriceNum === null && outOfStock) {
+			const last = lastPriceBySku.get(sku);
+			if (last && Number.isFinite(last.price)) bestPriceNum = last.price;
+		}
 
 		const bestStoreLabel = bestStoreNorm ? storeDisplayByNorm.get(bestStoreNorm) || "" : "";
 		const bestUrl =
@@ -1001,6 +1033,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		localStorage.setItem(LS_Q, String($q.value || ""));
 		localStorage.setItem(LS_SORT, String($sort.value || ""));
 		localStorage.setItem(LS_STORE, String($storeFilter.value || ""));
+		localStorage.setItem(LS_AVAIL, String($avail.value || "all"));
 
 		// Base = favourites (current favSet), from decorated map
 		let base = [];
@@ -1013,6 +1046,14 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const storeNeed = String($storeFilter.value || "");
 		if (storeNeed) {
 			base = base.filter((it) => it && it._liveStoreNorms && it._liveStoreNorms.has(storeNeed));
+		}
+
+		// Availability filter (ignored when a specific store is selected — that already implies in-stock)
+		const availMode = String($avail.value || "all");
+		if (!storeNeed && availMode === "in") {
+			base = base.filter((it) => !it._outOfStock);
+		} else if (!storeNeed && availMode === "out") {
+			base = base.filter((it) => !!it._outOfStock);
 		}
 
 		// Spirit type filter
@@ -1299,6 +1340,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	$sort.addEventListener("change", applyFilter);
 	$storeFilter.addEventListener("change", applyFilter);
+	$avail.addEventListener("change", applyFilter);
 
 	$clear.addEventListener("click", () => {
 		let changed = false;
