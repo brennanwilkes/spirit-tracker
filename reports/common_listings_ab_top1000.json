@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T19:32:15.282Z",
+  "generatedAt": "2026-05-15T22:17:48.757Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 9029,
-    "removedRows": 3248,
-    "canonSkus": 5451,
+    "liveRows": 9032,
+    "removedRows": 3245,
+    "canonSkus": 5450,
     "outputCount": 1000
   },
   "rows": [
@@ -21104,6 +21104,45 @@
       }
     },
     {
+      "canonSku": "136155",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 230,
+        "craftcellars": 245.99,
+        "kwm": 174.99
+      },
+      "representative": {
+        "name": "Angels Envy 10 Year Cask Strength",
+        "price": "$174.99",
+        "priceNum": 174.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "136155",
+        "skuKey": "136155",
+        "url": "https://kensingtonwinemarket.com/product/136155/angel-s-envy-10-year-cask-strength",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$174.99",
+        "priceNum": 174.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/136155/angel-s-envy-10-year-cask-strength"
+      }
+    },
+    {
       "canonSku": "136246",
       "storeCount": 3,
       "stores": [
@@ -25313,45 +25352,6 @@
         "priceNum": 34.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/matusalem-15-year-old-gran-reserva"
-      }
-    },
-    {
-      "canonSku": "469114",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 74.99,
-        "craftcellars": 75.99,
-        "kegncork": 94.96
-      },
-      "representative": {
-        "name": "Gibson's Finest 18 Year Old Whisky",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "469114",
-        "skuKey": "469114",
-        "url": "https://www.bswliquor.com/products/gibsons-18-year-old-the-venerable",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/gibsons-18-year-old-the-venerable"
       }
     },
     {
@@ -36351,44 +36351,6 @@
       }
     },
     {
-      "canonSku": "136155",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 230,
-        "kwm": 174.99
-      },
-      "representative": {
-        "name": "Angels Envy 10 Year Cask Strength",
-        "price": "$174.99",
-        "priceNum": 174.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "136155",
-        "skuKey": "136155",
-        "url": "https://kensingtonwinemarket.com/product/136155/angel-s-envy-10-year-cask-strength",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$174.99",
-        "priceNum": 174.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/136155/angel-s-envy-10-year-cask-strength"
-      }
-    },
-    {
       "canonSku": "136360",
       "storeCount": 2,
       "stores": [
@@ -37450,6 +37412,44 @@
         "priceNum": 53.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-days"
+      }
+    },
+    {
+      "canonSku": "469114",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "kegncork": 94.96
+      },
+      "representative": {
+        "name": "Gibson's Finest 18 Year Old Whisky",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "469114",
+        "skuKey": "469114",
+        "url": "https://www.bswliquor.com/products/gibsons-18-year-old-the-venerable",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/gibsons-18-year-old-the-venerable"
       }
     },
     {
