@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T16:14:57.195Z",
+  "generatedAt": "2026-05-16T19:27:30.718Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13440,
-    "removedRows": 3783,
-    "canonSkus": 6610,
+    "liveRows": 11791,
+    "removedRows": 5432,
+    "canonSkus": 5789,
     "outputCount": 50
   },
   "rows": [
@@ -100,64 +100,6 @@
       }
     },
     {
-      "canonSku": "001232",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.99,
-        "bsw": 31.99,
-        "craftcellars": 36.99,
-        "gull": 27.49,
-        "kwm": 33.29,
-        "legacyliquor": 31.81,
-        "maltsandgrains": 35.2,
-        "sierrasprings": 31.32,
-        "strath": 32.52,
-        "tudor": 29.99,
-        "vessel": 29.99,
-        "vintage": 33.83,
-        "willowpark": 34.99
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
-      }
-    },
-    {
       "canonSku": "249680",
       "storeCount": 14,
       "stores": [
@@ -213,6 +155,63 @@
         "priceNum": 76.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/249680/talisker-10-year"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "kegncork"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 29.99,
+        "craftcellars": 36.99,
+        "gull": 27.49,
+        "kwm": 33.29,
+        "legacyliquor": 31.81,
+        "maltsandgrains": 35.2,
+        "sierrasprings": 31.32,
+        "strath": 32.52,
+        "tudor": 29.99,
+        "vessel": 29.99,
+        "vintage": 33.83,
+        "willowpark": 34.99
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -925,7 +924,7 @@
         "bsw": 150,
         "craftcellars": 165.99,
         "kegncork": 164.96,
-        "kwm": 123.74,
+        "kwm": 164.99,
         "legacyliquor": 199,
         "maltsandgrains": 174.9,
         "sierrasprings": 163.7,
@@ -935,22 +934,22 @@
         "willowpark": 169.99
       },
       "representative": {
-        "name": "Bowmore 18 Year",
-        "price": "$123.74",
-        "priceNum": 123.74,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "141495",
-        "skuKey": "141495",
-        "url": "https://kensingtonwinemarket.com/product/141495/bowmore-18-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "name": "Bowmore 18 Year Old",
+        "price": "$150.00",
+        "priceNum": 150,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "805160",
+        "skuKey": "805160",
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$123.74",
-        "priceNum": 123.74,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/141495/bowmore-18-year"
+        "price": "$150.00",
+        "priceNum": 150,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bowmore-18-year-old-1"
       }
     },
     {
@@ -1122,118 +1121,6 @@
       }
     },
     {
-      "canonSku": "521992",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 85.89,
-        "bcl": 92.99,
-        "bsw": 79.99,
-        "craftcellars": 84.99,
-        "gull": 94.25,
-        "kegncork": 84.96,
-        "kwm": 83.69,
-        "legacyliquor": 92.36,
-        "maltsandgrains": 83.31,
-        "strath": 93.27,
-        "tudor": 92.99,
-        "vessel": 89.99
-      },
-      "representative": {
-        "name": "Nikka Taketsuru Pure Malt Japanese Whisky",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "854767",
-        "skuKey": "854767",
-        "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk"
-      }
-    },
-    {
-      "canonSku": "546366",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 68.89,
-        "bcl": 67.99,
-        "bsw": 57.99,
-        "craftcellars": 64.99,
-        "gull": 71.65,
-        "kegncork": 66.96,
-        "kwm": 61.19,
-        "legacyliquor": 74.99,
-        "maltsandgrains": 67.9,
-        "strath": 68.48,
-        "tudor": 67.99,
-        "vessel": 69.99
-      },
-      "representative": {
-        "name": "Nikka From The Barrel Japanese Whisky",
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "546366",
-        "skuKey": "546366",
-        "url": "https://www.bswliquor.com/products/nikka-from-the-barrel",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/nikka-from-the-barrel"
-      }
-    },
-    {
       "canonSku": "656546",
       "storeCount": 12,
       "stores": [
@@ -1399,6 +1286,61 @@
         "priceNum": 64.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "craftcellars": 33.99,
+        "gull": 28.95,
+        "legacyliquor": 30.99,
+        "maltsandgrains": 30.9,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 32.96,
+        "willowpark": 34.49
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -2392,6 +2334,116 @@
       }
     },
     {
+      "canonSku": "521992",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "sierrasprings",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 85.89,
+        "bcl": 92.99,
+        "craftcellars": 84.99,
+        "gull": 94.25,
+        "kegncork": 84.96,
+        "kwm": 83.69,
+        "legacyliquor": 92.36,
+        "maltsandgrains": 83.31,
+        "strath": 93.27,
+        "tudor": 92.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "Nikka Taketsuru Malt 43% (700ml)",
+        "price": "$83.31",
+        "priceNum": 83.31,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "854767",
+        "skuKey": "854767",
+        "url": "https://maltsandgrains.store/product/nikka-taketsuru-malt-43-700ml/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$83.31",
+        "priceNum": 83.31,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/nikka-taketsuru-malt-43-700ml/"
+      }
+    },
+    {
+      "canonSku": "546366",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "sierrasprings",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 68.89,
+        "bcl": 67.99,
+        "craftcellars": 64.99,
+        "gull": 71.65,
+        "kegncork": 66.96,
+        "kwm": 61.19,
+        "legacyliquor": 74.99,
+        "maltsandgrains": 67.9,
+        "strath": 68.48,
+        "tudor": 67.99,
+        "vessel": 69.99
+      },
+      "representative": {
+        "name": "Nikka From the Barrel 51.4",
+        "price": "$61.19",
+        "priceNum": 61.19,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "546366",
+        "skuKey": "546366",
+        "url": "https://kensingtonwinemarket.com/product/546366/nikka-from-the-barrel-51-4",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$61.19",
+        "priceNum": 61.19,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/546366/nikka-from-the-barrel-51-4"
+      }
+    },
+    {
       "canonSku": "001099",
       "storeCount": 10,
       "stores": [
@@ -2713,60 +2765,6 @@
         "priceNum": 57.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/craigellachie-13-year-old"
-      }
-    },
-    {
-      "canonSku": "780196",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "legacyliquor",
-        "strath",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 64.99,
-        "bsw": 57.99,
-        "craftcellars": 65.99,
-        "gull": 67.5,
-        "kwm": 58.49,
-        "maltsandgrains": 63.15,
-        "sierrasprings": 54.99,
-        "tudor": 64.99,
-        "vessel": 62.49
-      },
-      "representative": {
-        "name": "TOKI",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "780196",
-        "skuKey": "780196",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/sierrasprings__whisky__b81923e1.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/whisky-2/japanese-whiskey/toki/"
       }
     },
     {

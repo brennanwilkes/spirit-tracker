@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T16:14:58.252Z",
+  "generatedAt": "2026-05-16T19:27:31.719Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4435,
-    "removedRows": 510,
-    "canonSkus": 2210,
+    "liveRows": 4432,
+    "removedRows": 513,
+    "canonSkus": 2209,
     "outputCount": 50
   },
   "rows": [
@@ -73,6 +73,49 @@
         "priceNum": 27.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -589,92 +632,6 @@
         "priceNum": 27.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1487"
-      }
-    },
-    {
-      "canonSku": "001610",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.69,
-        "bcl": 30.99,
-        "gull": 33,
-        "legacyliquor": 32.54,
-        "strath": 31.31,
-        "tudor": 30.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "Ballantine's - Finest Blended Scotch",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -1447,6 +1404,48 @@
         "priceNum": 34.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1412"
+      }
+    },
+    {
+      "canonSku": "001610",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.69,
+        "bcl": 30.99,
+        "gull": 33,
+        "strath": 31.31,
+        "tudor": 30.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "Ballantine's - Finest Blended Scotch",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
       }
     },
     {

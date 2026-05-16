@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T16:14:58.706Z",
+  "generatedAt": "2026-05-16T19:27:32.172Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4435,
-    "removedRows": 510,
-    "canonSkus": 2210,
-    "outputCount": 965
+    "liveRows": 4432,
+    "removedRows": 513,
+    "canonSkus": 2209,
+    "outputCount": 964
   },
   "rows": [
     {
@@ -116,6 +116,49 @@
         "priceNum": 27.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -635,49 +678,6 @@
       }
     },
     {
-      "canonSku": "001610",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.69,
-        "bcl": 30.99,
-        "gull": 33,
-        "legacyliquor": 32.54,
-        "strath": 31.31,
-        "tudor": 30.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "Ballantine's - Finest Blended Scotch",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
-      }
-    },
-    {
       "canonSku": "006968",
       "storeCount": 7,
       "stores": [
@@ -718,49 +718,6 @@
         "priceNum": 49.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -1833,6 +1790,48 @@
         "priceNum": 34.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1412"
+      }
+    },
+    {
+      "canonSku": "001610",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.69,
+        "bcl": 30.99,
+        "gull": 33,
+        "strath": 31.31,
+        "tudor": 30.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "Ballantine's - Finest Blended Scotch",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
       }
     },
     {
@@ -21939,45 +21938,6 @@
       }
     },
     {
-      "canonSku": "674036",
-      "storeCount": 3,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 62.1,
-        "legacyliquor": 67.99,
-        "tudor": 64.99
-      },
-      "representative": {
-        "name": "Diplomatico – Planas 750ml",
-        "price": "$62.10",
-        "priceNum": 62.1,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "674036",
-        "skuKey": "674036",
-        "url": "https://gullliquorstore.com/product/diplomatico-blanco-750m/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$62.10",
-        "priceNum": 62.1,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/diplomatico-blanco-750m/"
-      }
-    },
-    {
       "canonSku": "677743",
       "storeCount": 3,
       "stores": [
@@ -33846,44 +33806,6 @@
       }
     },
     {
-      "canonSku": "404817",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "gull"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 76.65,
-        "gull": 83.6
-      },
-      "representative": {
-        "name": "ABLEFORTHS RUMBULLION",
-        "price": "$76.65",
-        "priceNum": 76.65,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "404817",
-        "skuKey": "404817",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589211-ableforths-rumbullion",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$76.65",
-        "priceNum": 76.65,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589211-ableforths-rumbullion"
-      }
-    },
-    {
       "canonSku": "406579",
       "storeCount": 2,
       "stores": [
@@ -37035,6 +36957,44 @@
         "priceNum": 69.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5158534-boukman-botanical-rum"
+      }
+    },
+    {
+      "canonSku": "674036",
+      "storeCount": 2,
+      "stores": [
+        "gull",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 62.1,
+        "tudor": 64.99
+      },
+      "representative": {
+        "name": "Diplomatico – Planas 750ml",
+        "price": "$62.10",
+        "priceNum": 62.1,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "674036",
+        "skuKey": "674036",
+        "url": "https://gullliquorstore.com/product/diplomatico-blanco-750m/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$62.10",
+        "priceNum": 62.1,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/diplomatico-blanco-750m/"
       }
     },
     {
