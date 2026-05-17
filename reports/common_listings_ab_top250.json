@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T01:33:09.574Z",
+  "generatedAt": "2026-05-17T05:10:57.772Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 7358,
-    "removedRows": 4920,
-    "canonSkus": 4531,
+    "liveRows": 7361,
+    "removedRows": 4917,
+    "canonSkus": 4533,
     "outputCount": 250
   },
   "rows": [
@@ -7151,46 +7151,6 @@
       }
     },
     {
-      "canonSku": "485956",
-      "storeCount": 4,
-      "stores": [
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "willowpark"
-      ],
-      "storePrices": {
-        "craftcellars": 37.99,
-        "kwm": 48.59,
-        "maltsandgrains": 57,
-        "sierrasprings": 50.37
-      },
-      "representative": {
-        "name": "Elijah Craig Small Batch Straight Bourbon",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "547729",
-        "skuKey": "547729",
-        "url": "https://craftcellars.ca/products/elijah-craig-small-batch-straight-bourbon-47-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/elijah-craig-small-batch-straight-bourbon-47-abv"
-      }
-    },
-    {
       "canonSku": "521992",
       "storeCount": 4,
       "stores": [
@@ -9559,6 +9519,45 @@
         "priceNum": 76.09,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/whisky-2/american-whiskey-whisky-2/rye/michters-us1-single-barrel-straight-rye-42-4-abv/"
+      }
+    },
+    {
+      "canonSku": "485956",
+      "storeCount": 3,
+      "stores": [
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "willowpark"
+      ],
+      "storePrices": {
+        "kwm": 48.59,
+        "maltsandgrains": 57,
+        "sierrasprings": 50.37
+      },
+      "representative": {
+        "name": "Elijah Craig Small Batch Bourbon",
+        "price": "$48.59",
+        "priceNum": 48.59,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "547729",
+        "skuKey": "547729",
+        "url": "https://kensingtonwinemarket.com/product/547729/elijah-craig-small-batch-bourbon",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$48.59",
+        "priceNum": 48.59,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/547729/elijah-craig-small-batch-bourbon"
       }
     },
     {
