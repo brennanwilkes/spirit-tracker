@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T16:15:18.720Z",
+  "generatedAt": "2026-05-17T19:29:32.285Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8971,
-    "removedRows": 3307,
-    "canonSkus": 5431,
+    "liveRows": 8949,
+    "removedRows": 3329,
+    "canonSkus": 5421,
     "outputCount": 1000
   },
   "rows": [
@@ -1640,48 +1640,6 @@
         "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/kilchoman-sanaig-1"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork"
-      ],
-      "storePrices": {
-        "bsw": 94.99,
-        "craftcellars": 122.99,
-        "kwm": 76.99,
-        "maltsandgrains": 114.62,
-        "sierrasprings": 98.94,
-        "willowpark": 103.99
-      },
-      "representative": {
-        "name": "Talisker 10 Year",
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://kensingtonwinemarket.com/product/249680/talisker-10-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/249680/talisker-10-year"
       }
     },
     {
@@ -3657,13 +3615,13 @@
         "bsw": 135,
         "craftcellars": 97.99,
         "kegncork": 122.96,
-        "kwm": 88.19,
+        "kwm": 75.59,
         "sierrasprings": 157.99
       },
       "representative": {
         "name": "Raasay Gold Medal Peated Sherry 60.1",
-        "price": "$88.19",
-        "priceNum": 88.19,
+        "price": "$75.59",
+        "priceNum": 75.59,
         "storeKey": "kwm",
         "storeLabel": "Kensington Wine Market",
         "skuRaw": "124215",
@@ -3673,8 +3631,8 @@
         "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$88.19",
-        "priceNum": 88.19,
+        "price": "$75.59",
+        "priceNum": 75.59,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/124215/raasay-gold-medal-peated-sherry-60-1"
       }
@@ -4415,6 +4373,47 @@
         "priceNum": 130,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/oban-14-year-old-1"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm"
+      ],
+      "storePrices": {
+        "bsw": 94.99,
+        "craftcellars": 122.99,
+        "maltsandgrains": 114.62,
+        "sierrasprings": 98.94,
+        "willowpark": 103.99
+      },
+      "representative": {
+        "name": "Talisker 10 Year Old",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -8917,6 +8916,46 @@
       }
     },
     {
+      "canonSku": "126456",
+      "storeCount": 4,
+      "stores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "kegncork": 130.96,
+        "kwm": 118.79,
+        "maltsandgrains": 139.9,
+        "willowpark": 124.99
+      },
+      "representative": {
+        "name": "Ardnahoe Bholsa",
+        "price": "$118.79",
+        "priceNum": 118.79,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "126456",
+        "skuKey": "126456",
+        "url": "https://kensingtonwinemarket.com/product/126456/ardnahoe-bholsa",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$118.79",
+        "priceNum": 118.79,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/126456/ardnahoe-bholsa"
+      }
+    },
+    {
       "canonSku": "126606",
       "storeCount": 4,
       "stores": [
@@ -9174,26 +9213,26 @@
       "storePrices": {
         "bsw": 92.99,
         "kegncork": 94.96,
-        "kwm": 63.69,
+        "kwm": 97.99,
         "maltsandgrains": 109.9
       },
       "representative": {
-        "name": "Benromach Contrasts High Enzyme",
-        "price": "$63.69",
-        "priceNum": 63.69,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Benromach Contrasts: High Enzyme 46% ABV",
+        "price": "$92.99",
+        "priceNum": 92.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "129020",
         "skuKey": "129020",
-        "url": "https://kensingtonwinemarket.com/product/129020/benromach-contrasts-high-enzyme",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://www.bswliquor.com/products/benromach-high-enzyme-2012",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$63.69",
-        "priceNum": 63.69,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/129020/benromach-contrasts-high-enzyme"
+        "price": "$92.99",
+        "priceNum": 92.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/benromach-high-enzyme-2012"
       }
     },
     {
@@ -17992,12 +18031,12 @@
       "storePrices": {
         "bsw": 99.99,
         "kegncork": 99.96,
-        "kwm": 89.99
+        "kwm": 59.99
       },
       "representative": {
         "name": "Smokehead Rum Rebel Islay Single Malt",
-        "price": "$89.99",
-        "priceNum": 89.99,
+        "price": "$59.99",
+        "priceNum": 59.99,
         "storeKey": "kwm",
         "storeLabel": "Kensington Wine Market",
         "skuRaw": "882443",
@@ -18007,8 +18046,8 @@
         "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
+        "price": "$59.99",
+        "priceNum": 59.99,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/882443/smokehead-rum-rebel-islay-single-malt"
       }
@@ -18716,45 +18755,6 @@
       }
     },
     {
-      "canonSku": "116815",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 110,
-        "kegncork": 109.96,
-        "kwm": 98.99
-      },
-      "representative": {
-        "name": "Millstone Peated PX Canada Cask3 55.94",
-        "price": "$98.99",
-        "priceNum": 98.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "116815",
-        "skuKey": "116815",
-        "url": "https://kensingtonwinemarket.com/product/116815/millstone-peated-px-canada-cask-3-55-94",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$98.99",
-        "priceNum": 98.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/116815/millstone-peated-px-canada-cask-3-55-94"
-      }
-    },
-    {
       "canonSku": "116995",
       "storeCount": 3,
       "stores": [
@@ -19337,45 +19337,6 @@
         "priceNum": 97.19,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/126160/whisky-for-us-still-waters-9-year-cdn-sm"
-      }
-    },
-    {
-      "canonSku": "126456",
-      "storeCount": 3,
-      "stores": [
-        "kegncork",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "kegncork": 130.96,
-        "kwm": 118.79,
-        "willowpark": 124.99
-      },
-      "representative": {
-        "name": "Ardnahoe Bholsa",
-        "price": "$118.79",
-        "priceNum": 118.79,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "126456",
-        "skuKey": "126456",
-        "url": "https://kensingtonwinemarket.com/product/126456/ardnahoe-bholsa",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$118.79",
-        "priceNum": 118.79,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/126456/ardnahoe-bholsa"
       }
     },
     {
@@ -20253,13 +20214,13 @@
       ],
       "storePrices": {
         "bsw": 250,
-        "kwm": 229.49,
+        "kwm": 178.49,
         "maltsandgrains": 260.85
       },
       "representative": {
         "name": "Decadent Drams Arran 10 Year",
-        "price": "$229.49",
-        "priceNum": 229.49,
+        "price": "$178.49",
+        "priceNum": 178.49,
         "storeKey": "kwm",
         "storeLabel": "Kensington Wine Market",
         "skuRaw": "132825",
@@ -20269,8 +20230,8 @@
         "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$229.49",
-        "priceNum": 229.49,
+        "price": "$178.49",
+        "priceNum": 178.49,
         "storeKey": "kwm",
         "url": "https://kensingtonwinemarket.com/product/132825/decadent-drams-arran-10-year"
       }
@@ -22304,6 +22265,45 @@
       }
     },
     {
+      "canonSku": "142857",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 87.99,
+        "kwm": 89.99,
+        "maltsandgrains": 92.45
+      },
+      "representative": {
+        "name": "Gordon & Macphail Spirit of Scotland Dalmunach 2016 Cask No. 945637",
+        "price": "$87.99",
+        "priceNum": 87.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "142857",
+        "skuKey": "142857",
+        "url": "https://www.bswliquor.com/products/g-m-sos-dalmunach-2016-cask-no-945637",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$87.99",
+        "priceNum": 87.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/g-m-sos-dalmunach-2016-cask-no-945637"
+      }
+    },
+    {
       "canonSku": "143120",
       "storeCount": 3,
       "stores": [
@@ -23084,45 +23084,6 @@
       }
     },
     {
-      "canonSku": "222554",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 32.99,
-        "sierrasprings": 42.75,
-        "willowpark": 31.99
-      },
-      "representative": {
-        "name": "Havana Club Anejo 3 Anos",
-        "price": "$31.99",
-        "priceNum": 31.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "742682",
-        "skuKey": "742682",
-        "url": "https://www.willowpark.net/products/havana-club-anejo-3-anos",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/willowpark__rum__f770de34.json"
-      },
-      "cheapest": {
-        "price": "$31.99",
-        "priceNum": 31.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/havana-club-anejo-3-anos"
-      }
-    },
-    {
       "canonSku": "237950",
       "storeCount": 3,
       "stores": [
@@ -23315,6 +23276,45 @@
         "priceNum": 57.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/laphroaig-select-1"
+      }
+    },
+    {
+      "canonSku": "260299",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 380,
+        "craftcellars": 359.99,
+        "kwm": 395.99
+      },
+      "representative": {
+        "name": "Redbreast 21 Year Old Single Pot Still",
+        "price": "$359.99",
+        "priceNum": 359.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "775252",
+        "skuKey": "775252",
+        "url": "https://craftcellars.ca/products/redbreast-21-year-old-single-pot-still",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$359.99",
+        "priceNum": 359.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/redbreast-21-year-old-single-pot-still"
       }
     },
     {
@@ -25577,6 +25577,45 @@
         "priceNum": 66.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/the-legendary-silkie-750-ml/"
+      }
+    },
+    {
+      "canonSku": "488236",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 86.99,
+        "craftcellars": 75.99,
+        "kwm": 68.99
+      },
+      "representative": {
+        "name": "Shelter Point Smoke Point Single Malt",
+        "price": "$68.99",
+        "priceNum": 68.99,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
+        "skuRaw": "879861",
+        "skuKey": "879861",
+        "url": "https://kensingtonwinemarket.com/product/879861/shelter-point-smoke-point-single-malt",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+      },
+      "cheapest": {
+        "price": "$68.99",
+        "priceNum": 68.99,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/879861/shelter-point-smoke-point-single-malt"
       }
     },
     {
@@ -35210,44 +35249,6 @@
       }
     },
     {
-      "canonSku": "109726",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 1095,
-        "kwm": 1039.99
-      },
-      "representative": {
-        "name": "G&M CC Glen Scotia 1991",
-        "price": "$1039.99",
-        "priceNum": 1039.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "109726",
-        "skuKey": "109726",
-        "url": "https://kensingtonwinemarket.com/product/109726/g-m-cc-glen-scotia-1991",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$1039.99",
-        "priceNum": 1039.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/109726/g-m-cc-glen-scotia-1991"
-      }
-    },
-    {
       "canonSku": "110252",
       "storeCount": 2,
       "stores": [
@@ -36274,44 +36275,6 @@
       }
     },
     {
-      "canonSku": "115190",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 220,
-        "kwm": 164.99
-      },
-      "representative": {
-        "name": "OMC 25th Annv Tomintoul 17 Year",
-        "price": "$164.99",
-        "priceNum": 164.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "115190",
-        "skuKey": "115190",
-        "url": "https://kensingtonwinemarket.com/product/115190/omc-25th-annv-tomintoul-17-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$164.99",
-        "priceNum": 164.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/115190/omc-25th-annv-tomintoul-17-year"
-      }
-    },
-    {
       "canonSku": "115271",
       "storeCount": 2,
       "stores": [
@@ -36461,6 +36424,44 @@
         "priceNum": 93.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/lindores-thiron-lowland-single-malt"
+      }
+    },
+    {
+      "canonSku": "116815",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "kegncork"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 110,
+        "kegncork": 109.96
+      },
+      "representative": {
+        "name": "Millstone Peated Px Single Cask Cdn R3",
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "116815",
+        "skuKey": "116815",
+        "url": "https://www.bswliquor.com/products/millstone-peated-px-single-cask-cdn-r3",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$109.96",
+        "priceNum": 109.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/millstone-peated-px-single-cask-canadian-700-ml/"
       }
     },
     {
@@ -36651,44 +36652,6 @@
         "priceNum": 265,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/flaming-heart-2025"
-      }
-    },
-    {
-      "canonSku": "126070",
-      "storeCount": 2,
-      "stores": [
-        "bsw",
-        "kwm"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "kwm": 77.5
-      },
-      "representative": {
-        "name": "Big Peat 15th Anniversary Blended Malt",
-        "price": "$77.50",
-        "priceNum": 77.5,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "126070",
-        "skuKey": "126070",
-        "url": "https://kensingtonwinemarket.com/product/126070/big-peat-15th-anniversary-blended-malt",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$77.50",
-        "priceNum": 77.5,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/126070/big-peat-15th-anniversary-blended-malt"
       }
     },
     {
@@ -37639,6 +37602,44 @@
         "priceNum": 89.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/dewars-double-double-27-year-old-46-abv"
+      }
+    },
+    {
+      "canonSku": "222554",
+      "storeCount": 2,
+      "stores": [
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "sierrasprings": 42.75,
+        "willowpark": 31.99
+      },
+      "representative": {
+        "name": "Havana Club Anejo 3 Anos",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "742682",
+        "skuKey": "742682",
+        "url": "https://www.willowpark.net/products/havana-club-anejo-3-anos",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/willowpark__rum__f770de34.json"
+      },
+      "cheapest": {
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/havana-club-anejo-3-anos"
       }
     },
     {
