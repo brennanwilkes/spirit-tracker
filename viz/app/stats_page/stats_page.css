@@ -7,6 +7,52 @@
   min-width: 0;
 }
 
+/* Filter row: 2x2 grid on mobile, inline flex on desktop */
+.statsFilters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.statsFilterField {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.statsFilterField .selectSmall {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.statsFilterLabel {
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+/* Switch-styled filter fields override the label slot but keep grid sizing */
+.statsFilters > .switch.mini.statsFilterField {
+  justify-content: space-between;
+}
+
+@media (min-width: 641px) {
+  .statsFilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: auto;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .statsFilterField {
+    width: auto;
+  }
+}
+
 .statsTitleStack {
   display: flex;
   flex-direction: column;

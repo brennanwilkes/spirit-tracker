@@ -352,6 +352,12 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   text-align: center;
 }
 
+/* Back-button arrow: hidden on mobile, shown on desktop */
+.backArrow { display: none; }
+@media (min-width: 641px) {
+  .backArrow { display: inline; }
+}
+
 .btnSm {
   padding: 10px 12px;
   color: var(--muted);

@@ -87,7 +87,7 @@ export async function renderSkuLinker($app) {
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
       <div class="topbar">
-        <a id="back" class="btn" href="${peekBack()}">← Back</a>
+        <a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 		<div style="display:flex; align-items:center; gap:8px;">
 			<span class="badge">Temp</span>
 			<input

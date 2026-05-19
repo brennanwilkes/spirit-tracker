@@ -28,7 +28,7 @@ export async function renderSettings($app) {
 	$app.innerHTML = `
 		<div class="container settingsWrap">
 			<div class="topbar">
-				<a id="back" class="btn" href="${peekBack()}">← Back</a>
+				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<div class="h1 settingsTitle" style="margin:0;">Settings</div>
 			</div>
 

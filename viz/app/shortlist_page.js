@@ -108,7 +108,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	$app.innerHTML = `
         <div class="container shortlistPage">
             <div class="topbar">
-                <a id="back" class="btn" href="${peekBack()}">← Back</a>
+                <a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 
                 <div style="display:flex; align-items:center; gap:10px; margin-left:10px; min-width:0;">
                     <div id="slTitle" class="h1" style="margin:0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Shortlist</div>
