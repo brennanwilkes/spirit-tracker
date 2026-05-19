@@ -605,37 +605,48 @@ function main() {
   const WINDOW_MS = 48 * 60 * 60 * 1000;
   function isFlipFlop(ev) {
     if (ev.eventType === "GLOBAL_NEW") return false;
-    const hist = loadSkuHistory(ev.sku);
-    if (!hist || !hist.stores) return false;
-
     const prefix = `data/db/${ev.storeId}__`;
     const newN = ev.eventType === "PRICE_DROP" ? priceToNumber(ev.newPrice) : NaN;
     if (ev.eventType === "PRICE_DROP" && !Number.isFinite(newN)) return false;
 
-    for (const [key, entry] of Object.entries(hist.stores)) {
-      if (!key.startsWith(prefix)) continue;
-      const list = entry && Array.isArray(entry.events) ? entry.events : [];
-      for (let i = 1; i < list.length; i++) {
-        const prev = list[i - 1];
-        const cur = list[i];
-        const ts = Date.parse(cur.ts);
-        if (!Number.isFinite(ts)) continue;
-        if (ts >= baseTimeMs) continue;
-        if (ts < headTimeMs - WINDOW_MS) continue;
+    // The pack's canonical sku may differ from the raw sku used at this store,
+    // and per-SKU cache files are keyed by raw sku. Probe every raw sku that
+    // links to this canonical group, plus any sku keys observed at base/head.
+    const candidates = new Set([ev.sku]);
+    for (const m of skuMap.groupMembersForCanonical(ev.sku)) if (m) candidates.add(m);
+    const hk = headIdx.skuKeysByCanon.get(ev.sku);
+    if (hk) for (const k of hk) if (k) candidates.add(k);
+    const bk = baseIdx.skuKeysByCanon.get(ev.sku);
+    if (bk) for (const k of bk) if (k) candidates.add(k);
 
-        const prevIn = prev.p != null;
-        const curIn = cur.p != null;
+    for (const rawSku of candidates) {
+      const hist = loadSkuHistory(rawSku);
+      if (!hist || !hist.stores) continue;
+      for (const [key, entry] of Object.entries(hist.stores)) {
+        if (!key.startsWith(prefix)) continue;
+        const list = entry && Array.isArray(entry.events) ? entry.events : [];
+        for (let i = 1; i < list.length; i++) {
+          const prev = list[i - 1];
+          const cur = list[i];
+          const ts = Date.parse(cur.ts);
+          if (!Number.isFinite(ts)) continue;
+          if (ts >= baseTimeMs) continue;
+          if (ts < headTimeMs - WINDOW_MS) continue;
 
-        if (ev.eventType === "OUT_OF_STOCK") {
-          if (prevIn && !curIn) return true;
-        } else if (ev.eventType === "GLOBAL_RETURN") {
-          if (!prevIn && curIn) return true;
-        } else if (ev.eventType === "PRICE_DROP") {
-          if (prevIn && curIn) {
-            const oldN = priceToNumber(prev.p);
-            const curN = priceToNumber(cur.p);
-            if (Number.isFinite(oldN) && Number.isFinite(curN) && curN < oldN && curN <= newN) {
-              return true;
+          const prevIn = prev.p != null;
+          const curIn = cur.p != null;
+
+          if (ev.eventType === "OUT_OF_STOCK") {
+            if (prevIn && !curIn) return true;
+          } else if (ev.eventType === "GLOBAL_RETURN") {
+            if (!prevIn && curIn) return true;
+          } else if (ev.eventType === "PRICE_DROP") {
+            if (prevIn && curIn) {
+              const oldN = priceToNumber(prev.p);
+              const curN = priceToNumber(cur.p);
+              if (Number.isFinite(oldN) && Number.isFinite(curN) && curN < oldN && curN <= newN) {
+                return true;
+              }
             }
           }
         }

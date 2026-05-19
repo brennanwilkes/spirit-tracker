@@ -661,6 +661,7 @@ function computeYBounds(seriesByStore, arg2, arg3, arg4) {
 
 const LS_GROUP = "stviz:v1:stats:group";
 const LS_SIZE = "stviz:v1:stats:size";
+const LS_TREND_ONLY = "stviz:v1:stats:trendOnly";
 
 const LS_Q = "stviz:v1:stats:q";
 function lsMinKey(group, size) {
@@ -673,19 +674,27 @@ function lsMaxKey(group, size) {
 function loadPrefs() {
 	let group = "all";
 	let size = "250";
+	let trendOnly = false;
 	try {
 		group = String(localStorage.getItem(LS_GROUP) || "all");
 		size = String(localStorage.getItem(LS_SIZE) || "250");
+		trendOnly = localStorage.getItem(LS_TREND_ONLY) === "1";
 	} catch {}
 	group = group === "bc" || group === "ab" || group === "all" ? group : "all";
 	size = size === "50" || size === "250" || size === "1000" ? size : "250";
-	return { group, size: Number(size) };
+	return { group, size: Number(size), trendOnly };
 }
 
 function savePrefs(group, size) {
 	try {
 		localStorage.setItem(LS_GROUP, String(group));
 		localStorage.setItem(LS_SIZE, String(size));
+	} catch {}
+}
+
+function saveTrendOnlyPref(trendOnly) {
+	try {
+		localStorage.setItem(LS_TREND_ONLY, trendOnly ? "1" : "0");
 	} catch {}
 }
 
@@ -726,6 +735,16 @@ export async function renderStats($app) {
                   <option value="250">250</option>
                   <option value="1000">1000</option>
                 </select>
+              </label>
+
+              <label id="statsTrendOnly" class="switch mini" style="cursor:pointer;" title="Hide per-store lines and show only the market trendlines">
+                <input id="statsTrendOnlyInput" type="checkbox" />
+                <div class="switchLabel">
+                  <div class="switchStatus muted">Trendlines only</div>
+                </div>
+                <div class="switchPill" aria-hidden="true">
+                  <div class="switchKnob"></div>
+                </div>
               </label>
             </div>
           </div>
@@ -777,8 +796,13 @@ export async function renderStats($app) {
 	const $priceLabel = document.getElementById("statsPriceLabel");
 	const $priceWrap = document.getElementById("statsPriceWrap");
 
+	const $trendOnly = document.getElementById("statsTrendOnly");
+	const $trendOnlyInput = document.getElementById("statsTrendOnlyInput");
+
 	if ($group) $group.value = pref.group;
 	if ($size) $size.value = String(pref.size);
+	if ($trendOnly) $trendOnly.classList.toggle("isOn", !!pref.trendOnly);
+	if ($trendOnlyInput) $trendOnlyInput.checked = !!pref.trendOnly;
 
 	const onStatus = (msg) => {
 		if ($status) $status.textContent = String(msg || "");
@@ -940,12 +964,15 @@ export async function renderStats($app) {
 				maxPrice: selectedMaxPrice,
 			});
 
+			const trendOnly = !!$trendOnlyInput?.checked;
+			series.marketOnly = trendOnly;
+
 			const isDollars = series.valueMode === "dollars";
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
 			const yBounds = computeYBounds(
-				series.seriesByStore,
+				trendOnly ? {} : series.seriesByStore,
 				[series.marketMedianTrend, series.marketFloorTrend],
 				yMinSpan,
 				yPad,
@@ -985,12 +1012,15 @@ export async function renderStats($app) {
 				maxPrice: selectedMaxPrice,
 			});
 
+			const trendOnly = !!$trendOnlyInput?.checked;
+			series.marketOnly = trendOnly;
+
 			const isDollars = series.valueMode === "dollars";
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
 			const yBounds = computeYBounds(
-				series.seriesByStore,
+				trendOnly ? {} : series.seriesByStore,
 				[series.marketMedianTrend, series.marketFloorTrend],
 				yMinSpan,
 				yPad,
@@ -1042,6 +1072,14 @@ export async function renderStats($app) {
 	$size?.addEventListener("change", async () => {
 		onStatus("Loading…");
 		await rerender();
+	});
+	$trendOnly?.addEventListener("click", (e) => {
+		e.preventDefault();
+		const nowOn = !$trendOnly.classList.contains("isOn");
+		$trendOnly.classList.toggle("isOn", nowOn);
+		if ($trendOnlyInput) $trendOnlyInput.checked = nowOn;
+		saveTrendOnlyPref(nowOn);
+		applyFiltersDebounced(0);
 	});
 
 	let tq = null;

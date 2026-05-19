@@ -112,6 +112,7 @@ export async function drawOrUpdateChart(series, yBounds) {
 		marketMedianTrend,
 		marketFloorTrend,
 		valueMode,
+		marketOnly,
 	} = series;
 
 	const Chart = await ensureChartJs();
@@ -134,7 +135,7 @@ export async function drawOrUpdateChart(series, yBounds) {
 
 	const colorMap = buildStoreColorMap(order);
 
-	const datasets = order.map((s) => {
+	const storeDatasets = marketOnly ? [] : order.map((s) => {
 		const base = storeColor(s, colorMap);
 		const stroke = lighten(base, 0.25);
 
@@ -175,6 +176,8 @@ export async function drawOrUpdateChart(series, yBounds) {
 			},
 		};
 	});
+
+	const datasets = [...storeDatasets];
 
 	datasets.push({
 		label: "Market Median",
