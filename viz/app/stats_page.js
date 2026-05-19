@@ -469,69 +469,65 @@ function computePriceBoundsFromReport(report, stores) {
 	return { min: mn, max: mx };
 }
 
-// Edge-preserving smoothing.
-// 1. Centered moving average. Window grows with sqrt(totalDays), capped.
-// 2. For each point, if the original deviates from the smoothed value by more
-//    than ~2σ of the residuals, blend back toward the original. That keeps
-//    short, dramatic spikes (e.g. a 3-day storewide sale) visible while still
-//    smoothing routine noise. Window auto-scales so longer histories become
-//    progressively smoother without manual tuning.
+// Edge-preserving smoothing with hard boundaries at large day-over-day swings.
+//
+// Algorithm:
+//   1. Window grows with sqrt(N), capped — longer histories smooth more.
+//   2. Any day-over-day delta of >= JUMP_THRESH (5 units = 5% or $5) flags
+//      both adjacent points as "anchored". Anchored points keep their original
+//      value AND act as hard barriers: the smoothing window for neighbouring
+//      points will not reach past them. That preserves dramatic spikes
+//      (e.g. 3-day 10% storewide sale) as solid boundaries between otherwise
+//      smoothed segments.
 function adaptiveSmooth(arr) {
 	if (!Array.isArray(arr) || arr.length === 0) return arr;
 	const n = arr.length;
 	const window = Math.max(3, Math.min(31, Math.round(Math.sqrt(n))));
 	const half = Math.floor(window / 2);
 
-	const smooth = new Array(n).fill(null);
-	for (let i = 0; i < n; i++) {
-		let sum = 0;
-		let cnt = 0;
-		const lo = Math.max(0, i - half);
-		const hi = Math.min(n, i + half + 1);
-		for (let j = lo; j < hi; j++) {
-			const v = arr[j];
-			if (Number.isFinite(v)) {
-				sum += v;
-				cnt++;
-			}
+	const JUMP_THRESH = 5;
+	const anchored = new Array(n).fill(false);
+	for (let i = 1; i < n; i++) {
+		const a = arr[i - 1];
+		const b = arr[i];
+		if (Number.isFinite(a) && Number.isFinite(b) && Math.abs(b - a) >= JUMP_THRESH) {
+			anchored[i - 1] = true;
+			anchored[i] = true;
 		}
-		smooth[i] = cnt ? sum / cnt : null;
 	}
-
-	// sigma = stddev of residuals (original - smoothed)
-	let sumSq = 0;
-	let k = 0;
-	for (let i = 0; i < n; i++) {
-		const v = arr[i];
-		const s = smooth[i];
-		if (!Number.isFinite(v) || !Number.isFinite(s)) continue;
-		const d = v - s;
-		sumSq += d * d;
-		k++;
-	}
-	const sigma = k > 0 ? Math.sqrt(sumSq / k) : 0;
 
 	const out = new Array(n).fill(null);
-	const THRESH = 2; // sigmas
 	for (let i = 0; i < n; i++) {
 		const v = arr[i];
-		const s = smooth[i];
-		if (!Number.isFinite(s)) {
+		if (anchored[i]) {
 			out[i] = Number.isFinite(v) ? v : null;
 			continue;
 		}
-		if (!Number.isFinite(v) || sigma <= 0) {
-			out[i] = s;
-			continue;
+		let sum = 0;
+		let cnt = 0;
+		if (Number.isFinite(v)) {
+			sum += v;
+			cnt++;
 		}
-		const dev = Math.abs(v - s);
-		if (dev <= THRESH * sigma) {
-			out[i] = s;
-		} else {
-			// blend toward original as deviation exceeds threshold
-			const t = Math.min(1, (dev - THRESH * sigma) / (THRESH * sigma));
-			out[i] = s * (1 - t) + v * t;
+		// walk left until we hit a boundary or the window edge
+		for (let j = i - 1; j >= Math.max(0, i - half); j--) {
+			if (anchored[j]) break;
+			const x = arr[j];
+			if (Number.isFinite(x)) {
+				sum += x;
+				cnt++;
+			}
 		}
+		// walk right symmetrically
+		for (let j = i + 1; j <= Math.min(n - 1, i + half); j++) {
+			if (anchored[j]) break;
+			const x = arr[j];
+			if (Number.isFinite(x)) {
+				sum += x;
+				cnt++;
+			}
+		}
+		out[i] = cnt ? sum / cnt : Number.isFinite(v) ? v : null;
 	}
 	return out;
 }
@@ -1071,18 +1067,20 @@ export async function renderStats($app) {
 			const trendOnly = !!$trendOnlyInput?.checked;
 			series.marketOnly = trendOnly;
 
-			if ($smoothInput?.checked) applySmoothingToSeries(series);
-
 			const isDollars = series.valueMode === "dollars";
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
+			// y-bounds derived from the raw (unsmoothed) data so toggling
+			// "Smooth" doesn't rescale the axis
 			const yBounds = computeYBounds(
 				trendOnly ? {} : series.seriesByStore,
 				[series.marketMedianTrend, series.marketFloorTrend],
 				yMinSpan,
 				yPad,
 			);
+
+			if ($smoothInput?.checked) applySmoothingToSeries(series);
 
 			await drawOrUpdateChart(series, yBounds);
 			resizeStatsChart();
@@ -1121,18 +1119,20 @@ export async function renderStats($app) {
 			const trendOnly = !!$trendOnlyInput?.checked;
 			series.marketOnly = trendOnly;
 
-			if ($smoothInput?.checked) applySmoothingToSeries(series);
-
 			const isDollars = series.valueMode === "dollars";
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
 
+			// y-bounds derived from the raw (unsmoothed) data so toggling
+			// "Smooth" doesn't rescale the axis
 			const yBounds = computeYBounds(
 				trendOnly ? {} : series.seriesByStore,
 				[series.marketMedianTrend, series.marketFloorTrend],
 				yMinSpan,
 				yPad,
 			);
+
+			if ($smoothInput?.checked) applySmoothingToSeries(series);
 
 			await drawOrUpdateChart(series, yBounds);
 			resizeStatsChart();
