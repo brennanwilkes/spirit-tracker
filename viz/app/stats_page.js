@@ -805,28 +805,22 @@ export async function renderStats($app) {
 
           <div class="headerRight">
             <div class="statsFilters">
-              <label class="small statsFilterField">
-                <span class="statsFilterLabel">Stores</span>
-                <select id="statsGroup" class="selectSmall" aria-label="Store group">
-                  <option value="all">All Stores</option>
-                  <option value="bc">BC Only</option>
-                  <option value="ab">Alberta Only</option>
-                </select>
-              </label>
+              <select id="statsGroup" class="selectSmall statsFilterField" aria-label="Store group">
+                <option value="all">All Stores</option>
+                <option value="bc">BC Only</option>
+                <option value="ab">Alberta Only</option>
+              </select>
 
-              <label class="small statsFilterField">
-                <span class="statsFilterLabel">Sample Size</span>
-                <select id="statsSize" class="selectSmall" aria-label="Sample size">
-                  <option value="50">50</option>
-                  <option value="250">250</option>
-                  <option value="1000">1000</option>
-                </select>
-              </label>
+              <select id="statsSize" class="selectSmall statsFilterField" aria-label="Sample size">
+                <option value="50">Top 50</option>
+                <option value="250">Top 250</option>
+                <option value="1000">Top 1000</option>
+              </select>
 
               <label id="statsTrendOnly" class="switch mini statsFilterField" style="cursor:pointer;" title="Hide per-store lines and show only the market trendlines">
                 <input id="statsTrendOnlyInput" type="checkbox" />
                 <div class="switchLabel">
-                  <div class="switchStatus muted">Trendlines only</div>
+                  <div class="switchStatus muted">Trendlines</div>
                 </div>
                 <div class="switchPill" aria-hidden="true">
                   <div class="switchKnob"></div>
@@ -1085,7 +1079,7 @@ export async function renderStats($app) {
 			await drawOrUpdateChart(series, yBounds);
 			resizeStatsChart();
 
-			const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
+			const short = `${series.labels.length}d · ${series.newestUsed}/${series.newestTotal} SKUs`;
 			onStatus(short);
 			if ($status) {
 				$status.title = `Source: ${relReportPath(group, size)} @ ${raw.latestSha.slice(0, 7)}`;
@@ -1137,7 +1131,7 @@ export async function renderStats($app) {
 			await drawOrUpdateChart(series, yBounds);
 			resizeStatsChart();
 
-			const short = `Loaded ${series.labels.length} day(s). Filtered SKUs: ${series.newestUsed}/${series.newestTotal}.`;
+			const short = `${series.labels.length}d · ${series.newestUsed}/${series.newestTotal} SKUs`;
 			onStatus(short);
 			if ($status) {
 				$status.title = `Source: ${relReportPath(group, size)} @ ${raw.latestSha.slice(0, 7)}`;
