@@ -47,7 +47,7 @@ export function renderStores($app) {
 	$app.innerHTML = `
 		<div class="container storesPage">
 			<div class="topbar">
-				<a id="back" class="btn" href="${peekBack()}">← Back</a>
+				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<div class="h1" style="margin:0;">Stores</div>
 			</div>
 

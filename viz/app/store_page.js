@@ -24,7 +24,7 @@ export async function renderStore($app, storeLabelRaw) {
 	$app.innerHTML = `
     <div class="container containerStoreWide">
       <div class="topbar">
-        <a id="back" class="btn" href="${peekBack()}">← Back</a>
+        <a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
         <span class="badge">${esc(storeLabelShort || "Store")}</span>
       </div>
 

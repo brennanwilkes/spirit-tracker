@@ -143,7 +143,7 @@ export async function renderItem($app, skuInput) {
 	$app.innerHTML = `
 		<div class="container">
 			<div class="topbar">
-				<a id="back" class="btn" href="${peekBack()}">← Back</a>
+				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<span class="badge mono">${esc(displaySku(sku))}</span>
 			</div>
 

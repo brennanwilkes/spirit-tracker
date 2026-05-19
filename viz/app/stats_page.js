@@ -469,6 +469,87 @@ function computePriceBoundsFromReport(report, stores) {
 	return { min: mn, max: mx };
 }
 
+// Edge-preserving smoothing.
+// 1. Centered moving average. Window grows with sqrt(totalDays), capped.
+// 2. For each point, if the original deviates from the smoothed value by more
+//    than ~2σ of the residuals, blend back toward the original. That keeps
+//    short, dramatic spikes (e.g. a 3-day storewide sale) visible while still
+//    smoothing routine noise. Window auto-scales so longer histories become
+//    progressively smoother without manual tuning.
+function adaptiveSmooth(arr) {
+	if (!Array.isArray(arr) || arr.length === 0) return arr;
+	const n = arr.length;
+	const window = Math.max(3, Math.min(31, Math.round(Math.sqrt(n))));
+	const half = Math.floor(window / 2);
+
+	const smooth = new Array(n).fill(null);
+	for (let i = 0; i < n; i++) {
+		let sum = 0;
+		let cnt = 0;
+		const lo = Math.max(0, i - half);
+		const hi = Math.min(n, i + half + 1);
+		for (let j = lo; j < hi; j++) {
+			const v = arr[j];
+			if (Number.isFinite(v)) {
+				sum += v;
+				cnt++;
+			}
+		}
+		smooth[i] = cnt ? sum / cnt : null;
+	}
+
+	// sigma = stddev of residuals (original - smoothed)
+	let sumSq = 0;
+	let k = 0;
+	for (let i = 0; i < n; i++) {
+		const v = arr[i];
+		const s = smooth[i];
+		if (!Number.isFinite(v) || !Number.isFinite(s)) continue;
+		const d = v - s;
+		sumSq += d * d;
+		k++;
+	}
+	const sigma = k > 0 ? Math.sqrt(sumSq / k) : 0;
+
+	const out = new Array(n).fill(null);
+	const THRESH = 2; // sigmas
+	for (let i = 0; i < n; i++) {
+		const v = arr[i];
+		const s = smooth[i];
+		if (!Number.isFinite(s)) {
+			out[i] = Number.isFinite(v) ? v : null;
+			continue;
+		}
+		if (!Number.isFinite(v) || sigma <= 0) {
+			out[i] = s;
+			continue;
+		}
+		const dev = Math.abs(v - s);
+		if (dev <= THRESH * sigma) {
+			out[i] = s;
+		} else {
+			// blend toward original as deviation exceeds threshold
+			const t = Math.min(1, (dev - THRESH * sigma) / (THRESH * sigma));
+			out[i] = s * (1 - t) + v * t;
+		}
+	}
+	return out;
+}
+
+function applySmoothingToSeries(series) {
+	if (series.seriesByStore && typeof series.seriesByStore === "object") {
+		for (const k of Object.keys(series.seriesByStore)) {
+			series.seriesByStore[k] = adaptiveSmooth(series.seriesByStore[k]);
+		}
+	}
+	if (Array.isArray(series.marketMedianTrend)) {
+		series.marketMedianTrend = adaptiveSmooth(series.marketMedianTrend);
+	}
+	if (Array.isArray(series.marketFloorTrend)) {
+		series.marketFloorTrend = adaptiveSmooth(series.marketFloorTrend);
+	}
+}
+
 function movingAverage(arr, window = 5) {
 	const out = new Array(Array.isArray(arr) ? arr.length : 0).fill(null);
 	for (let i = 0; i < out.length; i++) {
@@ -662,6 +743,7 @@ function computeYBounds(seriesByStore, arg2, arg3, arg4) {
 const LS_GROUP = "stviz:v1:stats:group";
 const LS_SIZE = "stviz:v1:stats:size";
 const LS_TREND_ONLY = "stviz:v1:stats:trendOnly";
+const LS_SMOOTH = "stviz:v1:stats:smooth";
 
 const LS_Q = "stviz:v1:stats:q";
 function lsMinKey(group, size) {
@@ -675,14 +757,16 @@ function loadPrefs() {
 	let group = "all";
 	let size = "250";
 	let trendOnly = false;
+	let smooth = false;
 	try {
 		group = String(localStorage.getItem(LS_GROUP) || "all");
 		size = String(localStorage.getItem(LS_SIZE) || "250");
 		trendOnly = localStorage.getItem(LS_TREND_ONLY) === "1";
+		smooth = localStorage.getItem(LS_SMOOTH) === "1";
 	} catch {}
 	group = group === "bc" || group === "ab" || group === "all" ? group : "all";
 	size = size === "50" || size === "250" || size === "1000" ? size : "250";
-	return { group, size: Number(size), trendOnly };
+	return { group, size: Number(size), trendOnly, smooth };
 }
 
 function savePrefs(group, size) {
@@ -698,6 +782,12 @@ function saveTrendOnlyPref(trendOnly) {
 	} catch {}
 }
 
+function saveSmoothPref(smooth) {
+	try {
+		localStorage.setItem(LS_SMOOTH, smooth ? "1" : "0");
+	} catch {}
+}
+
 /* ---------------- render ---------------- */
 
 export async function renderStats($app) {
@@ -710,17 +800,17 @@ export async function renderStats($app) {
       <div class="header">
         <div class="headerRow1">
           <div class="statsHeaderLeft">
-            <a id="back" class="btn" href="${peekBack()}">← Back</a>
+            <a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
             <div class="statsTitleStack">
-              <h1 class="h1">Price % Difference for Common Bottles</h1>
+              <h1 class="h1">Market Trend</h1>
               <div class="small" id="statsStatus">Loading…</div>
             </div>
           </div>
 
           <div class="headerRight">
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
-              <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Stores
+            <div class="statsFilters">
+              <label class="small statsFilterField">
+                <span class="statsFilterLabel">Stores</span>
                 <select id="statsGroup" class="selectSmall" aria-label="Store group">
                   <option value="all">All Stores</option>
                   <option value="bc">BC Only</option>
@@ -728,8 +818,8 @@ export async function renderStats($app) {
                 </select>
               </label>
 
-              <label class="small" style="display:flex; gap:8px; align-items:center;">
-                Sample Size
+              <label class="small statsFilterField">
+                <span class="statsFilterLabel">Sample Size</span>
                 <select id="statsSize" class="selectSmall" aria-label="Sample size">
                   <option value="50">50</option>
                   <option value="250">250</option>
@@ -737,10 +827,20 @@ export async function renderStats($app) {
                 </select>
               </label>
 
-              <label id="statsTrendOnly" class="switch mini" style="cursor:pointer;" title="Hide per-store lines and show only the market trendlines">
+              <label id="statsTrendOnly" class="switch mini statsFilterField" style="cursor:pointer;" title="Hide per-store lines and show only the market trendlines">
                 <input id="statsTrendOnlyInput" type="checkbox" />
                 <div class="switchLabel">
                   <div class="switchStatus muted">Trendlines only</div>
+                </div>
+                <div class="switchPill" aria-hidden="true">
+                  <div class="switchKnob"></div>
+                </div>
+              </label>
+
+              <label id="statsSmooth" class="switch mini statsFilterField" style="cursor:pointer;" title="Apply edge-preserving smoothing — window grows with history length, but sharp spikes are retained">
+                <input id="statsSmoothInput" type="checkbox" />
+                <div class="switchLabel">
+                  <div class="switchStatus muted">Smooth</div>
                 </div>
                 <div class="switchPill" aria-hidden="true">
                   <div class="switchKnob"></div>
@@ -798,11 +898,15 @@ export async function renderStats($app) {
 
 	const $trendOnly = document.getElementById("statsTrendOnly");
 	const $trendOnlyInput = document.getElementById("statsTrendOnlyInput");
+	const $smooth = document.getElementById("statsSmooth");
+	const $smoothInput = document.getElementById("statsSmoothInput");
 
 	if ($group) $group.value = pref.group;
 	if ($size) $size.value = String(pref.size);
 	if ($trendOnly) $trendOnly.classList.toggle("isOn", !!pref.trendOnly);
 	if ($trendOnlyInput) $trendOnlyInput.checked = !!pref.trendOnly;
+	if ($smooth) $smooth.classList.toggle("isOn", !!pref.smooth);
+	if ($smoothInput) $smoothInput.checked = !!pref.smooth;
 
 	const onStatus = (msg) => {
 		if ($status) $status.textContent = String(msg || "");
@@ -967,6 +1071,8 @@ export async function renderStats($app) {
 			const trendOnly = !!$trendOnlyInput?.checked;
 			series.marketOnly = trendOnly;
 
+			if ($smoothInput?.checked) applySmoothingToSeries(series);
+
 			const isDollars = series.valueMode === "dollars";
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
 			const yPad = isDollars ? 2 : 1;
@@ -1014,6 +1120,8 @@ export async function renderStats($app) {
 
 			const trendOnly = !!$trendOnlyInput?.checked;
 			series.marketOnly = trendOnly;
+
+			if ($smoothInput?.checked) applySmoothingToSeries(series);
 
 			const isDollars = series.valueMode === "dollars";
 			const yMinSpan = isDollars ? (group === "all" ? 20 : 15) : group === "all" ? 8 : 6;
@@ -1079,6 +1187,14 @@ export async function renderStats($app) {
 		$trendOnly.classList.toggle("isOn", nowOn);
 		if ($trendOnlyInput) $trendOnlyInput.checked = nowOn;
 		saveTrendOnlyPref(nowOn);
+		applyFiltersDebounced(0);
+	});
+	$smooth?.addEventListener("click", (e) => {
+		e.preventDefault();
+		const nowOn = !$smooth.classList.contains("isOn");
+		$smooth.classList.toggle("isOn", nowOn);
+		if ($smoothInput) $smoothInput.checked = nowOn;
+		saveSmoothPref(nowOn);
 		applyFiltersDebounced(0);
 	});
 
