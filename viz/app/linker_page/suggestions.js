@@ -31,6 +31,20 @@ function shuffleInPlace(arr, rnd) {
 	return arr;
 }
 
+/* ---------------- Bad/invalid SKU detection ---------------- */
+// A "bad" SKU is one that can never be matched automatically by ID and
+// therefore is more likely to need manual linking. These are exactly the
+// SKUs that should be boosted in suggestions.
+function isBadSku(sku) {
+	const s = String(sku || "").toLowerCase();
+	if (!s) return true;
+	if (s.startsWith("u:")) return true;
+	if (s.startsWith("id:")) return true;
+	if (s.startsWith("upc:")) return true;
+	if (s === "unknown") return true;
+	return false;
+}
+
 /* ---------------- Suggestion helpers ---------------- */
 
 export function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
@@ -43,9 +57,9 @@ export function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
 		const stores = it.stores ? it.stores.size : 0;
 		const hasPrice = it.cheapestPriceNum !== null ? 1 : 0;
 		const hasName = it.name ? 1 : 0;
-		const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
+		const bad = isBadSku(it.sku) ? 1 : 0;
 
-		scored.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 + unknown * 0.6 });
+		scored.push({ it, s: stores * 2 + hasPrice * 1.2 + hasName * 1.0 + bad * 0.8 });
 	}
 	scored.sort((a, b) => b.s - a.s);
 	return scored.slice(0, limit).map((x) => x.it);
@@ -182,8 +196,9 @@ export function recommendSimilar(
 			else s0 *= 0.22;
 		}
 
-		// Unknown boost
-		if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s0 *= 1.08;
+		// Bad/invalid SKU boost — these will never auto-link, so we want them
+		// to surface more often in manual suggestions.
+		if (isBadSku(pinnedSku) || isBadSku(itSku)) s0 *= 1.15;
 
 		pushTopK(cheap, { it, s: s0, itNorm, itRawToks }, MAX_CHEAP_KEEP);
 	}
@@ -232,7 +247,7 @@ export function recommendSimilar(
 			else s *= 0.15;
 		}
 
-		if (pinnedSku.startsWith("u:") || itSku.startsWith("u:")) s *= 1.12;
+		if (isBadSku(pinnedSku) || isBadSku(itSku)) s *= 1.2;
 
 		fine.push({ it, s });
 	}
@@ -314,8 +329,8 @@ export function computeInitialPairsFast(
 		const stores = it.stores ? it.stores.size : 0;
 		const hasPrice = it.cheapestPriceNum != null ? 1 : 0;
 		const hasName = it.name ? 1 : 0;
-		const unknown = String(it.sku || "").startsWith("u:") ? 1 : 0;
-		return stores * 3 + hasPrice * 2 + hasName * 0.6 + unknown * 0.4;
+		const bad = isBadSku(it.sku) ? 1 : 0;
+		return stores * 3 + hasPrice * 2 + hasName * 0.6 + bad * 0.6;
 	}
 
 	// Randomized catalog view (helps variety), but bounded
@@ -411,8 +426,11 @@ export function computeInitialPairsFast(
 		}
 	}
 
+	// Number of pinned SMWS pairs at the head of `out`. These must stay at the
+	// top — never get shuffled into the general pool below.
+	const smwsCount = out.length;
+
 	if (out.length >= limitPairs) {
-		shuffleInPlace(out, rnd);
 		return out.slice(0, limitPairs);
 	}
 
@@ -533,7 +551,7 @@ export function computeInitialPairsFast(
 				else s *= 0.22;
 			}
 
-			if (String(aSku).startsWith("u:") || String(bSku).startsWith("u:")) s *= 1.07;
+			if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.15;
 
 			if (s > 0) cheap.push({ b, s, bNorm, bRaw, bFilt, contain, firstMatch, bAge });
 		}
@@ -573,7 +591,7 @@ export function computeInitialPairsFast(
 				else s *= 0.15;
 			}
 
-			if (String(aSku).startsWith("u:") || String(bSku).startsWith("u:")) s *= 1.12;
+			if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.2;
 
 			fine.push({ b, s });
 		}
@@ -611,7 +629,13 @@ export function computeInitialPairsFast(
 		tryAddPair(a, picked.b, picked.s);
 	}
 
-	if (!DETERMINISTIC) shuffleInPlace(out, rnd);
+	if (!DETERMINISTIC && out.length > smwsCount) {
+		// Keep SMWS pairs pinned at the top; only shuffle the non-SMWS tail.
+		const tail = out.slice(smwsCount);
+		shuffleInPlace(tail, rnd);
+		out.length = smwsCount;
+		for (const p of tail) out.push(p);
+	}
 	return out.slice(0, limitPairs);
 }
 
