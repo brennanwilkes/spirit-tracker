@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-20T16:53:11.080Z",
+  "generatedAt": "2026-05-20T19:47:29.958Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4418,
-    "removedRows": 534,
+    "liveRows": 4434,
+    "removedRows": 518,
     "canonSkus": 2209,
     "outputCount": 50
   },
@@ -1660,6 +1660,48 @@
       }
     },
     {
+      "canonSku": "002838",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 109.99,
+        "gull": 108.99,
+        "legacyliquor": 117.9,
+        "strath": 108.96,
+        "tudor": 111.99,
+        "vessel": 109.99
+      },
+      "representative": {
+        "name": "Bruichladdich – Port Charlotte 10 Year 750ml",
+        "price": "$108.99",
+        "priceNum": 108.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "002838",
+        "skuKey": "002838",
+        "url": "https://gullliquorstore.com/product/bruichladdich-pc10-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$108.96",
+        "priceNum": 108.96,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/bruichladdich-port-charlotte-10-years-old/"
+      }
+    },
+    {
       "canonSku": "003517",
       "storeCount": 6,
       "stores": [
@@ -1783,6 +1825,48 @@
         "priceNum": 59.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo"
+      }
+    },
+    {
+      "canonSku": "007880",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 61.99,
+        "gull": 64.95,
+        "legacyliquor": 67.99,
+        "tudor": 64.99,
+        "vessel": 65.99
+      },
+      "representative": {
+        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://www.bcliquorstores.com/product/7880",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/7880"
       }
     },
     {
@@ -2035,88 +2119,6 @@
         "priceNum": 74.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591169-ledaig-10yo"
-      }
-    },
-    {
-      "canonSku": "002838",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "legacyliquor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 109.99,
-        "gull": 108.99,
-        "strath": 108.96,
-        "tudor": 111.99,
-        "vessel": 109.99
-      },
-      "representative": {
-        "name": "Bruichladdich – Port Charlotte 10 Year 750ml",
-        "price": "$108.99",
-        "priceNum": 108.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "002838",
-        "skuKey": "002838",
-        "url": "https://gullliquorstore.com/product/bruichladdich-pc10-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$108.96",
-        "priceNum": 108.96,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/bruichladdich-port-charlotte-10-years-old/"
-      }
-    },
-    {
-      "canonSku": "007880",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 61.99,
-        "legacyliquor": 67.99,
-        "tudor": 64.99,
-        "vessel": 65.99
-      },
-      "representative": {
-        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://www.bcliquorstores.com/product/7880",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/7880"
       }
     },
     {
