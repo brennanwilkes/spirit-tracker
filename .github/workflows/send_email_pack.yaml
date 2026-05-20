@@ -24,6 +24,7 @@ jobs:
         with:
           ref: data
           fetch-depth: 0
+          lfs: true
 
       - name: Checkout requested data SHA (optional)
         if: inputs.data_sha != ''
