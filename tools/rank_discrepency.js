@@ -235,7 +235,7 @@ function buildCanonicalSkuFnFromMeta(meta) {
 	};
 }
 
-/* ---------------- similarity (same math as viz/app/linker/similarity.js) ---------------- */
+/* ---------------- similarity (same math as viz/app/linker_page/similarity.js) ---------------- */
 
 function normSearchText(s) {
 	return String(s ?? "")
