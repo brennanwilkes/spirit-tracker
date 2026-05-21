@@ -62,36 +62,67 @@ export async function apiWriteSkuIgnore(skuA, skuB) {
 	return await res.json();
 }
 
+async function tryFetchLinks(path) {
+	try {
+		const j = await fetchJson(path);
+		return Array.isArray(j?.links) ? j.links : [];
+	} catch {
+		return null;
+	}
+}
+
 /**
- * Best-effort read of sku meta:
- *  - On GitHub Pages: expects file at viz/data/sku_links.json
- *  - On local server: reads via /__stviz/sku-links (disk)
+ * Best-effort read of sku meta. The manually curated `sku_links.json` and the
+ * auto-generated `sku_links_auto.json` are both pulled (when present) and their
+ * `.links` arrays are unioned — downstream union-find treats every link the same
+ * regardless of origin.
+ *  - On GitHub Pages: expects files at viz/data/sku_links.json and viz/data/sku_links_auto.json
+ *  - On local server: reads via /__stviz/sku-links (disk) and tries /data paths for auto
  */
 export async function loadSkuMetaBestEffort() {
-	// 1) GitHub Pages / static deploy inside viz/
-	try {
-		const j = await fetchJson("./data/sku_links.json");
-		return {
-			links: Array.isArray(j?.links) ? j.links : [],
-			ignores: Array.isArray(j?.ignores) ? j.ignores : [],
-		};
-	} catch {}
+	// Manual links + ignores
+	let manualLinks = null;
+	let ignores = [];
 
-	// 2) alternate static path (in case you later serve viz under a subpath)
-	try {
-		const j = await fetchJson("/data/sku_links.json");
-		return {
-			links: Array.isArray(j?.links) ? j.links : [],
-			ignores: Array.isArray(j?.ignores) ? j.ignores : [],
-		};
-	} catch {}
+	for (const p of ["./data/sku_links.json", "/data/sku_links.json"]) {
+		try {
+			const j = await fetchJson(p);
+			manualLinks = Array.isArray(j?.links) ? j.links : [];
+			ignores = Array.isArray(j?.ignores) ? j.ignores : [];
+			break;
+		} catch {}
+	}
 
-	// 3) Local server API (disk)
-	try {
-		return await apiReadSkuMetaFromLocalServer();
-	} catch {}
+	if (manualLinks === null) {
+		try {
+			const meta = await apiReadSkuMetaFromLocalServer();
+			manualLinks = Array.isArray(meta?.links) ? meta.links : [];
+			ignores = Array.isArray(meta?.ignores) ? meta.ignores : [];
+		} catch {
+			manualLinks = [];
+		}
+	}
 
-	return { links: [], ignores: [] };
+	// Auto-generated links (separate file; same shape)
+	let autoLinks =
+		(await tryFetchLinks("./data/sku_links_auto.json")) ||
+		(await tryFetchLinks("/data/sku_links_auto.json")) ||
+		[];
+
+	if (!autoLinks.length) {
+		try {
+			const r = await fetch("/__stviz/sku-links-auto", { cache: "no-store" });
+			if (r.ok) {
+				const j = await r.json();
+				autoLinks = Array.isArray(j?.links) ? j.links : [];
+			}
+		} catch {}
+	}
+
+	return {
+		links: [...manualLinks, ...autoLinks],
+		ignores,
+	};
 }
 
 /* ---- GitHub history helpers ---- */

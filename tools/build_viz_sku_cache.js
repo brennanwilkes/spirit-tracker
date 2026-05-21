@@ -280,6 +280,69 @@ function runFullReindex(skuCacheDir, dbFilePaths) {
 	);
 }
 
+// ---- Orphan sweep ----
+//
+// A SKU's identity can change at the same URL when a better SKU becomes available
+// (see merge.js: pickBetterSku). When that happens, the per-SKU cache file under
+// the OLD sku is never updated again — it looks like the item "vanished" forever.
+// This sweep closes those out: any (cache-file, store-db-file) pair whose sku is
+// no longer present in that store db gets a final removed-event appended.
+
+function runOrphanSweep(skuCacheDir, dbFilePaths) {
+	const liveByDbFile = new Map(); // dbFile -> Set(sku)
+	for (const relPath of dbFilePaths) {
+		let diskData;
+		try {
+			diskData = JSON.parse(fs.readFileSync(path.join(process.cwd(), relPath), "utf8"));
+		} catch {
+			continue;
+		}
+		const skus = new Set();
+		for (const item of diskData.items || []) {
+			if (item?.sku) skus.add(String(item.sku));
+		}
+		liveByDbFile.set(relPath, skus);
+	}
+
+	const cacheFiles = fs.readdirSync(skuCacheDir).filter((f) => f.endsWith(".json"));
+	const nowTs = new Date().toISOString();
+	let closedPairs = 0;
+	let touchedFiles = 0;
+
+	for (const f of cacheFiles) {
+		const fp = path.join(skuCacheDir, f);
+		const sku = f.replace(/\.json$/, "");
+		let data;
+		try {
+			data = JSON.parse(fs.readFileSync(fp, "utf8"));
+		} catch {
+			continue;
+		}
+		let changed = false;
+		for (const [dbFile, info] of Object.entries(data.stores || {})) {
+			const live = liveByDbFile.get(dbFile);
+			if (live && live.has(sku)) continue;
+
+			const events = info.events || [];
+			const last = events[events.length - 1];
+			if (last && "p" in last) {
+				events.push({ ts: nowTs });
+				closedPairs++;
+				changed = true;
+			}
+		}
+		if (changed) {
+			data.gen = nowTs;
+			fs.writeFileSync(fp, JSON.stringify(data) + "\n", "utf8");
+			touchedFiles++;
+		}
+	}
+
+	process.stdout.write(
+		`Orphan sweep: closed ${closedPairs} (cache, dbFile) pairs across ${touchedFiles} cache files\n`,
+	);
+}
+
 // ---- Main ----
 
 function main() {
@@ -302,6 +365,8 @@ function main() {
 	} else {
 		runIncremental(skuCacheDir, dbFilePaths);
 	}
+
+	runOrphanSweep(skuCacheDir, dbFilePaths);
 }
 
 main();

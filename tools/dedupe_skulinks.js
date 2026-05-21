@@ -7,12 +7,7 @@ const path = require("path");
 const DB_DIR = path.join(__dirname, "../data/db");
 const LINKS_FILE = path.join(__dirname, "../data/sku_links.json");
 
-function normalizeImplicitSkuKey(k) {
-	const s = String(k || "").trim();
-	const m = s.match(/^id:(\d{1,6})$/i);
-	if (m) return String(m[1]).padStart(6, "0");
-	return s;
-}
+const { normalizeImplicitSkuKey } = require("../src/utils/sku_canonical");
 
 // collect all valid SKUs from db files (normalized)
 const validSkus = new Set();

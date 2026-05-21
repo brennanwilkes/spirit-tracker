@@ -1,18 +1,12 @@
 // viz/app/mapping.js
 import { loadSkuMetaBestEffort, isLocalWriteMode } from "./api.js";
 import { applyPendingToMeta } from "./pending.js";
+import { normalizeImplicitSkuKey, buildGroupsAndCanonicalMap } from "./sku_canonical.js";
 
 let CACHED = null;
 
 export function clearSkuRulesCache() {
 	CACHED = null;
-}
-
-function normalizeImplicitSkuKey(k) {
-	const s = String(k || "").trim();
-	const m = s.match(/^id:(\d+)$/i);
-	if (m) return String(m[1]).padStart(6, "0");
-	return s;
 }
 
 function canonicalPairKey(a, b) {
@@ -23,7 +17,6 @@ function canonicalPairKey(a, b) {
 }
 
 function buildForwardMap(links) {
-	// Keep this for reference/debug; grouping no longer depends on direction.
 	const m = new Map();
 	for (const x of Array.isArray(links) ? links : []) {
 		const fromSku = normalizeImplicitSkuKey(x?.fromSku);
@@ -44,136 +37,6 @@ function buildIgnoreSet(ignores) {
 	return s;
 }
 
-/* ---------------- Union-Find grouping (hardened) ---------------- */
-
-class DSU {
-	constructor() {
-		this.parent = new Map();
-		this.rank = new Map();
-	}
-	_add(x) {
-		if (!this.parent.has(x)) {
-			this.parent.set(x, x);
-			this.rank.set(x, 0);
-		}
-	}
-	find(x) {
-		x = String(x || "").trim();
-		if (!x) return "";
-		this._add(x);
-		let p = this.parent.get(x);
-		if (p !== x) {
-			p = this.find(p);
-			this.parent.set(x, p);
-		}
-		return p;
-	}
-	union(a, b) {
-		a = String(a || "").trim();
-		b = String(b || "").trim();
-		if (!a || !b || a === b) return;
-		const ra = this.find(a);
-		const rb = this.find(b);
-		if (!ra || !rb || ra === rb) return;
-
-		const rka = this.rank.get(ra) || 0;
-		const rkb = this.rank.get(rb) || 0;
-
-		if (rka < rkb) {
-			this.parent.set(ra, rb);
-		} else if (rkb < rka) {
-			this.parent.set(rb, ra);
-		} else {
-			this.parent.set(rb, ra);
-			this.rank.set(ra, rka + 1);
-		}
-	}
-}
-
-function isUnknownSkuKey(key) {
-	return String(key || "").startsWith("u:");
-}
-
-function isNumericSku(key) {
-	return /^\d+$/.test(String(key || "").trim());
-}
-
-function compareSku(a, b) {
-	// Stable ordering to choose a canonical representative.
-	// Prefer real (non-u:) > unknown (u:). Among reals: numeric ascending if possible, else lex.
-	a = String(a || "").trim();
-	b = String(b || "").trim();
-	if (a === b) return 0;
-
-	const aUnknown = isUnknownSkuKey(a);
-	const bUnknown = isUnknownSkuKey(b);
-	if (aUnknown !== bUnknown) return aUnknown ? 1 : -1; // real first
-
-	const aNum = isNumericSku(a);
-	const bNum = isNumericSku(b);
-	if (aNum && bNum) {
-		// compare as integers (safe: these are small SKU strings)
-		const na = Number(a);
-		const nb = Number(b);
-		if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na < nb ? -1 : 1;
-	}
-
-	// fallback lex
-	return a < b ? -1 : 1;
-}
-
-function buildGroupsAndCanonicalMap(links) {
-	const dsu = new DSU();
-	const all = new Set();
-
-	for (const x of Array.isArray(links) ? links : []) {
-		const a = normalizeImplicitSkuKey(x?.fromSku);
-		const b = normalizeImplicitSkuKey(x?.toSku);
-		if (!a || !b) continue;
-		all.add(a);
-		all.add(b);
-
-		// IMPORTANT: union is undirected for grouping (hardened vs cycles)
-		dsu.union(a, b);
-	}
-
-	// root -> Set(members)
-	const groupsByRoot = new Map();
-	for (const s of all) {
-		const r = dsu.find(s);
-		if (!r) continue;
-		let set = groupsByRoot.get(r);
-		if (!set) groupsByRoot.set(r, (set = new Set()));
-		set.add(s);
-	}
-
-	// Choose a canonical representative per group
-	const repByRoot = new Map();
-	for (const [root, members] of groupsByRoot.entries()) {
-		const arr = Array.from(members);
-		arr.sort(compareSku);
-		const rep = arr[0] || root;
-		repByRoot.set(root, rep);
-	}
-
-	// sku -> canonical rep
-	const canonBySku = new Map();
-	// canonical rep -> Set(members)   (what the rest of the app uses)
-	const groupsByCanon = new Map();
-
-	for (const [root, members] of groupsByRoot.entries()) {
-		const rep = repByRoot.get(root) || root;
-		let g = groupsByCanon.get(rep);
-		if (!g) groupsByCanon.set(rep, (g = new Set([rep])));
-		for (const s of members) {
-			canonBySku.set(s, rep);
-			g.add(s);
-		}
-	}
-
-	return { canonBySku, groupsByCanon };
-}
-
 export async function loadSkuRules() {
 	if (CACHED) return CACHED;
 
@@ -187,7 +50,6 @@ export async function loadSkuRules() {
 	const links = Array.isArray(meta?.links) ? meta.links : [];
 	const ignores = Array.isArray(meta?.ignores) ? meta.ignores : [];
 
-	// keep forwardMap for visibility/debug; grouping uses union-find
 	const forwardMap = buildForwardMap(links);
 
 	const { canonBySku, groupsByCanon } = buildGroupsAndCanonicalMap(links);

@@ -15,6 +15,8 @@ const { createStores, parseProductsSierra } = require("./stores");
 const { runAllStores } = require("./tracker/run_all");
 const { renderFinalReport } = require("./tracker/report");
 const { ensureDir } = require("./tracker/db");
+const { detectAndFlipOrphanDbs } = require("./tracker/orphan_dbs");
+const { mergeUpgradesIntoAutoLinks } = require("./tracker/sku_auto_links");
 
 const DEFAULT_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36";
 
@@ -138,6 +140,24 @@ async function main() {
 	}
 
 	const report = await runAllStores(storesToRun, { config, logger, http });
+
+	const orphanResult = detectAndFlipOrphanDbs({ stores: storesToRun, report, config, logger });
+	if (orphanResult.orphans > 0) {
+		logger.ok(
+			`Orphan DB sweep: flipped ${orphanResult.flippedItems} items across ${orphanResult.orphans} orphan db file(s)`,
+		);
+		report.totals.removedCount += orphanResult.flippedItems;
+	}
+
+	const autoLinkResult = mergeUpgradesIntoAutoLinks({
+		dbDir: config.dbDir,
+		upgrades: report.skuUpgrades || [],
+	});
+	if (autoLinkResult.added > 0) {
+		logger.ok(
+			`Auto SKU links: +${autoLinkResult.added} new (total ${autoLinkResult.total}) → ${logger.dim(autoLinkResult.file)}`,
+		);
+	}
 
 	const meaningful =
 		(report?.totals?.newCount || 0) +
