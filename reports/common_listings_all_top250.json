@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T18:47:14.131Z",
+  "generatedAt": "2026-05-21T19:37:58.790Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13272,
-    "removedRows": 4595,
-    "canonSkus": 6290,
+    "liveRows": 13269,
+    "removedRows": 4600,
+    "canonSkus": 6289,
     "outputCount": 250
   },
   "rows": [
@@ -904,6 +904,63 @@
       }
     },
     {
+      "canonSku": "677666",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "sierrasprings",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 74.99,
+        "bcl": 79.99,
+        "bsw": 64.99,
+        "coop": 74.99,
+        "craftcellars": 74.99,
+        "gull": 82.99,
+        "kegncork": 74.96,
+        "kwm": 74.99,
+        "legacyliquor": 84.51,
+        "maltsandgrains": 67.48,
+        "strath": 81.7,
+        "tudor": 79.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Ledaig 10 Year Old",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "752144",
+        "skuKey": "752144",
+        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
+      }
+    },
+    {
       "canonSku": "752142",
       "storeCount": 13,
       "stores": [
@@ -958,6 +1015,62 @@
         "priceNum": 70.37,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "bsw": 30.99,
+        "craftcellars": 33.99,
+        "gull": 28.95,
+        "legacyliquor": 30.99,
+        "maltsandgrains": 34.53,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 32.96,
+        "willowpark": 34.49
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1689,62 +1802,6 @@
       }
     },
     {
-      "canonSku": "677666",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "sierrasprings",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 74.99,
-        "bcl": 79.99,
-        "bsw": 64.99,
-        "coop": 74.99,
-        "craftcellars": 74.99,
-        "gull": 82.99,
-        "kegncork": 74.96,
-        "kwm": 74.99,
-        "legacyliquor": 84.51,
-        "maltsandgrains": 67.48,
-        "strath": 81.7,
-        "tudor": 79.99
-      },
-      "representative": {
-        "name": "Ledaig 10 Year Old",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "752144",
-        "skuKey": "752144",
-        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ledaig-10-year-old-1"
-      }
-    },
-    {
       "canonSku": "000570",
       "storeCount": 11,
       "stores": [
@@ -1797,61 +1854,6 @@
         "priceNum": 27.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/570"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 30.39,
-        "bcl": 27.49,
-        "bsw": 30.99,
-        "craftcellars": 33.99,
-        "gull": 28.95,
-        "legacyliquor": 30.99,
-        "maltsandgrains": 34.53,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96,
-        "willowpark": 34.49
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -3227,6 +3229,61 @@
         "priceNum": 56.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/craigellachie-13-year-old"
+      }
+    },
+    {
+      "canonSku": "780196",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "strath",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 64.99,
+        "bsw": 57.99,
+        "craftcellars": 65.99,
+        "gull": 67.5,
+        "kwm": 64.99,
+        "legacyliquor": 67.99,
+        "maltsandgrains": 63.15,
+        "sierrasprings": 54.99,
+        "tudor": 64.99,
+        "vessel": 62.49
+      },
+      "representative": {
+        "name": "TOKI",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "780196",
+        "skuKey": "780196",
+        "url": "https://sierraspringsliquor.ca/shop/world-whisky/japanese/toki/",
+        "categoryLabel": "World Whisky",
+        "dbFile": "data/db/sierrasprings__world-whisky__8e232731.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/world-whisky/japanese/toki/"
       }
     },
     {
@@ -4796,60 +4853,6 @@
       }
     },
     {
-      "canonSku": "780196",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 64.99,
-        "bsw": 57.99,
-        "craftcellars": 65.99,
-        "gull": 67.5,
-        "kwm": 64.99,
-        "legacyliquor": 67.99,
-        "maltsandgrains": 63.15,
-        "sierrasprings": 54.99,
-        "tudor": 64.99
-      },
-      "representative": {
-        "name": "TOKI",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "780196",
-        "skuKey": "780196",
-        "url": "https://sierraspringsliquor.ca/shop/world-whisky/japanese/toki/",
-        "categoryLabel": "World Whisky",
-        "dbFile": "data/db/sierrasprings__world-whisky__8e232731.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/world-whisky/japanese/toki/"
-      }
-    },
-    {
       "canonSku": "783842",
       "storeCount": 10,
       "stores": [
@@ -6332,6 +6335,59 @@
         "priceNum": 72.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5125890-suntory-world-whisky-ao"
+      }
+    },
+    {
+      "canonSku": "444190",
+      "storeCount": 9,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "maltsandgrains",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 75.99,
+        "bsw": 80.99,
+        "coop": 84.99,
+        "craftcellars": 83.99,
+        "kegncork": 71.96,
+        "kwm": 84.99,
+        "legacyliquor": 82.61,
+        "sierrasprings": 71.32,
+        "tudor": 75.99
+      },
+      "representative": {
+        "name": "GLENGOYNE 10YR HIGHLAND SINGLE MALT",
+        "price": "$71.32",
+        "priceNum": 71.32,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "444190",
+        "skuKey": "444190",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-10-years-43-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+      },
+      "cheapest": {
+        "price": "$71.32",
+        "priceNum": 71.32,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-10-years-43-abv/"
       }
     },
     {
@@ -9364,58 +9420,6 @@
         "priceNum": 77.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-coffey-grain"
-      }
-    },
-    {
-      "canonSku": "444190",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "kegncork",
-        "maltsandgrains",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 75.99,
-        "bsw": 80.99,
-        "coop": 84.99,
-        "craftcellars": 83.99,
-        "kwm": 84.99,
-        "legacyliquor": 82.61,
-        "sierrasprings": 71.32,
-        "tudor": 75.99
-      },
-      "representative": {
-        "name": "GLENGOYNE 10YR HIGHLAND SINGLE MALT",
-        "price": "$71.32",
-        "priceNum": 71.32,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "444190",
-        "skuKey": "444190",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-10-years-43-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$71.32",
-        "priceNum": 71.32,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-10-years-43-abv/"
       }
     },
     {
