@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T05:15:19.331Z",
+  "generatedAt": "2026-05-21T08:16:14.237Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4434,
-    "removedRows": 518,
-    "canonSkus": 2203,
+    "liveRows": 4431,
+    "removedRows": 521,
+    "canonSkus": 2202,
     "outputCount": 250
   },
   "rows": [
@@ -116,49 +116,6 @@
         "priceNum": 49.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "legacyliquor": 41.99,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -761,6 +718,49 @@
         "priceNum": 47.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/600163"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -8477,46 +8477,6 @@
       }
     },
     {
-      "canonSku": "012746",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 138.39,
-        "legacyliquor": 162.37,
-        "strath": 142.83,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "GLEN SCOTIA 15YO",
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "012746",
-        "skuKey": "012746",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
-      }
-    },
-    {
       "canonSku": "012912",
       "storeCount": 4,
       "stores": [
@@ -10033,6 +9993,45 @@
         "priceNum": 89.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4586361-glen-scotia-double-cask"
+      }
+    },
+    {
+      "canonSku": "012746",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 138.39,
+        "strath": 142.83,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "GLEN SCOTIA 15YO",
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "012746",
+        "skuKey": "012746",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$138.39",
+        "priceNum": 138.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
       }
     },
     {
