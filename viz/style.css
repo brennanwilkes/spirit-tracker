@@ -8,29 +8,30 @@
   --border: #242c35;
   --accent: #7dd3fc;
 
-  /* Rarity tier tokens — used by both viz cards AND email HTML (keep in sync).
+  /* Rarity tier tokens.
    * "staple": bottom ~10% — items always in stock, widely available.
-   *           Warm amber tint reads as dependable / trusted.
-   * "rare":   top ~10% — items hard to obtain (OOS or fast sellouts).
-   *           Deep purple with a diagonal corner sheen reads as premium / regal.
+   *           Pale slate-blue reads as steady / understated, doesn't compete.
+   * "rare":   top ~10% — items hard to obtain.
+   *           Purple structure (wash + border + glow) with a gold diamond
+   *           lattice on top → "regal night sky": purple bloom in the
+   *           top-left corner sparkles with gold and fades toward the
+   *           bottom-right. The border itself fades along the perimeter.
    * 80% of items get no styling.
    */
-  --rarity-staple-border: rgba(218, 165,  32, 0.55);
-  --rarity-staple-glow:   rgba(218, 165,  32, 0.18);
+  --rarity-staple-border: rgba(148, 163, 184, 0.50);
+  --rarity-staple-glow:   rgba(148, 163, 184, 0.18);
 
-  --rarity-rare-border:   rgba(168,  85, 247, 0.85);
-  --rarity-rare-ring:     rgba(168,  85, 247, 0.32);
-  --rarity-rare-glow:     rgba(147,  51, 234, 0.28);
-  /* Diagonal sheen: purple wash in the top-left fading to transparent toward
-   * the bottom-right. A faint gold streak crosses through to give the card a
-   * subtle "royal" depth without overwhelming the underlying content. */
-  --rarity-rare-sheen: linear-gradient(
-    135deg,
-    rgba(168,  85, 247, 0.26) 0%,
-    rgba(168,  85, 247, 0.10) 30%,
-    rgba(255, 215,   0, 0.05) 55%,
-    transparent 80%
-  );
+  --rarity-rare-wash-start:  rgba(168,  85, 247, 0.32);
+  --rarity-rare-wash-mid:    rgba(168,  85, 247, 0.10);
+  --rarity-rare-diamond:     rgba(255, 215,   0, 0.30);  /* gold accent */
+  --rarity-rare-border-hot:  rgba(168,  85, 247, 1.00);
+  --rarity-rare-border-mid:  rgba(168,  85, 247, 0.55);
+  --rarity-rare-border-cool: rgba(168,  85, 247, 0.06);
+  --rarity-rare-glow:        rgba(147,  51, 234, 0.32);
+  --rarity-rare-title-sep:   rgba(168,  85, 247, 0.35);
+  /* Card-color token used to mask the diamond lattice past the diagonal.
+   * Must match the card's base background per theme. */
+  --rarity-rare-cover:       #0f1318;
 }
 
 /* ── 2. Reset ──────────────────────────────────────────────────────────── */
@@ -160,34 +161,94 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 /* Rarity tier visuals. Most items get no rule (default border).
  *
- * Staple: subtle warm amber border + soft outer glow. Conveys "trusted,
- *         always there" without competing for attention.
- * Rare:   purple border, diagonal corner sheen, purple ring + outer glow.
- *         The sheen draws the eye to the top-left of the card; the ring +
- *         glow make it pop in a list view.
+ * STAPLE — bottom ~10%: pale slate border + soft glow. Steady, understated.
+ *
+ * RARE — top ~10%: composite design.
+ *   1. Purple radial wash, brightest at the top-left, fading by 65%.
+ *   2. Gold diamond lattice (two crossed 45° stripe gradients) overlaid in
+ *      the same top-left region.
+ *   3. A "cover" diagonal gradient (transparent → card bg) blends both
+ *      pattern and wash into the card background past the diagonal, so the
+ *      effect concentrates in the top-left corner and dies off naturally.
+ *   4. The border itself is a pseudo-element radial gradient (mask-composite
+ *      trick) so it's hot at the top-left corner and fades along the
+ *      perimeter — not a solid ring.
+ *   5. Asymmetric outer glow biased toward the top-left.
  */
 .item.rarity-staple {
   border-color: var(--rarity-staple-border);
-  box-shadow: 0 0 10px var(--rarity-staple-glow);
+  box-shadow: 0 0 12px var(--rarity-staple-glow);
 }
 .item.rarity-staple:hover { border-color: var(--rarity-staple-border); filter: brightness(1.06); }
 
 .item.rarity-rare {
-  border-color: var(--rarity-rare-border);
-  background-image: var(--rarity-rare-sheen);
+  border-color: transparent;
+  background-image:
+    /* (1) cover: solid card-bg paints over the pattern past the diagonal */
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 30%,
+      var(--rarity-rare-cover) 72%,
+      var(--rarity-rare-cover) 100%
+    ),
+    /* (2) gold diamond lattice: two 45° stripe gradients crossed */
+    linear-gradient(
+      45deg,
+      transparent 46%,
+      var(--rarity-rare-diamond) 47%,
+      var(--rarity-rare-diamond) 53%,
+      transparent 54%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 46%,
+      var(--rarity-rare-diamond) 47%,
+      var(--rarity-rare-diamond) 53%,
+      transparent 54%
+    ),
+    /* (3) purple radial wash anchored at the top-left corner */
+    radial-gradient(
+      ellipse 110% 110% at 0% 0%,
+      var(--rarity-rare-wash-start) 0%,
+      var(--rarity-rare-wash-mid) 30%,
+      transparent 65%
+    );
+  background-size: auto, 14px 14px, 14px 14px, auto;
+  background-position: 0 0;
+  background-repeat: no-repeat, repeat, repeat, no-repeat;
   box-shadow:
-    0 0 0 1px var(--rarity-rare-ring),
-    0 6px 20px var(--rarity-rare-glow);
+    -3px -3px 18px var(--rarity-rare-glow),
+    0 6px 22px var(--rarity-rare-glow);
 }
-.item.rarity-rare:hover {
-  border-color: var(--rarity-rare-border);
-  filter: brightness(1.1) saturate(1.05);
+
+/* Fading gradient border. The standard mask-composite trick clips a 1px
+ * frame from a positioned pseudo-element; the gradient inside fades along
+ * the perimeter from a hot purple at the top-left corner to nearly
+ * transparent on the opposite side. */
+.item.rarity-rare::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 140% 140% at 0% 0%,
+    var(--rarity-rare-border-hot) 0%,
+    var(--rarity-rare-border-mid) 22%,
+    rgba(168, 85, 247, 0.18) 55%,
+    var(--rarity-rare-border-cool) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
 }
-.item.rarity-rare .itemTitle {
-  /* The sheen is brightest at the top — push the title separator a touch
-   * darker so it still reads against the purple wash. */
-  border-bottom-color: rgba(168, 85, 247, 0.35);
-}
+
+.item.rarity-rare:hover { filter: brightness(1.08) saturate(1.06); }
+.item.rarity-rare .itemTitle { border-bottom-color: var(--rarity-rare-title-sep); }
 
 /* Title zone: full-width name row with border-bottom separator */
 .itemTitle {
@@ -976,21 +1037,21 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   --border: #d1d8e0;
   --accent: #1565c0;
 
-  /* Light-mode rarity tier overrides — slightly darker amber + a richer
-   * purple so the tiers remain legible on a light background. */
-  --rarity-staple-border: rgba(184, 134,  11, 0.70);
-  --rarity-staple-glow:   rgba(184, 134,  11, 0.16);
+  /* Light-mode rarity tier overrides. Darker slate for staple legibility;
+   * deeper purple + warmer (amber) gold diamond so the lattice reads against
+   * a light card background. */
+  --rarity-staple-border: rgba( 71,  85, 105, 0.55);
+  --rarity-staple-glow:   rgba( 71,  85, 105, 0.16);
 
-  --rarity-rare-border:   rgba(126,  34, 206, 0.95);
-  --rarity-rare-ring:     rgba(126,  34, 206, 0.30);
-  --rarity-rare-glow:     rgba(126,  34, 206, 0.22);
-  --rarity-rare-sheen: linear-gradient(
-    135deg,
-    rgba(168,  85, 247, 0.20) 0%,
-    rgba(168,  85, 247, 0.08) 30%,
-    rgba(191, 149,  16, 0.04) 55%,
-    transparent 80%
-  );
+  --rarity-rare-wash-start:  rgba(126,  34, 206, 0.22);
+  --rarity-rare-wash-mid:    rgba(126,  34, 206, 0.08);
+  --rarity-rare-diamond:     rgba(191, 149,  16, 0.30);
+  --rarity-rare-border-hot:  rgba(126,  34, 206, 1.00);
+  --rarity-rare-border-mid:  rgba(126,  34, 206, 0.50);
+  --rarity-rare-border-cool: rgba(126,  34, 206, 0.06);
+  --rarity-rare-glow:        rgba(126,  34, 206, 0.22);
+  --rarity-rare-title-sep:   rgba(126,  34, 206, 0.30);
+  --rarity-rare-cover:       var(--lt-surface);
 
   --lt-surface:     #eef2f6;
   --lt-surface-top: #f8fafc;
@@ -1005,16 +1066,46 @@ html[data-theme="light"] .card { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 html[data-theme="light"] .item { background: var(--lt-surface); }
 html[data-theme="light"] .item .itemTitle { background: var(--lt-surface-top); }
 
-/* Re-apply the rare sheen in light mode at higher specificity than the
- * generic .item background reset above. Same selector pattern, but it must
- * follow the .item reset in source order to win the cascade. */
+/* Re-apply the layered rare background in light mode at higher specificity
+ * than the generic .item background reset above. The cocktail of cover
+ * gradient + diamond lattice + purple wash mirrors the dark-mode rule;
+ * tokens resolve to their light-mode values via the :root override block. */
 html[data-theme="light"] .item.rarity-rare {
   background-color: var(--lt-surface);
-  background-image: var(--rarity-rare-sheen);
+  background-image:
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 30%,
+      var(--rarity-rare-cover) 72%,
+      var(--rarity-rare-cover) 100%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 46%,
+      var(--rarity-rare-diamond) 47%,
+      var(--rarity-rare-diamond) 53%,
+      transparent 54%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 46%,
+      var(--rarity-rare-diamond) 47%,
+      var(--rarity-rare-diamond) 53%,
+      transparent 54%
+    ),
+    radial-gradient(
+      ellipse 110% 110% at 0% 0%,
+      var(--rarity-rare-wash-start) 0%,
+      var(--rarity-rare-wash-mid) 30%,
+      transparent 65%
+    );
+  background-size: auto, 14px 14px, 14px 14px, auto;
+  background-position: 0 0;
+  background-repeat: no-repeat, repeat, repeat, no-repeat;
 }
 html[data-theme="light"] .item.rarity-rare .itemTitle {
   background-color: transparent;
-  border-bottom-color: rgba(126, 34, 206, 0.30);
 }
 html[data-theme="light"] .item:hover { border-color: var(--lt-hover); }
 html[data-theme="light"] .item:hover .itemTitle { border-bottom-color: var(--lt-hover); }
