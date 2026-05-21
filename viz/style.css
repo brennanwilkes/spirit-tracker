@@ -31,9 +31,11 @@
   /* Card-color token used to mask the diamond lattice past the diagonal.
    * Must match the card's base background per theme. */
   --rarity-rare-cover:       #0f1318;
-  /* Discrete gold diamond polka-dot pattern. Small diamond centred in an
-   * 18px tile — disconnected, fabric-like, not a continuous grid. */
-  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><polygon points='9,5 13,9 9,13 5,9' fill='%23d4af37' fill-opacity='0.45'/></svg>");
+  /* Discrete gold diamond polka-dots, fabric-like. 28px tile carries two
+   * tiny diamonds offset across the diagonal so when the tile repeats the
+   * dots fall on diagonal rows (staggered, not aligned to an orthogonal
+   * grid). Tiny + faint + spaced out. */
+  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><polygon points='7,5 9,7 7,9 5,7' fill='%23d4af37' fill-opacity='0.30'/><polygon points='21,19 23,21 21,23 19,21' fill='%23d4af37' fill-opacity='0.30'/></svg>");
 }
 
 /* ── 2. Reset ──────────────────────────────────────────────────────────── */
@@ -191,8 +193,8 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
     linear-gradient(
       135deg,
       transparent 0%,
-      transparent 25%,
-      var(--rarity-rare-cover) 60%,
+      transparent 18%,
+      var(--rarity-rare-cover) 45%,
       var(--rarity-rare-cover) 100%
     ),
     /* (2) discrete gold diamond polka-dots, tiled */
@@ -202,9 +204,9 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
       ellipse 110% 110% at 0% 0%,
       var(--rarity-rare-wash-start) 0%,
       var(--rarity-rare-wash-mid) 30%,
-      transparent 65%
+      transparent 60%
     );
-  background-size: auto, 18px 18px, auto;
+  background-size: auto, 28px 28px, auto;
   background-position: 0 0;
   background-repeat: no-repeat, repeat, no-repeat;
   box-shadow:
@@ -1042,7 +1044,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   --rarity-rare-title-sep:   rgba(126,  34, 206, 0.30);
   --rarity-rare-cover:       var(--lt-surface);
   /* Light-mode diamond: deeper goldenrod for legibility on the pale card. */
-  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><polygon points='9,5 13,9 9,13 5,9' fill='%23b8860b' fill-opacity='0.55'/></svg>");
+  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><polygon points='7,5 9,7 7,9 5,7' fill='%23b8860b' fill-opacity='0.40'/><polygon points='21,19 23,21 21,23 19,21' fill='%23b8860b' fill-opacity='0.40'/></svg>");
 
   --lt-surface:     #eef2f6;
   --lt-surface-top: #f8fafc;
@@ -1067,8 +1069,8 @@ html[data-theme="light"] .item.rarity-rare {
     linear-gradient(
       135deg,
       transparent 0%,
-      transparent 25%,
-      var(--rarity-rare-cover) 60%,
+      transparent 18%,
+      var(--rarity-rare-cover) 45%,
       var(--rarity-rare-cover) 100%
     ),
     var(--rarity-rare-diamond-pattern),
@@ -1076,9 +1078,9 @@ html[data-theme="light"] .item.rarity-rare {
       ellipse 110% 110% at 0% 0%,
       var(--rarity-rare-wash-start) 0%,
       var(--rarity-rare-wash-mid) 30%,
-      transparent 65%
+      transparent 60%
     );
-  background-size: auto, 18px 18px, auto;
+  background-size: auto, 28px 28px, auto;
   background-position: 0 0;
   background-repeat: no-repeat, repeat, no-repeat;
 }
