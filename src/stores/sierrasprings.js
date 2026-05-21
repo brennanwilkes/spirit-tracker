@@ -435,29 +435,44 @@ function createStore(defaultUa) {
 		// store-only override (no changes outside this file)
 		scanCategory: scanCategoryWooStoreApi,
 
-		// RESTORED: original 4 categories, unchanged startUrl so DB hashes match
+		// Site restructured 2026: old whisky-2 / fine-rare / spirits-liquor URLs now 404.
+		// Whisky now lives under 5 top-level region parents; querying a parent via the
+		// Woo Store API returns all child-category products (verified for scotch-whisky-single-malt).
 		categories: [
 			{
-				key: "whisky",
-				label: "Whisky",
-				startUrl: "https://sierraspringsliquor.ca/product-category/whisky-2/",
+				key: "scotch-whisky-single-malt",
+				label: "Scotch Whisky / Single Malt",
+				startUrl: "https://sierraspringsliquor.ca/product-category/scotch-whisky-single-malt/",
 				discoveryStartPage: 1,
 				perPage: 100,
 			},
 			{
-				key: "fine-rare",
-				label: "Fine & Rare",
-				startUrl: "https://sierraspringsliquor.ca/product-category/fine-rare/",
+				key: "canadian-whiskey",
+				label: "Canadian Whiskey",
+				startUrl: "https://sierraspringsliquor.ca/product-category/canadian-whiskey/",
 				discoveryStartPage: 1,
 				perPage: 100,
 			},
 			{
-				key: "spirits-liquor",
-				label: "Spirits / Liquor",
-				startUrl: "https://sierraspringsliquor.ca/product-category/spirits-liquor/",
+				key: "irish-whiskey",
+				label: "Irish Whiskey",
+				startUrl: "https://sierraspringsliquor.ca/product-category/irish-whiskey/",
 				discoveryStartPage: 1,
 				perPage: 100,
-				allowUrl: allowSierraSpiritsLiquorUrlRumWhisky,
+			},
+			{
+				key: "american-whiskey",
+				label: "American Whiskey",
+				startUrl: "https://sierraspringsliquor.ca/product-category/american-whiskey/",
+				discoveryStartPage: 1,
+				perPage: 100,
+			},
+			{
+				key: "world-whisky",
+				label: "World Whisky",
+				startUrl: "https://sierraspringsliquor.ca/product-category/world-whisky/",
+				discoveryStartPage: 1,
+				perPage: 100,
 			},
 			{
 				key: "spirits",
