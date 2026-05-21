@@ -716,28 +716,6 @@ export function renderSearch($app) {
 			const as = String(a.sku || "");
 			const bs = String(b.sku || "");
 
-			if (mode === "priceAsc" || mode === "priceDesc") {
-				const ap = priceNumForSku(as);
-				const bp = priceNumForSku(bs);
-				if (ap !== null || bp !== null) {
-					if (ap === null) return 1;
-					if (bp === null) return -1;
-					if (ap !== bp) return mode === "priceAsc" ? ap - bp : bp - ap;
-				}
-				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
-			}
-
-			if (mode === "rarityDesc" || mode === "rarityAsc") {
-				const ar = rarityForSku(as);
-				const br = rarityForSku(bs);
-				if (ar !== null || br !== null) {
-					if (ar === null) return 1;
-					if (br === null) return -1;
-					if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
-				}
-				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
-			}
-
 			if (mode === "salePct") {
 				const ap = salePctForSku(as);
 				const bp = salePctForSku(bs);
@@ -868,8 +846,13 @@ export function renderSearch($app) {
 
 		const tokens = tokenizeQuery($q.value);
 		if (!tokens.length) {
-			if (recentCache) renderRecent(recentCache, rulesRef?.canonicalSku);
-			else $results.innerHTML = `<div class="small">Type to search…</div>`;
+			if (sortMode() === "newest") {
+				if (recentCache) renderRecent(recentCache, rulesRef?.canonicalSku);
+				else $results.innerHTML = `<div class="small">Type to search…</div>`;
+			} else {
+				const typeFiltered = selectedTypeSet.size ? allAgg.filter(passesType) : allAgg;
+				renderAggregates(typeFiltered);
+			}
 			return;
 		}
 
