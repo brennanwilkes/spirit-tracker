@@ -14,6 +14,7 @@ const path = require("path");
 const { execFileSync } = require("child_process");
 const { listDbFiles } = require("./lib/db");
 const { dateOnly } = require("./lib/sku");
+const { normalizeImplicitSkuKey } = require("../src/utils/sku_canonical");
 
 const FULL_REINDEX = process.argv.includes("--full-reindex");
 
@@ -72,6 +73,7 @@ function writeCache(skuCacheDir, sku, data) {
 		if (!data.stores[key].events.length) delete data.stores[key];
 	}
 	if (!Object.keys(data.stores).length) return; // nothing to write
+	data.sku = sku; // keep the embedded field in sync with the (normalized) filename
 	data.gen = new Date().toISOString();
 	const fp = path.join(skuCacheDir, `${sku}.json`);
 	fs.writeFileSync(fp, JSON.stringify(data) + "\n", "utf8");
@@ -122,11 +124,17 @@ function addEventIfChanged(events, prevState, curPrice, curRemoved, ts) {
 
 // Collapses an items array from a db snapshot into a per-sku map of { price, removed }.
 // When a sku appears multiple times: live wins over removed; among live entries, min price wins.
+//
+// SKU keys are normalized via normalizeImplicitSkuKey so cache filenames match the
+// canonical form the viz uses to construct fetch URLs (see viz/app/sku_canonical.js).
+// Without this, "id:1049995" would be filed as "id:1049995.json" but the viz looks for
+// "1049995.json" (the canonical form). Bug introduced 2026-05-08, fixed by this normalization.
 function itemsToSkuMap(items) {
 	const result = new Map();
 	for (const item of Array.isArray(items) ? items : []) {
 		if (!item?.sku) continue;
-		const sku = String(item.sku);
+		const sku = normalizeImplicitSkuKey(String(item.sku));
+		if (!sku) continue;
 		const isRemoved = Boolean(item.removed);
 		const existing = result.get(sku);
 		if (!existing) {
