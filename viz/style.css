@@ -23,7 +23,6 @@
 
   --rarity-rare-wash-start:  rgba(168,  85, 247, 0.32);
   --rarity-rare-wash-mid:    rgba(168,  85, 247, 0.10);
-  --rarity-rare-diamond:     rgba(255, 215,   0, 0.30);  /* gold accent */
   --rarity-rare-border-hot:  rgba(168,  85, 247, 1.00);
   --rarity-rare-border-mid:  rgba(168,  85, 247, 0.55);
   --rarity-rare-border-cool: rgba(168,  85, 247, 0.06);
@@ -32,6 +31,9 @@
   /* Card-color token used to mask the diamond lattice past the diagonal.
    * Must match the card's base background per theme. */
   --rarity-rare-cover:       #0f1318;
+  /* Discrete gold diamond polka-dot pattern. Small diamond centred in an
+   * 18px tile — disconnected, fabric-like, not a continuous grid. */
+  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><polygon points='9,5 13,9 9,13 5,9' fill='%23d4af37' fill-opacity='0.45'/></svg>");
 }
 
 /* ── 2. Reset ──────────────────────────────────────────────────────────── */
@@ -184,29 +186,17 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .item.rarity-rare {
   border-color: transparent;
   background-image:
-    /* (1) cover: solid card-bg paints over the pattern past the diagonal */
+    /* (1) cover: solid card-bg paints over the pattern past the diagonal so
+     *     diamonds + wash concentrate in the top-left quadrant and die out. */
     linear-gradient(
       135deg,
       transparent 0%,
-      transparent 30%,
-      var(--rarity-rare-cover) 72%,
+      transparent 25%,
+      var(--rarity-rare-cover) 60%,
       var(--rarity-rare-cover) 100%
     ),
-    /* (2) gold diamond lattice: two 45° stripe gradients crossed */
-    linear-gradient(
-      45deg,
-      transparent 46%,
-      var(--rarity-rare-diamond) 47%,
-      var(--rarity-rare-diamond) 53%,
-      transparent 54%
-    ),
-    linear-gradient(
-      -45deg,
-      transparent 46%,
-      var(--rarity-rare-diamond) 47%,
-      var(--rarity-rare-diamond) 53%,
-      transparent 54%
-    ),
+    /* (2) discrete gold diamond polka-dots, tiled */
+    var(--rarity-rare-diamond-pattern),
     /* (3) purple radial wash anchored at the top-left corner */
     radial-gradient(
       ellipse 110% 110% at 0% 0%,
@@ -214,9 +204,9 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
       var(--rarity-rare-wash-mid) 30%,
       transparent 65%
     );
-  background-size: auto, 14px 14px, 14px 14px, auto;
+  background-size: auto, 18px 18px, auto;
   background-position: 0 0;
-  background-repeat: no-repeat, repeat, repeat, no-repeat;
+  background-repeat: no-repeat, repeat, no-repeat;
   box-shadow:
     -3px -3px 18px var(--rarity-rare-glow),
     0 6px 22px var(--rarity-rare-glow);
@@ -1045,13 +1035,14 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 
   --rarity-rare-wash-start:  rgba(126,  34, 206, 0.22);
   --rarity-rare-wash-mid:    rgba(126,  34, 206, 0.08);
-  --rarity-rare-diamond:     rgba(191, 149,  16, 0.30);
   --rarity-rare-border-hot:  rgba(126,  34, 206, 1.00);
   --rarity-rare-border-mid:  rgba(126,  34, 206, 0.50);
   --rarity-rare-border-cool: rgba(126,  34, 206, 0.06);
   --rarity-rare-glow:        rgba(126,  34, 206, 0.22);
   --rarity-rare-title-sep:   rgba(126,  34, 206, 0.30);
   --rarity-rare-cover:       var(--lt-surface);
+  /* Light-mode diamond: deeper goldenrod for legibility on the pale card. */
+  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><polygon points='9,5 13,9 9,13 5,9' fill='%23b8860b' fill-opacity='0.55'/></svg>");
 
   --lt-surface:     #eef2f6;
   --lt-surface-top: #f8fafc;
@@ -1076,33 +1067,20 @@ html[data-theme="light"] .item.rarity-rare {
     linear-gradient(
       135deg,
       transparent 0%,
-      transparent 30%,
-      var(--rarity-rare-cover) 72%,
+      transparent 25%,
+      var(--rarity-rare-cover) 60%,
       var(--rarity-rare-cover) 100%
     ),
-    linear-gradient(
-      45deg,
-      transparent 46%,
-      var(--rarity-rare-diamond) 47%,
-      var(--rarity-rare-diamond) 53%,
-      transparent 54%
-    ),
-    linear-gradient(
-      -45deg,
-      transparent 46%,
-      var(--rarity-rare-diamond) 47%,
-      var(--rarity-rare-diamond) 53%,
-      transparent 54%
-    ),
+    var(--rarity-rare-diamond-pattern),
     radial-gradient(
       ellipse 110% 110% at 0% 0%,
       var(--rarity-rare-wash-start) 0%,
       var(--rarity-rare-wash-mid) 30%,
       transparent 65%
     );
-  background-size: auto, 14px 14px, 14px 14px, auto;
+  background-size: auto, 18px 18px, auto;
   background-position: 0 0;
-  background-repeat: no-repeat, repeat, repeat, no-repeat;
+  background-repeat: no-repeat, repeat, no-repeat;
 }
 html[data-theme="light"] .item.rarity-rare .itemTitle {
   background-color: transparent;
