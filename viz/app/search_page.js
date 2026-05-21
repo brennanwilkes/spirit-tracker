@@ -471,6 +471,22 @@ export function renderSearch($app) {
 		return `<span class="badge badgeBad">+${esc(abs)}%</span>`;
 	}
 
+	const priceNumCache = new Map(); // sku -> priceNum|null
+	function priceNumForSku(sku) {
+		const s = String(sku || "");
+		if (priceNumCache.has(s)) return priceNumCache.get(s);
+		const best = bestLiveStoreForSku(s);
+		const n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
+		priceNumCache.set(s, n);
+		return n;
+	}
+
+	function rarityForSku(rawSku) {
+		if (!rarityRef || !rulesRef) return null;
+		const canon = rulesRef.canonicalSku(String(rawSku || ""));
+		return rarityRef.byCanon?.[canon]?.r ?? null;
+	}
+
 	function renderAggregates(items) {
 		if (!items.length) {
 			$results.innerHTML = `<div class="small">No matches.</div>`;
@@ -480,25 +496,9 @@ export function renderSearch($app) {
 		let list = items.filter((it) => passesAvailability(String(it?.sku || "")));
 
 		const mode = sortMode();
-		const priceCache = new Map(); // sku -> priceNum|null
-
-		function priceNumForSku(sku) {
-			const s = String(sku || "");
-			if (priceCache.has(s)) return priceCache.get(s);
-			const best = bestLiveStoreForSku(s);
-			const n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
-			priceCache.set(s, n);
-			return n;
-		}
 
 		function nameKey(it) {
 			return (String(it?.name || "") + "|" + String(it?.sku || "")).toLowerCase();
-		}
-
-		function rarityForSku(rawSku) {
-			if (!rarityRef || !rulesRef) return null;
-			const canon = rulesRef.canonicalSku(String(rawSku || ""));
-			return rarityRef.byCanon?.[canon]?.r ?? null;
 		}
 
 		list = list.slice().sort((a, b) => {
@@ -715,6 +715,28 @@ export function renderSearch($app) {
 		picked.sort((a, b) => {
 			const as = String(a.sku || "");
 			const bs = String(b.sku || "");
+
+			if (mode === "priceAsc" || mode === "priceDesc") {
+				const ap = priceNumForSku(as);
+				const bp = priceNumForSku(bs);
+				if (ap !== null || bp !== null) {
+					if (ap === null) return 1;
+					if (bp === null) return -1;
+					if (ap !== bp) return mode === "priceAsc" ? ap - bp : bp - ap;
+				}
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
+
+			if (mode === "rarityDesc" || mode === "rarityAsc") {
+				const ar = rarityForSku(as);
+				const br = rarityForSku(bs);
+				if (ar !== null || br !== null) {
+					if (ar === null) return 1;
+					if (br === null) return -1;
+					if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
+				}
+				return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
+			}
 
 			if (mode === "salePct") {
 				const ap = salePctForSku(as);
