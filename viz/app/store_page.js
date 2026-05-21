@@ -96,8 +96,6 @@ export async function renderStore($app, storeLabelRaw) {
                   <option value="dateAsc">Oldest</option>
                   <option value="salePct">Sale %</option>
                   <option value="saleAbs">Sale $</option>
-                  <option value="rarityDesc">Rarity (rarest first)</option>
-                  <option value="rarityAsc">Rarity (most common first)</option>
                 </select>
               </div>
             </div>
@@ -772,26 +770,6 @@ export async function renderStore($app, storeLabelRaw) {
 				const an = (String(a.name) + a.sku).toLowerCase();
 				const bn = (String(b.name) + b.sku).toLowerCase();
 				return an.localeCompare(bn);
-			});
-			return;
-		}
-
-		if (mode === "rarityDesc" || mode === "rarityAsc") {
-			const rarityForSku = (raw) => {
-				if (!rarityCache || !rulesCache) return null;
-				const canon = rulesCache.canonicalSku(String(raw || ""));
-				return rarityCache.byCanon?.[canon]?.r ?? null;
-			};
-			arr.sort((a, b) => {
-				const ar = rarityForSku(a.sku);
-				const br = rarityForSku(b.sku);
-				if (ar === null && br === null) {
-					return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
-				}
-				if (ar === null) return 1;
-				if (br === null) return -1;
-				if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
-				return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
 			});
 			return;
 		}
