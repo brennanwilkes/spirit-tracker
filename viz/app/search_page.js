@@ -7,7 +7,7 @@ import {
 	keySkuForRow,
 	parsePriceToNumber,
 } from "./sku.js";
-import { loadIndex, loadRecent, loadSavedQuery, saveQuery } from "./state.js";
+import { loadIndex, loadRecent, loadRarity, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
@@ -88,6 +88,8 @@ export function renderSearch($app) {
                 <option value="saleAbs">Sale $</option>
                 <option value="priceAsc">Price (low)</option>
                 <option value="priceDesc">Price (high)</option>
+                <option value="rarityDesc">Rarity (rarest first)</option>
+                <option value="rarityAsc">Rarity (most common first)</option>
               </select>
             </div>
 
@@ -161,6 +163,7 @@ export function renderSearch($app) {
 	let indexReady = false;
 	let rulesRef = null;
 	let recentCache = null;
+	let rarityRef = null;
 
 	// sku -> earliest firstSeenAt across any row (ms)
 	let firstSeenMsBySku = new Map();
@@ -491,6 +494,12 @@ export function renderSearch($app) {
 			return (String(it?.name || "") + "|" + String(it?.sku || "")).toLowerCase();
 		}
 
+		function rarityForSku(rawSku) {
+			if (!rarityRef || !rulesRef) return null;
+			const canon = rulesRef.canonicalSku(String(rawSku || ""));
+			return rarityRef.byCanon?.[canon]?.r ?? null;
+		}
+
 		list = list.slice().sort((a, b) => {
 			const as = String(a?.sku || "");
 			const bs = String(b?.sku || "");
@@ -528,6 +537,16 @@ export function renderSearch($app) {
 				const aKey = ad === null ? 999999 : ad;
 				const bKey = bd === null ? 999999 : bd;
 				if (aKey !== bKey) return aKey - bKey;
+				return nameKey(a).localeCompare(nameKey(b));
+			}
+
+			if (mode === "rarityDesc" || mode === "rarityAsc") {
+				const ar = rarityForSku(as);
+				const br = rarityForSku(bs);
+				if (ar === null && br === null) return nameKey(a).localeCompare(nameKey(b));
+				if (ar === null) return 1;
+				if (br === null) return -1;
+				if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
 				return nameKey(a).localeCompare(nameKey(b));
 			}
 
@@ -604,6 +623,8 @@ export function renderSearch($app) {
 				openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 			});
 		}
+
+		decorateRarity($results);
 	}
 
 	function renderRecent(recent, canonicalSkuFn) {
@@ -815,6 +836,8 @@ export function renderSearch($app) {
 				openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 			});
 		}
+
+		decorateRarity($results);
 	}
 
 	function renderCurrent() {
@@ -854,10 +877,17 @@ export function renderSearch($app) {
 	$results.innerHTML = `<div class="small">Loading index…</div>`;
 
 
-	Promise.all([loadIndex(), loadSkuRules(), loadMyFavouritesSet(), loadRecent().catch(() => null)])
-		.then(([idx, rules, fav, recent]) => {
+	Promise.all([
+		loadIndex(),
+		loadSkuRules(),
+		loadMyFavouritesSet(),
+		loadRecent().catch(() => null),
+		loadRarity().catch(() => null),
+	])
+		.then(([idx, rules, fav, recent, rarity]) => {
 			rulesRef = rules;
 			recentCache = recent;
+			rarityRef = rarity;
 
 			favSet.clear();
 			for (const k of fav.set) {

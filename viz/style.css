@@ -7,6 +7,18 @@
   --muted: #9aa6b2;
   --border: #242c35;
   --accent: #7dd3fc;
+
+  /* Rarity tier tokens — used by both viz cards AND email HTML (keep in sync).
+   * "staple": bottom ~10% — items always in stock, widely available.
+   *           Warm amber tint reads as dependable/robust.
+   * "rare":   top ~10% — items hard to obtain (OOS or fast sellouts).
+   *           Gold reads as collectible / premium / standout.
+   * 80% of items get no styling.
+   */
+  --rarity-staple-border: rgba(218, 165,  32, 0.55);
+  --rarity-staple-glow:   rgba(218, 165,  32, 0.12);
+  --rarity-rare-border:   rgba(255, 215,   0, 0.85);
+  --rarity-rare-glow:     rgba(255, 215,   0, 0.18);
 }
 
 /* ── 2. Reset ──────────────────────────────────────────────────────────── */
@@ -133,6 +145,24 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 }
 .item:hover { border-color: #2f3a46; }
 .item:hover .itemTitle { border-bottom-color: #2f3a46; }
+
+/* Rarity tier visuals. Most items get no rule (default border).
+ * Staple: subtle warm border to suggest "always there, dependable".
+ * Rare:   stronger gold border + soft outer glow for at-a-glance prominence.
+ * Hover preserved by giving rarity borders priority over the hover override
+ * with a slightly brighter tone on :hover.
+ */
+.item.rarity-staple {
+  border-color: var(--rarity-staple-border);
+  box-shadow: inset 0 0 0 1px var(--rarity-staple-glow);
+}
+.item.rarity-staple:hover { border-color: var(--rarity-staple-border); filter: brightness(1.05); }
+
+.item.rarity-rare {
+  border-color: var(--rarity-rare-border);
+  box-shadow: 0 0 0 1px var(--rarity-rare-glow), 0 4px 12px var(--rarity-rare-glow);
+}
+.item.rarity-rare:hover { border-color: var(--rarity-rare-border); filter: brightness(1.08); }
 
 /* Title zone: full-width name row with border-bottom separator */
 .itemTitle {
@@ -920,6 +950,13 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   --muted:  #64748b;
   --border: #d1d8e0;
   --accent: #1565c0;
+
+  /* Light-mode rarity tier overrides — slightly darker amber/gold so they
+   * remain legible on a light background while still feeling subtle. */
+  --rarity-staple-border: rgba(184, 134,  11, 0.65);
+  --rarity-staple-glow:   rgba(184, 134,  11, 0.10);
+  --rarity-rare-border:   rgba(191, 149,  16, 0.95);
+  --rarity-rare-glow:     rgba(191, 149,  16, 0.15);
 
   --lt-surface:     #eef2f6;
   --lt-surface-top: #f8fafc;
