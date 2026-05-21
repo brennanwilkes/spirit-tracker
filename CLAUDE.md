@@ -36,7 +36,7 @@ The orphan-DB-file auto-flip in `src/tracker/orphan_dbs.js` handles the case whe
 - `rare` (top ~10%): hard to obtain (OOS or fast sellouts)
 - `common` (middle ~80%): no special styling
 
-**Color tokens** — `viz/style.css` defines `--rarity-staple-border`, `--rarity-staple-glow`, `--rarity-rare-border`, `--rarity-rare-glow` (plus light-theme overrides). The same RGBA values are also embedded in email event packs under `pack.rarity.colors` so the email HTML in `~/spirit-tracker-api` can mirror them exactly. Keep these in sync — they're the visual language for the whole product.
+**Color tokens** — defined in `viz/style.css` as CSS custom properties (`--rarity-staple-*`, `--rarity-rare-*`, plus light-theme overrides). Staple is warm amber (subtle border + glow), rare is deep purple with a diagonal corner sheen, purple ring, and outer glow. The same visual language must be mirrored in the email repo (`~/spirit-tracker-api`) as parallel CSS — neither thresholds nor colors are shipped in event packs. Each pack carries only the raw `rarity` number (0..1) per event; the renderer is responsible for thresholding and styling.
 
 ## Tech Stack
 

@@ -123,7 +123,6 @@ const {
   buildGroupsAndCanonicalMap,
   compareSku,
 } = require("../src/utils/sku_canonical");
-const { tierFor } = require("../src/utils/rarity");
 
 // Load the precomputed rarity snapshot built by tools/build_viz_rarity.js. The
 // pack will embed rarity + tier per event so the email HTML can style rare /
@@ -647,17 +646,15 @@ function main() {
     }
   }
 
-  // Annotate every event with the canonical's current rarity + tier. Tier
-  // values ("staple" | "rare" | "common") match the viz CSS class suffixes so
-  // the email HTML can use the same visual language.
+  // Annotate every event with the canonical's current rarity (0..1). The
+  // renderer decides how to interpret the number — thresholds, tier names,
+  // and any visual treatment all live with the consumer, not in the pack.
   const raritySnap = loadRaritySnapshot();
   if (raritySnap) {
     for (const e of events) {
       const entry = raritySnap.byCanon?.[e.sku];
       if (!entry) continue;
       e.rarity = entry.r;
-      e.rarityConfidence = entry.c;
-      e.rarityTier = tierFor(entry.r, raritySnap.thresholds);
     }
   }
 
@@ -736,20 +733,6 @@ function main() {
     // group/show events by tier, and a hint at the color tokens to keep email
     // styling visually consistent with the viz app. Tokens mirror the CSS in
     // viz/style.css (--rarity-*-border / --rarity-*-glow).
-    rarity: raritySnap
-      ? {
-          generatedAt: raritySnap.generatedAt,
-          thresholds: raritySnap.thresholds,
-          colors: {
-            stapleBorder: "rgba(218,165,32,0.55)",
-            stapleGlow: "rgba(218,165,32,0.12)",
-            rareBorder: "rgba(255,215,0,0.85)",
-            rareGlow: "rgba(255,215,0,0.18)",
-            stapleBorderLight: "rgba(184,134,11,0.65)",
-            rareBorderLight: "rgba(191,149,16,0.95)",
-          },
-        }
-      : null,
     skus,
     events,
   };

@@ -10,15 +10,27 @@
 
   /* Rarity tier tokens — used by both viz cards AND email HTML (keep in sync).
    * "staple": bottom ~10% — items always in stock, widely available.
-   *           Warm amber tint reads as dependable/robust.
+   *           Warm amber tint reads as dependable / trusted.
    * "rare":   top ~10% — items hard to obtain (OOS or fast sellouts).
-   *           Gold reads as collectible / premium / standout.
+   *           Deep purple with a diagonal corner sheen reads as premium / regal.
    * 80% of items get no styling.
    */
   --rarity-staple-border: rgba(218, 165,  32, 0.55);
-  --rarity-staple-glow:   rgba(218, 165,  32, 0.12);
-  --rarity-rare-border:   rgba(255, 215,   0, 0.85);
-  --rarity-rare-glow:     rgba(255, 215,   0, 0.18);
+  --rarity-staple-glow:   rgba(218, 165,  32, 0.18);
+
+  --rarity-rare-border:   rgba(168,  85, 247, 0.85);
+  --rarity-rare-ring:     rgba(168,  85, 247, 0.32);
+  --rarity-rare-glow:     rgba(147,  51, 234, 0.28);
+  /* Diagonal sheen: purple wash in the top-left fading to transparent toward
+   * the bottom-right. A faint gold streak crosses through to give the card a
+   * subtle "royal" depth without overwhelming the underlying content. */
+  --rarity-rare-sheen: linear-gradient(
+    135deg,
+    rgba(168,  85, 247, 0.26) 0%,
+    rgba(168,  85, 247, 0.10) 30%,
+    rgba(255, 215,   0, 0.05) 55%,
+    transparent 80%
+  );
 }
 
 /* ── 2. Reset ──────────────────────────────────────────────────────────── */
@@ -147,22 +159,35 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 .item:hover .itemTitle { border-bottom-color: #2f3a46; }
 
 /* Rarity tier visuals. Most items get no rule (default border).
- * Staple: subtle warm border to suggest "always there, dependable".
- * Rare:   stronger gold border + soft outer glow for at-a-glance prominence.
- * Hover preserved by giving rarity borders priority over the hover override
- * with a slightly brighter tone on :hover.
+ *
+ * Staple: subtle warm amber border + soft outer glow. Conveys "trusted,
+ *         always there" without competing for attention.
+ * Rare:   purple border, diagonal corner sheen, purple ring + outer glow.
+ *         The sheen draws the eye to the top-left of the card; the ring +
+ *         glow make it pop in a list view.
  */
 .item.rarity-staple {
   border-color: var(--rarity-staple-border);
-  box-shadow: inset 0 0 0 1px var(--rarity-staple-glow);
+  box-shadow: 0 0 10px var(--rarity-staple-glow);
 }
-.item.rarity-staple:hover { border-color: var(--rarity-staple-border); filter: brightness(1.05); }
+.item.rarity-staple:hover { border-color: var(--rarity-staple-border); filter: brightness(1.06); }
 
 .item.rarity-rare {
   border-color: var(--rarity-rare-border);
-  box-shadow: 0 0 0 1px var(--rarity-rare-glow), 0 4px 12px var(--rarity-rare-glow);
+  background-image: var(--rarity-rare-sheen);
+  box-shadow:
+    0 0 0 1px var(--rarity-rare-ring),
+    0 6px 20px var(--rarity-rare-glow);
 }
-.item.rarity-rare:hover { border-color: var(--rarity-rare-border); filter: brightness(1.08); }
+.item.rarity-rare:hover {
+  border-color: var(--rarity-rare-border);
+  filter: brightness(1.1) saturate(1.05);
+}
+.item.rarity-rare .itemTitle {
+  /* The sheen is brightest at the top — push the title separator a touch
+   * darker so it still reads against the purple wash. */
+  border-bottom-color: rgba(168, 85, 247, 0.35);
+}
 
 /* Title zone: full-width name row with border-bottom separator */
 .itemTitle {
@@ -951,12 +976,21 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   --border: #d1d8e0;
   --accent: #1565c0;
 
-  /* Light-mode rarity tier overrides — slightly darker amber/gold so they
-   * remain legible on a light background while still feeling subtle. */
-  --rarity-staple-border: rgba(184, 134,  11, 0.65);
-  --rarity-staple-glow:   rgba(184, 134,  11, 0.10);
-  --rarity-rare-border:   rgba(191, 149,  16, 0.95);
-  --rarity-rare-glow:     rgba(191, 149,  16, 0.15);
+  /* Light-mode rarity tier overrides — slightly darker amber + a richer
+   * purple so the tiers remain legible on a light background. */
+  --rarity-staple-border: rgba(184, 134,  11, 0.70);
+  --rarity-staple-glow:   rgba(184, 134,  11, 0.16);
+
+  --rarity-rare-border:   rgba(126,  34, 206, 0.95);
+  --rarity-rare-ring:     rgba(126,  34, 206, 0.30);
+  --rarity-rare-glow:     rgba(126,  34, 206, 0.22);
+  --rarity-rare-sheen: linear-gradient(
+    135deg,
+    rgba(168,  85, 247, 0.20) 0%,
+    rgba(168,  85, 247, 0.08) 30%,
+    rgba(191, 149,  16, 0.04) 55%,
+    transparent 80%
+  );
 
   --lt-surface:     #eef2f6;
   --lt-surface-top: #f8fafc;
@@ -970,6 +1004,18 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 html[data-theme="light"] .card { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 html[data-theme="light"] .item { background: var(--lt-surface); }
 html[data-theme="light"] .item .itemTitle { background: var(--lt-surface-top); }
+
+/* Re-apply the rare sheen in light mode at higher specificity than the
+ * generic .item background reset above. Same selector pattern, but it must
+ * follow the .item reset in source order to win the cascade. */
+html[data-theme="light"] .item.rarity-rare {
+  background-color: var(--lt-surface);
+  background-image: var(--rarity-rare-sheen);
+}
+html[data-theme="light"] .item.rarity-rare .itemTitle {
+  background-color: transparent;
+  border-bottom-color: rgba(126, 34, 206, 0.30);
+}
 html[data-theme="light"] .item:hover { border-color: var(--lt-hover); }
 html[data-theme="light"] .item:hover .itemTitle { border-bottom-color: var(--lt-hover); }
 html[data-theme="light"] .thumbBox,
