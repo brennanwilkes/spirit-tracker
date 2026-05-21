@@ -116,143 +116,16 @@ try {
   };
 }
 
-/* ---------------- SKU map (match src/utils/sku_map.js) ---------------- */
+/* ---------------- SKU map (shared utilities) ---------------- */
 
-class DSU {
-  constructor() {
-    this.parent = new Map();
-    this.rank = new Map();
-  }
-  _add(x) {
-    if (!this.parent.has(x)) {
-      this.parent.set(x, x);
-      this.rank.set(x, 0);
-    }
-  }
-  find(x) {
-    x = String(x || "").trim();
-    if (!x) return "";
-    this._add(x);
-    let p = this.parent.get(x);
-    if (p !== x) {
-      p = this.find(p);
-      this.parent.set(x, p);
-    }
-    return p;
-  }
-  union(a, b) {
-    a = String(a || "").trim();
-    b = String(b || "").trim();
-    if (!a || !b || a === b) return;
-    const ra = this.find(a);
-    const rb = this.find(b);
-    if (!ra || !rb || ra === rb) return;
-
-    const rka = this.rank.get(ra) || 0;
-    const rkb = this.rank.get(rb) || 0;
-
-    if (rka < rkb) this.parent.set(ra, rb);
-    else if (rkb < rka) this.parent.set(rb, ra);
-    else {
-      this.parent.set(rb, ra);
-      this.rank.set(ra, rka + 1);
-    }
-  }
-}
-
-function normalizeImplicitSkuKey(k) {
-  const s = String(k || "").trim();
-  const m = s.match(/^id:(\d{1,6})$/i);
-  if (m) return String(m[1]).padStart(6, "0");
-  return s;
-}
-
-function isUnknownSkuKey(k) {
-  return String(k || "").startsWith("u:");
-}
-
-function isNumericSku(k) {
-  return /^\d+$/.test(String(k || "").trim());
-}
-
-function isUpcSku(k) {
-  const s = String(k || "").trim();
-  if (s.startsWith("upc:")) return true;
-  return /^\d{12,14}$/.test(s); // legacy support
-}
-
-function compareSku(a, b) {
-  a = String(a || "").trim();
-  b = String(b || "").trim();
-  if (a === b) return 0;
-
-  const au = isUnknownSkuKey(a);
-  const bu = isUnknownSkuKey(b);
-  if (au !== bu) return au ? 1 : -1; // real first
-
-  const aUpc = isUpcSku(a);
-  const bUpc = isUpcSku(b);
-  if (aUpc !== bUpc) return aUpc ? 1 : -1; // UPCs after other "real" keys
-
-  const an = isNumericSku(a);
-  const bn = isNumericSku(b);
-  if (an && bn) {
-    const na = Number(a);
-    const nb = Number(b);
-    if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na < nb ? -1 : 1;
-  }
-
-  return a < b ? -1 : 1;
-}
+const {
+  normalizeImplicitSkuKey,
+  buildGroupsAndCanonicalMap,
+  compareSku,
+} = require("../src/utils/sku_canonical");
 
 function buildSkuMapFromLinksArray(links) {
-  const dsu = new DSU();
-  const all = new Set();
-
-  for (const x of Array.isArray(links) ? links : []) {
-    const a = normalizeImplicitSkuKey(x?.fromSku);
-    const b = normalizeImplicitSkuKey(x?.toSku);
-    if (!a || !b) continue;
-
-    all.add(a);
-    all.add(b);
-
-    // undirected union
-    dsu.union(a, b);
-  }
-
-  // root -> Set(members)
-  const byRoot = new Map();
-  for (const s of all) {
-    const r = dsu.find(s);
-    if (!r) continue;
-    let set = byRoot.get(r);
-    if (!set) byRoot.set(r, (set = new Set()));
-    set.add(s);
-  }
-
-  // root -> canonical rep
-  const repByRoot = new Map();
-  for (const [root, members] of byRoot.entries()) {
-    const arr = Array.from(members);
-    arr.sort(compareSku);
-    repByRoot.set(root, arr[0] || root);
-  }
-
-  // sku -> canonical rep
-  const canonBySku = new Map();
-  // canonical rep -> Set(members) (handy for pack.members)
-  const groupsByCanon = new Map();
-
-  for (const [root, members] of byRoot.entries()) {
-    const rep = repByRoot.get(root) || root;
-    let g = groupsByCanon.get(rep);
-    if (!g) groupsByCanon.set(rep, (g = new Set([rep])));
-    for (const s of members) {
-      canonBySku.set(s, rep);
-      g.add(s);
-    }
-  }
+  const { canonBySku, groupsByCanon } = buildGroupsAndCanonicalMap(links);
 
   function canonicalSku(sku) {
     const s = normalizeImplicitSkuKey(sku);

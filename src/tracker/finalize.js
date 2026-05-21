@@ -10,10 +10,17 @@ const { secStr } = require("../utils/format");
  * Returns merge result for stores that need newItems/etc after the call.
  */
 function finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages }) {
-	const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems } =
+	const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems, skuUpgrades } =
 		mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 	const dbObj = buildDbObject(ctx, merged);
 	writeJsonAtomic(ctx.dbFile, dbObj);
+
+	if (skuUpgrades && skuUpgrades.length && report?.skuUpgrades) {
+		const ts = dbObj.updatedAt;
+		for (const u of skuUpgrades) {
+			report.skuUpgrades.push({ ...u, ts, dbFile: ctx.dbFile });
+		}
+	}
 	const elapsedMs = Date.now() - t0;
 	ctx.logger.ok(
 		`${ctx.catPrefixOut} | Done in ${secStr(elapsedMs)}. New=${newItems.length} Updated=${updatedItems.length} ` +
@@ -46,7 +53,7 @@ function finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPage
 		removedItems,
 		restoredItems,
 	);
-	return { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems };
+	return { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems, skuUpgrades };
 }
 
 module.exports = { finalizeCategoryScan };

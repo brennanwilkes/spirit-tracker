@@ -9,6 +9,10 @@ const {
 	parseWooStoreProductsJson,
 	getWooCategoryId,
 } = require("../utils/woocommerce");
+const { parallelMapStaggered } = require("../utils/async");
+
+const SS_SHIPPABLE_CONCURRENCY = 4;
+const SS_SHIPPABLE_STAGGER_MS = 150;
 
 // Tracker internals (store-only override; no global changes)
 const { finalizeCategoryScan } = require("../tracker/finalize");
@@ -247,7 +251,12 @@ async function ssCheckProductShippable(base, productId, nonce, ua, log, label) {
 	});
 	cookies.ingest(addRes);
 	log?.(`ssCheck ${lbl}: add_to_cart HTTP ${addRes.status} (${Date.now() - t0}ms)`);
-	if (!addRes.ok) throw new Error(`add_to_cart HTTP ${addRes.status}`);
+	if (!addRes.ok) {
+		const err = new Error(`add_to_cart HTTP ${addRes.status}`);
+		err.status = addRes.status;
+		err.retryAfter = Number(addRes.headers.get("retry-after")) || null;
+		throw err;
+	}
 
 	// Check shipping methods for AB address
 	await sleep(150);
@@ -281,7 +290,12 @@ async function ssCheckProductShippable(base, productId, nonce, ua, log, label) {
 	);
 	const reviewData = await reviewRes.json().catch(() => null);
 	log?.(`ssCheck ${lbl}: update_order_review HTTP ${reviewRes.status} (${Date.now() - t2}ms)`);
-	if (!reviewData) throw new Error(`update_order_review HTTP ${reviewRes.status}`);
+	if (!reviewData) {
+		const err = new Error(`update_order_review HTTP ${reviewRes.status}`);
+		err.status = reviewRes.status;
+		err.retryAfter = Number(reviewRes.headers.get("retry-after")) || null;
+		throw err;
+	}
 
 	const orderTable = reviewData?.fragments?.[".woocommerce-checkout-review-order-table"] || "";
 	const methods = ssParseShippingMethods(orderTable);
@@ -389,10 +403,10 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 		if (!nonce) {
 			logger.warn(`${ctx.catPrefixOut} | Could not fetch nonce; shippable checks skipped`);
 		} else {
-			let checked = 0, dropped = 0;
-
-			for (const [url, it] of [...discovered.entries()]) {
-				// Skip items already marked removed in prevDb — no need to recheck
+			// Build worklist of items that need checking (have a real product id and
+			// aren't already known to be removed in prevDb).
+			const tasks = [];
+			for (const [url, it] of discovered.entries()) {
 				const prev = prevDb.byUrl.get(url);
 				if (prev?.removed) continue;
 
@@ -400,19 +414,72 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 					?? (/^id:(\d+)$/.test(String(it.sku || "")) ? Number(it.sku.slice(3)) : null);
 				if (!productId) continue; // synthetic u: SKU — skip
 
-				await sleep(400);
+				tasks.push({ url, it, productId });
+			}
+
+			// Adaptive backoff: each 429 (or 503) doubles the pre-request delay (cap 8s).
+			// Successive successes decay it back toward 0. All workers honor the same
+			// shared delay, so transient store stress slows the whole pool, not just
+			// the worker that saw the 429.
+			const backoff = {
+				delayMs: 0,
+				successesSinceBump: 0,
+				totalRateLimited: 0,
+			};
+			const BACKOFF_CAP_MS = 8000;
+			const BACKOFF_BUMP_MIN_MS = 500;
+			const SUCCESSES_TO_DECAY = 20;
+
+			function noteRateLimit(retryAfterSec, sku, status) {
+				backoff.totalRateLimited++;
+				backoff.successesSinceBump = 0;
+				const hinted = Number.isFinite(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1000 : 0;
+				const bumped = Math.max(backoff.delayMs * 2, BACKOFF_BUMP_MIN_MS, hinted);
+				backoff.delayMs = Math.min(BACKOFF_CAP_MS, bumped);
+				logger.warn(
+					`${ctx.catPrefixOut} | RATE LIMITED (HTTP ${status}) on ${sku}; backing off to ${backoff.delayMs}ms between requests` +
+						(hinted ? ` (server hinted Retry-After=${retryAfterSec}s)` : ""),
+				);
+			}
+
+			function noteSuccess() {
+				if (backoff.delayMs === 0) return;
+				backoff.successesSinceBump++;
+				if (backoff.successesSinceBump >= SUCCESSES_TO_DECAY) {
+					backoff.successesSinceBump = 0;
+					const prior = backoff.delayMs;
+					backoff.delayMs = Math.floor(backoff.delayMs / 2);
+					logger.ok(`${ctx.catPrefixOut} | Recovering: backoff ${prior}ms → ${backoff.delayMs}ms`);
+				}
+			}
+
+			let checked = 0, dropped = 0, failed = 0;
+			await parallelMapStaggered(tasks, SS_SHIPPABLE_CONCURRENCY, SS_SHIPPABLE_STAGGER_MS, async (task) => {
+				if (backoff.delayMs > 0) await sleep(backoff.delayMs);
 				try {
-					const { shippable } = await ssCheckProductShippable(base, productId, nonce, ctx.store.ua, dbg, it.sku);
+					const { shippable } = await ssCheckProductShippable(
+						base, task.productId, nonce, ctx.store.ua, dbg, task.it.sku,
+					);
 					checked++;
+					noteSuccess();
 					if (!shippable) {
-						discovered.delete(url);
+						discovered.delete(task.url);
 						dropped++;
 					}
 				} catch (e) {
-					logger.warn(`${ctx.catPrefixOut} | shippable check failed ${it.sku}: ${e.message}`);
+					failed++;
+					if (e.status === 429 || e.status === 503) {
+						noteRateLimit(e.retryAfter, task.it.sku, e.status);
+					} else {
+						logger.warn(`${ctx.catPrefixOut} | shippable check failed ${task.it.sku}: ${e.message}`);
+					}
 				}
-			}
-			logger.ok(`${ctx.catPrefixOut} | Shippable checks: ${checked} checked, ${dropped} in-store-only dropped`);
+			});
+			logger.ok(
+				`${ctx.catPrefixOut} | Shippable checks: ${checked} checked, ${dropped} in-store-only dropped` +
+					(failed ? `, ${failed} failed` : "") +
+					(backoff.totalRateLimited ? `, ${backoff.totalRateLimited} rate-limited` : ""),
+			);
 		}
 	}
 

@@ -59,6 +59,13 @@ If a scan returns fewer than 60% of the previous item count, removed items are r
 | `src/utils/text.js` | Text extraction | Strip HTML tags, decode entities |
 | `src/utils/args.js` | CLI arg parsing + `clampInt` | Already used in main.js |
 | `src/utils/time.js` | ISO timestamps | File-safe timestamp strings |
+| `src/utils/sku_canonical.js` | DSU, `compareSku`, `normalizeImplicitSkuKey`, `buildGroupsAndCanonicalMap` | Shared canonical-SKU logic |
+
+## Shared canonical-SKU logic
+
+`src/utils/sku_canonical.js` (CJS) and `viz/app/sku_canonical.js` (ESM) are **parallel files** with identical logic. Since there is no build step, they must be kept in sync manually — if you change one, mirror the change in the other. Both are consumed by `src/utils/sku_map.js`, `viz/app/mapping.js`, and several tools.
+
+`tools/lib/sku.js::normalizeImplicitSkuKey` is **intentionally different** (it also extracts any 6–10 digit substring, used by `build_viz_recent.js` and `rank_discrepency.js`) — do not fold it into the shared module.
 
 ## SKU Priority Order
 

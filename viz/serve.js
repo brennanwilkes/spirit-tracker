@@ -29,6 +29,17 @@ function safePath(urlPath) {
 
 // Project-level file (shared by viz + report tooling)
 const LINKS_FILE = path.join(projectRoot, "data", "sku_links.json");
+const LINKS_AUTO_FILE = path.join(projectRoot, "data", "sku_links_auto.json");
+
+function readAutoMeta() {
+	try {
+		const raw = fs.readFileSync(LINKS_AUTO_FILE, "utf8");
+		const obj = JSON.parse(raw);
+		const links = obj && Array.isArray(obj.links) ? obj.links : [];
+		return { generatedAt: obj?.generatedAt || "", source: obj?.source || "auto", links };
+	} catch {}
+	return { generatedAt: "", source: "auto", links: [] };
+}
 
 function readMeta() {
 	try {
@@ -93,6 +104,14 @@ const server = http.createServer((req, res) => {
 			return;
 		}
 
+		return send(res, 405, "Method Not Allowed");
+	}
+
+	if (url.pathname === "/__stviz/sku-links-auto") {
+		if (req.method === "GET") {
+			const obj = readAutoMeta();
+			return sendJson(res, 200, { ok: true, count: obj.links.length, source: obj.source, links: obj.links });
+		}
 		return send(res, 405, "Method Not Allowed");
 	}
 

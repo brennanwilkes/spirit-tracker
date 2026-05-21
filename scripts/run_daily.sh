@@ -119,6 +119,9 @@ done
 
 # Stage only data/report/viz outputs
 git add -A data/db reports viz/data
+# Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
+# May not exist on first run; -- pathspec avoids erroring out in that case.
+git add -A -- data/sku_links_auto.json 2>/dev/null || true
 
 if git diff --cached --quiet; then
   echo "No data/report/viz changes to commit." >&2

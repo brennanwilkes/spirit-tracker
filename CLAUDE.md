@@ -12,6 +12,21 @@ Two-branch model:
 
 Remote branches `stviz/issue-*` are auto-created by GitHub Actions for issue-based edits to SKU link data.
 
+## SKU Identity & Canonical Mapping
+
+Two link sources feed one canonical map (union-find):
+
+- `data/sku_links.json` — **manually curated** via the `#/link` page; cross-store equivalences a human confirmed
+- `data/sku_links_auto.json` — **auto-generated** by `src/tracker/merge.js` when `pickBetterSku()` upgrades a record's SKU in place (e.g., `u:URL-hash` → real numeric SKU after a hydration pass). Backfilled once from git history via `tools/backfill_sku_transitions.js`.
+
+Consumers union both files via:
+- Node: `src/utils/sku_map.js::loadSkuMap()`
+- Viz: `viz/app/api.js::loadSkuMetaBestEffort()` → `viz/app/mapping.js::loadSkuRules()`
+
+Tools that build local DSUs (`tools/rarity_report.js`, `tools/build_email_event_pack.js`) go through `src/utils/sku_canonical.js` (CJS) / `viz/app/sku_canonical.js` (ESM) — parallel files that must stay in sync.
+
+The orphan-DB-file auto-flip in `src/tracker/orphan_dbs.js` handles the case where a store's category URL changes and the old DB file becomes stranded — runs at the end of every `node bin/tracker.js` invocation.
+
 ## Tech Stack
 
 - **Node.js 18+** required (uses global `fetch`). No npm install needed — there are no npm dependencies.

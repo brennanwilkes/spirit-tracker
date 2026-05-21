@@ -35,6 +35,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 	const removedItems = [];
 	const restoredItems = [];
 	const metaChangedItems = [];
+	const skuUpgrades = []; // { fromSku, toSku, url } when pickBetterSku changes a record's sku in place
 
 	// Choose a deterministic "best" record among dup active SKU rows.
 	// Prefer: more complete fields, then lexicographically smallest URL.
@@ -132,6 +133,10 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 			const rawNowSku = normalizeSkuForDb(nowRaw.sku, url);
 			const nowSku = pickBetterSku(rawNowSku, prevSku);
 
+			if (prevSku && nowSku && prevSku !== nowSku) {
+				skuUpgrades.push({ fromSku: prevSku, toSku: nowSku, url });
+			}
+
 			const now = {
 				...nowRaw,
 				sku: nowSku,
@@ -166,6 +171,10 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 		const priceChanged = prevPrice !== nowPrice;
 		const skuChanged = prevSku !== nowSku;
 		const imgChanged = prevImg !== nowImg;
+
+		if (skuChanged && prevSku && nowSku) {
+			skuUpgrades.push({ fromSku: prevSku, toSku: nowSku, url });
+		}
 
 		if (nameChanged || priceChanged || skuChanged || imgChanged || prevUrlForThisItem !== url) {
 			merged.set(url, { ...nowRaw, sku: nowSku, img: nowImg, removed: false });
@@ -204,7 +213,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 		}
 	}
 
-	return { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems };
+	return { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems, skuUpgrades };
 }
 
 /**

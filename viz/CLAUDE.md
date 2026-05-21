@@ -110,6 +110,7 @@ viz/
 | `app/cloud.js` | All Cloudflare Workers API calls |
 | `app/dom.js` | DOM helpers — **always use `esc()` for user-visible strings in innerHTML** |
 | `app/sku.js` | SKU parsing, hashing, synthetic SKU detection |
+| `app/sku_canonical.js` | DSU + `compareSku` + `normalizeImplicitSkuKey` + `buildGroupsAndCanonicalMap`. Parallel sibling of `src/utils/sku_canonical.js` (CJS); keep both in sync manually since there is no build step. |
 | `app/storeColors.js` | Store → CSS color mapping (delegates to `stores.js` for color data) |
 | `app/smws.js` | Parse SMWS codes like `1.234` |
 | `app/fav_star.js` | Reusable favorite-toggle component |

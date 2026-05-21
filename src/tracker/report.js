@@ -25,6 +25,7 @@ function createReport() {
 		updatedItems: [],
 		removedItems: [],
 		restoredItems: [],
+		skuUpgrades: [], // { fromSku, toSku, url, ts, dbFile } per in-place SKU upgrade detected this run
 	};
 }
 
