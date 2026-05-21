@@ -15,6 +15,7 @@ import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js
 import { getAuthStatus, logoutAndReload } from "./cloud.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { decorateRarity } from "./rarity_decorate.js";
 
 
 export function renderSearch($app) {
