@@ -27,6 +27,17 @@ Tools that build local DSUs (`tools/rarity_report.js`, `tools/build_email_event_
 
 The orphan-DB-file auto-flip in `src/tracker/orphan_dbs.js` handles the case where a store's category URL changes and the old DB file becomes stranded — runs at the end of every `node bin/tracker.js` invocation.
 
+## Rarity Scoring
+
+`src/utils/rarity.js` (CJS) and `viz/app/rarity.js` (ESM) define `scoreSku()`, which combines five smooth signals into a 0..1 rarity score. `tools/build_viz_rarity.js` runs once per `run_daily.sh` and writes `viz/data/rarity.json` keyed by canonical SKU. Consumers (viz, email pack) canonicalize first then look up.
+
+**Tier classification** uses dynamic 10th/90th percentile thresholds computed per build:
+- `staple` (bottom ~10%): widely available, frequent restocks
+- `rare` (top ~10%): hard to obtain (OOS or fast sellouts)
+- `common` (middle ~80%): no special styling
+
+**Color tokens** — `viz/style.css` defines `--rarity-staple-border`, `--rarity-staple-glow`, `--rarity-rare-border`, `--rarity-rare-glow` (plus light-theme overrides). The same RGBA values are also embedded in email event packs under `pack.rarity.colors` so the email HTML in `~/spirit-tracker-api` can mirror them exactly. Keep these in sync — they're the visual language for the whole product.
+
 ## Tech Stack
 
 - **Node.js 18+** required (uses global `fetch`). No npm install needed — there are no npm dependencies.

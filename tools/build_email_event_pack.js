@@ -123,6 +123,24 @@ const {
   buildGroupsAndCanonicalMap,
   compareSku,
 } = require("../src/utils/sku_canonical");
+const { tierFor } = require("../src/utils/rarity");
+
+// Load the precomputed rarity snapshot built by tools/build_viz_rarity.js. The
+// pack will embed rarity + tier per event so the email HTML can style rare /
+// staple items consistently with the viz app.
+function loadRaritySnapshot() {
+  const candidates = [
+    path.join(process.cwd(), "viz", "data", "rarity.json"),
+    path.join(process.cwd(), ".worktrees", "data", "viz", "data", "rarity.json"),
+  ];
+  for (const f of candidates) {
+    try {
+      const obj = JSON.parse(fs.readFileSync(f, "utf8"));
+      if (obj && obj.byCanon) return obj;
+    } catch {}
+  }
+  return null;
+}
 
 function buildSkuMapFromLinksArray(links) {
   const { canonBySku, groupsByCanon } = buildGroupsAndCanonicalMap(links);
@@ -629,6 +647,20 @@ function main() {
     }
   }
 
+  // Annotate every event with the canonical's current rarity + tier. Tier
+  // values ("staple" | "rare" | "common") match the viz CSS class suffixes so
+  // the email HTML can use the same visual language.
+  const raritySnap = loadRaritySnapshot();
+  if (raritySnap) {
+    for (const e of events) {
+      const entry = raritySnap.byCanon?.[e.sku];
+      if (!entry) continue;
+      e.rarity = entry.r;
+      e.rarityConfidence = entry.c;
+      e.rarityTier = tierFor(entry.r, raritySnap.thresholds);
+    }
+  }
+
   // SKU context for affected SKUs only
   const skus = {};
   for (const canonSku of [...affectedCanon].sort(compareSku)) {
@@ -700,6 +732,24 @@ function main() {
       suppressedCount,
       suppressedByType,
     },
+    // Rarity context for the email renderer: thresholds so the renderer can
+    // group/show events by tier, and a hint at the color tokens to keep email
+    // styling visually consistent with the viz app. Tokens mirror the CSS in
+    // viz/style.css (--rarity-*-border / --rarity-*-glow).
+    rarity: raritySnap
+      ? {
+          generatedAt: raritySnap.generatedAt,
+          thresholds: raritySnap.thresholds,
+          colors: {
+            stapleBorder: "rgba(218,165,32,0.55)",
+            stapleGlow: "rgba(218,165,32,0.12)",
+            rareBorder: "rgba(255,215,0,0.85)",
+            rareGlow: "rgba(255,215,0,0.18)",
+            stapleBorderLight: "rgba(184,134,11,0.65)",
+            rareBorderLight: "rgba(191,149,16,0.95)",
+          },
+        }
+      : null,
     skus,
     events,
   };

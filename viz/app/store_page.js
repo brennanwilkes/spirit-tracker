@@ -1,6 +1,7 @@
 import { esc, renderThumbHtml } from "./dom.js";
 import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { decorateRarity } from "./rarity_decorate.js";
 import {
 	tokenizeQuery,
 	matchesAllTokens,
@@ -9,13 +10,14 @@ import {
 	parsePriceToNumber,
 	normSearchText,
 } from "./sku.js";
-import { loadIndex, loadRecent } from "./state.js";
+import { loadIndex, loadRecent, loadRarity } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { normalizeStoreId, storeById } from "./stores.js";
 
 let rulesCache = null;
+let rarityCache = null;
 
 export async function renderStore($app, storeLabelRaw) {
 	const storeLabel = String(storeLabelRaw || "").trim();
@@ -94,6 +96,8 @@ export async function renderStore($app, storeLabelRaw) {
                   <option value="dateAsc">Oldest</option>
                   <option value="salePct">Sale %</option>
                   <option value="saleAbs">Sale $</option>
+                  <option value="rarityDesc">Rarity (rarest first)</option>
+                  <option value="rarityAsc">Rarity (most common first)</option>
                 </select>
               </div>
             </div>
@@ -180,13 +184,15 @@ export async function renderStore($app, storeLabelRaw) {
 	$resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
 	$resultsCompare.innerHTML = ``;
 
-	const [idx, rulesLoaded, fav] = await Promise.all([
+	const [idx, rulesLoaded, fav, rarity] = await Promise.all([
 		loadIndex(),
 		loadSkuRules(),
 		loadMyFavouritesSet(),
+		loadRarity().catch(() => null),
 	]);
 
 	rulesCache = rulesLoaded;
+	rarityCache = rarity;
 	const rules = rulesCache;
 
 	for (const k of fav.set) {
@@ -713,10 +719,14 @@ export async function renderStore($app, storeLabelRaw) {
 		shownExclusive += sliceEx.length;
 		shownCompare += sliceCo.length;
 
-		if (sliceEx.length)
+		if (sliceEx.length) {
 			$resultsExclusive.insertAdjacentHTML("beforeend", sliceEx.map(renderCard).join(""));
-		if (sliceCo.length)
+			decorateRarity($resultsExclusive);
+		}
+		if (sliceCo.length) {
 			$resultsCompare.insertAdjacentHTML("beforeend", sliceCo.map(renderCard).join(""));
+			decorateRarity($resultsCompare);
+		}
 
 		const total = totalFiltered();
 		const shown = totalShown();
@@ -762,6 +772,26 @@ export async function renderStore($app, storeLabelRaw) {
 				const an = (String(a.name) + a.sku).toLowerCase();
 				const bn = (String(b.name) + b.sku).toLowerCase();
 				return an.localeCompare(bn);
+			});
+			return;
+		}
+
+		if (mode === "rarityDesc" || mode === "rarityAsc") {
+			const rarityForSku = (raw) => {
+				if (!rarityCache || !rulesCache) return null;
+				const canon = rulesCache.canonicalSku(String(raw || ""));
+				return rarityCache.byCanon?.[canon]?.r ?? null;
+			};
+			arr.sort((a, b) => {
+				const ar = rarityForSku(a.sku);
+				const br = rarityForSku(b.sku);
+				if (ar === null && br === null) {
+					return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+				}
+				if (ar === null) return 1;
+				if (br === null) return -1;
+				if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
+				return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
 			});
 			return;
 		}

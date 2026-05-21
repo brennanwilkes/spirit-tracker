@@ -40,138 +40,38 @@ function canonical(sku, map) {
 
 // ---------------- Build per-canonical event aggregate ----------------
 
+const { scoreSku: scoreSkuShared } = require("../src/utils/rarity");
+
 function loadSkuFile(file) {
 	try { return JSON.parse(fs.readFileSync(file, "utf8")); }
 	catch { return null; }
 }
 
-// Per (canonical, store) compute listing periods.
-// An event { ts, p } where p present = in-stock observation; p absent = OOS marker.
-// A listing period starts on first in-stock event after either start-of-time or an OOS marker,
-// and ends at the next OOS marker (or stays open if last event has p).
-function computeStorePeriods(events) {
-	const sorted = events.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
-	const periods = [];
-	const prices = [];
-	let openStart = null;
-	for (const ev of sorted) {
-		const t = new Date(ev.ts).getTime();
-		if (ev.p != null) {
-			prices.push({ t, p: ev.p });
-			if (openStart === null) openStart = t;
-		} else {
-			if (openStart !== null) {
-				periods.push({ start: openStart, end: t });
-				openStart = null;
-			}
-		}
-	}
-	const stillOpen = openStart !== null
-		? { start: openStart, end: null }
-		: null;
-	const distinctPrices = new Set(prices.map(x => x.p)).size;
-	return { periods, stillOpen, prices, distinctPrices };
-}
-
 function scoreSku(eventsByStore) {
-	const stores = Object.keys(eventsByStore);
-	let firstEverTs = Infinity, lastEverTs = -Infinity;
-	let totalCompletedPeriods = [];
-	let totalStillOpen = 0;
-	let totalRestocks = 0;
-	let totalPriceChanges = 0;
-	let currentlyStockedStores = 0;
-	let totalEvents = 0;
-
-	for (const s of stores) {
-		const evs = eventsByStore[s].events || [];
-		totalEvents += evs.length;
-		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
-		// restocks within a store = number of completed-then-reopen transitions
-		// Equivalent: max(0, (#periods including open) - 1)
-		const totalListings = periods.length + (stillOpen ? 1 : 0);
-		if (totalListings > 1) totalRestocks += (totalListings - 1);
-		for (const p of periods) totalCompletedPeriods.push(p.end - p.start);
-		if (stillOpen) totalStillOpen += 1;
-		if (distinctPrices > 1) totalPriceChanges += (distinctPrices - 1);
-		if (stillOpen) currentlyStockedStores += 1;
-
-		const allTs = evs.map(e => new Date(e.ts).getTime()).filter(Number.isFinite);
-		if (allTs.length) {
-			firstEverTs = Math.min(firstEverTs, Math.min(...allTs));
-			lastEverTs = Math.max(lastEverTs, Math.max(...allTs));
-		}
-	}
-
-	const breadth = stores.length;
-	const ageDays = firstEverTs === Infinity ? 0 : (NOW - firstEverTs) / 86400000;
-	const lastSeenDaysAgo = lastEverTs === -Infinity ? Infinity : (NOW - lastEverTs) / 86400000;
-
-	// Completed period stats (days)
-	const completedDays = totalCompletedPeriods.map(ms => ms / 86400000);
-	const meanCompleted = completedDays.length
-		? completedDays.reduce((a, b) => a + b, 0) / completedDays.length
-		: null;
-	const medianCompleted = (() => {
-		if (!completedDays.length) return null;
-		const sorted = completedDays.slice().sort((a, b) => a - b);
-		const m = Math.floor(sorted.length / 2);
-		return sorted.length % 2 ? sorted[m] : (sorted[m - 1] + sorted[m]) / 2;
-	})();
-
-	// --- Scores (each 0..1, higher = rarer) ---
-	const breadth_score = 1 - Math.min(breadth, 6) / 6;
-
-	// shelf life: prefer median when we have completed periods; if none, use age-of-current-listing
-	// (i.e., item has been continuously stocked for ageDays at some store — that's NOT rare)
-	let shelflife_score;
-	if (medianCompleted !== null) {
-		shelflife_score = 1 / (1 + medianCompleted / 14);
-	} else if (ageDays > 0) {
-		// never gone OOS yet — treat as not rare on this axis
-		shelflife_score = 1 / (1 + ageDays / 14);
-	} else {
-		shelflife_score = 0.5;
-	}
-
-	const restock_score = 1 / (1 + totalRestocks / 3);
-	const availability_score = breadth > 0
-		? 1 - currentlyStockedStores / breadth
-		: 1;
-
-	const rarity = 0.35 * breadth_score
-		+ 0.30 * shelflife_score
-		+ 0.20 * restock_score
-		+ 0.15 * availability_score;
-
-	// Confidence: low when we have only 1 store with 1 still-open period and short age
-	// Boost when there are completed periods (we've observed sellouts/restocks).
-	const completedSignal = Math.min(completedDays.length / 3, 1);
-	const ageSignal = Math.min(ageDays / 60, 1);
-	const eventSignal = Math.min(totalEvents / 8, 1);
-	const confidence = 0.5 * completedSignal + 0.3 * ageSignal + 0.2 * eventSignal;
-
+	const s = scoreSkuShared(eventsByStore, NOW);
 	return {
-		rarity,
-		confidence,
-		breadth,
-		currentlyStockedStores,
-		totalRestocks,
-		totalPriceChanges,
-		ageDays: +ageDays.toFixed(1),
-		lastSeenDaysAgo: Number.isFinite(lastSeenDaysAgo) ? +lastSeenDaysAgo.toFixed(1) : null,
-		meanCompletedDays: meanCompleted !== null ? +meanCompleted.toFixed(1) : null,
-		medianCompletedDays: medianCompleted !== null ? +medianCompleted.toFixed(1) : null,
-		completedPeriods: completedDays.length,
-		totalEvents,
+		rarity: s.rarity,
+		confidence: s.confidence,
+		breadth: s.breadth,
+		currentlyStockedStores: s.currentlyStockedStores,
+		totalRestocks: s.totalRestocks,
+		totalPriceChanges: s.totalPriceChanges,
+		ageDays: +s.ageDays.toFixed(1),
+		lastSeenDaysAgo: s.lastSeenDaysAgo !== null ? +s.lastSeenDaysAgo.toFixed(1) : null,
+		meanPeriodDays: +s.meanPeriodDays.toFixed(1),
+		completedPeriods: s.completedPeriods,
+		totalInStockDays: +s.totalInStockDays.toFixed(1),
+		totalEvents: s.totalEvents,
 		scores: {
-			breadth: +breadth_score.toFixed(3),
-			shelflife: +shelflife_score.toFixed(3),
-			restock: +restock_score.toFixed(3),
-			availability: +availability_score.toFixed(3),
-		}
+			breadth: +s.scores.breadth.toFixed(3),
+			avail: +s.scores.avail.toFixed(3),
+			velocity: +s.scores.velocity.toFixed(3),
+			restockLow: +s.scores.restockLow.toFixed(3),
+			persistenceLow: +s.scores.persistenceLow.toFixed(3),
+		},
 	};
 }
+
 
 // ---------------- Load names from index.json ----------------
 
@@ -254,7 +154,7 @@ for (let i = 0; i < SAMPLE; i++) {
 	sample.push(scored[idx]);
 }
 
-console.log("rarity  conf   brd  cur  rst  prc  age   lastSeen  medShelf  name (canon)");
+console.log("rarity  conf   brd  cur  rst  prc  age   lastSeen  meanPer  inStockD  name (canon)");
 console.log("------  -----  ---  ---  ---  ---  ----  --------  --------  --------------------------");
 for (const s of sample) {
 	const line = [
@@ -266,7 +166,8 @@ for (const s of sample) {
 		String(s.totalPriceChanges).padStart(3),
 		String(s.ageDays.toFixed(0)).padStart(4),
 		(s.lastSeenDaysAgo ?? "—").toString().padStart(8),
-		(s.medianCompletedDays ?? "—").toString().padStart(8),
+		s.meanPeriodDays.toString().padStart(7),
+		s.totalInStockDays.toString().padStart(8),
 		`${s.name.slice(0, 50)} (${s.canon})`
 	].join("  ");
 	console.log(line);
@@ -274,4 +175,4 @@ for (const s of sample) {
 
 console.log(`\n# Column legend`);
 console.log(`brd=breadth  cur=currentlyStockedStores  rst=restocks  prc=priceChanges`);
-console.log(`age=ageDays  lastSeen=daysSinceLastEvent  medShelf=medianCompletedPeriodDays`);
+console.log(`age=ageDays  lastSeen=daysSinceLastEvent  meanPer=meanPeriodDays(completed+open)  inStockD=totalInStockDays`);

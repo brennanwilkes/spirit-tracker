@@ -19,6 +19,7 @@ import { favStarHtml } from "./fav_star.js";
  * @param {string}  [opts.badgesHtml=""]       - raw HTML for meta-row badges slot
  * @param {boolean} [opts.showSkuBadge=true]   - show the SKU mono badge in title row
  * @param {string}  [opts.skuHref=""]          - href for the SKU badge link
+ * @param {string}  [opts.rarityTier=""]       - "staple" | "rare" | "" (no special styling)
  * @returns {string} HTML string
  */
 export function itemCardHtml(
@@ -32,6 +33,7 @@ export function itemCardHtml(
 		badgesHtml = "",
 		showSkuBadge = true,
 		skuHref = "",
+		rarityTier = "",
 	} = {},
 ) {
 	const sku = String(item?.sku || "");
@@ -55,8 +57,11 @@ export function itemCardHtml(
 
 	const priceEl = priceStr ? `<span class="price">${esc(priceStr)}</span>` : "";
 
+	const tierClass =
+		rarityTier === "staple" ? " rarity-staple" : rarityTier === "rare" ? " rarity-rare" : "";
+
 	return `
-<div class="item${showFavStar ? " itemHasStar" : ""}" data-sku="${esc(sku)}">
+<div class="item${showFavStar ? " itemHasStar" : ""}${tierClass}" data-sku="${esc(sku)}">
   <div class="itemTitle">
     <div class="itemName">${esc(name)}</div>
     ${skuBadge}

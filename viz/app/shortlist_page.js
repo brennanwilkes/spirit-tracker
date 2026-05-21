@@ -8,7 +8,7 @@ import {
 	keySkuForRow,
 	parsePriceToNumber,
 } from "./sku.js";
-import { loadIndex, loadRecent } from "./state.js";
+import { loadIndex, loadRecent, loadRarity } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
@@ -26,6 +26,7 @@ import {
 } from "./cloud.js";
 import { computeScore } from "./shortlist_page/shortlist_scoring.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { decorateRarity } from "./rarity_decorate.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -134,6 +135,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 								<option value="priceDesc">Highest Price</option>
 								<option value="salePct">Sale %</option>
 								<option value="saleAbs">Sale $</option>
+								<option value="rarityDesc">Rarity (rarest first)</option>
+								<option value="rarityAsc">Rarity (most common first)</option>
 							</select>
 						</div>
 
@@ -233,14 +236,17 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	$results.innerHTML = `<div class="small">Loading…</div>`;
 
-	const [idx, rules, fav, scoreMap, sampledArr, recent] = await Promise.all([
+	const [idx, rules, fav, scoreMap, sampledArr, recent, rarity] = await Promise.all([
 		loadIndex(),
 		loadSkuRules(),
 		getFavourites(accountUuid).catch((e) => e),
 		getScore(accountUuid).catch((e) => e),
 		getSampled(accountUuid).catch((e) => e),
 		loadRecent().catch(() => null),
+		loadRarity().catch(() => null),
 	]);
+	const _rarity = rarity;
+	const _rules = rules;
 
 	function isAuthErr(e) {
 		return e && (e.name === "AuthError" || e instanceof AuthError);
@@ -922,7 +928,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 	function appendSlice(size) {
 		const slice = filtered.slice(shown, shown + size);
 		shown += slice.length;
-		if (slice.length) $results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
+		if (slice.length) {
+			$results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
+			decorateRarity($results);
+		}
 		updateSentinel();
 	}
 
@@ -997,6 +1006,24 @@ export async function renderShortlist($app, accountUuidRaw) {
 				const bKey = bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
 
 				if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
+				return nameKey(a).localeCompare(nameKey(b));
+			});
+			return;
+		}
+
+		if (mode === "rarityDesc" || mode === "rarityAsc") {
+			const rarityForSku = (raw) => {
+				if (!_rarity || !_rules) return null;
+				const canon = _rules.canonicalSku(String(raw || ""));
+				return _rarity.byCanon?.[canon]?.r ?? null;
+			};
+			arr.sort((a, b) => {
+				const ar = rarityForSku(a.sku);
+				const br = rarityForSku(b.sku);
+				if (ar === null && br === null) return nameKey(a).localeCompare(nameKey(b));
+				if (ar === null) return 1;
+				if (br === null) return -1;
+				if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
 				return nameKey(a).localeCompare(nameKey(b));
 			});
 			return;
