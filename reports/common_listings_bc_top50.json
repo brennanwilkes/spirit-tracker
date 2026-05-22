@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T16:43:27.735Z",
+  "generatedAt": "2026-05-22T19:29:34.939Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4435,
-    "removedRows": 521,
-    "canonSkus": 2196,
+    "liveRows": 4440,
+    "removedRows": 522,
+    "canonSkus": 2199,
     "outputCount": 50
   },
   "rows": [
@@ -116,6 +116,49 @@
         "priceNum": 27.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -288,49 +331,6 @@
         "priceNum": 26.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/222554"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 110.99,
-        "bcl": 120.99,
-        "gull": 125.99,
-        "legacyliquor": 132.99,
-        "strath": 120.53,
-        "tudor": 110.99,
-        "vessel": 114.99,
-        "vintage": 133.83
-      },
-      "representative": {
-        "name": "TALISKER 10YO",
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo"
       }
     },
     {
@@ -589,49 +589,6 @@
         "priceNum": 29.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -1062,6 +1019,49 @@
         "priceNum": 158.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 110.99,
+        "bcl": 120.99,
+        "gull": 125.99,
+        "legacyliquor": 132.99,
+        "strath": 120.53,
+        "tudor": 110.99,
+        "vintage": 133.83
+      },
+      "representative": {
+        "name": "TALISKER 10YO",
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo"
       }
     },
     {

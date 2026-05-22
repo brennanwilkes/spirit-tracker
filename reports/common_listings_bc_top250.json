@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T16:43:27.974Z",
+  "generatedAt": "2026-05-22T19:29:35.171Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4435,
-    "removedRows": 521,
-    "canonSkus": 2196,
+    "liveRows": 4440,
+    "removedRows": 522,
+    "canonSkus": 2199,
     "outputCount": 250
   },
   "rows": [
@@ -159,6 +159,49 @@
         "priceNum": 49.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 39.99,
+        "gull": 41.35,
+        "legacyliquor": 41.99,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -331,49 +374,6 @@
         "priceNum": 26.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/222554"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 110.99,
-        "bcl": 120.99,
-        "gull": 125.99,
-        "legacyliquor": 132.99,
-        "strath": 120.53,
-        "tudor": 110.99,
-        "vessel": 114.99,
-        "vintage": 133.83
-      },
-      "representative": {
-        "name": "TALISKER 10YO",
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo"
       }
     },
     {
@@ -675,49 +675,6 @@
         "priceNum": 47.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/600163"
-      }
-    },
-    {
-      "canonSku": "010157",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 39.99,
-        "gull": 41.35,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson - Irish Whiskey",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jameson-irish-whiskey-750-ml"
       }
     },
     {
@@ -1191,6 +1148,49 @@
         "priceNum": 158.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 110.99,
+        "bcl": 120.99,
+        "gull": 125.99,
+        "legacyliquor": 132.99,
+        "strath": 120.53,
+        "tudor": 110.99,
+        "vintage": 133.83
+      },
+      "representative": {
+        "name": "TALISKER 10YO",
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo"
       }
     },
     {
@@ -2971,6 +2971,48 @@
       }
     },
     {
+      "canonSku": "121484",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 37.19,
+        "bcl": 39.99,
+        "gull": 42.75,
+        "legacyliquor": 39.99,
+        "tudor": 44.99,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "BEARFACE TRIPLE OAK 750ML",
+        "price": "$37.19",
+        "priceNum": 37.19,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "237950",
+        "skuKey": "237950",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752586-bearface-triple-oak-750ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$37.19",
+        "priceNum": 37.19,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752586-bearface-triple-oak-750ml"
+      }
+    },
+    {
       "canonSku": "131870",
       "storeCount": 6,
       "stores": [
@@ -3074,7 +3116,7 @@
         "bcl": 41.99,
         "gull": 43.1,
         "legacyliquor": 45.76,
-        "tudor": 43.99,
+        "tudor": 41.99,
         "vessel": 42.99
       },
       "representative": {
@@ -3262,48 +3304,6 @@
         "priceNum": 22.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587529-jameson-whiskey-375ml"
-      }
-    },
-    {
-      "canonSku": "237950",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 37.19,
-        "bcl": 39.99,
-        "gull": 42.75,
-        "legacyliquor": 39.99,
-        "tudor": 44.99,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "BEARFACE TRIPLE OAK 750ML",
-        "price": "$37.19",
-        "priceNum": 37.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "237950",
-        "skuKey": "237950",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4752586-bearface-triple-oak-750ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$37.19",
-        "priceNum": 37.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4752586-bearface-triple-oak-750ml"
       }
     },
     {
@@ -3956,7 +3956,7 @@
         "bcl": 53.49,
         "gull": 54.95,
         "legacyliquor": 58.32,
-        "tudor": 55.99,
+        "tudor": 53.49,
         "vessel": 54.99
       },
       "representative": {
@@ -4018,6 +4018,48 @@
         "priceNum": 65.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591506-aberfeldy-12yo"
+      }
+    },
+    {
+      "canonSku": "780196",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 64.99,
+        "gull": 67.5,
+        "legacyliquor": 67.99,
+        "tudor": 64.99,
+        "vessel": 62.49
+      },
+      "representative": {
+        "name": "TOKI SUNTORY WHISKY",
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "855445",
+        "skuKey": "855445",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
       }
     },
     {
@@ -6154,47 +6196,6 @@
       }
     },
     {
-      "canonSku": "254029",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.09,
-        "bcl": 61.99,
-        "legacyliquor": 74.95,
-        "tudor": 60.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "LAPHROAIG SELECT",
-        "price": "$58.09",
-        "priceNum": 58.09,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "254029",
-        "skuKey": "254029",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$58.09",
-        "priceNum": 58.09,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select"
-      }
-    },
-    {
       "canonSku": "258137",
       "storeCount": 5,
       "stores": [
@@ -8040,47 +8041,6 @@
       }
     },
     {
-      "canonSku": "780196",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 64.99,
-        "gull": 67.5,
-        "legacyliquor": 67.99,
-        "tudor": 64.99
-      },
-      "representative": {
-        "name": "TOKI SUNTORY WHISKY",
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "855445",
-        "skuKey": "855445",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
-      }
-    },
-    {
       "canonSku": "783842",
       "storeCount": 5,
       "stores": [
@@ -9759,6 +9719,46 @@
         "priceNum": 96.05,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/worthy-park-single-e-750m/"
+      }
+    },
+    {
+      "canonSku": "254029",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.09,
+        "bcl": 61.99,
+        "legacyliquor": 74.95,
+        "tudor": 60.99
+      },
+      "representative": {
+        "name": "LAPHROAIG SELECT",
+        "price": "$58.09",
+        "priceNum": 58.09,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "254029",
+        "skuKey": "254029",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$58.09",
+        "priceNum": 58.09,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587762-laphroaig-select"
       }
     },
     {
