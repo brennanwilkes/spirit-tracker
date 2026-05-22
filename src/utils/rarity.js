@@ -138,25 +138,23 @@ function scoreSku(eventsByStore, nowMs) {
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low);
 
-	// Confidence: how much can we trust this rarity score?
-	//   cyclesSignal — at least one full sell-out cycle observed
-	//   ageSignal — observation window length
-	//   inStockSignal — accumulated in-stock observation time
-	// Epoch tempering — items whose last in-stock observation is near the
-	// tracker's absolute start date get reduced confidence (we may have caught
-	// them mid-cycle and don't know their pre-epoch history). Multiplied as
-	// sqrt(epochSignal) so the penalty softens as we accumulate post-epoch
-	// observation time, never fully crushes.
-	const cyclesSignal = Math.min(completedPeriodsMs.length, 1);
-	const ageSignal = Math.min(ageDays / 60, 1);
-	const inStockSignal = Math.min(totalInStockDays / 30, 1);
-	const baseConfidence = 0.40 * cyclesSignal + 0.30 * ageSignal + 0.30 * inStockSignal;
+	// Confidence: only two ways to lose it.
+	//   ageSignal — penalty if we've just started seeing this item; ramps to
+	//   full over the first 7 days of any observation history. Anything past
+	//   a week of any visibility is enough to commit to a tier.
+	//   epochSignal — penalty if the last in-stock observation was suspiciously
+	//   close to the tracker's absolute start date (we can't tell if a 5-day
+	//   post-epoch sellout is genuinely scarce or just an artifact of catching
+	//   the item mid-cycle). Quadratic ramp so the penalty is sharp in the
+	//   first weeks and irrelevant by day 30.
+	const ageSignal = Math.min(ageDays / 7, 1);
 	const daysFromEpochToLastInStock =
 		lastInStockEverTs === -Infinity
 			? 0
 			: Math.max(0, (lastInStockEverTs - TRACKER_EPOCH_MS) / 86400000);
-	const epochSignal = daysFromEpochToLastInStock / (daysFromEpochToLastInStock + 60);
-	const confidence = baseConfidence * epochSignal;
+	const epochRamp = Math.min(daysFromEpochToLastInStock / 30, 1);
+	const epochSignal = epochRamp * epochRamp;
+	const confidence = ageSignal * epochSignal;
 
 	return {
 		rarity,
@@ -203,7 +201,7 @@ function effectiveRarity(rarity, confidence) {
 // that point being "rare" stops meaning anything. The floor enforces that
 // rare items must sit a meaningful distance above neutral, on top of any
 // percentile-based cutoff.
-const RARE_MIN_FLOOR = 0.534;
+const RARE_MIN_FLOOR = 0.600;
 
 // Given a sorted-ascending array of EFFECTIVE rarity values, compute the
 // 10th- and 90th-percentile cutoffs that mark "staple" and "rare" tiers.
