@@ -32,8 +32,9 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v4
 
-      # Make sku_links.json available to the static site without committing a second copy.
-      - name: Stage sku_links.json into site artifact
+      # Make sku_links.json + sku_links_auto.json available to the static site
+      # without committing second copies. Both are pulled by viz/app/api.js.
+      - name: Stage sku_links*.json into site artifact
         shell: bash
         run: |
           set -euo pipefail
@@ -49,6 +50,9 @@ jobs:
             "ignores": []
           }
           EOF
+          fi
+          if [[ -f data/sku_links_auto.json ]]; then
+            cp -f data/sku_links_auto.json viz/data/sku_links_auto.json
           fi
 
       - name: Upload site artifact

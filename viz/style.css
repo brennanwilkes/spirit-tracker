@@ -1132,6 +1132,34 @@ html[data-theme="dark"] .item { background: #0f1318; }
 html[data-theme="dark"] .item .itemTitle { background: #0f1318; }
 html[data-theme="dark"] .item:hover { border-color: #2f3a46; }
 html[data-theme="dark"] .item:hover .itemTitle { border-bottom-color: #2f3a46; }
+
+/* Re-apply the layered rare background in dark mode at higher specificity
+ * than the generic `.item { background: #0f1318 }` rule above — without this,
+ * the `background` shorthand wipes out our `background-image` layers. */
+html[data-theme="dark"] .item.rarity-rare {
+  background-color: #0f1318;
+  background-image:
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 18%,
+      var(--rarity-rare-cover) 45%,
+      var(--rarity-rare-cover) 100%
+    ),
+    var(--rarity-rare-diamond-pattern),
+    radial-gradient(
+      ellipse 110% 110% at 0% 0%,
+      var(--rarity-rare-wash-start) 0%,
+      var(--rarity-rare-wash-mid) 30%,
+      transparent 60%
+    );
+  background-size: auto, 28px 28px, auto;
+  background-position: 0 0;
+  background-repeat: no-repeat, repeat, no-repeat;
+}
+html[data-theme="dark"] .item.rarity-rare .itemTitle {
+  background: transparent;
+}
 html[data-theme="dark"] .thumbBox,
 html[data-theme="dark"] .thumbPlaceholder { background: #0b0d10; }
 html[data-theme="dark"] .badgeNeutral { background: rgba(255,255,255,0.02); }
