@@ -72,11 +72,18 @@ async function loadSkuHistory(skuGroup, today) {
 			const events = Array.isArray(store?.events) ? store.events : [];
 			if (!events.length) continue;
 
-			// Last event per day wins (events are chronological)
-			const dayEventMap = new Map();
+			// Per day we track TWO things separately:
+			//   - lastEventByDay: end-of-day state, governs forward-fill into subsequent days
+			//   - lastPriceByDay: best in-stock observation on that day, governs the plotted point
+			// Without this split, an item that appeared and was removed on the same day would
+			// render zero points (the removed event would shadow the price event in the map).
+			const lastEventByDay = new Map();
+			const lastPriceByDay = new Map();
 			for (const ev of events) {
 				const d = dateOnly(ev.ts);
-				if (d) dayEventMap.set(d, ev);
+				if (!d) continue;
+				lastEventByDay.set(d, ev);
+				if ("p" in ev) lastPriceByDay.set(d, ev);
 			}
 
 			const points = new Map();
@@ -86,20 +93,30 @@ async function loadSkuHistory(skuGroup, today) {
 			let isActive = false;
 
 			for (const date of labels) {
-				const ev = dayEventMap.get(date);
-				if (ev) {
-					if ("p" in ev) {
-						currentPrice = parsePriceToNumber(ev.p);
+				const priceEv = lastPriceByDay.get(date);
+				const lastEv = lastEventByDay.get(date);
+
+				// If we observed a price today, plot it (even if a removal followed later that day).
+				let v;
+				if (priceEv) {
+					v = parsePriceToNumber(priceEv.p);
+				} else {
+					v = isActive ? currentPrice : null;
+				}
+				points.set(date, v);
+				if (v !== null) values.push(v);
+				dates.push(date);
+
+				// End-of-day state determines what next days' forward-fill looks like.
+				if (lastEv) {
+					if ("p" in lastEv) {
+						currentPrice = parsePriceToNumber(lastEv.p);
 						isActive = true;
 					} else {
 						currentPrice = null;
 						isActive = false;
 					}
 				}
-				const v = isActive ? currentPrice : null;
-				points.set(date, v);
-				if (v !== null) values.push(v);
-				dates.push(date);
 			}
 
 			series.push({ label: store.label || dbFile, variantKey: sku, points, values, dates });
