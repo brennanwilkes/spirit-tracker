@@ -7,7 +7,7 @@
 
 import { loadRarity } from "./state.js";
 import { loadSkuRules } from "./mapping.js";
-import { tierFor } from "./rarity.js";
+import { tierFor, effectiveRarity } from "./rarity.js";
 
 let CACHED = null;
 
@@ -24,7 +24,7 @@ export function rarityTierForSync(sku, rules, rarity) {
 	const canon = rules.canonicalSku(String(sku || ""));
 	const entry = rarity.byCanon?.[canon];
 	if (!entry) return "";
-	const t = tierFor(entry.r, rarity.thresholds, entry.c);
+	const t = tierFor(effectiveRarity(entry.r, entry.c), rarity.thresholds);
 	return t === "common" ? "" : t;
 }
 

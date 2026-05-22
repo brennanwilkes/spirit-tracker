@@ -5,6 +5,29 @@
 // (built by tools/build_viz_rarity.js). The scoring functions below exist so the
 // viz can recompute on demand for items not in the precomputed snapshot.
 
+export const TRACKER_EPOCH_MS = Date.UTC(2026, 0, 19);
+
+export function dedupRenameEvents(events) {
+	if (!Array.isArray(events) || events.length === 0) return [];
+	const sorted = events.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+	const out = [];
+	let i = 0;
+	while (i < sorted.length) {
+		let j = i;
+		while (j < sorted.length && sorted[j].ts === sorted[i].ts) j++;
+		const group = sorted.slice(i, j);
+		const hasInStock = group.some((e) => "p" in e);
+		const hasOOS = group.some((e) => !("p" in e));
+		if (hasInStock && hasOOS) {
+			// rename pair at same ts — drop the whole group
+		} else {
+			out.push(group[0]);
+		}
+		i = j;
+	}
+	return out;
+}
+
 export function computeStorePeriods(events) {
 	const sorted = (events || []).slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
 	const periods = [];
@@ -32,6 +55,7 @@ export function scoreSku(eventsByStore, nowMs) {
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
+	let lastInStockEverTs = -Infinity;
 	const completedPeriodsMs = [];
 	const openDurationsMs = [];
 	let totalRestocks = 0;
@@ -41,7 +65,8 @@ export function scoreSku(eventsByStore, nowMs) {
 	let totalEvents = 0;
 
 	for (const s of stores) {
-		const evs = (eventsByStore[s] && eventsByStore[s].events) || [];
+		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
+		const evs = dedupRenameEvents(rawEvs);
 		totalEvents += evs.length;
 		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
 		const totalListings = periods.length + (stillOpen ? 1 : 0);
@@ -63,7 +88,9 @@ export function scoreSku(eventsByStore, nowMs) {
 			if (!Number.isFinite(t)) continue;
 			if (t < firstEverTs) firstEverTs = t;
 			if (t > lastEverTs) lastEverTs = t;
+			if (ev.p != null && t > lastInStockEverTs) lastInStockEverTs = t;
 		}
+		if (stillOpen) lastInStockEverTs = Math.max(lastInStockEverTs, NOW);
 	}
 
 	const breadth = stores.length;
@@ -92,10 +119,16 @@ export function scoreSku(eventsByStore, nowMs) {
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low);
 
-	const completedSignal = Math.min(completedPeriodsMs.length / 3, 1);
+	const cyclesSignal = Math.min(completedPeriodsMs.length, 1);
 	const ageSignal = Math.min(ageDays / 60, 1);
-	const eventSignal = Math.min(totalEvents / 8, 1);
-	const confidence = 0.5 * completedSignal + 0.3 * ageSignal + 0.2 * eventSignal;
+	const inStockSignal = Math.min(totalInStockDays / 30, 1);
+	const baseConfidence = 0.40 * cyclesSignal + 0.30 * ageSignal + 0.30 * inStockSignal;
+	const daysFromEpochToLastInStock =
+		lastInStockEverTs === -Infinity
+			? 0
+			: Math.max(0, (lastInStockEverTs - TRACKER_EPOCH_MS) / 86400000);
+	const epochSignal = daysFromEpochToLastInStock / (daysFromEpochToLastInStock + 60);
+	const confidence = baseConfidence * epochSignal;
 
 	return {
 		rarity,
@@ -120,6 +153,21 @@ export function scoreSku(eventsByStore, nowMs) {
 	};
 }
 
+// Squared-confidence shrinkage toward the neutral midpoint 0.5. Pulls
+// low-confidence items toward "common" smoothly from both ends. Used for
+// both ranking and tier classification so they can never disagree.
+export function effectiveRarity(rarity, confidence) {
+	const r = Number.isFinite(rarity) ? rarity : 0.5;
+	const c = Number.isFinite(confidence) ? confidence : 0;
+	return 0.5 + c * c * (r - 0.5);
+}
+
+// Fixed floor on the "rare" threshold. See src/utils/rarity.js for rationale.
+export const RARE_MIN_FLOOR = 0.534;
+
+// Given a sorted-ascending array of EFFECTIVE rarity values, compute the
+// 10th- and 90th-percentile cutoffs that mark "staple" and "rare" tiers.
+// rareMin is additionally floored at RARE_MIN_FLOOR.
 export function computeTierThresholds(rarities) {
 	if (!Array.isArray(rarities) || rarities.length === 0) {
 		return { stapleMax: 0, rareMin: 1 };
@@ -129,23 +177,14 @@ export function computeTierThresholds(rarities) {
 	const idxRare = Math.floor(sorted.length * 0.90);
 	return {
 		stapleMax: sorted[Math.max(0, idxStaple - 1)],
-		rareMin: sorted[Math.min(sorted.length - 1, idxRare)],
+		rareMin: Math.max(RARE_MIN_FLOOR, sorted[Math.min(sorted.length - 1, idxRare)]),
 	};
 }
 
-// Minimum confidence required to assign a non-"common" tier. Brand-new items
-// with too little history are demoted to "common" regardless of their rarity
-// score — the score may be technically high (e.g. 1 store, 1 day) but we
-// haven't observed the item long enough to assert rarity.
-export const MIN_TIER_CONFIDENCE = 0.25;
-
-// Returns one of "staple", "rare", "common".
-// "common" is the default tier — no special styling is applied.
-// If confidence is provided and below MIN_TIER_CONFIDENCE, returns "common".
-export function tierFor(rarity, thresholds, confidence) {
+// Classify a single effective rarity value against the thresholds.
+export function tierFor(effRarity, thresholds) {
 	if (!thresholds) return "common";
-	if (confidence != null && confidence < MIN_TIER_CONFIDENCE) return "common";
-	if (rarity <= thresholds.stapleMax) return "staple";
-	if (rarity >= thresholds.rareMin) return "rare";
+	if (effRarity <= thresholds.stapleMax) return "staple";
+	if (effRarity >= thresholds.rareMin) return "rare";
 	return "common";
 }

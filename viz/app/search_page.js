@@ -16,6 +16,7 @@ import { getAuthStatus, logoutAndReload } from "./cloud.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 import { decorateRarity } from "./rarity_decorate.js";
+import { effectiveRarity } from "./rarity.js";
 
 
 export function renderSearch($app) {
@@ -484,7 +485,11 @@ export function renderSearch($app) {
 	function rarityForSku(rawSku) {
 		if (!rarityRef || !rulesRef) return null;
 		const canon = rulesRef.canonicalSku(String(rawSku || ""));
-		return rarityRef.byCanon?.[canon]?.r ?? null;
+		const entry = rarityRef.byCanon?.[canon];
+		if (!entry) return null;
+		// Sort by effective rarity (confidence-shrunk) so the order matches the
+		// tier classification used for styling.
+		return effectiveRarity(entry.r, entry.c);
 	}
 
 	function renderAggregates(items) {

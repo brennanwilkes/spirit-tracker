@@ -1,6 +1,6 @@
 import { fetchJson } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
-import { tierFor } from "./rarity.js";
+import { tierFor, effectiveRarity } from "./rarity.js";
 
 let INDEX = null;
 let RECENT = null;
@@ -44,7 +44,7 @@ export async function getRarityFor(rawSku) {
 	return {
 		rarity: entry.r,
 		confidence: entry.c,
-		tier: tierFor(entry.r, rarity.thresholds, entry.c),
+		tier: tierFor(effectiveRarity(entry.r, entry.c), rarity.thresholds),
 	};
 }
 
@@ -58,7 +58,7 @@ export function getRarityForSync(rawSku, rules, rarity) {
 	return {
 		rarity: entry.r,
 		confidence: entry.c,
-		tier: tierFor(entry.r, rarity.thresholds, entry.c),
+		tier: tierFor(effectiveRarity(entry.r, entry.c), rarity.thresholds),
 	};
 }
 

@@ -40,7 +40,7 @@ function canonical(sku, map) {
 
 // ---------------- Build per-canonical event aggregate ----------------
 
-const { scoreSku: scoreSkuShared, computeTierThresholds, tierFor } = require("../src/utils/rarity");
+const { scoreSku: scoreSkuShared, computeTierThresholds, tierFor, effectiveRarity } = require("../src/utils/rarity");
 
 function loadSkuFile(file) {
 	try { return JSON.parse(fs.readFileSync(file, "utf8")); }
@@ -126,18 +126,22 @@ for (const [canon, eventsByStore] of aggByCanon.entries()) {
 	scored.push({ canon, name: meta.name, price: meta.price, ...s });
 }
 
-scored.sort((a, b) => a.rarity - b.rarity);
+scored.sort(
+	(a, b) =>
+		effectiveRarity(a.rarity, a.confidence) - effectiveRarity(b.rarity, b.confidence),
+);
 
-// Distribution histogram
+// Distribution histogram (over effective rarity)
 const buckets = new Array(10).fill(0);
 const buckLowConf = new Array(10).fill(0);
 for (const s of scored) {
-	const b = Math.min(9, Math.floor(s.rarity * 10));
+	const eff = effectiveRarity(s.rarity, s.confidence);
+	const b = Math.min(9, Math.floor(eff * 10));
 	buckets[b]++;
 	if (s.confidence < 0.3) buckLowConf[b]++;
 }
 
-console.log(`\n# Rarity distribution (${scored.length} canonical SKUs)\n`);
+console.log(`\n# Effective-rarity distribution (${scored.length} canonical SKUs)\n`);
 console.log("bucket           count   low-conf   bar");
 for (let i = 0; i < 10; i++) {
 	const lo = (i / 10).toFixed(2), hi = ((i + 1) / 10).toFixed(2);
@@ -154,10 +158,12 @@ for (let i = 0; i < SAMPLE; i++) {
 	sample.push(scored[idx]);
 }
 
-console.log("rarity  conf   brd  cur  rst  prc  age   lastSeen  meanPer  inStockD  name (canon)");
-console.log("------  -----  ---  ---  ---  ---  ----  --------  --------  --------------------------");
+console.log("eff    rarity  conf   brd  cur  rst  prc  age   lastSeen  meanPer  inStockD  name (canon)");
+console.log("-----  ------  -----  ---  ---  ---  ---  ----  --------  --------  --------------------------");
 for (const s of sample) {
+	const eff = effectiveRarity(s.rarity, s.confidence);
 	const line = [
+		eff.toFixed(3),
 		s.rarity.toFixed(3),
 		s.confidence.toFixed(2),
 		String(s.breadth).padStart(3),
@@ -168,7 +174,7 @@ for (const s of sample) {
 		(s.lastSeenDaysAgo ?? "—").toString().padStart(8),
 		s.meanPeriodDays.toString().padStart(7),
 		s.totalInStockDays.toString().padStart(8),
-		`${s.name.slice(0, 50)} (${s.canon})`
+		`${s.name.slice(0, 50)} (${s.canon})`,
 	].join("  ");
 	console.log(line);
 }
@@ -180,20 +186,31 @@ console.log(`age=ageDays  lastSeen=daysSinceLastEvent  meanPer=meanPeriodDays(co
 // ---------------- Currently-in-stock items in the "rare" tier ----------------
 // Mirrors viz/email behavior: tier thresholds are dynamic 10th/90th percentiles.
 
-const thresholds = computeTierThresholds(scored.map((s) => s.rarity));
-console.log(`\n# Tier thresholds (dynamic)`);
+const thresholds = computeTierThresholds(
+	scored.map((s) => effectiveRarity(s.rarity, s.confidence)),
+);
+console.log(`\n# Tier thresholds (dynamic, over effective rarity)`);
 console.log(`stapleMax=${thresholds.stapleMax.toFixed(3)}  rareMin=${thresholds.rareMin.toFixed(3)}`);
 
 const rareInStock = scored
-	.filter((s) => s.currentlyStockedStores > 0 && tierFor(s.rarity, thresholds, s.confidence) === "rare")
-	.sort((a, b) => b.rarity - a.rarity);
+	.filter(
+		(s) =>
+			s.currentlyStockedStores > 0 &&
+			tierFor(effectiveRarity(s.rarity, s.confidence), thresholds) === "rare",
+	)
+	.sort(
+		(a, b) =>
+			effectiveRarity(b.rarity, b.confidence) - effectiveRarity(a.rarity, a.confidence),
+	);
 
 const LIMIT = parseInt(arg("rareLimit", "50"), 10);
 console.log(`\n# Currently-in-stock items marked "rare" (top ${Math.min(LIMIT, rareInStock.length)} of ${rareInStock.length})\n`);
-console.log("rarity  conf   brd  cur  rst  prc  age   lastSeen  meanPer  inStockD  name (canon)");
-console.log("------  -----  ---  ---  ---  ---  ----  --------  --------  --------------------------");
+console.log("eff    rarity  conf   brd  cur  rst  prc  age   lastSeen  meanPer  inStockD  name (canon)");
+console.log("-----  ------  -----  ---  ---  ---  ---  ----  --------  --------  --------------------------");
 for (const s of rareInStock.slice(0, LIMIT)) {
+	const eff = effectiveRarity(s.rarity, s.confidence);
 	const line = [
+		eff.toFixed(3),
 		s.rarity.toFixed(3),
 		s.confidence.toFixed(2),
 		String(s.breadth).padStart(3),

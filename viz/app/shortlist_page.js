@@ -27,6 +27,7 @@ import {
 import { computeScore } from "./shortlist_page/shortlist_scoring.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 import { decorateRarity } from "./rarity_decorate.js";
+import { effectiveRarity } from "./rarity.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -1015,7 +1016,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 			const rarityForSku = (raw) => {
 				if (!_rarity || !_rules) return null;
 				const canon = _rules.canonicalSku(String(raw || ""));
-				return _rarity.byCanon?.[canon]?.r ?? null;
+				const entry = _rarity.byCanon?.[canon];
+				if (!entry) return null;
+				return effectiveRarity(entry.r, entry.c);
 			};
 			arr.sort((a, b) => {
 				const ar = rarityForSku(a.sku);
