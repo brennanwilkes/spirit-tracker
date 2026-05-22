@@ -38,6 +38,7 @@ async function loadSkuHistory(skuGroup, today) {
 	const results = await Promise.all(fetches);
 
 	const allDatesSet = new Set();
+	allDatesSet.add("2026-01-19"); // earliest data branch commit
 	allDatesSet.add(today);
 
 	for (const cache of results) {

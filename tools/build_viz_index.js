@@ -177,7 +177,6 @@ function main() {
 		const storeLabel = String(obj.storeLabel || store || "");
 		const category = String(obj.category || "");
 		const categoryLabel = String(obj.categoryLabel || "");
-		const source = String(obj.source || "");
 		const fileUpdatedAt = String(obj.updatedAt || "");
 
 		const dbFile = path.relative(repoRoot, file).replace(/\\/g, "/");
@@ -245,10 +244,8 @@ function main() {
 				storeLabel,
 				category,
 				categoryLabel,
-				source,
 				updatedAt,
 				firstSeenAt, // "" if removed+unknown
-				dbFile,
 			});
 		}
 	}
@@ -267,7 +264,7 @@ function main() {
 		items,
 	};
 
-	fs.writeFileSync(outFile, JSON.stringify(outObj, null, 2) + "\n", "utf8");
+	fs.writeFileSync(outFile, JSON.stringify(outObj) + "\n", "utf8");
 	process.stdout.write(`Wrote ${path.relative(repoRoot, outFile)} (${items.length} rows)\n`);
 }
 

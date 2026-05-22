@@ -24,7 +24,7 @@ export function rarityTierForSync(sku, rules, rarity) {
 	const canon = rules.canonicalSku(String(sku || ""));
 	const entry = rarity.byCanon?.[canon];
 	if (!entry) return "";
-	const t = tierFor(entry.r, rarity.thresholds);
+	const t = tierFor(entry.r, rarity.thresholds, entry.c);
 	return t === "common" ? "" : t;
 }
 
