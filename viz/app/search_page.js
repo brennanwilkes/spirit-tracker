@@ -173,6 +173,7 @@ export function renderSearch($app) {
 	let rulesRef = null;
 	let recentCache = null;
 	let rarityRef = null;
+	let hiddenSetRef = new Set();
 
 	// sku -> earliest firstSeenAt across any row (ms)
 	let firstSeenMsBySku = new Map();
@@ -390,7 +391,10 @@ export function renderSearch($app) {
 		latestEventMsBySku = new Map();
 		globalSaleMetaBySku = new Map();
 
-		const items = Array.isArray(recent?.items) ? recent.items : [];
+		const rawItems = Array.isArray(recent?.items) ? recent.items : [];
+		const items = hiddenSetRef && hiddenSetRef.size > 0
+			? rawItems.filter((r) => !isHiddenListing(hiddenSetRef, normalizeStoreId(r?.storeLabel || r?.store || ""), String(r?.sku || "").trim()))
+			: rawItems;
 		if (!items.length) return;
 
 		const RECENT_DAYS = 7;
@@ -641,7 +645,10 @@ export function renderSearch($app) {
 	}
 
 	function renderRecent(recent, canonicalSkuFn) {
-		const items = Array.isArray(recent?.items) ? recent.items : [];
+		const rawItems = Array.isArray(recent?.items) ? recent.items : [];
+		const items = hiddenSetRef && hiddenSetRef.size > 0
+			? rawItems.filter((r) => !isHiddenListing(hiddenSetRef, normalizeStoreId(r?.storeLabel || r?.store || ""), String(r?.sku || "").trim()))
+			: rawItems;
 		if (!items.length) {
 			$results.innerHTML = `<div class="small">Type to search…</div>`;
 			return;
@@ -907,6 +914,7 @@ export function renderSearch($app) {
 			rulesRef = rules;
 			recentCache = recent;
 			rarityRef = rarity;
+			hiddenSetRef = hiddenSet || new Set();
 
 			favSet.clear();
 			for (const k of fav.set) {

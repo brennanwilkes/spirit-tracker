@@ -587,21 +587,17 @@ export async function renderItem($app, skuInput) {
 			ev.stopPropagation();
 			const sid = btn.getAttribute("data-storeid") || "";
 			const rawSku = btn.getAttribute("data-sku") || "";
-			const storeLabel = btn.getAttribute("data-store-label") || sid;
 			if (!sid || !rawSku) return;
-			const reason = window.prompt(`Hide this listing at ${storeLabel}?\nOptional reason:`, "");
-			if (reason === null) return; // cancelled
 			btn.disabled = true;
 			try {
-				await apiWriteSkuHidden(sid, rawSku, reason || "");
+				await apiWriteSkuHidden(sid, rawSku, "");
 				clearHiddenSetCache();
-				// Re-render the page by re-invoking the router via hash refresh
 				const h = location.hash || "";
 				location.hash = "#/";
 				setTimeout(() => { location.hash = h; }, 0);
 			} catch (e) {
 				btn.disabled = false;
-				alert(`Failed to hide listing: ${e && e.message ? e.message : e}`);
+				console.error("Failed to hide listing:", e);
 			}
 		};
 		for (const el of [$links, $linksMobile]) {
