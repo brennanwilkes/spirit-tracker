@@ -195,7 +195,9 @@ const CATEGORY_TO_TYPES = {
   "rum": ["rum"], "rum-cane-spirit": ["rum"], "spirits-rum": ["rum"],
   "whisky": ["whisky"], "whisky-whiskey": ["whisky"], "spirits-whiskey": ["whisky"],
   "american-whiskey": ["whisky"], "bourbon-whiskey": ["whisky"], "canadian-whisky": ["whisky"],
+  "canadian-whiskey": ["whisky"], "irish-whiskey": ["whisky"],
   "world-whisky": ["whisky"], "scotch": ["whisky"], "scotch-whisky": ["whisky"],
+  "scotch-whisky-single-malt": ["whisky"],
   "scotch-selections": ["whisky"], "scottish-blends": ["whisky"],
   "scottish-single-malts": ["whisky"], "single-malt-whisky": ["whisky"],
   "spirits-scotch": ["whisky"], "whiskey-scotch": ["whisky"],
@@ -204,7 +206,9 @@ const CATEGORY_TO_TYPES = {
   "all-minus-gin-tequila-mezcal": ["rum", "whisky"],
   "fine-rare": ["whisky"],
   "other": ["whisky"],
-  "spirits": ["rum", "whisky", "gin"],
+  // sierrasprings "spirits": unfiltered catch-all. Resolved per-item by URL
+  // slug in resolveItemSpiritTypes(); value here is unused.
+  "spirits": [],
 };
 
 function categoryToSpiritTypes(categoryKey) {
@@ -227,6 +231,16 @@ function resolveItemSpiritTypes(categoryKey, url, name) {
     const hasWhiskyCo  = _WHISKY_CO.test(t);
     const rumFinishOnly = hasRum && hasRumFinish && hasWhiskyCo;
     return (hasRum && !rumFinishOnly) ? ["rum"] : ["whisky"];
+  }
+  if (k === "spirits") {
+    const u = String(url || "").toLowerCase();
+    const m = u.match(/\/shop\/spirits\/([^/]+)\//);
+    const slug = m ? m[1] : "";
+    if (!slug) return null;
+    if (/^rum\b|^rum-/.test(slug)) return ["rum"];
+    if (/^gin\b|^gin-/.test(slug)) return ["gin"];
+    if (/whisky|whiskey|scotch/.test(slug)) return ["whisky"];
+    return null;
   }
   if (k === "spirits-liquor") {
     const u = String(url || "").toLowerCase();

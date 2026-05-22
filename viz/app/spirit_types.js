@@ -20,9 +20,12 @@ const CATEGORY_TO_TYPES = {
 	"american-whiskey":             ["whisky"],
 	"bourbon-whiskey":              ["whisky"],
 	"canadian-whisky":              ["whisky"],
+	"canadian-whiskey":             ["whisky"], // sierrasprings naming
+	"irish-whiskey":                ["whisky"], // sierrasprings naming
 	"world-whisky":                 ["whisky"],
 	"scotch":                       ["whisky"],
 	"scotch-whisky":                ["whisky"],
+	"scotch-whisky-single-malt":    ["whisky"], // sierrasprings naming
 	"scotch-selections":            ["whisky"],
 	"scottish-blends":              ["whisky"],
 	"scottish-single-malts":        ["whisky"],
@@ -42,8 +45,11 @@ const CATEGORY_TO_TYPES = {
 	"fine-rare":                    ["whisky"], // sierrasprings fine & rare = premium whisky
 	"other":                        ["whisky"], // sierrasprings other = whisky rescue by allowUrl
 
-	// ── All-types DB (show under any filter, future-proof) ───────────────────
-	"spirits":                      ["rum", "whisky", "gin"], // sierrasprings: unfiltered general spirits
+	// ── sierrasprings "spirits": unfiltered catch-all DB.
+	// Contains rum, whisky, gin, tequila, vodka, liqueurs, etc. Classified
+	// per-item by URL slug in resolveItemSpiritTypes(); listed here so the
+	// key is "known" — value is unused.
+	"spirits":                      [],
 };
 
 /**
@@ -106,6 +112,21 @@ export function resolveItemSpiritTypes(categoryKey, url, name) {
 		// descriptor AND there's an independent whisky signal.
 		const rumFinishOnly = hasRum && hasRumFinish && hasWhiskyCo;
 		return (hasRum && !rumFinishOnly) ? ["rum"] : ["whisky"];
+	}
+
+	// Sierra Springs "spirits" catch-all: URL slug after /shop/spirits/<slug>/
+	// reliably identifies the spirit type. Slugs we ignore (tequila, vodka,
+	// liqueurs, brandy, pre-mix, etc.) return null so they don't show under
+	// any filter.
+	if (k === "spirits") {
+		const u = String(url || "").toLowerCase();
+		const m = u.match(/\/shop\/spirits\/([^/]+)\//);
+		const slug = m ? m[1] : "";
+		if (!slug) return null;
+		if (/^rum\b|^rum-/.test(slug)) return ["rum"];
+		if (/^gin\b|^gin-/.test(slug)) return ["gin"];
+		if (/whisky|whiskey|scotch/.test(slug)) return ["whisky"];
+		return null;
 	}
 
 	// Sierra Springs spirits-liquor: URL slug reliably says rum or whiskey.

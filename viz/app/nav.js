@@ -1,71 +1,72 @@
 // viz/app/nav.js
 // Centralised back-button / navigation helpers.
-// All pages should use these instead of touching sessionStorage directly.
+//
+// We rely on the browser's native history stack rather than maintaining our own
+// in sessionStorage — every `location.hash = ...` already pushes a real history
+// entry, and any custom stack drifts out of sync with browser back/forward.
+// `_inAppEntries` counts how many forward navigations our app has made since
+// load, so goBack() knows whether history.back() will stay inside the app.
 
-const STACK_KEY = "viz:navStack";
+let _inAppEntries = 0;
 
-function getStack() {
-	try { return JSON.parse(sessionStorage.getItem(STACK_KEY) || "[]"); }
-	catch { return []; }
-}
-function setStack(arr) {
-	sessionStorage.setItem(STACK_KEY, JSON.stringify(arr));
-}
+/** Save the current hash so goBack() can return here. Kept for API compatibility — no-op. */
+export function saveCurrentRoute() {}
 
-/** Save the current hash so goBack() can return here. */
-export function saveCurrentRoute() {
-	const stack = getStack();
-	stack.push(location.hash);
-	setStack(stack);
-}
+/** Kept for API compatibility — no-op. */
+export function syncStackOnBrowserNav() {}
 
 /**
- * Navigate back to wherever saveCurrentRoute() was last called, or to
- * `fallback` (default "#/") if no saved route exists.
- * Skips stale entries that match the current hash (can happen when the
- * browser's native back button was used before this is called).
+ * Navigate back through the browser's native history if we have an in-app
+ * forward navigation to undo, otherwise jump to `fallback`.
  */
 export function goBack(fallback = "#/") {
-	const stack = getStack();
-	let prev = stack.pop();
-	setStack(stack);
-	// Skip entries that are already the current page (stale from browser back).
-	while (prev === location.hash && stack.length > 0) {
-		prev = stack.pop();
-		setStack(stack);
+	if (_inAppEntries > 0) {
+		// Don't decrement here — history.back() fires popstate + hashchange,
+		// which routes through notifyBrowserBack() and does the decrement.
+		window.history.back();
+		return;
 	}
-	location.hash = (prev && prev !== location.hash) ? prev : fallback;
+	location.hash = fallback;
 }
 
 /**
- * Called by main.js when a browser-initiated hashchange is detected (via
- * popstate). Pops the top of the stack if it matches the hash we just left,
- * keeping our custom stack in sync with browser history.
- */
-export function syncStackOnBrowserNav(oldHash) {
-	const stack = getStack();
-	if (stack.length > 0 && stack[stack.length - 1] === oldHash) {
-		stack.pop();
-		setStack(stack);
-	}
-}
-
-/**
- * Save the current route then navigate to `hash`.
- * Use this for any in-app navigation that should be reversible with goBack().
+ * Navigate to `hash`. Records that we've pushed a real browser history entry
+ * so goBack() knows it can use history.back().
  */
 export function navigateTo(hash) {
-	saveCurrentRoute();
+	if (location.hash === hash) return;
+	// Don't increment here — main.js's hashchange listener calls notifyForwardNav
+	// for every non-browser-back hash change, including this one. Incrementing
+	// here too would double-count.
 	location.hash = hash;
 }
 
 /**
- * Return the hash that goBack() would navigate to, without modifying the stack.
- * Use this to set the `href` on a back-button anchor at render time.
+ * Called by main.js for every hashchange that wasn't triggered by browser
+ * back/forward — that means a forward navigation that pushed a new history
+ * entry, whether via navigateTo() or via an `<a href="#/...">` click.
+ */
+export function notifyForwardNav() {
+	_inAppEntries++;
+}
+
+/**
+ * Called by main.js when the browser's back/forward buttons cause a hashchange.
+ * Decrement our forward counter so we don't try to history.back() into entries
+ * the user has already reversed.
+ */
+export function notifyBrowserBack() {
+	if (_inAppEntries > 0) _inAppEntries--;
+}
+
+/**
+ * Return the hash that goBack() would navigate to. With the history-based
+ * approach we don't know the actual target without inspecting history.state,
+ * so just return the fallback — the back button's href is only used for
+ * Ctrl+click "open in new tab".
  */
 export function peekBack(fallback = "#/") {
-	const stack = getStack();
-	return stack[stack.length - 1] ?? fallback;
+	return fallback;
 }
 
 /**

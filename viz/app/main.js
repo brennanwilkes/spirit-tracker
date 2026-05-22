@@ -14,7 +14,7 @@
  *   #/stores          stores directory
  */
 
-import { syncStackOnBrowserNav } from "./nav.js";
+import { notifyBrowserBack, notifyForwardNav } from "./nav.js";
 import { destroyChart } from "./item_page.js";
 import { renderSearch } from "./search_page.js";
 import { renderItem } from "./item_page.js";
@@ -125,10 +125,12 @@ function route() {
 // Use it to detect browser-initiated navigation and keep our sessionStorage nav stack in sync.
 let _browserNav = false;
 window.addEventListener("popstate", () => { _browserNav = true; });
-window.addEventListener("hashchange", (e) => {
+window.addEventListener("hashchange", () => {
 	if (_browserNav) {
 		_browserNav = false;
-		syncStackOnBrowserNav(new URL(e.oldURL).hash);
+		notifyBrowserBack();
+	} else {
+		notifyForwardNav();
 	}
 	route();
 });
