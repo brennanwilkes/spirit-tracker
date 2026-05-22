@@ -15,6 +15,7 @@ import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { normalizeStoreId, storeById } from "./stores.js";
+import { loadHiddenSet, isHiddenListing } from "./hidden.js";
 
 let rulesCache = null;
 let rarityCache = null;
@@ -182,11 +183,12 @@ export async function renderStore($app, storeLabelRaw) {
 	$resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
 	$resultsCompare.innerHTML = ``;
 
-	const [idx, rulesLoaded, fav, rarity] = await Promise.all([
+	const [idx, rulesLoaded, fav, rarity, hiddenSet] = await Promise.all([
 		loadIndex(),
 		loadSkuRules(),
 		loadMyFavouritesSet(),
 		loadRarity().catch(() => null),
+		loadHiddenSet().catch(() => new Set()),
 	]);
 
 	rulesCache = rulesLoaded;
@@ -274,7 +276,10 @@ export async function renderStore($app, storeLabelRaw) {
 		};
 	}
 
-	const listingsAll = Array.isArray(idx.items) ? idx.items : [];
+	const rawListingsAll = Array.isArray(idx.items) ? idx.items : [];
+	const listingsAll = hiddenSet && hiddenSet.size > 0
+		? rawListingsAll.filter((r) => !isHiddenListing(hiddenSet, normalizeStoreId(r?.storeLabel || r?.store || ""), keySkuForRow(r)))
+		: rawListingsAll;
 	const liveAll = listingsAll.filter((r) => r && !r.removed);
 
 	function dateMsFromRow(r) {

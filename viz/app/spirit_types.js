@@ -68,7 +68,7 @@ export function categoryToSpiritTypes(categoryKey) {
 // Rum finish patterns: "rum" or "rhum" followed by a cask/finish keyword within
 // 25 chars. These indicate a WHISKY finished in rum casks, not an actual rum.
 // "fnsh" catches URL slug abbreviations like "rum-fnsh".
-const _RUM_FINISH = /\b(rum|rhum)\b.{0,25}\b(cask|finish|fnsh|barrel|barrique)\b/i;
+const _RUM_FINISH = /\b(rum|rhum)\b.{0,25}\b(cask|finish(?:ed)?|fnsh|barrel|barrique)\b/i;
 
 // Primary rum keyword (includes rhum agricole).
 const _RUM = /\b(rum|rhum)\b/i;
@@ -77,9 +77,25 @@ const _RUM = /\b(rum|rhum)\b/i;
 // "peated" is unambiguous (no peated rums exist).
 const _WHISKY_CO = /\b(whisk(?:e)?y|scotch|single malt|blended malt|bourbon|rye|peated|islay|speyside|highland|lowland|campbeltown|irish|japanese)\b/i;
 
-// Small rum brand list for products that omit "rum" in name/URL.
-// Matches craftcellars.js pattern; kept intentionally short.
-const _RUM_BRANDS = /\b(appleton|mount gay|doorly'?s|foursquare|worthy park|hampden|long pond|river antoine|clairin|angostura|paranubes|el dorado|diplomatico|zacapa|plantation|planteray|velier|rum sponge)\b/i;
+// Rum brand list for products that omit "rum" in name/URL. Extended over time
+// as cross-category classifier audits surface new misclassified brands.
+const _RUM_BRANDS = /\b(appleton|mount gay|doorly'?s|foursquare|worthy park|hampden|long pond|river antoine|clairin|angostura|paranubes|el dorado|diplomatico|zacapa|plantation|planteray|velier|rum sponge|bumbu|brugal|bacardi|black tot|sailor jerry|kraken|zaya|lamb'?s|dictador|navy island|smith\s*&\s*cross|asta morris|valinch\s*&\s*mallet|boutique-?y rum|alambique|dram mor|quarterdeck|maman brigitte|twin fin|bedford park)\b/i;
+
+// Secondary rum signals: country-of-origin bottlings that are virtually never
+// whisky, plus rum-specific terminology. Only counted when there is no whisky
+// signal in the same name (see resolveItemSpiritTypes maltsandgrains branch).
+const _RUM_ORIGIN = /\b(jamaica|jamaican|guyana|guyanese|trinidad|trinidadian|barbados|fiji|fijian|haiti|haitian|grenada|nicaragua|venezuela|cuban|guadeloupe|martinique|st\.?\s*lucia|panama(?:nian)?|antigua|mauritius|dominican|south pacific)\b/i;
+const _RUM_KEYWORDS = /\b(aguardiente|rhum agricole|agricole|solera|cachaca|caña|cana de azucar)\b/i;
+
+// Generic name-override signals. These detect a spirit type from the product
+// name itself, regardless of the store's category. Used as a final pass to
+// correct miscategorisations at single-type-category stores (e.g. craftcellars
+// filing a gin under whisky, ARC filing Aqua Vitae under gin, sierraspring's
+// spirits catch-all routing bourbon via a /rum/ URL slug).
+const _GIN_NAME      = /\bgin\b/i;
+const _GIN_AS_FINISH = /\bgin\b\s*(?:cask|finish(?:ed)?|barrel)/i;
+const _WHISKY_NAME   = /\b(whisk(?:e)?y|scotch|single malt|bourbon|rye whisk|aqua vitae)\b/i;
+const _RUM_NAME      = /\b(rum|rhum)\b/i;
 
 /**
  * Per-item spirit type resolution. Narrows ambiguous categories using the item
@@ -102,31 +118,37 @@ const _RUM_BRANDS = /\b(appleton|mount gay|doorly'?s|foursquare|worthy park|hamp
 export function resolveItemSpiritTypes(categoryKey, url, name) {
 	const k = String(categoryKey || "").toLowerCase().trim();
 
-	// Malts & Grains catch-all: apply craftcellars-style rum-finish suppression.
+	// Malts & Grains catch-all: whisky-dominant DB with ~14 rum items mixed in.
+	// Apply rum signals with rum-finish suppression. Strong (primary) signals
+	// are the word "rum" or a rum-only brand; weak (secondary) signals are
+	// country-of-origin bottlings and rum-specific keywords, which only count
+	// when there is no whisky term anywhere in the name.
 	if (k === "all-minus-gin-tequila-mezcal") {
 		const t = `${String(name || "")} ${String(url || "")}`.toLowerCase();
-		const hasRum      = _RUM.test(t) || _RUM_BRANDS.test(t);
-		const hasRumFinish = _RUM_FINISH.test(t);
-		const hasWhiskyCo  = _WHISKY_CO.test(t);
-		// Suppress rum classification only when "rum" is clearly a cask-finish
-		// descriptor AND there's an independent whisky signal.
-		const rumFinishOnly = hasRum && hasRumFinish && hasWhiskyCo;
-		return (hasRum && !rumFinishOnly) ? ["rum"] : ["whisky"];
+		const hasRumPrimary   = _RUM.test(t) || _RUM_BRANDS.test(t);
+		const hasRumSecondary = _RUM_ORIGIN.test(t) || _RUM_KEYWORDS.test(t);
+		const hasRumFinish    = _RUM_FINISH.test(t);
+		const hasWhiskyCo     = _WHISKY_CO.test(t);
+		const rumFinishOnly   = (hasRumPrimary || hasRumSecondary) && hasRumFinish && hasWhiskyCo;
+		const isRum = (hasRumPrimary && !rumFinishOnly)
+		           || (hasRumSecondary && !hasWhiskyCo);
+		return _applyNameOverride(isRum ? ["rum"] : ["whisky"], name);
 	}
 
 	// Sierra Springs "spirits" catch-all: URL slug after /shop/spirits/<slug>/
-	// reliably identifies the spirit type. Slugs we ignore (tequila, vodka,
-	// liqueurs, brandy, pre-mix, etc.) return null so they don't show under
-	// any filter.
+	// is unreliable (the store routes some bourbons through /spirits/rum/).
+	// Use slug only as a fallback; the generic name override below corrects
+	// it when the product name clearly identifies the spirit type.
 	if (k === "spirits") {
 		const u = String(url || "").toLowerCase();
 		const m = u.match(/\/shop\/spirits\/([^/]+)\//);
 		const slug = m ? m[1] : "";
-		if (!slug) return null;
-		if (/^rum\b|^rum-/.test(slug)) return ["rum"];
-		if (/^gin\b|^gin-/.test(slug)) return ["gin"];
-		if (/whisky|whiskey|scotch/.test(slug)) return ["whisky"];
-		return null;
+		if (!slug) return _applyNameOverride(null, name);
+		let base = null;
+		if (/^rum\b|^rum-/.test(slug)) base = ["rum"];
+		else if (/^gin\b|^gin-/.test(slug)) base = ["gin"];
+		else if (/whisky|whiskey|scotch|bourbon|rye/.test(slug)) base = ["whisky"];
+		return _applyNameOverride(base, name);
 	}
 
 	// Sierra Springs spirits-liquor: URL slug reliably says rum or whiskey.
@@ -134,10 +156,32 @@ export function resolveItemSpiritTypes(categoryKey, url, name) {
 		const u = String(url || "").toLowerCase();
 		const hasRum    = /\brum\b/.test(u);
 		const hasWhisky = /\bwhisk/.test(u);
-		if (hasRum && !hasWhisky) return ["rum"];
-		if (hasWhisky && !hasRum) return ["whisky"];
+		if (hasRum && !hasWhisky) return _applyNameOverride(["rum"], name);
+		if (hasWhisky && !hasRum) return _applyNameOverride(["whisky"], name);
 		return ["rum", "whisky"]; // genuinely ambiguous (1 item)
 	}
 
-	return categoryToSpiritTypes(k);
+	return _applyNameOverride(categoryToSpiritTypes(k), name);
+}
+
+// When a single-type category disagrees with an unambiguous name signal,
+// trust the name. "Unambiguous" = exactly one of {rum, whisky, gin} appears in
+// the name (rum-cask-finish whiskies and "gin cask"-finished rums excluded).
+function _applyNameOverride(types, name) {
+	if (!Array.isArray(types) || types.length !== 1) return types;
+	const nm = String(name || "");
+	if (!nm) return types;
+
+	const rumFinish = _RUM_FINISH.test(nm);
+	const isRumName    = _RUM_NAME.test(nm) && !rumFinish;
+	const isWhiskyName = _WHISKY_NAME.test(nm);
+	const isGinName    = _GIN_NAME.test(nm) && !_GIN_AS_FINISH.test(nm);
+
+	const signals = (isRumName ? 1 : 0) + (isWhiskyName ? 1 : 0) + (isGinName ? 1 : 0);
+	if (signals !== 1) return types;
+
+	if (isRumName)    return ["rum"];
+	if (isWhiskyName) return ["whisky"];
+	if (isGinName)    return ["gin"];
+	return types;
 }

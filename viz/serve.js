@@ -30,6 +30,7 @@ function safePath(urlPath) {
 // Project-level file (shared by viz + report tooling)
 const LINKS_FILE = path.join(projectRoot, "data", "sku_links.json");
 const LINKS_AUTO_FILE = path.join(projectRoot, "data", "sku_links_auto.json");
+const HIDDEN_FILE = path.join(projectRoot, "data", "sku_hidden.json");
 
 function readAutoMeta() {
 	try {
@@ -58,6 +59,22 @@ function writeMeta(obj) {
 	obj.generatedAt = new Date().toISOString();
 	fs.mkdirSync(path.dirname(LINKS_FILE), { recursive: true });
 	fs.writeFileSync(LINKS_FILE, JSON.stringify(obj, null, 2) + "\n", "utf8");
+}
+
+function readHidden() {
+	try {
+		const raw = fs.readFileSync(HIDDEN_FILE, "utf8");
+		const obj = JSON.parse(raw);
+		const hidden = obj && Array.isArray(obj.hidden) ? obj.hidden : [];
+		return { generatedAt: obj?.generatedAt || new Date().toISOString(), hidden };
+	} catch {}
+	return { generatedAt: new Date().toISOString(), hidden: [] };
+}
+
+function writeHidden(obj) {
+	obj.generatedAt = new Date().toISOString();
+	fs.mkdirSync(path.dirname(HIDDEN_FILE), { recursive: true });
+	fs.writeFileSync(HIDDEN_FILE, JSON.stringify(obj, null, 2) + "\n", "utf8");
 }
 
 function send(res, code, body, headers) {
@@ -147,6 +164,64 @@ const server = http.createServer((req, res) => {
 		return send(res, 405, "Method Not Allowed");
 	}
 
+	if (url.pathname === "/__stviz/sku-hidden") {
+		if (req.method === "GET") {
+			const obj = readHidden();
+			return sendJson(res, 200, { ok: true, count: obj.hidden.length, hidden: obj.hidden });
+		}
+
+		if (req.method === "POST") {
+			let body = "";
+			req.on("data", (c) => (body += c));
+			req.on("end", () => {
+				try {
+					const inp = JSON.parse(body || "{}");
+					const storeId = String(inp.storeId || "").trim();
+					const sku = String(inp.sku || "").trim();
+					const reason = String(inp.reason || "").trim();
+					if (!storeId || !sku) return sendJson(res, 400, { ok: false, error: "storeId/sku required" });
+
+					const obj = readHidden();
+					const exists = obj.hidden.some((h) => h && h.storeId === storeId && h.sku === sku);
+					if (!exists) {
+						obj.hidden.push({ storeId, sku, ...(reason ? { reason } : {}), createdAt: new Date().toISOString() });
+						writeHidden(obj);
+					}
+
+					return sendJson(res, 200, { ok: true, count: obj.hidden.length, file: "data/sku_hidden.json" });
+				} catch (e) {
+					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
+				}
+			});
+			return;
+		}
+
+		if (req.method === "DELETE") {
+			let body = "";
+			req.on("data", (c) => (body += c));
+			req.on("end", () => {
+				try {
+					const inp = JSON.parse(body || "{}");
+					const storeId = String(inp.storeId || "").trim();
+					const sku = String(inp.sku || "").trim();
+					if (!storeId || !sku) return sendJson(res, 400, { ok: false, error: "storeId/sku required" });
+
+					const obj = readHidden();
+					const before = obj.hidden.length;
+					obj.hidden = obj.hidden.filter((h) => !(h && h.storeId === storeId && h.sku === sku));
+					if (obj.hidden.length !== before) writeHidden(obj);
+
+					return sendJson(res, 200, { ok: true, count: obj.hidden.length, removed: before - obj.hidden.length });
+				} catch (e) {
+					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
+				}
+			});
+			return;
+		}
+
+		return send(res, 405, "Method Not Allowed");
+	}
+
 	// Static
 	let file = safePath(u === "/" ? "/index.html" : u);
 	if (!file) {
@@ -175,4 +250,5 @@ const port = Number(process.env.PORT || 8080);
 server.listen(port, "127.0.0.1", () => {
 	process.stdout.write(`Serving ${root} on http://127.0.0.1:${port}\n`);
 	process.stdout.write(`SKU links file: ${LINKS_FILE}\n`);
+	process.stdout.write(`SKU hidden file: ${HIDDEN_FILE}\n`);
 });

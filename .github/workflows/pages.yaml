@@ -54,6 +54,16 @@ jobs:
           if [[ -f data/sku_links_auto.json ]]; then
             cp -f data/sku_links_auto.json viz/data/sku_links_auto.json
           fi
+          if [[ -f data/sku_hidden.json ]]; then
+            cp -f data/sku_hidden.json viz/data/sku_hidden.json
+          else
+            cat > viz/data/sku_hidden.json <<'EOF'
+          {
+            "generatedAt": "",
+            "hidden": []
+          }
+          EOF
+          fi
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

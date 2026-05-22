@@ -10,6 +10,8 @@ import {
 import { loadIndex, loadRecent, loadRarity, loadSavedQuery, saveQuery } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
+import { loadHiddenSet, isHiddenListing } from "./hidden.js";
+import { normalizeStoreId } from "./stores.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, logoutAndReload } from "./cloud.js";
@@ -899,8 +901,9 @@ export function renderSearch($app) {
 		loadMyFavouritesSet(),
 		loadRecent().catch(() => null),
 		loadRarity().catch(() => null),
+		loadHiddenSet().catch(() => new Set()),
 	])
-		.then(([idx, rules, fav, recent, rarity]) => {
+		.then(([idx, rules, fav, recent, rarity, hiddenSet]) => {
 			rulesRef = rules;
 			recentCache = recent;
 			rarityRef = rarity;
@@ -911,7 +914,10 @@ export function renderSearch($app) {
 				favSet.add(String(rules.canonicalSku(raw) || raw));
 			}
 
-			const listings = Array.isArray(idx.items) ? idx.items : [];
+			const rawListings = Array.isArray(idx.items) ? idx.items : [];
+			const listings = hiddenSet && hiddenSet.size > 0
+				? rawListings.filter((r) => !isHiddenListing(hiddenSet, normalizeStoreId(r?.storeLabel || r?.store || ""), keySkuForRow(r)))
+				: rawListings;
 
 			liveStoresBySku = new Map();
 			everStoresBySku = new Map();

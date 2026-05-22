@@ -62,6 +62,26 @@ export async function apiWriteSkuIgnore(skuA, skuB) {
 	return await res.json();
 }
 
+export async function apiWriteSkuHidden(storeId, sku, reason) {
+	const res = await fetch("/__stviz/sku-hidden", {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ storeId, sku, ...(reason ? { reason } : {}) }),
+	});
+	if (!res.ok) throw new Error(`HTTP ${res.status}`);
+	return await res.json();
+}
+
+export async function apiDeleteSkuHidden(storeId, sku) {
+	const res = await fetch("/__stviz/sku-hidden", {
+		method: "DELETE",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ storeId, sku }),
+	});
+	if (!res.ok) throw new Error(`HTTP ${res.status}`);
+	return await res.json();
+}
+
 async function tryFetchLinks(path) {
 	try {
 		const j = await fetchJson(path);

@@ -11,6 +11,8 @@ import {
 import { loadIndex, loadRecent, loadRarity } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
+import { loadHiddenSet, isHiddenListing } from "./hidden.js";
+import { normalizeStoreId } from "./stores.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import {
 	AuthError,
@@ -237,7 +239,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	$results.innerHTML = `<div class="small">Loading…</div>`;
 
-	const [idx, rules, fav, scoreMap, sampledArr, recent, rarity] = await Promise.all([
+	const [idx, rules, fav, scoreMap, sampledArr, recent, rarity, hiddenSet] = await Promise.all([
 		loadIndex(),
 		loadSkuRules(),
 		getFavourites(accountUuid).catch((e) => e),
@@ -245,6 +247,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		getSampled(accountUuid).catch((e) => e),
 		loadRecent().catch(() => null),
 		loadRarity().catch(() => null),
+		loadHiddenSet().catch(() => new Set()),
 	]);
 	const _rarity = rarity;
 	const _rules = rules;
@@ -308,7 +311,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 		(Array.isArray(sampledArr) ? sampledArr : []).map((k) => String(rules.canonicalSku(k) || k)),
 	);
 
-	const listingsAll = Array.isArray(idx?.items) ? idx.items : [];
+	const rawListingsAll = Array.isArray(idx?.items) ? idx.items : [];
+	const listingsAll = hiddenSet && hiddenSet.size > 0
+		? rawListingsAll.filter((r) => !isHiddenListing(hiddenSet, normalizeStoreId(r?.storeLabel || r?.store || ""), keySkuForRow(r)))
+		: rawListingsAll;
 	const liveAll = listingsAll.filter((r) => r && !r.removed);
 
 	// URL map for store badge links
