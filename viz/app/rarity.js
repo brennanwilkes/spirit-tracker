@@ -172,6 +172,9 @@ export function effectiveRarity(rarity, confidence) {
 // Fixed floor on the "rare" threshold. See src/utils/rarity.js for rationale.
 export const RARE_MIN_FLOOR = 0.600;
 
+// Fixed ceiling on the "staple" threshold. See src/utils/rarity.js for rationale.
+export const STAPLE_MAX_CEILING = 0.178;
+
 // Given a sorted-ascending array of EFFECTIVE rarity values, compute the
 // 10th- and 90th-percentile cutoffs that mark "staple" and "rare" tiers.
 // rareMin is additionally floored at RARE_MIN_FLOOR.
@@ -183,7 +186,7 @@ export function computeTierThresholds(rarities) {
 	const idxStaple = Math.floor(sorted.length * 0.10);
 	const idxRare = Math.floor(sorted.length * 0.90);
 	return {
-		stapleMax: sorted[Math.max(0, idxStaple - 1)],
+		stapleMax: Math.min(STAPLE_MAX_CEILING, sorted[Math.max(0, idxStaple - 1)]),
 		rareMin: Math.max(RARE_MIN_FLOOR, sorted[Math.min(sorted.length - 1, idxRare)]),
 	};
 }

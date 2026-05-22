@@ -139,15 +139,32 @@ function scoreSku(eventsByStore, nowMs) {
 		0.20 * (1 - S_persistence_low);
 
 	// Confidence: only two ways to lose it.
-	//   ageSignal — penalty if we've just started seeing this item; ramps to
-	//   full over the first 7 days of any observation history. Anything past
-	//   a week of any visibility is enough to commit to a tier.
+	//   ageSignal — penalty for not-yet-enough observation. Different ramp
+	//   depending on what we're observing:
+	//     fully OOS now    → ramp on accumulated OOS time (5d for full credit)
+	//                         brief in-stock followed by sustained OOS is
+	//                         exactly the rare-item signature.
+	//     partially OOS    → ramp on ageDays (7d for full credit)
+	//                         some stores have stock and some don't — moderate
+	//                         signal, give the benefit of the doubt quickly.
+	//     fully in stock   → ramp on ageDays (30d for full credit)
+	//                         continuous availability at every known store is
+	//                         the weakest signal: it could just mean the
+	//                         retailers got generous initial allocations.
 	//   epochSignal — penalty if the last in-stock observation was suspiciously
 	//   close to the tracker's absolute start date (we can't tell if a 5-day
 	//   post-epoch sellout is genuinely scarce or just an artifact of catching
 	//   the item mid-cycle). Quadratic ramp so the penalty is sharp in the
 	//   first weeks and irrelevant by day 30.
-	const ageSignal = Math.min(ageDays / 7, 1);
+	let ageSignal;
+	if (currentlyStockedStores === 0) {
+		const oosTime = Math.max(0, ageDays - totalInStockDays);
+		ageSignal = Math.min(oosTime / 5, 1);
+	} else if (currentlyStockedStores >= stores.length) {
+		ageSignal = Math.min(ageDays / 30, 1);
+	} else {
+		ageSignal = Math.min(ageDays / 7, 1);
+	}
 	const daysFromEpochToLastInStock =
 		lastInStockEverTs === -Infinity
 			? 0
@@ -203,6 +220,12 @@ function effectiveRarity(rarity, confidence) {
 // percentile-based cutoff.
 const RARE_MIN_FLOOR = 0.600;
 
+// Fixed ceiling on the "staple" threshold. Mirror of RARE_MIN_FLOOR — keeps
+// the staple tier from drifting upward into items that aren't really
+// distinctively common. Anything above this cannot be staple regardless of
+// where the 10th percentile falls.
+const STAPLE_MAX_CEILING = 0.178;
+
 // Given a sorted-ascending array of EFFECTIVE rarity values, compute the
 // 10th- and 90th-percentile cutoffs that mark "staple" and "rare" tiers.
 // rareMin is additionally floored at RARE_MIN_FLOOR.
@@ -214,7 +237,7 @@ function computeTierThresholds(rarities) {
 	const idxStaple = Math.floor(sorted.length * 0.10);
 	const idxRare = Math.floor(sorted.length * 0.90);
 	return {
-		stapleMax: sorted[Math.max(0, idxStaple - 1)],
+		stapleMax: Math.min(STAPLE_MAX_CEILING, sorted[Math.max(0, idxStaple - 1)]),
 		rareMin: Math.max(RARE_MIN_FLOOR, sorted[Math.min(sorted.length - 1, idxRare)]),
 	};
 }
