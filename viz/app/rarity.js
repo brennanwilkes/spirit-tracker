@@ -83,14 +83,14 @@ export function scoreSku(eventsByStore, nowMs) {
 	const S_avail = breadth > 0 ? 1 - currentlyStockedStores / breadth : 1;
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
-	const S_persistence_low = totalInStockDays / (totalInStockDays + 90);
+	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
 
 	const rarity =
 		0.30 * S_breadth +
 		0.25 * S_avail +
 		0.20 * S_velocity +
-		0.15 * (1 - S_restock_low) +
-		0.10 * (1 - S_persistence_low);
+		0.05 * (1 - S_restock_low) +
+		0.20 * (1 - S_persistence_low);
 
 	const completedSignal = Math.min(completedPeriodsMs.length / 3, 1);
 	const ageSignal = Math.min(ageDays / 60, 1);
@@ -133,10 +133,18 @@ export function computeTierThresholds(rarities) {
 	};
 }
 
+// Minimum confidence required to assign a non-"common" tier. Brand-new items
+// with too little history are demoted to "common" regardless of their rarity
+// score — the score may be technically high (e.g. 1 store, 1 day) but we
+// haven't observed the item long enough to assert rarity.
+export const MIN_TIER_CONFIDENCE = 0.25;
+
 // Returns one of "staple", "rare", "common".
 // "common" is the default tier — no special styling is applied.
-export function tierFor(rarity, thresholds) {
+// If confidence is provided and below MIN_TIER_CONFIDENCE, returns "common".
+export function tierFor(rarity, thresholds, confidence) {
 	if (!thresholds) return "common";
+	if (confidence != null && confidence < MIN_TIER_CONFIDENCE) return "common";
 	if (rarity <= thresholds.stapleMax) return "staple";
 	if (rarity >= thresholds.rareMin) return "rare";
 	return "common";

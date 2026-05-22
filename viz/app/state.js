@@ -44,7 +44,7 @@ export async function getRarityFor(rawSku) {
 	return {
 		rarity: entry.r,
 		confidence: entry.c,
-		tier: tierFor(entry.r, rarity.thresholds),
+		tier: tierFor(entry.r, rarity.thresholds, entry.c),
 	};
 }
 
@@ -58,7 +58,7 @@ export function getRarityForSync(rawSku, rules, rarity) {
 	return {
 		rarity: entry.r,
 		confidence: entry.c,
-		tier: tierFor(entry.r, rarity.thresholds),
+		tier: tierFor(entry.r, rarity.thresholds, entry.c),
 	};
 }
 

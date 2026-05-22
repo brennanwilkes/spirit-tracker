@@ -40,7 +40,7 @@ function canonical(sku, map) {
 
 // ---------------- Build per-canonical event aggregate ----------------
 
-const { scoreSku: scoreSkuShared } = require("../src/utils/rarity");
+const { scoreSku: scoreSkuShared, computeTierThresholds, tierFor } = require("../src/utils/rarity");
 
 function loadSkuFile(file) {
 	try { return JSON.parse(fs.readFileSync(file, "utf8")); }
@@ -176,3 +176,35 @@ for (const s of sample) {
 console.log(`\n# Column legend`);
 console.log(`brd=breadth  cur=currentlyStockedStores  rst=restocks  prc=priceChanges`);
 console.log(`age=ageDays  lastSeen=daysSinceLastEvent  meanPer=meanPeriodDays(completed+open)  inStockD=totalInStockDays`);
+
+// ---------------- Currently-in-stock items in the "rare" tier ----------------
+// Mirrors viz/email behavior: tier thresholds are dynamic 10th/90th percentiles.
+
+const thresholds = computeTierThresholds(scored.map((s) => s.rarity));
+console.log(`\n# Tier thresholds (dynamic)`);
+console.log(`stapleMax=${thresholds.stapleMax.toFixed(3)}  rareMin=${thresholds.rareMin.toFixed(3)}`);
+
+const rareInStock = scored
+	.filter((s) => s.currentlyStockedStores > 0 && tierFor(s.rarity, thresholds, s.confidence) === "rare")
+	.sort((a, b) => b.rarity - a.rarity);
+
+const LIMIT = parseInt(arg("rareLimit", "50"), 10);
+console.log(`\n# Currently-in-stock items marked "rare" (top ${Math.min(LIMIT, rareInStock.length)} of ${rareInStock.length})\n`);
+console.log("rarity  conf   brd  cur  rst  prc  age   lastSeen  meanPer  inStockD  name (canon)");
+console.log("------  -----  ---  ---  ---  ---  ----  --------  --------  --------------------------");
+for (const s of rareInStock.slice(0, LIMIT)) {
+	const line = [
+		s.rarity.toFixed(3),
+		s.confidence.toFixed(2),
+		String(s.breadth).padStart(3),
+		String(s.currentlyStockedStores).padStart(3),
+		String(s.totalRestocks).padStart(3),
+		String(s.totalPriceChanges).padStart(3),
+		String(s.ageDays.toFixed(0)).padStart(4),
+		(s.lastSeenDaysAgo ?? "—").toString().padStart(8),
+		s.meanPeriodDays.toString().padStart(7),
+		s.totalInStockDays.toString().padStart(8),
+		`${s.name.slice(0, 50)} (${s.canon})`,
+	].join("  ");
+	console.log(line);
+}
