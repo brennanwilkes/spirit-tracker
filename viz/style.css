@@ -18,16 +18,16 @@
    *           bottom-right. The border itself fades along the perimeter.
    * 80% of items get no styling.
    */
-  --rarity-staple-border: rgba(148, 163, 184, 0.50);
-  --rarity-staple-glow:   rgba(148, 163, 184, 0.18);
+  --rarity-staple-border: rgba(148, 163, 184, 0.70);
+  --rarity-staple-glow:   rgba(148, 163, 184, 0.28);
 
-  --rarity-rare-wash-start:  rgba(168,  85, 247, 0.32);
-  --rarity-rare-wash-mid:    rgba(168,  85, 247, 0.10);
-  --rarity-rare-border-hot:  rgba(168,  85, 247, 1.00);
-  --rarity-rare-border-mid:  rgba(168,  85, 247, 0.55);
-  --rarity-rare-border-cool: rgba(168,  85, 247, 0.06);
-  --rarity-rare-glow:        rgba(147,  51, 234, 0.32);
-  --rarity-rare-title-sep:   rgba(168,  85, 247, 0.35);
+  --rarity-rare-wash-start:  rgba(168,  85, 247, 0.22);
+  --rarity-rare-wash-mid:    rgba(168,  85, 247, 0.07);
+  --rarity-rare-border-hot:  rgba(168,  85, 247, 0.85);
+  --rarity-rare-border-mid:  rgba(168,  85, 247, 0.42);
+  --rarity-rare-border-cool: rgba(168,  85, 247, 0.05);
+  --rarity-rare-glow:        rgba(147,  51, 234, 0.22);
+  --rarity-rare-title-sep:   rgba(168,  85, 247, 0.28);
   /* Card-color token used to mask the diamond lattice past the diagonal.
    * Must match the card's base background per theme. */
   --rarity-rare-cover:       #0f1318;
@@ -35,7 +35,7 @@
    * tiny diamonds offset across the diagonal so when the tile repeats the
    * dots fall on diagonal rows (staggered, not aligned to an orthogonal
    * grid). Tiny + faint + spaced out. */
-  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><polygon points='7,5 9,7 7,9 5,7' fill='%23d4af37' fill-opacity='0.30'/><polygon points='21,19 23,21 21,23 19,21' fill='%23d4af37' fill-opacity='0.30'/></svg>");
+  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><polygon points='7,5 9,7 7,9 5,7' fill='%23d4af37' fill-opacity='0.22'/><polygon points='21,19 23,21 21,23 19,21' fill='%23d4af37' fill-opacity='0.22'/></svg>");
 }
 
 /* ── 2. Reset ──────────────────────────────────────────────────────────── */
@@ -241,6 +241,12 @@ a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 .item.rarity-rare:hover { filter: brightness(1.08) saturate(1.06); }
 .item.rarity-rare .itemTitle { border-bottom-color: var(--rarity-rare-title-sep); }
+
+/* The purple wash + diamond pattern in the top-left can swallow muted text
+ * (store label, sku badge, etc.). Re-scope --muted on rare cards so any
+ * descendant that uses it lifts to a higher-contrast tone. */
+.item.rarity-rare { --muted: rgba(231, 237, 243, 0.92); }
+html[data-theme="light"] .item.rarity-rare { --muted: rgba(15, 23, 42, 0.78); }
 
 /* Title zone: full-width name row with border-bottom separator */
 .itemTitle {
@@ -1032,19 +1038,19 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   /* Light-mode rarity tier overrides. Darker slate for staple legibility;
    * deeper purple + warmer (amber) gold diamond so the lattice reads against
    * a light card background. */
-  --rarity-staple-border: rgba( 71,  85, 105, 0.55);
-  --rarity-staple-glow:   rgba( 71,  85, 105, 0.16);
+  --rarity-staple-border: rgba( 71,  85, 105, 0.75);
+  --rarity-staple-glow:   rgba( 71,  85, 105, 0.25);
 
-  --rarity-rare-wash-start:  rgba(126,  34, 206, 0.22);
-  --rarity-rare-wash-mid:    rgba(126,  34, 206, 0.08);
-  --rarity-rare-border-hot:  rgba(126,  34, 206, 1.00);
-  --rarity-rare-border-mid:  rgba(126,  34, 206, 0.50);
-  --rarity-rare-border-cool: rgba(126,  34, 206, 0.06);
-  --rarity-rare-glow:        rgba(126,  34, 206, 0.22);
-  --rarity-rare-title-sep:   rgba(126,  34, 206, 0.30);
+  --rarity-rare-wash-start:  rgba(126,  34, 206, 0.16);
+  --rarity-rare-wash-mid:    rgba(126,  34, 206, 0.06);
+  --rarity-rare-border-hot:  rgba(126,  34, 206, 0.85);
+  --rarity-rare-border-mid:  rgba(126,  34, 206, 0.40);
+  --rarity-rare-border-cool: rgba(126,  34, 206, 0.05);
+  --rarity-rare-glow:        rgba(126,  34, 206, 0.15);
+  --rarity-rare-title-sep:   rgba(126,  34, 206, 0.24);
   --rarity-rare-cover:       var(--lt-surface);
   /* Light-mode diamond: deeper goldenrod for legibility on the pale card. */
-  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><polygon points='7,5 9,7 7,9 5,7' fill='%23b8860b' fill-opacity='0.40'/><polygon points='21,19 23,21 21,23 19,21' fill='%23b8860b' fill-opacity='0.40'/></svg>");
+  --rarity-rare-diamond-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><polygon points='7,5 9,7 7,9 5,7' fill='%23b8860b' fill-opacity='0.30'/><polygon points='21,19 23,21 21,23 19,21' fill='%23b8860b' fill-opacity='0.30'/></svg>");
 
   --lt-surface:     #eef2f6;
   --lt-surface-top: #f8fafc;
