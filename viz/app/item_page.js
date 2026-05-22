@@ -33,7 +33,14 @@ export function destroyChart() {
 
 /* ---------------- SKU history from pre-built cache files ---------------- */
 
-async function loadSkuHistory(skuGroup, today) {
+function storeIdFromDbFile(dbFile) {
+	const s = String(dbFile || "");
+	const base = s.slice(s.lastIndexOf("/") + 1).replace(/\.json$/i, "");
+	const m = base.match(/^([^_]+)__/);
+	return m ? m[1] : "";
+}
+
+async function loadSkuHistory(skuGroup, today, hiddenSet) {
 	const fetches = [...skuGroup].map((sku) =>
 		fetchJson(`./data/skus/${encodeURIComponent(sku)}.json`).catch(() => null),
 	);
@@ -72,6 +79,11 @@ async function loadSkuHistory(skuGroup, today) {
 		const sku = cache.sku;
 
 		for (const [dbFile, store] of Object.entries(cache.stores)) {
+			if (hiddenSet && hiddenSet.size > 0) {
+				const sid = storeIdFromDbFile(dbFile);
+				if (sid && isHiddenListing(hiddenSet, sid, sku)) continue;
+			}
+
 			const events = Array.isArray(store?.events) ? store.events : [];
 			if (!events.length) continue;
 
@@ -609,7 +621,7 @@ export async function renderItem($app, skuInput) {
 
 	setStatusText(isRemovedEverywhere ? "Removed everywhere — loading history…" : "Loading history…");
 
-	const { series, labels } = await loadSkuHistory(skuGroup, today);
+	const { series, labels } = await loadSkuHistory(skuGroup, today, hiddenSet);
 
 	if (!labels.length || !series.length) {
 		clearProgress();
