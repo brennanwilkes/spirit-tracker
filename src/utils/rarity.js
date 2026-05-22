@@ -130,13 +130,19 @@ function scoreSku(eventsByStore, nowMs) {
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
 	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
+	// Multi-store fast-sellout = allocation. A single store cycling through
+	// stock could be many things (small initial order, deliberate slow restock,
+	// etc.), but if it's selling out fast at multiple stores simultaneously,
+	// demand clearly outpaces supply at the brand level. Saturates at 5 stores.
+	const S_allocation = S_velocity * Math.min(breadth / 5, 1);
 
 	const rarity =
 		0.30 * S_breadth +
 		0.25 * S_avail +
-		0.20 * S_velocity +
+		0.05 * S_velocity +
 		0.05 * (1 - S_restock_low) +
-		0.20 * (1 - S_persistence_low);
+		0.20 * (1 - S_persistence_low) +
+		0.15 * S_allocation;
 
 	// Confidence: only two ways to lose it.
 	//   ageSignal — penalty for not-yet-enough observation. Different ramp

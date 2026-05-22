@@ -56,7 +56,7 @@ export function renderSearch($app) {
 				authed
 					? `
 
-		<a class="btn btnWide" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
+		<a id="shortlistBtn" class="btn btnWide" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
 		<a class="btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
 		<i class="fa-solid fa-gear" aria-hidden="true"></i>
 		<span class="srOnly">Settings</span>
@@ -156,6 +156,11 @@ export function renderSearch($app) {
 	const $storesBtn = document.getElementById("storesBtn");
 	if ($storesBtn) {
 		$storesBtn.addEventListener("click", () => saveCurrentRoute());
+	}
+
+	const $shortlistBtn = document.getElementById("shortlistBtn");
+	if ($shortlistBtn) {
+		$shortlistBtn.addEventListener("click", () => saveCurrentRoute());
 	}
 
 	$q.value = loadSavedQuery();

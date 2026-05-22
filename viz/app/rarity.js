@@ -111,13 +111,16 @@ export function scoreSku(eventsByStore, nowMs) {
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
 	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
+	// Multi-store fast-sellout = allocation. See src/utils/rarity.js.
+	const S_allocation = S_velocity * Math.min(breadth / 5, 1);
 
 	const rarity =
 		0.30 * S_breadth +
 		0.25 * S_avail +
-		0.20 * S_velocity +
+		0.05 * S_velocity +
 		0.05 * (1 - S_restock_low) +
-		0.20 * (1 - S_persistence_low);
+		0.20 * (1 - S_persistence_low) +
+		0.15 * S_allocation;
 
 	// Confidence: only two ways to lose it.
 	//   ageSignal — penalty if we've just started seeing this item; ramps to
