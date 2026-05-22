@@ -24,7 +24,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { loadSkuMap } = require("../src/utils/sku_map");
-const { scoreSku, computeTierThresholds } = require("../src/utils/rarity");
+const { scoreSku, computeTierThresholds, effectiveRarity } = require("../src/utils/rarity");
 
 function main() {
 	const repoRoot = process.cwd();
@@ -71,19 +71,23 @@ function main() {
 	process.stdout.write(`[rarity] scoring ${aggByCanon.size} canonical groups...\n`);
 
 	const byCanon = {};
-	const rarities = [];
+	const effRarities = [];
 	const NOW = Date.now();
 	for (const [canon, eventsByStore] of aggByCanon.entries()) {
 		const s = scoreSku(eventsByStore, NOW);
 		// Compact representation — viz only needs rarity + confidence.
+		// Effective rarity is computed by consumers via effectiveRarity(r, c).
 		byCanon[canon] = {
 			r: +s.rarity.toFixed(4),
 			c: +s.confidence.toFixed(3),
 		};
-		rarities.push(s.rarity);
+		effRarities.push(effectiveRarity(s.rarity, s.confidence));
 	}
 
-	const thresholds = computeTierThresholds(rarities);
+	// Tier thresholds operate on effective rarity (the value consumers actually
+	// use for sorting + classification) so percentile cutoffs reflect the shape
+	// of the post-shrinkage distribution.
+	const thresholds = computeTierThresholds(effRarities);
 
 	const out = {
 		generatedAt: new Date().toISOString(),

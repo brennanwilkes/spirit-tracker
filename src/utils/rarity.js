@@ -6,7 +6,39 @@
 // All inputs are in milliseconds (event ts). All emitted durations are days.
 // Rarity = single 0..1 value derived from five smooth signals (no branches).
 
+// Tracker absolute start date — observations earlier than this don't exist by
+// construction. Used to temper confidence for items whose only in-stock signals
+// cluster near the start of recorded history (we can't tell if they were already
+// scarce or just briefly visible to us).
+const TRACKER_EPOCH_MS = Date.UTC(2026, 0, 19);
+
 // ---------- per-store period extraction ----------
+
+// Removes "rename pairs": events at the same timestamp & store that have
+// both in-stock and OOS forms cancel out (they represent a SKU identity
+// change where one cache file emitted an OOS marker while another emitted
+// the equivalent in-stock event). Pre-process events from merged SKU cache
+// files through this before period extraction or scoring.
+function dedupRenameEvents(events) {
+	if (!Array.isArray(events) || events.length === 0) return [];
+	const sorted = events.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+	const out = [];
+	let i = 0;
+	while (i < sorted.length) {
+		let j = i;
+		while (j < sorted.length && sorted[j].ts === sorted[i].ts) j++;
+		const group = sorted.slice(i, j);
+		const hasInStock = group.some((e) => "p" in e);
+		const hasOOS = group.some((e) => !("p" in e));
+		if (hasInStock && hasOOS) {
+			// rename pair at same ts — drop the whole group
+		} else {
+			out.push(group[0]);
+		}
+		i = j;
+	}
+	return out;
+}
 
 // events: [{ ts, p? }] where p present = in-stock observation, absent = OOS marker.
 function computeStorePeriods(events) {
@@ -40,6 +72,7 @@ function scoreSku(eventsByStore, nowMs) {
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
+	let lastInStockEverTs = -Infinity;
 	const completedPeriodsMs = [];
 	const openDurationsMs = [];
 	let totalRestocks = 0;
@@ -49,7 +82,8 @@ function scoreSku(eventsByStore, nowMs) {
 	let totalEvents = 0;
 
 	for (const s of stores) {
-		const evs = (eventsByStore[s] && eventsByStore[s].events) || [];
+		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
+		const evs = dedupRenameEvents(rawEvs);
 		totalEvents += evs.length;
 		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
 		const totalListings = periods.length + (stillOpen ? 1 : 0);
@@ -71,7 +105,10 @@ function scoreSku(eventsByStore, nowMs) {
 			if (!Number.isFinite(t)) continue;
 			if (t < firstEverTs) firstEverTs = t;
 			if (t > lastEverTs) lastEverTs = t;
+			if (ev.p != null && t > lastInStockEverTs) lastInStockEverTs = t;
 		}
+		// A currently-open period also implies "last in stock = now"
+		if (stillOpen) lastInStockEverTs = Math.max(lastInStockEverTs, NOW);
 	}
 
 	const breadth = stores.length;
@@ -101,11 +138,25 @@ function scoreSku(eventsByStore, nowMs) {
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low);
 
-	// Confidence: more data = higher confidence in the rarity score
-	const completedSignal = Math.min(completedPeriodsMs.length / 3, 1);
+	// Confidence: how much can we trust this rarity score?
+	//   cyclesSignal — at least one full sell-out cycle observed
+	//   ageSignal — observation window length
+	//   inStockSignal — accumulated in-stock observation time
+	// Epoch tempering — items whose last in-stock observation is near the
+	// tracker's absolute start date get reduced confidence (we may have caught
+	// them mid-cycle and don't know their pre-epoch history). Multiplied as
+	// sqrt(epochSignal) so the penalty softens as we accumulate post-epoch
+	// observation time, never fully crushes.
+	const cyclesSignal = Math.min(completedPeriodsMs.length, 1);
 	const ageSignal = Math.min(ageDays / 60, 1);
-	const eventSignal = Math.min(totalEvents / 8, 1);
-	const confidence = 0.5 * completedSignal + 0.3 * ageSignal + 0.2 * eventSignal;
+	const inStockSignal = Math.min(totalInStockDays / 30, 1);
+	const baseConfidence = 0.40 * cyclesSignal + 0.30 * ageSignal + 0.30 * inStockSignal;
+	const daysFromEpochToLastInStock =
+		lastInStockEverTs === -Infinity
+			? 0
+			: Math.max(0, (lastInStockEverTs - TRACKER_EPOCH_MS) / 86400000);
+	const epochSignal = daysFromEpochToLastInStock / (daysFromEpochToLastInStock + 60);
+	const confidence = baseConfidence * epochSignal;
 
 	return {
 		rarity,
@@ -130,10 +181,33 @@ function scoreSku(eventsByStore, nowMs) {
 	};
 }
 
+// ---------- effective rarity ----------
+
+// Squared-confidence shrinkage toward the neutral midpoint 0.5. Pulls
+// low-confidence items toward "common" smoothly from both ends — a high-r
+// low-c item drifts toward 0.5 instead of dominating sorts, and a low-r
+// low-c item likewise can't outrank a confident genuine staple. Replaces
+// the previous hard MIN_TIER_CONFIDENCE gate. Used for both ranking and
+// tier classification so they can never disagree.
+function effectiveRarity(rarity, confidence) {
+	const r = Number.isFinite(rarity) ? rarity : 0.5;
+	const c = Number.isFinite(confidence) ? confidence : 0;
+	return 0.5 + c * c * (r - 0.5);
+}
+
 // ---------- tier classification ----------
 
-// Given a sorted-ascending array of rarity values, compute the 10th- and 90th-
-// percentile cutoffs that the viz / email use to mark "staple" and "rare" tiers.
+// Fixed floor on the "rare" threshold. Because effective rarity shrinks
+// low-confidence items toward 0.5, the natural 90th-percentile cutoff can
+// fall arbitrarily close to neutral when many items cluster near 0.5 — at
+// that point being "rare" stops meaning anything. The floor enforces that
+// rare items must sit a meaningful distance above neutral, on top of any
+// percentile-based cutoff.
+const RARE_MIN_FLOOR = 0.534;
+
+// Given a sorted-ascending array of EFFECTIVE rarity values, compute the
+// 10th- and 90th-percentile cutoffs that mark "staple" and "rare" tiers.
+// rareMin is additionally floored at RARE_MIN_FLOOR.
 function computeTierThresholds(rarities) {
 	if (!Array.isArray(rarities) || rarities.length === 0) {
 		return { stapleMax: 0, rareMin: 1 };
@@ -143,27 +217,27 @@ function computeTierThresholds(rarities) {
 	const idxRare = Math.floor(sorted.length * 0.90);
 	return {
 		stapleMax: sorted[Math.max(0, idxStaple - 1)],
-		rareMin: sorted[Math.min(sorted.length - 1, idxRare)],
+		rareMin: Math.max(RARE_MIN_FLOOR, sorted[Math.min(sorted.length - 1, idxRare)]),
 	};
 }
 
-// Minimum confidence required to assign a non-"common" tier. Brand-new items
-// with too little history are demoted to "common" regardless of their rarity
-// score — the score may be technically high (e.g. 1 store, 1 day) but we
-// haven't observed the item long enough to assert rarity.
-const MIN_TIER_CONFIDENCE = 0.25;
-
-// Classify a single rarity value against the thresholds.
-//   rarity <= stapleMax   -> "staple"
-//   rarity >= rareMin     -> "rare"
-//   otherwise             -> "common" (no special styling)
-// If confidence is provided and below MIN_TIER_CONFIDENCE, returns "common".
-function tierFor(rarity, thresholds, confidence) {
+// Classify a single effective rarity value against the thresholds.
+//   effRarity <= stapleMax  -> "staple"
+//   effRarity >= rareMin    -> "rare"
+//   otherwise               -> "common" (no special styling)
+function tierFor(effRarity, thresholds) {
 	if (!thresholds) return "common";
-	if (confidence != null && confidence < MIN_TIER_CONFIDENCE) return "common";
-	if (rarity <= thresholds.stapleMax) return "staple";
-	if (rarity >= thresholds.rareMin) return "rare";
+	if (effRarity <= thresholds.stapleMax) return "staple";
+	if (effRarity >= thresholds.rareMin) return "rare";
 	return "common";
 }
 
-module.exports = { computeStorePeriods, scoreSku, computeTierThresholds, tierFor };
+module.exports = {
+	computeStorePeriods,
+	dedupRenameEvents,
+	scoreSku,
+	effectiveRarity,
+	computeTierThresholds,
+	tierFor,
+	TRACKER_EPOCH_MS,
+};
