@@ -64,11 +64,21 @@ export function scoreSku(eventsByStore, nowMs) {
 	let totalInStockMs = 0;
 	let totalEvents = 0;
 
+	let rareActingStores = 0;
 	for (const s of stores) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
 		totalEvents += evs.length;
 		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
+		const storePeriodsMs = [
+			...periods.map((p) => p.end - p.start),
+			...(stillOpen ? [NOW - stillOpen.start] : []),
+		];
+		if (storePeriodsMs.length > 0) {
+			const meanAtStoreDays =
+				storePeriodsMs.reduce((a, b) => a + b, 0) / storePeriodsMs.length / 86400000;
+			if (meanAtStoreDays < 7) rareActingStores += 1;
+		}
 		const totalListings = periods.length + (stillOpen ? 1 : 0);
 		if (totalListings > 1) totalRestocks += totalListings - 1;
 		for (const p of periods) {
@@ -112,7 +122,13 @@ export function scoreSku(eventsByStore, nowMs) {
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
 	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
 	// Multi-store fast-sellout = allocation. See src/utils/rarity.js.
-	const S_allocation = S_velocity * Math.min(breadth / 5, 1);
+	const S_allocation = rareActingStores / Math.max(5, breadth);
+
+	// Asymmetric "widely available" penalty — only fires for items at many
+	// stores with few OOS. See src/utils/rarity.js for rationale.
+	const widelyAvailableBreadthFactor = Math.min(Math.max(0, breadth - 5) / 10, 1);
+	const widelyAvailableAvailFactor = Math.max(0, 0.3 - S_avail) / 0.3;
+	const S_widely_available = widelyAvailableBreadthFactor * widelyAvailableAvailFactor;
 
 	const rarity =
 		0.30 * S_breadth +
@@ -120,7 +136,8 @@ export function scoreSku(eventsByStore, nowMs) {
 		0.05 * S_velocity +
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low) +
-		0.15 * S_allocation;
+		0.15 * S_allocation -
+		0.15 * S_widely_available;
 
 	// Confidence: only two ways to lose it.
 	//   ageSignal — penalty if we've just started seeing this item; ramps to

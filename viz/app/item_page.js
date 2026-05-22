@@ -2,8 +2,10 @@ import { esc, renderThumbHtml, dateOnly } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
 import { loadIndex } from "./state.js";
-import { fetchJson } from "./api.js";
+import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
+import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
+import { normalizeStoreId } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
@@ -424,7 +426,11 @@ export async function renderItem($app, skuInput) {
 	}
 
 	const idx = await idxPromise;
-	const all = Array.isArray(idx.items) ? idx.items : [];
+	const hiddenSet = await loadHiddenSet().catch(() => new Set());
+	const rawAll = Array.isArray(idx.items) ? idx.items : [];
+	const all = hiddenSet && hiddenSet.size > 0
+		? rawAll.filter((r) => !isHiddenListing(hiddenSet, normalizeStoreId(r?.storeLabel || r?.store || ""), keySkuForRow(r)))
+		: rawAll;
 
 	// include toSku + all fromSkus mapped to it
 	const skuGroup = rules.groupForCanonical(sku);
@@ -556,15 +562,52 @@ export async function renderItem($app, skuInput) {
 			return A.store.localeCompare(B.store);
 		});
 
+	const canHide = isLocalWriteMode();
 	setLinksHtml(
 		linkRows
 			.map(({ store, r }) => {
 				const href = String(r.url || "").trim();
 				const suffix = Boolean(r?.removed) ? " (removed)" : "";
-				return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
+				const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
+				if (!canHide) return anchor;
+				const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
+				const rawSku = String(keySkuForRow(r) || "");
+				if (!sid || !rawSku) return anchor;
+				const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
+				return `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
 			})
 			.join(""),
 	);
+
+	if (canHide) {
+		const onHideClick = async (ev) => {
+			const btn = ev.target.closest(".hideListingBtn");
+			if (!btn) return;
+			ev.preventDefault();
+			ev.stopPropagation();
+			const sid = btn.getAttribute("data-storeid") || "";
+			const rawSku = btn.getAttribute("data-sku") || "";
+			const storeLabel = btn.getAttribute("data-store-label") || sid;
+			if (!sid || !rawSku) return;
+			const reason = window.prompt(`Hide this listing at ${storeLabel}?\nOptional reason:`, "");
+			if (reason === null) return; // cancelled
+			btn.disabled = true;
+			try {
+				await apiWriteSkuHidden(sid, rawSku, reason || "");
+				clearHiddenSetCache();
+				// Re-render the page by re-invoking the router via hash refresh
+				const h = location.hash || "";
+				location.hash = "#/";
+				setTimeout(() => { location.hash = h; }, 0);
+			} catch (e) {
+				btn.disabled = false;
+				alert(`Failed to hide listing: ${e && e.message ? e.message : e}`);
+			}
+		};
+		for (const el of [$links, $linksMobile]) {
+			if (el) el.addEventListener("click", onHideClick);
+		}
+	}
 
 	const today = dateOnly(idx.generatedAt || new Date().toISOString());
 

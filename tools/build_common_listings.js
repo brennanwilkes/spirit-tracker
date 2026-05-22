@@ -33,6 +33,7 @@ const path = require("path");
 const { getStoreRegions } = require("../src/stores/index");
 const { ensureDir, readJson, listDbFiles: _listDbFiles, storeKeyFromDbPath } = require("./lib/db");
 const { priceToNumber } = require("./lib/sku");
+const { loadHiddenSet, isHiddenListing } = require("../src/utils/sku_hidden");
 
 /* ---------------- helpers ---------------- */
 
@@ -241,6 +242,8 @@ function main() {
 	const storeToCanon = new Map(); // storeKey -> Set(canonSku)
 	const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest, storeMin:Map }
 
+	const hiddenSet = loadHiddenSet(path.join(repoRoot, "data"));
+
 	let liveRows = 0;
 	let removedRows = 0;
 
@@ -267,6 +270,7 @@ function main() {
 				removedRows++;
 				continue;
 			}
+			if (hiddenSet.size > 0 && isHiddenListing(hiddenSet, storeKey, it.sku)) continue;
 			liveRows++;
 
 			const skuKey = normalizeSkuKeyOrEmpty({

@@ -81,11 +81,26 @@ function scoreSku(eventsByStore, nowMs) {
 	let totalInStockMs = 0;
 	let totalEvents = 0;
 
+	let rareActingStores = 0;
 	for (const s of stores) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
 		totalEvents += evs.length;
 		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
+		// A store is "rare-acting" if its average in-stock period is brief
+		// (< 7d). Stores that hold the item on the shelf for months don't
+		// count toward the allocation signal — that's the dilution principle:
+		// many fast-selling stores are only "rare" if other stores aren't
+		// quietly sitting on inventory at the same time.
+		const storePeriodsMs = [
+			...periods.map((p) => p.end - p.start),
+			...(stillOpen ? [NOW - stillOpen.start] : []),
+		];
+		if (storePeriodsMs.length > 0) {
+			const meanAtStoreDays =
+				storePeriodsMs.reduce((a, b) => a + b, 0) / storePeriodsMs.length / 86400000;
+			if (meanAtStoreDays < 7) rareActingStores += 1;
+		}
 		const totalListings = periods.length + (stillOpen ? 1 : 0);
 		if (totalListings > 1) totalRestocks += totalListings - 1;
 		for (const p of periods) {
@@ -133,8 +148,21 @@ function scoreSku(eventsByStore, nowMs) {
 	// Multi-store fast-sellout = allocation. A single store cycling through
 	// stock could be many things (small initial order, deliberate slow restock,
 	// etc.), but if it's selling out fast at multiple stores simultaneously,
-	// demand clearly outpaces supply at the brand level. Saturates at 5 stores.
-	const S_allocation = S_velocity * Math.min(breadth / 5, 1);
+	// demand clearly outpaces supply at the brand level.
+	// Counts only stores where the item ACTUALLY sells fast (mean period < 7d)
+	// — stores that sit on inventory dilute the signal even if the brand-level
+	// "mean velocity" looks fast. Denominator is max(5, breadth) so the signal
+	// saturates at 5 rare-acting stores but per-store contributions remain
+	// fractional for items that have mixed behavior across stores.
+	const S_allocation = rareActingStores / Math.max(5, breadth);
+
+	// Asymmetric "widely available" penalty — only fires for items at MANY
+	// stores with FEW OOS at any time. Rare items have either low breadth or
+	// many stores OOS, so they get zero penalty and aren't affected. Pulls
+	// common items further down the rarity scale without touching rare ones.
+	const widelyAvailableBreadthFactor = Math.min(Math.max(0, breadth - 5) / 10, 1);
+	const widelyAvailableAvailFactor = Math.max(0, 0.3 - S_avail) / 0.3;
+	const S_widely_available = widelyAvailableBreadthFactor * widelyAvailableAvailFactor;
 
 	const rarity =
 		0.30 * S_breadth +
@@ -142,7 +170,8 @@ function scoreSku(eventsByStore, nowMs) {
 		0.05 * S_velocity +
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low) +
-		0.15 * S_allocation;
+		0.15 * S_allocation -
+		0.15 * S_widely_available;
 
 	// Confidence: only two ways to lose it.
 	//   ageSignal — penalty for not-yet-enough observation. Different ramp

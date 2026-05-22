@@ -6,6 +6,13 @@ const path = require("path");
 const { runGit, gitShowJson, gitFileExistsAtSha, gitListTreeFiles } = require("./lib/git");
 const { readJson: readJsonFileOrNull } = require("./lib/db");
 const { normalizeCspc, fnv1a32, normalizeImplicitSkuKey, priceToNumber, dateOnly } = require("./lib/sku");
+const { loadHiddenSet, isHiddenListing } = require("../src/utils/sku_hidden");
+
+function storeIdFromDbFile(dbFile) {
+	const base = path.basename(String(dbFile || ""), ".json");
+	const m = base.match(/^([^_]+)__/);
+	return m ? m[1] : "";
+}
 
 function normPriceStr(p) {
 	return String(p ?? "").trim();
@@ -224,6 +231,7 @@ function main() {
 
 	const headSha = getHeadShaOrEmpty();
 	const items = [];
+	const hiddenSet = loadHiddenSet(path.join(repoRoot, "data"));
 
 	const commits = headSha ? logDbCommitsSince(sinceIso) : [];
 	const pairs = [];
@@ -309,6 +317,17 @@ function main() {
 			if (isNewStoreFile) {
 				newItems = [];
 				restoredItems = [];
+			}
+
+			if (hiddenSet.size > 0) {
+				const sid = storeIdFromDbFile(file);
+				if (sid) {
+					const dropHidden = (arr) => arr.filter((it) => !isHiddenListing(hiddenSet, sid, it.sku));
+					newItems = dropHidden(newItems);
+					restoredItems = dropHidden(restoredItems);
+					removedItems = dropHidden(removedItems);
+					priceChanges = dropHidden(priceChanges);
+				}
 			}
 
 			for (const it of newItems) {

@@ -124,6 +124,8 @@ const {
   compareSku,
 } = require("../src/utils/sku_canonical");
 
+const { isHiddenListing } = require("../src/utils/sku_hidden");
+
 // Load the precomputed rarity snapshot built by tools/build_viz_rarity.js. The
 // pack will embed rarity + tier per event so the email HTML can style rare /
 // staple items consistently with the viz app.
@@ -304,7 +306,7 @@ function upsertIndex(idx, it) {
   idx.metaCandidatesByCanon.set(it.canonSku, better);
 }
 
-function ingestDbObject(idx, obj, { dbPath, canonicalSku }) {
+function ingestDbObject(idx, obj, { dbPath, canonicalSku, hiddenSet }) {
   if (!obj || typeof obj !== "object") return;
 
   const storeId = storeIdFromDbPath(dbPath);
@@ -326,6 +328,15 @@ function ingestDbObject(idx, obj, { dbPath, canonicalSku }) {
     const skuKey0 = normalizeSkuKey(row.sku || "", { storeLabel, url });
     const skuKey = normalizeImplicitSkuKey(skuKey0); // match sku_map implicit id: behavior
     if (!skuKey) continue;
+
+    // Hide raw store listings flagged in data/sku_hidden.json. Filtering here
+    // (before the row enters the index) cleanly removes the listing from every
+    // downstream surface: event detection, offers, cheapest-price, members.
+    if (hiddenSet && hiddenSet.size > 0) {
+      const rawSku = String(row.sku || "").trim();
+      if (rawSku && isHiddenListing(hiddenSet, storeId, rawSku)) continue;
+      if (isHiddenListing(hiddenSet, storeId, skuKey)) continue;
+    }
 
     const canonSku = canonicalSku(skuKey);
     if (!canonSku) continue;
@@ -466,6 +477,18 @@ function main() {
   const links = skuLinksObj && Array.isArray(skuLinksObj.links) ? skuLinksObj.links : [];
   const skuMap = buildSkuMapFromLinksArray(links);
 
+  // Curated hidden listings (data/sku_hidden.json on the head commit).
+  // We pull from git rather than disk so the pack is reproducible from a sha.
+  const hiddenObj = gitShowJson(headSha, "data/sku_hidden.json") || null;
+  const hiddenSet = new Set();
+  if (hiddenObj && Array.isArray(hiddenObj.hidden)) {
+    for (const e of hiddenObj.hidden) {
+      const sid = String(e?.storeId || "").trim();
+      const sku = String(e?.sku || "").trim();
+      if (sid && sku) hiddenSet.add(`${sid}|${sku}`);
+    }
+  }
+
   // List DB files from both endpoints
   const filesA = gitListDbFiles(baseSha, dbDirRel);
   const filesB = gitListDbFiles(headSha, dbDirRel);
@@ -479,8 +502,8 @@ function main() {
     const prevObj = filesA.has(f) ? gitShowJson(baseSha, f) : null;
     const nextObj = filesB.has(f) ? gitShowJson(headSha, f) : null;
 
-    if (prevObj) ingestDbObject(baseIdx, prevObj, { dbPath: f, canonicalSku: skuMap.canonicalSku });
-    if (nextObj) ingestDbObject(headIdx, nextObj, { dbPath: f, canonicalSku: skuMap.canonicalSku });
+    if (prevObj) ingestDbObject(baseIdx, prevObj, { dbPath: f, canonicalSku: skuMap.canonicalSku, hiddenSet });
+    if (nextObj) ingestDbObject(headIdx, nextObj, { dbPath: f, canonicalSku: skuMap.canonicalSku, hiddenSet });
   }
 
   const cheapestNow = computeCheapest(headIdx);

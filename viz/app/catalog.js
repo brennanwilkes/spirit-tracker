@@ -1,15 +1,23 @@
 import { normImg } from "./dom.js";
 import { parsePriceToNumber, keySkuForRow, normSearchText } from "./sku.js";
 import { resolveItemSpiritTypes } from "./spirit_types.js";
+import { normalizeStoreId } from "./stores.js";
+import { isHiddenListing } from "./hidden.js";
 
 // Build one row per *canonical* SKU (after applying sku map) + combined searchable text
-export function aggregateBySku(listings, canonicalizeSkuFn) {
+export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 	const canon = typeof canonicalizeSkuFn === "function" ? canonicalizeSkuFn : (x) => x;
 
 	const bySku = new Map();
 
 	for (const r of listings) {
 		const rawSku = keySkuForRow(r);
+
+		if (hiddenSet && hiddenSet.size > 0) {
+			const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
+			if (isHiddenListing(hiddenSet, sid, rawSku)) continue;
+		}
+
 		const sku = canon(rawSku);
 
 		const name = String(r?.name || "");
