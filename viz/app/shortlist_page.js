@@ -135,8 +135,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 								<option value="priceDesc">Highest Price</option>
 								<option value="salePct">Sale %</option>
 								<option value="saleAbs">Sale $</option>
-								<option value="rarityDesc">Rarity (rarest first)</option>
-								<option value="rarityAsc">Rarity (most common first)</option>
+								<option value="rarityDesc">Rarest</option>
+								<option value="rarityAsc">Common</option>
 							</select>
 						</div>
 
