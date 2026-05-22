@@ -7,56 +7,70 @@
 // `_inAppEntries` counts how many forward navigations our app has made since
 // load, so goBack() knows whether history.back() will stay inside the app.
 
-let _inAppEntries = 0;
+const STATE_KEY = "__stvizIdx";
 
-/** Save the current hash so goBack() can return here. Kept for API compatibility — no-op. */
+function readIdx() {
+	const s = window.history.state;
+	return s && typeof s[STATE_KEY] === "number" ? s[STATE_KEY] : null;
+}
+
+function writeIdx(idx) {
+	try { window.history.replaceState({ [STATE_KEY]: idx }, ""); } catch {}
+}
+
+// Tracks the idx of the entry we last saw. We mirror this onto the current
+// history entry's state, so it survives page reloads and stays correct after
+// any browser back/forward (we just re-read the entry's idx on popstate).
+let _lastIdx = readIdx() ?? 0;
+if (readIdx() === null) writeIdx(_lastIdx);
+
+/** Kept for API compatibility — no-op. */
 export function saveCurrentRoute() {}
 
 /** Kept for API compatibility — no-op. */
 export function syncStackOnBrowserNav() {}
 
 /**
- * Navigate back through the browser's native history if we have an in-app
- * forward navigation to undo, otherwise jump to `fallback`.
+ * Navigate back through browser history if the current entry isn't the first
+ * one tagged by our app, otherwise jump to `fallback`.
  */
 export function goBack(fallback = "#/") {
-	if (_inAppEntries > 0) {
-		// Don't decrement here — history.back() fires popstate + hashchange,
-		// which routes through notifyBrowserBack() and does the decrement.
+	if (_lastIdx > 0) {
 		window.history.back();
 		return;
 	}
 	location.hash = fallback;
 }
 
-/**
- * Navigate to `hash`. Records that we've pushed a real browser history entry
- * so goBack() knows it can use history.back().
- */
 export function navigateTo(hash) {
 	if (location.hash === hash) return;
-	// Don't increment here — main.js's hashchange listener calls notifyForwardNav
-	// for every non-browser-back hash change, including this one. Incrementing
-	// here too would double-count.
 	location.hash = hash;
 }
 
 /**
- * Called by main.js for every hashchange that wasn't triggered by browser
- * back/forward — that means a forward navigation that pushed a new history
- * entry, whether via navigateTo() or via an `<a href="#/...">` click.
+ * Called by main.js after every hashchange that wasn't a browser back/forward.
+ * The browser just pushed a fresh history entry whose state is null — tag it
+ * with idx = _lastIdx + 1.
  */
 export function notifyForwardNav() {
-	_inAppEntries++;
+	const existing = readIdx();
+	if (existing !== null) {
+		_lastIdx = existing;
+		return;
+	}
+	_lastIdx += 1;
+	writeIdx(_lastIdx);
 }
 
 /**
- * Called by main.js when the browser's back/forward buttons cause a hashchange.
- * Decrement our forward counter so we don't try to history.back() into entries
- * the user has already reversed.
+ * Called by main.js when popstate fired — i.e., the user used browser
+ * back/forward. The new current entry already has its idx baked in, so we
+ * just refresh _lastIdx from it.
  */
 export function notifyBrowserBack() {
-	if (_inAppEntries > 0) _inAppEntries--;
+	const idx = readIdx();
+	_lastIdx = idx === null ? 0 : idx;
+	if (idx === null) writeIdx(0);
 }
 
 /**
