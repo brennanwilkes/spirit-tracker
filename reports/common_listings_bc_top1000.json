@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-23T16:12:30.120Z",
+  "generatedAt": "2026-05-23T19:22:20.944Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4439,
-    "removedRows": 526,
-    "canonSkus": 2193,
+    "liveRows": 4438,
+    "removedRows": 527,
+    "canonSkus": 2192,
     "outputCount": 964
   },
   "rows": [
@@ -116,6 +116,49 @@
         "priceNum": 27.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
+      "canonSku": "006968",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 49.99,
+        "gull": 50.65,
+        "legacyliquor": 57.84,
+        "strath": 57.3,
+        "tudor": 49.99,
+        "vessel": 49.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "EMPRESS 1908 INDIGO 750ML",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
       }
     },
     {
@@ -589,49 +632,6 @@
         "priceNum": 47.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/600163"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc"
-      ],
-      "storePrices": {
-        "bcl": 49.99,
-        "gull": 50.65,
-        "legacyliquor": 57.84,
-        "strath": 57.3,
-        "tudor": 49.99,
-        "vessel": 49.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "EMPRESS - 1908 INDIGO GIN",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://www.bcliquorstores.com/product/6968",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/6968"
       }
     },
     {
@@ -12635,46 +12635,6 @@
       }
     },
     {
-      "canonSku": "485464",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.29,
-        "gull": 60.99,
-        "legacyliquor": 65.85,
-        "tudor": 62.99
-      },
-      "representative": {
-        "name": "WHISTLEPIG 6YO PIGGYBACK RYE",
-        "price": "$58.29",
-        "priceNum": 58.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "485464",
-        "skuKey": "485464",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5116190-whistlepig-6yo-piggyback-rye",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$58.29",
-        "priceNum": 58.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5116190-whistlepig-6yo-piggyback-rye"
-      }
-    },
-    {
       "canonSku": "486621",
       "storeCount": 4,
       "stores": [
@@ -21284,6 +21244,45 @@
         "priceNum": 399.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/glenfarclas-25-year-old-700ml/"
+      }
+    },
+    {
+      "canonSku": "485464",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "gull",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "bcl",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.29,
+        "gull": 60.99,
+        "legacyliquor": 65.85
+      },
+      "representative": {
+        "name": "WHISTLEPIG 6YO PIGGYBACK RYE",
+        "price": "$58.29",
+        "priceNum": 58.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "485464",
+        "skuKey": "485464",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5116190-whistlepig-6yo-piggyback-rye",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$58.29",
+        "priceNum": 58.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5116190-whistlepig-6yo-piggyback-rye"
       }
     },
     {
