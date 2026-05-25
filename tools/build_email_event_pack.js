@@ -770,6 +770,9 @@ function main() {
     // group/show events by tier, and a hint at the color tokens to keep email
     // styling visually consistent with the viz app. Tokens mirror the CSS in
     // viz/style.css (--rarity-*-border / --rarity-*-glow).
+    ...(raritySnap && raritySnap.thresholds
+      ? { rarityThresholds: { stapleMax: raritySnap.thresholds.stapleMax, rareMin: raritySnap.thresholds.rareMin } }
+      : {}),
     skus,
     events,
   };
