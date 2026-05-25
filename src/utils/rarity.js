@@ -12,6 +12,22 @@
 // scarce or just briefly visible to us).
 const TRACKER_EPOCH_MS = Date.UTC(2026, 0, 19);
 
+// Brief OOS gaps within an in-stock spell are treated as sensor flap rather
+// than a real sellout-and-restock. A store toggling IS/OOS every few hours is
+// almost always reporting noise on a bottle that's actually been sitting on the
+// shelf — coalescing collapses that pattern into one long spell so the rarity
+// signals (mean period, restock count, allocation) reflect reality.
+const COALESCE_GAP_MS = 24 * 60 * 60 * 1000;
+
+// Ramp (days) over which a currently-open in-stock spell ramps from 0 to 1
+// contribution to "effective availability". A bottle that just came back in
+// stock 6 hours ago shouldn't be treated the same as one that's been on the
+// shelf for weeks — the recent reappearance is consistent with a fast-selling
+// item that briefly restocked, so we shouldn't punish its rarity for it yet.
+// If it stays on the shelf, the contribution ramps up daily and rarity drifts
+// down to "common" naturally.
+const AVAIL_RAMP_DAYS = 7;
+
 // ---------- per-store period extraction ----------
 
 // Removes "rename pairs": events at the same timestamp & store that have
@@ -63,6 +79,34 @@ function computeStorePeriods(events) {
 	return { periods, stillOpen, prices, distinctPrices };
 }
 
+// Merge in-stock spells separated by an OOS gap shorter than gapMs. Treats
+// rapid IS/OOS oscillation as a single continuous spell (the bottle was on the
+// shelf the whole time; the OOS markers were sensor noise). The bridging OOS
+// interval is absorbed INTO the spell — totalInStockMs grows correspondingly,
+// which is intentional: if it wasn't really sold out, the in-stock duration
+// should include those gaps.
+function coalescePeriods(periods, stillOpen, gapMs) {
+	const all = (periods || []).slice();
+	if (stillOpen) all.push({ start: stillOpen.start, end: null });
+	all.sort((a, b) => a.start - b.start);
+	const merged = [];
+	for (const p of all) {
+		const last = merged[merged.length - 1];
+		if (last && last.end !== null && p.start - last.end <= gapMs) {
+			last.end = p.end;
+		} else {
+			merged.push({ start: p.start, end: p.end });
+		}
+	}
+	let outStillOpen = null;
+	const outPeriods = [];
+	for (const m of merged) {
+		if (m.end === null) outStillOpen = { start: m.start, end: null };
+		else outPeriods.push(m);
+	}
+	return { periods: outPeriods, stillOpen: outStillOpen };
+}
+
 // ---------- scoring ----------
 
 // eventsByStore: { [storeFile]: { label?, events: [{ ts, p? }] } }
@@ -78,6 +122,7 @@ function scoreSku(eventsByStore, nowMs) {
 	let totalRestocks = 0;
 	let totalPriceChanges = 0;
 	let currentlyStockedStores = 0;
+	let effectiveStockedStores = 0;
 	let totalInStockMs = 0;
 	let totalEvents = 0;
 
@@ -86,7 +131,11 @@ function scoreSku(eventsByStore, nowMs) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
 		totalEvents += evs.length;
-		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
+		const raw = computeStorePeriods(evs);
+		const coalesced = coalescePeriods(raw.periods, raw.stillOpen, COALESCE_GAP_MS);
+		const periods = coalesced.periods;
+		const stillOpen = coalesced.stillOpen;
+		const distinctPrices = raw.distinctPrices;
 		// A store is "rare-acting" if its average in-stock period is brief
 		// (< 7d). Stores that hold the item on the shelf for months don't
 		// count toward the allocation signal — that's the dilution principle:
@@ -112,6 +161,7 @@ function scoreSku(eventsByStore, nowMs) {
 			openDurationsMs.push(openDur);
 			totalInStockMs += openDur;
 			currentlyStockedStores += 1;
+			effectiveStockedStores += Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
 		}
 		if (distinctPrices > 1) totalPriceChanges += distinctPrices - 1;
 
@@ -141,7 +191,7 @@ function scoreSku(eventsByStore, nowMs) {
 
 	// Smooth signals (each 0..1, higher = rarer)
 	const S_breadth = 1 / (1 + breadth / 3);
-	const S_avail = breadth > 0 ? 1 - currentlyStockedStores / breadth : 1;
+	const S_avail = breadth > 0 ? 1 - effectiveStockedStores / breadth : 1;
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
 	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
@@ -290,6 +340,7 @@ function tierFor(effRarity, thresholds) {
 
 module.exports = {
 	computeStorePeriods,
+	coalescePeriods,
 	dedupRenameEvents,
 	scoreSku,
 	effectiveRarity,

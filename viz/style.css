@@ -1022,6 +1022,12 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   /* SweetAlert2 */
   .stSwalConfirm { background: var(--lt-control) !important; }
   .stSwalConfirm:focus { box-shadow: 0 0 0 2px #3d7fa8 !important; }
+
+  /* Spirit type filter panel */
+  .spiritFilterPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+  .spiritFilterOption:hover { background: var(--lt-hover-bg); }
+  .spiritFilterTrigger.is-open,
+  .spiritFilterTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 }
 
 /* ── 10. Manual theme overrides (data-theme beats prefers-color-scheme) ─── */
@@ -1123,6 +1129,10 @@ html[data-theme="light"] .favStarBtn:hover { border-color: var(--lt-hover); back
 html[data-theme="light"] .links a:hover { border-color: var(--lt-hover); }
 html[data-theme="light"] .stSwalConfirm { background: var(--lt-control) !important; }
 html[data-theme="light"] .stSwalConfirm:focus { box-shadow: 0 0 0 2px #3d7fa8 !important; }
+html[data-theme="light"] .spiritFilterPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+html[data-theme="light"] .spiritFilterOption:hover { background: var(--lt-hover-bg); }
+html[data-theme="light"] .spiritFilterTrigger.is-open,
+html[data-theme="light"] .spiritFilterTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 
 /* Force dark even when OS is light */
 :root[data-theme="dark"] {
