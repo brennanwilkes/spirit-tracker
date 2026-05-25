@@ -7,6 +7,14 @@
 
 export const TRACKER_EPOCH_MS = Date.UTC(2026, 0, 19);
 
+// Brief OOS gaps within an in-stock spell are treated as sensor flap rather
+// than a real sellout-and-restock. See src/utils/rarity.js for full notes.
+const COALESCE_GAP_MS = 24 * 60 * 60 * 1000;
+
+// Ramp (days) over which a currently-open in-stock spell contributes to
+// "effective availability". See src/utils/rarity.js for full notes.
+const AVAIL_RAMP_DAYS = 7;
+
 export function dedupRenameEvents(events) {
 	if (!Array.isArray(events) || events.length === 0) return [];
 	const sorted = events.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
@@ -50,6 +58,28 @@ export function computeStorePeriods(events) {
 	return { periods, stillOpen, prices, distinctPrices };
 }
 
+export function coalescePeriods(periods, stillOpen, gapMs) {
+	const all = (periods || []).slice();
+	if (stillOpen) all.push({ start: stillOpen.start, end: null });
+	all.sort((a, b) => a.start - b.start);
+	const merged = [];
+	for (const p of all) {
+		const last = merged[merged.length - 1];
+		if (last && last.end !== null && p.start - last.end <= gapMs) {
+			last.end = p.end;
+		} else {
+			merged.push({ start: p.start, end: p.end });
+		}
+	}
+	let outStillOpen = null;
+	const outPeriods = [];
+	for (const m of merged) {
+		if (m.end === null) outStillOpen = { start: m.start, end: null };
+		else outPeriods.push(m);
+	}
+	return { periods: outPeriods, stillOpen: outStillOpen };
+}
+
 export function scoreSku(eventsByStore, nowMs) {
 	const NOW = Number.isFinite(nowMs) ? nowMs : Date.now();
 	const stores = Object.keys(eventsByStore || {});
@@ -61,6 +91,7 @@ export function scoreSku(eventsByStore, nowMs) {
 	let totalRestocks = 0;
 	let totalPriceChanges = 0;
 	let currentlyStockedStores = 0;
+	let effectiveStockedStores = 0;
 	let totalInStockMs = 0;
 	let totalEvents = 0;
 
@@ -69,7 +100,11 @@ export function scoreSku(eventsByStore, nowMs) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
 		totalEvents += evs.length;
-		const { periods, stillOpen, distinctPrices } = computeStorePeriods(evs);
+		const raw = computeStorePeriods(evs);
+		const coalesced = coalescePeriods(raw.periods, raw.stillOpen, COALESCE_GAP_MS);
+		const periods = coalesced.periods;
+		const stillOpen = coalesced.stillOpen;
+		const distinctPrices = raw.distinctPrices;
 		const storePeriodsMs = [
 			...periods.map((p) => p.end - p.start),
 			...(stillOpen ? [NOW - stillOpen.start] : []),
@@ -90,6 +125,7 @@ export function scoreSku(eventsByStore, nowMs) {
 			openDurationsMs.push(openDur);
 			totalInStockMs += openDur;
 			currentlyStockedStores += 1;
+			effectiveStockedStores += Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
 		}
 		if (distinctPrices > 1) totalPriceChanges += distinctPrices - 1;
 
@@ -117,7 +153,7 @@ export function scoreSku(eventsByStore, nowMs) {
 	const totalInStockDays = totalInStockMs / 86400000;
 
 	const S_breadth = 1 / (1 + breadth / 3);
-	const S_avail = breadth > 0 ? 1 - currentlyStockedStores / breadth : 1;
+	const S_avail = breadth > 0 ? 1 - effectiveStockedStores / breadth : 1;
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
 	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
