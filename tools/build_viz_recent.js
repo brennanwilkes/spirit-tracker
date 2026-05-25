@@ -402,9 +402,66 @@ function main() {
 		}
 	}
 
-	items.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+	// Flip-flop coalesce. The first event of each kind at a given (store, sku)
+	// always fires — that's a real change. Subsequent same-kind events within
+	// 48h are flap and suppressed. Mirrors the email pack's isFlipFlop window
+	// (tools/build_email_event_pack.js). Raw DB files are untouched; this only
+	// filters the recent.json feed.
+	//
+	// For restored/removed: simple same-kind suppression.
+	// For price_up/price_down: only suppress when the new target price is
+	// repeat-to-same-or-tamer (e.g., another $48→$36 after $48→$36 is flap; a
+	// $48→$30 after $48→$36 is a genuine deeper drop and fires). Mirrors how
+	// Craft Cellars' session-state-dependent pricing oscillates between two
+	// fixed values.
+	// For bare "price_change": same-kind suppression (no direction available).
+	const FLAP_WINDOW_MS = 48 * 60 * 60 * 1000;
+	const FLAPPABLE_KINDS = new Set([
+		"restored", "removed", "price_up", "price_down", "price_change",
+	]);
+	const lastFiredByKey = new Map(); // key -> { t, newNum }
+	const ascending = items
+		.map((it, i) => ({ it, i }))
+		.sort((a, b) => String(a.it.ts).localeCompare(String(b.it.ts)));
+	const suppressed = new Set();
+	let suppressedCount = 0;
+	for (const { it, i } of ascending) {
+		if (!FLAPPABLE_KINDS.has(it.kind)) continue;
+		const t = Date.parse(it.ts);
+		if (!Number.isFinite(t)) continue;
+		const key = `${it.dbFile}|${it.sku}|${it.kind}`;
+		const prev = lastFiredByKey.get(key);
 
-	const trimmed = items.slice(0, maxItems);
+		if (prev && t - prev.t <= FLAP_WINDOW_MS) {
+			// For prices: only suppress when we can prove repeat-to-same-or-tamer.
+			// If either price is unparseable, fire (fail open) to avoid hiding
+			// real movement on bad data.
+			let isFlap;
+			if (it.kind === "price_down") {
+				const newNum = priceToNumber(it.newPrice);
+				isFlap = Number.isFinite(newNum) && Number.isFinite(prev.newNum) && newNum >= prev.newNum;
+			} else if (it.kind === "price_up") {
+				const newNum = priceToNumber(it.newPrice);
+				isFlap = Number.isFinite(newNum) && Number.isFinite(prev.newNum) && newNum <= prev.newNum;
+			} else {
+				isFlap = true;
+			}
+			if (isFlap) {
+				suppressed.add(i);
+				suppressedCount++;
+				continue;
+			}
+		}
+		const newNum = it.kind === "price_down" || it.kind === "price_up"
+			? priceToNumber(it.newPrice)
+			: NaN;
+		lastFiredByKey.set(key, { t, newNum });
+	}
+	const kept = suppressed.size ? items.filter((_, i) => !suppressed.has(i)) : items;
+
+	kept.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+
+	const trimmed = kept.slice(0, maxItems);
 
 	const payload = {
 		generatedAt: now.toISOString(),
@@ -416,7 +473,7 @@ function main() {
 	};
 
 	fs.writeFileSync(outFile, JSON.stringify(payload, null, 2) + "\n", "utf8");
-	process.stdout.write(`Wrote ${outFile} (${trimmed.length} items)\n`);
+	process.stdout.write(`Wrote ${outFile} (${trimmed.length} items, ${suppressedCount} flap-suppressed)\n`);
 }
 
 main();

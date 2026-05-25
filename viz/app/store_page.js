@@ -218,8 +218,13 @@ export async function renderStore($app, storeLabelRaw) {
 	const nowMs = Date.now();
 	const cutoffMs = nowMs - RECENT_DAYS * 24 * 60 * 60 * 1000;
 
-	// canonicalSku -> storeNorm -> recentRow (latest)
+	// canonicalSku -> storeNorm -> recentRow (latest of any kind)
 	const recentBySkuStore = new Map();
+	// canonicalSku -> storeNorm -> ms of latest "new" or "restored" event.
+	// Tracked separately so the newest sort still surfaces an allocated item
+	// that restocked and immediately sold out — the removed event lands later
+	// in `recentBySkuStore` and would otherwise shadow the restock.
+	const latestAvailMsBySkuStore = new Map();
 
 	for (const r of recentItems) {
 		const ms = eventMs(r);
@@ -237,6 +242,14 @@ export async function renderStore($app, storeLabelRaw) {
 
 		const prev = sm.get(stNorm);
 		if (!prev || eventMs(prev) < ms) sm.set(stNorm, r);
+
+		const rawKind = String(r?.kind || "");
+		if (rawKind === "new" || rawKind === "restored") {
+			let am = latestAvailMsBySkuStore.get(sku);
+			if (!am) latestAvailMsBySkuStore.set(sku, (am = new Map()));
+			const prevMs = am.get(stNorm);
+			if (prevMs === undefined || prevMs < ms) am.set(stNorm, ms);
+		}
 	}
 
 	function normalizeKindForPrice(r) {
@@ -440,6 +453,17 @@ export async function renderStore($app, storeLabelRaw) {
 		const firstSeenMs = firstSeenBySkuInStore.get(sku);
 		const firstSeen = firstSeenMs !== undefined ? firstSeenMs : null;
 
+		// Availability-based "newest" signal: max of firstSeenAt and the most
+		// recent new/restored event for this (sku, store). Price changes and
+		// removals do NOT bump newest. Flap-coalesced upstream so a flapping
+		// item can't keep re-promoting itself, but a single restock followed
+		// by a quick sellout (allocated-item pattern) still surfaces because
+		// we track availability events in a dedicated map.
+		const recMs = latestAvailMsBySkuStore.get(sku)?.get(storeNorm) ?? null;
+		const latestAvailMs = recMs !== null && (firstSeen === null || recMs > firstSeen)
+			? recMs
+			: firstSeen;
+
 		const sm = saleMetaFor(it); // { _saleDelta, _salePct } or null
 
 		return {
@@ -455,6 +479,7 @@ export async function renderStore($app, storeLabelRaw) {
 			_diffVsBestDollar: diffVsBestDollar,
 			_diffVsBestPct: diffVsBestPct,
 			_firstSeenMs: firstSeen,
+			_latestAvailMs: latestAvailMs,
 			_saleDelta: sm ? sm._saleDelta : 0,
 			_salePct: sm ? sm._salePct : 0,
 			_hasSaleMeta: !!sm,
@@ -792,9 +817,15 @@ export async function renderStore($app, storeLabelRaw) {
 		}
 
 		if (mode === "dateAsc" || mode === "dateDesc") {
+			// dateAsc ("oldest first") stays anchored to firstSeenAt — the
+			// intuitive meaning is "added longest ago", which restocks
+			// shouldn't disturb. dateDesc ("newest first") uses the
+			// availability-aware signal so allocated restocks float up.
 			arr.sort((a, b) => {
-				const ad = Number.isFinite(a._firstSeenMs) ? a._firstSeenMs : null;
-				const bd = Number.isFinite(b._firstSeenMs) ? b._firstSeenMs : null;
+				const aField = mode === "dateAsc" ? a._firstSeenMs : a._latestAvailMs;
+				const bField = mode === "dateAsc" ? b._firstSeenMs : b._latestAvailMs;
+				const ad = Number.isFinite(aField) ? aField : null;
+				const bd = Number.isFinite(bField) ? bField : null;
 				const aKey = ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
 				const bKey = bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
 				if (aKey !== bKey) return mode === "dateAsc" ? aKey - bKey : bKey - aKey;

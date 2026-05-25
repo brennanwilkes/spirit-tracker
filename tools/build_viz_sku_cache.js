@@ -307,7 +307,14 @@ function runOrphanSweep(skuCacheDir, dbFilePaths) {
 		}
 		const skus = new Set();
 		for (const item of diskData.items || []) {
-			if (item?.sku) skus.add(String(item.sku));
+			if (!item?.sku) continue;
+			// Cache files are named by NORMALIZED sku (e.g. "1046594.json"), not raw
+			// ("id:1046594"). Without normalization here the membership check below
+			// always misses for prefixed SKUs and the sweep emits a spurious removed
+			// event each run — which then alternates with the incremental's restored
+			// event next cron, producing fake IN/OOS flap.
+			const norm = normalizeImplicitSkuKey(String(item.sku));
+			if (norm) skus.add(norm);
 		}
 		liveByDbFile.set(relPath, skus);
 	}

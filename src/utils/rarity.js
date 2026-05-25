@@ -107,12 +107,102 @@ function coalescePeriods(periods, stillOpen, gapMs) {
 	return { periods: outPeriods, stillOpen: outStillOpen };
 }
 
+// ---------- cross-category store merge ----------
+
+// Per-SKU caches are keyed by DB file path (e.g. ".../sierrasprings__other__...").
+// Two entries that share the same storeId prefix represent the same physical
+// store — usually a category-migration leftover where the item moved between
+// the store's category pages and the old listing keeps reporting OOS while the
+// new one reports IS. SKU mapping (union-find) doesn't fix this because the
+// SKU is identical; the duplication is on (storeId, sku). Without merging,
+// rarity sees breadth=2 for a one-store item and the merged event timeline
+// looks like sensor flap.
+//
+// Rule: unify entries that share a storeId into one event stream where the
+// unified state is IS iff any of the entries is currently IS (a bottle on the
+// shelf in one category page is on the shelf for sale, regardless of what a
+// stale category page says). Returns a new eventsByStore object.
+function storeIdFromDbFile(key) {
+	const base = String(key || "").split("/").pop() || "";
+	const i = base.indexOf("__");
+	return i > 0 ? base.slice(0, i) : base;
+}
+
+function unifySameStoreEntries(eventsByStore) {
+	const byStoreId = new Map();
+	for (const [key, entry] of Object.entries(eventsByStore || {})) {
+		const sid = storeIdFromDbFile(key);
+		if (!byStoreId.has(sid)) byStoreId.set(sid, []);
+		byStoreId.get(sid).push({ key, entry });
+	}
+
+	const out = {};
+	for (const [, group] of byStoreId) {
+		if (group.length === 1) {
+			out[group[0].key] = group[0].entry;
+			continue;
+		}
+
+		// Collect every event, tagged with which file (group index) it came from.
+		const events = [];
+		for (let i = 0; i < group.length; i++) {
+			for (const ev of group[i].entry.events || []) {
+				const t = Date.parse(ev.ts);
+				if (!Number.isFinite(t)) continue;
+				events.push({ t, ts: ev.ts, p: ev.p, fi: i });
+			}
+		}
+		// Sort by ts; on ties prefer IS over OOS so the unified state never
+		// transiently flips OOS when one file's IS arrives simultaneously with
+		// another file's OOS at the same timestamp.
+		events.sort((a, b) => {
+			if (a.t !== b.t) return a.t - b.t;
+			return (b.p != null ? 1 : 0) - (a.p != null ? 1 : 0);
+		});
+
+		// Per-file last-known state. null = unobserved, "OOS" = out, { p } = in.
+		const fileStates = new Array(group.length).fill(null);
+		const merged = [];
+		let lastEmittedState = null; // "IS" | "OOS"
+		let lastEmittedPrice = null;
+
+		for (const ev of events) {
+			fileStates[ev.fi] = ev.p != null ? { p: ev.p } : "OOS";
+
+			let isPrice = null;
+			let anyOos = false;
+			for (const fs of fileStates) {
+				if (fs === null) continue;
+				if (fs === "OOS") anyOos = true;
+				else if (isPrice === null) isPrice = fs.p;
+			}
+			const curState = isPrice !== null ? "IS" : anyOos ? "OOS" : null;
+			if (curState === null) continue;
+
+			if (curState === lastEmittedState && (curState !== "IS" || isPrice === lastEmittedPrice)) continue;
+
+			if (curState === "IS") merged.push({ ts: ev.ts, p: isPrice });
+			else merged.push({ ts: ev.ts });
+			lastEmittedState = curState;
+			lastEmittedPrice = isPrice;
+		}
+
+		const label = group.find((g) => g.entry && g.entry.label)?.entry.label || "";
+		out[group[0].key] = { label, events: merged };
+	}
+	return out;
+}
+
 // ---------- scoring ----------
 
 // eventsByStore: { [storeFile]: { label?, events: [{ ts, p? }] } }
 // nowMs: optional fixed timestamp for tests (defaults to Date.now())
 function scoreSku(eventsByStore, nowMs) {
 	const NOW = Number.isFinite(nowMs) ? nowMs : Date.now();
+	// Merge entries belonging to the same physical store before scoring so
+	// breadth reflects unique stores and a category-migration leftover doesn't
+	// look like sensor flap.
+	eventsByStore = unifySameStoreEntries(eventsByStore || {});
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
@@ -343,6 +433,8 @@ module.exports = {
 	coalescePeriods,
 	dedupRenameEvents,
 	scoreSku,
+	unifySameStoreEntries,
+	storeIdFromDbFile,
 	effectiveRarity,
 	computeTierThresholds,
 	tierFor,
