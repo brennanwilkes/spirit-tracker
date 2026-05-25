@@ -1,0 +1,88 @@
+name: Send email pack (manual replay)
+
+# Manual replay variant of send_email_pack.yaml.
+#
+# Differs from the canonical workflow in one important way: it stays on the
+# tip of the `data` branch instead of detaching to the requested SHA. That
+# means tools/ reflects the latest builder code (e.g. new pack fields,
+# bugfixes) even when replaying an older data commit. The build script reads
+# historical state for the requested SHA via `git show <sha>:file`, so the
+# working tree does not need to be at that SHA.
+#
+# Use this when you need to resend an old pack with current builder logic —
+# e.g. after fixing a renderer bug or adding a new pack field.
+
+on:
+  workflow_dispatch:
+    inputs:
+      data_sha:
+        description: "Data commit SHA to build pack from (defaults to tip of data)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: send-email-pack-replay
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout data branch (full history for parent lookup)
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build email pack (JSON)
+        shell: bash
+        env:
+          REQUESTED_SHA: ${{ inputs.data_sha }}
+        run: |
+          set -euo pipefail
+          sha="${REQUESTED_SHA:-$(git rev-parse HEAD)}"
+          echo "Building pack for data SHA: $sha (tools from data tip)"
+          node tools/build_email_event_pack.js "$sha" --out pack.json
+
+      - name: Post email pack
+        shell: bash
+        env:
+          EMAIL_PACK_HMAC_SECRET: ${{ secrets.EMAIL_PACK_HMAC_SECRET }}
+        run: |
+          set -euo pipefail
+          ts="$(date +%s)"
+          sig="$( (printf "%s" "${ts}."; cat pack.json) | openssl dgst -sha256 -hmac "${EMAIL_PACK_HMAC_SECRET}" -hex | awk '{print $2}' )"
+
+          response="$(curl -sS --fail-with-body -X POST "https://spirit-tracker-api.brennan-a53.workers.dev/email" \
+            -H "Content-Type: application/json" \
+            -H "X-Spirit-Timestamp: ${ts}" \
+            -H "X-Spirit-Signature: v1=${sig}" \
+            --data-binary @pack.json)"
+
+          echo "=== Email Dispatch Summary ==="
+          echo "$response" | jq -r '"Attempted : \(.email.attempted)  |  Sent: \(.email.sent)  |  Failed: \(.email.failed)"'
+
+          sent_count="$(echo "$response" | jq '.sent | length')"
+          if [ "$sent_count" -gt 0 ]; then
+            echo ""
+            echo "Sent ($sent_count):"
+            echo "$response" | jq -r '.sent[] | "  [\(.uuid)]  skus: \(.skus | join(", "))"'
+          else
+            echo "No emails sent."
+          fi
+
+          failed_count="$(echo "$response" | jq '.failures | length')"
+          if [ "$failed_count" -gt 0 ]; then
+            echo ""
+            echo "Failures ($failed_count):"
+            echo "$response" | jq -r '.failures[] | "  [\(.uuid)]  error: \(.error)"'
+          fi
