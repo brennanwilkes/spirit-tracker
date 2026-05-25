@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T16:37:47.365Z",
+  "generatedAt": "2026-05-25T19:24:30.241Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 13013,
-    "removedRows": 4686,
-    "canonSkus": 6021,
+    "liveRows": 13005,
+    "removedRows": 4699,
+    "canonSkus": 6023,
     "outputCount": 50
   },
   "rows": [
@@ -186,7 +186,7 @@
         "bcl": 29.99,
         "bsw": 31.99,
         "craftcellars": 36.99,
-        "gull": 27.49,
+        "gull": 29.5,
         "kwm": 36.99,
         "legacyliquor": 31.81,
         "maltsandgrains": 35.2,
@@ -199,8 +199,8 @@
       },
       "representative": {
         "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$27.49",
-        "priceNum": 27.49,
+        "price": "$29.50",
+        "priceNum": 29.5,
         "storeKey": "gull",
         "storeLabel": "Gull Liquor",
         "skuRaw": "316844",
@@ -210,8 +210,8 @@
         "dbFile": "data/db/gull__gin__bac0c75e.json"
       },
       "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
+        "price": "$29.50",
+        "priceNum": 29.5,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
@@ -1239,62 +1239,6 @@
       }
     },
     {
-      "canonSku": "123422",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "kwm",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 34.89,
-        "bcl": 34.49,
-        "bsw": 34.99,
-        "craftcellars": 34.99,
-        "gull": 36.35,
-        "legacyliquor": 35.76,
-        "maltsandgrains": 33.67,
-        "sierrasprings": 28.47,
-        "strath": 36.87,
-        "tudor": 34.49,
-        "vessel": 35.99,
-        "willowpark": 33.99
-      },
-      "representative": {
-        "name": "MOUNT GAY ECLIPSE AMBER RUM",
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "765148",
-        "skuKey": "765148",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/"
-      }
-    },
-    {
       "canonSku": "141495",
       "storeCount": 12,
       "stores": [
@@ -1432,7 +1376,7 @@
       "storePrices": {
         "arc": 148.99,
         "bcl": 144.99,
-        "bsw": 110,
+        "bsw": 130,
         "craftcellars": 149.99,
         "gull": 159.99,
         "kwm": 152.99,
@@ -1445,8 +1389,8 @@
       },
       "representative": {
         "name": "Oban 14 Year Old",
-        "price": "$110.00",
-        "priceNum": 110,
+        "price": "$130.00",
+        "priceNum": 130,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "243824",
@@ -1456,8 +1400,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$110.00",
-        "priceNum": 110,
+        "price": "$130.00",
+        "priceNum": 130,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/oban-14-year-old-1"
       }
@@ -1959,6 +1903,61 @@
         "priceNum": 42.75,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/"
+      }
+    },
+    {
+      "canonSku": "123422",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 34.89,
+        "bcl": 34.49,
+        "bsw": 34.99,
+        "gull": 36.35,
+        "legacyliquor": 35.76,
+        "maltsandgrains": 33.67,
+        "sierrasprings": 28.47,
+        "strath": 36.87,
+        "tudor": 34.49,
+        "vessel": 35.99,
+        "willowpark": 33.99
+      },
+      "representative": {
+        "name": "MOUNT GAY ECLIPSE AMBER RUM",
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "765148",
+        "skuKey": "765148",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/"
       }
     },
     {
