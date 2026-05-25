@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T05:18:28.357Z",
+  "generatedAt": "2026-05-25T08:23:55.871Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,10 +26,10 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4423,
-    "removedRows": 542,
+    "liveRows": 4416,
+    "removedRows": 550,
     "canonSkus": 2187,
-    "outputCount": 960
+    "outputCount": 958
   },
   "rows": [
     {
@@ -73,6 +73,49 @@
         "priceNum": 27.49,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
+      }
+    },
+    {
+      "canonSku": "006968",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 49.99,
+        "gull": 50.65,
+        "legacyliquor": 57.84,
+        "strath": 57.3,
+        "tudor": 49.99,
+        "vessel": 49.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "EMPRESS 1908 INDIGO 750ML",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-750ml"
       }
     },
     {
@@ -592,49 +635,6 @@
       }
     },
     {
-      "canonSku": "002691",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 30.39,
-        "bcl": 27.49,
-        "gull": 28.95,
-        "legacyliquor": 30.99,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
-      }
-    },
-    {
       "canonSku": "005207",
       "storeCount": 7,
       "stores": [
@@ -675,49 +675,6 @@
         "priceNum": 47.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/600163"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc"
-      ],
-      "storePrices": {
-        "bcl": 49.99,
-        "gull": 50.65,
-        "legacyliquor": 57.84,
-        "strath": 57.3,
-        "tudor": 49.99,
-        "vessel": 49.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "EMPRESS - 1908 INDIGO GIN",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://www.bcliquorstores.com/product/6968",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/6968"
       }
     },
     {
@@ -1957,6 +1914,48 @@
         "priceNum": 37.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/53140"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 30.39,
+        "bcl": 27.49,
+        "legacyliquor": 30.99,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -6570,47 +6569,6 @@
       }
     },
     {
-      "canonSku": "196188",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 99.99,
-        "gull": 105.9,
-        "legacyliquor": 117.55,
-        "strath": 101.53,
-        "vessel": 99.99
-      },
-      "representative": {
-        "name": "JOHNNIE WALKER - 15 YEAR OLD GREEN LABEL",
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "196188",
-        "skuKey": "196188",
-        "url": "https://www.bcliquorstores.com/product/196188",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/196188"
-      }
-    },
-    {
       "canonSku": "224496",
       "storeCount": 5,
       "stores": [
@@ -8989,47 +8947,6 @@
       }
     },
     {
-      "canonSku": "769355",
-      "storeCount": 5,
-      "stores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 61.99,
-        "gull": 64.15,
-        "legacyliquor": 65.11,
-        "strath": 66.83,
-        "tudor": 66.99
-      },
-      "representative": {
-        "name": "SINGLETON OF DUFFTOWN - 12 YEAR OLD",
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "891739",
-        "skuKey": "891739",
-        "url": "https://www.bcliquorstores.com/product/891739",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/891739"
-      }
-    },
-    {
       "canonSku": "783842",
       "storeCount": 5,
       "stores": [
@@ -9109,46 +9026,6 @@
         "priceNum": 31.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/785170"
-      }
-    },
-    {
-      "canonSku": "000117",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor"
-      ],
-      "missingStores": [
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 25.99,
-        "bcl": 24.99,
-        "gull": 27.05,
-        "legacyliquor": 26.66
-      },
-      "representative": {
-        "name": "BACARDI - SUPERIOR WHITE",
-        "price": "$24.99",
-        "priceNum": 24.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "000117",
-        "skuKey": "000117",
-        "url": "https://www.bcliquorstores.com/product/117",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$24.99",
-        "priceNum": 24.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/117"
       }
     },
     {
@@ -11189,6 +11066,46 @@
         "priceNum": 63.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587109-nikka-coffey-gin"
+      }
+    },
+    {
+      "canonSku": "196188",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 99.99,
+        "gull": 105.9,
+        "legacyliquor": 117.55,
+        "vessel": 99.99
+      },
+      "representative": {
+        "name": "JOHNNIE WALKER - 15 YEAR OLD GREEN LABEL",
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "196188",
+        "skuKey": "196188",
+        "url": "https://www.bcliquorstores.com/product/196188",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/196188"
       }
     },
     {
@@ -13472,6 +13389,46 @@
       }
     },
     {
+      "canonSku": "769355",
+      "storeCount": 4,
+      "stores": [
+        "bcl",
+        "gull",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 61.99,
+        "gull": 64.15,
+        "strath": 66.83,
+        "tudor": 66.99
+      },
+      "representative": {
+        "name": "SINGLETON OF DUFFTOWN - 12 YEAR OLD",
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "891739",
+        "skuKey": "891739",
+        "url": "https://www.bcliquorstores.com/product/891739",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/891739"
+      }
+    },
+    {
       "canonSku": "772517",
       "storeCount": 4,
       "stores": [
@@ -13789,6 +13746,45 @@
         "priceNum": 610,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/885806"
+      }
+    },
+    {
+      "canonSku": "000117",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "arc",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 24.99,
+        "gull": 27.05,
+        "legacyliquor": 26.66
+      },
+      "representative": {
+        "name": "BACARDI - SUPERIOR WHITE",
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000117",
+        "skuKey": "000117",
+        "url": "https://www.bcliquorstores.com/product/117",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/117"
       }
     },
     {
@@ -15427,45 +15423,6 @@
         "priceNum": 199.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/amrut-triparva-indian-single-malt-whisky-700ml/"
-      }
-    },
-    {
-      "canonSku": "111168",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 330.39,
-        "strath": 312.97,
-        "tudor": 369.99
-      },
-      "representative": {
-        "name": "Bruichladdich - Octomore 15.3",
-        "price": "$312.97",
-        "priceNum": 312.97,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "239114",
-        "skuKey": "239114",
-        "url": "https://www.strathliquor.com/product/bruichladdich-octomore-15-3/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$312.97",
-        "priceNum": 312.97,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/bruichladdich-octomore-15-3/"
       }
     },
     {
@@ -18898,45 +18855,6 @@
         "priceNum": 191.22,
         "storeKey": "vintage",
         "url": "https://shop.vintagespirits.ca/products/4859758-koloa-hawaiian-five-year-old-rum"
-      }
-    },
-    {
-      "canonSku": "338614",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 350.49,
-        "strath": 342.74,
-        "tudor": 379.99
-      },
-      "representative": {
-        "name": "Bruichladdich - Octomore 14.3",
-        "price": "$342.74",
-        "priceNum": 342.74,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "338614",
-        "skuKey": "338614",
-        "url": "https://www.strathliquor.com/product/bruichladdich-octomore-14-3/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$342.74",
-        "priceNum": 342.74,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/bruichladdich-octomore-14-3/"
       }
     },
     {
@@ -23403,44 +23321,6 @@
       }
     },
     {
-      "canonSku": "042609",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 103.97,
-        "tudor": 129.99
-      },
-      "representative": {
-        "name": "THE IRISHMAN - FOUNDERS RESERVE CARIBBEAN CASK FINISH WHISKE",
-        "price": "$103.97",
-        "priceNum": 103.97,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "042609",
-        "skuKey": "042609",
-        "url": "https://www.bcliquorstores.com/product/42609",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$103.97",
-        "priceNum": 103.97,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/42609"
-      }
-    },
-    {
       "canonSku": "050639",
       "storeCount": 2,
       "stores": [
@@ -25379,6 +25259,44 @@
       }
     },
     {
+      "canonSku": "111168",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 330.39,
+        "tudor": 369.99
+      },
+      "representative": {
+        "name": "OCTOMORE 15.3",
+        "price": "$330.39",
+        "priceNum": 330.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "239114",
+        "skuKey": "239114",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752588-octomore-15-3",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$330.39",
+        "priceNum": 330.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752588-octomore-15-3"
+      }
+    },
+    {
       "canonSku": "111481",
       "storeCount": 2,
       "stores": [
@@ -25642,44 +25560,6 @@
         "priceNum": 192.41,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4769189-smws-85-94-rich-dark-sumptuously-sweet-14yo"
-      }
-    },
-    {
-      "canonSku": "116535",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "bcl"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 61.89,
-        "bcl": 59.99
-      },
-      "representative": {
-        "name": "PLANTERAY - SEALANDER RUM",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "284395",
-        "skuKey": "284395",
-        "url": "https://www.bcliquorstores.com/product/284395",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/284395"
       }
     },
     {
@@ -32026,6 +31906,44 @@
         "priceNum": 15.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/337408"
+      }
+    },
+    {
+      "canonSku": "338614",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 350.49,
+        "tudor": 379.99
+      },
+      "representative": {
+        "name": "BRUICHLADDICH OCTOMORE 14.3",
+        "price": "$350.49",
+        "priceNum": 350.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "338614",
+        "skuKey": "338614",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588419-bruichladdich-octomore-14-3",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$350.49",
+        "priceNum": 350.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588419-bruichladdich-octomore-14-3"
       }
     },
     {
