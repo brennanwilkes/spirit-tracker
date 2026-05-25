@@ -80,8 +80,77 @@ export function coalescePeriods(periods, stillOpen, gapMs) {
 	return { periods: outPeriods, stillOpen: outStillOpen };
 }
 
+// See src/utils/rarity.js for full notes. Merge category-DB-file entries that
+// share a storeId; the unified state is IS iff any of the entries is IS.
+export function storeIdFromDbFile(key) {
+	const base = String(key || "").split("/").pop() || "";
+	const i = base.indexOf("__");
+	return i > 0 ? base.slice(0, i) : base;
+}
+
+export function unifySameStoreEntries(eventsByStore) {
+	const byStoreId = new Map();
+	for (const [key, entry] of Object.entries(eventsByStore || {})) {
+		const sid = storeIdFromDbFile(key);
+		if (!byStoreId.has(sid)) byStoreId.set(sid, []);
+		byStoreId.get(sid).push({ key, entry });
+	}
+
+	const out = {};
+	for (const [, group] of byStoreId) {
+		if (group.length === 1) {
+			out[group[0].key] = group[0].entry;
+			continue;
+		}
+
+		const events = [];
+		for (let i = 0; i < group.length; i++) {
+			for (const ev of group[i].entry.events || []) {
+				const t = Date.parse(ev.ts);
+				if (!Number.isFinite(t)) continue;
+				events.push({ t, ts: ev.ts, p: ev.p, fi: i });
+			}
+		}
+		events.sort((a, b) => {
+			if (a.t !== b.t) return a.t - b.t;
+			return (b.p != null ? 1 : 0) - (a.p != null ? 1 : 0);
+		});
+
+		const fileStates = new Array(group.length).fill(null);
+		const merged = [];
+		let lastEmittedState = null;
+		let lastEmittedPrice = null;
+
+		for (const ev of events) {
+			fileStates[ev.fi] = ev.p != null ? { p: ev.p } : "OOS";
+
+			let isPrice = null;
+			let anyOos = false;
+			for (const fs of fileStates) {
+				if (fs === null) continue;
+				if (fs === "OOS") anyOos = true;
+				else if (isPrice === null) isPrice = fs.p;
+			}
+			const curState = isPrice !== null ? "IS" : anyOos ? "OOS" : null;
+			if (curState === null) continue;
+
+			if (curState === lastEmittedState && (curState !== "IS" || isPrice === lastEmittedPrice)) continue;
+
+			if (curState === "IS") merged.push({ ts: ev.ts, p: isPrice });
+			else merged.push({ ts: ev.ts });
+			lastEmittedState = curState;
+			lastEmittedPrice = isPrice;
+		}
+
+		const label = group.find((g) => g.entry && g.entry.label)?.entry.label || "";
+		out[group[0].key] = { label, events: merged };
+	}
+	return out;
+}
+
 export function scoreSku(eventsByStore, nowMs) {
 	const NOW = Number.isFinite(nowMs) ? nowMs : Date.now();
+	eventsByStore = unifySameStoreEntries(eventsByStore || {});
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;

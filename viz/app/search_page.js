@@ -669,8 +669,15 @@ export function renderSearch($app) {
 			return;
 		}
 
+		// Keep only the latest "new" or "restored" event per sku. Filtering at
+		// intake (not later) is what lets allocated bottles still surface even
+		// when a removed event lands moments after the restock — otherwise the
+		// removed would shadow the restored in this map and the bottle would
+		// never reach the JUST LANDED / BACK IN STOCK card.
 		const bySku = new Map(); // sku -> { r, ms, sku }
 		for (const r of inWindow) {
+			const k = normalizeKindForPrice(r);
+			if (k !== "new" && k !== "restored") continue;
 			const rawSku = String(r?.sku || "").trim();
 			if (!rawSku) continue;
 			const sku = String(canon(rawSku) || "").trim();
@@ -694,34 +701,22 @@ export function renderSearch($app) {
 			});
 		}
 
-		// Market-wide filter: only surface events that represent a global change
+		// Market-wide filter: a "new" event only surfaces if the item is at
+		// <=1 store overall (truly new to market, not just new at this store).
+		// A "restored" event only surfaces if the item is currently at <=1
+		// store (it was gone everywhere and just came back). Availability
+		// kind filtering already happened at the bySku intake above.
 		picked = picked.filter((x) => {
 			const sku = String(x.sku || "");
-			const k = normalizeKindForPrice(x.r);
-			if (k === "price_up" || k === "price_change") return false;
 			if (!passesAvailability(sku)) return false;
+			const k = normalizeKindForPrice(x.r);
 			const agg = aggBySku.get(sku) || null;
 			const stock = stockMetaForSku(sku);
 			if (k === "new") {
-				// Only show if truly new to market (only at this one store)
 				return (agg?.stores?.size ?? stock.storeCount) <= 1;
 			}
-			if (k === "removed") {
-				// Only show if now globally out of stock
-				return stock.outOfStock;
-			}
-			if (k === "restored") {
-				// Only show if returning market-wide (single store now = was gone everywhere)
-				return stock.storeCount <= 1;
-			}
-			if (k === "price_down") {
-				// Only show if this drops the global cheapest price
-				const newP = parsePriceToNumber(x.r.newPrice || "");
-				const cheapestP = parsePriceToNumber(agg?.cheapestPriceStr || "");
-				if (newP === null || cheapestP === null) return true;
-				return newP <= cheapestP + 0.01;
-			}
-			return true;
+			// restored
+			return stock.storeCount <= 1;
 		});
 
 		const mode = sortMode();

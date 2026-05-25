@@ -8,6 +8,7 @@ import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js
 import { normalizeStoreId } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
+import { unifySameStoreEntries } from "./rarity.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
 import {
 	isBcStoreLabel,
@@ -50,8 +51,12 @@ async function loadSkuHistory(skuGroup, today, hiddenSet) {
 	allDatesSet.add("2026-01-19"); // earliest data branch commit
 	allDatesSet.add(today);
 
+	// Merge multi-category-DB entries at the same physical store before walking
+	// events — otherwise an item that migrated categories shows two confused
+	// series on the chart, one IS-only, one OOS-only. See rarity.js notes.
 	for (const cache of results) {
 		if (!cache?.stores) continue;
+		cache.stores = unifySameStoreEntries(cache.stores);
 		for (const store of Object.values(cache.stores)) {
 			for (const ev of Array.isArray(store?.events) ? store.events : []) {
 				const d = dateOnly(ev.ts);
