@@ -4,6 +4,7 @@ import { goBack, peekBack } from "./nav.js";
 import { AuthError, getAuthStatus, getMyDetails, putDetails } from "./cloud.js";
 import { applyColorScheme } from "./theme.js";
 import { SPIRIT_TYPE_LIST } from "./spirit_types.js";
+import { storesByRegion } from "./stores.js";
 
 function isAuthErr(e) {
 	return e && (e.name === "AuthError" || e instanceof AuthError);
@@ -216,28 +217,10 @@ export async function renderSettings($app) {
 
 	/* ---------------- Email rules UI ---------------- */
 
-	const BC_STORES = [
-		{ id: "arc", label: "ARC Liquor" },
-		{ id: "bcl", label: "BCL" },
-		{ id: "gull", label: "Gull Liquor" },
-		{ id: "legacyliquor", label: "Legacy Liquor" },
-		{ id: "strath", label: "Strath Liquor" },
-		{ id: "tudor", label: "Tudor House" },
-		{ id: "vessel", label: "Vessel Liquor" },
-		{ id: "vintage", label: "Vintage Spirits" },
-	];
-
-	const AB_STORES = [
-		{ id: "bsw", label: "BSW" },
-		{ id: "coop", label: "Co-op World of Whisky" },
-		{ id: "craftcellars", label: "Craft Cellars" },
-		{ id: "kegncork", label: "Keg N Cork" },
-		{ id: "kwm", label: "Kensington Wine Market" },
-		{ id: "maltsandgrains", label: "Malts & Grains" },
-		{ id: "sierrasprings", label: "Sierra Springs" },
-		{ id: "willowpark", label: "Willow Park" },
-	];
-
+	// Sourced from the single store registry (app/stores.js) so new stores
+	// appear in email-alert rules automatically.
+	const BC_STORES = storesByRegion("bc");
+	const AB_STORES = storesByRegion("ab");
 	const STORES = [...BC_STORES, ...AB_STORES];
 
 	const $rulesWrap = document.getElementById("rulesWrap");
