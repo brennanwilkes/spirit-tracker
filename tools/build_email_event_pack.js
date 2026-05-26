@@ -125,6 +125,7 @@ const {
 } = require("../src/utils/sku_canonical");
 
 const { isHiddenListing } = require("../src/utils/sku_hidden");
+const { effectiveRarity } = require("../src/utils/rarity");
 
 // Load the precomputed rarity snapshot built by tools/build_viz_rarity.js. The
 // pack will embed rarity + tier per event so the email HTML can style rare /
@@ -683,15 +684,19 @@ function main() {
     }
   }
 
-  // Annotate every event with the canonical's current rarity (0..1). The
-  // renderer decides how to interpret the number — thresholds, tier names,
-  // and any visual treatment all live with the consumer, not in the pack.
+  // Annotate every event with the canonical's current EFFECTIVE rarity (0..1) —
+  // raw rarity shrunk by confidence² toward the neutral midpoint 0.5. The pack's
+  // `rarityThresholds` are computed on the effective-rarity distribution (see
+  // tools/build_viz_rarity.js), so the renderer must compare against effective
+  // rarity for the tier classification to agree with the viz. Sending raw `r`
+  // here caused brand-new SKUs (low confidence) to be flagged "rare" in email
+  // while the viz correctly classified them as "common".
   const raritySnap = loadRaritySnapshot();
   if (raritySnap) {
     for (const e of events) {
       const entry = raritySnap.byCanon?.[e.sku];
       if (!entry) continue;
-      e.rarity = entry.r;
+      e.rarity = +effectiveRarity(entry.r, entry.c).toFixed(4);
     }
   }
 
