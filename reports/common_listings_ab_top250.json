@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T13:52:01.665Z",
+  "generatedAt": "2026-05-26T17:03:53.390Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8553,
-    "removedRows": 4164,
-    "canonSkus": 4937,
+    "liveRows": 8567,
+    "removedRows": 4153,
+    "canonSkus": 4938,
     "outputCount": 250
   },
   "rows": [
+    {
+      "canonSku": "006968",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 48.99,
+        "coop": 54.99,
+        "craftcellars": 55.99,
+        "kegncork": 55.96,
+        "kwm": 56.99,
+        "maltsandgrains": 54.7,
+        "sierrasprings": 51.32,
+        "willowpark": 44.99
+      },
+      "representative": {
+        "name": "Victoria Distillers Empress 1908 Indigo Gin",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "793071",
+        "skuKey": "793071",
+        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/willowpark__gin__c408a3b4.json"
+      },
+      "cheapest": {
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908"
+      }
+    },
     {
       "canonSku": "368456",
       "storeCount": 8,
@@ -202,49 +245,6 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars"
-      ],
-      "storePrices": {
-        "bsw": 48.99,
-        "coop": 54.99,
-        "kegncork": 55.96,
-        "kwm": 56.99,
-        "maltsandgrains": 54.7,
-        "sierrasprings": 51.32,
-        "willowpark": 44.99
-      },
-      "representative": {
-        "name": "Victoria Distillers Empress 1908 Indigo Gin",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "793071",
-        "skuKey": "793071",
-        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/willowpark__gin__c408a3b4.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908"
       }
     },
     {
@@ -2120,6 +2120,48 @@
       }
     },
     {
+      "canonSku": "210760",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "coop": 92.99,
+        "craftcellars": 75.99,
+        "kegncork": 94.96,
+        "kwm": 99.99,
+        "sierrasprings": 87.09
+      },
+      "representative": {
+        "name": "Glenallachie 12 Year Old Speyside Single Malt",
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "805309",
+        "skuKey": "805309",
+        "url": "https://craftcellars.ca/products/glenallachie-12-year-old-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$75.99",
+        "priceNum": 75.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/glenallachie-12-year-old-46-abv"
+      }
+    },
+    {
       "canonSku": "236740",
       "storeCount": 6,
       "stores": [
@@ -3590,48 +3632,6 @@
       }
     },
     {
-      "canonSku": "845148",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 130,
-        "craftcellars": 149.99,
-        "kegncork": 154.96,
-        "kwm": 114.74,
-        "maltsandgrains": 113.89,
-        "willowpark": 134.99
-      },
-      "representative": {
-        "name": "Tamdhu Single Malt 15 Years Old 46%",
-        "price": "$113.89",
-        "priceNum": 113.89,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "845148",
-        "skuKey": "845148",
-        "url": "https://maltsandgrains.store/product/tamdhu-single-malt-15-years-old-46/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$113.89",
-        "priceNum": 113.89,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/tamdhu-single-malt-15-years-old-46/"
-      }
-    },
-    {
       "canonSku": "002788",
       "storeCount": 5,
       "stores": [
@@ -4575,6 +4575,47 @@
       }
     },
     {
+      "canonSku": "123422",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm"
+      ],
+      "storePrices": {
+        "bsw": 34.99,
+        "craftcellars": 34.99,
+        "maltsandgrains": 33.67,
+        "sierrasprings": 28.47,
+        "willowpark": 33.99
+      },
+      "representative": {
+        "name": "MOUNT GAY ECLIPSE AMBER RUM",
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "765148",
+        "skuKey": "765148",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$28.47",
+        "priceNum": 28.47,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/"
+      }
+    },
+    {
       "canonSku": "124056",
       "storeCount": 5,
       "stores": [
@@ -5392,47 +5433,6 @@
         "priceNum": 140,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
-      }
-    },
-    {
-      "canonSku": "210760",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "craftcellars",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "coop": 92.99,
-        "kegncork": 94.96,
-        "kwm": 99.99,
-        "sierrasprings": 87.09
-      },
-      "representative": {
-        "name": "The GlenAllachie 12 Year Old",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "805309",
-        "skuKey": "805309",
-        "url": "https://www.bswliquor.com/products/glenallachie-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenallachie-12-year-old-1"
       }
     },
     {
@@ -6256,6 +6256,47 @@
       }
     },
     {
+      "canonSku": "530345",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 82.99,
+        "craftcellars": 94.99,
+        "kwm": 97.99,
+        "maltsandgrains": 99.9,
+        "willowpark": 90.49
+      },
+      "representative": {
+        "name": "Glenfiddich 15 Year Old Solera",
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "728132",
+        "skuKey": "728132",
+        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
+      }
+    },
+    {
       "canonSku": "546366",
       "storeCount": 5,
       "stores": [
@@ -6335,6 +6376,47 @@
         "priceNum": 74.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/american-whiskey/blended-american-whiskey/michters-us1-unblended-american-whiskey-41-7-abv/"
+      }
+    },
+    {
+      "canonSku": "585836",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 72.99,
+        "craftcellars": 73.99,
+        "kegncork": 72.96,
+        "sierrasprings": 64.66,
+        "willowpark": 70.49
+      },
+      "representative": {
+        "name": "FLOR DE CANA CENTENARIO GOLD 18",
+        "price": "$64.66",
+        "priceNum": 64.66,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "585836",
+        "skuKey": "585836",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$64.66",
+        "priceNum": 64.66,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/"
       }
     },
     {
@@ -6663,6 +6745,47 @@
         "priceNum": 41.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aviation-gin"
+      }
+    },
+    {
+      "canonSku": "760843",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 77.99,
+        "craftcellars": 82.99,
+        "kwm": 82.99,
+        "maltsandgrains": 89.9,
+        "sierrasprings": 76.09
+      },
+      "representative": {
+        "name": "MICHTERS US 1 SMALL BATCH BOURBON",
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "760843",
+        "skuKey": "760843",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/michters-us1-bourbon-45-7-abv/",
+        "categoryLabel": "American Whiskey",
+        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
+      },
+      "cheapest": {
+        "price": "$76.09",
+        "priceNum": 76.09,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/michters-us1-bourbon-45-7-abv/"
       }
     },
     {
@@ -7319,6 +7442,47 @@
         "priceNum": 715,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/balblair-25-year-old"
+      }
+    },
+    {
+      "canonSku": "845148",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 130,
+        "kegncork": 154.96,
+        "kwm": 114.74,
+        "maltsandgrains": 113.89,
+        "willowpark": 134.99
+      },
+      "representative": {
+        "name": "Tamdhu Single Malt 15 Years Old 46%",
+        "price": "$113.89",
+        "priceNum": 113.89,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "845148",
+        "skuKey": "845148",
+        "url": "https://maltsandgrains.store/product/tamdhu-single-malt-15-years-old-46/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$113.89",
+        "priceNum": 113.89,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/tamdhu-single-malt-15-years-old-46/"
       }
     },
     {
@@ -8447,46 +8611,6 @@
       }
     },
     {
-      "canonSku": "123422",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm"
-      ],
-      "storePrices": {
-        "bsw": 34.99,
-        "maltsandgrains": 33.67,
-        "sierrasprings": 28.47,
-        "willowpark": 33.99
-      },
-      "representative": {
-        "name": "MOUNT GAY ECLIPSE AMBER RUM",
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "765148",
-        "skuKey": "765148",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$28.47",
-        "priceNum": 28.47,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/mount-gay-eclipse-amber-rum-40-abv/"
-      }
-    },
-    {
       "canonSku": "132079",
       "storeCount": 4,
       "stores": [
@@ -9007,86 +9131,6 @@
       }
     },
     {
-      "canonSku": "530345",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "kwm": 97.99,
-        "maltsandgrains": 99.9,
-        "willowpark": 90.49
-      },
-      "representative": {
-        "name": "Glenfiddich 15 Year Old Solera",
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "728132",
-        "skuKey": "728132",
-        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
-      }
-    },
-    {
-      "canonSku": "585836",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 72.99,
-        "kegncork": 72.96,
-        "sierrasprings": 64.66,
-        "willowpark": 70.49
-      },
-      "representative": {
-        "name": "FLOR DE CANA CENTENARIO GOLD 18",
-        "price": "$64.66",
-        "priceNum": 64.66,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "585836",
-        "skuKey": "585836",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$64.66",
-        "priceNum": 64.66,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/"
-      }
-    },
-    {
       "canonSku": "603241",
       "storeCount": 4,
       "stores": [
@@ -9324,46 +9368,6 @@
         "priceNum": 79.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/longrow-peated-single-malt-nv"
-      }
-    },
-    {
-      "canonSku": "760843",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 77.99,
-        "kwm": 82.99,
-        "maltsandgrains": 89.9,
-        "sierrasprings": 76.09
-      },
-      "representative": {
-        "name": "MICHTERS US 1 SMALL BATCH BOURBON",
-        "price": "$76.09",
-        "priceNum": 76.09,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "760843",
-        "skuKey": "760843",
-        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/michters-us1-bourbon-45-7-abv/",
-        "categoryLabel": "American Whiskey",
-        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
-      },
-      "cheapest": {
-        "price": "$76.09",
-        "priceNum": 76.09,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/michters-us1-bourbon-45-7-abv/"
       }
     },
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T13:52:01.345Z",
+  "generatedAt": "2026-05-26T17:03:53.081Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,12 +26,55 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8553,
-    "removedRows": 4164,
-    "canonSkus": 4937,
+    "liveRows": 8567,
+    "removedRows": 4153,
+    "canonSkus": 4938,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "006968",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "bsw": 48.99,
+        "coop": 54.99,
+        "craftcellars": 55.99,
+        "kegncork": 55.96,
+        "kwm": 56.99,
+        "maltsandgrains": 54.7,
+        "sierrasprings": 51.32,
+        "willowpark": 44.99
+      },
+      "representative": {
+        "name": "Victoria Distillers Empress 1908 Indigo Gin",
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "793071",
+        "skuKey": "793071",
+        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/willowpark__gin__c408a3b4.json"
+      },
+      "cheapest": {
+        "price": "$44.99",
+        "priceNum": 44.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908"
+      }
+    },
     {
       "canonSku": "368456",
       "storeCount": 8,
@@ -202,49 +245,6 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bruichladdich-port-charlotte-10-year-old-1"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "craftcellars"
-      ],
-      "storePrices": {
-        "bsw": 48.99,
-        "coop": 54.99,
-        "kegncork": 55.96,
-        "kwm": 56.99,
-        "maltsandgrains": 54.7,
-        "sierrasprings": 51.32,
-        "willowpark": 44.99
-      },
-      "representative": {
-        "name": "Victoria Distillers Empress 1908 Indigo Gin",
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "793071",
-        "skuKey": "793071",
-        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/willowpark__gin__c408a3b4.json"
-      },
-      "cheapest": {
-        "price": "$44.99",
-        "priceNum": 44.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908"
       }
     },
     {
