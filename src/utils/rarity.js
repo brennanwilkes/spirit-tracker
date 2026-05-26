@@ -30,6 +30,14 @@ const COALESCE_GAP_MS = 24 * 60 * 60 * 1000;
 // down to "common" naturally.
 const AVAIL_RAMP_DAYS = 7;
 
+// Ramp (days) for an OPEN in-stock spell's contribution to mean-period stats.
+// A spell that's been open for only a few hours carries almost no information
+// about how long the item stays on the shelf before selling out — a completed
+// 21-day spell next to a 0.1-day still-open spell shouldn't average down to
+// 10d. Open spells get weight = min(durationDays / ramp, 1) in the mean;
+// completed spells (real sellouts) always get full weight.
+const MEAN_OPEN_RAMP_DAYS = 7;
+
 // ---------- per-store period extraction ----------
 
 // Removes "rename pairs": events at the same timestamp & store that have
@@ -215,7 +223,18 @@ function scoreSku(eventsByStore, nowMs) {
 	// Merge entries belonging to the same physical store before scoring so
 	// breadth reflects unique stores and a category-migration leftover doesn't
 	// look like sensor flap.
-	eventsByStore = unifySameStoreEntries(eventsByStore || {});
+	// Dedupe rename pairs (same-ts IS+OOS within ONE file representing a SKU
+	// remap) BEFORE unification — otherwise the unifier collapses the pair
+	// into a stray OOS final state and the post-unify dedup has nothing to
+	// cancel, leaving the unified store stream prematurely OOS.
+	const dedupedByFile = {};
+	for (const [k, entry] of Object.entries(eventsByStore || {})) {
+		dedupedByFile[k] = {
+			...entry,
+			events: dedupRenameEvents((entry && entry.events) || []),
+		};
+	}
+	eventsByStore = unifySameStoreEntries(dedupedByFile);
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
@@ -244,13 +263,20 @@ function scoreSku(eventsByStore, nowMs) {
 		// count toward the allocation signal — that's the dilution principle:
 		// many fast-selling stores are only "rare" if other stores aren't
 		// quietly sitting on inventory at the same time.
-		const storePeriodsMs = [
-			...periods.map((p) => p.end - p.start),
-			...(stillOpen ? [NOW - stillOpen.start] : []),
-		];
-		if (storePeriodsMs.length > 0) {
-			const meanAtStoreDays =
-				storePeriodsMs.reduce((a, b) => a + b, 0) / storePeriodsMs.length / 86400000;
+		let storeWS = 0;
+		let storeWT = 0;
+		for (const p of periods) {
+			storeWS += (p.end - p.start) / 86400000;
+			storeWT += 1;
+		}
+		if (stillOpen) {
+			const d = (NOW - stillOpen.start) / 86400000;
+			const w = Math.min(d / MEAN_OPEN_RAMP_DAYS, 1);
+			storeWS += d * w;
+			storeWT += w;
+		}
+		if (storeWT > 0) {
+			const meanAtStoreDays = storeWS / storeWT;
 			if (meanAtStoreDays < 7) rareActingStores += 1;
 		}
 		const totalListings = periods.length + (stillOpen ? 1 : 0);
@@ -283,13 +309,22 @@ function scoreSku(eventsByStore, nowMs) {
 	const ageDays = firstEverTs === Infinity ? 0 : (NOW - firstEverTs) / 86400000;
 	const lastSeenDaysAgo = lastEverTs === -Infinity ? Infinity : (NOW - lastEverTs) / 86400000;
 
-	const allPeriodDays = [
-		...completedPeriodsMs.map((ms) => ms / 86400000),
-		...openDurationsMs.map((ms) => ms / 86400000),
-	];
-	const meanPeriodDays = allPeriodDays.length
-		? allPeriodDays.reduce((a, b) => a + b, 0) / allPeriodDays.length
-		: 0;
+	// Weighted mean: completed spells contribute fully, open spells contribute
+	// proportional to age over MEAN_OPEN_RAMP_DAYS. Avoids a fresh restock
+	// dragging a real completed spell's mean toward zero.
+	let meanWS = 0;
+	let meanWT = 0;
+	for (const ms of completedPeriodsMs) {
+		meanWS += ms / 86400000;
+		meanWT += 1;
+	}
+	for (const ms of openDurationsMs) {
+		const d = ms / 86400000;
+		const w = Math.min(d / MEAN_OPEN_RAMP_DAYS, 1);
+		meanWS += d * w;
+		meanWT += w;
+	}
+	const meanPeriodDays = meanWT > 0 ? meanWS / meanWT : 0;
 	const totalInStockDays = totalInStockMs / 86400000;
 
 	// Smooth signals (each 0..1, higher = rarer)
@@ -318,12 +353,12 @@ function scoreSku(eventsByStore, nowMs) {
 	const S_widely_available = widelyAvailableBreadthFactor * widelyAvailableAvailFactor;
 
 	const rarity =
-		0.30 * S_breadth +
+		0.25 * S_breadth +
 		0.25 * S_avail +
-		0.05 * S_velocity +
+		0.10 * S_velocity +
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low) +
-		0.15 * S_allocation -
+		0.20 * S_allocation -
 		0.15 * S_widely_available;
 
 	// Confidence: only two ways to lose it.
