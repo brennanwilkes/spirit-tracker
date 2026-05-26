@@ -656,16 +656,19 @@ export function renderSearch($app) {
 
 		const canon = typeof canonicalSkuFn === "function" ? canonicalSkuFn : (x) => x;
 
+		// Use everything in recent.json — the backend already bounds the window
+		// (RECENT_DAYS in tools/build_viz_recent.js). Client-side, we let the
+		// 140-item display cap below provide the natural cutoff so the feed
+		// surfaces older legitimate restocks/arrivals when nothing fresh is
+		// happening today.
 		const nowMs = Date.now();
-		const cutoffMs = nowMs - 3 * 24 * 60 * 60 * 1000;
-
 		const inWindow = items.filter((r) => {
 			const ms = eventMsRecent(r);
-			return ms >= cutoffMs && ms <= nowMs;
+			return ms <= nowMs;
 		});
 
 		if (!inWindow.length) {
-			$results.innerHTML = `<div class="small">No changes in the last 3 days.</div>`;
+			$results.innerHTML = `<div class="small">No recent changes.</div>`;
 			return;
 		}
 
@@ -762,7 +765,7 @@ export function renderSearch($app) {
 		const limited = picked.slice(0, 140);
 
 		$results.innerHTML =
-			`<div class="small">Recently changed (last 3 days):</div>` +
+			`<div class="small">Recently changed:</div>` +
 			limited
 				.map(({ r, sku }) => {
 					const kind = normalizeKindForPrice(r);
