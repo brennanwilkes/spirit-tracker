@@ -5,6 +5,9 @@
 // (built by tools/build_viz_rarity.js). The scoring functions below exist so the
 // viz can recompute on demand for items not in the precomputed snapshot.
 
+// Fallback tracker epoch — used only when an `eventsByStore` entry has no
+// per-DB-file `epochMs`. Real epoch is per DB file's createdAt; resolved per
+// item as min(entry.epochMs) across stores. See src/utils/rarity.js for notes.
 export const TRACKER_EPOCH_MS = Date.UTC(2026, 0, 19);
 
 // Brief OOS gaps within an in-stock spell are treated as sensor flap rather
@@ -143,7 +146,14 @@ export function unifySameStoreEntries(eventsByStore) {
 		}
 
 		const label = group.find((g) => g.entry && g.entry.label)?.entry.label || "";
-		out[group[0].key] = { label, events: merged };
+		let groupEpoch = Infinity;
+		for (const g of group) {
+			const ep = g.entry && g.entry.epochMs;
+			if (Number.isFinite(ep) && ep < groupEpoch) groupEpoch = ep;
+		}
+		const unified = { label, events: merged };
+		if (Number.isFinite(groupEpoch)) unified.epochMs = groupEpoch;
+		out[group[0].key] = unified;
 	}
 	return out;
 }
@@ -254,10 +264,16 @@ export function scoreSku(eventsByStore, nowMs) {
 	//   the item mid-cycle). Quadratic ramp so the penalty is sharp in the
 	//   first weeks and irrelevant by day 30.
 	const ageSignal = Math.min(ageDays / 7, 1);
+	let effectiveEpochMs = Infinity;
+	for (const s of stores) {
+		const ep = eventsByStore[s] && eventsByStore[s].epochMs;
+		if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
+	}
+	if (!Number.isFinite(effectiveEpochMs)) effectiveEpochMs = TRACKER_EPOCH_MS;
 	const daysFromEpochToLastInStock =
 		lastInStockEverTs === -Infinity
 			? 0
-			: Math.max(0, (lastInStockEverTs - TRACKER_EPOCH_MS) / 86400000);
+			: Math.max(0, (lastInStockEverTs - effectiveEpochMs) / 86400000);
 	const epochRamp = Math.min(daysFromEpochToLastInStock / 30, 1);
 	const epochSignal = epochRamp * epochRamp;
 	const confidence = ageSignal * epochSignal;

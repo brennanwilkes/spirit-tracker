@@ -41,6 +41,8 @@ The orphan-DB-file auto-flip in `src/tracker/orphan_dbs.js` handles the case whe
 
 `src/utils/rarity.js` (CJS) and `viz/app/rarity.js` (ESM) define `scoreSku()`, which combines five smooth signals into a 0..1 rarity score. `tools/build_viz_rarity.js` runs once per `run_daily.sh` and writes `viz/data/rarity.json` keyed by canonical SKU. Consumers (viz, email pack) canonicalize first then look up.
 
+**Per-DB-file epoch.** Confidence's "post-epoch sellout might be an artifact" penalty is scoped per DB file, not globally. Each `data/db/*.json` carries a `createdAt` field stamped on first write (and one-time backfilled from `git log --diff-filter=A` via `tools/backfill_db_created_at.js`). `tools/build_viz_rarity.js` loads these via `src/utils/db_epochs.js` and injects `epochMs` into each `eventsByStore[file]` entry. `scoreSku` resolves an item's effective epoch as `min(entry.epochMs)` across the stores tracking it — earliest wins because once *any* DB file has been observing for 30+ days the OOS signal is no longer suspicious. `TRACKER_EPOCH_MS` (Jan 19 2026) survives only as a fallback for un-backfilled files. This matters because categories were added over time (e.g. gin much later than whisky); items in a late-added DB file shouldn't be flagged rare just because they sold out shortly after we started watching that page.
+
 **Tier classification** uses dynamic 10th/90th percentile thresholds computed per build:
 - `staple` (bottom ~10%): widely available, frequent restocks
 - `rare` (top ~10%): hard to obtain (OOS or fast sellouts)
@@ -115,3 +117,4 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `rank_discrepency.js` | Analyze ranking discrepancies |
 | `dedupe_skulinks.js` | Deduplicate SKU link entries |
 | `stviz_apply_issue_edits.js` | Apply issue-based SKU edits (used by GH Actions) |
+| `backfill_db_created_at.js` | One-time: stamp `createdAt` on every `data/db/*.json` from its first git commit. Run from `.worktrees/data/`. Idempotent. |

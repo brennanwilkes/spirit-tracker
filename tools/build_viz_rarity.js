@@ -25,6 +25,7 @@ const path = require("path");
 
 const { loadSkuMap } = require("../src/utils/sku_map");
 const { scoreSku, computeTierThresholds, effectiveRarity } = require("../src/utils/rarity");
+const { loadDbEpochs } = require("../src/utils/db_epochs");
 
 function main() {
 	const repoRoot = process.cwd();
@@ -39,6 +40,14 @@ function main() {
 
 	const skuMap = loadSkuMap({ dbDir });
 	process.stdout.write(`[rarity] canonical map loaded\n`);
+
+	// Per-DB-file epoch map (basename -> createdAt ms). Used to compute a
+	// per-item effective rarity epoch — items in DB files added later (e.g.
+	// gin) don't get an unfair "rare" signal just because they sold out
+	// shortly after tracking began for that file. Falls back to the global
+	// TRACKER_EPOCH_MS for any DB file that hasn't been backfilled yet.
+	const dbEpochs = loadDbEpochs(dbDir);
+	process.stdout.write(`[rarity] db epochs loaded for ${dbEpochs.size} files\n`);
 
 	const files = fs.readdirSync(skuDir).filter((f) => f.endsWith(".json"));
 	process.stdout.write(`[rarity] reading ${files.length} per-SKU cache files...\n`);
@@ -63,7 +72,12 @@ function main() {
 			aggByCanon.set(canon, agg);
 		}
 		for (const [storeFile, info] of Object.entries(data.stores)) {
-			if (!agg[storeFile]) agg[storeFile] = { label: info.label || storeFile, events: [] };
+			if (!agg[storeFile]) {
+				const base = storeFile.split("/").pop();
+				const epochMs = dbEpochs.get(base);
+				agg[storeFile] = { label: info.label || storeFile, events: [] };
+				if (Number.isFinite(epochMs)) agg[storeFile].epochMs = epochMs;
+			}
 			for (const ev of info.events || []) agg[storeFile].events.push(ev);
 		}
 	}

@@ -41,6 +41,8 @@ function canonical(sku, map) {
 // ---------------- Build per-canonical event aggregate ----------------
 
 const { scoreSku: scoreSkuShared, computeTierThresholds, tierFor, effectiveRarity } = require("../src/utils/rarity");
+const { loadDbEpochs } = require("../src/utils/db_epochs");
+const DB_EPOCHS = loadDbEpochs(DB_DIR);
 
 function loadSkuFile(file) {
 	try { return JSON.parse(fs.readFileSync(file, "utf8")); }
@@ -110,7 +112,10 @@ for (const f of files) {
 	if (!agg) { agg = {}; aggByCanon.set(c, agg); }
 	for (const [storeFile, info] of Object.entries(data.stores)) {
 		if (!agg[storeFile]) {
+			const base = storeFile.split("/").pop();
+			const epochMs = DB_EPOCHS.get(base);
 			agg[storeFile] = { label: info.label || storeFile, events: [] };
+			if (Number.isFinite(epochMs)) agg[storeFile].epochMs = epochMs;
 		}
 		for (const ev of info.events || []) agg[storeFile].events.push(ev);
 	}
