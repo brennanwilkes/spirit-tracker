@@ -18,6 +18,10 @@ const COALESCE_GAP_MS = 24 * 60 * 60 * 1000;
 // "effective availability". See src/utils/rarity.js for full notes.
 const AVAIL_RAMP_DAYS = 7;
 
+// Ramp (days) for an OPEN in-stock spell's contribution to mean-period stats.
+// See src/utils/rarity.js for full notes.
+const MEAN_OPEN_RAMP_DAYS = 7;
+
 export function dedupRenameEvents(events) {
 	if (!Array.isArray(events) || events.length === 0) return [];
 	const sorted = events.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
@@ -160,7 +164,15 @@ export function unifySameStoreEntries(eventsByStore) {
 
 export function scoreSku(eventsByStore, nowMs) {
 	const NOW = Number.isFinite(nowMs) ? nowMs : Date.now();
-	eventsByStore = unifySameStoreEntries(eventsByStore || {});
+	// Dedupe rename pairs per file BEFORE unification (see src/utils/rarity.js).
+	const dedupedByFile = {};
+	for (const [k, entry] of Object.entries(eventsByStore || {})) {
+		dedupedByFile[k] = {
+			...entry,
+			events: dedupRenameEvents((entry && entry.events) || []),
+		};
+	}
+	eventsByStore = unifySameStoreEntries(dedupedByFile);
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
@@ -184,13 +196,20 @@ export function scoreSku(eventsByStore, nowMs) {
 		const periods = coalesced.periods;
 		const stillOpen = coalesced.stillOpen;
 		const distinctPrices = raw.distinctPrices;
-		const storePeriodsMs = [
-			...periods.map((p) => p.end - p.start),
-			...(stillOpen ? [NOW - stillOpen.start] : []),
-		];
-		if (storePeriodsMs.length > 0) {
-			const meanAtStoreDays =
-				storePeriodsMs.reduce((a, b) => a + b, 0) / storePeriodsMs.length / 86400000;
+		let storeWS = 0;
+		let storeWT = 0;
+		for (const p of periods) {
+			storeWS += (p.end - p.start) / 86400000;
+			storeWT += 1;
+		}
+		if (stillOpen) {
+			const d = (NOW - stillOpen.start) / 86400000;
+			const w = Math.min(d / MEAN_OPEN_RAMP_DAYS, 1);
+			storeWS += d * w;
+			storeWT += w;
+		}
+		if (storeWT > 0) {
+			const meanAtStoreDays = storeWS / storeWT;
 			if (meanAtStoreDays < 7) rareActingStores += 1;
 		}
 		const totalListings = periods.length + (stillOpen ? 1 : 0);
@@ -222,13 +241,21 @@ export function scoreSku(eventsByStore, nowMs) {
 	const ageDays = firstEverTs === Infinity ? 0 : (NOW - firstEverTs) / 86400000;
 	const lastSeenDaysAgo = lastEverTs === -Infinity ? Infinity : (NOW - lastEverTs) / 86400000;
 
-	const allPeriodDays = [
-		...completedPeriodsMs.map((ms) => ms / 86400000),
-		...openDurationsMs.map((ms) => ms / 86400000),
-	];
-	const meanPeriodDays = allPeriodDays.length
-		? allPeriodDays.reduce((a, b) => a + b, 0) / allPeriodDays.length
-		: 0;
+	// Weighted mean (see src/utils/rarity.js): completed spells get weight 1,
+	// open spells ramp by age.
+	let meanWS = 0;
+	let meanWT = 0;
+	for (const ms of completedPeriodsMs) {
+		meanWS += ms / 86400000;
+		meanWT += 1;
+	}
+	for (const ms of openDurationsMs) {
+		const d = ms / 86400000;
+		const w = Math.min(d / MEAN_OPEN_RAMP_DAYS, 1);
+		meanWS += d * w;
+		meanWT += w;
+	}
+	const meanPeriodDays = meanWT > 0 ? meanWS / meanWT : 0;
 	const totalInStockDays = totalInStockMs / 86400000;
 
 	const S_breadth = 1 / (1 + breadth / 3);
@@ -246,12 +273,12 @@ export function scoreSku(eventsByStore, nowMs) {
 	const S_widely_available = widelyAvailableBreadthFactor * widelyAvailableAvailFactor;
 
 	const rarity =
-		0.30 * S_breadth +
+		0.25 * S_breadth +
 		0.25 * S_avail +
-		0.05 * S_velocity +
+		0.10 * S_velocity +
 		0.05 * (1 - S_restock_low) +
 		0.20 * (1 - S_persistence_low) +
-		0.15 * S_allocation -
+		0.20 * S_allocation -
 		0.15 * S_widely_available;
 
 	// Confidence: only two ways to lose it.
