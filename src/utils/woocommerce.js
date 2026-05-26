@@ -91,6 +91,11 @@ function parseWooStoreProductsJson(payload, ctx) {
 		const url = p && p.permalink ? String(p.permalink) : "";
 		if (!url) continue;
 
+		// WC Store API exposes stock state directly; drop OOS so finalizeCategoryScan
+		// marks previously-tracked items as removed. The per-product shippability check
+		// downstream only filters local-pickup-only listings, not stock state.
+		if (p.is_in_stock === false) continue;
+
 		const name = p && p.name ? cleanText(decodeHtml(String(p.name))) : "";
 		if (!name) continue;
 
