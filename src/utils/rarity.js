@@ -6,10 +6,12 @@
 // All inputs are in milliseconds (event ts). All emitted durations are days.
 // Rarity = single 0..1 value derived from five smooth signals (no branches).
 
-// Tracker absolute start date — observations earlier than this don't exist by
-// construction. Used to temper confidence for items whose only in-stock signals
-// cluster near the start of recorded history (we can't tell if they were already
-// scarce or just briefly visible to us).
+// Fallback tracker start date — used only when an `eventsByStore` entry has
+// no per-DB-file `epochMs`. The real epoch is per DB file (categories added
+// later have later epochs; e.g. gin was tracked long after the original
+// launch). Callers should inject `entry.epochMs` from each DB file's
+// `createdAt`; the resolved per-item epoch is min(entry.epochMs) across the
+// stores tracking that item — the earliest moment we'd have seen it anywhere.
 const TRACKER_EPOCH_MS = Date.UTC(2026, 0, 19);
 
 // Brief OOS gaps within an in-stock spell are treated as sensor flap rather
@@ -188,7 +190,18 @@ function unifySameStoreEntries(eventsByStore) {
 		}
 
 		const label = group.find((g) => g.entry && g.entry.label)?.entry.label || "";
-		out[group[0].key] = { label, events: merged };
+		// Preserve earliest per-file epoch across the unified group — same-store
+		// category-migration leftovers may have different createdAt timestamps;
+		// the earliest reflects when we first started tracking this physical
+		// store's listing, which is the right epoch for confidence.
+		let groupEpoch = Infinity;
+		for (const g of group) {
+			const ep = g.entry && g.entry.epochMs;
+			if (Number.isFinite(ep) && ep < groupEpoch) groupEpoch = ep;
+		}
+		const unified = { label, events: merged };
+		if (Number.isFinite(groupEpoch)) unified.epochMs = groupEpoch;
+		out[group[0].key] = unified;
 	}
 	return out;
 }
@@ -340,10 +353,21 @@ function scoreSku(eventsByStore, nowMs) {
 	} else {
 		ageSignal = Math.min(ageDays / 7, 1);
 	}
+	// Resolve effective epoch: earliest per-entry epochMs across the stores
+	// tracking this item, falling back to the global default for entries that
+	// haven't been backfilled yet. Earliest wins because once ANY DB file has
+	// been tracking the item for 30+ days, our "last in stock" signal is no
+	// longer suspicious — we wouldn't have missed a substantial sellout.
+	let effectiveEpochMs = Infinity;
+	for (const s of stores) {
+		const ep = eventsByStore[s] && eventsByStore[s].epochMs;
+		if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
+	}
+	if (!Number.isFinite(effectiveEpochMs)) effectiveEpochMs = TRACKER_EPOCH_MS;
 	const daysFromEpochToLastInStock =
 		lastInStockEverTs === -Infinity
 			? 0
-			: Math.max(0, (lastInStockEverTs - TRACKER_EPOCH_MS) / 86400000);
+			: Math.max(0, (lastInStockEverTs - effectiveEpochMs) / 86400000);
 	const epochRamp = Math.min(daysFromEpochToLastInStock / 30, 1);
 	const epochSignal = epochRamp * epochRamp;
 	const confidence = ageSignal * epochSignal;

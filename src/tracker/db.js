@@ -53,6 +53,20 @@ function writeJsonAtomic(file, obj) {
 function buildDbObject(ctx, merged) {
 	const storeLabel = ctx?.store?.name || ctx?.store?.host || "";
 
+	// Preserve createdAt across writes — it's the per-DB-file epoch used by
+	// rarity scoring to temper post-epoch sellouts. Each DB file represents a
+	// (store, category) page that started being tracked at a specific time;
+	// items in a category added later (e.g. gin) should not be considered rare
+	// just because they sell out shortly after tracking began for THIS file.
+	let createdAt = null;
+	try {
+		const prev = JSON.parse(fs.readFileSync(ctx.dbFile, "utf8"));
+		if (prev && typeof prev.createdAt === "string") createdAt = prev.createdAt;
+	} catch {
+		// no prior file or unparseable — fall through to fresh timestamp
+	}
+	if (!createdAt) createdAt = new Date().toISOString();
+
 	return {
 		version: 6,
 		store: ctx.store.host,
@@ -60,6 +74,7 @@ function buildDbObject(ctx, merged) {
 		category: ctx.cat.key,
 		categoryLabel: ctx.cat.label,
 		source: ctx.baseUrl,
+		createdAt,
 		updatedAt: new Date().toISOString(),
 		count: merged.size,
 		items: [...merged.values()]
