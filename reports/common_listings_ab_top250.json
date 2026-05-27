@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T16:57:26.354Z",
+  "generatedAt": "2026-05-27T19:45:46.194Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8662,
-    "removedRows": 4132,
-    "canonSkus": 4980,
+    "liveRows": 8678,
+    "removedRows": 4126,
+    "canonSkus": 4986,
     "outputCount": 250
   },
   "rows": [
@@ -1782,6 +1782,48 @@
         "priceNum": 39,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/makers-mark-kentucky-straight-bourbon-45-abv/"
+      }
+    },
+    {
+      "canonSku": "104956",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 110,
+        "craftcellars": 130.99,
+        "kegncork": 129.96,
+        "kwm": 129.99,
+        "maltsandgrains": 104.99,
+        "willowpark": 123.49
+      },
+      "representative": {
+        "name": "Kilchoman 57% – Batch Strength",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "104956",
+        "skuKey": "104956",
+        "url": "https://maltsandgrains.store/product/kilchoman-57-batch-strength/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/kilchoman-57-batch-strength/"
       }
     },
     {
@@ -4335,47 +4377,6 @@
       }
     },
     {
-      "canonSku": "104956",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 110,
-        "craftcellars": 130.99,
-        "kegncork": 129.96,
-        "maltsandgrains": 104.99,
-        "willowpark": 123.49
-      },
-      "representative": {
-        "name": "Kilchoman 57% – Batch Strength",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "104956",
-        "skuKey": "104956",
-        "url": "https://maltsandgrains.store/product/kilchoman-57-batch-strength/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/kilchoman-57-batch-strength/"
-      }
-    },
-    {
       "canonSku": "105607",
       "storeCount": 5,
       "stores": [
@@ -5152,47 +5153,6 @@
         "priceNum": 104.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/two-brewers-release-41-750-ml/"
-      }
-    },
-    {
-      "canonSku": "139646",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 105,
-        "craftcellars": 104.99,
-        "kegncork": 104.96,
-        "kwm": 104.99,
-        "maltsandgrains": 110.73
-      },
-      "representative": {
-        "name": "Yukon Single Malt Two Brewers Release 52",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "139646",
-        "skuKey": "139646",
-        "url": "https://craftcellars.ca/products/yukon-single-malt-two-brewers-release-52",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$104.96",
-        "priceNum": 104.96,
-        "storeKey": "kegncork",
-        "url": "https://kegncork.com/two-brewers-release-52-750-ml/"
       }
     },
     {
@@ -8692,6 +8652,46 @@
         "priceNum": 115,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bushmills-16-year-old"
+      }
+    },
+    {
+      "canonSku": "139646",
+      "storeCount": 4,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 105,
+        "craftcellars": 104.99,
+        "kegncork": 104.96,
+        "maltsandgrains": 110.73
+      },
+      "representative": {
+        "name": "Yukon Single Malt Two Brewers Release 52",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "139646",
+        "skuKey": "139646",
+        "url": "https://craftcellars.ca/products/yukon-single-malt-two-brewers-release-52",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$104.96",
+        "priceNum": 104.96,
+        "storeKey": "kegncork",
+        "url": "https://kegncork.com/two-brewers-release-52-750-ml/"
       }
     },
     {
