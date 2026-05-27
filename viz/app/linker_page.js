@@ -30,7 +30,7 @@ import { buildUrlBySkuStore } from "./linker_page/url_map.js";
 import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker_page/store_cache.js";
 import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
-import { smwsKeyFromName, similarityScore } from "./linker_page/similarity.js";
+import { smwsKeyFromName } from "./linker_page/similarity.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import {
 	topSuggestions,
@@ -246,52 +246,6 @@ export async function renderSkuLinker($app) {
 	function sameGroup(aSku, bSku) {
 		if (!aSku || !bSku) return false;
 		return String(rules.canonicalSku(aSku)) === String(rules.canonicalSku(bSku));
-	}
-
-	// ✅ NEW: helpers for same-store override gating
-	const EMPTY_SET = new Set();
-
-	function canonStoresForSkuKey(skuKey) {
-		const s = String(skuKey || "").trim();
-		if (!s) return EMPTY_SET;
-		const canon = String(rules.canonicalSku(s) || s);
-		return CANON_STORE_CACHE.get(canon) || EMPTY_SET;
-	}
-
-	function sameStoreOverrideAllowed(aIt, bIt) {
-		const aSku = String(aIt?.sku || "");
-		const bSku = String(bIt?.sku || "");
-		if (!aSku || !bSku) return false;
-		if (!sameStoreCanon(aSku, bSku)) return false;
-
-		const A = canonStoresForSkuKey(aSku);
-		const B = canonStoresForSkuKey(bSku);
-		if (!A.size || !B.size) return false;
-
-		// Prefer overlap on the user-visible “selected” store label (cheapest)
-		const aPrimary = String(aIt?.cheapestStoreLabel || "").trim();
-		const bPrimary = String(bIt?.cheapestStoreLabel || "").trim();
-
-		// Determine overlap
-		let anyOverlap = false;
-		let primaryOverlap = false;
-		for (const s of A) {
-			if (!B.has(s)) continue;
-			anyOverlap = true;
-			if ((aPrimary && s === aPrimary) || (bPrimary && s === bPrimary)) primaryOverlap = true;
-		}
-		if (!anyOverlap) return false;
-
-		// If we know a primary store, require overlap on it (tightens to “this looks like a relist on that store”)
-		if ((aPrimary || bPrimary) && !primaryOverlap) return false;
-
-		// SMWS exact code is a slam-dunk
-		const ka = smwsKeyFromName(aIt?.name || "");
-		const kb = smwsKeyFromName(bIt?.name || "");
-		if (ka && kb && ka === kb) return true;
-
-		// Otherwise require strong name similarity
-		return similarityScore(aIt?.name || "", bIt?.name || "") >= 3.1;
 	}
 
 	let initialPairs = null;
@@ -527,17 +481,19 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		// ✅ CHANGED: same-store blocks normal link/ignore, but may enable LINK SAME-STORE
+		// same-store blocks normal link/ignore; LINK SAME-STORE is the manual override
 		if (sameStoreCanon(a, b)) {
 			$linkBtn.disabled = true;
 			$ignoreBtn.disabled = true;
 
-			const ok = sameStoreOverrideAllowed(pinnedL, pinnedR);
-			$forceLinkBtn.disabled = !ok;
+			if (sameGroup(a, b)) {
+				$forceLinkBtn.disabled = true;
+				$status.textContent = "Already linked: both SKUs are in the same group.";
+				return;
+			}
 
-			$status.textContent = ok
-				? "Same-store duplicate candidate. Use LINK SAME-STORE to merge."
-				: "Not allowed: both items belong to the same store.";
+			$forceLinkBtn.disabled = false;
+			$status.textContent = "Same-store pair. Use LINK SAME-STORE to merge.";
 			return;
 		}
 
@@ -739,10 +695,6 @@ export async function renderSkuLinker($app) {
 		if (sameStoreCanon(a, b)) {
 			if (!forceSameStore) {
 				$status.textContent = "Not allowed: both items belong to the same store.";
-				return;
-			}
-			if (!sameStoreOverrideAllowed(pinnedL, pinnedR)) {
-				$status.textContent = "Not allowed: same-store override gate failed.";
 				return;
 			}
 		}

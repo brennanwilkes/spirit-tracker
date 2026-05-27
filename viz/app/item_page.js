@@ -17,6 +17,7 @@ import {
 	medianFinite,
 	lastFiniteFromEnd,
 	computeSuggestedY,
+	computeHighOutlierCap,
 	niceStepAtLeast,
 	StaticMarkerLinesPlugin,
 } from "./item_page/item_chart.js";
@@ -770,7 +771,17 @@ export async function renderItem($app, skuInput) {
 		for (const v of ds.data) if (Number.isFinite(v)) allVals.push(v);
 	}
 
-	const ySug = computeSuggestedY(allVals);
+	// With many stores, one or two pricing way above the rest stretch the y-axis
+	// and squash all the detail. Cap the upper bound so outliers clip at the top;
+	// the min is never capped, so low prices always render as usual.
+	const outlierCap = computeHighOutlierCap(
+		storeSeriesSorted.map((st) => ({
+			rep: weightedMeanByDuration(st.merged.points, labels),
+			values: st.merged.values,
+		})),
+	);
+
+	const ySug = computeSuggestedY(allVals, undefined, outlierCap);
 
 	const MIN_STEP = 10; // never denser than $10
 	const MAX_TICKS = 12; // cap tick count when span is huge
@@ -953,7 +964,7 @@ export async function renderItem($app, skuInput) {
 
 	if (tickCount >= 2) {
 		const minRange = (tickCount - 1) * 10; // $10 per gap, same number of gaps as before
-		const ySug2 = computeSuggestedY(allVals, minRange);
+		const ySug2 = computeSuggestedY(allVals, minRange, outlierCap);
 
 		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
 		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
