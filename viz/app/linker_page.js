@@ -10,6 +10,7 @@ import {
 } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
+import { loadHiddenSet } from "./hidden.js";
 import { loadSkuRules, clearSkuRulesCache } from "./mapping.js";
 import {
 	inferGithubOwnerRepo,
@@ -210,13 +211,13 @@ export async function renderSkuLinker($app) {
 	$listL.innerHTML = `<div class="small">Loading index…</div>`;
 	$listR.innerHTML = `<div class="small">Loading index…</div>`;
 
-	const idx = await loadIndex();
+	const [idx, hiddenSet] = await Promise.all([loadIndex(), loadHiddenSet()]);
 	const allRows = Array.isArray(idx.items) ? idx.items : [];
 
 	// ✅ moved into helper
 	const URL_BY_SKU_STORE = buildUrlBySkuStore(allRows);
 
-	const allAgg = aggregateBySku(allRows, (x) => x);
+	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
 
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
