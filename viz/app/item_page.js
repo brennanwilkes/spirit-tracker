@@ -772,20 +772,39 @@ export async function renderItem($app, skuInput) {
 	}
 
 	// With many stores, one or two pricing way above the rest stretch the y-axis
-	// and squash all the detail. Cap the upper bound so outliers clip at the top;
-	// the min is never capped, so low prices always render as usual.
-	const outlierCap = computeHighOutlierCap(
+	// and squash all the detail. Detect those and cap the axis; the min is never
+	// capped so low prices always render as usual.
+	const outlierInfo = computeHighOutlierCap(
 		storeSeriesSorted.map((st) => ({
+			label: st.label,
 			rep: weightedMeanByDuration(st.merged.points, labels),
 			values: st.merged.values,
 		})),
 	);
+	const outlierCap = outlierInfo ? outlierInfo.cap : null;
+	const outlierStores = outlierInfo ? outlierInfo.outliers : null;
 
 	const ySug = computeSuggestedY(allVals, undefined, outlierCap);
 
-	// suggestedMax is only a hint — Chart.js still expands to fit every point. When
-	// capping outliers we need a HARD max so the outlier lines actually clip.
-	const yHardMax = Number.isFinite(outlierCap) ? ySug.suggestedMax : undefined;
+	// Rather than let outlier lines clip away (the data point vanishes), clamp them
+	// into a reserved band at the top so they "sit at the top". The true price is
+	// kept on each dataset (_rawData) for the tooltip, and the line is dashed to
+	// signal it is out of scale. yHardMax is a HARD axis max (suggestedMax is only a
+	// hint Chart.js would expand past).
+	let yHardMax;
+	if (Number.isFinite(outlierCap) && outlierStores) {
+		const lo = ySug.suggestedMin ?? 0;
+		const range = Math.max(1, outlierCap - lo);
+		const clampY = outlierCap + range * 0.12;
+		yHardMax = outlierCap + range * 0.18;
+
+		for (const ds of datasets) {
+			if (!outlierStores.has(String(ds.label))) continue;
+			ds._rawData = ds.data.slice();
+			ds.data = ds.data.map((v) => (Number.isFinite(v) && v > clampY ? clampY : v));
+			ds.borderDash = [5, 4];
+		}
+	}
 
 	const MIN_STEP = 10; // never denser than $10
 	const MAX_TICKS = 12; // cap tick count when span is huge
@@ -901,9 +920,12 @@ export async function renderItem($app, skuInput) {
 					},
 					callbacks: {
 						label: (ctx) => {
-							const v = ctx.parsed?.y;
-							if (!Number.isFinite(v)) return `${ctx.dataset.label}: (no data)`;
-							return `${ctx.dataset.label}: $${v.toFixed(2)}`;
+							const ds = ctx.dataset;
+							const raw = ds._rawData ? ds._rawData[ctx.dataIndex] : ctx.parsed?.y;
+							const v = Number.isFinite(raw) ? raw : ctx.parsed?.y;
+							if (!Number.isFinite(v)) return `${ds.label}: (no data)`;
+							const suffix = ds._rawData ? "  ↑ above chart" : "";
+							return `${ds.label}: $${v.toFixed(2)}${suffix}`;
 						},
 					},
 				},
@@ -973,7 +995,7 @@ export async function renderItem($app, skuInput) {
 
 		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
 		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
-		if (Number.isFinite(outlierCap)) CHART.options.scales.y.max = ySug2.suggestedMax;
+		if (Number.isFinite(yHardMax)) CHART.options.scales.y.max = yHardMax;
 		CHART.options.scales.y.ticks.stepSize = 10; // lock spacing at $10 now
 
 		CHART.update();

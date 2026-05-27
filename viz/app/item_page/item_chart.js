@@ -131,10 +131,10 @@ export function lastFiniteFromEnd(arr) {
  * top. Low prices are never capped — this only ever returns an upper bound, and
  * returns null when no capping should apply.
  *
- * @param {Array<{rep:number, values:number[]}>} stores  per-store representative price + its data points
+ * @param {Array<{label:string, rep:number, values:number[]}>} stores  per-store label, representative price, data points
  * @param {object} [opts]
  * @param {number} [opts.minStores=5]  only engage past this many stores ("more than 4")
- * @returns {number|null}
+ * @returns {{cap:number, outliers:Set<string>}|null}
  */
 export function computeHighOutlierCap(stores, opts = {}) {
 	const minStores = Number.isFinite(opts.minStores) ? opts.minStores : 5;
@@ -155,13 +155,16 @@ export function computeHighOutlierCap(stores, opts = {}) {
 	const normal = list.filter((s) => s.rep <= threshold);
 	if (normal.length === list.length) return null; // nothing way above the pack
 
+	const outliers = new Set(list.filter((s) => s.rep > threshold).map((s) => String(s.label)));
+
 	let cap = null;
 	for (const s of normal) {
 		for (const v of Array.isArray(s.values) ? s.values : []) {
 			if (Number.isFinite(v) && (cap === null || v > cap)) cap = v;
 		}
 	}
-	return cap;
+	if (cap === null) return null;
+	return { cap, outliers };
 }
 
 /**
