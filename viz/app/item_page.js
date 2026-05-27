@@ -783,6 +783,10 @@ export async function renderItem($app, skuInput) {
 
 	const ySug = computeSuggestedY(allVals, undefined, outlierCap);
 
+	// suggestedMax is only a hint — Chart.js still expands to fit every point. When
+	// capping outliers we need a HARD max so the outlier lines actually clip.
+	const yHardMax = Number.isFinite(outlierCap) ? ySug.suggestedMax : undefined;
+
 	const MIN_STEP = 10; // never denser than $10
 	const MAX_TICKS = 12; // cap tick count when span is huge
 
@@ -914,6 +918,7 @@ export async function renderItem($app, skuInput) {
 				},
 				y: {
 					...ySug,
+					max: yHardMax,
 					ticks: {
 						stepSize: step,
 						maxTicksLimit: MAX_TICKS,
@@ -968,6 +973,7 @@ export async function renderItem($app, skuInput) {
 
 		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
 		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
+		if (Number.isFinite(outlierCap)) CHART.options.scales.y.max = ySug2.suggestedMax;
 		CHART.options.scales.y.ticks.stepSize = 10; // lock spacing at $10 now
 
 		CHART.update();
