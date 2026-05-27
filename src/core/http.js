@@ -139,6 +139,19 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 	// Conservative pacing defaults (slow > blocked)
 	const minHostIntervalMs = 2500;
 
+	// Per-host minimum-interval overrides. Some hosts (e.g. Wine and Beyond)
+	// require many per-product fetches and tolerate a much tighter cadence.
+	// Set via setHostInterval(host, ms); falls back to the conservative default.
+	const hostMinInterval = new Map();
+	function intervalFor(host) {
+		const v = hostMinInterval.get(host);
+		return typeof v === "number" && v > 0 ? v : minHostIntervalMs;
+	}
+	function setHostInterval(host, ms) {
+		const h = String(host || "").trim();
+		if (h && typeof ms === "number" && ms > 0) hostMinInterval.set(h, ms);
+	}
+
 	// Per-host inflight clamp (prevents bursts when global concurrency is high)
 	const hostInflight = new Map();
 	const maxHostInflight = 1;
@@ -182,7 +195,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 			}
 
 			// Reserve immediately to prevent concurrent pass-through
-			hostNextOkAt.set(host, now + minHostIntervalMs);
+			hostNextOkAt.set(host, now + intervalFor(host));
 			return;
 		}
 	}
@@ -195,7 +208,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 		const current = hostNextOkAt.get(host) || 0;
 
 		// Extend (never shorten) any existing cooldown
-		const target = now + minHostIntervalMs + Math.max(0, extraDelayMs);
+		const target = now + intervalFor(host) + Math.max(0, extraDelayMs);
 		hostNextOkAt.set(host, Math.max(current, target));
 
 		logger?.dbg?.(`HOST-PACE host=${host} nextOkIn=${Math.max(0, (hostNextOkAt.get(host) || 0) - Date.now())}ms`);
@@ -327,7 +340,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 		return fetchWithRetry(url, tag, ua, { mode: "json", ...(opts || {}) });
 	}
 
-	return { fetchTextWithRetry, fetchJsonWithRetry, inflightStr };
+	return { fetchTextWithRetry, fetchJsonWithRetry, inflightStr, setHostInterval };
 }
 
 module.exports = { createHttpClient, RetryableError };

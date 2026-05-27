@@ -4,26 +4,27 @@
 //
 //   * /collections/{kind}/products.json — clean catalog (one row per bottle,
 //     real SKU + title + image) but price is always 0.00 and availability is
-//     a meaningless master flag. Good ONLY for the handle -> sku/title/img map.
-//   * /products.json (global) — only ~16% of the catalog is replicated here
-//     per location; the rest (allocations / exclusives like Benromach) never
-//     appear. So it is NOT a reliable price/stock source. Unused.
-//   * Storefront collection HTML with the custom availability facet
-//     `filter.p.m.display.available_at={locationId}` — returns ONLY items
-//     in stock at that location, with the real price rendered in each card.
-//     Repeating the facet key OR's locations, so all 15 locations in one
-//     query yields every in-stock-anywhere bottle + price in a single
-//     paginated view. This is the authoritative price/availability source.
+//     a meaningless master flag. Used ONLY for the handle -> sku/title/img map
+//     and the per-kind product list.
+//   * /products.json (global) — only ~16% of the catalog is replicated per
+//     location; the rest never appear. NOT a reliable stock source. Unused.
+//   * The `filter.p.m.display.available_at={loc}` collection facet means
+//     "CARRIED/listed at that location" — NOT "in stock". It returns items
+//     with zero inventory (sold-out everywhere), so it cannot be used to
+//     determine availability. (This was a prior bug.)
+//   * The PRODUCT PAGE renders a per-location stock table server-side
+//     (`<span class="font-semibold">{Location}:&nbsp;</span><span>{state}</span>`)
+//     plus the real price. This is the ONLY accurate stock source.
 //
 // Strategy per category:
-//   1. Build handle -> {sku,title,img} from products.json (fast JSON).
-//   2. Discover the 15 available_at location IDs from the collection facet.
-//   3. Paginate the all-locations-OR'd filtered collection HTML; every card
-//      is in stock somewhere. Parse handle -> price.
-//   4. Join on handle; emit one row per in-stock bottle.
+//   1. Build handle -> {sku,title,img} from products.json.
+//   2. For each product, fetch its product page; parse the per-location table
+//      (in stock if any location is "In Stock"/"Low Stock") and the price.
+//   3. Emit only in-stock bottles.
 //
-// "Low Stock" counts as in stock (the facet already encodes that). No
-// per-item product-page fetches are needed.
+// This is ~1 fetch per catalogued product (whisky ~1400). W&B tolerates a
+// tight cadence, so we lower the per-host interval (see WNB_INTERVAL_MS).
+// "Low Stock" counts as in stock.
 
 const { sanitizeName } = require("../utils/text");
 const { normalizeSkuKey, pickBetterSku } = require("../utils/sku");
@@ -33,14 +34,10 @@ const { finalizeCategoryScan } = require("../tracker/finalize");
 const HOST = "www.wineandbeyond.ca";
 // gin collection 500s at limit>=200; use a single safe ceiling everywhere.
 const JSON_LIMIT = 150;
+// W&B tolerates a tight cadence; per-product stock checks need many fetches.
+const WNB_INTERVAL_MS = 400;
 
-// Module-level cache: location IDs are the same across all categories.
-let _locationIdsCache = null;
-
-function parsePriceNum(s) {
-	const n = Number(String(s || "").replace(/[^0-9.]/g, ""));
-	return Number.isFinite(n) ? n : null;
-}
+let _pacingSet = false;
 
 function normalizeWnbSku(rawSku, ctx, url) {
 	// W&B uses 7-digit SNDL IDs; wrap as id: so they bypass the 6-digit CSPC
@@ -79,73 +76,63 @@ async function fetchCatalogMap(ctx, collectionHandle) {
 	return byHandle;
 }
 
-async function discoverLocationIds(ctx, collectionHandle) {
-	if (_locationIdsCache) return _locationIdsCache;
-	const url = `https://${HOST}/collections/${collectionHandle}?sort_by=title-ascending`;
-	const { text } = await ctx.http.fetchTextWithRetry(url, `${ctx.store.key}:locdisc`, ctx.store.ua);
-	const ids = Array.from(new Set((text.match(/available_at=(\d+)/g) || []).map((s) => s.split("=")[1])));
-	_locationIdsCache = ids;
-	return ids;
-}
-
-async function fetchInStockPrices(ctx, collectionHandle, locationIds) {
-	const filterQS = locationIds.map((id) => `filter.p.m.display.available_at=${id}`).join("&");
-	const byHandle = new Map();
-	const maxPages = ctx.config.maxPages === null ? 200 : Math.min(ctx.config.maxPages, 200);
-	let page = 1;
-	while (true) {
-		const url = `https://${HOST}/collections/${collectionHandle}?${filterQS}&sort_by=title-ascending&page=${page}`;
-		const { text } = await ctx.http.fetchTextWithRetry(url, `${ctx.store.key}:instock:${ctx.cat.key}:p${page}`, ctx.store.ua);
-		const segments = text.split('<a href="/products/');
-		let cardsThisPage = 0;
-		for (let i = 1; i < segments.length; i++) {
-			const seg = segments[i];
-			const hm = seg.match(/^([a-z0-9-]+)/);
-			if (!hm) continue;
-			const handle = hm[1];
-			const pm = seg.slice(0, 3000).match(/\$([0-9][0-9.,]*)/);
-			if (!pm) continue;
-			cardsThisPage++;
-			if (!byHandle.has(handle)) byHandle.set(handle, pm[1]);
-		}
-		if (cardsThisPage === 0) break;
-		if (++page > maxPages) break;
+// Parse the product page: in stock if any location reports In/Low Stock; price
+// from the data-block-type="price" block.
+const STOCK_RE = /font-semibold">[^<]+?:(?:&nbsp;|\s)*<\/span>\s*<span>([^<]+)<\/span>/g;
+function parseProductPage(text) {
+	let inStock = false;
+	STOCK_RE.lastIndex = 0;
+	let m;
+	while ((m = STOCK_RE.exec(text)) !== null) {
+		const st = m[1].trim().toLowerCase();
+		if (st === "low stock" || st === "in stock") { inStock = true; break; }
 	}
-	return byHandle;
+	const pm = text.match(/data-block-type="price"[\s\S]*?\$([0-9][0-9.,]*)/);
+	let price = "";
+	if (pm) {
+		const n = Number(pm[1].replace(/,/g, ""));
+		if (Number.isFinite(n) && n > 0) price = `$${n.toFixed(2)}`;
+	}
+	return { inStock, price };
 }
 
 function scanCategoryWnB(collectionHandle) {
 	return async function scanCategory(ctx, prevDb, report) {
 		const t0 = Date.now();
 
+		if (!_pacingSet && typeof ctx.http.setHostInterval === "function") {
+			ctx.http.setHostInterval(HOST, WNB_INTERVAL_MS);
+			_pacingSet = true;
+		}
+
 		const catalog = await fetchCatalogMap(ctx, collectionHandle);
-		const locationIds = await discoverLocationIds(ctx, collectionHandle);
-		const inStock = await fetchInStockPrices(ctx, collectionHandle, locationIds);
 
 		const discovered = new Map();
-		let missingCatalog = 0;
+		let checked = 0;
+		let outOfStock = 0;
 
-		for (const [handle, priceStr] of inStock) {
-			const meta = catalog.get(handle);
-			// Card appeared in the in-stock view but not the catalog json (rare
-			// race / cross-category). Skip — we have no reliable SKU for it.
-			if (!meta) { missingCatalog++; continue; }
-
+		for (const [handle, meta] of catalog) {
 			const title = meta.title;
 			if (!title) continue;
 
 			const url = normalizeShopifyProductUrl(`https://${HOST}/products/${handle}`);
+			let text;
+			try {
+				({ text } = await ctx.http.fetchTextWithRetry(url, `${ctx.store.key}:prod:${ctx.cat.key}:${handle}`, ctx.store.ua));
+			} catch (_) {
+				continue; // skip on fetch failure; mass-removal protection guards history
+			}
+			checked++;
+
+			const { inStock, price } = parseProductPage(text);
+			if (!inStock) { outOfStock++; continue; }
+
 			const prev = prevDb?.byUrl?.get(url) || null;
-
-			const priceNum = parsePriceNum(priceStr);
-			const price = priceNum !== null ? `$${priceNum.toFixed(2)}` : (prev?.price || "");
-
-			const skuNorm = normalizeWnbSku(meta.sku, ctx, url);
-			const finalSku = pickBetterSku(skuNorm, prev?.sku || "");
+			const finalSku = pickBetterSku(normalizeWnbSku(meta.sku, ctx, url), prev?.sku || "");
 
 			discovered.set(url, {
 				name: title,
-				price,
+				price: price || prev?.price || "",
 				url,
 				sku: finalSku,
 				img: meta.img || prev?.img || "",
@@ -153,7 +140,7 @@ function scanCategoryWnB(collectionHandle) {
 		}
 
 		ctx.logger.ok(
-			`${ctx.catPrefixOut} | wineandbeyond catalog=${catalog.size} locations=${locationIds.length} inStock=${inStock.size} kept=${discovered.size} noCatalog=${missingCatalog}`,
+			`${ctx.catPrefixOut} | wineandbeyond catalog=${catalog.size} checked=${checked} inStock=${discovered.size} oos=${outOfStock}`,
 		);
 
 		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 0 });

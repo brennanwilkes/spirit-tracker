@@ -94,8 +94,14 @@ export function recommendSimilar(
 	const pinnedSmws = smwsKeyFromName(pinned.name || "");
 
 	// ---- Tuning knobs ----
-	const MAX_SCAN = 5000; // cap for huge catalogs
-	const FULL_SCAN_UNDER = 12000; // ✅ scan everything if catalog is "small"
+	// Scan the whole catalog for any realistic size. These were 5000/12000,
+	// but the 33-store catalog (~12.4k aggregates) exceeded 12000, which
+	// silently dropped ~60% of candidates from the scan — including most
+	// new-store items — so pinned suggestions never surfaced them. The cheap
+	// scoring pass is O(n) and fine at this scale; keep a high ceiling only as
+	// a guard against a pathologically huge catalog.
+	const MAX_SCAN = 200000; // cap for huge catalogs
+	const FULL_SCAN_UNDER = 200000; // scan everything below this
 	const MAX_CHEAP_KEEP = 320; // keep top candidates from cheap stage
 	const MAX_FINE = 70; // expensive score only on top-N
 	// ----------------------
@@ -337,7 +343,7 @@ export function computeInitialPairsFast(
 	const itemsShuf = itemsAll.slice();
 	shuffleInPlace(itemsShuf, rnd);
 
-	const WORK_CAP = Math.min(12000, itemsShuf.length);
+	const WORK_CAP = Math.min(200000, itemsShuf.length);
 	let workAll;
 
 	if (DETERMINISTIC) {
@@ -351,7 +357,7 @@ export function computeInitialPairsFast(
 		const itemsShuf = itemsAll.slice();
 		shuffleInPlace(itemsShuf, rnd);
 
-		const WORK_CAP = Math.min(12000, itemsShuf.length);
+		const WORK_CAP = Math.min(200000, itemsShuf.length);
 		workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 	}
 
