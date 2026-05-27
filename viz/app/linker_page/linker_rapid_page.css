@@ -1,0 +1,143 @@
+/* Rapid anchor-store linker (#/link-rapid) */
+
+.rapidContainer .topbar {
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.rapidRecover {
+	border: 1px solid var(--accent);
+	color: var(--text);
+}
+
+.rapidGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+}
+
+@media (min-width: 641px) {
+	.rapidGrid {
+		grid-template-columns: 1fr 1.2fr;
+		align-items: start;
+	}
+	.rapidCol:first-child {
+		position: sticky;
+		top: 12px;
+	}
+}
+
+.rapidColLabel {
+	margin-bottom: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.rapidCard {
+	display: flex;
+	gap: 10px;
+	padding: 8px 10px;
+	border: 1px solid var(--border);
+	border-radius: 10px;
+	background: var(--panel);
+	margin-bottom: 8px;
+	cursor: pointer;
+	position: relative;
+}
+
+.rapidCard.rapidAnchor {
+	cursor: default;
+	border-color: var(--accent);
+}
+
+.rapidCard.rapidHi {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 2px var(--accent) inset;
+}
+
+.rapidNum {
+	position: absolute;
+	top: -8px;
+	left: -8px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--accent);
+	color: #06121b;
+	font-weight: 700;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.rapidCard .thumbBox {
+	width: 56px;
+	height: 56px;
+	flex: 0 0 56px;
+}
+
+.rapidBody {
+	min-width: 0;
+	flex: 1;
+}
+
+.rapidName {
+	font-weight: 600;
+	line-height: 1.25;
+	margin-bottom: 4px;
+}
+
+.rapidLine {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.rapidScore {
+	margin-left: auto;
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+	font-size: 12px;
+}
+
+.rapidMeta {
+	margin-top: 6px;
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.rapidChip {
+	font-size: 11px;
+	padding: 2px 7px;
+	border-radius: 999px;
+	background: rgba(125, 211, 252, 0.14);
+	color: var(--accent);
+	border: 1px solid rgba(125, 211, 252, 0.35);
+}
+
+.rapidFlag {
+	font-size: 11px;
+	padding: 2px 7px;
+	border-radius: 999px;
+	border: 1px solid var(--border);
+	color: var(--muted);
+}
+
+.rapidFlagSame {
+	color: #f5b971;
+	border-color: rgba(245, 185, 113, 0.4);
+}
+
+.rapidDone {
+	padding: 24px 12px;
+	color: var(--muted);
+	font-size: 18px;
+}
+
+.rapidHelp {
+	margin-top: 10px;
+	color: var(--muted);
+}

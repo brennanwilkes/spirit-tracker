@@ -33,6 +33,7 @@ import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
 import { smwsKeyFromName } from "./linker_page/similarity.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
+import { buildVocab } from "./linker_page/vocab.js";
 import {
 	topSuggestions,
 	recommendSimilar,
@@ -104,6 +105,7 @@ export async function renderSkuLinker($app) {
 		</div>
 
         <div style="flex:1"></div>
+        <a class="btn" href="#/link-rapid" style="padding:6px 10px;">⚡ Rapid</a>
         ${!localWrite ? `<span id="pendingTop" class="badge mono" style="display:none;"></span>` : ``}
         ${
 					!localWrite
@@ -218,6 +220,10 @@ export async function renderSkuLinker($app) {
 	const URL_BY_SKU_STORE = buildUrlBySkuStore(allRows);
 
 	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
+
+	// IDF term vocabulary built from the full catalog (the union of all DB files
+	// via index.json). Drives the distinctive-shared-term boost in recommendSimilar.
+	const simVocab = buildVocab(allAgg);
 
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
@@ -357,6 +363,7 @@ export async function renderSkuLinker($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroup,
+				{ vocab: simVocab, allowSameStore: true },
 			);
 
 		const pairs = getInitialPairsIfNeeded();

@@ -3,11 +3,13 @@ import { tokenizeQuery, normSearchText } from "../sku.js";
 import {
 	smwsKeyFromName,
 	extractAgeFromText,
+	bareAgeCandidates,
 	filterSimTokens,
 	tokenContainmentScore,
 	fastSimilarityScore,
 	similarityScore,
 } from "./similarity.js";
+import { DISTINCTIVE_IDF, WO_POW, TOP_TERM_BONUS, BASE_FLOOR } from "./vocab.js";
 
 /* ---------------- Randomization helpers ---------------- */
 
@@ -79,8 +81,16 @@ export function recommendSimilar(
 	pricePenaltyFn,
 	sameStoreFn,
 	sameGroupFn,
+	opts,
 ) {
 	if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
+
+	// Optional IDF-vocabulary boost + same-store enablement. When `vocab` is
+	// absent, every code path below behaves exactly as before (all new logic is
+	// guarded by `if (vocab)`).
+	const vocab = opts && opts.vocab ? opts.vocab : null;
+	const allowSameStore = !!(opts && opts.allowSameStore);
+	const pinTopTerm = vocab ? vocab.topTerm(pinned.name || "") : null;
 
 	const pinnedSku = String(pinned.sku || "");
 	const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
@@ -139,7 +149,10 @@ export function recommendSimilar(
 		if (otherSku && itSku === otherSku) continue;
 
 		// HARD BLOCKS ONLY:
-		if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
+		// Same-store is blocked unless allowSameStore (so a store's duplicate SKUs
+		// for the same item can be matched).
+		if (!allowSameStore && typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku))
+			continue;
 		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
 		if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 
@@ -173,16 +186,42 @@ export function recommendSimilar(
 		const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
 		const contain = tokenContainmentScore(pinRawToks, itRawToks);
 
-		// Cheap score first (no Levenshtein)
-		let s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
-		if (s0 <= 0) s0 = 0.01 + 0.25 * contain;
+		// IDF vocab overlap: shared distinctive terms dominate ranking and let
+		// word-order/brand-position mismatches off the hook.
+		let wo = null;
+		let distinctiveShared = false;
+		if (vocab) {
+			wo = vocab.weightedOverlap(base, it.name || "");
+			distinctiveShared = wo.shared.some((x) => x.idf >= DISTINCTIVE_IDF);
+		}
+		const brandMatch = firstMatch || distinctiveShared;
 
-		// Soft first-token mismatch penalty (never blocks)
-		if (!firstMatch) {
-			const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-			let mult = 0.1 + 0.95 * contain;
-			if (smallN <= 3 && contain < 0.78) mult *= 0.22;
-			s0 *= Math.min(1.0, mult);
+		let s0;
+		if (vocab) {
+			// Validated IDF formula: shared distinctive terms dominate; the
+			// containment factor guards against winning purely on a single
+			// rare-term coincidence (union-denominator quirk). No brand-position
+			// penalty — the IDF overlap is already word-order independent.
+			s0 = (BASE_FLOOR + contain) * Math.pow(1 + wo.score, WO_POW);
+			if (
+				pinTopTerm &&
+				pinTopTerm.idf >= DISTINCTIVE_IDF &&
+				vocab.termsForName(it.name || "").has(pinTopTerm.term)
+			) {
+				s0 *= 1 + TOP_TERM_BONUS;
+			}
+		} else {
+			// Cheap score first (no Levenshtein)
+			s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
+			if (s0 <= 0) s0 = 0.01 + 0.25 * contain;
+
+			// Soft first-token mismatch penalty (never blocks)
+			if (!brandMatch) {
+				const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+				let mult = 0.1 + 0.95 * contain;
+				if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+				s0 *= Math.min(1.0, mult);
+			}
 		}
 
 		// Size penalty early
@@ -198,8 +237,11 @@ export function recommendSimilar(
 		// Age handling early
 		const itAge = extractAgeFromText(itNorm);
 		if (pinAge && itAge) {
-			if (pinAge === itAge) s0 *= 1.6;
-			else s0 *= 0.22;
+			if (pinAge === itAge) s0 *= vocab ? 1.8 : 1.6;
+			else s0 *= vocab ? 0.2 : 0.22;
+		} else if (vocab && pinAge && !itAge && bareAgeCandidates(itNorm).has(pinAge)) {
+			// bare number (e.g. "16") matches the pinned explicit age
+			s0 *= 1.8;
 		}
 
 		// Bad/invalid SKU boost — these will never auto-link, so we want them
@@ -219,9 +261,6 @@ export function recommendSimilar(
 		const it = x.it;
 		const itSku = String(it.sku || "");
 
-		let s = similarityScore(base, it.name || "");
-		if (s <= 0) continue;
-
 		const itNorm = x.itNorm || normSearchText(it.name || "");
 		const itRawToks = x.itRawToks || tokenizeQuery(itNorm);
 		const itToks = filterSimTokens(itRawToks);
@@ -229,12 +268,28 @@ export function recommendSimilar(
 		const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
 		const contain = tokenContainmentScore(pinRawToks, itRawToks);
 
-		if (!firstMatch) {
-			const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-			let mult = 0.1 + 0.95 * contain;
-			if (smallN <= 3 && contain < 0.78) mult *= 0.22;
-			s *= Math.min(1.0, mult);
+		let s;
+		if (vocab) {
+			const wo = vocab.weightedOverlap(base, it.name || "");
+			s = (BASE_FLOOR + contain) * Math.pow(1 + wo.score, WO_POW);
 			if (s <= 0) continue;
+			if (
+				pinTopTerm &&
+				pinTopTerm.idf >= DISTINCTIVE_IDF &&
+				vocab.termsForName(it.name || "").has(pinTopTerm.term)
+			) {
+				s *= 1 + TOP_TERM_BONUS;
+			}
+		} else {
+			s = similarityScore(base, it.name || "");
+			if (s <= 0) continue;
+			if (!firstMatch) {
+				const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+				let mult = 0.1 + 0.95 * contain;
+				if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+				s *= Math.min(1.0, mult);
+				if (s <= 0) continue;
+			}
 		}
 
 		if (typeof sizePenaltyFn === "function") {
@@ -249,8 +304,10 @@ export function recommendSimilar(
 
 		const itAge = extractAgeFromText(itNorm);
 		if (pinAge && itAge) {
-			if (pinAge === itAge) s *= 2.0;
-			else s *= 0.15;
+			if (pinAge === itAge) s *= vocab ? 1.8 : 2.0;
+			else s *= vocab ? 0.2 : 0.15;
+		} else if (vocab && pinAge && !itAge && bareAgeCandidates(itNorm).has(pinAge)) {
+			s *= 1.8;
 		}
 
 		if (isBadSku(pinnedSku) || isBadSku(itSku)) s *= 1.2;
@@ -271,7 +328,8 @@ export function recommendSimilar(
 		if (itSku === pinnedSku) continue;
 		if (otherSku && itSku === otherSku) continue;
 
-		if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
+		if (!allowSameStore && typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku))
+			continue;
 		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
 		if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 

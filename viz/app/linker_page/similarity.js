@@ -72,6 +72,19 @@ export function extractAgeFromText(normName) {
 	return "";
 }
 
+// Bare 1–2 digit numeric tokens (e.g. "16" in "Gray Label 16 Seagrass") that
+// could be an age but lack an explicit yr/yo suffix. Used only to *accept* a
+// match when the other side has an explicit age — never to penalize, since a
+// bare number is just as likely a batch/edition number.
+export function bareAgeCandidates(normName) {
+	const out = new Set();
+	const toks = filterSimTokens(tokenizeQuery(String(normName || "")));
+	for (const t of toks) {
+		if (/^\d{1,2}$/.test(t)) out.add(t);
+	}
+	return out;
+}
+
 export function filterSimTokens(tokens) {
 	const out = [];
 	const seen = new Set();

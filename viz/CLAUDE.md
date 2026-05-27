@@ -125,6 +125,50 @@ Items from different stores representing the same product are grouped under one 
 4. `linker_page/store_cache.js` — group by store for deduplication
 5. `linker_page/canonical_pref.js` — prefer certain SKU formats as canonical
 6. `linker_page/suggestions.js` — rank and return top candidate pairs
+7. `linker_page/vocab.js` — catalog-wide IDF term vocabulary (see below)
+
+### IDF vocabulary matching (`linker_page/vocab.js`)
+
+`buildVocab(allAgg)` builds a term vocabulary (filtered unigrams + **unordered**
+adjacent bigrams, with possessive repair so `Macaloney's` → `macaloneys`) over the whole
+catalog, weighting each term by `idf = ln((N+1)/(df+1))`. A term's match-strength is how
+*distinctive* it is: a distillery/expression name like `loy` is rare (high idf), filler
+like `reserve`/`cask` is everywhere (~0 idf, mostly stop-listed). Two listings sharing a
+high-idf term — in any position — is strong evidence of a match. This fixes the old
+ranker's failure modes: same-distillery-different-expression noise (e.g. all "Macaloneys"
+expressions scored equally) and word-order brittleness ("Seagrass 16" vs "16 Seagrass").
+
+`recommendSimilar(...)` takes an **optional trailing** `opts = { vocab, allowSameStore }`.
+All vocab logic is guarded by `if (vocab)` so the no-opts path is byte-for-byte the legacy
+behavior. When `vocab` is present the candidate score is
+`(BASE_FLOOR + tokenContainmentScore) * (1 + weightedOverlap)^WO_POW`, with a top-term
+bonus when the target's most-distinctive unigram (idf ≥ `DISTINCTIVE_IDF` = 5.5) is shared,
+and a bare-number age match (`bareAgeCandidates` in `similarity.js`: "16" with no yr/yo
+suffix can satisfy an explicit age, never penalizes). `computeInitialPairsFast` is NOT
+vocab-boosted (only `recommendSimilar`). Constants live in `vocab.js`
+(`DISTINCTIVE_IDF`, `WO_POW=3.0`, `TOP_TERM_BONUS=0.6`, `BASE_FLOOR=0.05`).
+
+`allowSameStore: true` lets a store's **duplicate SKUs for the same item** be suggested
+(the two `sameStoreFn` hard-blocks in `suggestions.js` are gated by it). Both `#/link` and
+`#/link-rapid` pass `{ vocab, allowSameStore: true }`.
+
+### Rapid linker (`#/link-rapid`, `linker_rapid_page.js`)
+
+Keyboard-driven anchor-a-store tool for clearing the unlinked backlog. Pick a store, walk
+its unlinked items one at a time, accept/reject the top suggestion with one key
+(`Y`/Enter link, `N`/`→` skip, `X` ignore, `1–9` pick, `↑/↓` move, `U` undo, `/` search,
+`F` flush). Reuses the same catalog/penalty/canonical helpers and `recommendSimilar`.
+- **No per-link reload** (the `#/link` page calls `location.reload()` after each link). A
+  session union-find overlay (`findRep`/`unionLocal`, seeded from `rules.canonicalSku`)
+  keeps just-linked pairs out of suggestions without re-fetching the 12 MB index.
+- **Batch + flush, crash-safe.** Decisions stage to an in-memory queue mirrored to
+  `localStorage` (`stviz:linker_rapid_queue_v1`) on every action; flushed (manual `F`,
+  every 10 actions, or on back) via `apiWriteSkuLink`/`apiWriteSkuIgnore` (local-write) or
+  `addPendingLink`/`addPendingIgnore` (Pages). On load, a recovered non-empty queue shows a
+  Flush/Discard banner. `undo` only works within the current unflushed batch.
+- **Local dev only:** `scripts/serve_viz.sh` serves the `.worktrees/data` worktree (the
+  `data` branch with `main` merged in), so viz code changes must reach the `data` branch
+  (via the run_daily merge) before they appear locally.
 
 ## Patterns & Conventions
 
