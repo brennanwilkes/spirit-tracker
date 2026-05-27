@@ -72,6 +72,37 @@ export function extractAgeFromText(normName) {
 	return "";
 }
 
+// Best-effort ABV (% alcohol) from a name. Handles "46.8 ABV", "46%",
+// "43.5 % abv", and "92 proof" (→ 46). Returns a number or null. Deliberately
+// soft: ABV is relevant but vaguely formatted, so callers should nudge, not gate.
+export function extractAbv(normName) {
+	const s = String(normName || "");
+	let m = s.match(/(\d{2,3}(?:\.\d+)?)\s*proof\b/i);
+	if (m) {
+		const v = parseFloat(m[1]) / 2;
+		if (v >= 20 && v <= 75) return v;
+	}
+	m = s.match(/(\d{2,3}(?:\.\d+)?)\s*(?:%|abv)/i);
+	if (m) {
+		const v = parseFloat(m[1]);
+		if (v >= 20 && v <= 75) return v;
+	}
+	return null;
+}
+
+// Soft-but-firm ABV agreement multiplier. ABV is relevant but vaguely formatted,
+// so a small gap (rounding: 46 vs 46.3) is neutral/positive, while a clear gap
+// (different cask-strength batches: 58.1 vs 53.9) is a strong non-match signal.
+// Returns 1 when either side has no parseable ABV.
+export function abvMultiplier(a, b) {
+	if (a == null || b == null) return 1;
+	const d = Math.abs(a - b);
+	if (d <= 0.6) return 1.15; // effectively the same → small confidence boost
+	if (d <= 1.5) return 1.0; // rounding / minor formatting → neutral
+	if (d <= 3) return 0.4; // likely different bottling
+	return 0.12; // clearly different strength → heavy non-match
+}
+
 // Bare 1–2 digit numeric tokens (e.g. "16" in "Gray Label 16 Seagrass") that
 // could be an age but lack an explicit yr/yo suffix. Used only to *accept* a
 // match when the other side has an explicit age — never to penalize, since a

@@ -276,7 +276,7 @@ export async function renderSkuLinker($app) {
 			sizePenaltyForPair,
 			pricePenaltyForPair,
 			PAGE_SEED,
-			{ temp: currentTemp }, // 0.00 = deterministic, 0.15–0.30 = mild variety, 0.50+ = very diverse
+			{ temp: currentTemp, vocab: simVocab }, // 0.00 = deterministic, 0.15–0.30 = mild variety, 0.50+ = very diverse
 		);
 
 		return initialPairs;

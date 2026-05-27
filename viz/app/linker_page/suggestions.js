@@ -3,6 +3,8 @@ import { tokenizeQuery, normSearchText } from "../sku.js";
 import {
 	smwsKeyFromName,
 	extractAgeFromText,
+	extractAbv,
+	abvMultiplier,
 	bareAgeCandidates,
 	filterSimTokens,
 	tokenContainmentScore,
@@ -101,6 +103,7 @@ export function recommendSimilar(
 	const pinToks = filterSimTokens(pinRawToks);
 	const pinBrand = pinToks[0] || "";
 	const pinAge = extractAgeFromText(pinNorm);
+	const pinAbv = vocab ? extractAbv(pinNorm) : null;
 	const pinnedSmws = smwsKeyFromName(pinned.name || "");
 
 	// ---- Tuning knobs ----
@@ -244,6 +247,9 @@ export function recommendSimilar(
 			s0 *= 1.8;
 		}
 
+		// ABV agreement (same batch boosts; clearly different strength demotes hard)
+		if (pinAbv != null) s0 *= abvMultiplier(pinAbv, extractAbv(itNorm));
+
 		// Bad/invalid SKU boost — these will never auto-link, so we want them
 		// to surface more often in manual suggestions.
 		if (isBadSku(pinnedSku) || isBadSku(itSku)) s0 *= 1.15;
@@ -310,14 +316,19 @@ export function recommendSimilar(
 			s *= 1.8;
 		}
 
+		if (pinAbv != null) s *= abvMultiplier(pinAbv, extractAbv(itNorm));
+
 		if (isBadSku(pinnedSku) || isBadSku(itSku)) s *= 1.2;
 
 		fine.push({ it, s });
 	}
 
+	const withScores = !!(opts && opts.withScores);
 	fine.sort((a, b) => b.s - a.s);
-	const out = fine.slice(0, limit).map((x) => x.it);
-	if (out.length) return out;
+	if (fine.length) {
+		const top = fine.slice(0, limit);
+		return withScores ? top.map((x) => ({ it: x.it, score: x.s })) : top.map((x) => x.it);
+	}
 
 	// Fallback (unchanged)
 	const fallback = [];
@@ -341,7 +352,8 @@ export function recommendSimilar(
 	}
 
 	fallback.sort((a, b) => b.s - a.s);
-	return fallback.slice(0, limit).map((x) => x.it);
+	const fb = fallback.slice(0, limit);
+	return withScores ? fb.map((x) => ({ it: x.it, score: x.s })) : fb.map((x) => x.it);
 }
 
 export function computeInitialPairsFast(
@@ -361,6 +373,7 @@ export function computeInitialPairsFast(
 
 	// -------- temperature (0..1) --------
 	const TEMP = Math.max(0, Math.min(1, Number(opts?.temp ?? 0.22)));
+	const vocab = opts && opts.vocab ? opts.vocab : null;
 	const lerp = (a, b, t) => a + (b - a) * t;
 	const DETERMINISTIC = TEMP <= 0;
 
@@ -564,6 +577,8 @@ export function computeInitialPairsFast(
 
 		const aBrand = aFilt[0] || "";
 		const aAge = extractAgeFromText(aNorm);
+		const aAbv = vocab ? extractAbv(aNorm) : null;
+		const aTopTerm = vocab ? vocab.topTerm(a.name || "") : null;
 
 		// candidates from buckets
 		const cand = new Map();
@@ -596,14 +611,26 @@ export function computeInitialPairsFast(
 			const bBrand = bFilt[0] || "";
 			const firstMatch = aBrand && bBrand && aBrand === bBrand;
 
-			let s = fastSimilarityScore(aRaw, bRaw, aNorm, bNorm);
-			if (s <= 0) s = 0.01 + 0.25 * contain;
-
-			if (!firstMatch) {
-				const smallN = Math.min(aFilt.length || 0, bFilt.length || 0);
-				let mult = 0.12 + 0.9 * contain;
-				if (smallN <= 3 && contain < 0.78) mult *= 0.22;
-				s *= Math.min(1.0, mult);
+			let s;
+			if (vocab) {
+				const wo = vocab.weightedOverlap(a.name || "", b.name || "");
+				s = (BASE_FLOOR + contain) * Math.pow(1 + wo.score, WO_POW);
+				if (
+					aTopTerm &&
+					aTopTerm.idf >= DISTINCTIVE_IDF &&
+					vocab.termsForName(b.name || "").has(aTopTerm.term)
+				) {
+					s *= 1 + TOP_TERM_BONUS;
+				}
+			} else {
+				s = fastSimilarityScore(aRaw, bRaw, aNorm, bNorm);
+				if (s <= 0) s = 0.01 + 0.25 * contain;
+				if (!firstMatch) {
+					const smallN = Math.min(aFilt.length || 0, bFilt.length || 0);
+					let mult = 0.12 + 0.9 * contain;
+					if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+					s *= Math.min(1.0, mult);
+				}
 			}
 
 			if (typeof sizePenaltyFn === "function") s *= sizePenaltyFn(aSku, bSku);
@@ -613,7 +640,11 @@ export function computeInitialPairsFast(
 			if (aAge && bAge) {
 				if (aAge === bAge) s *= 1.5;
 				else s *= 0.22;
+			} else if (vocab && aAge && !bAge && bareAgeCandidates(bNorm).has(aAge)) {
+				s *= 1.5;
 			}
+
+			if (aAbv != null) s *= abvMultiplier(aAbv, extractAbv(bNorm));
 
 			if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.15;
 
@@ -629,15 +660,28 @@ export function computeInitialPairsFast(
 			const b = x.b;
 			const bSku = String(b.sku || "");
 
-			let s = similarityScore(a.name || "", b.name || "");
-			if (s <= 0) continue;
-
-			if (!x.firstMatch) {
-				const smallN = Math.min(aFilt.length || 0, (x.bFilt || []).length || 0);
-				let mult = 0.12 + 0.9 * x.contain;
-				if (smallN <= 3 && x.contain < 0.78) mult *= 0.22;
-				s *= Math.min(1.0, mult);
+			let s;
+			if (vocab) {
+				const wo = vocab.weightedOverlap(a.name || "", b.name || "");
+				s = (BASE_FLOOR + x.contain) * Math.pow(1 + wo.score, WO_POW);
 				if (s <= 0) continue;
+				if (
+					aTopTerm &&
+					aTopTerm.idf >= DISTINCTIVE_IDF &&
+					vocab.termsForName(b.name || "").has(aTopTerm.term)
+				) {
+					s *= 1 + TOP_TERM_BONUS;
+				}
+			} else {
+				s = similarityScore(a.name || "", b.name || "");
+				if (s <= 0) continue;
+				if (!x.firstMatch) {
+					const smallN = Math.min(aFilt.length || 0, (x.bFilt || []).length || 0);
+					let mult = 0.12 + 0.9 * x.contain;
+					if (smallN <= 3 && x.contain < 0.78) mult *= 0.22;
+					s *= Math.min(1.0, mult);
+					if (s <= 0) continue;
+				}
 			}
 
 			if (typeof sizePenaltyFn === "function") {
@@ -653,7 +697,11 @@ export function computeInitialPairsFast(
 			if (aAge && x.bAge) {
 				if (aAge === x.bAge) s *= 1.9;
 				else s *= 0.15;
+			} else if (vocab && aAge && !x.bAge && bareAgeCandidates(x.bNorm).has(aAge)) {
+				s *= 1.9;
 			}
+
+			if (aAbv != null) s *= abvMultiplier(aAbv, extractAbv(x.bNorm));
 
 			if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.2;
 
@@ -693,13 +741,9 @@ export function computeInitialPairsFast(
 		tryAddPair(a, picked.b, picked.s);
 	}
 
-	if (!DETERMINISTIC && out.length > smwsCount) {
-		// Keep SMWS pairs pinned at the top; only shuffle the non-SMWS tail.
-		const tail = out.slice(smwsCount);
-		shuffleInPlace(tail, rnd);
-		out.length = smwsCount;
-		for (const p of tail) out.push(p);
-	}
+	// Strongest suggestions first so the user works strong → weak. SMWS pairs
+	// carry score ~1e9 so they stay pinned at the head naturally.
+	out.sort((x, y) => (y.score || 0) - (x.score || 0));
 	return out.slice(0, limitPairs);
 }
 

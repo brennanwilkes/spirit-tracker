@@ -131,14 +131,36 @@ Items from different stores representing the same product are grouped under one 
 
 `buildVocab(allAgg)` builds a term vocabulary (filtered unigrams + **unordered**
 adjacent bigrams, with possessive repair so `Macaloney's` → `macaloneys`) over the whole
-catalog, weighting each term by `idf = ln((N+1)/(df+1))`. A term's match-strength is how
+catalog, weighting each term by `idf = ln((N+1)/(df+1))`. **Number handling:** 1–2 digit
+numbers, decimals (`46`, `8`, `46.8` — ABV/age/proof noise) and glued age tokens
+(`10yr`/`10yo`/`12year`) are dropped from the vocabulary — age is matched only via the
+dedicated path (`extractAgeFromText` unifies `10 year`/`10yr`/`10yo`/`10-year-old`; equal
+age boosts, different age penalizes ×0.15–0.22), so format differences don't fragment the
+match. 3+ digit numbers are KEPT because they are meaningful edition/year identifiers
+(`1884` vs `1856`, `1952`, `100 Proof`). A term's match-strength is how
 *distinctive* it is: a distillery/expression name like `loy` is rare (high idf), filler
 like `reserve`/`cask` is everywhere (~0 idf, mostly stop-listed). Two listings sharing a
 high-idf term — in any position — is strong evidence of a match. This fixes the old
 ranker's failure modes: same-distillery-different-expression noise (e.g. all "Macaloneys"
 expressions scored equally) and word-order brittleness ("Seagrass 16" vs "16 Seagrass").
 
-`recommendSimilar(...)` takes an **optional trailing** `opts = { vocab, allowSameStore }`.
+`weightedOverlap(a, b)` is a **directional** IDF overlap (not symmetric Jaccard): `a` is
+the item matched FROM. Numerator = shared term idf mass; denominator adds target terms the
+candidate is *missing* at full weight (recall — Gold lacking `gray` still loses) but the
+candidate's *extra* terms at only `EXTRA_TERM_WEIGHT` (=0.4) (precision — embellishments
+like "Island Distillery" don't crush a true match). A missing/extra **bigram whose both
+component unigrams are present anyway** is counted at `BIGRAM_REDUNDANT_WEIGHT` (=0.2) — the
+words exist, just non-adjacent ("Macaloneys … An Loy" vs "Macaloneys An Loy") — without
+weakening real collocations (a *shared* unordered bigram still boosts; "Highland Park" vs
+"Mr Park" lacks `highland` so its bigram keeps full weight). ABV is graded
+(`abvMultiplier`: ≤0.6 apart ×1.15, ≤1.5 neutral for rounding, ≤3 ×0.4, else ×0.12 — so
+different cask-strength batches like 58.1 vs 53.9 are a strong non-match). Size uses
+equivalence buckets (`size.js`: 700≡750, 350≡375, with 1.14L/1.75L converted to mL) — same
+bucket ×1.0, different format ×0.08. When **exactly one** side states a size,
+`sizePenaltyForPair` infers the other from the cheapest-price ratio (a sizeless listing
+priced ~2× a 375 is probably a 700): ratio ≤1.4 ×1.0, ≥1.6 ×0.3, else ×0.7.
+
+`recommendSimilar(...)` takes an **optional trailing** `opts = { vocab, allowSameStore, withScores }`.
 All vocab logic is guarded by `if (vocab)` so the no-opts path is byte-for-byte the legacy
 behavior. When `vocab` is present the candidate score is
 `(BASE_FLOOR + tokenContainmentScore) * (1 + weightedOverlap)^WO_POW`, with a top-term
@@ -154,10 +176,19 @@ vocab-boosted (only `recommendSimilar`). Constants live in `vocab.js`
 
 ### Rapid linker (`#/link-rapid`, `linker_rapid_page.js`)
 
-Keyboard-driven anchor-a-store tool for clearing the unlinked backlog. Pick a store, walk
-its unlinked items one at a time, accept/reject the top suggestion with one key
-(`Y`/Enter link, `N`/`→` skip, `X` ignore, `1–9` pick, `↑/↓` move, `U` undo, `/` search,
-`F` flush). Reuses the same catalog/penalty/canonical helpers and `recommendSimilar`.
+Keyboard-driven anchor-a-store tool for clearing the unlinked backlog. Pick a store; walk
+its unlinked items **strongest-matchable first** (worklist ordered by the idf of each
+item's most-distinctive term). For each anchor, candidates from `recommendSimilar`
+(`withScores: true`) are split by an **adaptive cutoff** — `max(STRONG_ABS=1.0,
+STRONG_REL=0.5 × topScore)` — into "Suggestions" (count flexes with quality) and "Other
+options", each with a confidence bar + score. **One anchor can link to multiple items**:
+toggle-accept candidates then commit. Keys: `Y`/`Space` toggle-accept highlighted (moves
+down), `1–9`/click toggle a candidate, `↑/↓` move, `Enter`/`→` link all accepted &
+advance (none accepted = skip), `X` ignore highlighted pair, `/` search, `U` undo, `F`
+flush. Reuses the same catalog/penalty/canonical helpers and `recommendSimilar`. Visible
+Undo/Flush/Clear buttons, a staged/saved/skipped counter bar, and a collapsible
+instructions panel. (`computeInitialPairsFast` and `recommendSimilar` output are now
+ordered strongest-first too, so `#/link` works strong → weak.)
 - **No per-link reload** (the `#/link` page calls `location.reload()` after each link). A
   session union-find overlay (`findRep`/`unionLocal`, seeded from `rules.canonicalSku`)
   keeps just-linked pairs out of suggestions without re-fetching the 12 MB index.
