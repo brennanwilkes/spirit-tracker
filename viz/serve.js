@@ -50,15 +50,14 @@ function readMeta() {
 		const links = obj && Array.isArray(obj.links) ? obj.links : [];
 		const ignores = obj && Array.isArray(obj.ignores) ? obj.ignores : [];
 
-		return { generatedAt: obj?.generatedAt || new Date().toISOString(), links, ignores };
+		return { links, ignores };
 	} catch {}
-	return { generatedAt: new Date().toISOString(), links: [], ignores: [] };
+	return { links: [], ignores: [] };
 }
 
 function writeMeta(obj) {
-	obj.generatedAt = new Date().toISOString();
 	fs.mkdirSync(path.dirname(LINKS_FILE), { recursive: true });
-	fs.writeFileSync(LINKS_FILE, JSON.stringify(obj, null, 2) + "\n", "utf8");
+	fs.writeFileSync(LINKS_FILE, JSON.stringify({ links: obj.links, ignores: obj.ignores }) + "\n", "utf8");
 }
 
 function readHidden() {
@@ -110,7 +109,7 @@ const server = http.createServer((req, res) => {
 					if (!fromSku || !toSku) return sendJson(res, 400, { ok: false, error: "fromSku/toSku required" });
 
 					const obj = readMeta();
-					obj.links.push({ fromSku, toSku, createdAt: new Date().toISOString() });
+					obj.links.push({ fromSku, toSku });
 					writeMeta(obj);
 
 					return sendJson(res, 200, { ok: true, count: obj.links.length, file: "data/sku_links.json" });
@@ -150,7 +149,7 @@ const server = http.createServer((req, res) => {
 					if (skuA === skuB) return sendJson(res, 400, { ok: false, error: "skuA and skuB must differ" });
 
 					const obj = readMeta();
-					obj.ignores.push({ skuA, skuB, createdAt: new Date().toISOString() });
+					obj.ignores.push({ skuA, skuB });
 					writeMeta(obj);
 
 					return sendJson(res, 200, { ok: true, count: obj.ignores.length, file: "data/sku_links.json" });

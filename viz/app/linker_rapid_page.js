@@ -550,7 +550,7 @@ export async function renderSkuLinkerRapid($app) {
 			? `<span class="rapidAcc">${o.accepted ? "✓ linked" : "press to link"}</span>`
 			: "";
 		const ignoreBtn = o.candidate
-			? `<button class="rapidIgnoreBtn" title="Mark as 'do not suggest' (false positive)" data-sku="${esc(String(it.sku))}">✕ ignore</button>`
+			? `<button class="rapidIgnoreBtn" title="Mark as 'do not suggest' (false positive) — shortcut: N" data-sku="${esc(String(it.sku))}">✕ ignore</button>`
 			: "";
 
 		return `
@@ -737,7 +737,7 @@ export async function renderSkuLinkerRapid($app) {
 
 		<div id="rapidStatus" class="small" style="margin-top:8px; min-height:1.2em;"></div>
 		<div class="small rapidHelp">
-			<b>← →</b> previous / next item · <b>↑ ↓</b> highlight · <b>Space</b> toggle link
+			<b>← →</b> previous / next item · <b>↑ ↓</b> highlight · <b>Space</b> toggle link · <b>N</b> ignore
 		</div>
 	</div>`;
 
@@ -800,6 +800,11 @@ export async function renderSkuLinkerRapid($app) {
 		if (e.key === " " || e.code === "Space") {
 			e.preventDefault();
 			if (candidates[highlight]) togglePairStaged(highlight);
+		} else if (e.key === "n" || e.key === "N") {
+			e.preventDefault();
+			const anchor = currentAnchor();
+			const cand = candidates[highlight];
+			if (anchor && cand) stageIgnorePair(String(anchor.sku), String(cand.it.sku));
 		} else if (e.key === "ArrowDown") {
 			e.preventDefault();
 			highlight = Math.min(candidates.length - 1, highlight + 1);

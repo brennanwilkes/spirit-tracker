@@ -206,7 +206,7 @@ const filePath = path.join("data", "sku_links.json");
 
 if (!fs.existsSync(filePath)) {
 	fs.mkdirSync(path.dirname(filePath), { recursive: true });
-	fs.writeFileSync(filePath, JSON.stringify({ generatedAt: "", links: [], ignores: [] }, null, 2) + "\n");
+	fs.writeFileSync(filePath, JSON.stringify({ links: [], ignores: [] }) + "\n");
 }
 
 const beforeObj = JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -228,7 +228,7 @@ for (const i of ignoresIn) {
 	}
 }
 
-fs.writeFileSync(filePath, JSON.stringify(afterObj, null, 2) + "\n");
+fs.writeFileSync(filePath, JSON.stringify({ links: afterObj.links, ignores: afterObj.ignores }) + "\n");
 
 /* ---------------- Build visualization ---------------- */
 
