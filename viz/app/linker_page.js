@@ -39,6 +39,7 @@ import {
 	recommendSimilar,
 	computeInitialPairsFast,
 } from "./linker_page/suggestions.js";
+import { isStrong } from "./linker_page/strong_threshold.js";
 
 /* ---------------- Page ---------------- */
 
@@ -288,7 +289,7 @@ export async function renderSkuLinker($app) {
 	// if page was opened with #/link/?left=... (or sku=...), reload after LINK completes
 	let shouldReloadAfterLink = false;
 
-	function renderCard(it, pinned) {
+	function renderCard(it, pinned, opts) {
 		const storeCount = it.stores.size || 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
@@ -304,11 +305,18 @@ export async function renderSkuLinker($app) {
 			: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`;
 
 		const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
+		const score = opts && Number.isFinite(opts.score) ? opts.score : null;
+		const strong = !!(opts && opts.strong);
+		const scoreHtml =
+			score != null
+				? `<span class="badge mono simScore" title="similarity score">${score.toFixed(1)}</span>`
+				: ``;
 
 		return `
-      <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
+      <div class="item ${pinned ? "pinnedItem" : ""} ${strong ? "strongSuggestion" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemTitle">
           <div class="itemName">${esc(it.name || "(no name)")}</div>
+          ${scoreHtml}
           <span class="badge mono">${esc(displaySku(it.sku))}</span>
         </div>
         <div class="itemRow">
@@ -347,12 +355,12 @@ export async function renderSkuLinker($app) {
 				out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
 			}
 
-			return out.slice(0, 80);
+			return out.slice(0, 80).map((it) => ({ it, score: null }));
 		}
 
 		// auto-suggestions: never include mapped skus
-		if (otherPinned)
-			return recommendSimilar(
+		if (otherPinned) {
+			const scored = recommendSimilar(
 				allAgg,
 				otherPinned,
 				60,
@@ -363,21 +371,26 @@ export async function renderSkuLinker($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroup,
-				{ vocab: simVocab, allowSameStore: true },
+				{ vocab: simVocab, allowSameStore: true, withScores: true },
 			);
+			return scored.map((x) => (x && x.it ? { it: x.it, score: x.score || 0 } : { it: x, score: null }));
+		}
 
 		const pairs = getInitialPairsIfNeeded();
 		if (pairs && pairs.length) {
-			const list = side === "L" ? pairs.map((p) => p.a) : pairs.map((p) => p.b);
+			const list =
+				side === "L"
+					? pairs.map((p) => ({ it: p.a, score: p.score || 0 }))
+					: pairs.map((p) => ({ it: p.b, score: p.score || 0 }));
 			return list.filter(
-				(it) =>
+				({ it }) =>
 					it &&
 					it.sku !== otherSku &&
 					(!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || "")),
 			);
 		}
 
-		return topSuggestions(allAgg, 60, otherSku, mappedSkus);
+		return topSuggestions(allAgg, 60, otherSku, mappedSkus).map((it) => ({ it, score: null }));
 	}
 
 	function attachHandlers($root, side) {
@@ -437,9 +450,19 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		const items = sideItems(side, query, other);
-		$list.innerHTML = items.length
-			? items.map((it) => renderCard(it, false)).join("")
+		const entries = sideItems(side, query, other);
+		const scores = entries.map((e) => (Number.isFinite(e.score) ? e.score : null));
+		const topScore = scores.reduce((m, s) => (s != null && s > m ? s : m), 0);
+		const shouldStrong = !!other;
+		$list.innerHTML = entries.length
+			? entries
+					.map(({ it, score }) =>
+						renderCard(it, false, {
+							score: score,
+							strong: shouldStrong && score != null && isStrong(score, topScore),
+						}),
+					)
+					.join("")
 			: `<div class="small">No matches.</div>`;
 		attachHandlers($list, side);
 	}

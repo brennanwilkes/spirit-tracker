@@ -17,3 +17,18 @@
 
 html[data-theme="light"] .pinnedItem { outline-color: #3d7fa8; border-color: #3d7fa8; }
 html[data-theme="dark"] .pinnedItem { outline-color: #37566b; border-color: #37566b; }
+
+.simScore {
+  background: #1a2530;
+  color: #9ad0ec;
+  margin-right: 4px;
+}
+html[data-theme="light"] .simScore { background: #e7f1f8; color: #1f5b85; }
+
+.strongSuggestion {
+  outline: 2px solid #2f7a3a;
+  border-color: #2f7a3a;
+  box-shadow: 0 0 0 1px rgba(70, 180, 90, 0.18) inset;
+}
+html[data-theme="light"] .strongSuggestion { outline-color: #2d8a3e; border-color: #2d8a3e; }
+html[data-theme="dark"] .strongSuggestion { outline-color: #2f7a3a; border-color: #2f7a3a; }

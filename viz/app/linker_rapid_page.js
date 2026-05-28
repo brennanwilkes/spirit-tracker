@@ -29,13 +29,12 @@ import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
 import { recommendSimilar } from "./linker_page/suggestions.js";
 import { buildVocab } from "./linker_page/vocab.js";
+import { STRONG_ABS, STRONG_REL } from "./linker_page/strong_threshold.js";
 
 const QUEUE_KEY = "stviz:linker_rapid_queue_v1";
 const STORE_KEY = "stviz:linker_rapid_store_v1";
 const AUTO_FLUSH_EVERY = 10;
 const RECOMMEND_LIMIT = 14;
-const STRONG_ABS = 1.5; // absolute score floor to count as a strong "Suggestion"
-const STRONG_REL = 0.15; // …and at least this fraction of the top score
 const MAX_SUGGEST = 6;
 const MAX_OTHER = 10;
 
@@ -177,14 +176,12 @@ export async function renderSkuLinkerRapid($app) {
 	const storeOptions = [...storeCounts.entries()].sort((a, b) => b[1] - a[1]);
 	if (!storeLabel || !storeCounts.has(storeLabel)) storeLabel = storeOptions[0] ? storeOptions[0][0] : "";
 
-	// Cheap "likely has a strong match" signal: rarity (idf) of the item's most
-	// distinctive term. Items whose top term is rare (a unique distillery /
-	// expression) tend to have clear, strong matches → surface them first.
-	function anchorStrength(it) {
-		const t = simVocab.topTerm(it.name || "");
-		return t ? t.idf : 0;
-	}
-
+	// Cheap proxy for "does this item likely have a strong cross-store match?":
+	// for each unlinked anchor in the worklist, peek at items in OTHER stores
+	// that share any of the anchor's distinctive unigrams, score each candidate
+	// with simVocab.weightedOverlap (the lightweight part of the full ranker)
+	// and use the best as the anchor's sort key. Items with no cross-store
+	// sharer of any distinctive term get 0 — they sink to the tail.
 	function buildWorklist() {
 		const out = [];
 		for (const it of allAgg) {
@@ -192,8 +189,51 @@ export async function renderSkuLinkerRapid($app) {
 			if (isLinked(it.sku)) continue;
 			out.push(it);
 		}
+
+		// One-shot term → cross-store-items index. Skip items at the anchor store
+		// itself (they can't be candidates) and items already linked.
+		const termIndex = new Map();
+		for (const it of allAgg) {
+			if (!it || isLinked(it.sku)) continue;
+			if (it.stores && it.stores.has(storeLabel) && it.stores.size <= 1) continue;
+			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
+			if (!terms || !terms.size) continue;
+			for (const t of terms) {
+				let arr = termIndex.get(t);
+				if (!arr) termIndex.set(t, (arr = []));
+				arr.push(it);
+			}
+		}
+
+		const PROXY_K = 5;
+		const proxyScore = new Map();
+		for (const it of out) {
+			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
+			if (!terms || !terms.size) {
+				proxyScore.set(it, 0);
+				continue;
+			}
+			const seen = new Set();
+			let best = 0;
+			let visited = 0;
+			outer: for (const t of terms) {
+				const bucket = termIndex.get(t);
+				if (!bucket) continue;
+				for (const cand of bucket) {
+					if (cand === it) continue;
+					const csku = String(cand.sku || "");
+					if (seen.has(csku)) continue;
+					seen.add(csku);
+					const s = simVocab.weightedOverlap(it.name || "", cand.name || "").score;
+					if (s > best) best = s;
+					if (++visited >= PROXY_K) break outer;
+				}
+			}
+			proxyScore.set(it, best);
+		}
+
 		out.sort((a, b) => {
-			const ds = anchorStrength(b) - anchorStrength(a);
+			const ds = (proxyScore.get(b) || 0) - (proxyScore.get(a) || 0);
 			if (Math.abs(ds) > 1e-9) return ds;
 			const ea = (a.stores ? a.stores.size : 99) - (b.stores ? b.stores.size : 99);
 			if (ea) return ea;
@@ -206,7 +246,15 @@ export async function renderSkuLinkerRapid($app) {
 	let workIdx = 0;
 	let candidates = []; // [{ it, score, shared, sameStore }]
 	let highlight = 0;
-	const accepted = new Set(); // candidate skus accepted for the CURRENT anchor
+
+	// Per-pair staged-op references so Space can toggle a single (anchor,candidate)
+	// link in/out of the staged queue. Key: `${anchorSku}|${candSku}` → array of op
+	// objects pushed into `staged` (matched by reference for removal).
+	const pairOps = new Map();
+	const pairKey = (a, b) => `${String(a)}|${String(b)}`;
+	function isPairStaged(anchorSku, candSku) {
+		return pairOps.has(pairKey(anchorSku, candSku));
+	}
 
 	function skipLinkedForward() {
 		while (workIdx < worklist.length && isLinked(worklist[workIdx].sku)) workIdx++;
@@ -259,26 +307,33 @@ export async function renderSkuLinkerRapid($app) {
 
 	/* ---------------- actions ---------------- */
 
-	function stageOps(ops, kind, anchorSku) {
-		for (const op of ops) staged.push(op);
-		decisions.push({ kind, anchorSku: String(anchorSku || ""), opCount: ops.length });
-		persistQueue();
-		actionsSinceFlush += 1;
-		if (actionsSinceFlush >= AUTO_FLUSH_EVERY) flush();
-	}
-
-	function commitAndAdvance() {
+	function togglePairStaged(candIdx) {
 		const anchor = currentAnchor();
-		if (!anchor) return;
-		const accs = candidates.filter((c) => accepted.has(String(c.it.sku)));
-		if (!accs.length) {
-			skippedCount += 1;
-			decisions.push({ kind: "skip", anchorSku: String(anchor.sku), opCount: 0 });
-			advance();
+		const cand = candidates[candIdx];
+		if (!anchor || !cand) return;
+		const a = String(anchor.sku);
+		const b = String(cand.it.sku);
+		if (!a || !b || a === b) return;
+
+		const key = pairKey(a, b);
+		const existing = pairOps.get(key);
+		if (existing) {
+			// Unstage: remove these op refs from `staged` (matched by reference).
+			for (const op of existing) {
+				const i = staged.indexOf(op);
+				if (i >= 0) staged.splice(i, 1);
+			}
+			pairOps.delete(key);
+			decisions.push({ kind: "unlink", anchorSku: a, candSku: b, ops: existing });
+			persistQueue();
+			rebuildSession();
+			setStatus(`Unstaged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
+			render();
 			return;
 		}
-		const a = String(anchor.sku);
-		const skus = [a, ...accs.map((c) => String(c.it.sku))];
+
+		// Stage: build the canonical link ops for this single (anchor, candidate) pair.
+		const skus = [a, b];
 		const canons = skus.map(baseCanon);
 		const preferred = pickPreferredCanonical(allRows, [...skus, ...canons]);
 		if (!preferred) {
@@ -290,39 +345,24 @@ export async function renderSkuLinkerRapid($app) {
 		for (const f of [...canons, ...skus]) {
 			const from = String(f || "");
 			if (!from || from === preferred) continue;
-			const key = `${from}→${preferred}`;
-			if (seen.has(key)) continue;
-			seen.add(key);
+			const k = `${from}→${preferred}`;
+			if (seen.has(k)) continue;
+			seen.add(k);
 			ops.push({ type: "link", fromSku: from, toSku: preferred });
 		}
-		if (ops.length) {
-			stageOps(ops, "link", a);
-			for (const s of skus) unionLocal(s, preferred);
-			for (const s of [...skus, ...canons]) linkedThisSession.add(s);
-			setStatus(`Linked ${accs.length} match(es) to "${anchor.name || a}".`);
+		if (!ops.length) {
+			setStatus("Nothing to link (already canonical).");
+			return;
 		}
-		advance();
-	}
-
-	function doIgnore() {
-		const anchor = currentAnchor();
-		const cand = candidates[highlight];
-		if (!anchor || !cand) return;
-		const a = String(anchor.sku);
-		const b = String(cand.it.sku);
-		if (!a || !b || a === b) return;
-		accepted.delete(b);
-		stageOps([{ type: "ignore", skuA: a, skuB: b }], "ignore", a);
-		const k = rules.canonicalPairKey(a, b);
-		if (k) ignoredLocal.add(k);
-		render(); // candidate drops out of suggestions; stay on anchor
-	}
-
-	function advance() {
-		accepted.clear();
-		highlight = 0;
-		workIdx++;
-		skipLinkedForward();
+		for (const op of ops) staged.push(op);
+		pairOps.set(key, ops);
+		decisions.push({ kind: "link", anchorSku: a, candSku: b, ops });
+		for (const s of skus) unionLocal(s, preferred);
+		for (const s of [...skus, ...canons]) linkedThisSession.add(s);
+		persistQueue();
+		actionsSinceFlush += 1;
+		setStatus(`Staged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
+		if (actionsSinceFlush >= AUTO_FLUSH_EVERY) flush();
 		render();
 	}
 
@@ -332,14 +372,20 @@ export async function renderSkuLinkerRapid($app) {
 			setStatus("Nothing to undo.");
 			return;
 		}
-		if (d.opCount > 0) staged.splice(staged.length - d.opCount, d.opCount);
-		else if (d.kind === "skip") skippedCount = Math.max(0, skippedCount - 1);
+		if (d.kind === "link" && Array.isArray(d.ops)) {
+			for (const op of d.ops) {
+				const i = staged.indexOf(op);
+				if (i >= 0) staged.splice(i, 1);
+			}
+			pairOps.delete(pairKey(d.anchorSku, d.candSku));
+		} else if (d.kind === "unlink" && Array.isArray(d.ops)) {
+			for (const op of d.ops) staged.push(op);
+			pairOps.set(pairKey(d.anchorSku, d.candSku), d.ops);
+		}
 		persistQueue();
 		rebuildSession();
 		const targetIdx = worklist.findIndex((it) => String(it.sku) === d.anchorSku);
 		if (targetIdx >= 0) workIdx = targetIdx;
-		else if (d.kind !== "ignore") workIdx = Math.max(0, workIdx - 1);
-		accepted.clear();
 		highlight = 0;
 		render();
 	}
@@ -353,6 +399,7 @@ export async function renderSkuLinkerRapid($app) {
 			return;
 		staged.length = 0;
 		decisions.length = 0;
+		pairOps.clear();
 		actionsSinceFlush = 0;
 		persistQueue();
 		rebuildSession();
@@ -498,12 +545,13 @@ export async function renderSkuLinkerRapid($app) {
 		});
 		const otherCapped = other.slice(0, MAX_OTHER);
 
+		const anchorSkuStr = anchor ? String(anchor.sku) : "";
 		const renderRow = (c) =>
 			cardHtml(c.it, {
 				num: c.idx + 1,
 				candidate: true,
 				highlight: c.idx === highlight,
-				accepted: accepted.has(String(c.it.sku)),
+				accepted: isPairStaged(anchorSkuStr, String(c.it.sku)),
 				score: c.score,
 				pct: topScore > 0 ? c.score / topScore : 0,
 				shared: c.shared,
@@ -512,7 +560,7 @@ export async function renderSkuLinkerRapid($app) {
 
 		const anchorHtml = anchor
 			? cardHtml(anchor, { anchor: true })
-			: `<div class="rapidDone">✓ No more unlinked items for this store. Pick another store, or Flush.</div>`;
+			: `<div class="rapidDone">✓ No more unlinked items for this store. Pick another store, or Save.</div>`;
 
 		let candHtml = "";
 		if (anchor) {
@@ -534,24 +582,18 @@ export async function renderSkuLinkerRapid($app) {
 
 		const $anchor = document.getElementById("rapidAnchorCol");
 		const $cands = document.getElementById("rapidCandCol");
-		const accN = anchor ? candidates.filter((c) => accepted.has(String(c.it.sku))).length : 0;
+		const accN = anchor
+			? candidates.filter((c) => isPairStaged(anchorSkuStr, String(c.it.sku))).length
+			: 0;
 		if ($anchor)
 			$anchor.innerHTML = `<div class="small rapidColLabel">Matching — ${esc(storeLabel)}</div>${anchorHtml}${
 				anchor
-					? `<div class="rapidCommit small">${accN} accepted · <b>Enter</b> to link &amp; next</div>`
+					? `<div class="rapidCommit small">${accN} staged for this item</div>`
 					: ""
 			}`;
 		if ($cands) $cands.innerHTML = candHtml;
 		renderHeader();
 		wireCardClicks();
-	}
-
-	function toggleAccept(i) {
-		const c = candidates[i];
-		if (!c) return;
-		const sku = String(c.it.sku);
-		if (accepted.has(sku)) accepted.delete(sku);
-		else accepted.add(sku);
 	}
 
 	function wireCardClicks() {
@@ -564,8 +606,7 @@ export async function renderSkuLinkerRapid($app) {
 				const i = candidates.findIndex((c) => String(c.it.sku) === sku);
 				if (i < 0) return;
 				highlight = i;
-				toggleAccept(i);
-				render();
+				togglePairStaged(i);
 			});
 		});
 	}
@@ -589,7 +630,7 @@ export async function renderSkuLinkerRapid($app) {
 			<span id="rapidProgress" class="badge mono"></span>
 			<div style="flex:1"></div>
 			<button id="rapidUndo" class="btn" style="padding:6px 10px;">↩ Undo</button>
-			<button id="rapidFlush" class="btn" style="padding:6px 10px;">Flush</button>
+			<button id="rapidFlush" class="btn" style="padding:6px 10px;">Save</button>
 			<button id="rapidClear" class="btn" style="padding:6px 10px;">Clear</button>
 			<a class="btn" href="#/link" style="padding:6px 10px;">Manual</a>
 		</div>
@@ -601,7 +642,7 @@ export async function renderSkuLinkerRapid($app) {
 			<span class="rapidDot">·</span>
 			<span><b id="rapidSkipped">0</b> skipped</span>
 			<span class="rapidDot">·</span>
-			<span class="small">${localWrite ? "Local write → Flush writes data/sku_links.json" : "Pages → Flush stages a PR"}</span>
+			<span class="small">${localWrite ? "Local write → Save writes data/sku_links.json" : "Pages → Save stages a PR"}</span>
 		</div>
 
 		${
@@ -609,23 +650,6 @@ export async function renderSkuLinkerRapid($app) {
 				? `<div class="card rapidRecover" style="padding:10px;">${recovered} unflushed change(s) recovered from a previous session. <button id="rapidRecoverFlush" class="btn" style="padding:4px 10px;">Flush now</button> <button id="rapidRecoverDiscard" class="btn" style="padding:4px 10px;">Discard</button></div>`
 				: ""
 		}
-
-		<details class="card rapidInstr">
-			<summary>How the rapid linker works (click to expand)</summary>
-			<div class="rapidInstrBody">
-				<p>Pick a store above; you walk its <b>unlinked</b> items one at a time, <b>strongest-matchable first</b>. The current item is shown at the top ("Matching"). Below it, the best cross-store matches are split into <b>Suggestions</b> (strong — the count varies with how good the matches are) and <b>Other options</b> (weaker). Each shows a <b>strength</b> bar + score and the <b>distinctive terms</b> that drove the match (e.g. distillery/expression). Same-store duplicates are flagged.</p>
-				<p>One item can match <b>several</b> listings — accept all that apply, then commit:</p>
-				<ul>
-					<li><b>Y</b> / <b>Space</b> — toggle the highlighted candidate as a match (moves down)</li>
-					<li><b>1–9</b> — toggle that candidate · click a card — toggle it</li>
-					<li><b>↑ / ↓</b> — move highlight</li>
-					<li><b>Enter</b> / <b>→</b> — link <i>all accepted</i> to this item &amp; go to next (with none accepted = skip)</li>
-					<li><b>X</b> — mark the highlighted pair "do not suggest" (stays on item)</li>
-					<li><b>/</b> — search to find a match manually · <b>U</b> — undo · <b>F</b> — flush</li>
-				</ul>
-				<p><b>Caching &amp; safety:</b> every action is <b>staged</b> in memory and mirrored to your browser immediately, so a crash/reload won't lose it. Staged changes are written to disk in a batch — automatically every ${AUTO_FLUSH_EVERY} actions, on <b>Flush</b>, or when you leave. The counters above show <b>staged (unsaved)</b>, <b>saved this session</b>, and <b>skipped</b>. <b>Undo</b> reverts the last action (within the current unflushed batch). <b>Clear</b> discards all currently-staged unsaved changes — it cannot remove changes already flushed to disk.</p>
-			</div>
-		</details>
 
 		<div class="card" style="padding:10px; margin-bottom:10px;">
 			<input id="rapidSearch" class="input" placeholder="/ to search a match by name / sku…" autocomplete="off" />
@@ -638,7 +662,7 @@ export async function renderSkuLinkerRapid($app) {
 
 		<div id="rapidStatus" class="small" style="margin-top:8px; min-height:1.2em;"></div>
 		<div class="small rapidHelp">
-			<b>Y</b>/<b>Space</b> accept · <b>1–9</b> toggle · <b>↑/↓</b> move · <b>Enter</b>/<b>→</b> link accepted &amp; next · <b>X</b> ignore · <b>/</b> search · <b>U</b> undo · <b>F</b> flush
+			<b>← →</b> previous / next item · <b>↑ ↓</b> highlight · <b>Space</b> toggle link
 		</div>
 	</div>`;
 
@@ -659,12 +683,6 @@ export async function renderSkuLinkerRapid($app) {
 			$search.blur();
 			highlight = 0;
 			render();
-		} else if (e.key === "Enter") {
-			e.preventDefault();
-			if (candidates[highlight]) {
-				toggleAccept(highlight);
-				render();
-			}
 		}
 		e.stopPropagation();
 	});
@@ -678,7 +696,6 @@ export async function renderSkuLinkerRapid($app) {
 		workIdx = 0;
 		skipLinkedForward();
 		highlight = 0;
-		accepted.clear();
 		if ($search) $search.value = "";
 		render();
 	});
@@ -705,29 +722,9 @@ export async function renderSkuLinkerRapid($app) {
 			return;
 		}
 		if (e.target === $search) return; // search box handles its own keys
-		const k = e.key.toLowerCase();
-		if (k === "y" || e.key === " " || e.code === "Space") {
+		if (e.key === " " || e.code === "Space") {
 			e.preventDefault();
-			if (candidates[highlight]) {
-				toggleAccept(highlight);
-				highlight = Math.min(candidates.length - 1, highlight + 1);
-				render();
-			}
-		} else if (e.key === "Enter" || e.key === "ArrowRight") {
-			e.preventDefault();
-			commitAndAdvance();
-		} else if (k === "x") {
-			e.preventDefault();
-			doIgnore();
-		} else if (k === "u") {
-			e.preventDefault();
-			undo();
-		} else if (k === "f") {
-			e.preventDefault();
-			flush();
-		} else if (e.key === "/") {
-			e.preventDefault();
-			$search.focus();
+			if (candidates[highlight]) togglePairStaged(highlight);
 		} else if (e.key === "ArrowDown") {
 			e.preventDefault();
 			highlight = Math.min(candidates.length - 1, highlight + 1);
@@ -736,11 +733,19 @@ export async function renderSkuLinkerRapid($app) {
 			e.preventDefault();
 			highlight = Math.max(0, highlight - 1);
 			render();
-		} else if (/^[1-9]$/.test(e.key)) {
-			const n = parseInt(e.key, 10) - 1;
-			if (n < candidates.length) {
-				highlight = n;
-				toggleAccept(n);
+		} else if (e.key === "ArrowRight") {
+			e.preventDefault();
+			if (workIdx < worklist.length - 1) {
+				workIdx++;
+				skipLinkedForward();
+				highlight = 0;
+				render();
+			}
+		} else if (e.key === "ArrowLeft") {
+			e.preventDefault();
+			if (workIdx > 0) {
+				workIdx = Math.max(0, workIdx - 1);
+				highlight = 0;
 				render();
 			}
 		}
