@@ -174,45 +174,104 @@ export async function renderSkuLinkerRapid($app) {
 	const storeOptions = [...storeCounts.entries()].sort((a, b) => b[1] - a[1]);
 	if (!storeLabel || !storeCounts.has(storeLabel)) storeLabel = storeOptions[0] ? storeOptions[0][0] : "";
 
-	// Sort the worklist by each anchor's best-candidate score using the FULL
-	// recommendSimilar pipeline. Only items in the selected store are scored,
-	// so the cost is O(storeSize × catalog) — a few hundred ms even for the
-	// larger stores. Re-runs on every store change.
+	// Two-pass sort:
+	//   1) Fast pre-pass — term-index proxy (weightedOverlap against up to PROXY_K
+	//      cross-store candidates that share a distinctive unigram). O(storeSize × K).
+	//   2) Refine top REFINE_TOP_K by fast-score with the FULL recommendSimilar
+	//      pipeline (includes size/price/abv/age penalties + top-term bonus).
+	//   The top-K stay in their refined order; the long tail keeps fast-score order.
+	const REFINE_TOP_K = 40;
+	const PROXY_K = 6;
+
+	function buildTermIndex() {
+		const termIndex = new Map();
+		for (const it of allAgg) {
+			if (!it || isLinked(it.sku)) continue;
+			if (it.stores && it.stores.has(storeLabel) && it.stores.size <= 1) continue;
+			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
+			if (!terms || !terms.size) continue;
+			for (const t of terms) {
+				let arr = termIndex.get(t);
+				if (!arr) termIndex.set(t, (arr = []));
+				arr.push(it);
+			}
+		}
+		return termIndex;
+	}
+
+	function fastScore(it, termIndex) {
+		const terms = simVocab.distinctiveUnigramsForName(it.name || "");
+		if (!terms || !terms.size) return 0;
+		const seen = new Set();
+		let best = 0;
+		let visited = 0;
+		outer: for (const t of terms) {
+			const bucket = termIndex.get(t);
+			if (!bucket) continue;
+			for (const cand of bucket) {
+				if (cand === it) continue;
+				const csku = String(cand.sku || "");
+				if (seen.has(csku)) continue;
+				seen.add(csku);
+				const s = simVocab.weightedOverlap(it.name || "", cand.name || "").score;
+				if (s > best) best = s;
+				if (++visited >= PROXY_K) break outer;
+			}
+		}
+		return best;
+	}
+
+	function refinedScore(it) {
+		const scored = recommendSimilar(
+			allAgg,
+			it,
+			1,
+			String(it.sku),
+			mappedSkus,
+			isIgnoredPairLocal,
+			sizePenaltyForPair,
+			pricePenaltyForPair,
+			sameStoreCanon,
+			sameGroupLocal,
+			{ vocab: simVocab, allowSameStore: true, withScores: true },
+		);
+		return scored && scored[0] && scored[0].it ? scored[0].score || 0 : 0;
+	}
+
 	function buildWorklist() {
-		const out = [];
+		const items = [];
 		for (const it of allAgg) {
 			if (!it || !it.stores || !it.stores.has(storeLabel)) continue;
 			if (isLinked(it.sku)) continue;
-			out.push(it);
+			items.push(it);
 		}
 
-		const topScore = new Map();
-		for (const it of out) {
-			const scored = recommendSimilar(
-				allAgg,
-				it,
-				1,
-				String(it.sku),
-				mappedSkus,
-				isIgnoredPairLocal,
-				sizePenaltyForPair,
-				pricePenaltyForPair,
-				sameStoreCanon,
-				sameGroupLocal,
-				{ vocab: simVocab, allowSameStore: true, withScores: true },
-			);
-			const best = scored && scored[0] && scored[0].it ? scored[0].score || 0 : 0;
-			topScore.set(it, best);
-		}
+		const termIndex = buildTermIndex();
+		const fast = new Map();
+		for (const it of items) fast.set(it, fastScore(it, termIndex));
 
-		out.sort((a, b) => {
-			const ds = (topScore.get(b) || 0) - (topScore.get(a) || 0);
-			if (Math.abs(ds) > 1e-9) return ds;
+		const byFast = items.slice().sort((a, b) => (fast.get(b) || 0) - (fast.get(a) || 0));
+		const refineSet = byFast.slice(0, REFINE_TOP_K);
+		const refined = new Map();
+		for (const it of refineSet) refined.set(it, refinedScore(it));
+
+		items.sort((a, b) => {
+			const ra = refined.has(a);
+			const rb = refined.has(b);
+			if (ra && rb) {
+				const ds = (refined.get(b) || 0) - (refined.get(a) || 0);
+				if (Math.abs(ds) > 1e-9) return ds;
+			} else if (ra !== rb) {
+				return ra ? -1 : 1;
+			} else {
+				const ds = (fast.get(b) || 0) - (fast.get(a) || 0);
+				if (Math.abs(ds) > 1e-9) return ds;
+			}
 			const ea = (a.stores ? a.stores.size : 99) - (b.stores ? b.stores.size : 99);
 			if (ea) return ea;
 			return String(a.name || "").localeCompare(String(b.name || ""));
 		});
-		return out;
+		return items;
 	}
 
 	let worklist = buildWorklist();
@@ -336,6 +395,24 @@ export async function renderSkuLinkerRapid($app) {
 		render();
 	}
 
+	function stageIgnorePair(anchorSku, candSku) {
+		const a = String(anchorSku || "");
+		const b = String(candSku || "");
+		if (!a || !b || a === b) return;
+		if (isIgnoredPairLocal(a, b)) {
+			setStatus("Already ignored.");
+			return;
+		}
+		const op = { type: "ignore", skuA: a, skuB: b };
+		staged.push(op);
+		const k = rules.canonicalPairKey(a, b);
+		if (k) ignoredLocal.add(k);
+		decisions.push({ kind: "ignore", anchorSku: a, candSku: b, ops: [op] });
+		persistQueue();
+		setStatus(`Staged ignore: ${displaySku(a)} × ${displaySku(b)}.`);
+		render();
+	}
+
 	function undo() {
 		const d = decisions.pop();
 		if (!d) {
@@ -351,6 +428,11 @@ export async function renderSkuLinkerRapid($app) {
 		} else if (d.kind === "unlink" && Array.isArray(d.ops)) {
 			for (const op of d.ops) staged.push(op);
 			pairOps.set(pairKey(d.anchorSku, d.candSku), d.ops);
+		} else if (d.kind === "ignore" && Array.isArray(d.ops)) {
+			for (const op of d.ops) {
+				const i = staged.indexOf(op);
+				if (i >= 0) staged.splice(i, 1);
+			}
 		}
 		persistQueue();
 		rebuildSession();
@@ -365,15 +447,14 @@ export async function renderSkuLinkerRapid($app) {
 			setStatus("Nothing staged to clear.");
 			return;
 		}
-		if (!window.confirm(`Discard ${staged.length} unsaved staged change(s)? This cannot be undone.`))
-			return;
+		const n = staged.length;
 		staged.length = 0;
 		decisions.length = 0;
 		pairOps.clear();
 		actionsSinceFlush = 0;
 		persistQueue();
 		rebuildSession();
-		setStatus("Cleared all unsaved staged changes.");
+		setStatus(`Cleared ${n} unsaved staged change(s).`);
 		document.querySelector(".rapidRecover")?.remove();
 		render();
 	}
@@ -468,6 +549,9 @@ export async function renderSkuLinkerRapid($app) {
 		const accBadge = o.candidate
 			? `<span class="rapidAcc">${o.accepted ? "✓ linked" : "press to link"}</span>`
 			: "";
+		const ignoreBtn = o.candidate
+			? `<button class="rapidIgnoreBtn" title="Mark as 'do not suggest' (false positive)" data-sku="${esc(String(it.sku))}">✕ ignore</button>`
+			: "";
 
 		return `
 		<div class="rapidCard ${o.highlight ? "rapidHi" : ""} ${o.anchor ? "rapidAnchor" : ""} ${accClass}" data-sku="${esc(String(it.sku))}">
@@ -475,7 +559,7 @@ export async function renderSkuLinkerRapid($app) {
 			<div class="thumbBox">${renderThumbHtml(it.img)}</div>
 			<div class="rapidBody">
 				<div class="rapidName">${esc(it.name || "(no name)")}</div>
-				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}</div>
+				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}${ignoreBtn}</div>
 				${conf}
 				${meta ? `<div class="rapidMeta">${meta}</div>` : ""}
 			</div>
@@ -579,9 +663,20 @@ export async function renderSkuLinkerRapid($app) {
 	function wireCardClicks() {
 		const $cands = document.getElementById("rapidCandCol");
 		if (!$cands) return;
+		$cands.querySelectorAll(".rapidIgnoreBtn").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const anchor = currentAnchor();
+				const candSku = btn.getAttribute("data-sku");
+				if (!anchor || !candSku) return;
+				stageIgnorePair(String(anchor.sku), candSku);
+			});
+		});
 		$cands.querySelectorAll(".rapidCard").forEach((el) => {
 			el.addEventListener("click", (e) => {
 				if (e.target.closest("a")) return;
+				if (e.target.closest(".rapidIgnoreBtn")) return;
 				const sku = el.getAttribute("data-sku");
 				const i = candidates.findIndex((c) => String(c.it.sku) === sku);
 				if (i < 0) return;

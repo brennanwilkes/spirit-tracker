@@ -210,3 +210,19 @@ html[data-theme="light"] .rapidStrongGroup .rapidCard {
 .rapidCard.rapidAccepted.rapidHi {
 	box-shadow: 0 0 0 2px var(--accent) inset, 0 0 0 4px rgba(95, 191, 110, 0.35);
 }
+
+.rapidIgnoreBtn {
+	margin-left: auto;
+	font-size: 11px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: transparent;
+	border: 1px solid var(--border);
+	color: var(--muted);
+	cursor: pointer;
+}
+.rapidIgnoreBtn:hover {
+	color: #f47171;
+	border-color: rgba(244, 113, 113, 0.55);
+	background: rgba(244, 113, 113, 0.08);
+}
