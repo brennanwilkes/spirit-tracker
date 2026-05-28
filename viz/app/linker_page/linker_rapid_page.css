@@ -211,6 +211,24 @@ html[data-theme="light"] .rapidStrongGroup .rapidCard {
 	box-shadow: 0 0 0 2px var(--accent) inset, 0 0 0 4px rgba(95, 191, 110, 0.35);
 }
 
+.rapidCard.rapidIgnored {
+	border-color: #f47171;
+	box-shadow: 0 0 0 2px rgba(244, 113, 113, 0.35) inset;
+	background: linear-gradient(180deg, rgba(244, 113, 113, 0.16), transparent 70%), var(--panel);
+	opacity: 0.85;
+}
+.rapidCard.rapidIgnored .rapidName {
+	text-decoration: line-through;
+	text-decoration-color: rgba(244, 113, 113, 0.6);
+}
+.rapidCard.rapidIgnored.rapidHi {
+	opacity: 1;
+	box-shadow: 0 0 0 2px var(--accent) inset, 0 0 0 4px rgba(244, 113, 113, 0.35);
+}
+.rapidCard.rapidIgnored .rapidAcc {
+	color: #f47171;
+}
+
 .rapidIgnoreBtn {
 	margin-left: auto;
 	font-size: 11px;
@@ -225,4 +243,9 @@ html[data-theme="light"] .rapidStrongGroup .rapidCard {
 	color: #f47171;
 	border-color: rgba(244, 113, 113, 0.55);
 	background: rgba(244, 113, 113, 0.08);
+}
+.rapidIgnoreBtn.rapidIgnoreBtnActive {
+	color: #f47171;
+	border-color: rgba(244, 113, 113, 0.7);
+	background: rgba(244, 113, 113, 0.14);
 }

@@ -115,6 +115,16 @@ export async function renderSkuLinkerRapid($app) {
 		const k = rules.canonicalPairKey(a, b);
 		return k ? ignoredLocal.has(k) : false;
 	}
+	// Only pairs ignored in a *prior* session. Session-staged ignores are kept
+	// in the candidate list (rendered red) so the user can see/undo them before
+	// committing — the suggestion ranker must not filter those out.
+	function isIgnoredPairGlobal(a, b) {
+		return rules.isIgnoredPair(a, b);
+	}
+	function isPairIgnoredSession(a, b) {
+		const k = rules.canonicalPairKey(a, b);
+		return k ? ignoredLocal.has(k) : false;
+	}
 	function isLinked(sku) {
 		const s = String(sku || "");
 		if (mappedSkus.has(s) || mappedSkus.has(baseCanon(s))) return true;
@@ -321,7 +331,7 @@ export async function renderSkuLinkerRapid($app) {
 				RECOMMEND_LIMIT,
 				"",
 				mappedSkus,
-				isIgnoredPairLocal,
+				isIgnoredPairGlobal,
 				sizePenaltyForPair,
 				pricePenaltyForPair,
 				sameStoreCanon,
@@ -399,16 +409,37 @@ export async function renderSkuLinkerRapid($app) {
 		const a = String(anchorSku || "");
 		const b = String(candSku || "");
 		if (!a || !b || a === b) return;
-		if (isIgnoredPairLocal(a, b)) {
-			setStatus("Already ignored.");
+		const k = rules.canonicalPairKey(a, b);
+
+		// Toggle off if it was ignored *this session* — the row stays visible
+		// (red) while staged, so a mis-press is one keystroke to reverse.
+		if (k && ignoredLocal.has(k)) {
+			const removed = [];
+			for (let i = staged.length - 1; i >= 0; i--) {
+				const op = staged[i];
+				if (op.type === "ignore" && rules.canonicalPairKey(op.skuA, op.skuB) === k) {
+					staged.splice(i, 1);
+					removed.unshift(op);
+				}
+			}
+			decisions.push({ kind: "unignore", anchorSku: a, candSku: b, ops: removed });
+			persistQueue();
+			rebuildSession();
+			setStatus(`Un-ignored: ${displaySku(a)} × ${displaySku(b)}.`);
+			render();
 			return;
 		}
+
+		if (rules.isIgnoredPair(a, b)) {
+			setStatus("Already ignored (from a previous session).");
+			return;
+		}
+
 		const op = { type: "ignore", skuA: a, skuB: b };
 		staged.push(op);
-		const k = rules.canonicalPairKey(a, b);
-		if (k) ignoredLocal.add(k);
 		decisions.push({ kind: "ignore", anchorSku: a, candSku: b, ops: [op] });
 		persistQueue();
+		rebuildSession();
 		setStatus(`Staged ignore: ${displaySku(a)} × ${displaySku(b)}.`);
 		render();
 	}
@@ -433,6 +464,8 @@ export async function renderSkuLinkerRapid($app) {
 				const i = staged.indexOf(op);
 				if (i >= 0) staged.splice(i, 1);
 			}
+		} else if (d.kind === "unignore" && Array.isArray(d.ops)) {
+			for (const op of d.ops) staged.push(op);
 		}
 		persistQueue();
 		rebuildSession();
@@ -538,7 +571,7 @@ export async function renderSkuLinkerRapid($app) {
 		const meta = [chips, flags].filter(Boolean).join(" ");
 
 		const numHint = o.num != null ? `<span class="rapidNum">${o.num}</span>` : "";
-		const accClass = o.accepted ? "rapidAccepted" : "";
+		const accClass = o.ignored ? "rapidIgnored" : o.accepted ? "rapidAccepted" : "";
 		const conf =
 			o.pct != null
 				? `<div class="rapidConf" title="match strength ${(o.score || 0).toFixed(2)}">
@@ -547,10 +580,10 @@ export async function renderSkuLinkerRapid($app) {
 				</div>`
 				: "";
 		const accBadge = o.candidate
-			? `<span class="rapidAcc">${o.accepted ? "✓ linked" : "press to link"}</span>`
+			? `<span class="rapidAcc">${o.ignored ? "✕ ignored" : o.accepted ? "✓ linked" : "press to link"}</span>`
 			: "";
 		const ignoreBtn = o.candidate
-			? `<button class="rapidIgnoreBtn" title="Mark as 'do not suggest' (false positive) — shortcut: N" data-sku="${esc(String(it.sku))}">✕ ignore</button>`
+			? `<button class="rapidIgnoreBtn ${o.ignored ? "rapidIgnoreBtnActive" : ""}" title="${o.ignored ? "Ignored — press N or click to un-ignore" : "Mark as 'do not suggest' (false positive) — shortcut: N"}" data-sku="${esc(String(it.sku))}">${o.ignored ? "↺ un-ignore" : "✕ ignore"}</button>`
 			: "";
 
 		return `
@@ -616,6 +649,7 @@ export async function renderSkuLinkerRapid($app) {
 				candidate: true,
 				highlight: c.idx === highlight,
 				accepted: isPairStaged(anchorSkuStr, String(c.it.sku)),
+				ignored: isPairIgnoredSession(anchorSkuStr, String(c.it.sku)),
 				score: c.score,
 				pct: topScore > 0 ? c.score / topScore : 0,
 				shared: c.shared,
