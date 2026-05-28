@@ -55,9 +55,42 @@ function readMeta() {
 	return { links: [], ignores: [] };
 }
 
+// Union-find dedup: keep only links that actually merge two distinct components.
+// Also dedupes ignores by unordered pair.
+function dedupeLinks(links, ignores) {
+	const parent = new Map();
+	function find(x) {
+		if (!parent.has(x)) parent.set(x, x);
+		if (parent.get(x) !== x) parent.set(x, find(parent.get(x)));
+		return parent.get(x);
+	}
+	const kept = [];
+	for (const { fromSku, toSku } of links) {
+		const ra = find(fromSku), rb = find(toSku);
+		if (ra !== rb) {
+			parent.set(ra, rb);
+			kept.push({ fromSku, toSku });
+		}
+	}
+
+	const seenIgnores = new Set();
+	const keptIgnores = [];
+	for (const { skuA, skuB } of ignores) {
+		const key = [skuA, skuB].sort().join("\0");
+		if (!seenIgnores.has(key)) {
+			seenIgnores.add(key);
+			keptIgnores.push({ skuA, skuB });
+		}
+	}
+
+	return { links: kept, ignores: keptIgnores };
+}
+
 function writeMeta(obj) {
+	const deduped = dedupeLinks(obj.links, obj.ignores);
 	fs.mkdirSync(path.dirname(LINKS_FILE), { recursive: true });
-	fs.writeFileSync(LINKS_FILE, JSON.stringify({ links: obj.links, ignores: obj.ignores }) + "\n", "utf8");
+	fs.writeFileSync(LINKS_FILE, JSON.stringify({ links: deduped.links, ignores: deduped.ignores }) + "\n", "utf8");
+	return deduped;
 }
 
 function readHidden() {
@@ -110,9 +143,9 @@ const server = http.createServer((req, res) => {
 
 					const obj = readMeta();
 					obj.links.push({ fromSku, toSku });
-					writeMeta(obj);
+					const saved = writeMeta(obj);
 
-					return sendJson(res, 200, { ok: true, count: obj.links.length, file: "data/sku_links.json" });
+					return sendJson(res, 200, { ok: true, count: saved.links.length, file: "data/sku_links.json" });
 				} catch (e) {
 					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
 				}
@@ -150,9 +183,9 @@ const server = http.createServer((req, res) => {
 
 					const obj = readMeta();
 					obj.ignores.push({ skuA, skuB });
-					writeMeta(obj);
+					const saved = writeMeta(obj);
 
-					return sendJson(res, 200, { ok: true, count: obj.ignores.length, file: "data/sku_links.json" });
+					return sendJson(res, 200, { ok: true, count: saved.ignores.length, file: "data/sku_links.json" });
 				} catch (e) {
 					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
 				}
