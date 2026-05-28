@@ -14,7 +14,7 @@ import { displaySku, tokenizeQuery, matchesAllTokens } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadHiddenSet } from "./hidden.js";
-import { loadSkuRules } from "./mapping.js";
+import { loadSkuRules, clearSkuRulesCache } from "./mapping.js";
 import {
 	isLocalWriteMode,
 	loadSkuMetaBestEffort,
@@ -526,6 +526,7 @@ export async function renderSkuLinkerRapid($app) {
 			decisions.length = 0; // undo only within an unflushed batch
 			actionsSinceFlush = 0;
 			savedThisSession += batch.length;
+			clearSkuRulesCache(); // force fresh rules on next page navigation
 			setStatus(
 				localWrite
 					? `Flushed ${batch.length} change(s) to disk.`
