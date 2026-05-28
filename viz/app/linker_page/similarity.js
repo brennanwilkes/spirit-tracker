@@ -90,6 +90,72 @@ export function extractAbv(normName) {
 	return null;
 }
 
+// Extract identifying "edition codes" from a normalized name. These are
+// short, structured tokens that uniquely identify a specific bottling and
+// should be treated as hard if/else discriminators: two items both carrying a
+// code OF THE SAME KIND but with DIFFERENT values are almost certainly
+// different products (different cask, different season-batch, different SMWS
+// code). Returned codes are kind-prefixed so we only compare like with like.
+//
+// Kinds covered:
+//   - SMWS classic:  53.471, 1.234
+//   - SMWS lettered:  R4, G1   (single-letter prefix + 1-3 digits)
+//   - Roman numerals (length ≥ 2 to avoid ambiguous single letters): II, III, IV, V…
+//   - Season/Winter batch codes: S22, S24, S2023, W21, W2024
+export function extractEditionCodes(normName) {
+	const s = String(normName || "");
+	const out = new Set();
+	if (!s) return out;
+	const smws = s.match(/\b\d{1,3}\.\d{1,4}\b/g);
+	if (smws) for (const m of smws) out.add("smws:" + m);
+	const lettered = s.match(/\b[a-z]\d{1,3}\b/gi);
+	if (lettered)
+		for (const m of lettered) {
+			const v = m.toLowerCase();
+			// Only treat as SMWS-lettered if NOT a season code (s/w prefix handled below)
+			if (!/^[sw]\d{2,4}$/i.test(v)) out.add("smws:" + v);
+		}
+	// Roman numerals length ≥ 2 — skip bare "i"/"v"/"x"
+	const roman = s.match(/\b(?:ix|iv|v?i{2,3}|x{2,3}|vi{1,3}|xi{1,3})\b/gi);
+	if (roman) for (const m of roman) out.add("roman:" + m.toLowerCase());
+	const season = s.match(/\b[sw]\d{2,4}\b/gi);
+	if (season) for (const m of season) out.add("season:" + m.toLowerCase());
+	return out;
+}
+
+// Compare two edition-code sets. If both carry codes OF THE SAME KIND and none
+// of those codes are shared, return a strong demotion factor. If they share a
+// code, return a mild boost. Otherwise neutral.
+export function editionCodeMultiplier(a, b) {
+	if (!a || !b || !a.size || !b.size) return 1;
+	const byKind = (set) => {
+		const m = new Map();
+		for (const c of set) {
+			const i = c.indexOf(":");
+			if (i < 0) continue;
+			const k = c.slice(0, i);
+			if (!m.has(k)) m.set(k, new Set());
+			m.get(k).add(c);
+		}
+		return m;
+	};
+	const aK = byKind(a);
+	const bK = byKind(b);
+	let sharedAny = false;
+	let conflictAny = false;
+	for (const [kind, aset] of aK) {
+		const bset = bK.get(kind);
+		if (!bset) continue;
+		let shared = 0;
+		for (const c of aset) if (bset.has(c)) shared++;
+		if (shared > 0) sharedAny = true;
+		else conflictAny = true;
+	}
+	if (sharedAny) return 1.15;
+	if (conflictAny) return 0.1;
+	return 1;
+}
+
 // Soft-but-firm ABV agreement multiplier. ABV is relevant but vaguely formatted,
 // so a small gap (rounding: 46 vs 46.3) is neutral/positive, while a clear gap
 // (different cask-strength batches: 58.1 vs 53.9) is a strong non-match signal.
