@@ -143,18 +143,60 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 	// require many per-product fetches and tolerate a much tighter cadence.
 	// Set via setHostInterval(host, ms); falls back to the conservative default.
 	const hostMinInterval = new Map();
-	function intervalFor(host) {
+
+	// Adaptive overload backoff. On 429/503/529 we widen the host's effective
+	// interval (and shrink its inflight cap); sustained success decays both back
+	// toward the configured baseline. This auto-slows a host that starts
+	// pushing back instead of hammering it into harder blocks.
+	const hostPenaltyMs = new Map();
+	const PENALTY_STEP_MS = 4000;
+	const PENALTY_CAP_MS = 30000;
+	const PENALTY_DECAY_MS = 200;
+
+	function basicIntervalFor(host) {
 		const v = hostMinInterval.get(host);
 		return typeof v === "number" && v > 0 ? v : minHostIntervalMs;
+	}
+	function intervalFor(host) {
+		return basicIntervalFor(host) + (hostPenaltyMs.get(host) || 0);
 	}
 	function setHostInterval(host, ms) {
 		const h = String(host || "").trim();
 		if (h && typeof ms === "number" && ms > 0) hostMinInterval.set(h, ms);
 	}
+	function noteOverload(host) {
+		if (!host) return;
+		const cur = hostPenaltyMs.get(host) || 0;
+		hostPenaltyMs.set(host, Math.min(PENALTY_CAP_MS, cur + PENALTY_STEP_MS));
+		logger?.warn?.(`OVERLOAD host=${host} penaltyMs=${hostPenaltyMs.get(host)}`);
+	}
+	function noteOk(host) {
+		if (!host) return;
+		const cur = hostPenaltyMs.get(host) || 0;
+		if (cur > 0) hostPenaltyMs.set(host, Math.max(0, cur - PENALTY_DECAY_MS));
+	}
 
-	// Per-host inflight clamp (prevents bursts when global concurrency is high)
+	// Per-host inflight clamp (prevents bursts when global concurrency is high).
+	// Default is 1 (full serialization); hosts that tolerate parallel fetches
+	// (e.g. Wine and Beyond, which needs ~1 fetch per product) can raise it via
+	// setHostConcurrency().
 	const hostInflight = new Map();
-	const maxHostInflight = 1;
+	const defaultMaxHostInflight = 1;
+	const hostMaxInflight = new Map();
+	function maxInflightFor(host) {
+		const v = hostMaxInflight.get(host);
+		const configured = typeof v === "number" && v > 0 ? v : defaultMaxHostInflight;
+		// While a host is pushing back, collapse parallelism on top of the
+		// widened interval. Heavier penalty → fewer concurrent connections.
+		const penalty = hostPenaltyMs.get(host) || 0;
+		if (penalty <= 0) return configured;
+		const steps = Math.floor(penalty / PENALTY_STEP_MS);
+		return Math.max(1, configured - steps);
+	}
+	function setHostConcurrency(host, n) {
+		const h = String(host || "").trim();
+		if (h && typeof n === "number" && n > 0) hostMaxInflight.set(h, Math.floor(n));
+	}
 
 	function inflightStr() {
 		return `inflight=${inflight}`;
@@ -166,7 +208,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 
 		while (true) {
 			const cur = hostInflight.get(host) || 0;
-			if (cur < maxHostInflight) {
+			if (cur < maxInflightFor(host)) {
 				hostInflight.set(host, cur + 1);
 				return () => {
 					const n = (hostInflight.get(host) || 1) - 1;
@@ -272,20 +314,26 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 
 				logger?.dbg?.(`REQ#${reqId} HTTP ${status} ${tag} ms=${elapsed} finalUrl=${finalUrl}`);
 
-				if (status === 429) {
-					let raMs = retryAfterMs(res);
+				// Overload signals: back off adaptively (widen interval + shrink
+				// concurrency for this host) so we ease up instead of hammering.
+				if (status === 429 || status === 503 || status === 529) {
+					noteOverload(hostFromUrl(finalUrl));
 
+					let raMs = retryAfterMs(res);
 					// ✅ If no Retry-After header, enforce a real cooldown (Shopify often omits it)
 					if (raMs <= 0) raMs = 15000 + Math.floor(Math.random() * 5000);
 
 					noteHost(finalUrl, raMs);
-					logger?.dbg?.(`REQ#${reqId} 429 retryAfterMs=${raMs} host=${hostFromUrl(finalUrl)}`);
-					throw new RetryableError("HTTP 429");
+					logger?.dbg?.(`REQ#${reqId} ${status} retryAfterMs=${raMs} host=${hostFromUrl(finalUrl)}`);
+					throw new RetryableError(`HTTP ${status}`);
 				}
 
 				if (status === 408 || (status >= 500 && status <= 599)) {
 					throw new RetryableError(`HTTP ${status}`);
 				}
+
+				// Successful response — decay any accumulated overload penalty.
+				noteOk(hostFromUrl(finalUrl));
 
 				if (status >= 400) {
 					const bodyTxt = await safeText(res);
@@ -346,7 +394,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 		return fetchWithRetry(url, tag, ua, { mode: "json", ...(opts || {}) });
 	}
 
-	return { fetchTextWithRetry, fetchJsonWithRetry, inflightStr, setHostInterval };
+	return { fetchTextWithRetry, fetchJsonWithRetry, inflightStr, setHostInterval, setHostConcurrency };
 }
 
 module.exports = { createHttpClient, RetryableError };

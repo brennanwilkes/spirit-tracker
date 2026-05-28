@@ -212,6 +212,7 @@ export async function renderSkuLinkerRapid($app) {
 	function fastScore(it, termIndex) {
 		const terms = simVocab.distinctiveUnigramsForName(it.name || "");
 		if (!terms || !terms.size) return 0;
+		const itSku = String(it.sku || "");
 		const seen = new Set();
 		let best = 0;
 		let visited = 0;
@@ -223,6 +224,8 @@ export async function renderSkuLinkerRapid($app) {
 				const csku = String(cand.sku || "");
 				if (seen.has(csku)) continue;
 				seen.add(csku);
+				if (isIgnoredPairGlobal(itSku, csku)) continue;
+				if (sameGroupLocal(itSku, csku)) continue;
 				const s = simVocab.weightedOverlap(it.name || "", cand.name || "").score;
 				if (s > best) best = s;
 				if (++visited >= PROXY_K) break outer;
@@ -266,8 +269,8 @@ export async function renderSkuLinkerRapid($app) {
 		for (const it of refineSet) refined.set(it, refinedScore(it));
 
 		items.sort((a, b) => {
-			const ra = refined.has(a);
-			const rb = refined.has(b);
+			const ra = (refined.get(a) || 0) > 0;
+			const rb = (refined.get(b) || 0) > 0;
 			if (ra && rb) {
 				const ds = (refined.get(b) || 0) - (refined.get(a) || 0);
 				if (Math.abs(ds) > 1e-9) return ds;
