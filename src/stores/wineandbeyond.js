@@ -78,22 +78,88 @@ async function fetchCatalogMap(ctx, collectionHandle) {
 
 // Parse the product page: in stock if any location reports In/Low Stock; price
 // from the data-block-type="price" block.
-const STOCK_RE = /font-semibold">[^<]+?:(?:&nbsp;|\s)*<\/span>\s*<span>([^<]+)<\/span>/g;
+//
+// The price block is rendered server-side for the cart's *currently selected*
+// location only. The default location often doesn't carry a given bottle, so
+// for ~20% of in-stock items no price renders at all (the block is absent) even
+// though some other location stocks and prices it. resolvePriceForLocation()
+// below recovers those by re-fetching under a carrying location.
+const STOCK_RE = /font-semibold">([^<]+?):(?:&nbsp;|\s)*<\/span>\s*<span>([^<]+)<\/span>/g;
+function parsePrice(text) {
+	const pm = text.match(/data-block-type="price"[\s\S]*?\$([0-9][0-9.,]*)/);
+	if (!pm) return "";
+	const n = Number(pm[1].replace(/,/g, ""));
+	return Number.isFinite(n) && n > 0 ? `$${n.toFixed(2)}` : "";
+}
 function parseProductPage(text) {
 	let inStock = false;
 	STOCK_RE.lastIndex = 0;
 	let m;
 	while ((m = STOCK_RE.exec(text)) !== null) {
-		const st = m[1].trim().toLowerCase();
+		const st = m[2].trim().toLowerCase();
 		if (st === "low stock" || st === "in stock") { inStock = true; break; }
 	}
-	const pm = text.match(/data-block-type="price"[\s\S]*?\$([0-9][0-9.,]*)/);
-	let price = "";
-	if (pm) {
-		const n = Number(pm[1].replace(/,/g, ""));
-		if (Number.isFinite(n) && n > 0) price = `$${n.toFixed(2)}`;
+	return { inStock, price: parsePrice(text) };
+}
+
+// Find a location id (cart_form_<id>) whose stock table entry is In/Low Stock,
+// so we can re-fetch the page with that location selected and read its price.
+// Cart-form cards carry id+name; the stock table carries name+state — join on
+// name.
+function findCarryingLocationId(text) {
+	const id2name = new Map();
+	const chunks = text.split(/id="cart_form_(\d+)"/);
+	for (let i = 1; i < chunks.length; i += 2) {
+		const nm = chunks[i + 1].match(/font-semibold text-lg[^>]*>\s*([^<]+?)\s*<\/div>/);
+		if (nm) id2name.set(chunks[i], nm[1].trim());
 	}
-	return { inStock, price };
+	const state = new Map();
+	STOCK_RE.lastIndex = 0;
+	let m;
+	while ((m = STOCK_RE.exec(text)) !== null) state.set(m[1].trim(), m[2].trim().toLowerCase());
+	for (const [id, name] of id2name) {
+		const st = state.get(name);
+		if (st === "in stock" || st === "low stock") return id;
+	}
+	return "";
+}
+
+function cartTokenFromSetCookie(setCookie) {
+	const line = (setCookie || []).find((c) => /^cart=/.test(String(c)));
+	return line ? line.split(";")[0] : "";
+}
+
+// Select `locId` on the cart, then re-fetch the product page to read the price
+// that renders for that location. Reuses (and refreshes) a single cart token so
+// the whole category needs only one cart. Bypasses the shared cookie jar
+// (cookies:false + explicit Cookie header) so the main pass is unaffected.
+async function fetchPriceAtLocation(ctx, url, handle, locId, cartCookie) {
+	let token = cartCookie;
+	try {
+		const up = await ctx.http.fetchJsonWithRetry(
+			`https://${HOST}/cart/update.js`,
+			`${ctx.store.key}:loc:${ctx.cat.key}:${handle}`,
+			ctx.store.ua,
+			{
+				method: "POST",
+				headers: { "content-type": "application/json", ...(token ? { cookie: token } : {}) },
+				body: JSON.stringify({ attributes: { _selected_location_id: locId } }),
+				cookies: false,
+			},
+		);
+		const fresh = cartTokenFromSetCookie(up.setCookie);
+		if (fresh) token = fresh;
+
+		const { text } = await ctx.http.fetchTextWithRetry(
+			url,
+			`${ctx.store.key}:prodloc:${ctx.cat.key}:${handle}`,
+			ctx.store.ua,
+			{ headers: token ? { cookie: token } : {}, cookies: false },
+		);
+		return { price: parsePrice(text), token };
+	} catch (_) {
+		return { price: "", token };
+	}
 }
 
 function scanCategoryWnB(collectionHandle) {
@@ -110,6 +176,8 @@ function scanCategoryWnB(collectionHandle) {
 		const discovered = new Map();
 		let checked = 0;
 		let outOfStock = 0;
+		let rescued = 0;
+		let cartCookie = "";
 
 		for (const [handle, meta] of catalog) {
 			const title = meta.title;
@@ -124,8 +192,20 @@ function scanCategoryWnB(collectionHandle) {
 			}
 			checked++;
 
-			const { inStock, price } = parseProductPage(text);
+			const { inStock } = parseProductPage(text);
 			if (!inStock) { outOfStock++; continue; }
+
+			let price = parsePrice(text);
+			if (!price) {
+				// Default location doesn't carry this bottle; re-fetch under a
+				// location that does to read its price.
+				const locId = findCarryingLocationId(text);
+				if (locId) {
+					const r = await fetchPriceAtLocation(ctx, url, handle, locId, cartCookie);
+					cartCookie = r.token;
+					if (r.price) { price = r.price; rescued++; }
+				}
+			}
 
 			const prev = prevDb?.byUrl?.get(url) || null;
 			const finalSku = pickBetterSku(normalizeWnbSku(meta.sku, ctx, url), prev?.sku || "");
@@ -140,7 +220,7 @@ function scanCategoryWnB(collectionHandle) {
 		}
 
 		ctx.logger.ok(
-			`${ctx.catPrefixOut} | wineandbeyond catalog=${catalog.size} checked=${checked} inStock=${discovered.size} oos=${outOfStock}`,
+			`${ctx.catPrefixOut} | wineandbeyond catalog=${catalog.size} checked=${checked} inStock=${discovered.size} oos=${outOfStock} rescued=${rescued}`,
 		);
 
 		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 0 });

@@ -260,6 +260,12 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 				const finalUrl = res.url || url;
 				const elapsed = Date.now() - start;
 
+				// Raw Set-Cookie lines for callers that manage their own cookie
+				// state (e.g. Wine and Beyond's per-location cart token) without
+				// polluting the shared jar.
+				const setCookie =
+					res.headers && typeof res.headers.getSetCookie === "function" ? res.headers.getSetCookie() : [];
+
 				// Always pace the host a bit after any response
 				noteHost(finalUrl);
 				if (cookies) cookieJar.storeFromResponse(url, res);
@@ -294,7 +300,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 					} catch (e) {
 						throw new RetryableError(`Bad JSON: ${e?.message || e}`);
 					}
-					return { json, ms: elapsed, bytes: txt.length, status, finalUrl };
+					return { json, ms: elapsed, bytes: txt.length, status, finalUrl, setCookie };
 				}
 
 				const text = await res.text();
@@ -302,7 +308,7 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 					throw new RetryableError(`Short HTML bytes=${text.length}`);
 				}
 
-				return { text, ms: elapsed, bytes: text.length, status, finalUrl };
+				return { text, ms: elapsed, bytes: text.length, status, finalUrl, setCookie };
 			} catch (e) {
 				const retryable = isRetryable(e);
 				const host = hostFromUrl(url);
