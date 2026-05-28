@@ -141,3 +141,72 @@
 	margin-top: 10px;
 	color: var(--muted);
 }
+
+.rapidSectionLabel {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--muted);
+	margin: 4px 2px 8px;
+}
+
+.rapidStrongLabel {
+	color: #5fbf6e;
+	font-weight: 700;
+}
+html[data-theme="light"] .rapidStrongLabel { color: #2d8a3e; }
+
+.rapidWeak {
+	color: var(--muted);
+	font-style: italic;
+}
+
+.rapidStrongGroup {
+	min-height: 80px;
+}
+
+.rapidStrongGroup .rapidCard {
+	border-color: rgba(95, 191, 110, 0.45);
+	background: linear-gradient(180deg, rgba(95, 191, 110, 0.06), transparent 60%), var(--panel);
+}
+html[data-theme="light"] .rapidStrongGroup .rapidCard {
+	border-color: rgba(45, 138, 62, 0.55);
+	background: linear-gradient(180deg, rgba(45, 138, 62, 0.07), transparent 60%), var(--panel);
+}
+
+.rapidStrongEmpty {
+	min-height: 140px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	color: var(--muted);
+	border: 1px dashed var(--border);
+	border-radius: 10px;
+	font-size: 13px;
+	text-align: center;
+}
+
+.rapidSplit {
+	height: 1px;
+	background: var(--border);
+	margin: 24px 0;
+	position: relative;
+}
+
+.rapidOtherLabel {
+	color: var(--muted);
+}
+
+.rapidOtherGroup .rapidCard {
+	opacity: 0.85;
+}
+
+.rapidCard.rapidAccepted {
+	border-color: #5fbf6e;
+	box-shadow: 0 0 0 2px rgba(95, 191, 110, 0.35) inset;
+	background: linear-gradient(180deg, rgba(95, 191, 110, 0.18), transparent 70%), var(--panel);
+}
+.rapidCard.rapidAccepted.rapidHi {
+	box-shadow: 0 0 0 2px var(--accent) inset, 0 0 0 4px rgba(95, 191, 110, 0.35);
+}

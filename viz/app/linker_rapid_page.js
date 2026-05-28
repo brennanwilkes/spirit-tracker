@@ -122,17 +122,15 @@ export async function renderSkuLinkerRapid($app) {
 		return false;
 	}
 
-	// Rebuild the DSU / ignore overlay from the staged ops (used after undo).
+	// Rebuild the ignore overlay from the staged ops (used after undo).
+	// Staged links intentionally do NOT update the session DSU / linkedThisSession
+	// — those would hide the candidate from the list and remove the anchor from
+	// the worklist. Staged is "marked for save", not "linked yet".
+	// Persistence happens only on flush(), which then unions + marks linked.
 	function rebuildSession() {
-		parent.clear();
-		linkedThisSession.clear();
 		ignoredLocal.clear();
 		for (const op of staged) {
-			if (op.type === "link") {
-				unionLocal(op.fromSku, op.toSku);
-				linkedThisSession.add(String(op.fromSku));
-				linkedThisSession.add(String(op.toSku));
-			} else if (op.type === "ignore") {
+			if (op.type === "ignore") {
 				const k = rules.canonicalPairKey(op.skuA, op.skuB);
 				if (k) ignoredLocal.add(k);
 			}
@@ -176,12 +174,10 @@ export async function renderSkuLinkerRapid($app) {
 	const storeOptions = [...storeCounts.entries()].sort((a, b) => b[1] - a[1]);
 	if (!storeLabel || !storeCounts.has(storeLabel)) storeLabel = storeOptions[0] ? storeOptions[0][0] : "";
 
-	// Cheap proxy for "does this item likely have a strong cross-store match?":
-	// for each unlinked anchor in the worklist, peek at items in OTHER stores
-	// that share any of the anchor's distinctive unigrams, score each candidate
-	// with simVocab.weightedOverlap (the lightweight part of the full ranker)
-	// and use the best as the anchor's sort key. Items with no cross-store
-	// sharer of any distinctive term get 0 — they sink to the tail.
+	// Sort the worklist by each anchor's best-candidate score using the FULL
+	// recommendSimilar pipeline. Only items in the selected store are scored,
+	// so the cost is O(storeSize × catalog) — a few hundred ms even for the
+	// larger stores. Re-runs on every store change.
 	function buildWorklist() {
 		const out = [];
 		for (const it of allAgg) {
@@ -190,50 +186,27 @@ export async function renderSkuLinkerRapid($app) {
 			out.push(it);
 		}
 
-		// One-shot term → cross-store-items index. Skip items at the anchor store
-		// itself (they can't be candidates) and items already linked.
-		const termIndex = new Map();
-		for (const it of allAgg) {
-			if (!it || isLinked(it.sku)) continue;
-			if (it.stores && it.stores.has(storeLabel) && it.stores.size <= 1) continue;
-			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
-			if (!terms || !terms.size) continue;
-			for (const t of terms) {
-				let arr = termIndex.get(t);
-				if (!arr) termIndex.set(t, (arr = []));
-				arr.push(it);
-			}
-		}
-
-		const PROXY_K = 5;
-		const proxyScore = new Map();
+		const topScore = new Map();
 		for (const it of out) {
-			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
-			if (!terms || !terms.size) {
-				proxyScore.set(it, 0);
-				continue;
-			}
-			const seen = new Set();
-			let best = 0;
-			let visited = 0;
-			outer: for (const t of terms) {
-				const bucket = termIndex.get(t);
-				if (!bucket) continue;
-				for (const cand of bucket) {
-					if (cand === it) continue;
-					const csku = String(cand.sku || "");
-					if (seen.has(csku)) continue;
-					seen.add(csku);
-					const s = simVocab.weightedOverlap(it.name || "", cand.name || "").score;
-					if (s > best) best = s;
-					if (++visited >= PROXY_K) break outer;
-				}
-			}
-			proxyScore.set(it, best);
+			const scored = recommendSimilar(
+				allAgg,
+				it,
+				1,
+				String(it.sku),
+				mappedSkus,
+				isIgnoredPairLocal,
+				sizePenaltyForPair,
+				pricePenaltyForPair,
+				sameStoreCanon,
+				sameGroupLocal,
+				{ vocab: simVocab, allowSameStore: true, withScores: true },
+			);
+			const best = scored && scored[0] && scored[0].it ? scored[0].score || 0 : 0;
+			topScore.set(it, best);
 		}
 
 		out.sort((a, b) => {
-			const ds = (proxyScore.get(b) || 0) - (proxyScore.get(a) || 0);
+			const ds = (topScore.get(b) || 0) - (topScore.get(a) || 0);
 			if (Math.abs(ds) > 1e-9) return ds;
 			const ea = (a.stores ? a.stores.size : 99) - (b.stores ? b.stores.size : 99);
 			if (ea) return ea;
@@ -357,12 +330,9 @@ export async function renderSkuLinkerRapid($app) {
 		for (const op of ops) staged.push(op);
 		pairOps.set(key, ops);
 		decisions.push({ kind: "link", anchorSku: a, candSku: b, ops });
-		for (const s of skus) unionLocal(s, preferred);
-		for (const s of [...skus, ...canons]) linkedThisSession.add(s);
 		persistQueue();
 		actionsSinceFlush += 1;
 		setStatus(`Staged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
-		if (actionsSinceFlush >= AUTO_FLUSH_EVERY) flush();
 		render();
 	}
 
@@ -427,7 +397,17 @@ export async function renderSkuLinkerRapid($app) {
 					else addPendingIgnore(op.skuA, op.skuB);
 				}
 			}
+			// Apply the now-persisted ops to the in-memory DSU + linked set so
+			// saved items drop out of the worklist on the next render / store change.
+			for (const op of batch) {
+				if (op.type === "link") {
+					unionLocal(op.fromSku, op.toSku);
+					linkedThisSession.add(String(op.fromSku));
+					linkedThisSession.add(String(op.toSku));
+				}
+			}
 			staged.length = 0;
+			pairOps.clear();
 			persistQueue();
 			decisions.length = 0; // undo only within an unflushed batch
 			actionsSinceFlush = 0;
@@ -570,13 +550,13 @@ export async function renderSkuLinkerRapid($app) {
 						? `<div class="rapidSectionLabel">Search results</div>${otherCapped.map(renderRow).join("")}`
 						: `<div class="small" style="padding:12px;">No results.</div>`;
 			} else {
-				candHtml =
-					(strong.length
-						? `<div class="rapidSectionLabel">Suggestions (${strong.length}) — accept all that match</div>${strong.map(renderRow).join("")}`
-						: `<div class="rapidSectionLabel rapidWeak">No strong suggestions — check Other options or search (/)</div>`) +
-					(otherCapped.length
-						? `<div class="rapidSectionLabel rapidOtherLabel">Other options</div>${otherCapped.map(renderRow).join("")}`
-						: "");
+				const strongBlock = strong.length
+					? `<div class="rapidSectionLabel rapidStrongLabel">Suggestions (${strong.length})</div><div class="rapidStrongGroup">${strong.map(renderRow).join("")}</div>`
+					: `<div class="rapidSectionLabel rapidWeak">No strong suggestions</div><div class="rapidStrongEmpty">No confident matches for this item — check Other options below or skip with →.</div>`;
+				const otherBlock = otherCapped.length
+					? `<div class="rapidSectionLabel rapidOtherLabel">Other options</div><div class="rapidOtherGroup">${otherCapped.map(renderRow).join("")}</div>`
+					: "";
+				candHtml = `${strongBlock}<div class="rapidSplit" aria-hidden="true"></div>${otherBlock}`;
 			}
 		}
 
