@@ -388,7 +388,7 @@ export async function renderSkuLinkerRapid($app) {
 			persistQueue();
 			rebuildSession();
 			setStatus(`Unstaged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
-			render();
+			render(true);
 			return;
 		}
 
@@ -420,7 +420,7 @@ export async function renderSkuLinkerRapid($app) {
 		persistQueue();
 		actionsSinceFlush += 1;
 		setStatus(`Staged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
-		render();
+		render(true);
 	}
 
 	function stageIgnorePair(anchorSku, candSku) {
@@ -444,7 +444,7 @@ export async function renderSkuLinkerRapid($app) {
 			persistQueue();
 			rebuildSession();
 			setStatus(`Un-ignored: ${displaySku(a)} × ${displaySku(b)}.`);
-			render();
+			render(true);
 			return;
 		}
 
@@ -459,7 +459,7 @@ export async function renderSkuLinkerRapid($app) {
 		persistQueue();
 		rebuildSession();
 		setStatus(`Staged ignore: ${displaySku(a)} × ${displaySku(b)}.`);
-		render();
+		render(true);
 	}
 
 	function undo() {
@@ -644,9 +644,9 @@ export async function renderSkuLinkerRapid($app) {
 
 	let $search = null;
 
-	function render() {
+	function render(skipRecompute = false) {
 		const anchor = currentAnchor();
-		candidates = anchor ? computeCandidates() : [];
+		if (!skipRecompute) candidates = anchor ? computeCandidates() : [];
 		if (highlight >= candidates.length) highlight = candidates.length ? candidates.length - 1 : 0;
 		if (highlight < 0) highlight = 0;
 
