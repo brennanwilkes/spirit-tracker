@@ -15,6 +15,7 @@ import {
 	levenshtein,
 } from "./similarity.js";
 import { conceptConflictMultiplier } from "./concepts.js";
+import { extractBlendFeatures, blendScore } from "./blend.js";
 import {
 	DISTINCTIVE_IDF,
 	WO_POW,
@@ -599,6 +600,27 @@ export function recommendSimilar(
 			}
 			if (isBadSku(pinnedSku) || isBadSku(itSku)) s *= 1.2;
 			fine.push({ it, s });
+		}
+	}
+
+	// Learned-blend re-rank (opt-in): replace the deterministic score with the calibrated
+	// blend probability for the top candidates we already retrieved (retrieve-then-rerank).
+	// The deterministic score is fed in as a feature (logDet) — this AUGMENTS the scorer,
+	// it doesn't discard it. SMWS exact-match pins (s ≈ 1e9) are left untouched so a shared
+	// cask code always stays on top.
+	if (vocab && opts && opts.blend && opts.blend.weights) {
+		const bw = opts.blend.weights;
+		const embedCosFn = opts.blend.embedCosFn || null;
+		for (const f of fine) {
+			if (!f.it || f.s >= 1e8) continue;
+			const feats = extractBlendFeatures(ctx, f.it, {
+				vocab,
+				sizePenaltyFn,
+				pricePenaltyFn,
+				embedCosFn,
+				detScore: f.s,
+			});
+			f.s = blendScore(feats, bw);
 		}
 	}
 

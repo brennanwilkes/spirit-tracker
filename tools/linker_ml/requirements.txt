@@ -1,0 +1,9 @@
+# Linker ML prototype — Python deps for the contrastive embedding fine-tune.
+# CPU-only torch (install with the CPU index URL to skip the multi-GB CUDA wheels):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+#
+# Base encoder (all-MiniLM-L6-v2, ~90 MB) auto-downloads from HuggingFace on first run.
+sentence-transformers>=3.0
+scikit-learn>=1.3
+numpy>=1.24

@@ -29,7 +29,9 @@ import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
 import { recommendSimilar, dedupeByGroupRep } from "./linker_page/suggestions.js";
 import { buildVocab } from "./linker_page/vocab.js";
-import { STRONG_ABS, STRONG_REL } from "./linker_page/strong_threshold.js";
+import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
+import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
+import { loadSkuEmbeddings, makeEmbedCosFn } from "./linker_page/embeddings.js";
 
 const QUEUE_KEY = "stviz:linker_rapid_queue_v1";
 const STORE_KEY = "stviz:linker_rapid_store_v1";
@@ -49,6 +51,15 @@ export async function renderSkuLinkerRapid($app) {
 	const URL_BY_SKU_STORE = buildUrlBySkuStore(allRows);
 	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
 	const simVocab = buildVocab(allAgg);
+
+	// Learned-blend re-ranker. Embeddings are optional (LFS data-branch artifact); when
+	// present we use the embed-trained weights + cosine, otherwise the no-embed weights
+	// (correct calibration). Passed to every recommendSimilar call below.
+	const skuEmb = await loadSkuEmbeddings();
+	const blend = {
+		weights: skuEmb ? BLEND_WEIGHTS_EMBED : BLEND_WEIGHTS_NOEMBED,
+		embedCosFn: makeEmbedCosFn(skuEmb),
+	};
 
 	const meta = await loadSkuMetaBestEffort();
 
@@ -246,7 +257,7 @@ export async function renderSkuLinkerRapid($app) {
 			pricePenaltyForPair,
 			sameStoreCanon,
 			sameGroupLocal,
-			{ vocab: simVocab, allowSameStore: true, withScores: true },
+			{ vocab: simVocab, allowSameStore: true, withScores: true, blend },
 		);
 		return scored && scored[0] && scored[0].it ? scored[0].score || 0 : 0;
 	}
@@ -339,7 +350,7 @@ export async function renderSkuLinkerRapid($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroupLocal,
-				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: findRep },
+				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: findRep, blend },
 			).map((x) => (x && x.it ? x : { it: x, score: 0 }));
 		}
 		// Collapse candidates that already belong to one canonical group into a
@@ -644,7 +655,7 @@ export async function renderSkuLinkerRapid($app) {
 
 		// Adaptive split: a "Suggestion" is a candidate that's strong both
 		// absolutely and relative to the best — so the count flexes with quality.
-		const cutoff = Math.max(STRONG_ABS, STRONG_REL * topScore);
+		const cutoff = Math.max(STRONG_ABS_PROB, STRONG_REL_PROB * topScore);
 		const strong = [];
 		const other = [];
 		candidates.forEach((c, i) => {

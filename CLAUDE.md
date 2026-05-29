@@ -181,3 +181,25 @@ mandatory. Three tables, in this order:
 Always include the raw SKUs (so they're searchable) and a short "Why" cell per row
 (size variant / one-sided age / SMWS-code-lost / possessive-brand / probable-mislabel …).
 Flag suspected mislabels explicitly so they can be relabeled rather than chased.
+
+## Learned Classifier + Attention Embedder (`tools/linker_ml/`)
+
+The deterministic scorer is bag-of-tokens and structurally cannot match names that share no
+tokens (`TBWC` ↔ `That Boutique-y Whisky Company`, `Compass Box Artist` ↔ `Great King Street
+Artist's Blend`). `tools/linker_ml/` **augments** it (does not replace it) with a learned
+**logistic-regression blend** over the existing ~18 factors **plus a MiniLM attention
+embedding fine-tuned contrastively on `data/sku_links.json`**. The full deterministic score is
+one of the blend's features, so the current algo's strengths are preserved.
+
+**Start here:** `tools/linker_ml/CLAUDE.md` — the iteration + **re-train** guide (the exact
+6-step chain to re-run when the labeled set grows, the venv prereqs, the no-leakage group
+split, and the hard-won notes). `tools/linker_ml/README.md` is the pipeline diagram;
+`tools/linker_ml/RESULTS.md` is the measured before/after.
+
+- Pure-Node, zero-dep substrate (`featurize.mjs`, `build_dataset.mjs`, `dump_features.mjs`,
+  `train_blend.mjs`, `eval_gap.mjs`) — runs immediately, reuses the live scorer's helpers.
+- Python venv (`train_embed.py`, CPU torch + sentence-transformers, manual MNRL loop — no
+  `datasets` dep) fine-tunes the encoder. The venv (`.venv/`), HF cache (`.hf_cache/`), and
+  all artifacts (`out/`, incl. `blend_weights.json` + `embeddings.json`) are gitignored.
+- Headline metric: **recall at ≥99% precision** (a wrong auto-link corrupts a canonical
+  group), then AUC+. Train/val is split by canonical group so the embedding lift isn't leaked.

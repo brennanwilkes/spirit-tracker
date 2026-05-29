@@ -40,7 +40,9 @@ import {
 	computeInitialPairsFast,
 	dedupeByGroupRep,
 } from "./linker_page/suggestions.js";
-import { isStrong } from "./linker_page/strong_threshold.js";
+import { isStrongProb } from "./linker_page/strong_threshold.js";
+import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
+import { loadSkuEmbeddings, makeEmbedCosFn } from "./linker_page/embeddings.js";
 
 /* ---------------- Page ---------------- */
 
@@ -227,6 +229,15 @@ export async function renderSkuLinker($app) {
 	// via index.json). Drives the distinctive-shared-term boost in recommendSimilar.
 	const simVocab = buildVocab(allAgg);
 
+	// Learned-blend re-ranker for auto-suggestions. Embeddings are an optional LFS
+	// data-branch artifact; with them present we use the embed-trained weights + cosine,
+	// otherwise the no-embed weights (correct calibration). See linker_page/blend.js.
+	const skuEmb = await loadSkuEmbeddings();
+	const blend = {
+		weights: skuEmb ? BLEND_WEIGHTS_EMBED : BLEND_WEIGHTS_NOEMBED,
+		embedCosFn: makeEmbedCosFn(skuEmb),
+	};
+
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
 	let ignoreSet = rules.ignoreSet;
@@ -380,7 +391,7 @@ export async function renderSkuLinker($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroup,
-				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: groupRep },
+				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: groupRep, blend },
 			);
 			return scored.map((x) => (x && x.it ? { it: x.it, score: x.score || 0 } : { it: x, score: null }));
 		}
@@ -468,7 +479,7 @@ export async function renderSkuLinker($app) {
 					.map(({ it, score }) =>
 						renderCard(it, false, {
 							score: score,
-							strong: shouldStrong && score != null && isStrong(score, topScore),
+							strong: shouldStrong && score != null && isStrongProb(score, topScore),
 						}),
 					)
 					.join("")
