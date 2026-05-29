@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-29T05:17:06.370Z",
+  "generatedAt": "2026-05-29T08:20:45.354Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,17 +34,16 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12987,
-    "removedRows": 4819,
-    "canonSkus": 6017,
+    "liveRows": 12974,
+    "removedRows": 4841,
+    "canonSkus": 6019,
     "outputCount": 50
   },
   "rows": [
     {
       "canonSku": "006968",
-      "storeCount": 16,
+      "storeCount": 15,
       "stores": [
-        "arc",
         "bcl",
         "bsw",
         "coop",
@@ -61,9 +60,10 @@
         "vintage",
         "willowpark"
       ],
-      "missingStores": [],
+      "missingStores": [
+        "arc"
+      ],
       "storePrices": {
-        "arc": 49.99,
         "bcl": 49.99,
         "bsw": 48.99,
         "coop": 54.99,
@@ -135,7 +135,7 @@
         "sierrasprings": 89.42,
         "strath": 80.87,
         "tudor": 79.99,
-        "vessel": 75.99,
+        "vessel": 79.99,
         "vintage": 75.57,
         "willowpark": 84.99
       },
@@ -1041,7 +1041,7 @@
         "sierrasprings"
       ],
       "storePrices": {
-        "arc": 30.39,
+        "arc": 28.59,
         "bcl": 27.49,
         "bsw": 30.99,
         "craftcellars": 33.99,
@@ -1275,7 +1275,7 @@
         "legacyliquor": 148.99,
         "sierrasprings": 157.04,
         "tudor": 148.99,
-        "vessel": 134.99,
+        "vessel": 144.99,
         "willowpark": 152.99
       },
       "representative": {
@@ -1295,6 +1295,62 @@
         "priceNum": 129.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/303815"
+      }
+    },
+    {
+      "canonSku": "116752",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "arc": 46.39,
+        "bcl": 50.99,
+        "bsw": 49.99,
+        "gull": 48.25,
+        "kegncork": 50.96,
+        "legacyliquor": 58.99,
+        "sierrasprings": 42.75,
+        "strath": 54.7,
+        "tudor": 50.99,
+        "vessel": 49.99,
+        "vintage": 56.43,
+        "willowpark": 47.99
+      },
+      "representative": {
+        "name": "PLANTATION PINEAPPLE RUM",
+        "price": "$42.75",
+        "priceNum": 42.75,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "774462",
+        "skuKey": "774462",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$42.75",
+        "priceNum": 42.75,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/"
       }
     },
     {
@@ -1322,7 +1378,7 @@
       ],
       "storePrices": {
         "bcl": 89.99,
-        "bsw": 67.99,
+        "bsw": 61.99,
         "coop": 79.99,
         "craftcellars": 79.99,
         "gull": 91.99,
@@ -1336,8 +1392,8 @@
       },
       "representative": {
         "name": "Glenfiddich 14 Year Old Bourbon Barrel Reserve",
-        "price": "$67.99",
-        "priceNum": 67.99,
+        "price": "$61.99",
+        "priceNum": 61.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "813356",
@@ -1347,8 +1403,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$67.99",
-        "priceNum": 67.99,
+        "price": "$61.99",
+        "priceNum": 61.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-14-year-old-bourbon-barrel-1"
       }
@@ -2079,61 +2135,6 @@
       }
     },
     {
-      "canonSku": "116752",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "gull",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "arc": 46.39,
-        "bcl": 50.99,
-        "bsw": 49.99,
-        "gull": 48.25,
-        "legacyliquor": 58.99,
-        "sierrasprings": 42.75,
-        "strath": 54.7,
-        "tudor": 50.99,
-        "vessel": 49.99,
-        "vintage": 56.43,
-        "willowpark": 47.99
-      },
-      "representative": {
-        "name": "PLANTATION PINEAPPLE RUM",
-        "price": "$42.75",
-        "priceNum": 42.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "774462",
-        "skuKey": "774462",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$42.75",
-        "priceNum": 42.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/"
-      }
-    },
-    {
       "canonSku": "138495",
       "storeCount": 11,
       "stores": [
@@ -2433,7 +2434,7 @@
       ],
       "storePrices": {
         "bcl": 129.99,
-        "bsw": 120,
+        "bsw": 110,
         "craftcellars": 139.99,
         "gull": 134.99,
         "kwm": 139.99,
@@ -2444,22 +2445,22 @@
         "willowpark": 129.99
       },
       "representative": {
-        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "The Macallan 12 Year Old Double Cask",
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "787186",
         "skuKey": "787186",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/macallan-12-year-double-cask-58-2-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+        "url": "https://www.bswliquor.com/products/the-macallan-12-year-old-double-cask",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/macallan-12-year-double-cask-58-2-abv/"
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/the-macallan-12-year-old-double-cask"
       }
     },
     {

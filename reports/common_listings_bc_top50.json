@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-29T05:17:07.381Z",
+  "generatedAt": "2026-05-29T08:20:46.416Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4425,
-    "removedRows": 562,
-    "canonSkus": 2190,
+    "liveRows": 4417,
+    "removedRows": 575,
+    "canonSkus": 2188,
     "outputCount": 50
   },
   "rows": [
@@ -90,7 +90,7 @@
       ],
       "missingStores": [],
       "storePrices": {
-        "arc": 30.39,
+        "arc": 28.59,
         "bcl": 27.49,
         "gull": 28.95,
         "legacyliquor": 30.99,
@@ -182,7 +182,7 @@
         "legacyliquor": 83.51,
         "strath": 80.87,
         "tudor": 79.99,
-        "vessel": 75.99,
+        "vessel": 79.99,
         "vintage": 75.57
       },
       "representative": {
@@ -268,7 +268,7 @@
         "legacyliquor": 47.27,
         "strath": 47.74,
         "tudor": 45.99,
-        "vessel": 42.99,
+        "vessel": 45.99,
         "vintage": 40.78
       },
       "representative": {
@@ -1470,67 +1470,25 @@
         "gull": 33,
         "strath": 31.31,
         "tudor": 30.99,
-        "vessel": 29.99
+        "vessel": 31.99
       },
       "representative": {
-        "name": "Ballantine's - Finest Blended Scotch",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "BALLANTINE'S - FINEST",
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "001610",
         "skuKey": "001610",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://www.bcliquorstores.com/product/1610",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/ballantines-finest-blended-scotch-750-ml"
-      }
-    },
-    {
-      "canonSku": "001800",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 39.59,
-        "bcl": 38.99,
-        "gull": 38.75,
-        "legacyliquor": 42.99,
-        "tudor": 59.99,
-        "vessel": 37.49
-      },
-      "representative": {
-        "name": "JP Wiser's - Deluxe Whisky",
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001800",
-        "skuKey": "001800",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1610"
       }
     },
     {
@@ -1554,7 +1512,7 @@
         "gull": 26.2,
         "legacyliquor": 28.58,
         "strath": 26,
-        "vessel": 25.99
+        "vessel": 24.99
       },
       "representative": {
         "name": "LAMBS NAVY 750ML",
@@ -2119,6 +2077,47 @@
         "priceNum": 144.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/243824"
+      }
+    },
+    {
+      "canonSku": "001800",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 39.59,
+        "bcl": 38.99,
+        "gull": 38.75,
+        "tudor": 59.99,
+        "vessel": 37.49
+      },
+      "representative": {
+        "name": "JP Wiser's - Deluxe Whisky",
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001800",
+        "skuKey": "001800",
+        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
       }
     },
     {
