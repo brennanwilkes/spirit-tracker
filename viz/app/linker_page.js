@@ -90,6 +90,8 @@ export async function renderSkuLinker($app) {
 	}
 
 	let currentTemp = loadTemp();
+	// AI toggle state — read BEFORE the header template renders its checkbox (avoids a TDZ).
+	let aiOn = aiEnabled();
 
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
@@ -246,7 +248,6 @@ export async function renderSkuLinker($app) {
 	// AI embedding blend — OFF by default (the original scorer has the sharp separation).
 	// Lazily loaded when the user opts in; `blend` is null when off so suggestions use the
 	// raw scorer. See linker_page/blend.js + embeddings.js + ai_pref.js.
-	let aiOn = aiEnabled();
 	let blend = aiOn ? await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED) : null;
 
 	const meta = await loadSkuMetaBestEffort();
