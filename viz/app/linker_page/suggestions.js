@@ -101,6 +101,12 @@ function isBadSku(sku) {
 // usually that store's own id-upgrade of the SAME listing (a true link).
 const STORE_EXCLUSIVITY_PENALTY = 0.35;
 
+// A shared SMWS cask code (e.g. 94.34, GN6.3) is a unique product fingerprint —
+// two listings carrying the same code are the same single-cask bottling. Floor
+// the score so the match survives even though the code's digits are filtered out
+// of the name vocabulary (which otherwise leaves these pairs near 0).
+const SMWS_SHARED_FLOOR = 12;
+
 /* ---------------- Per-pair scoring (single source of truth) ---------------- */
 
 // Build the per-anchor context once; pass it to scorePairWithVocab for each
@@ -265,8 +271,16 @@ export function scorePairWithVocab(ctx, candidate) {
 	// (III/IV/V…), season codes (S22/S24/S2023). When both sides carry codes of
 	// the same kind and they differ, the products are different (different cask,
 	// release, batch).
+	let smwsShared = false;
 	if (ctx.editionCodes && ctx.editionCodes.size > 0) {
-		s *= editionCodeMultiplier(ctx.editionCodes, extractEditionCodes(itName));
+		const itCodes = extractEditionCodes(itName);
+		s *= editionCodeMultiplier(ctx.editionCodes, itCodes);
+		for (const code of ctx.editionCodes) {
+			if (code.startsWith("smws:") && itCodes.has(code)) {
+				smwsShared = true;
+				break;
+			}
+		}
 	}
 
 	// Mutually-exclusive concept walls (gin vs whisky, single malt vs bourbon,
@@ -289,6 +303,12 @@ export function scorePairWithVocab(ctx, candidate) {
 	}
 
 	if (isBadSku(ctx.sku) || isBadSku(itSku)) s *= 1.2;
+
+	// A shared SMWS cask code is a unique-cask fingerprint — apply its floor LAST
+	// so nothing (flavor/concept/store penalties, low name overlap) can bury a
+	// confirmed same-cask match. Many SMWS names are flavor tasting-notes, so this
+	// ordering is what lets the flavor wall coexist with SMWS matching.
+	if (smwsShared) s = Math.max(s, SMWS_SHARED_FLOOR);
 
 	return s;
 }

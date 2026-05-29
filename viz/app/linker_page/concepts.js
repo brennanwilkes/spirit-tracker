@@ -29,6 +29,24 @@ export const CATEGORY_CONFLICT = 0.1; // gin vs rum vs whisky … — hard wall
 export const SUBSTYLE_CONFLICT = 0.25; // single malt vs bourbon vs rye — moderate
 export const BATCHING_CONFLICT = 0.15; // single barrel vs small batch
 export const NON_ALC_CONFLICT = 0.1; // 0.0% / alcohol-free vs the real spirit
+export const FLAVOR_CONFLICT = 0.15; // a flavored variant (cream/spiced/fruit/…) ≠ the base
+
+// Flavor / variant qualifiers. A spirit carrying one of these is a distinct
+// product from the same line without it (Buffalo Trace Bourbon ↔ Bourbon Cream;
+// Edinburgh Gin ↔ Edinburgh Gin Raspberry). Curated to words that, in the
+// catalog, only ever appear as variant markers — validated against the labels to
+// break ≤2 confirmed links each. Excludes "lemon" (SMWS tasting-note noise),
+// "peated"/"smoked" (core styles, not variants). SMWS shared-cask matches are
+// protected by a final floor in suggestions.js, so tasting-note names here are
+// harmless.
+const VARIANT_FLAVORS = [
+	"cream", "spiced", "spice", "vanilla", "chocolate", "coffee", "espresso", "mocha",
+	"caramel", "toffee", "honey", "ginger", "cinnamon", "coconut", "berry", "raspberry",
+	"strawberry", "blueberry", "blackberry", "cranberry", "cherry", "apple", "peach",
+	"mango", "orange", "lime", "citrus", "grapefruit", "pineapple", "passionfruit",
+	"rhubarb", "elderflower", "sloe", "rose", "cucumber", "watermelon", "banana", "salted",
+];
+const FLAVOR_RE = VARIANT_FLAVORS.map((f) => [f, new RegExp("\\b" + f + "\\b")]);
 // Presence/absence nudges — gentle on purpose (high false-negative risk).
 export const CASK_STRENGTH_MARKER = 0.7;
 export const SHERRY_MARKER = 0.75;
@@ -117,6 +135,14 @@ export function hasSherry(norm) {
 	return /\b(sherry|oloroso|amontillado|manzanilla|fino|pedro\s*ximenez|\bpx\b)\b/.test(lc(norm));
 }
 
+// The set of flavor/variant qualifiers a name asserts.
+export function flavorSet(name) {
+	const n = lc(name);
+	const out = new Set();
+	for (const [f, re] of FLAVOR_RE) if (re.test(n)) out.add(f);
+	return out;
+}
+
 // Alcohol-free / 0.0% expression. Requires the explicit "0.0%" (the trailing %
 // rules out ABV figures like "50.00") or an alcohol-free phrase. Detected on the
 // raw name because normSearchText strips the period and percent sign.
@@ -161,6 +187,12 @@ export function conceptConflictMultiplier(aName, bName) {
 
 	// A 0.0% expression vs the real spirit is never the same SKU.
 	if (hasNonAlcoholic(aName) !== hasNonAlcoholic(bName)) m *= NON_ALC_CONFLICT;
+
+	// A flavored variant ≠ the base (or a differently-flavored one): if the two
+	// names assert different flavor-qualifier sets, demote.
+	const af = flavorSet(aName);
+	const bf = flavorSet(bName);
+	if (af.size !== bf.size || [...af].some((f) => !bf.has(f))) m *= FLAVOR_CONFLICT;
 
 	// Gentle presence/absence nudges (tunable; off by setting the const to 1).
 	if (CASK_STRENGTH_MARKER !== 1) {

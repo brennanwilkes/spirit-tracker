@@ -63,7 +63,8 @@ export function extractAgeFromText(normName) {
 	const s = String(normName || "");
 	if (!s) return "";
 
-	const m = s.match(/\b(?:aged\s*)?(\d{1,2})\s*(?:yr|yrs|year|years)\b/i);
+	// incl. Spanish "años/años" (accent-folded to "anos") — "7 Años" → 7.
+	const m = s.match(/\b(?:aged\s*)?(\d{1,2})\s*(?:yr|yrs|year|years|anos?)\b/i);
 	if (m && m[1]) return String(parseInt(m[1], 10));
 
 	const m2 = s.match(/\b(\d{1,2})\s*yo\b/i);
@@ -128,8 +129,14 @@ export function extractEditionCodes(normName) {
 	// "\d.\d" pattern otherwise swallows ABV values (59.1, 46.8) now that periods
 	// survive normalization — and those would create bogus same-kind conflicts.
 	if (/\bsmws\b/.test(s)) {
+		// Numeric cask code: NN.NN … up to 3-digit distillery part (128.22, 94.34).
 		const smws = s.match(/\b\d{1,3}\.\d{1,4}\b/g);
 		if (smws) for (const m of smws) out.add("smws:" + m);
+		// Lettered distillery codes: G/B/R single-letter, GN (gin), RW (rye whisky),
+		// optionally with a decimal release (R4, G1, GN6.3, RW5.1, GN3.23). Whitelist
+		// the prefixes so volume noise like "x 750" can never be read as a code.
+		const lettered = s.match(/\b(?:gn|rw|bw|g|b|r|c|a)\d{1,3}(?:\.\d{1,3})?\b/gi);
+		if (lettered) for (const m of lettered) out.add("smws:" + m.toLowerCase());
 	}
 	const lettered = s.match(/\b[a-z]\d{1,3}\b/gi);
 	if (lettered)

@@ -156,3 +156,23 @@ these are run by hand against the `.worktrees/data` worktree.
 The single most important supervision signal is `data/sku_links.json` (manual links +
 `ignores`); see "SKU Identity & Canonical Mapping" above. Implicit links (same raw SKU
 at ≥2 stores) are captured for free by aggregating per raw SKU.
+
+### How to REPORT benchmark results to the user (required format)
+
+When presenting eval/benchmark output, do NOT paste the raw harness text. **Re-render it
+yourself as clean Markdown tables** (the kind that draw nicely in the terminal), with
+column headers, and **show every requested row** (e.g. all 15 worst offenders — never
+truncate to a few). Prose analysis is welcome *before and after*, but the tables are
+mandatory. Three tables, in this order:
+
+1. **Headline metrics** — columns `Metric | Value | Floor / note`. Always include AUC+
+   (vs hard negatives) with its trivial shared-word floor, AUC vs ignores, and the
+   auto-link thresholds for 95% and 99% precision (with recall). These are the numbers
+   that matter; the small-fixtures era is over.
+2. **15 worst false positives** (ignored pairs scored high) — columns
+   `# | Algo | Expected | SKU A | Name A | SKU B | Name B | Why`. Expected = `IGNORE`.
+3. **15 worst false negatives** (linked pairs scored low) — same columns, Expected = `LINK`.
+
+Always include the raw SKUs (so they're searchable) and a short "Why" cell per row
+(size variant / one-sided age / SMWS-code-lost / possessive-brand / probable-mislabel …).
+Flag suspected mislabels explicitly so they can be relabeled rather than chased.

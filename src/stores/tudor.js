@@ -423,9 +423,10 @@ async function tudorRepairItem(ctx, it) {
 	const inStockVariants = Array.isArray(it._variants) ? it._variants.filter((v) => Number(v?.quantity) > 0) : [];
 
 	const hasMultiInStock = inStockVariants.length >= 2;
+	const hasMultiVariant = Array.isArray(it._variants) && it._variants.length >= 2;
 
 	// 1) HTML: fix SKU if missing/synthetic, AND fix price for multi-variant URLs
-	if (isSyntheticSku(it.sku) || hasMultiInStock) {
+	if (isSyntheticSku(it.sku) || hasMultiInStock || hasMultiVariant) {
 		const d = await tudorDetailFromProductPage(ctx, it.url);
 
 		// Prefer real SKU from HTML
@@ -436,21 +437,8 @@ async function tudorRepairItem(ctx, it) {
 		// Fill image if missing
 		if (!it.img && d?.img) it.img = d.img;
 
-		// Price precision:
-		// - Best: match HTML SKU to a GQL variant sku => exact numeric variant price
-		// - Fallback: use displayed HTML price
-		const htmlSkuDigits = String(d?.sku || "")
-			.replace(/^id:/i, "")
-			.trim();
-
-		if (htmlSkuDigits && inStockVariants.length) {
-			const match = inStockVariants.find((v) => String(v?.sku || "").trim() === htmlSkuDigits);
-			if (match && Number.isFinite(Number(match.price))) {
-				it.price = money(match.price);
-			} else if (Number.isFinite(d?.priceNum)) {
-				it.price = money(d.priceNum);
-			}
-		} else if (Number.isFinite(d?.priceNum)) {
+		// HTML-displayed price is authoritative — GQL variant prices can lag or differ
+		if (Number.isFinite(d?.priceNum)) {
 			it.price = money(d.priceNum);
 		}
 	}
@@ -501,8 +489,8 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 			}
 
 			// queue only; do not do detail calls inline
-			const inStockCount = Array.isArray(it._variants) ? it._variants.filter((v) => Number(v?.quantity) > 0).length : 0;
-			if (isSyntheticSku(it.sku) || !it.img || inStockCount >= 2) needsDetail.push(it);
+			const hasMultiVariant = Array.isArray(it._variants) && it._variants.length >= 2;
+			if (isSyntheticSku(it.sku) || !it.img || hasMultiVariant) needsDetail.push(it);
 
 			discovered.set(it.url, it);
 			kept++;
@@ -535,7 +523,7 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 	let gqlUsed = 0;
 
 	for (const it of needsDetail) {
-		const wantsHtml = isSyntheticSku(it.sku);
+		const wantsHtml = isSyntheticSku(it.sku) || (Array.isArray(it._variants) && it._variants.length >= 2);
 		const wantsGql = !it.img && String(it._skuProbe || "").trim();
 
 		// enforce caps
