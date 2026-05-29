@@ -16,8 +16,9 @@
 // IMPORTANT — only conflicts that survive against the LABELS are hard:
 //   - category (gin/rum/whisky/vodka/…)  : 0 confirmed-link breaks  → hard
 //   - single barrel ↔ small batch        : 0 confirmed-link breaks  → hard
-//   - whisky substyle (malt/bourbon/rye) : ~9 breaks, several being mislabels
-//                                          → moderate (keeps them reviewable)
+//   - whisky substyle (malt/bourbon/rye/ : reliable distillation types only —
+//     grain/pot still/corn)                "blend"/"blended malt" excluded, the
+//                                          catalog labels them interchangeably
 // Presence/absence "markers" (cask strength, sherry) are NOT categorical — a
 // store routinely drops the qualifier for the SAME product (Aberlour A'Bunadh
 // is cask strength whether or not the listing says so), so they break 20–30
@@ -73,21 +74,21 @@ export function categorySet(norm) {
 	return out;
 }
 
-// Whisky sub-style. Only meaningful when both sides are whisky; mutually
-// exclusive members. A name asserting more than one (e.g. "blended malt") is
-// resolved to the most specific member.
+// Whisky sub-style — the RELIABLE, mutually-exclusive distillation types only.
+// "blend" / "blended malt" are deliberately NOT members: the catalog uses those
+// labels interchangeably and wrongly (a store will call the same bottling
+// "Blended Malt" and "Blended Scotch Whisky", or even "Single Malt"), so they
+// cannot separate products without false demotes — unlike malt↔rye↔bourbon,
+// which stores label consistently.
 export function substyleSet(norm) {
 	const n = stripCaskContexts(lc(norm));
 	const out = new Set();
 	if (/\bsingle\s+malt\b/.test(n)) out.add("singlemalt");
-	if (/\bblended\s+malt\b/.test(n)) out.add("blendedmalt");
 	if (/\bsingle\s+grain\b|\bgrain\s+(whisky|whiskey|scotch)\b/.test(n)) out.add("grain");
 	if (/\bpot\s+still\b/.test(n)) out.add("potstill");
 	if (/\bbourbon\b/.test(n)) out.add("bourbon");
 	if (/\brye\b/.test(n)) out.add("rye");
 	if (/\bcorn\s+(whisky|whiskey)\b/.test(n)) out.add("corn");
-	// "blended" (scotch/whisky) only when it isn't the more-specific blended malt
-	if (!out.has("blendedmalt") && /\bblend(ed)?\b/.test(n)) out.add("blend");
 	return out;
 }
 
