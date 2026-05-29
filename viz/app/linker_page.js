@@ -40,9 +40,10 @@ import {
 	computeInitialPairsFast,
 	dedupeByGroupRep,
 } from "./linker_page/suggestions.js";
-import { isStrongProb } from "./linker_page/strong_threshold.js";
+import { isStrong, isStrongProb } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
+import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 /* ---------------- Page ---------------- */
 
@@ -110,6 +111,9 @@ export async function renderSkuLinker($app) {
 
         <div style="flex:1"></div>
         <a class="btn" href="#/link-rapid" style="padding:6px 10px;">⚡ Rapid</a>
+        <label id="linkAiToggle" class="btn" title="Re-rank suggestions with the fine-tuned AI embedding. Off = classical scorer. On = embedding blend, with an 'AI ±x' chip showing its influence." style="padding:6px 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="linkAiChk" ${aiOn ? "checked" : ""} style="cursor:pointer;margin:0;" />🧠 AI
+        </label>
         ${!localWrite ? `<span id="pendingTop" class="badge mono" style="display:none;"></span>` : ``}
         ${
 					!localWrite
@@ -158,6 +162,16 @@ export async function renderSkuLinker($app) {
 		e.preventDefault();
 		goBack();
 	});
+
+	const $aiChk = document.getElementById("linkAiChk");
+	if ($aiChk) {
+		$aiChk.addEventListener("change", async (e) => {
+			aiOn = !!e.target.checked;
+			setAiEnabled(aiOn);
+			if (aiOn && !blend) blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+			updateAll();
+		});
+	}
 
 	const $qL = document.getElementById("qL");
 	const $qR = document.getElementById("qR");
@@ -229,10 +243,11 @@ export async function renderSkuLinker($app) {
 	// via index.json). Drives the distinctive-shared-term boost in recommendSimilar.
 	const simVocab = buildVocab(allAgg);
 
-	// Learned-blend re-ranker for auto-suggestions. buildBlend uses the embed weights +
-	// cosine ONLY when the optional vectors file actually covers this catalog; otherwise
-	// it falls back to the robust no-embed weights. See linker_page/blend.js + embeddings.js.
-	const blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+	// AI embedding blend — OFF by default (the original scorer has the sharp separation).
+	// Lazily loaded when the user opts in; `blend` is null when off so suggestions use the
+	// raw scorer. See linker_page/blend.js + embeddings.js + ai_pref.js.
+	let aiOn = aiEnabled();
+	let blend = aiOn ? await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED) : null;
 
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
@@ -318,10 +333,17 @@ export async function renderSkuLinker($app) {
 
 		const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
 		const score = opts && Number.isFinite(opts.score) ? opts.score : null;
+		const aiDelta = opts && Number.isFinite(opts.aiDelta) ? opts.aiDelta : null;
 		const strong = !!(opts && opts.strong);
+		// Probabilities (AI on) are ≤1 → show 2 decimals; raw scores → 1 decimal.
+		const scoreTxt = score == null ? "" : score <= 1 ? score.toFixed(2) : score.toFixed(1);
+		const aiChip =
+			aiDelta != null
+				? `<span class="badge mono" title="AI embedding shifts this score by ${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)} vs the classical algorithm" style="background:${Math.abs(aiDelta) >= 0.05 ? "rgba(168,85,247,0.22)" : "rgba(148,163,184,0.16)"};color:${Math.abs(aiDelta) >= 0.05 ? "#c084fc" : "#9aa6b2"};">AI ${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)}</span>`
+				: ``;
 		const scoreHtml =
 			score != null
-				? `<span class="badge mono simScore" title="similarity score">${score.toFixed(1)}</span>`
+				? `<span class="badge mono simScore" title="match score">${scoreTxt}</span>${aiChip}`
 				: ``;
 
 		return `
@@ -387,9 +409,17 @@ export async function renderSkuLinker($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroup,
-				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: groupRep, blend },
+				{
+					vocab: simVocab,
+					allowSameStore: true,
+					withScores: true,
+					groupRepFn: groupRep,
+					blend: aiOn ? blend : null,
+				},
 			);
-			return scored.map((x) => (x && x.it ? { it: x.it, score: x.score || 0 } : { it: x, score: null }));
+			return scored.map((x) =>
+				x && x.it ? { it: x.it, score: x.score || 0, aiDelta: x.aiDelta } : { it: x, score: null },
+			);
 		}
 
 		const pairs = getInitialPairsIfNeeded();
@@ -470,12 +500,14 @@ export async function renderSkuLinker($app) {
 		const scores = entries.map((e) => (Number.isFinite(e.score) ? e.score : null));
 		const topScore = scores.reduce((m, s) => (s != null && s > m ? s : m), 0);
 		const shouldStrong = !!other;
+		const strongFn = aiOn ? isStrongProb : isStrong;
 		$list.innerHTML = entries.length
 			? entries
-					.map(({ it, score }) =>
+					.map(({ it, score, aiDelta }) =>
 						renderCard(it, false, {
 							score: score,
-							strong: shouldStrong && score != null && isStrongProb(score, topScore),
+							aiDelta: aiDelta,
+							strong: shouldStrong && score != null && strongFn(score, topScore),
 						}),
 					)
 					.join("")

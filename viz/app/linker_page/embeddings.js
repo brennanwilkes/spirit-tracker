@@ -82,7 +82,15 @@ export async function buildBlend(allAgg, weightsEmbed, weightsNoEmbed) {
 		const coverage = sampled ? present / sampled : 0;
 		if (coverage >= COVERAGE_MIN) {
 			console.info(`[linker] embeddings active — coverage ${(coverage * 100).toFixed(0)}%`);
-			return { weights: weightsEmbed, embedCosFn: makeEmbedCosFn(emb), embeddings: true, coverage };
+			// weightsNoEmbed is carried so recommendSimilar can compute the AI contribution
+			// (embed prob − classical prob) per candidate for the UI indicator.
+			return {
+				weights: weightsEmbed,
+				weightsNoEmbed,
+				embedCosFn: makeEmbedCosFn(emb),
+				embeddings: true,
+				coverage,
+			};
 		}
 		console.warn(
 			`[linker] sku_embeddings.json present but coverage only ${(coverage * 100).toFixed(0)}% ` +
@@ -90,5 +98,5 @@ export async function buildBlend(allAgg, weightsEmbed, weightsNoEmbed) {
 				`tools/linker_ml/train_embed.py against the current catalog to activate the embedding.`,
 		);
 	}
-	return { weights: weightsNoEmbed, embedCosFn: null, embeddings: false, coverage: 0 };
+	return { weights: weightsNoEmbed, weightsNoEmbed: null, embedCosFn: null, embeddings: false, coverage: 0 };
 }

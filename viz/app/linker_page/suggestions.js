@@ -610,6 +610,7 @@ export function recommendSimilar(
 	// cask code always stays on top.
 	if (vocab && opts && opts.blend && opts.blend.weights) {
 		const bw = opts.blend.weights;
+		const bwNo = opts.blend.weightsNoEmbed || null; // for the AI-contribution indicator
 		const embedCosFn = opts.blend.embedCosFn || null;
 		for (const f of fine) {
 			if (!f.it || f.s >= 1e8) continue;
@@ -620,7 +621,10 @@ export function recommendSimilar(
 				embedCosFn,
 				detScore: f.s,
 			});
-			f.s = blendScore(feats, bw);
+			const p = blendScore(feats, bw);
+			// aiDelta = how much the embedding moved the score vs the classical-only blend.
+			if (bwNo) f.aiDelta = p - blendScore(feats, bwNo);
+			f.s = p;
 		}
 	}
 
@@ -629,7 +633,7 @@ export function recommendSimilar(
 	const fineDeduped = dedupeByGroupRep(fine, (x) => x.it && x.it.sku, groupRepFn);
 	if (fineDeduped.length) {
 		const top = fineDeduped.slice(0, limit);
-		return withScores ? top.map((x) => ({ it: x.it, score: x.s })) : top.map((x) => x.it);
+		return withScores ? top.map((x) => ({ it: x.it, score: x.s, aiDelta: x.aiDelta })) : top.map((x) => x.it);
 	}
 
 	// Fallback (unchanged)

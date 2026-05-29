@@ -29,9 +29,15 @@ import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
 import { recommendSimilar, dedupeByGroupRep } from "./linker_page/suggestions.js";
 import { buildVocab } from "./linker_page/vocab.js";
-import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
+import {
+	STRONG_ABS,
+	STRONG_REL,
+	STRONG_ABS_PROB,
+	STRONG_REL_PROB,
+} from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
+import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 const QUEUE_KEY = "stviz:linker_rapid_queue_v1";
 const STORE_KEY = "stviz:linker_rapid_store_v1";
@@ -52,10 +58,12 @@ export async function renderSkuLinkerRapid($app) {
 	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
 	const simVocab = buildVocab(allAgg);
 
-	// Learned-blend re-ranker. buildBlend uses the embed weights + cosine ONLY when the
-	// optional vectors file (LFS, data branch) actually covers this catalog; otherwise it
-	// falls back to the robust no-embed weights. Passed to every recommendSimilar call.
-	const blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+	// AI embedding blend — OFF by default (the original deterministic scorer has the sharp
+	// separation users rely on for rapid linking). When the user opts in, lazily load the
+	// embeddings + build the blend (coverage-gated). `blend` is null when AI is off, so every
+	// recommendSimilar call below falls back to the raw scorer. Toggling rebuilds the worklist.
+	let aiOn = aiEnabled();
+	let blend = aiOn ? await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED) : null;
 
 	const meta = await loadSkuMetaBestEffort();
 
@@ -253,7 +261,7 @@ export async function renderSkuLinkerRapid($app) {
 			pricePenaltyForPair,
 			sameStoreCanon,
 			sameGroupLocal,
-			{ vocab: simVocab, allowSameStore: true, withScores: true, blend },
+			{ vocab: simVocab, allowSameStore: true, withScores: true, blend: aiOn ? blend : null },
 		);
 		return scored && scored[0] && scored[0].it ? scored[0].score || 0 : 0;
 	}
@@ -346,7 +354,13 @@ export async function renderSkuLinkerRapid($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroupLocal,
-				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: findRep, blend },
+				{
+					vocab: simVocab,
+					allowSameStore: true,
+					withScores: true,
+					groupRepFn: findRep,
+					blend: aiOn ? blend : null,
+				},
 			).map((x) => (x && x.it ? x : { it: x, score: 0 }));
 		}
 		// Collapse candidates that already belong to one canonical group into a
@@ -356,6 +370,7 @@ export async function renderSkuLinkerRapid($app) {
 		return scored.map((x) => ({
 			it: x.it,
 			score: x.score || 0,
+			aiDelta: x.aiDelta,
 			shared: simVocab.weightedOverlap(anchor.name || "", x.it.name || "").shared,
 			sameStore: sameStoreCanon(String(anchor.sku), String(x.it.sku)),
 		}));
@@ -591,11 +606,20 @@ export async function renderSkuLinkerRapid($app) {
 
 		const numHint = o.num != null ? `<span class="rapidNum">${o.num}</span>` : "";
 		const accClass = o.ignored ? "rapidIgnored" : o.accepted ? "rapidAccepted" : "";
+		// Confidence: a tier-coloured dot + the score number. When the AI blend is active,
+		// an "AI ±x" chip shows how much the embedding shifted the score vs the classical
+		// algorithm — a large purple chip on a bad suggestion means the AI is to blame.
+		const tierColor = o.pct >= 0.66 ? "#22c55e" : o.pct >= 0.33 ? "#d97706" : "#94a3b8";
+		const aiChip =
+			o.aiDelta != null
+				? `<span class="rapidAiChip" title="AI embedding shifts this score by ${o.aiDelta >= 0 ? "+" : ""}${o.aiDelta.toFixed(2)} vs the classical algorithm" style="margin-left:7px;padding:1px 6px;border-radius:8px;font-size:0.76em;font-weight:600;background:${Math.abs(o.aiDelta) >= 0.05 ? "rgba(168,85,247,0.22)" : "rgba(148,163,184,0.16)"};color:${Math.abs(o.aiDelta) >= 0.05 ? "#c084fc" : "#94a3b8"};">AI ${o.aiDelta >= 0 ? "+" : ""}${o.aiDelta.toFixed(2)}</span>`
+				: "";
 		const conf =
 			o.pct != null
-				? `<div class="rapidConf" title="match strength ${(o.score || 0).toFixed(2)}">
-					<div class="rapidConfBar"><div class="rapidConfFill" style="width:${Math.round(Math.max(0.04, o.pct) * 100)}%"></div></div>
-					<span class="rapidConfTxt">${confidenceLabel(o.pct)} ${(o.score || 0).toFixed(2)}</span>
+				? `<div class="rapidConf" title="score ${(o.score || 0).toFixed(2)}" style="display:flex;align-items:center;">
+					<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${tierColor};margin-right:6px;flex:0 0 auto;"></span>
+					<span class="rapidConfTxt" style="font-variant-numeric:tabular-nums;font-weight:600;">${(o.score || 0).toFixed(2)}</span>
+					${aiChip}
 				</div>`
 				: "";
 		const accBadge = o.candidate
@@ -651,7 +675,9 @@ export async function renderSkuLinkerRapid($app) {
 
 		// Adaptive split: a "Suggestion" is a candidate that's strong both
 		// absolutely and relative to the best — so the count flexes with quality.
-		const cutoff = Math.max(STRONG_ABS_PROB, STRONG_REL_PROB * topScore);
+		const cutoff = aiOn
+			? Math.max(STRONG_ABS_PROB, STRONG_REL_PROB * topScore)
+			: Math.max(STRONG_ABS, STRONG_REL * topScore);
 		const strong = [];
 		const other = [];
 		candidates.forEach((c, i) => {
@@ -670,6 +696,7 @@ export async function renderSkuLinkerRapid($app) {
 				accepted: isPairStaged(anchorSkuStr, String(c.it.sku)),
 				ignored: isPairIgnoredSession(anchorSkuStr, String(c.it.sku)),
 				score: c.score,
+				aiDelta: c.aiDelta,
 				pct: topScore > 0 ? c.score / topScore : 0,
 				shared: c.shared,
 				sameStore: c.sameStore,
@@ -761,6 +788,9 @@ export async function renderSkuLinkerRapid($app) {
 			<button id="rapidFlush" class="btn" style="padding:6px 10px;">Save</button>
 			<button id="rapidClear" class="btn" style="padding:6px 10px;">Clear</button>
 			<a class="btn" href="#/link" style="padding:6px 10px;">Manual</a>
+			<label id="rapidAiToggle" class="btn" title="Re-rank suggestions with the fine-tuned AI embedding. Off = classical scorer (sharp). On = embedding blend, with an 'AI ±x' chip showing how much it shifts each score." style="padding:6px 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+				<input type="checkbox" id="rapidAiChk" ${aiOn ? "checked" : ""} style="cursor:pointer;margin:0;" />🧠 AI embeddings
+			</label>
 		</div>
 
 		<div class="card rapidStatsBar">
@@ -814,6 +844,30 @@ export async function renderSkuLinkerRapid($app) {
 		}
 		e.stopPropagation();
 	});
+
+	const $aiChk = document.getElementById("rapidAiChk");
+	if ($aiChk) {
+		$aiChk.addEventListener("change", async (e) => {
+			aiOn = !!e.target.checked;
+			setAiEnabled(aiOn);
+			if (aiOn && !blend) {
+				setStatus("Loading AI embeddings…");
+				blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+			}
+			worklist = buildWorklist();
+			workIdx = 0;
+			skipLinkedForward();
+			highlight = 0;
+			setStatus(
+				aiOn
+					? blend && blend.embeddings
+						? "AI embeddings ON — suggestions re-ranked by the fine-tuned model (AI ±x shows its influence)."
+						: "AI ON, but embeddings unavailable/mismatched — using the classical blend."
+					: "AI embeddings OFF — classical scorer.",
+			);
+			render();
+		});
+	}
 
 	document.getElementById("rapidStore").addEventListener("change", (e) => {
 		storeLabel = e.target.value;
