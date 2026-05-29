@@ -42,7 +42,7 @@ import {
 } from "./linker_page/suggestions.js";
 import { isStrongProb } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
-import { loadSkuEmbeddings, makeEmbedCosFn } from "./linker_page/embeddings.js";
+import { buildBlend } from "./linker_page/embeddings.js";
 
 /* ---------------- Page ---------------- */
 
@@ -229,14 +229,10 @@ export async function renderSkuLinker($app) {
 	// via index.json). Drives the distinctive-shared-term boost in recommendSimilar.
 	const simVocab = buildVocab(allAgg);
 
-	// Learned-blend re-ranker for auto-suggestions. Embeddings are an optional LFS
-	// data-branch artifact; with them present we use the embed-trained weights + cosine,
-	// otherwise the no-embed weights (correct calibration). See linker_page/blend.js.
-	const skuEmb = await loadSkuEmbeddings();
-	const blend = {
-		weights: skuEmb ? BLEND_WEIGHTS_EMBED : BLEND_WEIGHTS_NOEMBED,
-		embedCosFn: makeEmbedCosFn(skuEmb),
-	};
+	// Learned-blend re-ranker for auto-suggestions. buildBlend uses the embed weights +
+	// cosine ONLY when the optional vectors file actually covers this catalog; otherwise
+	// it falls back to the robust no-embed weights. See linker_page/blend.js + embeddings.js.
+	const blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
 
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);

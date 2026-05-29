@@ -195,13 +195,16 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 const sigmoid = (z) => (z >= 0 ? 1 / (1 + Math.exp(-z)) : Math.exp(z) / (1 + Math.exp(z)));
 
 // weights = { keys, mean, std, w, b }. Returns a calibrated probability in [0,1].
+// A non-finite feature (e.g. embed_cosine for a SKU with no vector) contributes NOTHING
+// (neutral), rather than being read as 0 — a real cosine of 0 means "dissimilar", which
+// would wrongly crush the score. Missing ≠ dissimilar.
 export function blendScore(features, weights) {
 	if (!weights || !weights.keys) return 0;
 	let dot = weights.b;
 	for (let j = 0; j < weights.keys.length; j++) {
 		const v = Number(features[weights.keys[j]]);
-		const z = ((Number.isFinite(v) ? v : 0) - weights.mean[j]) / (weights.std[j] || 1);
-		dot += weights.w[j] * z;
+		if (!Number.isFinite(v)) continue; // missing feature → neutral
+		dot += weights.w[j] * ((v - weights.mean[j]) / (weights.std[j] || 1));
 	}
 	return sigmoid(dot);
 }

@@ -31,7 +31,7 @@ import { recommendSimilar, dedupeByGroupRep } from "./linker_page/suggestions.js
 import { buildVocab } from "./linker_page/vocab.js";
 import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
-import { loadSkuEmbeddings, makeEmbedCosFn } from "./linker_page/embeddings.js";
+import { buildBlend } from "./linker_page/embeddings.js";
 
 const QUEUE_KEY = "stviz:linker_rapid_queue_v1";
 const STORE_KEY = "stviz:linker_rapid_store_v1";
@@ -52,14 +52,10 @@ export async function renderSkuLinkerRapid($app) {
 	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
 	const simVocab = buildVocab(allAgg);
 
-	// Learned-blend re-ranker. Embeddings are optional (LFS data-branch artifact); when
-	// present we use the embed-trained weights + cosine, otherwise the no-embed weights
-	// (correct calibration). Passed to every recommendSimilar call below.
-	const skuEmb = await loadSkuEmbeddings();
-	const blend = {
-		weights: skuEmb ? BLEND_WEIGHTS_EMBED : BLEND_WEIGHTS_NOEMBED,
-		embedCosFn: makeEmbedCosFn(skuEmb),
-	};
+	// Learned-blend re-ranker. buildBlend uses the embed weights + cosine ONLY when the
+	// optional vectors file (LFS, data branch) actually covers this catalog; otherwise it
+	// falls back to the robust no-embed weights. Passed to every recommendSimilar call.
+	const blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
 
 	const meta = await loadSkuMetaBestEffort();
 
