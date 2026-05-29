@@ -134,10 +134,20 @@ these are run by hand against the `.worktrees/data` worktree.
   Mourant`) the token-based scorer structurally cannot make. Precision-first; a human
   review queue (via the `stviz/issue-*` flow) handles everything below the auto-link
   threshold.
-- `tools/linker_eval.mjs` — eval harness: scores curated fixtures + labeled links,
-  reports per-case margins, AUC, and precision-at-threshold. Re-run on every scorer
-  change. Imports the live scorer (`viz/app/linker_page/suggestions.js`) so eval and
-  ranker never drift.
+- `tools/linker_eval.mjs` — eval harness, scored ENTIRELY against the big labeled set
+  (`sku_links.json` links = positives, ignores = curated hard negatives; no more
+  `fixtures.json`). Headline metrics: **AUC+** (AUC vs auto-mined hard negatives — the
+  one that matters; a trivial shared-word baseline is printed as the floor) and the
+  **auto-link threshold table** (what cutoff hits 90/95/98/99% precision and the recall
+  there). **Output convention (keep it):** every run prints aligned monospace tables —
+  a headline-metrics table (AUC+, AUC vs ignores, trivial floor, pair counts), the
+  threshold table, a precision/recall grid, and **worst false-positive / false-negative
+  charts with a consistent column set** (`# · algo score · expected (LINK/IGNORE) · SKU A ·
+  Name A · SKU B · Name B`) so they're scannable, not prose. Re-run on every scorer change.
+  Imports the live scorer (`viz/app/linker_page/suggestions.js`) so eval and ranker never
+  drift. NOTE: labels lag reality (hundreds of links/ignores still unadded) — treat the
+  current links/ignores as ground truth and assume they keep improving; don't tune to the
+  unlabeled middle.
 - `tools/linker_outliers.mjs` — label QA + disagreement analytics. Emits
   `outliers.json` (missed links, suspect ignores/links, intra-group conflicts) and
   `algo_failures.md` (a readable, factor-decomposed report of where the algorithm

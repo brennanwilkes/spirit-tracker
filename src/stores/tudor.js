@@ -501,7 +501,8 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 			}
 
 			// queue only; do not do detail calls inline
-			if (isSyntheticSku(it.sku) || !it.img) needsDetail.push(it);
+			const inStockCount = Array.isArray(it._variants) ? it._variants.filter((v) => Number(v?.quantity) > 0).length : 0;
+			if (isSyntheticSku(it.sku) || !it.img || inStockCount >= 2) needsDetail.push(it);
 
 			discovered.set(it.url, it);
 			kept++;
