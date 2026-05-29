@@ -177,7 +177,7 @@ priced ~2× a 375 is probably a 700): ratio ≤1.4 ×1.0, ≥1.6 ×0.3, else ×0
 All vocab logic is guarded by `if (vocab)` so the no-opts path is byte-for-byte the legacy
 behavior. When `vocab` is present the candidate score is
 `(BASE_FLOOR + tokenContainmentScore) * (1 + weightedOverlap)^WO_POW`, with a top-term
-bonus when the target's most-distinctive unigram (idf ≥ `DISTINCTIVE_IDF` = 5.5) is shared,
+bonus when the target's most-distinctive unigram (idf ≥ `DISTINCTIVE_IDF` = 4.6) is shared,
 and a bare-number age match (`bareAgeCandidates` in `similarity.js`: "16" with no yr/yo
 suffix can satisfy an explicit age, never penalizes). `computeInitialPairsFast` is NOT
 vocab-boosted (only `recommendSimilar`). Constants live in `vocab.js`

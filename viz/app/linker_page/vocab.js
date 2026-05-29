@@ -22,7 +22,14 @@ import { tokenizeQuery, normSearchText } from "../sku.js";
 import { filterSimTokens } from "./similarity.js";
 import { detectBrandAliasSynths } from "./brand_aliases.js";
 
-export const DISTINCTIVE_IDF = 5.5;
+// Distinctive-term threshold. Lowered 5.5→4.6 after measuring: distillery and
+// independent-bottler names sit at idf ~4.6–5.2 (caol/ila 5.1, laphroaig 5.14,
+// signatory 4.68, gordon/macphail 4.6), i.e. JUST under the old 5.5 cutoff, so
+// they never triggered the coverage discriminator — "Signatory Caol Ila" looked
+// like "Signatory Laphroaig". At 4.6 they become distinctive and the IB/distillery
+// confusions resolve automatically (no gazetteer). Swept on the labeled set: AUC+
+// and recall both peak near 4.6, so this is the empirical optimum, not a guess.
+export const DISTINCTIVE_IDF = 4.6;
 export const WO_POW = 3.0;
 export const TOP_TERM_BONUS = 0.6;
 export const BASE_FLOOR = 0.05;
@@ -127,6 +134,7 @@ let compoundDict = null;
 let compoundBigrams = null;
 const COMPOUND_MIN_LEN = 6;
 const COMPOUND_PIECE_MIN = 3;
+
 
 function unigramsForName(name) {
 	const norm = normSearchText(name);

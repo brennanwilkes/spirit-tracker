@@ -12,6 +12,7 @@ import {
 	tokenContainmentScore,
 	fastSimilarityScore,
 	similarityScore,
+	levenshtein,
 } from "./similarity.js";
 import { conceptConflictMultiplier } from "./concepts.js";
 import {
@@ -107,6 +108,42 @@ const STORE_EXCLUSIVITY_PENALTY = 0.35;
 // of the name vocabulary (which otherwise leaves these pairs near 0).
 const SMWS_SHARED_FLOOR = 12;
 
+// Two names whose distinctive content is IDENTICAL once spacing/hyphenation and
+// short numbers are removed are the same product, even if tokenization split them
+// differently ("MACALONEYS CATHNAHAVEN" ↔ "Macaloney's Cath-Na-Haven" — one glued
+// token vs three). Floor the base before size/age apply, so a genuine size variant
+// with an identical core is still cut by the size penalty.
+const SPACELESS_CORE_FLOOR = 12;
+
+// Distinctive spaceless "core": filtered tokens minus 1–2 digit numbers (age/ABV
+// noise), concatenated. 3+ digit edition/proof numbers are kept so "Glenfarclas
+// 105" ≠ "Glenfarclas". Possessive 's' folds in naturally via the join.
+function spacelessCore(norm) {
+	let out = "";
+	for (const t of filterSimTokens(tokenizeQuery(String(norm || "")))) {
+		if (/^\d{1,2}$/.test(t)) continue;
+		out += t;
+	}
+	return out;
+}
+
+// Mid-word DB truncation: every token of the shorter name matches the longer's
+// except its LAST token, which is an incomplete prefix of the longer's token there
+// ("…TRIPLE WOO" ← "WOOD", "Straight Edge Bourbo" ← "Bourbon"). Distinct from a
+// size/expression variant (where the shorter's last token is COMPLETE and the
+// longer merely appends) — and 0 ignore-pairs in the labeled set match it.
+function midWordCut(aNorm, bNorm) {
+	let x = String(aNorm || "").split(" ").filter(Boolean);
+	let y = String(bNorm || "").split(" ").filter(Boolean);
+	if (x.length > y.length) [x, y] = [y, x];
+	if (x.length < 2) return false;
+	const k = x.length - 1;
+	for (let i = 0; i < k; i++) if (x[i] !== y[i]) return false;
+	const last = x[k];
+	const yk = y[k] || "";
+	return last.length >= 3 && yk.length > last.length && yk.startsWith(last);
+}
+
 /* ---------------- Per-pair scoring (single source of truth) ---------------- */
 
 // Build the per-anchor context once; pass it to scorePairWithVocab for each
@@ -131,6 +168,7 @@ export function prepScorePairCtx(pinned, opts) {
 		toks,
 		brand: toks[0] || "",
 		age: extractAgeFromText(norm),
+		core: vocab ? spacelessCore(norm) : "",
 		stores: pinned?.stores instanceof Set ? pinned.stores : new Set(pinned?.stores || []),
 		abv: vocab ? extractAbv(norm) : null,
 		editionCodes: vocab ? extractEditionCodes(name) : null,
@@ -252,6 +290,42 @@ export function scorePairWithVocab(ctx, candidate) {
 					);
 			}
 		}
+	}
+
+	// Identical distinctive core (spacing/hyphenation/possessive aside) → same
+	// product. Floor BEFORE size so size variants with an identical core still get cut.
+	if (ctx.core && ctx.core.length >= 10 && ctx.core === spacelessCore(itNorm)) {
+		s = Math.max(s, SPACELESS_CORE_FLOOR);
+	}
+	// Mid-word truncated title (DB cut the name) → same product.
+	if (ctx.norm && midWordCut(ctx.norm, itNorm)) s = Math.max(s, SPACELESS_CORE_FLOOR);
+
+	// In-context fuzzy distinctive match: an UNSHARED distinctive token on each side
+	// that's a 1-edit typo or truncation of the other ("saphire"↔"sapphire",
+	// "potrero"↔"portrero") is almost certainly the same identity word misspelled.
+	// Gated (distinctive + unshared + len≥5) and pairwise, so it doesn't pollute the
+	// global vocab the way a token-level canon did.
+	if (ctx.distinctiveTerms && ctx.distinctiveTerms.size && ctx.vocab) {
+		const candTerms = ctx.vocab.termsForName(itName);
+		const targetTerms = ctx.vocab.termsForName(ctx.name);
+		const candDist = ctx.vocab.distinctiveUnigramsForName(itName);
+		const aOnly = [...ctx.distinctiveTerms].filter(
+			(t) => /^[a-z]{5,}$/.test(t) && !candTerms.has(t),
+		);
+		const bOnly = [...candDist].filter((t) => /^[a-z]{5,}$/.test(t) && !targetTerms.has(t));
+		let fuzzy = 0;
+		for (const x of aOnly)
+			for (const y of bOnly) {
+				const indel = Math.abs(x.length - y.length) <= 1 && levenshtein(x, y) <= 1;
+				const trunc =
+					(x.startsWith(y) || y.startsWith(x)) &&
+					Math.min(x.length, y.length) / Math.max(x.length, y.length) >= 0.8;
+				if (indel || trunc) {
+					fuzzy++;
+					break;
+				}
+			}
+		if (fuzzy > 0) s *= 1 + 0.9 * fuzzy;
 	}
 
 	if (typeof ctx.sizePenaltyFn === "function") s *= ctx.sizePenaltyFn(ctx.sku, itSku);

@@ -114,6 +114,66 @@ export function substyleSet(norm) {
 	return out;
 }
 
+// Cask / wine-finish family — a bottling finished in Port vs Madeira vs PX is a
+// different product. The sherry family (oloroso/PX/fino/…) is ONE bucket so
+// "Sherry Cask" ↔ "Oloroso" don't conflict. "port" is guarded against distillery/
+// expression names (Port Charlotte/Ellen/Mourant/Askaig). 0 confirmed-link breaks.
+export function caskTypeSet(norm) {
+	const n = lc(norm);
+	const out = new Set();
+	if (/\b(sherry|oloroso|pedro\s*ximenez|\bpx\b|fino|amontillado|manzanilla|palo\s+cortado)\b/.test(n))
+		out.add("sherry");
+	if (/\bport\b/.test(n) && !/\bport\s+(charlotte|ellen|mourant|askaig|dundas)\b/.test(n))
+		out.add("port");
+	if (/\bmadeira\b/.test(n)) out.add("madeira");
+	if (/\bsauternes\b/.test(n)) out.add("sauternes");
+	if (/\bmarsala\b/.test(n)) out.add("marsala");
+	if (/\b(moscatel|muscat)\b/.test(n)) out.add("moscatel");
+	if (/\brum\s+(cask|casks|finish|finished|barrel)\b/.test(n)) out.add("rum");
+	if (/\bcognac\s+(cask|finish|finished)\b/.test(n)) out.add("cognac");
+	if (/\b(burgundy|bordeaux|cabernet|tokaji|rioja|red\s+wine|wine\s+(cask|finish))\b/.test(n))
+		out.add("wine");
+	return out;
+}
+
+// Agave/rum maturation class — mutually exclusive (blanco ≠ reposado ≠ añejo …).
+// Spanish terms are accent-folded upstream (años→anos, añejo→anejo). 0 label breaks.
+export function maturationSet(norm) {
+	const n = lc(norm);
+	const out = new Set();
+	if (/\bblanco\b|\bsilver\b/.test(n)) out.add("blanco");
+	if (/\breposado\b/.test(n)) out.add("reposado");
+	if (/\banejo\b/.test(n)) out.add("anejo");
+	if (/\bjoven\b/.test(n)) out.add("joven");
+	if (/\bcristalino\b/.test(n)) out.add("cristalino");
+	return out;
+}
+
+// Gin style — London Dry ≠ Old Tom ≠ Plymouth (mutually exclusive). Gated on
+// "gin". 0 confirmed-link breaks. ("Navy" omitted — it's a strength that coexists
+// with a style, e.g. a London Dry can be Navy Strength.)
+export function ginStyleSet(norm) {
+	const n = lc(norm);
+	if (!/\bgin\b/.test(n)) return new Set();
+	const out = new Set();
+	if (/\blondon\s+dry\b/.test(n)) out.add("londondry");
+	if (/\bold\s+tom\b/.test(n)) out.add("oldtom");
+	if (/\bplymouth\b/.test(n)) out.add("plymouth");
+	return out;
+}
+
+// Rum colour tier — white/silver ≠ gold/amber ≠ dark/black. Gated on "rum" so
+// "White Label"/"Gold Label" scotch can't trigger it. 2 confirmed-link breaks.
+export function rumColorSet(norm) {
+	const n = lc(norm);
+	if (!/\brum\b/.test(n)) return new Set();
+	const out = new Set();
+	if (/\b(white|silver|light|crystal|blanc)\b/.test(n)) out.add("white");
+	if (/\b(gold|golden|oro|amber)\b/.test(n)) out.add("gold");
+	if (/\b(dark|black|negro)\b/.test(n)) out.add("dark");
+	return out;
+}
+
 // Single barrel / single cask vs small batch — a release-format wall.
 export function batchingSet(norm) {
 	const n = lc(norm);
@@ -184,6 +244,14 @@ export function conceptConflictMultiplier(aName, bName) {
 	}
 
 	if (disjointConflict(batchingSet(aName), batchingSet(bName))) m *= BATCHING_CONFLICT;
+
+	if (disjointConflict(maturationSet(aName), maturationSet(bName))) m *= SUBSTYLE_CONFLICT;
+
+	if (disjointConflict(caskTypeSet(aName), caskTypeSet(bName))) m *= SUBSTYLE_CONFLICT;
+
+	if (disjointConflict(rumColorSet(aName), rumColorSet(bName))) m *= SUBSTYLE_CONFLICT;
+
+	if (disjointConflict(ginStyleSet(aName), ginStyleSet(bName))) m *= SUBSTYLE_CONFLICT;
 
 	// A 0.0% expression vs the real spirit is never the same SKU.
 	if (hasNonAlcoholic(aName) !== hasNonAlcoholic(bName)) m *= NON_ALC_CONFLICT;

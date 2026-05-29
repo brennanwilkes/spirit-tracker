@@ -151,11 +151,18 @@ export function extractEditionCodes(normName) {
 	const season = s.match(/\b[sw]\d{2,4}\b/gi);
 	if (season) for (const m of season) out.add("season:" + m.toLowerCase());
 
+	// Year / vintage editions (1800–2099). Both sides carrying a year that differs
+	// = different annual/vintage release (Black Tot 2024 vs 2025; Uncle Nearest 1884
+	// vs 1856). Same year is shared. Excludes 17xx (1750 mL etc.).
+	const year = s.match(/\b(?:1[89]|20)\d{2}\b/g);
+	if (year) for (const m of year) out.add("year:" + m);
+
 	// Numbered editions: "release 42", "series 3", "recipe 01", "chapter 8",
 	// "no. 6", "n.4". Leading zeros normalized so "01" ≡ "1". Each keyword is its
 	// own kind so a release number never conflicts with a series number.
 	const numbered = [
 		[/\brelease\s+(\d{1,3})\b/g, "release"],
+		[/\b(\d{1,3})(?:st|nd|rd|th)\s+release\b/g, "release"],
 		[/\bseries\s+(\d{1,3})\b/g, "series"],
 		[/\brecipe\s+(\d{1,3})\b/g, "recipe"],
 		[/\bchapter\s+(\d{1,3})\b/g, "chapter"],
@@ -254,6 +261,13 @@ export function filterSimTokens(tokens) {
 		["whiskey", "whisky"],
 		["whisky", "whisky"],
 		["bourbon", "bourbon"],
+		// Spanish/French cognates → English so cross-language listings of the same
+		// product share tokens (Diplomático "Reserva Exclusiva" ↔ "Exclusive Reserve").
+		["reserva", "reserve"],
+		["exclusiva", "exclusive"],
+		["exclusivo", "exclusive"],
+		["edicion", "edition"],
+		["limitada", "limited"],
 	]);
 
 	const VOL_UNIT = new Set(["ml", "l", "cl", "oz", "liter", "liters", "litre", "litres"]);
@@ -299,7 +313,32 @@ export function filterSimTokens(tokens) {
 		out.push(t);
 	}
 
-	return out;
+	// Collapse initialisms and fold possessives so abbreviated/punctuated brand
+	// forms tokenize the same: "J.P. Wiser's" → [j,p,wiser,s] → [jp,wisers] to match
+	// "JP WISERS" → [jp,wisers]. A run of single letters merges into one token
+	// (j p → jp, g m → gm, x o → xo); a lone trailing "s" folds into the previous
+	// multi-letter word (wiser s → wisers, macaloney s → macaloneys).
+	const merged = [];
+	let initRun = false; // previous token is an in-progress single-letter initialism
+	for (const t of out) {
+		const prev = merged.length ? merged[merged.length - 1] : "";
+		if (t === "s" && prev && !initRun && prev.length > 1 && /[a-z]$/.test(prev)) {
+			merged[merged.length - 1] = prev + "s"; // possessive
+			continue;
+		}
+		if (/^[a-z]$/.test(t)) {
+			if (initRun) merged[merged.length - 1] = prev + t; // extend initialism
+			else {
+				merged.push(t);
+				initRun = true;
+			}
+			continue;
+		}
+		merged.push(t);
+		initRun = false;
+	}
+
+	return merged;
 }
 
 export function numberMismatchPenalty(aTokens, bTokens) {

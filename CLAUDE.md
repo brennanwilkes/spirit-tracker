@@ -124,6 +124,11 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 Dev/analysis tooling for the SKU-matching algorithm. **NOT** run by `run_daily.sh` —
 these are run by hand against the `.worktrees/data` worktree.
 
+**Start here:** `tools/linker_eval/CLAUDE.md` is the iteration guide for future
+sessions — the metrics that matter (AUC+, auto-link thresholds), the measure-risk-
+before-adding-a-rule loop, the hard-won lessons (which discriminators are safe vs
+which break confirmed links), and how to edit the links file safely.
+
 - `tools/linker_eval/TECHNICAL_REPORT.md` — **canonical spec** of the scoring
   algorithm: full pipeline, formulas, every tuned constant, and the named benchmark
   cases. Update it whenever the scorer changes.
