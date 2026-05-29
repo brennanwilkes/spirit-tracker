@@ -865,11 +865,11 @@ export async function renderSkuLinkerRapid($app) {
 		} else if (e.key === "ArrowDown") {
 			e.preventDefault();
 			highlight = Math.min(candidates.length - 1, highlight + 1);
-			render();
+			render(true);
 		} else if (e.key === "ArrowUp") {
 			e.preventDefault();
 			highlight = Math.max(0, highlight - 1);
-			render();
+			render(true);
 		} else if (e.key === "ArrowRight") {
 			e.preventDefault();
 			if (workIdx < worklist.length - 1) {
