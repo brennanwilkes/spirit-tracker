@@ -338,10 +338,16 @@ export async function renderSkuLinker($app) {
 		const strong = !!(opts && opts.strong);
 		// Probabilities (AI on) are ≤1 → show 2 decimals; raw scores → 1 decimal.
 		const scoreTxt = score == null ? "" : score <= 1 ? score.toFixed(2) : score.toFixed(1);
-		const aiChip =
-			aiDelta != null
-				? `<span class="badge mono" title="AI embedding shifts this score by ${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)} vs the classical algorithm" style="background:${Math.abs(aiDelta) >= 0.05 ? "rgba(168,85,247,0.22)" : "rgba(148,163,184,0.16)"};color:${Math.abs(aiDelta) >= 0.05 ? "#c084fc" : "#9aa6b2"};">AI ${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)}</span>`
-				: ``;
+		// AI chip colour-coded by SIGN: red/rose ▲ = AI pushed the score UP (scrutinise),
+		// blue ▼ = AI pushed it DOWN, grey = negligible.
+		let aiChip = ``;
+		if (aiDelta != null) {
+			const negl = Math.abs(aiDelta) < 0.02;
+			const bg = negl ? "rgba(148,163,184,0.16)" : aiDelta > 0 ? "rgba(244,63,94,0.28)" : "rgba(56,189,248,0.22)";
+			const fg = negl ? "#9aa6b2" : aiDelta > 0 ? "#fb7185" : "#7dd3fc";
+			const arrow = negl ? "" : aiDelta > 0 ? "▲ " : "▼ ";
+			aiChip = `<span class="badge mono" title="AI embedding shifts this score by ${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)} vs the classical algorithm" style="font-weight:700;background:${bg};color:${fg};">AI ${arrow}${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)}</span>`;
+		}
 		const scoreHtml =
 			score != null
 				? `<span class="badge mono simScore" title="match score">${scoreTxt}</span>${aiChip}`

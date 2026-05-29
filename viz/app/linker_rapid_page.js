@@ -27,7 +27,13 @@ import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker_page/store_
 import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
-import { recommendSimilar, dedupeByGroupRep } from "./linker_page/suggestions.js";
+import {
+	recommendSimilar,
+	dedupeByGroupRep,
+	prepScorePairCtx,
+	scorePairWithVocab,
+} from "./linker_page/suggestions.js";
+import { extractBlendFeatures, blendScore } from "./linker_page/blend.js";
 import { buildVocab } from "./linker_page/vocab.js";
 import {
 	STRONG_ABS,
@@ -249,21 +255,67 @@ export async function renderSkuLinkerRapid($app) {
 		return best;
 	}
 
+	// Full distinctive-term index over the WHOLE catalog (built once; store-independent,
+	// includes already-linked items so an unlinked anchor can match an existing group).
+	// refinedScore uses it to score only candidates that SHARE a distinctive token, instead
+	// of scanning all ~12k aggregates per item — the worklist sort just needs a rough order
+	// (each item re-queries its full candidates on landing), so this is plenty accurate.
+	const fullTermIndex = (() => {
+		const idx = new Map();
+		for (const it of allAgg) {
+			if (!it) continue;
+			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
+			if (!terms || !terms.size) continue;
+			for (const t of terms) {
+				let arr = idx.get(t);
+				if (!arr) idx.set(t, (arr = []));
+				arr.push(it);
+			}
+		}
+		return idx;
+	})();
+	const REFINE_CAND_CAP = 600;
+
 	function refinedScore(it) {
-		const scored = recommendSimilar(
-			allAgg,
-			it,
-			1,
-			String(it.sku),
-			mappedSkus,
-			isIgnoredPairLocal,
-			sizePenaltyForPair,
-			pricePenaltyForPair,
-			sameStoreCanon,
-			sameGroupLocal,
-			{ vocab: simVocab, allowSameStore: true, withScores: true, blend: aiOn ? blend : null },
-		);
-		return scored && scored[0] && scored[0].it ? scored[0].score || 0 : 0;
+		const terms = simVocab.distinctiveUnigramsForName(it.name || "");
+		if (!terms || !terms.size) return 0;
+		const itSku = String(it.sku || "");
+		const ctx = prepScorePairCtx(it, {
+			vocab: simVocab,
+			sizePenaltyFn: sizePenaltyForPair,
+			pricePenaltyFn: pricePenaltyForPair,
+		});
+		const useBlend = aiOn && blend && blend.weights;
+		const seen = new Set();
+		let best = 0;
+		let visited = 0;
+		outer: for (const t of terms) {
+			const bucket = fullTermIndex.get(t);
+			if (!bucket) continue;
+			for (const cand of bucket) {
+				const csku = String(cand.sku || "");
+				if (!csku || csku === itSku || seen.has(csku)) continue;
+				seen.add(csku);
+				if (isIgnoredPairLocal(itSku, csku)) continue;
+				if (sameGroupLocal(itSku, csku)) continue;
+				let s = scorePairWithVocab(ctx, cand);
+				if (useBlend) {
+					s = blendScore(
+						extractBlendFeatures(ctx, cand, {
+							vocab: simVocab,
+							sizePenaltyFn: sizePenaltyForPair,
+							pricePenaltyFn: pricePenaltyForPair,
+							embedCosFn: blend.embedCosFn,
+							detScore: s,
+						}),
+						blend.weights,
+					);
+				}
+				if (s > best) best = s;
+				if (++visited >= REFINE_CAND_CAP) break outer;
+			}
+		}
+		return best;
 	}
 
 	function buildWorklist() {
@@ -610,10 +662,18 @@ export async function renderSkuLinkerRapid($app) {
 		// an "AI ±x" chip shows how much the embedding shifted the score vs the classical
 		// algorithm — a large purple chip on a bad suggestion means the AI is to blame.
 		const tierColor = o.pct >= 0.66 ? "#22c55e" : o.pct >= 0.33 ? "#d97706" : "#94a3b8";
-		const aiChip =
-			o.aiDelta != null
-				? `<span class="rapidAiChip" title="AI embedding shifts this score by ${o.aiDelta >= 0 ? "+" : ""}${o.aiDelta.toFixed(2)} vs the classical algorithm" style="margin-left:7px;padding:1px 6px;border-radius:8px;font-size:0.76em;font-weight:600;background:${Math.abs(o.aiDelta) >= 0.05 ? "rgba(168,85,247,0.22)" : "rgba(148,163,184,0.16)"};color:${Math.abs(o.aiDelta) >= 0.05 ? "#c084fc" : "#94a3b8"};">AI ${o.aiDelta >= 0 ? "+" : ""}${o.aiDelta.toFixed(2)}</span>`
-				: "";
+		// AI contribution chip, colour-coded by SIGN so a + (AI inflating a suggestion) pops:
+		// red/rose ▲ = AI pushed the score UP (scrutinise), blue ▼ = AI pushed it DOWN,
+		// grey = negligible. Lets you spot at a glance when a bad result is AI-driven.
+		let aiChip = "";
+		if (o.aiDelta != null) {
+			const d = o.aiDelta;
+			const negl = Math.abs(d) < 0.02;
+			const bg = negl ? "rgba(148,163,184,0.18)" : d > 0 ? "rgba(244,63,94,0.28)" : "rgba(56,189,248,0.22)";
+			const fg = negl ? "#94a3b8" : d > 0 ? "#fb7185" : "#7dd3fc";
+			const arrow = negl ? "" : d > 0 ? "▲ " : "▼ ";
+			aiChip = `<span class="rapidAiChip" title="AI embedding shifts this score by ${d >= 0 ? "+" : ""}${d.toFixed(2)} vs the classical algorithm" style="margin-left:7px;padding:2px 7px;border-radius:8px;font-size:0.82em;font-weight:700;background:${bg};color:${fg};">AI ${arrow}${d >= 0 ? "+" : ""}${d.toFixed(2)}</span>`;
+		}
 		const conf =
 			o.pct != null
 				? `<div class="rapidConf" title="score ${(o.score || 0).toFixed(2)}" style="display:flex;align-items:center;">
