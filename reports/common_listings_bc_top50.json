@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-29T17:04:37.618Z",
+  "generatedAt": "2026-05-29T19:51:05.661Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4417,
-    "removedRows": 575,
-    "canonSkus": 2188,
+    "liveRows": 4419,
+    "removedRows": 573,
+    "canonSkus": 2187,
     "outputCount": 50
   },
   "rows": [
@@ -1065,49 +1065,6 @@
       }
     },
     {
-      "canonSku": "281451",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 57.59,
-        "bcl": 58.99,
-        "gull": 62.65,
-        "legacyliquor": 67.99,
-        "strath": 61.65,
-        "tudor": 58.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "BUMBU RUM 750ML*",
-        "price": "$57.59",
-        "priceNum": 57.59,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "281451",
-        "skuKey": "281451",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587949-bumbu-rum-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$57.59",
-        "priceNum": 57.59,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587949-bumbu-rum-750ml"
-      }
-    },
-    {
       "canonSku": "326223",
       "storeCount": 7,
       "stores": [
@@ -1489,6 +1446,48 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
+      }
+    },
+    {
+      "canonSku": "001800",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 39.59,
+        "bcl": 38.99,
+        "gull": 38.75,
+        "legacyliquor": 42.99,
+        "tudor": 59.99,
+        "vessel": 37.49
+      },
+      "representative": {
+        "name": "JP Wiser's - Deluxe Whisky",
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001800",
+        "skuKey": "001800",
+        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
       }
     },
     {
@@ -2080,44 +2079,45 @@
       }
     },
     {
-      "canonSku": "001800",
-      "storeCount": 5,
+      "canonSku": "281451",
+      "storeCount": 6,
       "stores": [
         "arc",
         "bcl",
         "gull",
+        "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
         "legacyliquor",
-        "strath",
         "vintage"
       ],
       "storePrices": {
-        "arc": 39.59,
-        "bcl": 38.99,
-        "gull": 38.75,
-        "tudor": 59.99,
-        "vessel": 37.49
+        "arc": 57.59,
+        "bcl": 58.99,
+        "gull": 62.65,
+        "strath": 61.65,
+        "tudor": 58.99,
+        "vessel": 59.99
       },
       "representative": {
-        "name": "JP Wiser's - Deluxe Whisky",
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001800",
-        "skuKey": "001800",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "name": "BUMBU RUM 750ML*",
+        "price": "$57.59",
+        "priceNum": 57.59,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "281451",
+        "skuKey": "281451",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587949-bumbu-rum-750ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
       },
       "cheapest": {
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
+        "price": "$57.59",
+        "priceNum": 57.59,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587949-bumbu-rum-750ml"
       }
     },
     {
