@@ -13,6 +13,7 @@ import {
 	fastSimilarityScore,
 	similarityScore,
 } from "./similarity.js";
+import { conceptConflictMultiplier } from "./concepts.js";
 import {
 	DISTINCTIVE_IDF,
 	WO_POW,
@@ -47,6 +48,33 @@ function shuffleInPlace(arr, rnd) {
 		arr[j] = tmp;
 	}
 	return arr;
+}
+
+/* ---------------- Canonical-group dedup ---------------- */
+// Candidates are scored per *raw* SKU (the linker aggregates by raw SKU so it can
+// create links). But two candidates that are already linked to each other belong
+// to one canonical group and must not appear as two separate cards — linking the
+// anchor to either one joins the whole group. Collapse to the single best member
+// per group. `items` must already be sorted best-first so the survivor is the
+// strongest. `getSku(x)` extracts the SKU; `groupRepFn(sku)` returns the group
+// representative (no-op passthrough when absent → behavior unchanged for callers
+// that don't supply it, e.g. tools/linker_eval.mjs).
+export function dedupeByGroupRep(items, getSku, groupRepFn) {
+	if (typeof groupRepFn !== "function") return items;
+	const seen = new Set();
+	const out = [];
+	for (const x of items) {
+		const sku = String(getSku(x) || "");
+		const rep = String(groupRepFn(sku) || sku);
+		if (!rep) {
+			out.push(x);
+			continue;
+		}
+		if (seen.has(rep)) continue;
+		seen.add(rep);
+		out.push(x);
+	}
+	return out;
 }
 
 /* ---------------- Bad/invalid SKU detection ---------------- */
@@ -88,7 +116,7 @@ export function prepScorePairCtx(pinned, opts) {
 		brand: toks[0] || "",
 		age: extractAgeFromText(norm),
 		abv: vocab ? extractAbv(norm) : null,
-		editionCodes: vocab ? extractEditionCodes(norm) : null,
+		editionCodes: vocab ? extractEditionCodes(name) : null,
 		topTerm: vocab ? vocab.topTerm(name) : null,
 		distinctiveTerms,
 		allUnigrams,
@@ -227,8 +255,14 @@ export function scorePairWithVocab(ctx, candidate) {
 	// the same kind and they differ, the products are different (different cask,
 	// release, batch).
 	if (ctx.editionCodes && ctx.editionCodes.size > 0) {
-		s *= editionCodeMultiplier(ctx.editionCodes, extractEditionCodes(itNorm));
+		s *= editionCodeMultiplier(ctx.editionCodes, extractEditionCodes(itName));
 	}
+
+	// Mutually-exclusive concept walls (gin vs whisky, single malt vs bourbon,
+	// single barrel vs small batch, …). Demotes only when the rest of the name
+	// matches enough to score — a hard category wall the bag-of-tokens scorer
+	// cannot see.
+	s *= conceptConflictMultiplier(ctx.norm, itNorm);
 
 	if (isBadSku(ctx.sku) || isBadSku(itSku)) s *= 1.2;
 
@@ -278,6 +312,7 @@ export function recommendSimilar(
 	// guarded by `if (vocab)`).
 	const vocab = opts && opts.vocab ? opts.vocab : null;
 	const allowSameStore = !!(opts && opts.allowSameStore);
+	const groupRepFn = opts && typeof opts.groupRepFn === "function" ? opts.groupRepFn : null;
 
 	const pinnedSku = String(pinned.sku || "");
 	const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
@@ -451,8 +486,9 @@ export function recommendSimilar(
 
 	const withScores = !!(opts && opts.withScores);
 	fine.sort((a, b) => b.s - a.s);
-	if (fine.length) {
-		const top = fine.slice(0, limit);
+	const fineDeduped = dedupeByGroupRep(fine, (x) => x.it && x.it.sku, groupRepFn);
+	if (fineDeduped.length) {
+		const top = fineDeduped.slice(0, limit);
 		return withScores ? top.map((x) => ({ it: x.it, score: x.s })) : top.map((x) => x.it);
 	}
 
@@ -478,7 +514,7 @@ export function recommendSimilar(
 	}
 
 	fallback.sort((a, b) => b.s - a.s);
-	const fb = fallback.slice(0, limit);
+	const fb = dedupeByGroupRep(fallback, (x) => x.it && x.it.sku, groupRepFn).slice(0, limit);
 	return withScores ? fb.map((x) => ({ it: x.it, score: x.s })) : fb.map((x) => x.it);
 }
 

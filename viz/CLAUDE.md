@@ -102,7 +102,7 @@ viz/
 
 | File | Purpose |
 |------|---------|
-| `app/stores.js` | All 16 store entries (id, label, region, color, logo, aliases). Use `storeById()`, `storesByRegion()`, `normalizeStoreId()` |
+| `app/stores.js` | All 33 store entries (id, label, region, color, logo, aliases). Use `storeById()`, `storesByRegion()`, `normalizeStoreId()` |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
 | `app/mapping.js` | Load and apply SKU canonical map (union-find) |
 | `app/state.js` | In-memory + localStorage cache (5-min TTL, cross-tab coherent) |
@@ -117,7 +117,19 @@ viz/
 
 ## SKU Canonical Mapping (`app/linker_page/`)
 
-Items from different stores representing the same product are grouped under one canonical SKU using union-find (disjoint-set). The `#/link` page is the curation UI. Submodules:
+Items from different stores representing the same product are grouped under one canonical SKU using union-find (disjoint-set). The `#/link` page is the curation UI.
+
+**Formal spec & eval (read before changing scoring):** the authoritative description
+of the matching algorithm — pipeline, formulas, every tuned constant, and the named
+benchmark cases — lives in `tools/linker_eval/TECHNICAL_REPORT.md`. The roadmap for the
+future learned classifier (embeddings, log-linear blend, group-profile features) is
+`tools/linker_eval/CLASSIFIER_PLAN.md`. `scorePairWithVocab` in `suggestions.js` is the
+**single source of truth** for scoring; any change must be re-checked with
+`node tools/linker_eval.mjs` (fixture margins / AUC) and `node tools/linker_outliers.mjs`
+(label QA + algorithm-failure report → `algo_failures.md`). Both tools import the live
+scorer so eval and ranker can never drift.
+
+Submodules:
 
 1. `linker_page/similarity.js` — token overlap, age extraction, SMWS code detection
 2. `linker_page/price.js` — penalize large price differences

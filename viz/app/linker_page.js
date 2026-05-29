@@ -38,6 +38,7 @@ import {
 	topSuggestions,
 	recommendSimilar,
 	computeInitialPairsFast,
+	dedupeByGroupRep,
 } from "./linker_page/suggestions.js";
 import { isStrong } from "./linker_page/strong_threshold.js";
 
@@ -290,7 +291,11 @@ export async function renderSkuLinker($app) {
 	let shouldReloadAfterLink = false;
 
 	function renderCard(it, pinned, opts) {
-		const storeCount = it.stores.size || 0;
+		// Count distinct stores across the whole canonical group, not just this raw
+		// SKU — so a card representing several already-linked listings shows the
+		// real combined store presence.
+		const groupStores = CANON_STORE_CACHE.get(String(rules.canonicalSku(it.sku) || it.sku));
+		const storeCount = (groupStores ? groupStores.size : it.stores.size) || 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
 		const store = it.cheapestStoreLabel || [...it.stores][0] || "Store";
@@ -335,6 +340,7 @@ export async function renderSkuLinker($app) {
 	function sideItems(side, query, otherPinned) {
 		const tokens = tokenizeQuery(query);
 		const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
+		const groupRep = (s) => String(rules.canonicalSku(s) || s);
 
 		// manual search: allow mapped SKUs so you can merge groups,
 		// BUT if the other side is pinned, hide anything already in that pinned's group
@@ -355,6 +361,9 @@ export async function renderSkuLinker($app) {
 				out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
 			}
 
+			// Collapse already-linked results into one card per canonical group.
+			out = dedupeByGroupRep(out, (it) => it && it.sku, groupRep);
+
 			return out.slice(0, 80).map((it) => ({ it, score: null }));
 		}
 
@@ -371,7 +380,7 @@ export async function renderSkuLinker($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroup,
-				{ vocab: simVocab, allowSameStore: true, withScores: true },
+				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: groupRep },
 			);
 			return scored.map((x) => (x && x.it ? { it: x.it, score: x.score || 0 } : { it: x, score: null }));
 		}

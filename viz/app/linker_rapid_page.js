@@ -27,7 +27,7 @@ import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker_page/store_
 import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
-import { recommendSimilar } from "./linker_page/suggestions.js";
+import { recommendSimilar, dedupeByGroupRep } from "./linker_page/suggestions.js";
 import { buildVocab } from "./linker_page/vocab.js";
 import { STRONG_ABS, STRONG_REL } from "./linker_page/strong_threshold.js";
 
@@ -339,9 +339,13 @@ export async function renderSkuLinkerRapid($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroupLocal,
-				{ vocab: simVocab, allowSameStore: true, withScores: true },
+				{ vocab: simVocab, allowSameStore: true, withScores: true, groupRepFn: findRep },
 			).map((x) => (x && x.it ? x : { it: x, score: 0 }));
 		}
+		// Collapse candidates that already belong to one canonical group into a
+		// single card (the search branch builds its own list and isn't routed
+		// through recommendSimilar's dedup).
+		scored = dedupeByGroupRep(scored, (x) => x.it && x.it.sku, findRep);
 		return scored.map((x) => ({
 			it: x.it,
 			score: x.score || 0,
@@ -554,7 +558,11 @@ export async function renderSkuLinkerRapid($app) {
 	}
 
 	function cardHtml(it, o) {
-		const storeCount = it.stores ? it.stores.size : 0;
+		// Count distinct stores across the whole canonical group, not just this raw
+		// SKU — so a card representing several already-linked listings shows the
+		// real combined store presence.
+		const groupStores = CANON_STORE_CACHE.get(baseCanon(it.sku));
+		const storeCount = groupStores ? groupStores.size : it.stores ? it.stores.size : 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = it.cheapestPriceStr || "(no price)";
 		const store = it.cheapestStoreLabel || (it.stores ? [...it.stores][0] : "Store") || "Store";

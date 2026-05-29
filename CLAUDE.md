@@ -1,6 +1,6 @@
 # Spirit Tracker
 
-Automated price tracker for Canadian spirits (whisky, rum) across 16 liquor retailers. Scrapes stores on a schedule, stores price history as JSON, and serves a browser-based visualization dashboard.
+Automated price tracker for Canadian spirits (whisky, rum, gin) across 33 liquor retailers. Scrapes stores on a schedule, stores price history as JSON, and serves a browser-based visualization dashboard.
 
 ## Git Workflow (Critical)
 
@@ -79,7 +79,7 @@ Exit code `3` = no meaningful changes (normal, not an error).
 ## CI / Automation
 
 GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules:
-- **Big** (all 16 stores): 6:45 and 18:45 UTC daily
+- **Big** (all 33 stores): 6:45 and 18:45 UTC daily
 - **Small** (sierra_springs + craft_cellars only): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC
 
 Each run executes `scripts/run_daily.sh`, which:
@@ -118,3 +118,31 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `dedupe_skulinks.js` | Deduplicate SKU link entries |
 | `stviz_apply_issue_edits.js` | Apply issue-based SKU edits (used by GH Actions) |
 | `backfill_db_created_at.js` | One-time: stamp `createdAt` on every `data/db/*.json` from its first git commit. Run from `.worktrees/data/`. Idempotent. |
+
+## Linker Evaluation & Training Harness (`tools/linker_eval/`)
+
+Dev/analysis tooling for the SKU-matching algorithm. **NOT** run by `run_daily.sh` —
+these are run by hand against the `.worktrees/data` worktree.
+
+- `tools/linker_eval/TECHNICAL_REPORT.md` — **canonical spec** of the scoring
+  algorithm: full pipeline, formulas, every tuned constant, and the named benchmark
+  cases. Update it whenever the scorer changes.
+- `tools/linker_eval/CLASSIFIER_PLAN.md` — roadmap for the **future learned
+  classifier** (calibrated yes/no model run in CI): log-linear blend of the existing
+  factors, group-profile features with leave-one-out, hard-negative mining, and an
+  optional fine-tuned MiniLM embedding for semantic matches (e.g. `PM` ↔ `Port
+  Mourant`) the token-based scorer structurally cannot make. Precision-first; a human
+  review queue (via the `stviz/issue-*` flow) handles everything below the auto-link
+  threshold.
+- `tools/linker_eval.mjs` — eval harness: scores curated fixtures + labeled links,
+  reports per-case margins, AUC, and precision-at-threshold. Re-run on every scorer
+  change. Imports the live scorer (`viz/app/linker_page/suggestions.js`) so eval and
+  ranker never drift.
+- `tools/linker_outliers.mjs` — label QA + disagreement analytics. Emits
+  `outliers.json` (missed links, suspect ignores/links, intra-group conflicts) and
+  `algo_failures.md` (a readable, factor-decomposed report of where the algorithm
+  disagrees with human labels — built for downstream analysis). Runs in ~5 s.
+
+The single most important supervision signal is `data/sku_links.json` (manual links +
+`ignores`); see "SKU Identity & Canonical Mapping" above. Implicit links (same raw SKU
+at ≥2 stores) are captured for free by aggregating per raw SKU.

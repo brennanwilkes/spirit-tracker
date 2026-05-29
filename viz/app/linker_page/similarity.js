@@ -90,24 +90,47 @@ export function extractAbv(normName) {
 	return null;
 }
 
-// Extract identifying "edition codes" from a normalized name. These are
-// short, structured tokens that uniquely identify a specific bottling and
-// should be treated as hard if/else discriminators: two items both carrying a
-// code OF THE SAME KIND but with DIFFERENT values are almost certainly
-// different products (different cask, different season-batch, different SMWS
-// code). Returned codes are kind-prefixed so we only compare like with like.
+// Loose normalization that PRESERVES periods (and ' / & boundaries collapse to
+// space) so decimal edition codes like Octomore "15.1" or SMWS "53.471" survive
+// — the standard normSearchText strips the dot and would fuse them into noise.
+export function normForEditionCodes(name) {
+	return (
+		" " +
+		String(name || "")
+			.toLowerCase()
+			.replace(/[^a-z0-9.]+/g, " ")
+			.replace(/\s+/g, " ")
+			.trim() +
+		" "
+	);
+}
+
+// Extract identifying "edition codes" from a name. These are short, structured
+// tokens that uniquely identify a specific bottling and should be treated as
+// hard if/else discriminators: two items both carrying a code OF THE SAME KIND
+// but with DIFFERENT values are almost certainly different products (different
+// cask, season-batch, SMWS code, release/series number). Returned codes are
+// kind-prefixed so we only compare like with like. Pass the raw display name;
+// this applies its own period-preserving normalization internally.
 //
 // Kinds covered:
 //   - SMWS classic:  53.471, 1.234
 //   - SMWS lettered:  R4, G1   (single-letter prefix + 1-3 digits)
 //   - Roman numerals (length ≥ 2 to avoid ambiguous single letters): II, III, IV, V…
 //   - Season/Winter batch codes: S22, S24, S2023, W21, W2024
+//   - Numbered editions: Release 42, Series 3, Recipe 01, Chapter 8, No. 6, N.4
+//   - Decimal version codes: Octomore 15.1 / 16.1 (guarded against ABV/proof)
 export function extractEditionCodes(normName) {
-	const s = String(normName || "");
+	const s = normForEditionCodes(normName);
 	const out = new Set();
-	if (!s) return out;
-	const smws = s.match(/\b\d{1,3}\.\d{1,4}\b/g);
-	if (smws) for (const m of smws) out.add("smws:" + m);
+	if (!s.trim()) return out;
+	// SMWS classic decimal (53.471). Gated on the "smws" marker because a bare
+	// "\d.\d" pattern otherwise swallows ABV values (59.1, 46.8) now that periods
+	// survive normalization — and those would create bogus same-kind conflicts.
+	if (/\bsmws\b/.test(s)) {
+		const smws = s.match(/\b\d{1,3}\.\d{1,4}\b/g);
+		if (smws) for (const m of smws) out.add("smws:" + m);
+	}
 	const lettered = s.match(/\b[a-z]\d{1,3}\b/gi);
 	if (lettered)
 		for (const m of lettered) {
@@ -120,6 +143,35 @@ export function extractEditionCodes(normName) {
 	if (roman) for (const m of roman) out.add("roman:" + m.toLowerCase());
 	const season = s.match(/\b[sw]\d{2,4}\b/gi);
 	if (season) for (const m of season) out.add("season:" + m.toLowerCase());
+
+	// Numbered editions: "release 42", "series 3", "recipe 01", "chapter 8",
+	// "no. 6", "n.4". Leading zeros normalized so "01" ≡ "1". Each keyword is its
+	// own kind so a release number never conflicts with a series number.
+	const numbered = [
+		[/\brelease\s+(\d{1,3})\b/g, "release"],
+		[/\bseries\s+(\d{1,3})\b/g, "series"],
+		[/\brecipe\s+(\d{1,3})\b/g, "recipe"],
+		[/\bchapter\s+(\d{1,3})\b/g, "chapter"],
+		[/\bno\.?\s*(\d{1,3})\b/g, "no"],
+		[/\bn\.\s*(\d{1,2})\b/g, "no"],
+	];
+	for (const [re, kind] of numbered) {
+		re.lastIndex = 0;
+		let m;
+		while ((m = re.exec(s))) out.add(kind + ":" + String(parseInt(m[1], 10)));
+	}
+
+	// Decimal version codes (Octomore 15.1, 8.3). Guard against ABV/proof: skip a
+	// decimal that is immediately followed by % / "abv" / "proof", and skip values
+	// in the typical ABV range (20–75). The 1–2 digit fraction keeps SMWS-style
+	// 3+ digit fractions (already captured above) out of this bucket.
+	const verRe = /\b(\d{1,2})\.(\d{1,2})\b(?!\s*(?:%|abv|proof|percent))/gi;
+	let vm;
+	while ((vm = verRe.exec(s))) {
+		const val = parseFloat(vm[1] + "." + vm[2]);
+		if (val >= 20 && val <= 75) continue; // looks like an ABV/proof, not a version
+		out.add("ver:" + vm[1] + "." + parseInt(vm[2], 10));
+	}
 	return out;
 }
 
