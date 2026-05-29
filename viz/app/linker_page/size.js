@@ -81,7 +81,12 @@ export function buildSizePenaltyForPair({ allRows, allAgg, rules }) {
 		if (!skuKey) continue;
 
 		const name = r.name || r.title || r.productName || "";
-		const sizes = parseSizesMlFromText(name);
+		// Fall back to the URL slug only when the name has no parseable size — many
+		// store URLs encode it (".../gordons-gin-750ml"). Fallback (not additive) so
+		// a stray number in a slug can't inject a second, conflicting size onto a
+		// listing whose name already states one.
+		let sizes = parseSizesMlFromText(name);
+		if (!sizes.length && r.url) sizes = parseSizesMlFromText(String(r.url).replace(/[-_/]+/g, " "));
 		if (!sizes.length) continue;
 
 		const set = ensureSkuSet(skuKey);

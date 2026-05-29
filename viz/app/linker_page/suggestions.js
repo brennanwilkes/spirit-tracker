@@ -91,6 +91,16 @@ function isBadSku(sku) {
 	return false;
 }
 
+// Store-exclusivity penalty. A store almost never lists the SAME product under
+// two distinct REAL skus, so if the candidate's group already covers one of the
+// target's stores (and both skus are real), they're very likely DIFFERENT
+// products the store stocks side-by-side — most often two sizes whose size isn't
+// in the name (Chivas Regal 12 at BCL as a 750 and a 1.75L). Measured on the
+// labeled set: gated real↔real this fires on 56% of ignores but only ~4.5% of
+// links. Gated to real↔real because a synthetic u:/upc: sku sharing a store is
+// usually that store's own id-upgrade of the SAME listing (a true link).
+const STORE_EXCLUSIVITY_PENALTY = 0.35;
+
 /* ---------------- Per-pair scoring (single source of truth) ---------------- */
 
 // Build the per-anchor context once; pass it to scorePairWithVocab for each
@@ -115,6 +125,7 @@ export function prepScorePairCtx(pinned, opts) {
 		toks,
 		brand: toks[0] || "",
 		age: extractAgeFromText(norm),
+		stores: pinned?.stores instanceof Set ? pinned.stores : new Set(pinned?.stores || []),
 		abv: vocab ? extractAbv(norm) : null,
 		editionCodes: vocab ? extractEditionCodes(name) : null,
 		topTerm: vocab ? vocab.topTerm(name) : null,
@@ -263,6 +274,19 @@ export function scorePairWithVocab(ctx, candidate) {
 	// the rest of the name matches enough to score — a hard category wall the
 	// bag-of-tokens scorer cannot see. Raw names so "0.0%" survives.
 	s *= conceptConflictMultiplier(ctx.name, itName);
+
+	// Store-exclusivity (gated real↔real): candidate's group already covers one of
+	// the target's stores → probably a different product the store stocks too.
+	if (!isBadSku(ctx.sku) && !isBadSku(itSku) && ctx.stores && ctx.stores.size && candidate.stores) {
+		const cs = candidate.stores;
+		const csHas = typeof cs.has === "function" ? (x) => cs.has(x) : (x) => cs.includes(x);
+		for (const st of ctx.stores) {
+			if (csHas(st)) {
+				s *= STORE_EXCLUSIVITY_PENALTY;
+				break;
+			}
+		}
+	}
 
 	if (isBadSku(ctx.sku) || isBadSku(itSku)) s *= 1.2;
 

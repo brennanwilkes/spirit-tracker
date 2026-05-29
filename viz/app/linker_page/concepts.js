@@ -83,12 +83,16 @@ export function categorySet(norm) {
 export function substyleSet(norm) {
 	const n = stripCaskContexts(lc(norm));
 	const out = new Set();
-	if (/\bsingle\s+malt\b/.test(n)) out.add("singlemalt");
+	// "straight malt" (American single-malt mashbill, e.g. Woodford) joins the
+	// malt member so it conflicts with bourbon/rye/wheat the same way.
+	if (/\b(?:single|straight)\s+malt\b/.test(n)) out.add("singlemalt");
 	if (/\bsingle\s+grain\b|\bgrain\s+(whisky|whiskey|scotch)\b/.test(n)) out.add("grain");
 	if (/\bpot\s+still\b/.test(n)) out.add("potstill");
 	if (/\bbourbon\b/.test(n)) out.add("bourbon");
 	if (/\brye\b/.test(n)) out.add("rye");
 	if (/\bcorn\s+(whisky|whiskey)\b/.test(n)) out.add("corn");
+	// "wheat whiskey" is its own mashbill; NOT "wheated" (that's a bourbon).
+	if (/\bwheat\s+whisk(?:e)?y\b/.test(n)) out.add("wheat");
 	return out;
 }
 
