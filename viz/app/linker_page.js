@@ -40,9 +40,10 @@ import {
 	computeInitialPairsFast,
 	dedupeByGroupRep,
 } from "./linker_page/suggestions.js";
-import { isStrong, isStrongProb } from "./linker_page/strong_threshold.js";
+import { isStrongProb } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
+import { toConfidence01 } from "./linker_page/blend.js";
 import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 /* ---------------- Page ---------------- */
@@ -336,8 +337,9 @@ export async function renderSkuLinker($app) {
 		const score = opts && Number.isFinite(opts.score) ? opts.score : null;
 		const aiDelta = opts && Number.isFinite(opts.aiDelta) ? opts.aiDelta : null;
 		const strong = !!(opts && opts.strong);
-		// Probabilities (AI on) are ≤1 → show 2 decimals; raw scores → 1 decimal.
-		const scoreTxt = score == null ? "" : score <= 1 ? score.toFixed(2) : score.toFixed(1);
+		// Scores are a 0–1 confidence in both modes now (probability when AI on, squashed
+		// classical score otherwise) → always 2 decimals.
+		const scoreTxt = score == null ? "" : score.toFixed(2);
 		// AI chip colour-coded by SIGN: red/rose ▲ = AI pushed the score UP (scrutinise),
 		// blue ▼ = AI pushed it DOWN, grey = negligible.
 		let aiChip = ``;
@@ -424,17 +426,22 @@ export async function renderSkuLinker($app) {
 					blend: aiOn ? blend : null,
 				},
 			);
+			// AI on → score is already a 0–1 probability; otherwise squash the raw score to 0–1.
+			const blended = aiOn && !!(blend && blend.weights);
 			return scored.map((x) =>
-				x && x.it ? { it: x.it, score: x.score || 0, aiDelta: x.aiDelta } : { it: x, score: null },
+				x && x.it
+					? { it: x.it, score: blended ? x.score || 0 : toConfidence01(x.score || 0), aiDelta: x.aiDelta }
+					: { it: x, score: null },
 			);
 		}
 
 		const pairs = getInitialPairsIfNeeded();
 		if (pairs && pairs.length) {
+			// Initial suggested pairs carry raw classical scores — squash to the 0–1 scale.
 			const list =
 				side === "L"
-					? pairs.map((p) => ({ it: p.a, score: p.score || 0 }))
-					: pairs.map((p) => ({ it: p.b, score: p.score || 0 }));
+					? pairs.map((p) => ({ it: p.a, score: toConfidence01(p.score || 0) }))
+					: pairs.map((p) => ({ it: p.b, score: toConfidence01(p.score || 0) }));
 			return list.filter(
 				({ it }) =>
 					it &&
@@ -507,14 +514,13 @@ export async function renderSkuLinker($app) {
 		const scores = entries.map((e) => (Number.isFinite(e.score) ? e.score : null));
 		const topScore = scores.reduce((m, s) => (s != null && s > m ? s : m), 0);
 		const shouldStrong = !!other;
-		const strongFn = aiOn ? isStrongProb : isStrong;
 		$list.innerHTML = entries.length
 			? entries
 					.map(({ it, score, aiDelta }) =>
 						renderCard(it, false, {
 							score: score,
 							aiDelta: aiDelta,
-							strong: shouldStrong && score != null && strongFn(score, topScore),
+							strong: shouldStrong && score != null && isStrongProb(score, topScore),
 						}),
 					)
 					.join("")

@@ -33,14 +33,9 @@ import {
 	prepScorePairCtx,
 	scorePairWithVocab,
 } from "./linker_page/suggestions.js";
-import { extractBlendFeatures, blendScore } from "./linker_page/blend.js";
+import { extractBlendFeatures, blendScore, toConfidence01 } from "./linker_page/blend.js";
 import { buildVocab } from "./linker_page/vocab.js";
-import {
-	STRONG_ABS,
-	STRONG_REL,
-	STRONG_ABS_PROB,
-	STRONG_REL_PROB,
-} from "./linker_page/strong_threshold.js";
+import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
 import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
@@ -381,6 +376,10 @@ export async function renderSkuLinkerRapid($app) {
 		if (!anchor) return [];
 		const q = String($search?.value || "").trim();
 		const tokens = tokenizeQuery(q);
+		// `blended` = the score is already a 0–1 probability (AI on, not a name search).
+		// Everything else is a raw classical score → squash to 0–1 so the displayed scale
+		// is identical in both modes.
+		const blended = !tokens.length && aiOn && !!(blend && blend.weights);
 		let scored;
 		if (tokens.length) {
 			const aSku = String(anchor.sku);
@@ -421,7 +420,7 @@ export async function renderSkuLinkerRapid($app) {
 		scored = dedupeByGroupRep(scored, (x) => x.it && x.it.sku, findRep);
 		return scored.map((x) => ({
 			it: x.it,
-			score: x.score || 0,
+			score: blended ? x.score || 0 : toConfidence01(x.score || 0),
 			aiDelta: x.aiDelta,
 			shared: simVocab.weightedOverlap(anchor.name || "", x.it.name || "").shared,
 			sameStore: sameStoreCanon(String(anchor.sku), String(x.it.sku)),
@@ -735,9 +734,9 @@ export async function renderSkuLinkerRapid($app) {
 
 		// Adaptive split: a "Suggestion" is a candidate that's strong both
 		// absolutely and relative to the best — so the count flexes with quality.
-		const cutoff = aiOn
-			? Math.max(STRONG_ABS_PROB, STRONG_REL_PROB * topScore)
-			: Math.max(STRONG_ABS, STRONG_REL * topScore);
+		// Scores are 0–1 in both modes now (probability when AI on, squashed classical
+		// otherwise), so one cutoff scale applies.
+		const cutoff = Math.max(STRONG_ABS_PROB, STRONG_REL_PROB * topScore);
 		const strong = [];
 		const other = [];
 		candidates.forEach((c, i) => {

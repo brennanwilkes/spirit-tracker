@@ -192,6 +192,11 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 	};
 }
 
+// Map an unbounded classical match score (0→∞) to a 0–1 confidence for display, so the
+// AI-off (raw scorer) and AI-on (calibrated probability) modes share ONE scale. Monotonic
+// (s/(s+1)) → preserves the exact ranking and the sharp separation: 29→0.97, 2→0.67, 0.2→0.17.
+export const toConfidence01 = (s) => (s > 0 ? s / (s + 1) : 0);
+
 const sigmoid = (z) => (z >= 0 ? 1 / (1 + Math.exp(-z)) : Math.exp(z) / (1 + Math.exp(z)));
 
 // weights = { keys, mean, std, w, b }. Returns a calibrated probability in [0,1].
