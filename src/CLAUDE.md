@@ -24,7 +24,7 @@ Each store is a file in `src/stores/` that exports a plain object with:
 }
 ```
 
-`src/stores/index.js` exports `createStores()` which instantiates all 16 adapters.
+`src/stores/index.js` exports `createStores()` which instantiates all 33 adapters.
 
 ## Category Scan Flow (`src/tracker/`)
 
@@ -96,21 +96,43 @@ All optional. CLI flags take precedence over env vars.
 
 ## Stores Reference
 
-| Key | Store | Scrape Method | Categories |
-|-----|-------|---------------|------------|
-| `arc` | ARC / Armstrong Coop | Barnet network API | Spirits-Rum, Spirits-Scotch, Spirits-Whiskey |
-| `bcl` | BC Liquor Stores | Elasticsearch Ajax browse | Whisky/Whiskey, Rum |
-| `bsw` | BSW Liquor | Algolia API | Scotch Whisky, Rum, Whisky |
-| `coop` | Co-op World of Whisky | Custom session API (POST /api/v2/products/category) | Canadian Whisky, Bourbon, Scottish Single Malts, Scottish Blends, American Whiskey, World Whisky, Rum |
-| `craftcellars` | Craft Cellars | Shopify `/products.json` + HTML fallback | Whisky, Rum |
-| `gull` | Gull Liquor Store | WooCommerce HTML (12 s throttle) | Whisky, Rum |
-| `kegncork` | Keg N Cork | WooCommerce HTML | Whisky, Rum |
-| `kwm` | Kensington Wine Market | Custom session + binary-search pagination | Scotch, Rum |
-| `legacyliquor` | Legacy Liquor | Shopify GraphQL Storefront cursor pagination | Whisky, Rum |
-| `maltsandgrains` | Malts & Grains | WooCommerce HTML (excludes Gin, Tequila, Mezcal) | All spirits minus gin/tequila/mezcal |
-| `sierrasprings` | Sierra Springs | WooCommerce Store API + HTML TMB blocks | Whisky, Fine & Rare, Spirits/Liquor, Spirits |
-| `strath` | Strath Liquor | Divi Ajax Filter + WooCommerce Store API | Whisky, Spirits-Rum |
-| `tudor` | Tudor House | Shopify GraphQL Storefront (cursor paging, budgeted detail fetches) | Rum, Whiskey/Scotch, Scotch Selections |
-| `vessel` | Vessel Liquor | Shopify HTML `<product-card>` tags | Whisky, Rum/Cane Spirit |
-| `vintagespirits` | Vintage Spirits | Barnet network API | Whisky & Whiskey, Single Malt Whisky, Rum |
-| `willowpark` | Willow Park | Shopify HTML + GQL SKU repair pass | Scotch, Rum |
+33 adapters (extracted from `createStores()`; categories reflect current config —
+note **Gin** is now scraped across all stores, not just whisky/rum). Region: BC =
+British Columbia, AB = Alberta. Many AB stores run on **Shopify**, which is why
+they often share raw SKUs across stores (the implicit "free" SKU links).
+
+| Key | Store | Region | Scrape Method | Categories |
+|-----|-------|--------|---------------|------------|
+| `arc` | ARC Liquor | BC | Barnet network API | Spirits - Rum / Scotch / Whiskey / Gin |
+| `bcl` | BCL (BC Liquor Stores) | BC | Elasticsearch Ajax browse | Whisky/Whiskey, Rum, Gin |
+| `bsw` | BSW | AB | Algolia API | Scotch Whisky, Rum, Whisky, Gin |
+| `canadianliquor` | Canadian Liquor Store | AB | Shopify HTML | Whisky, Rum, Gin |
+| `clbspirits` | CLB Spirits | AB | Shopify HTML | Whisky, Rum, Gin |
+| `colordevino` | Color de Vino | AB | WooCommerce | Whisky/Whiskey, Whisky SC SM, Rum, Gin |
+| `coop` | Co-op World of Whisky | AB | Custom session API (POST /api/v2/products/category) | Canadian Whisky, Bourbon, Scottish Single Malts, American Whiskey, Rum, Gin |
+| `craftcellars` | Craft Cellars | AB | Shopify `/products.json` + HTML fallback | Whisky, Rum, Gin |
+| `gull` | Gull Liquor | BC | WooCommerce HTML (12 s throttle) | Whisky, Rum, Gin |
+| `highlander` | Highlander Wine & Spirits | AB | WooCommerce | Whiskey, Rum, Gin |
+| `highpointbws` | High Point BWS | BC | Barnet network API | Whiskey, Rum, Gin |
+| `kegncork` | Keg N Cork | AB | WooCommerce HTML | Whisky, Rum, Gin |
+| `kwm` | Kensington Wine Market | AB | Custom session + binary-search pagination | Scotch, Rum, Gin |
+| `legacyliquor` | Legacy Liquor | BC | Shopify GraphQL Storefront cursor pagination | Whisky, Rum, Gin |
+| `liberty` | Liberty Wine Merchants | BC | WooCommerce | Whisky, Rum, Gin |
+| `lime` | Lime Liquor | AB | Shopify HTML | Whiskey, Rum, Gin |
+| `liquorama` | Liquorama | AB | Shopify (API) | Whisky, Rum, Gin |
+| `liquorwarehouse` | Liquor Warehouse | BC | Shopify HTML | Whiskey/Scotch, Rum, Gin |
+| `maltsandgrains` | Malts & Grains | AB | WooCommerce HTML | All Spirits, Gin |
+| `marquis` | Marquis Wine Cellars | BC | Shopify GraphQL | Whisky, Rum, Gin |
+| `newdistrict` | New District | BC | Barnet network API | Whiskey, Rum, Gin |
+| `rmwsb` | Rocky Mountain Wine Spirits Beer | AB | WooCommerce | Whiskey, Rum, Gin |
+| `sherbrooke` | Sherbrooke Liquor | AB | WooCommerce | Whisky, Rum, Gin |
+| `sierrasprings` | Sierra Springs | AB | WooCommerce Store API + HTML TMB blocks | Scotch/Single Malt, Canadian, Irish, American, World Whisky, Spirits, Gin |
+| `strath` | Strath Liquor | BC | Divi Ajax Filter + WooCommerce Store API | Whisky, Spirits - Rum, Gin |
+| `tudor` | Tudor House | BC | Shopify GraphQL Storefront (cursor paging, budgeted detail fetches) | Rum, Whiskey/Scotch, Scotch Selections, Gin |
+| `vessel` | Vessel Liquor | BC | Shopify HTML `<product-card>` tags | Whisky, Rum/Cane Spirit, Gin |
+| `vinearts` | Vine Arts | AB | Shopify GraphQL | Whiskey, Rum, Gin |
+| `vintage` | Vintage Spirits | BC | Barnet network API | Whisky & Whiskey, Single Malt Whisky, Rum, Gin |
+| `whiskydrop` | Whisky Drop | AB | Shopify HTML | Whisky, Rum, Gin |
+| `willowpark` | Willow Park | AB | Shopify HTML + GQL SKU repair pass | Scotch, Rum, Gin |
+| `wineandbeyond` | Wine and Beyond | AB | Shopify `/products.json` | Whiskey, Rum, Gin |
+| `zyn` | ZYN The Wine Market | AB | Shopify HTML | Whisky, Rum, Gin |

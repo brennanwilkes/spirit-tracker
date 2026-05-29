@@ -27,9 +27,18 @@
 export const CATEGORY_CONFLICT = 0.1; // gin vs rum vs whisky … — hard wall
 export const SUBSTYLE_CONFLICT = 0.25; // single malt vs bourbon vs rye — moderate
 export const BATCHING_CONFLICT = 0.15; // single barrel vs small batch
+export const NON_ALC_CONFLICT = 0.1; // 0.0% / alcohol-free vs the real spirit
 // Presence/absence nudges — gentle on purpose (high false-negative risk).
-export const CASK_STRENGTH_MARKER = 1;
-export const SHERRY_MARKER = 1;
+export const CASK_STRENGTH_MARKER = 0.7;
+export const SHERRY_MARKER = 0.75;
+
+// Lowercase + pad with spaces so \b anchors fire at string edges. Detectors
+// accept either a raw display name or a normalized string — they only rely on
+// word boundaries, which punctuation supplies just as well as spaces, so a raw
+// "Empress 1908 0.0% Indigo Gin" keeps its "0.0%" that normSearchText drops.
+function lc(s) {
+	return " " + String(s || "").toLowerCase() + " ";
+}
 
 // "bourbon"/"rum"/"cognac"/"rye" double as cask/finish words on a whisky that
 // is NOT itself that spirit ("ex-bourbon cask", "rum finish"). Strip those
@@ -51,7 +60,7 @@ function stripCaskContexts(n) {
 // asserts more than one (after cask-context stripping) is ambiguous and yields
 // an empty set so it can never trigger a false conflict.
 export function categorySet(norm) {
-	const n = stripCaskContexts(" " + String(norm || "") + " ");
+	const n = stripCaskContexts(lc(norm));
 	const out = new Set();
 	if (/\bgin\b/.test(n)) out.add("gin");
 	if (/\brum\b/.test(n)) out.add("rum");
@@ -68,7 +77,7 @@ export function categorySet(norm) {
 // exclusive members. A name asserting more than one (e.g. "blended malt") is
 // resolved to the most specific member.
 export function substyleSet(norm) {
-	const n = stripCaskContexts(" " + String(norm || "") + " ");
+	const n = stripCaskContexts(lc(norm));
 	const out = new Set();
 	if (/\bsingle\s+malt\b/.test(n)) out.add("singlemalt");
 	if (/\bblended\s+malt\b/.test(n)) out.add("blendedmalt");
@@ -84,7 +93,7 @@ export function substyleSet(norm) {
 
 // Single barrel / single cask vs small batch — a release-format wall.
 export function batchingSet(norm) {
-	const n = " " + String(norm || "") + " ";
+	const n = lc(norm);
 	const out = new Set();
 	if (/\b(single\s+barrel|single\s+cask|single\s+grain\s+cask)\b/.test(n)) out.add("single");
 	if (/\bsmall\s+batch\b/.test(n)) out.add("smallbatch");
@@ -92,18 +101,23 @@ export function batchingSet(norm) {
 }
 
 export function hasCaskStrength(norm) {
-	const n = " " + String(norm || "") + " ";
 	return /\b(cask\s+strength|batch\s+strength|barrel\s+proof|cask\s+proof|barrel\s+strength)\b/.test(
-		n,
+		lc(norm),
 	);
 }
 
 export function hasSherry(norm) {
-	const n = stripCaskContexts(" " + String(norm || "") + " ");
-	// only the still-present sherry words (cask contexts already stripped means a
-	// plain "...sherry..." mention that survived, e.g. "Sherry Oak", "Oloroso")
-	return /\b(sherry|oloroso|amontillado|manzanilla|fino|pedro\s*ximenez|\bpx\b)\b/.test(
-		" " + String(norm || "") + " ",
+	// match the literal sherry words; cask-context stripping isn't needed here —
+	// "ex-sherry cask" still signals a sherry-influenced bottling for this nudge.
+	return /\b(sherry|oloroso|amontillado|manzanilla|fino|pedro\s*ximenez|\bpx\b)\b/.test(lc(norm));
+}
+
+// Alcohol-free / 0.0% expression. Requires the explicit "0.0%" (the trailing %
+// rules out ABV figures like "50.00") or an alcohol-free phrase. Detected on the
+// raw name because normSearchText strips the period and percent sign.
+export function hasNonAlcoholic(name) {
+	return /\b0\s*\.\s*0\s*%|\bnon[-\s]?alcoholic\b|\balcohol[-\s]?free\b|\bzero[-\s]?proof\b|\b0\s*\.\s*0\s*abv\b/.test(
+		lc(name),
 	);
 }
 
@@ -116,13 +130,15 @@ function disjointConflict(aSet, bSet) {
 	return true;
 }
 
-// Combined multiplier for a normalized name pair. Each group contributes
+// Combined multiplier for a pair of RAW display names. Each group contributes
 // independently (product), so the eval can attribute movement to one lever.
-export function conceptConflictMultiplier(aNorm, bNorm) {
+// Pass raw names (not normSearchText output) so "0.0%" survives for the
+// non-alcoholic wall; the other detectors are punctuation-insensitive.
+export function conceptConflictMultiplier(aName, bName) {
 	let m = 1;
 
-	const aCat = categorySet(aNorm);
-	const bCat = categorySet(bNorm);
+	const aCat = categorySet(aName);
+	const bCat = categorySet(bName);
 	const categoryConflict = disjointConflict(aCat, bCat);
 	if (categoryConflict) m *= CATEGORY_CONFLICT;
 
@@ -132,18 +148,21 @@ export function conceptConflictMultiplier(aNorm, bNorm) {
 		const aWhisky = aCat.has("whisky") || aCat.size === 0;
 		const bWhisky = bCat.has("whisky") || bCat.size === 0;
 		if (aWhisky && bWhisky) {
-			if (disjointConflict(substyleSet(aNorm), substyleSet(bNorm))) m *= SUBSTYLE_CONFLICT;
+			if (disjointConflict(substyleSet(aName), substyleSet(bName))) m *= SUBSTYLE_CONFLICT;
 		}
 	}
 
-	if (disjointConflict(batchingSet(aNorm), batchingSet(bNorm))) m *= BATCHING_CONFLICT;
+	if (disjointConflict(batchingSet(aName), batchingSet(bName))) m *= BATCHING_CONFLICT;
+
+	// A 0.0% expression vs the real spirit is never the same SKU.
+	if (hasNonAlcoholic(aName) !== hasNonAlcoholic(bName)) m *= NON_ALC_CONFLICT;
 
 	// Gentle presence/absence nudges (tunable; off by setting the const to 1).
 	if (CASK_STRENGTH_MARKER !== 1) {
-		if (hasCaskStrength(aNorm) !== hasCaskStrength(bNorm)) m *= CASK_STRENGTH_MARKER;
+		if (hasCaskStrength(aName) !== hasCaskStrength(bName)) m *= CASK_STRENGTH_MARKER;
 	}
 	if (SHERRY_MARKER !== 1) {
-		if (hasSherry(aNorm) !== hasSherry(bNorm)) m *= SHERRY_MARKER;
+		if (hasSherry(aName) !== hasSherry(bName)) m *= SHERRY_MARKER;
 	}
 
 	return m;

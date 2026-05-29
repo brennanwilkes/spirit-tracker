@@ -259,10 +259,10 @@ export function scorePairWithVocab(ctx, candidate) {
 	}
 
 	// Mutually-exclusive concept walls (gin vs whisky, single malt vs bourbon,
-	// single barrel vs small batch, …). Demotes only when the rest of the name
-	// matches enough to score — a hard category wall the bag-of-tokens scorer
-	// cannot see.
-	s *= conceptConflictMultiplier(ctx.norm, itNorm);
+	// single barrel vs small batch, 0.0% vs real spirit, …). Demotes only when
+	// the rest of the name matches enough to score — a hard category wall the
+	// bag-of-tokens scorer cannot see. Raw names so "0.0%" survives.
+	s *= conceptConflictMultiplier(ctx.name, itName);
 
 	if (isBadSku(ctx.sku) || isBadSku(itSku)) s *= 1.2;
 

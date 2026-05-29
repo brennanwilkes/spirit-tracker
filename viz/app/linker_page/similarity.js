@@ -152,6 +152,7 @@ export function extractEditionCodes(normName) {
 		[/\bseries\s+(\d{1,3})\b/g, "series"],
 		[/\brecipe\s+(\d{1,3})\b/g, "recipe"],
 		[/\bchapter\s+(\d{1,3})\b/g, "chapter"],
+		[/\bbatch\s+(?:no\.?\s*|number\s*|#\s*)?(\d{1,3})\b/g, "batch"],
 		[/\bno\.?\s*(\d{1,3})\b/g, "no"],
 		[/\bn\.\s*(\d{1,2})\b/g, "no"],
 	];

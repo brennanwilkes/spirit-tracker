@@ -131,13 +131,14 @@ scorer so eval and ranker can never drift.
 
 Submodules:
 
-1. `linker_page/similarity.js` — token overlap, age extraction, SMWS code detection
-2. `linker_page/price.js` — penalize large price differences
-3. `linker_page/size.js` — penalize different bottle sizes
-4. `linker_page/store_cache.js` — group by store for deduplication
-5. `linker_page/canonical_pref.js` — prefer certain SKU formats as canonical
-6. `linker_page/suggestions.js` — rank and return top candidate pairs
-7. `linker_page/vocab.js` — catalog-wide IDF term vocabulary (see below)
+1. `linker_page/similarity.js` — token overlap, age/ABV extraction, edition codes (SMWS, season, roman, **numbered editions** release/series/recipe/chapter/batch/no, decimal `ver` like Octomore 15.1 — extracted via `normForEditionCodes`, a period-preserving norm, since `normSearchText` strips the dot)
+2. `linker_page/concepts.js` — **mutually-exclusive concept walls**: category (gin↮rum↮whisky), whisky substyle (single malt↮bourbon↮rye), single barrel↮small batch, non-alcoholic 0.0%↮real, + gentle cask-strength/sherry presence-absence nudges. `conceptConflictMultiplier(rawNameA, rawNameB)` — pass RAW names so `0.0%` survives. Validated against the labels: category/batching/non-alc break 0 confirmed links; substyle breaks ~9 (mostly mislabels — rye↔bourbon); CS/sherry break 20–30 so they are nudges, not walls
+3. `linker_page/price.js` — penalize large price differences
+4. `linker_page/size.js` — penalize different bottle sizes
+5. `linker_page/store_cache.js` — group by store for deduplication
+6. `linker_page/canonical_pref.js` — prefer certain SKU formats as canonical
+7. `linker_page/suggestions.js` — rank and return top candidate pairs (`scorePairWithVocab` is the single source of truth; applies size/price/age/abv/edition/concept multipliers)
+8. `linker_page/vocab.js` — catalog-wide IDF term vocabulary (see below)
 
 ### IDF vocabulary matching (`linker_page/vocab.js`)
 
