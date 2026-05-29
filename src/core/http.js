@@ -145,20 +145,32 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 	const hostMinInterval = new Map();
 
 	// Adaptive overload backoff. On 429/503/529 we widen the host's effective
-	// interval (and shrink its inflight cap); sustained success decays both back
-	// toward the configured baseline. This auto-slows a host that starts
-	// pushing back instead of hammering it into harder blocks.
-	const hostPenaltyMs = new Map();
-	const PENALTY_STEP_MS = 4000;
-	const PENALTY_CAP_MS = 30000;
-	const PENALTY_DECAY_MS = 200;
+	// interval (and halve its inflight cap). Recovery is TIME-based, not
+	// per-success: the penalty decays exponentially with a short half-life, so a
+	// host that goes quiet recovers in a couple minutes regardless of how slow
+	// requests have become. The cap is deliberately low so backoff can never
+	// freeze the run — it eases off, it doesn't stall.
+	const hostPenalty = new Map(); // host -> { p: ms, ts: epochMs }
+	const PENALTY_STEP_MS = 1000;
+	const PENALTY_CAP_MS = 4000;
+	const PENALTY_HALFLIFE_MS = 20000;
 
+	function currentPenalty(host) {
+		const e = hostPenalty.get(host);
+		if (!e) return 0;
+		const decayed = e.p * Math.pow(0.5, (Date.now() - e.ts) / PENALTY_HALFLIFE_MS);
+		if (decayed < 50) {
+			hostPenalty.delete(host);
+			return 0;
+		}
+		return decayed;
+	}
 	function basicIntervalFor(host) {
 		const v = hostMinInterval.get(host);
 		return typeof v === "number" && v > 0 ? v : minHostIntervalMs;
 	}
 	function intervalFor(host) {
-		return basicIntervalFor(host) + (hostPenaltyMs.get(host) || 0);
+		return basicIntervalFor(host) + currentPenalty(host);
 	}
 	function setHostInterval(host, ms) {
 		const h = String(host || "").trim();
@@ -166,14 +178,10 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 	}
 	function noteOverload(host) {
 		if (!host) return;
-		const cur = hostPenaltyMs.get(host) || 0;
-		hostPenaltyMs.set(host, Math.min(PENALTY_CAP_MS, cur + PENALTY_STEP_MS));
-		logger?.warn?.(`OVERLOAD host=${host} penaltyMs=${hostPenaltyMs.get(host)}`);
-	}
-	function noteOk(host) {
-		if (!host) return;
-		const cur = hostPenaltyMs.get(host) || 0;
-		if (cur > 0) hostPenaltyMs.set(host, Math.max(0, cur - PENALTY_DECAY_MS));
+		const cur = currentPenalty(host);
+		const next = Math.min(PENALTY_CAP_MS, cur * 1.8 + PENALTY_STEP_MS);
+		hostPenalty.set(host, { p: next, ts: Date.now() });
+		logger?.warn?.(`OVERLOAD host=${host} penaltyMs=${Math.round(next)}`);
 	}
 
 	// Per-host inflight clamp (prevents bursts when global concurrency is high).
@@ -186,12 +194,10 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 	function maxInflightFor(host) {
 		const v = hostMaxInflight.get(host);
 		const configured = typeof v === "number" && v > 0 ? v : defaultMaxHostInflight;
-		// While a host is pushing back, collapse parallelism on top of the
-		// widened interval. Heavier penalty → fewer concurrent connections.
-		const penalty = hostPenaltyMs.get(host) || 0;
-		if (penalty <= 0) return configured;
-		const steps = Math.floor(penalty / PENALTY_STEP_MS);
-		return Math.max(1, configured - steps);
+		// While a host is pushing back, halve parallelism on top of the widened
+		// interval (floor 2 so we keep probing, never collapse to serial).
+		if (currentPenalty(host) <= 0) return configured;
+		return Math.max(2, Math.floor(configured / 2));
 	}
 	function setHostConcurrency(host, n) {
 		const h = String(host || "").trim();
@@ -319,21 +325,26 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 				if (status === 429 || status === 503 || status === 529) {
 					noteOverload(hostFromUrl(finalUrl));
 
+					const retryAfterHdr = res?.headers?.get ? res.headers.get("retry-after") : null;
 					let raMs = retryAfterMs(res);
-					// ✅ If no Retry-After header, enforce a real cooldown (Shopify often omits it)
-					if (raMs <= 0) raMs = 15000 + Math.floor(Math.random() * 5000);
+					// If no Retry-After header, use a short cooldown (Shopify often
+					// omits it). Kept low so the time-decayed penalty drives recovery.
+					if (raMs <= 0) raMs = 3000 + Math.floor(Math.random() * 2000);
 
 					noteHost(finalUrl, raMs);
-					logger?.dbg?.(`REQ#${reqId} ${status} retryAfterMs=${raMs} host=${hostFromUrl(finalUrl)}`);
+					// Surface what the server actually told us — Retry-After (if any)
+					// is the authoritative wait, and the body often explains the limit.
+					const bodyHead = (await safeText(res)).slice(0, 200).replace(/\s+/g, " ").trim();
+					logger?.warn?.(
+						`HTTP ${status} ${tag} retryAfter=${retryAfterHdr || "none"} cooldownMs=${raMs}` +
+							(bodyHead ? ` body="${bodyHead}"` : ""),
+					);
 					throw new RetryableError(`HTTP ${status}`);
 				}
 
 				if (status === 408 || (status >= 500 && status <= 599)) {
 					throw new RetryableError(`HTTP ${status}`);
 				}
-
-				// Successful response — decay any accumulated overload penalty.
-				noteOk(hostFromUrl(finalUrl));
 
 				if (status >= 400) {
 					const bodyTxt = await safeText(res);

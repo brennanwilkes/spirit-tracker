@@ -36,10 +36,13 @@ const HOST = "www.wineandbeyond.ca";
 // gin collection 500s at limit>=200; use a single safe ceiling everywhere.
 const JSON_LIMIT = 150;
 // W&B needs ~1 fetch per catalogued product (~1900 total) plus per-location
-// price rescues, so it must run with real parallelism to finish in time. The
-// per-host inflight cap (below) is the real limiter; the interval is kept small
-// only to avoid a thundering-herd burst, not to serialize.
-const WNB_INTERVAL_MS = 50;
+// price rescues, so it must run with real parallelism to finish in time. But
+// W&B uses a token-bucket limiter: it allows a large fast burst (~600 reqs)
+// then throttles hard. Bursting to 10/s drains the bucket and trips a cliff, so
+// we pace to a sustainable ~4/s from the start (250ms interval ⇒ 4/s; 10
+// concurrent connections cover the ~2s latency). The adaptive backoff in
+// http.js is the safety net if W&B still pushes back.
+const WNB_INTERVAL_MS = 250;
 const WNB_CONCURRENCY = 10;
 
 let _pacingSet = false;
