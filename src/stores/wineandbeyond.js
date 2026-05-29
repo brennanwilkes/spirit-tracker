@@ -26,6 +26,7 @@
 // tight cadence, so we lower the per-host interval (see WNB_INTERVAL_MS).
 // "Low Stock" counts as in stock.
 
+const { setTimeout: sleep } = require("timers/promises");
 const { sanitizeName } = require("../utils/text");
 const { normalizeSkuKey, pickBetterSku } = require("../utils/sku");
 const { normalizeShopifyProductUrl } = require("../utils/shopify");
@@ -42,8 +43,15 @@ const JSON_LIMIT = 150;
 // we pace to a sustainable ~4/s from the start (250ms interval ⇒ 4/s; 10
 // concurrent connections cover the ~2s latency). The adaptive backoff in
 // http.js is the safety net if W&B still pushes back.
-const WNB_INTERVAL_MS = 250;
+const WNB_INTERVAL_MS = 150;
 const WNB_CONCURRENCY = 10;
+// W&B's /cart/update.js (the only way to pick a per-location price) is harshly
+// rate-limited: ~100 calls then a multi-minute lockout. So price rescue runs as
+// a second pass that selects each carrying location ONCE (not once per product)
+// and prices every product at that location via cheap product-page GETs reusing
+// the same cart cookie. cart/update calls are spaced and we bail out entirely
+// the moment one is throttled, so it can never poison the main product sweep.
+const WNB_CART_SPACING_MS = 1500;
 
 let _pacingSet = false;
 
@@ -137,32 +145,38 @@ function cartTokenFromSetCookie(setCookie) {
 	return line ? line.split(";")[0] : "";
 }
 
-// Select `locId` on a fresh cart, then re-fetch the product page to read the
-// price that renders for that location. Each call uses its own throwaway cart
-// (the POST with no cookie mints one) so concurrent rescues never clobber each
-// other's selected location. Bypasses the shared cookie jar (cookies:false +
-// explicit Cookie header) so the main pass is unaffected.
-async function fetchPriceAtLocation(ctx, url, handle, locId) {
+// Mint a fresh cart with `locId` selected and return its cart token, or "" if
+// throttled/failed. retries:0 → fail fast on the 429 we expect under load,
+// rather than burning the default 6 long retries against a locked-out endpoint.
+async function selectLocationCart(ctx, locId) {
 	try {
 		const up = await ctx.http.fetchJsonWithRetry(
 			`https://${HOST}/cart/update.js`,
-			`${ctx.store.key}:loc:${ctx.cat.key}:${handle}`,
+			`${ctx.store.key}:loc:${ctx.cat.key}:${locId}`,
 			ctx.store.ua,
 			{
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify({ attributes: { _selected_location_id: locId } }),
 				cookies: false,
+				retries: 0,
 			},
 		);
-		const token = cartTokenFromSetCookie(up.setCookie);
-		if (!token) return "";
+		return cartTokenFromSetCookie(up.setCookie);
+	} catch (_) {
+		return "";
+	}
+}
 
+// Read the price the product page renders for whatever location the given cart
+// token has selected. Plain GET (not rate-limited), explicit cookie, jar bypassed.
+async function fetchPriceWithCart(ctx, url, handle, cartCookie) {
+	try {
 		const { text } = await ctx.http.fetchTextWithRetry(
 			url,
 			`${ctx.store.key}:prodloc:${ctx.cat.key}:${handle}`,
 			ctx.store.ua,
-			{ headers: { cookie: token }, cookies: false },
+			{ headers: { cookie: cartCookie }, cookies: false },
 		);
 		return parsePrice(text);
 	} catch (_) {
@@ -185,11 +199,13 @@ function scanCategoryWnB(collectionHandle) {
 		ctx.logger.ok(`${ctx.catPrefixOut} | wineandbeyond catalog=${entries.length} — checking product pages…`);
 
 		const discovered = new Map();
+		const priceless = []; // in-stock, no default price → { url, handle, locId, item }
 		let checked = 0;
 		let outOfStock = 0;
-		let rescued = 0;
 		let lastLog = Date.now();
 
+		// Pass 1: fetch every product page in parallel. Product GETs are NOT
+		// rate-limited, so this runs at full concurrency. No cart writes here.
 		await parallelMapStaggered(entries, WNB_CONCURRENCY, 0, async ([handle, meta]) => {
 			const url = normalizeShopifyProductUrl(`https://${HOST}/products/${handle}`);
 			let text;
@@ -204,38 +220,75 @@ function scanCategoryWnB(collectionHandle) {
 			if (Date.now() - lastLog >= 15000) {
 				lastLog = Date.now();
 				ctx.logger.ok(
-					`${ctx.catPrefixOut} | wineandbeyond progress checked=${checked}/${entries.length} inStock=${discovered.size} rescued=${rescued}`,
+					`${ctx.catPrefixOut} | wineandbeyond progress checked=${checked}/${entries.length} inStock=${discovered.size}`,
 				);
 			}
 
 			const { inStock } = parseProductPage(text);
 			if (!inStock) { outOfStock++; return; }
 
-			let price = parsePrice(text);
-			if (!price) {
-				// Default location doesn't carry this bottle; re-fetch under a
-				// location that does to read its price.
-				const locId = findCarryingLocationId(text);
-				if (locId) {
-					const p = await fetchPriceAtLocation(ctx, url, handle, locId);
-					if (p) { price = p; rescued++; }
-				}
-			}
-
+			const price = parsePrice(text);
 			const prev = prevDb?.byUrl?.get(url) || null;
 			const finalSku = pickBetterSku(normalizeWnbSku(meta.sku, ctx, url), prev?.sku || "");
 
-			discovered.set(url, {
+			const item = {
 				name: meta.title,
 				price: price || prev?.price || "",
 				url,
 				sku: finalSku,
 				img: meta.img || prev?.img || "",
-			});
+			};
+			discovered.set(url, item);
+
+			// Location-exclusive bottle: default location renders no price. Defer
+			// to the batched rescue pass below.
+			if (!price) {
+				const locId = findCarryingLocationId(text);
+				if (locId) priceless.push({ url, handle, locId, item });
+			}
 		});
 
+		// Pass 2: batched price rescue. Group the priceless items by carrying
+		// location, select each location ONCE via cart/update, then price its
+		// whole group with plain GETs. Bail out the instant cart/update throttles.
+		let rescued = 0;
+		if (priceless.length) {
+			const byLoc = new Map();
+			for (const p of priceless) {
+				if (!byLoc.has(p.locId)) byLoc.set(p.locId, []);
+				byLoc.get(p.locId).push(p);
+			}
+			ctx.logger.ok(
+				`${ctx.catPrefixOut} | wineandbeyond rescuing ${priceless.length} priceless items across ${byLoc.size} locations…`,
+			);
+
+			let throttled = false;
+			let first = true;
+			for (const [locId, group] of byLoc) {
+				if (!first) await sleep(WNB_CART_SPACING_MS);
+				first = false;
+
+				const cartCookie = await selectLocationCart(ctx, locId);
+				if (!cartCookie) {
+					throttled = true;
+					break; // cart endpoint is locked out; stop hitting it
+				}
+
+				await parallelMapStaggered(group, WNB_CONCURRENCY, 0, async (p) => {
+					const price = await fetchPriceWithCart(ctx, p.url, p.handle, cartCookie);
+					if (price) { p.item.price = price; rescued++; }
+				});
+			}
+
+			if (throttled) {
+				ctx.logger.warn(
+					`${ctx.catPrefixOut} | wineandbeyond rescue throttled — priced ${rescued}/${priceless.length}; remainder keep last-known/blank price`,
+				);
+			}
+		}
+
 		ctx.logger.ok(
-			`${ctx.catPrefixOut} | wineandbeyond catalog=${catalog.size} checked=${checked} inStock=${discovered.size} oos=${outOfStock} rescued=${rescued}`,
+			`${ctx.catPrefixOut} | wineandbeyond catalog=${catalog.size} checked=${checked} inStock=${discovered.size} oos=${outOfStock} priceless=${priceless.length} rescued=${rescued}`,
 		);
 
 		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 0 });

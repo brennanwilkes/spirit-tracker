@@ -266,15 +266,15 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 		url,
 		tag,
 		ua,
-		{ mode = "text", method = "GET", headers = {}, body = null, cookies = true } = {},
+		{ mode = "text", method = "GET", headers = {}, body = null, cookies = true, retries = maxRetries } = {},
 	) {
-		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+		for (let attempt = 0; attempt <= retries; attempt++) {
 			const reqId = ++reqSeq;
 			const start = Date.now();
 
 			inflight++;
 			logger?.dbg?.(
-				`REQ#${reqId} START ${tag} attempt=${attempt + 1}/${maxRetries + 1} ${url} (${inflightStr()})`,
+				`REQ#${reqId} START ${tag} attempt=${attempt + 1}/${retries + 1} ${url} (${inflightStr()})`,
 			);
 
 			const releaseHost = await acquireHost(url);
@@ -380,12 +380,12 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 					)}ms`,
 				);
 
-				if (!retryable || attempt === maxRetries) throw e;
+				if (!retryable || attempt === retries) throw e;
 
 				let delay = backoffMs(attempt);
 				if (nextOk > Date.now()) delay = Math.max(delay, nextOk - Date.now());
 
-				logger?.warn?.(`Request failed, retrying in ${delay}ms (${attempt + 1}/${maxRetries})`);
+				logger?.warn?.(`Request failed, retrying in ${delay}ms (${attempt + 1}/${retries})`);
 				await sleep(delay);
 			} finally {
 				releaseHost();
