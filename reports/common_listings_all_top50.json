@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T05:07:30.829Z",
+  "generatedAt": "2026-05-30T07:54:19.190Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12976,
-    "removedRows": 4846,
-    "canonSkus": 6023,
+    "liveRows": 12968,
+    "removedRows": 4856,
+    "canonSkus": 6020,
     "outputCount": 50
   },
   "rows": [
@@ -44,6 +44,7 @@
       "canonSku": "006968",
       "storeCount": 15,
       "stores": [
+        "arc",
         "bcl",
         "bsw",
         "coop",
@@ -56,14 +57,14 @@
         "sierrasprings",
         "strath",
         "tudor",
-        "vessel",
         "vintage",
         "willowpark"
       ],
       "missingStores": [
-        "arc"
+        "vessel"
       ],
       "storePrices": {
+        "arc": 49.99,
         "bcl": 49.99,
         "bsw": 48.99,
         "coop": 54.99,
@@ -76,7 +77,6 @@
         "sierrasprings": 51.32,
         "strath": 57.3,
         "tudor": 49.99,
-        "vessel": 49.99,
         "vintage": 60.78,
         "willowpark": 44.99
       },
@@ -558,63 +558,6 @@
         "priceNum": 63.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/laphroaig-10-year-old-43-abv"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kwm",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "bsw": 140,
-        "craftcellars": 184.99,
-        "gull": 169.99,
-        "kegncork": 161.96,
-        "legacyliquor": 173.47,
-        "maltsandgrains": 175.8,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39,
-        "willowpark": 174.99
-      },
-      "representative": {
-        "name": "Lagavulin 16 Year Old",
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$140.00",
-        "priceNum": 140,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {
@@ -1574,6 +1517,62 @@
         "priceNum": 104.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "sierrasprings",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bcl": 169.99,
+        "bsw": 140,
+        "craftcellars": 184.99,
+        "gull": 169.99,
+        "kegncork": 161.96,
+        "legacyliquor": 173.47,
+        "maltsandgrains": 175.8,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vintage": 183.39,
+        "willowpark": 174.99
+      },
+      "representative": {
+        "name": "Lagavulin 16 Year Old",
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$140.00",
+        "priceNum": 140,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/lagavulin-16-year-old-1"
       }
     },
     {

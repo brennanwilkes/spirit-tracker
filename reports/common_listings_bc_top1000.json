@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T05:07:32.302Z",
+  "generatedAt": "2026-05-30T07:54:20.585Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4419,
-    "removedRows": 573,
-    "canonSkus": 2187,
+    "liveRows": 4416,
+    "removedRows": 577,
+    "canonSkus": 2188,
     "outputCount": 955
   },
   "rows": [
@@ -288,49 +288,6 @@
         "priceNum": 39.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4765307-planteray-original-dark"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "gull": 169.99,
-        "legacyliquor": 173.47,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "LAGAVULIN 16YO",
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -724,43 +681,43 @@
       "canonSku": "006968",
       "storeCount": 7,
       "stores": [
+        "arc",
         "bcl",
         "gull",
         "legacyliquor",
         "strath",
         "tudor",
-        "vessel",
         "vintage"
       ],
       "missingStores": [
-        "arc"
+        "vessel"
       ],
       "storePrices": {
+        "arc": 49.99,
         "bcl": 49.99,
         "gull": 50.65,
         "legacyliquor": 57.84,
         "strath": 57.3,
         "tudor": 49.99,
-        "vessel": 49.99,
         "vintage": 60.78
       },
       "representative": {
-        "name": "EMPRESS - 1908 INDIGO GIN",
+        "name": "EMPRESS 1908 INDIGO GIN",
         "price": "$49.99",
         "priceNum": 49.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "006968",
         "skuKey": "006968",
-        "url": "https://www.bcliquorstores.com/product/6968",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-gin",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
       },
       "cheapest": {
         "price": "$49.99",
         "priceNum": 49.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/6968"
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591241-empress-1908-indigo-gin"
       }
     },
     {
@@ -1277,6 +1234,49 @@
         "priceNum": 78.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587272-midleton-green-spot"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bcl": 169.99,
+        "gull": 169.99,
+        "legacyliquor": 173.47,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "LAGAVULIN 16YO",
+        "price": "$158.99",
+        "priceNum": 158.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$158.99",
+        "priceNum": 158.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -1878,48 +1878,6 @@
       }
     },
     {
-      "canonSku": "002063",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 23.89,
-        "bcl": 24.49,
-        "gull": 26.2,
-        "legacyliquor": 28.58,
-        "strath": 26,
-        "vessel": 24.99
-      },
-      "representative": {
-        "name": "LAMBS NAVY 750ML",
-        "price": "$23.89",
-        "priceNum": 23.89,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "002063",
-        "skuKey": "002063",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587313-lambs-navy-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$23.89",
-        "priceNum": 23.89,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587313-lambs-navy-750ml"
-      }
-    },
-    {
       "canonSku": "002220",
       "storeCount": 6,
       "stores": [
@@ -2211,48 +2169,6 @@
         "priceNum": 59.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591447-chivas-regal-12yo"
-      }
-    },
-    {
-      "canonSku": "007880",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 61.99,
-        "gull": 64.95,
-        "legacyliquor": 67.99,
-        "tudor": 64.99,
-        "vessel": 65.99
-      },
-      "representative": {
-        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://www.bcliquorstores.com/product/7880",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/7880"
       }
     },
     {
@@ -3642,45 +3558,45 @@
       }
     },
     {
-      "canonSku": "368597",
+      "canonSku": "358390",
       "storeCount": 6,
       "stores": [
         "arc",
         "bcl",
-        "gull",
         "legacyliquor",
+        "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
-        "strath",
+        "gull",
         "vintage"
       ],
       "storePrices": {
-        "arc": 49.99,
-        "bcl": 49.99,
-        "gull": 52.05,
-        "legacyliquor": 58.99,
-        "tudor": 54.99,
-        "vessel": 49.99
+        "arc": 142.89,
+        "bcl": 134.99,
+        "legacyliquor": 184.99,
+        "strath": 129.05,
+        "tudor": 161.99,
+        "vessel": 134.99
       },
       "representative": {
-        "name": "THE BOTANIST ISLAY GIN",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "368597",
-        "skuKey": "368597",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588734-the-botanist-islay-gin",
-        "categoryLabel": "Spirits - Gin",
-        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+        "name": "Suntory - Hibiki Japanese Harmony",
+        "price": "$129.05",
+        "priceNum": 129.05,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
+        "skuRaw": "358390",
+        "skuKey": "358390",
+        "url": "https://www.strathliquor.com/product/suntory-hibiki-japanese-harmony/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
       },
       "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588734-the-botanist-islay-gin"
+        "price": "$129.05",
+        "priceNum": 129.05,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/suntory-hibiki-japanese-harmony/"
       }
     },
     {
@@ -4188,48 +4104,6 @@
       }
     },
     {
-      "canonSku": "780196",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 64.99,
-        "gull": 67.5,
-        "legacyliquor": 67.99,
-        "tudor": 64.99,
-        "vessel": 62.49
-      },
-      "representative": {
-        "name": "TOKI SUNTORY WHISKY",
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "855445",
-        "skuKey": "855445",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$58.99",
-        "priceNum": 58.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
-      }
-    },
-    {
       "canonSku": "829473",
       "storeCount": 6,
       "stores": [
@@ -4559,6 +4433,47 @@
       }
     },
     {
+      "canonSku": "002063",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 23.89,
+        "bcl": 24.49,
+        "gull": 26.2,
+        "strath": 26,
+        "vessel": 24.99
+      },
+      "representative": {
+        "name": "LAMBS NAVY 750ML",
+        "price": "$23.89",
+        "priceNum": 23.89,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "002063",
+        "skuKey": "002063",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587313-lambs-navy-750ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$23.89",
+        "priceNum": 23.89,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587313-lambs-navy-750ml"
+      }
+    },
+    {
       "canonSku": "002311",
       "storeCount": 5,
       "stores": [
@@ -4802,6 +4717,47 @@
         "priceNum": 14.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4589015-gordons-gin-375ml"
+      }
+    },
+    {
+      "canonSku": "007880",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 61.99,
+        "gull": 64.95,
+        "legacyliquor": 67.99,
+        "tudor": 64.99
+      },
+      "representative": {
+        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://www.bcliquorstores.com/product/7880",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$61.99",
+        "priceNum": 61.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/7880"
       }
     },
     {
@@ -7265,47 +7221,6 @@
       }
     },
     {
-      "canonSku": "358390",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "gull",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 142.89,
-        "bcl": 134.99,
-        "legacyliquor": 184.99,
-        "strath": 129.05,
-        "tudor": 161.99
-      },
-      "representative": {
-        "name": "Suntory - Hibiki Japanese Harmony",
-        "price": "$129.05",
-        "priceNum": 129.05,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "358390",
-        "skuKey": "358390",
-        "url": "https://www.strathliquor.com/product/suntory-hibiki-japanese-harmony/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$129.05",
-        "priceNum": 129.05,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/suntory-hibiki-japanese-harmony/"
-      }
-    },
-    {
       "canonSku": "368456",
       "storeCount": 5,
       "stores": [
@@ -7344,6 +7259,47 @@
         "priceNum": 84.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/368456"
+      }
+    },
+    {
+      "canonSku": "368597",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 49.99,
+        "gull": 52.05,
+        "legacyliquor": 58.99,
+        "tudor": 54.99,
+        "vessel": 49.99
+      },
+      "representative": {
+        "name": "BRUICHLADDICH - THE BOTANIST ISLAY DRY",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "368597",
+        "skuKey": "368597",
+        "url": "https://www.bcliquorstores.com/product/368597",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/368597"
       }
     },
     {
@@ -9028,6 +8984,47 @@
       }
     },
     {
+      "canonSku": "780196",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 64.99,
+        "gull": 67.5,
+        "legacyliquor": 67.99,
+        "tudor": 64.99
+      },
+      "representative": {
+        "name": "TOKI SUNTORY WHISKY",
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "855445",
+        "skuKey": "855445",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$58.99",
+        "priceNum": 58.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
+      }
+    },
+    {
       "canonSku": "783842",
       "storeCount": 5,
       "stores": [
@@ -10350,46 +10347,6 @@
       }
     },
     {
-      "canonSku": "108649",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "bcl",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 153.89,
-        "bcl": 159.99,
-        "tudor": 166.99,
-        "vessel": 154.99
-      },
-      "representative": {
-        "name": "ABERLOUR ABUNADH ALBA",
-        "price": "$153.89",
-        "priceNum": 153.89,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "521680",
-        "skuKey": "521680",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590518-aberlour-abunadh-alba",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$153.89",
-        "priceNum": 153.89,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590518-aberlour-abunadh-alba"
-      }
-    },
-    {
       "canonSku": "109570",
       "storeCount": 4,
       "stores": [
@@ -11347,6 +11304,46 @@
         "priceNum": 428.79,
         "storeKey": "strath",
         "url": "https://www.strathliquor.com/product/macallan-speymalt-2005-gm/"
+      }
+    },
+    {
+      "canonSku": "238725",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 131.09,
+        "legacyliquor": 136.04,
+        "tudor": 142.99,
+        "vessel": 129.99
+      },
+      "representative": {
+        "name": "Kilchoman - Sanaig Single Malt Scotch",
+        "price": "$129.99",
+        "priceNum": 129.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "238725",
+        "skuKey": "238725",
+        "url": "https://vesselliquor.com/products/kilchoman-sanaig-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$129.99",
+        "priceNum": 129.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/kilchoman-sanaig-single-malt-scotch"
       }
     },
     {
@@ -15431,6 +15428,45 @@
       }
     },
     {
+      "canonSku": "108649",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 159.99,
+        "tudor": 166.99,
+        "vessel": 154.99
+      },
+      "representative": {
+        "name": "Aberlour - A'Bunadh Alba Single Malt Scotch",
+        "price": "$154.99",
+        "priceNum": 154.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "521680",
+        "skuKey": "521680",
+        "url": "https://vesselliquor.com/products/aberlour-abunadh-alba-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$154.99",
+        "priceNum": 154.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/aberlour-abunadh-alba-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "109336",
       "storeCount": 3,
       "stores": [
@@ -17924,45 +17960,6 @@
         "priceNum": 102.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/meikle-toir-original-700m/"
-      }
-    },
-    {
-      "canonSku": "238725",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 131.09,
-        "legacyliquor": 136.04,
-        "tudor": 142.99
-      },
-      "representative": {
-        "name": "KILCHOMAN SANAIG",
-        "price": "$131.09",
-        "priceNum": 131.09,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "238725",
-        "skuKey": "238725",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587607-kilchoman-sanaig",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$131.09",
-        "priceNum": 131.09,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587607-kilchoman-sanaig"
       }
     },
     {
