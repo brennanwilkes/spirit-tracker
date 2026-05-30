@@ -19,7 +19,7 @@
 
 import fs from "fs";
 import path from "path";
-import { buildEnv, skuToText, OUT_DIR } from "./featurize.mjs";
+import { buildEnv, skuToTextEnriched, OUT_DIR } from "./featurize.mjs";
 import { normSearchText, tokenizeQuery } from "../../viz/app/sku.js";
 import { filterSimTokens } from "../../viz/app/linker_page/similarity.js";
 
@@ -170,7 +170,7 @@ const textsPath = path.join(OUT_DIR, "sku_texts.jsonl");
 let nText = 0;
 const tw = [];
 for (const it of env.allAgg) {
-	const text = skuToText(it);
+	const text = skuToTextEnriched(it.sku, env);
 	if (!text || text.length < 2) continue;
 	tw.push(JSON.stringify({ sku: it.sku, text, canon: canonOf(it.sku) }));
 	nText++;

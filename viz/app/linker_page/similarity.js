@@ -218,8 +218,11 @@ export function editionCodeMultiplier(a, b) {
 		if (shared > 0) sharedAny = true;
 		else conflictAny = true;
 	}
-	if (sharedAny) return 1.15;
+	// Conflict DOMINATES a shared code of another kind: same vintage year:1997 but a
+	// different release season (s22 vs s24 — Glenfarclas Family Casks) is a different
+	// bottling. A shared year/series must not mask a conflicting season/release/batch/cask.
 	if (conflictAny) return 0.1;
+	if (sharedAny) return 1.15;
 	return 1;
 }
 

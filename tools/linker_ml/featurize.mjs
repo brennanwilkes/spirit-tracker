@@ -112,6 +112,24 @@ export function buildEnv() {
 	})();
 	const allLinks = [...manualLinks, ...autoLinks];
 
+	// Link adjacency (manual+auto) for canonical-GROUP BFS used by the group-wise
+	// features. Built once; featurizePair cuts the scored pair's direct edge so the
+	// feature is computed on honest PRE-merge groups (no label leakage for positives).
+	const linkAdj = new Map();
+	const addAdj = (f, t) => {
+		let s = linkAdj.get(f);
+		if (!s) linkAdj.set(f, (s = new Set()));
+		s.add(t);
+	};
+	for (const l of allLinks) {
+		const f = String(l.fromSku || l.skuA || "").trim();
+		const t = String(l.toSku || l.skuB || "").trim();
+		if (f && t && f !== t) {
+			addAdj(f, t);
+			addAdj(t, f);
+		}
+	}
+
 	const vocab = buildVocab(allAgg);
 	const rulesStub = { canonicalSku: (s) => String(s) };
 	const sizeFn = buildSizePenaltyForPair({ allRows: rows, allAgg, rules: rulesStub });
@@ -135,10 +153,201 @@ export function buildEnv() {
 		sizeFn,
 		priceFn,
 		ctxFor,
+		linkAdj,
 		manualLinks,
 		autoLinks,
 		allLinks,
 		ignoreEntries,
+	};
+}
+
+/* ---------------- group-wise pair features (honest, pre-merge) ---------------- */
+
+function bfsComponent(adj, seed, banA, banB) {
+	const seen = new Set([seed]);
+	const st = [seed];
+	while (st.length) {
+		const x = st.pop();
+		const ns = adj.get(x);
+		if (!ns) continue;
+		for (const y of ns) {
+			if ((x === banA && y === banB) || (x === banB && y === banA)) continue; // cut the scored edge
+			if (!seen.has(y)) {
+				seen.add(y);
+				st.push(y);
+			}
+		}
+	}
+	return seen;
+}
+
+// Standard bottle buckets (mirror size.js) so 700≡750 etc.
+const SIZE_BUCKETS_FT = [
+	[40, 65, 50], [90, 115, 100], [180, 220, 200], [330, 400, 375], [480, 560, 500],
+	[680, 760, 700], [950, 1060, 1000], [1100, 1180, 1140], [1450, 1550, 1500],
+	[1700, 1800, 1750], [2900, 3100, 3000],
+];
+const bucketMl = (ml) => {
+	for (const [lo, hi, c] of SIZE_BUCKETS_FT) if (ml >= lo && ml <= hi) return c;
+	return ml;
+};
+
+function groupSizeBuckets(members, env) {
+	const out = new Set();
+	for (const s of members) {
+		const it = env.bySku.get(String(s));
+		if (!it) continue;
+		for (const ml of parseSizesMlFromText(it.name || "")) out.add(bucketMl(ml));
+	}
+	return out;
+}
+
+function groupStoreSkus(members, env) {
+	const m = new Map(); // store -> Set(sku)
+	for (const s of members) {
+		const it = env.bySku.get(String(s));
+		if (!it) continue;
+		for (const st of it.stores) {
+			let z = m.get(st);
+			if (!z) m.set(st, (z = new Set()));
+			z.add(String(s));
+		}
+	}
+	return m;
+}
+
+const _tokCache = new Map();
+function tokSet(name) {
+	const key = String(name || "");
+	let s = _tokCache.get(key);
+	if (!s) _tokCache.set(key, (s = new Set(filterSimTokens(tokenizeQuery(normSearchText(key))))));
+	return s;
+}
+// An UPGRADE/relist (same product, two SKUs at one store) has near-identical names; a
+// genuine collision (different products a store stocks together) does not. Discount the
+// former so a SKU upgrade isn't counted as evidence the groups are different.
+function nameNearDup(skuX, skuY, env) {
+	const a = tokSet(env.bySku.get(String(skuX))?.name);
+	const b = tokSet(env.bySku.get(String(skuY))?.name);
+	if (!a.size || !b.size) return false;
+	let inter = 0;
+	for (const t of a) if (b.has(t)) inter++;
+	const union = a.size + b.size - inter;
+	return union > 0 && inter / union >= 0.8;
+}
+
+function groupAbvMean(members, env) {
+	let s = 0;
+	let n = 0;
+	for (const m of members) {
+		const a = extractAbv(normSearchText(env.bySku.get(String(m))?.name || ""));
+		if (a != null) {
+			s += a;
+			n++;
+		}
+	}
+	return n ? s / n : null;
+}
+function groupYear(members, env) {
+	for (const m of members) {
+		const y = normSearchText(env.bySku.get(String(m))?.name || "").match(/\b(19\d\d|20\d\d)\b/);
+		if (y) return parseInt(y[1], 10);
+	}
+	return null;
+}
+function groupMinPrice(members, env) {
+	let p = null;
+	for (const m of members) {
+		const v = env.bySku.get(String(m))?.cheapestPriceNum;
+		if (v != null && v > 0) p = p == null ? v : Math.min(p, v);
+	}
+	return p;
+}
+function jaccard(A, B) {
+	if (!A.size && !B.size) return 1;
+	let inter = 0;
+	for (const x of A) if (B.has(x)) inter++;
+	const uni = A.size + B.size - inter;
+	return uni ? inter / uni : 1;
+}
+
+const GRP_NEUTRAL = {
+	grpStoreOverlap: 0, grpStoreCollideCount: 0, grpStoreJaccard: 0, grpSameSkuShare: 0,
+	grpSizeConflict: 0, grpSizeJaccard: 1, grpAbvDiff: 0, grpAbvBoth: 0, grpYearDiff: 0,
+	grpYearBoth: 0, grpPriceRatio: 1, grpCountA: 1, grpCountB: 1,
+};
+
+// Rich group-wise feature set for pair (a,b), on PRE-merge groups (cut the direct a–b edge
+// so a confirmed link doesn't get its own merged group as the answer). All signals are
+// canonical-GROUP level (not pairwise) — the dimension neither the bag-of-tokens scorer nor
+// the bi-encoder can see. A nonlinear blend can mine interactions across these.
+export function groupPairFeatures(aSku, bSku, env) {
+	const adj = env.linkAdj;
+	if (!adj) return { ...GRP_NEUTRAL };
+	const GA = bfsComponent(adj, aSku, aSku, bSku);
+	if (GA.has(bSku)) return { ...GRP_NEUTRAL }; // multi-path → same product, no honest pre-merge signal
+	const GB = bfsComponent(adj, bSku, aSku, bSku);
+
+	const smA = groupStoreSkus(GA, env);
+	const smB = groupStoreSkus(GB, env);
+	const storeSetA = new Set(smA.keys());
+	const storeSetB = new Set(smB.keys());
+	const allStores = new Set([...storeSetA, ...storeSetB]);
+	let colliding = 0; // different-sku, non-upgrade, same store → evidence of different products
+	let sameSku = 0; // identical sku at same store → upgrade/identity → evidence of SAME product
+	for (const [st, SA] of smA) {
+		const SB = smB.get(st);
+		if (!SB) continue;
+		let collide = false;
+		let identical = false;
+		for (const x of SA) {
+			for (const y of SB) {
+				if (x === y) identical = true;
+				else if (!nameNearDup(x, y, env)) collide = true;
+			}
+		}
+		if (collide) colliding++;
+		if (identical) sameSku++;
+	}
+	const grpStoreOverlap = allStores.size ? colliding / allStores.size : 0;
+	const grpSameSkuShare = allStores.size ? sameSku / allStores.size : 0;
+	const grpStoreJaccard = jaccard(storeSetA, storeSetB);
+
+	const szA = groupSizeBuckets(GA, env);
+	const szB = groupSizeBuckets(GB, env);
+	let shared = false;
+	for (const c of szA) if (szB.has(c)) { shared = true; break; }
+	const grpSizeConflict = szA.size && szB.size && !shared ? 1 : 0;
+	const grpSizeJaccard = szA.size && szB.size ? jaccard(szA, szB) : 1;
+
+	const abvA = groupAbvMean(GA, env);
+	const abvB = groupAbvMean(GB, env);
+	const grpAbvBoth = abvA != null && abvB != null ? 1 : 0;
+	const grpAbvDiff = grpAbvBoth ? Math.abs(abvA - abvB) : 0;
+
+	const yA = groupYear(GA, env);
+	const yB = groupYear(GB, env);
+	const grpYearBoth = yA != null && yB != null ? 1 : 0;
+	const grpYearDiff = grpYearBoth ? Math.abs(yA - yB) : 0;
+
+	const pA = groupMinPrice(GA, env);
+	const pB = groupMinPrice(GB, env);
+	const grpPriceRatio = pA && pB ? Math.max(pA, pB) / Math.min(pA, pB) : 1;
+
+	return {
+		grpStoreOverlap,
+		grpStoreCollideCount: colliding,
+		grpStoreJaccard,
+		grpSameSkuShare,
+		grpSizeConflict,
+		grpSizeJaccard,
+		grpAbvDiff,
+		grpAbvBoth,
+		grpYearDiff,
+		grpYearBoth,
+		grpPriceRatio,
+		grpCountA: GA.size,
+		grpCountB: GB.size,
 	};
 }
 
@@ -150,6 +359,64 @@ export function buildEnv() {
 // embedding raising recall, hard rules protecting precision — CLASSIFIER_PLAN §5).
 export function skuToText(item) {
 	return normSearchText(item?.name || "");
+}
+
+// Category word from the name (coarse class the concept walls use). One token, appended
+// to the embedder text so same/different category nudges the cosine the right way.
+function categoryWord(name) {
+	const s = ` ${String(name || "").toLowerCase()} `;
+	if (/\bgin\b/.test(s)) return "gincat";
+	if (/\brum\b/.test(s)) return "rumcat";
+	if (/\bvodka\b/.test(s)) return "vodkacat";
+	if (/\b(tequila|mezcal)\b/.test(s)) return "tequilacat";
+	if (/\b(brandy|cognac|armagnac)\b/.test(s)) return "brandycat";
+	if (/\bliqueur\b/.test(s)) return "liqueurcat";
+	if (/\b(whisky|whiskey|scotch|bourbon|rye|malt)\b/.test(s)) return "whiskycat";
+	return "";
+}
+
+// Embedder text ENRICHED with GROUP-resolved, processed attribute tokens (Increment 2):
+// the normalized name PLUS size bucket / ABV / vintage year / category, unioned across the
+// SKU's whole canonical group (so a sizeless listing inherits its siblings' size). These
+// are per-SKU attributes whose meaning is ALIGNED with cosine similarity (same size →
+// closer), unlike pairwise store-overlap which stays a blend feature. No raw store names.
+export function skuToTextEnriched(sku, env) {
+	const it = env.bySku.get(String(sku));
+	if (!it) return "";
+	const base = normSearchText(it.name || "");
+	const members = env.linkAdj ? bfsComponent(env.linkAdj, String(sku), null, null) : new Set([String(sku)]);
+	if (!members.has(String(sku))) members.add(String(sku));
+
+	const sizeCounts = new Map();
+	let year = null;
+	let abv = null;
+	for (const m of members) {
+		const nm = env.bySku.get(String(m))?.name || "";
+		const norm = normSearchText(nm);
+		for (const ml of parseSizesMlFromText(nm)) {
+			const c = bucketMl(ml);
+			sizeCounts.set(c, (sizeCounts.get(c) || 0) + 1);
+		}
+		if (year == null) {
+			const ym = norm.match(/\b(19\d\d|20\d\d)\b/);
+			if (ym) year = ym[1];
+		}
+		if (abv == null) {
+			const a = extractAbv(norm);
+			if (a != null) abv = a;
+		}
+	}
+
+	const parts = [base];
+	if (sizeCounts.size) {
+		const top = [...sizeCounts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+		parts.push("size", String(top));
+	}
+	if (abv != null) parts.push("abv", String(Math.round(abv)));
+	if (year) parts.push("year", String(year));
+	const cat = categoryWord(it.name);
+	if (cat) parts.push(cat);
+	return parts.join(" ");
 }
 
 // Structured single-SKU representation — the "right shape" for any downstream model.
@@ -194,13 +461,14 @@ export function featurizePair(skuA, skuB, env) {
 	const ctxA = env.ctxFor(a.sku);
 	if (!ctxA) return null;
 	const detScore = scorePairWithVocab(ctxA, b);
+	const grp = groupPairFeatures(a.sku, b.sku, env);
 	const feats = extractBlendFeatures(ctxA, b, {
 		vocab: env.vocab,
 		sizePenaltyFn: env.sizeFn,
 		pricePenaltyFn: env.priceFn,
 		detScore,
 	});
-	return { a: a.sku, b: b.sku, detScore, ...feats };
+	return { a: a.sku, b: b.sku, detScore, ...feats, ...grp };
 }
 
 // FEATURE_KEYS is the single source of truth in blend.js; re-exported for the trainer.

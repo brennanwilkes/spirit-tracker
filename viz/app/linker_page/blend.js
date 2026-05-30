@@ -59,6 +59,19 @@ export const FEATURE_KEYS = [
 	"minTok",
 	"maxTok",
 	"lenDiff",
+	"grpStoreOverlap",
+	"grpStoreCollideCount",
+	"grpStoreJaccard",
+	"grpSameSkuShare",
+	"grpSizeConflict",
+	"grpSizeJaccard",
+	"grpAbvDiff",
+	"grpAbvBoth",
+	"grpYearDiff",
+	"grpYearBoth",
+	"grpPriceRatio",
+	"grpCountA",
+	"grpCountB",
 	"embedCos",
 ];
 
@@ -162,6 +175,16 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 	const detScore = Number.isFinite(opts.detScore) ? opts.detScore : 0;
 	const embedCos = typeof opts.embedCosFn === "function" ? opts.embedCosFn(aSku, bSku) : 0;
 
+	// Group-wise signals (canonical-GROUP, not pairwise). Computed by the caller and
+	// passed in (offline: featurize.mjs via honest edge-cut; live: from the current
+	// canonical map). Default 0 (neutral) when the caller doesn't supply them.
+	//   grpStoreOverlap — fraction of stores where the two GROUPS carry DIFFERENT,
+	//     non-upgrade SKUs (a store rarely lists the same product twice → evidence the
+	//     groups are different products). Small by nature (0, ~0.1, ~0.3).
+	//   grpSizeConflict — 1 when the two groups' resolved bottle sizes are disjoint.
+	const grpStoreOverlap = Number.isFinite(opts.grpStoreOverlap) ? opts.grpStoreOverlap : 0;
+	const grpSizeConflict = Number.isFinite(opts.grpSizeConflict) ? opts.grpSizeConflict : 0;
+
 	return {
 		logDet: Math.log1p(Math.max(0, detScore)),
 		contain,
@@ -188,6 +211,8 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 		minTok: Math.min(fA.length, fB.length),
 		maxTok: Math.max(fA.length, fB.length),
 		lenDiff: Math.abs((ctx.norm || "").length - normB.length),
+		grpStoreOverlap,
+		grpSizeConflict,
 		embedCos,
 	};
 }

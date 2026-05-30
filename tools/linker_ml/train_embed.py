@@ -59,6 +59,9 @@ def main():
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--max-pairs-per-group", type=int, default=60)
     ap.add_argument("--skip-base", action="store_true", help="don't write embeddings_base.json")
+    ap.add_argument("--scale", type=float, default=20.0, help="MNRL temperature scale")
+    ap.add_argument("--lr", type=float, default=2e-5, help="AdamW learning rate")
+    ap.add_argument("--tag", default="ft", help="output tag: writes embeddings_<tag>.json (or embeddings.json if 'ft')")
     ap.add_argument(
         "--no-hard-negs",
         action="store_true",
@@ -176,8 +179,8 @@ def main():
     device = "cpu"
     model.to(device)
     model.train()
-    opt = torch.optim.AdamW(model.parameters(), lr=2e-5)
-    scale = 20.0
+    opt = torch.optim.AdamW(model.parameters(), lr=args.lr)
+    scale = args.scale
     bs = args.batch
     rng = torch.Generator().manual_seed(42)
 
@@ -224,7 +227,7 @@ def main():
         )
 
     model.eval()
-    encode_all(model, "ft")
+    encode_all(model, args.tag)
     print("done. Now run: node tools/linker_ml/dump_features.mjs && node tools/linker_ml/train_blend.mjs", flush=True)
 
 

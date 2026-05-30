@@ -19,6 +19,11 @@ export function parseSizesMlFromText(text) {
 		else if (unit === "cl") ml = Math.round(val * 10);
 		else ml = Math.round(val * 1000);
 
+		// A 4-digit vintage year glued to "ml" in a noisy URL slug (e.g.
+		// ".../highland-cask-2023-ml-420") is a year, not a volume. Years only ever attach
+		// to the "ml" unit; "2 l" (a real 2 L) parses as val=2 → 2000 and is untouched.
+		if (unit === "ml" && ml >= 1900 && ml <= 2099) continue;
+
 		if (ml >= 50 && ml <= 5000) out.add(ml);
 	}
 
