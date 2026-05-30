@@ -27,6 +27,7 @@ import {
 	bareAgeCandidates,
 	extractEditionCodes,
 	editionCodeMultiplier,
+	levenshtein,
 } from "./similarity.js";
 import { conceptConflictMultiplier } from "./concepts.js";
 import { DISTINCTIVE_IDF } from "./vocab.js";
@@ -72,8 +73,29 @@ export const FEATURE_KEYS = [
 	"grpPriceRatio",
 	"grpCountA",
 	"grpCountB",
+	"crossEntityConflicts",
 	"embedCos",
 ];
+
+// A distinctive token whose co-occurrence DEGREE-per-df (distinct catalog companions ÷ its
+// own listing count) is below this is treated as an ENTITY (distillery — repeats the same
+// few bottlers/casks); at or above it, a TRAIT/descriptor (oloroso/speyside/limited — broad,
+// varied company). Empirically entities sit ≈0.6–1.0 and traits ≈1.3+; 1.1 is the gap and
+// gives the best held-out result. See crossEntityConflicts in extractBlendFeatures.
+export const ENTITY_DEGPERDF_MAX = 1.1;
+// A conflicting token must appear in at least this many listings to count as WELL-ATTESTED
+// (so a one-off idiosyncratic token like a df=1 mis-spelling can't manufacture a conflict).
+export const WELL_ATTESTED_DF_MIN = 20;
+
+// Two tokens that are one edit apart (gran↔grand) or a near-prefix (john↔johnnie) are the
+// same identity misspelled/abbreviated — messy-data variants, NOT a real entity conflict.
+// Used to exclude them from the crossEntityConflicts count.
+function fuzzyVariant(x, y) {
+	if (Math.abs(x.length - y.length) <= 1 && levenshtein(x, y) <= 1) return true;
+	const mn = Math.min(x.length, y.length);
+	const mx = Math.max(x.length, y.length);
+	return mx > 0 && (x.startsWith(y) || y.startsWith(x)) && mn / mx >= 0.8;
+}
 
 function isBadSkuLite(sku) {
 	const s = String(sku || "").toLowerCase();
@@ -114,6 +136,49 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 	const tgtCov = distA.size ? covM / distA.size : 1;
 	let candExtra = 0;
 	for (const t of distB) if (!termsA.has(t)) candExtra++;
+
+	// crossEntityConflicts — the independent-bottler discriminator (token co-occurrence
+	// structure at the catalog level). It COUNTS the unshared-distinctive cross-pairs
+	// (x in A-only, y in B-only) that are mutually-exclusive ENTITIES: co-occur NEVER, are
+	// each WELL-ATTESTED (df ≥ WELL_ATTESTED_DF_MIN), are each ENTITY-LIKE (low degPerDf, see
+	// below), and are NOT fuzzy spelling-variants of each other. Cadenhead Benriach↔Jura
+	// counts 2 (benriach×jura, glenlivet×jura) → REJECT; a true alias counts 0 (idiosyncratic/
+	// rare token, OR the brands DO co-occur somewhere, OR the "conflict" is a misspelling).
+	//
+	// Three gates, each measured, each necessary:
+	//  • never-co-occur alone is useless — it also describes ~75% of true semantic-gap positives.
+	//  • the ENTITY gate is the key insight (graph-structural, DISCOVERED not hardcoded): a trait
+	//    like `oloroso` co-occurs with a broad, unrelated range of products → high degree-per-df
+	//    (≈1.6 distinct companions per listing); a distillery repeats the same few bottlers/casks
+	//    → low degree-per-df (≈0.75). Gating both tokens to degPerDf < ENTITY_DEGPERDF_MAX is what
+	//    separates a distillery (jura) from a DESCRIPTOR (speyside/oloroso/original) — both are
+	//    well-attested and never co-occur with the other side, so df alone can't tell them apart.
+	//  • the FUZZY gate drops messy-data variants (gran↔grand, john↔johnnie) that look like
+	//    conflicts but are one identity misspelled.
+	// Together: ~99.6% precision-as-negative on the labeled set (vs ~96% df-only), and the best
+	// held-out rec@99 — while sparing Tomintoul Speyside↔Oloroso and the semantic-gap aliases.
+	const dfFn = typeof vocab.dfOf === "function" ? vocab.dfOf : () => 0;
+	// degree-per-df: a node's distinct co-occurrence partners ÷ its listings. Low → entity
+	// (same company repeats), high → trait/descriptor (broad, varied company). A
+	// non-distinctive / graphless token is treated as trait-like (Infinity → never counts a
+	// conflict) so the feature only ever fires on confident entity-vs-entity conflicts.
+	const degPerDf = (t) => {
+		const m = vocab.coocSet && vocab.coocSet(t);
+		const d = dfFn(t);
+		return m && d ? m.size / d : Infinity;
+	};
+	let entityConflicts = 0;
+	if (typeof vocab.coocCount === "function") {
+		for (const x of distA) {
+			if (termsB.has(x)) continue; // shared term → not a conflicting identity token
+			if (dfFn(x) < WELL_ATTESTED_DF_MIN || degPerDf(x) >= ENTITY_DEGPERDF_MAX) continue;
+			for (const y of distB) {
+				if (termsA.has(y)) continue;
+				if (dfFn(y) < WELL_ATTESTED_DF_MIN || degPerDf(y) >= ENTITY_DEGPERDF_MAX) continue;
+				if (vocab.coocCount(x, y) === 0 && !fuzzyVariant(x, y)) entityConflicts++;
+			}
+		}
+	}
 
 	const uniA = ctx.allUnigrams || new Set();
 	let interW = 0;
@@ -213,6 +278,7 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 		lenDiff: Math.abs((ctx.norm || "").length - normB.length),
 		grpStoreOverlap,
 		grpSizeConflict,
+		crossEntityConflicts: entityConflicts,
 		embedCos,
 	};
 }

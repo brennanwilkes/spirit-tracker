@@ -83,8 +83,11 @@ export function buildEnv() {
 		const p = parsePriceToNumber(r.price);
 		if (Number.isFinite(p) && p > 0)
 			a.cheapestPriceNum = a.cheapestPriceNum == null ? p : Math.min(a.cheapestPriceNum, p);
-		// Keep the longest name seen — DB-truncated titles are shorter; the longer is richer.
-		if ((r.name || "").length > a.name.length) a.name = r.name;
+		// Keep the FIRST non-empty name — MATCHES viz/app/catalog.js aggregateBySku (the serving
+		// aggregation). The model must be trained on the SAME product name the UI scores against;
+		// keeping the longest here was a train/serve skew (det/name features computed from a
+		// different string live vs in training).
+		if (!a.name && r.name) a.name = r.name;
 		if (!a.category && r.category) a.category = r.category;
 	}
 	const allAgg = [...bySku.values()];

@@ -74,6 +74,7 @@ for (const r of rows) {
 		a = { sku, name: r.name || "", stores: new Set(), cheapestPriceNum: null };
 		bySku.set(sku, a);
 	}
+	if (!a.name && r.name) a.name = r.name; // first non-empty name (matches catalog.js serving)
 	if (r.storeLabel) a.stores.add(r.storeLabel);
 	const p = parseFloat(String(r.price || "").replace(/[^0-9.]/g, ""));
 	if (Number.isFinite(p) && p > 0)

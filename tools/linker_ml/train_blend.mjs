@@ -42,15 +42,17 @@ function hash32(str) {
 	}
 	return h >>> 0;
 }
-// A pair goes to VAL when its group bucket falls in the held-out 25%. Positives have
-// canonA===canonB; negatives use canonA — either way a whole group stays on one side.
-const VAL_FRAC = 0.25;
-function isVal(r) {
-	return (hash32(r.canonA) % 1000) / 1000 < VAL_FRAC;
-}
+// Three-way split by canonical group (same FNV hash as export_gbt.py / train_embed.py):
+// [0,0.15)=TEST (never touched for selection), [0.15,0.30)=VAL, [0.30,1)=TRAIN. A whole group
+// stays on one side (positives have canonA===canonB; negatives keyed by canonA).
+const bucketOf = (r) => (hash32(r.canonA) % 1000) / 1000;
+const isTest = (r) => bucketOf(r) < 0.15;
+const isVal = (r) => bucketOf(r) >= 0.15 && bucketOf(r) < 0.3;
+const isTrain = (r) => bucketOf(r) >= 0.3;
 
-const train = rows.filter((r) => !isVal(r));
-const val = rows.filter((r) => isVal(r));
+const train = rows.filter(isTrain);
+const val = rows.filter(isVal);
+const test = rows.filter(isTest);
 
 /* ---------------- feature matrix + standardization ---------------- */
 
@@ -205,6 +207,20 @@ for (const tgt of [0.99, 0.98, 0.95, 0.9]) {
 	};
 	const f = (r) => (r ? `${(r.rec * 100).toFixed(1)}% (tp ${r.tp} fp ${r.fp})` : "unreachable");
 	console.log(`   ${(tgt * 100).toFixed(0)}%   │ ${f(m).padStart(17)} │ ${f(d).padStart(17)}`);
+}
+
+// TEST split (never used for any model/hyperparameter choice) — the unbiased number.
+const tp_ = test.filter((r) => r.kind === "pos");
+const th_ = test.filter((r) => r.kind === "hard");
+const ti_ = test.filter((r) => r.kind === "ignore");
+const tPosM = tp_.map(modelScore);
+const tHardM = th_.map(modelScore);
+const tOpM = [...th_, ...ti_].map(modelScore);
+console.log(`\nTEST (held-out, never tuned) — pos ${tp_.length} | hard ${th_.length} | ignore ${ti_.length}`);
+console.log(`AUC+ (pos vs hard) model ${auc(tPosM, tHardM).toFixed(4)}`);
+for (const tgt of [0.99, 0.95]) {
+	const m = thresholdForPrecision(tPosM, tOpM, tgt);
+	console.log(`  test recall @${(tgt * 100).toFixed(0)}% prec: ${m ? `${(m.rec * 100).toFixed(1)}% (tp ${m.tp} fp ${m.fp})` : "unreachable"}`);
 }
 
 /* ---------------- learned weights (interpretability) ---------------- */

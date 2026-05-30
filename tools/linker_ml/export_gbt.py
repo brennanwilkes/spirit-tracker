@@ -35,25 +35,35 @@ def fnv(s):
     h = 0x811C9DC5
     for c in str(s): h ^= ord(c) & 0xFF; h = (h * 0x01000193) & 0xFFFFFFFF
     return h
-is_val = np.array([(fnv(r["canonA"]) % 1000) / 1000.0 < 0.25 for r in rows])
+# Three-way split by canonical group (same FNV hash as train_embed.py / train_blend.mjs):
+# [0,0.15)=TEST, [0.15,0.30)=VAL, [0.30,1)=TRAIN. TEST is never used for any model choice.
+bucket = np.array([(fnv(r["canonA"]) % 1000) / 1000.0 for r in rows])
 kind = np.array([r["kind"] for r in rows])
+is_test = bucket < 0.15
+is_val = (bucket >= 0.15) & (bucket < 0.30)
+is_train = bucket >= 0.30
 
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_auc_score
 def make(): return HistGradientBoostingClassifier(max_iter=800, max_depth=4, learning_rate=0.04,
     l2_regularization=1.0, early_stopping=True, validation_fraction=0.15, random_state=0)
 
-m = make().fit(X[~is_val], y[~is_val])
-s = m.predict_proba(X[is_val])[:, 1]
-pos = (y[is_val] == 1); hard = (kind[is_val] == "hard"); opneg = (kind[is_val] == "hard") | (kind[is_val] == "ignore")
-auc = roc_auc_score(np.r_[np.ones(pos.sum()), np.zeros(hard.sum())], np.r_[s[pos], s[hard]])
-def rp(t):
-    mm = pos | opneg; sv = s[mm]; lab = pos[mm].astype(int); o = np.argsort(-sv); lab = lab[o]
-    tp = np.cumsum(lab); fp = np.cumsum(1 - lab); prec = tp / np.maximum(tp + fp, 1); rec = tp / pos.sum()
-    ok = prec >= t; return float(rec[ok].max()) if ok.any() else 0.0
-print(f"held-out (refit-on-train) — AUC+ {auc:.4f}  rec@99 {rp(.99)*100:.1f}%  rec@98 {rp(.98)*100:.1f}%  rec@95 {rp(.95)*100:.1f}%")
+# Metric model: trained on TRAIN groups ONLY, so VAL (selection) and TEST (untouched) are honest.
+m = make().fit(X[is_train], y[is_train])
+def report(mask, label):
+    s = m.predict_proba(X[mask])[:, 1]
+    pos = (y[mask] == 1); hard = (kind[mask] == "hard"); opneg = (kind[mask] == "hard") | (kind[mask] == "ignore")
+    auc = roc_auc_score(np.r_[np.ones(pos.sum()), np.zeros(hard.sum())], np.r_[s[pos], s[hard]])
+    def rp(t):
+        mm = pos | opneg; sv = s[mm]; lab = pos[mm].astype(int); o = np.argsort(-sv); lab = lab[o]
+        tp = np.cumsum(lab); fp = np.cumsum(1 - lab); prec = tp / np.maximum(tp + fp, 1); rec = tp / pos.sum()
+        ok = prec >= t; return float(rec[ok].max()) if ok.any() else 0.0
+    print(f"  {label:4} (pos {int(pos.sum())}/hard {int(hard.sum())}/ign {int((kind[mask]=='ignore').sum())}) — AUC+ {auc:.4f}  rec@99 {rp(.99)*100:.1f}%  rec@98 {rp(.98)*100:.1f}%  rec@95 {rp(.95)*100:.1f}%")
+print("metric model trained on TRAIN groups only (VAL = selection, TEST = never touched):")
+report(is_val, "VAL")
+report(is_test, "TEST")
 
-# Ship model: refit on ALL labeled data.
+# Ship model: refit on ALL labeled data (the metric above estimates how it generalizes).
 final = make().fit(X, y)
 
 def export_tree(pred):

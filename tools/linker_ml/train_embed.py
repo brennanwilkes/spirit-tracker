@@ -31,7 +31,11 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
-VAL_FRAC = 0.25
+# Three-way split by canonical group (SAME FNV hash everywhere): [0,0.15)=TEST (never
+# touched until the final number), [0.15,0.30)=VAL (selection), [0.30,1)=TRAIN. The embedder
+# trains ONLY on TRAIN groups so val/test embed_cosine is honest.
+TEST_FRAC = 0.15
+VAL_FRAC = 0.30  # cumulative upper bound of val
 
 
 def fnv1a32(s: str) -> int:
@@ -43,8 +47,12 @@ def fnv1a32(s: str) -> int:
     return h
 
 
-def is_val(canon: str) -> bool:
-    return (fnv1a32(str(canon)) % 1000) / 1000.0 < VAL_FRAC
+def _bucket(canon: str) -> float:
+    return (fnv1a32(str(canon)) % 1000) / 1000.0
+
+
+def is_train(canon: str) -> bool:
+    return _bucket(canon) >= VAL_FRAC
 
 
 def load_jsonl(path):
@@ -113,7 +121,7 @@ def main():
     n_train_groups = 0
     for g in groups:
         canon = sku_canon.get(g[0], g[0])
-        if is_val(canon):
+        if not is_train(canon):
             continue
         n_train_groups += 1
         members = [s for s in g if s in sku_text and sku_text[s]]
@@ -143,11 +151,11 @@ def main():
             a, b = r["a"], r["b"]
             if a not in sku_text or b not in sku_text:
                 continue
-            if is_val(sku_canon.get(a, a)) or is_val(sku_canon.get(b, b)):
+            if not is_train(sku_canon.get(a, a)) or not is_train(sku_canon.get(b, b)):
                 continue
             hard_map.setdefault(a, []).append(b)
             hard_map.setdefault(b, []).append(a)
-    train_skus = [s for s in sku_text if not is_val(sku_canon.get(s, s))]
+    train_skus = [s for s in sku_text if is_train(sku_canon.get(s, s))]
 
     def neg_text_for(anchor_sku):
         cands = hard_map.get(anchor_sku)

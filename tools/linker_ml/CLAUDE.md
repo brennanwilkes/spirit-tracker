@@ -145,13 +145,53 @@ labels and is the apples-to-apples reference.
 | `out/` | — | All artifacts (gitignored). `blend_weights.json` is the shippable model. |
 | `.venv/`, `.hf_cache/` | — | Python env + HuggingFace model cache (both gitignored, in-project). |
 
-## Train/val honesty (do not break)
+## Train/val/TEST honesty (do not break) — THREE-WAY split as of 2026-05-30
 
-Both the blend and the embedder split by **canonical group** with the SAME FNV hash
-(`hash32` in `train_blend.mjs` ≡ `fnv1a32` in `train_embed.py`), 25% held out. A whole
-group lands on one side, and the embedder trains only on TRAIN-group positives + TRAIN-only
-hard negatives — so `embed_cosine` on val pairs (and the reported AUC+ lift) is not leaked.
-If you change the split in one file, change it in both.
+All three trainers (`train_embed.py`, `train_blend.mjs`, `export_gbt.py`) split by **canonical
+group** with the SAME FNV hash: **`[0,0.15)=TEST`, `[0.15,0.30)=VAL`, `[0.30,1)=TRAIN`**.
+The embedder + GBT + LR train ONLY on TRAIN; VAL is for selection; **TEST is never touched
+until the final number** (it caught val-selection bias — val rec@99 ran ~10pt optimistic).
+The shipped GBT still refits on ALL labels; the TEST metric estimates how it generalizes.
+If you change the split fractions or hash in one file, change all three.
+
+**Report TEST, not VAL, as the headline.** And ALWAYS pair the aggregate with the spot-panel
+in `TODO_COOCCURRENCE_FEATURE.md` — this session a change raised TEST AUC+/rec@99 while
+regressing the targeted case; only the spot-check caught it.
+
+## Train/serve name parity (do not break)
+
+`featurize.buildEnv` and `linker_eval.mjs` keep the **FIRST non-empty** listing name per SKU
+to MATCH `viz/app/catalog.js::aggregateBySku` (the serving aggregation). Keeping the *longest*
+name (the old rule) was a train/serve skew — the model scored different text live than in
+training. Don't reintroduce longest-name.
+
+## Graph-structural feature — `crossEntityConflicts` (SHIPPED 2026-05-30)
+
+The independent-bottler residual (Cadenhead Benriach↔Jura wrongly scored ~0.80) is fixed by a
+**graph-structural** blend feature, NOT raw co-occurrence. `crossEntityConflicts` (in `blend.js`)
+counts unshared-distinctive cross-token pairs that are mutually-exclusive ENTITIES:
+`coocCount(x,y)==0` ∧ both `df≥WELL_ATTESTED_DF_MIN(20)` ∧ both `degPerDf<ENTITY_DEGPERDF_MAX(1.1)`
+∧ not `fuzzyVariant`. Lifted TEST rec@99 62.4→**68.9%**, AUC+ →0.9844, Jura 0.80→0.50, gap
+unchanged (350/350). Full narrative + the dead-ends in `TODO_COOCCURRENCE_FEATURE.md`.
+
+- **The insight:** a node's `degree/df` (distinct co-occurrence partners ÷ its listings)
+  separates token TYPES — TRAIT (`oloroso` 1.58, broad unrelated company, low clustering) vs
+  DISTILLERY (`jura` 0.75, same few bottlers repeat). That "entity vs descriptor" line is what raw
+  co-occurrence and df-gating couldn't see. Discovered from the graph, **no hardcoded vocab.**
+- **Vocab support:** `vocab.js` `coocMap` is now `Map<token,Map<token,count>>`; new `coocCount(a,b)`
+  + `dfOf(term)` exposed. `coocSet` still returns the inner map (`.size`/`.has` unchanged).
+- **DO-NOT-FORGET overfit lesson:** more graph features (clustering, centrality, deg/df-as-feature)
+  push VAL rec@99 up but TEST DOWN. The whole win is ONE feature. Judge TEST, never VAL; a forward-
+  selection that improves VAL while TEST falls is overfitting — STOP. rec@99→95% needs more/cleaner
+  labels + embedding work, not more features.
+
+## Next planned improvement
+
+Open follow-ups (see `TODO_COOCCURRENCE_FEATURE.md` RESOLVED §): (a) a `degPerDf` entity-conflict
+wall in the CLASSICAL `scorePairWithVocab` (lift deterministic AUC; re-validate via
+`linker_eval.mjs`); (b) global token canonicalization of spelling variants (`john→johnnie`); (c)
+mine an IB review queue from high `crossEntityConflicts` to grow curated ignores (the real path to
+higher rec@99).
 
 ## Metrics that matter
 

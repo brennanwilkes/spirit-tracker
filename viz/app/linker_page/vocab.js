@@ -229,12 +229,15 @@ export function buildVocab(allAgg) {
 		return Math.log((Nsafe + 1) / ((df.get(term) || 0) + 1));
 	}
 
-	// Second pass: for each item, record co-occurrence among its DISTINCTIVE
-	// unigrams. coocSet(t) returns the set of distinctive unigrams that ever
-	// appear in the same listing as t — i.e. how broadly t is associated. A
-	// candidate-side term that is broadly associated with many distinctive terms
-	// (and with one in the target) is brand boilerplate (e.g. `island`/`distillery`
-	// across all Macaloney listings) rather than an edition marker.
+	// Second pass: for each item, record co-occurrence COUNTS among its DISTINCTIVE
+	// unigrams. coocMap.get(t) is a Map<otherToken, # of listings t & other share>;
+	// coocSet(t) returns that inner Map — the distinctive unigrams that ever appear in
+	// the same listing as t, with how OFTEN. Two consumers: (1) the brand-descriptor
+	// detector in suggestions.js (uses only .size / .has — a Map satisfies both), and
+	// (2) the cross-token co-occurrence blend feature, which needs the count AND the
+	// conditional "always appear together" ratio coocCount(a,b)/min(df(a),df(b))
+	// ("compass"+"box" share ~all their listings → a collocation; "benriach"+"jura"
+	// never co-occur → mutually-exclusive identities).
 	const coocMap = new Map();
 	for (const it of items) {
 		if (!it || !it.name) continue;
@@ -248,12 +251,23 @@ export function buildVocab(allAgg) {
 		}
 		for (let i = 0; i < distinct.length; i++) {
 			let s = coocMap.get(distinct[i]);
-			if (!s) coocMap.set(distinct[i], (s = new Set()));
-			for (let j = 0; j < distinct.length; j++) if (i !== j) s.add(distinct[j]);
+			if (!s) coocMap.set(distinct[i], (s = new Map()));
+			for (let j = 0; j < distinct.length; j++)
+				if (i !== j) s.set(distinct[j], (s.get(distinct[j]) || 0) + 1);
 		}
 	}
 	function coocSet(term) {
 		return coocMap.get(term) || null;
+	}
+	// # of listings where distinctive unigrams a and b co-occur (0 if never).
+	function coocCount(a, b) {
+		const s = coocMap.get(a);
+		return s ? s.get(b) || 0 : 0;
+	}
+	// Raw document frequency (# of listings containing the term) — the denominator for
+	// the "percentage of shared appearances" (conditional) collocation signal.
+	function dfOf(term) {
+		return df.get(term) || 0;
 	}
 
 	function isDistinctive(term) {
@@ -362,6 +376,8 @@ export function buildVocab(allAgg) {
 		distinctiveUnigramsForName,
 		allUnigramsForName,
 		coocSet,
+		coocCount,
+		dfOf,
 		topTerm,
 		weightedOverlap,
 	};
