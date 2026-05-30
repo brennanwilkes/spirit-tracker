@@ -521,13 +521,18 @@ export async function renderSkuLinkerRapid($app) {
 		// single card (the search branch builds its own list and isn't routed
 		// through recommendSimilar's dedup).
 		scored = dedupeByGroupRep(scored, (x) => x.it && x.it.sku, findRep);
-		// Hide candidates already staged for a link with a DIFFERENT anchor so they
-		// don't re-appear without highlighting when navigating between items.
+		// Hide candidates already staged for a link so the same pair never re-surfaces.
+		// The staged key is directional (`anchor|cand`), so check BOTH directions: when the
+		// just-linked candidate later becomes the anchor, its former anchor must not reappear
+		// as a fresh suggestion (the "reversed pair" bug). The forward direction is kept (the
+		// pair shows as accepted under its staging anchor, so it stays visible/undoable).
 		const aStr = String(anchor.sku);
 		scored = scored.filter((x) => {
 			if (!x || !x.it) return false;
 			const cSku = String(x.it.sku);
-			return !stagedCandSkus.has(cSku) || isPairStaged(aStr, cSku);
+			if (isPairStaged(aStr, cSku)) return true; // forward: this pair was staged here → keep (accepted)
+			if (isPairStaged(cSku, aStr)) return false; // reverse of a staged pair → hide
+			return !stagedCandSkus.has(cSku); // staged with a different anchor → hide
 		});
 		return scored.map((x) => ({
 			it: x.it,
