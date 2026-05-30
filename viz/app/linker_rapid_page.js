@@ -385,6 +385,16 @@ export async function renderSkuLinkerRapid($app) {
 	// objects pushed into `staged` (matched by reference for removal).
 	const pairOps = new Map();
 	const pairKey = (a, b) => `${String(a)}|${String(b)}`;
+	// Candidate SKUs that are staged for a link with SOME anchor. Used to filter
+	// them from suggestions when viewing a different anchor.
+	const stagedCandSkus = new Set();
+	function rebuildStagedCandSkus() {
+		stagedCandSkus.clear();
+		for (const key of pairOps.keys()) {
+			const i = key.indexOf("|");
+			if (i >= 0) stagedCandSkus.add(key.slice(i + 1));
+		}
+	}
 	function isPairStaged(anchorSku, candSku) {
 		return pairOps.has(pairKey(anchorSku, candSku));
 	}
@@ -461,6 +471,14 @@ export async function renderSkuLinkerRapid($app) {
 		// single card (the search branch builds its own list and isn't routed
 		// through recommendSimilar's dedup).
 		scored = dedupeByGroupRep(scored, (x) => x.it && x.it.sku, findRep);
+		// Hide candidates already staged for a link with a DIFFERENT anchor so they
+		// don't re-appear without highlighting when navigating between items.
+		const aStr = String(anchor.sku);
+		scored = scored.filter((x) => {
+			if (!x || !x.it) return false;
+			const cSku = String(x.it.sku);
+			return !stagedCandSkus.has(cSku) || isPairStaged(aStr, cSku);
+		});
 		return scored.map((x) => ({
 			it: x.it,
 			score: blended ? x.score || 0 : toConfidence01(x.score || 0),
@@ -489,6 +507,7 @@ export async function renderSkuLinkerRapid($app) {
 				if (i >= 0) staged.splice(i, 1);
 			}
 			pairOps.delete(key);
+			rebuildStagedCandSkus();
 			decisions.push({ kind: "unlink", anchorSku: a, candSku: b, ops: existing });
 			persistQueue();
 			rebuildSession();
@@ -521,6 +540,7 @@ export async function renderSkuLinkerRapid($app) {
 		}
 		for (const op of ops) staged.push(op);
 		pairOps.set(key, ops);
+		rebuildStagedCandSkus();
 		decisions.push({ kind: "link", anchorSku: a, candSku: b, ops });
 		persistQueue();
 		actionsSinceFlush += 1;
@@ -579,9 +599,11 @@ export async function renderSkuLinkerRapid($app) {
 				if (i >= 0) staged.splice(i, 1);
 			}
 			pairOps.delete(pairKey(d.anchorSku, d.candSku));
+			rebuildStagedCandSkus();
 		} else if (d.kind === "unlink" && Array.isArray(d.ops)) {
 			for (const op of d.ops) staged.push(op);
 			pairOps.set(pairKey(d.anchorSku, d.candSku), d.ops);
+			rebuildStagedCandSkus();
 		} else if (d.kind === "ignore" && Array.isArray(d.ops)) {
 			for (const op of d.ops) {
 				const i = staged.indexOf(op);
@@ -607,6 +629,7 @@ export async function renderSkuLinkerRapid($app) {
 		staged.length = 0;
 		decisions.length = 0;
 		pairOps.clear();
+		rebuildStagedCandSkus();
 		actionsSinceFlush = 0;
 		persistQueue();
 		rebuildSession();
@@ -645,6 +668,7 @@ export async function renderSkuLinkerRapid($app) {
 			}
 			staged.length = 0;
 			pairOps.clear();
+			rebuildStagedCandSkus();
 			persistQueue();
 			decisions.length = 0; // undo only within an unflushed batch
 			actionsSinceFlush = 0;
