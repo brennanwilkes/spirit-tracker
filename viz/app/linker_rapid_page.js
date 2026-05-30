@@ -38,6 +38,8 @@ import { buildVocab } from "./linker_page/vocab.js";
 import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
+import { loadGbtModel, gbtScore } from "./linker_page/gbt.js";
+import { buildGroupIndex } from "./linker_page/group_features.js";
 import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 const QUEUE_KEY = "stviz:linker_rapid_queue_v1";
@@ -65,6 +67,16 @@ export async function renderSkuLinkerRapid($app) {
 	// recommendSimilar call below falls back to the raw scorer. Toggling rebuilds the worklist.
 	let aiOn = aiEnabled();
 	let blend = aiOn ? await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED) : null;
+
+	// Attach the GBT classifier + live canonical-GROUP feature index (see linker_page.js).
+	// rules is static within a rapid session (session unions handle just-linked pairs, which
+	// are filtered as same-group anyway), so the group index is built once.
+	async function attachGbtGroup(b) {
+		if (!b) return;
+		if (b.gbt === undefined) b.gbt = await loadGbtModel();
+		if (!b.groupIndex) b.groupIndex = buildGroupIndex(allAgg, (s) => String(rules.canonicalSku(s) || s));
+	}
+	if (blend) await attachGbtGroup(blend);
 
 	const meta = await loadSkuMetaBestEffort();
 
@@ -280,7 +292,7 @@ export async function renderSkuLinkerRapid($app) {
 			sizePenaltyFn: sizePenaltyForPair,
 			pricePenaltyFn: pricePenaltyForPair,
 		});
-		const useBlend = aiOn && blend && blend.weights;
+		const useBlend = aiOn && blend && (blend.weights || blend.gbt);
 		const seen = new Set();
 		let best = 0;
 		let visited = 0;
@@ -295,16 +307,24 @@ export async function renderSkuLinkerRapid($app) {
 				if (sameGroupLocal(itSku, csku)) continue;
 				let s = scorePairWithVocab(ctx, cand);
 				if (useBlend) {
-					s = blendScore(
-						extractBlendFeatures(ctx, cand, {
-							vocab: simVocab,
-							sizePenaltyFn: sizePenaltyForPair,
-							pricePenaltyFn: pricePenaltyForPair,
-							embedCosFn: blend.embedCosFn,
-							detScore: s,
-						}),
-						blend.weights,
-					);
+					const feats = extractBlendFeatures(ctx, cand, {
+						vocab: simVocab,
+						sizePenaltyFn: sizePenaltyForPair,
+						pricePenaltyFn: pricePenaltyForPair,
+						embedCosFn: blend.embedCosFn,
+						detScore: s,
+					});
+					if (blend.groupIndex) Object.assign(feats, blend.groupIndex.features(ctx.sku, cand.sku));
+					if (blend.gbt) {
+						if (blend.embedCosFn) {
+							const c = blend.embedCosFn(ctx.sku, csku);
+							feats.embedCos = c == null ? NaN : c;
+						}
+						const g = gbtScore(blend.gbt, feats);
+						if (g != null) s = g;
+					} else {
+						s = blendScore(feats, blend.weights);
+					}
 				}
 				if (s > best) best = s;
 				if (++visited >= REFINE_CAND_CAP) break outer;
@@ -912,6 +932,7 @@ export async function renderSkuLinkerRapid($app) {
 			if (aiOn && !blend) {
 				setStatus("Loading AI embeddings…");
 				blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+				await attachGbtGroup(blend);
 			}
 			worklist = buildWorklist();
 			workIdx = 0;

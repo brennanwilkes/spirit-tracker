@@ -44,6 +44,8 @@ import { isStrongProb } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
 import { toConfidence01 } from "./linker_page/blend.js";
+import { loadGbtModel } from "./linker_page/gbt.js";
+import { buildGroupIndex } from "./linker_page/group_features.js";
 import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 /* ---------------- Page ---------------- */
@@ -171,7 +173,10 @@ export async function renderSkuLinker($app) {
 		$aiChk.addEventListener("change", async (e) => {
 			aiOn = !!e.target.checked;
 			setAiEnabled(aiOn);
-			if (aiOn && !blend) blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+			if (aiOn && !blend) {
+				blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+				await attachGbtGroup(blend);
+			}
 			updateAll();
 		});
 	}
@@ -251,6 +256,17 @@ export async function renderSkuLinker($app) {
 	// raw scorer. See linker_page/blend.js + embeddings.js + ai_pref.js.
 	let blend = aiOn ? await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED) : null;
 
+	// Attach the GBT classifier + live canonical-GROUP feature index to the blend. The GBT is
+	// the shipping model (it fixed the linear blend's tail pathologies); the group index feeds
+	// it the group↔group signal. gbt=null (no model file) falls back to the linear weights
+	// gracefully. Rebuilt on every rules reload (see rebuildCachesAfterRulesReload).
+	async function attachGbtGroup(b) {
+		if (!b) return;
+		if (b.gbt === undefined) b.gbt = await loadGbtModel();
+		b.groupIndex = buildGroupIndex(allAgg, (s) => String(rules.canonicalSku(s) || s));
+	}
+	if (blend) await attachGbtGroup(blend);
+
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
 	let ignoreSet = rules.ignoreSet;
@@ -270,6 +286,7 @@ export async function renderSkuLinker($app) {
 		sameStoreCanon = makeSameStoreCanonFn(rules, CANON_STORE_CACHE);
 		sizePenaltyForPair = buildSizePenaltyForPair({ allRows, allAgg, rules });
 		pricePenaltyForPair = buildPricePenaltyForPair({ allAgg, rules });
+		if (blend) blend.groupIndex = buildGroupIndex(allAgg, (s) => String(rules.canonicalSku(s) || s));
 	}
 
 	function isIgnoredPair(a, b) {

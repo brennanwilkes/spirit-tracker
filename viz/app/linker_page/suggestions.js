@@ -16,6 +16,7 @@ import {
 } from "./similarity.js";
 import { conceptConflictMultiplier } from "./concepts.js";
 import { extractBlendFeatures, blendScore } from "./blend.js";
+import { gbtScore } from "./gbt.js";
 import {
 	DISTINCTIVE_IDF,
 	WO_POW,
@@ -608,10 +609,12 @@ export function recommendSimilar(
 	// The deterministic score is fed in as a feature (logDet) — this AUGMENTS the scorer,
 	// it doesn't discard it. SMWS exact-match pins (s ≈ 1e9) are left untouched so a shared
 	// cask code always stays on top.
-	if (vocab && opts && opts.blend && opts.blend.weights) {
-		const bw = opts.blend.weights;
+	if (vocab && opts && opts.blend && (opts.blend.weights || opts.blend.gbt)) {
+		const bw = opts.blend.weights || null;
 		const bwNo = opts.blend.weightsNoEmbed || null; // for the AI-contribution indicator
 		const embedCosFn = opts.blend.embedCosFn || null;
+		const gbt = opts.blend.gbt || null; // GBT model (preferred); falls back to linear weights
+		const groupIndex = opts.blend.groupIndex || null; // live canonical-GROUP features
 		for (const f of fine) {
 			if (!f.it || f.s >= 1e8) continue;
 			const feats = extractBlendFeatures(ctx, f.it, {
@@ -621,10 +624,28 @@ export function recommendSimilar(
 				embedCosFn,
 				detScore: f.s,
 			});
-			const p = blendScore(feats, bw);
-			// aiDelta = how much the embedding moved the score vs the classical-only blend.
-			if (bwNo) f.aiDelta = p - blendScore(feats, bwNo);
-			f.s = p;
+			// Merge live group↔group features (mirrors the trainer's groupPairFeatures).
+			if (groupIndex) Object.assign(feats, groupIndex.features(ctx.sku, f.it.sku));
+			let p;
+			if (gbt) {
+				// Trees route a MISSING embedding natively — mark it NaN, not 0 ("dissimilar").
+				if (embedCosFn) {
+					const c = embedCosFn(ctx.sku, f.it.sku);
+					feats.embedCos = c == null ? NaN : c;
+				}
+				p = gbtScore(gbt, feats);
+				// aiDelta = how much the embedding moved the score (vs the same model, embed blanked).
+				const pNo = gbtScore(gbt, { ...feats, embedCos: NaN });
+				if (p != null && pNo != null) f.aiDelta = p - pNo;
+			} else {
+				// Linear blend. A missing embedding vector → use the no-embed weights for this
+				// pair (the embed-weights model relies on a real cosine; absent it under-scores).
+				const cosVal = embedCosFn ? embedCosFn(ctx.sku, f.it.sku) : null;
+				const useNoEmbed = cosVal == null && !!bwNo;
+				p = blendScore(feats, useNoEmbed ? bwNo : bw);
+				if (bwNo) f.aiDelta = useNoEmbed ? 0 : p - blendScore(feats, bwNo);
+			}
+			if (p != null) f.s = p;
 		}
 	}
 
