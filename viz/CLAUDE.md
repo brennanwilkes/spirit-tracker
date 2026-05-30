@@ -151,6 +151,19 @@ Submodules:
     `embed_cosine`. Absent file → no-embed weights (graceful). When blend is active, the
     "strong suggestion" cutoffs use the probability scale (`isStrongProb` in
     `strong_threshold.js`).
+11. `linker_page/gbt.js` — **the shipping classifier**: vanilla-JS gradient-boosted-tree
+    inference for `viz/data/gbt_model.json` (data-branch LFS artifact from
+    `tools/linker_ml/export_gbt.py`). `recommendSimilar` scores candidates with `gbtScore` when a
+    model is loaded, else falls back to the linear `blendScore`. Routes a MISSING `embed_cosine`
+    (SKU with no vector) via the tree's missing branch — NaN, not 0. The GBT replaced the linear
+    blend because the LR over-scored zero-overlap pairs and under-scored matches with a missing
+    embedding (suppressor-weight extrapolation). Held-out auto-link recall@99% 17.6% → ~69%.
+12. `linker_page/group_features.js` — `buildGroupIndex(allAgg, canonicalSkuFn)` → `.features(a,b)`
+    computes the 13 canonical-GROUP pair features (store collision/overlap, group size/abv/year/
+    price conflicts, member counts) — the group↔group signal the token scorer and bi-encoder
+    can't see. **Parallel of `tools/linker_ml/featurize.mjs::groupPairFeatures` (keep in sync).**
+    Live scores only cross-group candidates (same-group filtered), so the live full-group values
+    equal the trainer's edge-cut values where it matters.
 
 ### IDF vocabulary matching (`linker_page/vocab.js`)
 

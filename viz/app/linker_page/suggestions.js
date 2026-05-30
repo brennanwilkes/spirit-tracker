@@ -389,6 +389,45 @@ export function scorePairWithVocab(ctx, candidate) {
 	return s;
 }
 
+/* ---------------- Per-candidate blend scoring (single source of truth) ---------------- */
+
+// The ONE function that turns a (ctx, candidate, det) into the displayed score, used by
+// recommendSimilar AND the rapid linker's search + worklist — so every surface shows the SAME
+// number for a pair (a search hit and a suggestion can't disagree). `det` is the precomputed
+// scorePairWithVocab. With no blend (AI off) it returns { score: det } and the caller squashes
+// via toConfidence01; with a blend it returns the calibrated probability (GBT if a model is
+// loaded, else the linear weights) plus aiDelta (how much the embedding moved it).
+export function scorePairBlended(ctx, candidate, det, blend, opts) {
+	if (!blend || !(blend.weights || blend.gbt)) return { score: det, aiDelta: undefined };
+	const aSku = String(ctx.sku || "");
+	const bSku = String(candidate.sku || "");
+	const feats = extractBlendFeatures(ctx, candidate, {
+		vocab: opts.vocab,
+		sizePenaltyFn: opts.sizePenaltyFn,
+		pricePenaltyFn: opts.pricePenaltyFn,
+		embedCosFn: blend.embedCosFn,
+		detScore: det,
+	});
+	if (blend.groupIndex) Object.assign(feats, blend.groupIndex.features(aSku, bSku));
+	if (blend.gbt) {
+		// Trees route a MISSING embedding natively — mark it NaN, not 0 ("dissimilar").
+		if (blend.embedCosFn) {
+			const c = blend.embedCosFn(aSku, bSku);
+			feats.embedCos = c == null ? NaN : c;
+		}
+		const p = gbtScore(blend.gbt, feats);
+		const pNo = gbtScore(blend.gbt, { ...feats, embedCos: NaN });
+		return { score: p == null ? det : p, aiDelta: p != null && pNo != null ? p - pNo : undefined };
+	}
+	// Linear blend. A missing embedding vector → no-embed weights for this pair.
+	const bwNo = blend.weightsNoEmbed || null;
+	const cosVal = blend.embedCosFn ? blend.embedCosFn(aSku, bSku) : null;
+	const useNoEmbed = cosVal == null && !!bwNo;
+	const p = blendScore(feats, useNoEmbed ? bwNo : blend.weights);
+	const aiDelta = bwNo ? (useNoEmbed ? 0 : p - blendScore(feats, bwNo)) : undefined;
+	return { score: p, aiDelta };
+}
+
 /* ---------------- Suggestion helpers ---------------- */
 
 export function topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus) {
@@ -610,42 +649,15 @@ export function recommendSimilar(
 	// it doesn't discard it. SMWS exact-match pins (s ≈ 1e9) are left untouched so a shared
 	// cask code always stays on top.
 	if (vocab && opts && opts.blend && (opts.blend.weights || opts.blend.gbt)) {
-		const bw = opts.blend.weights || null;
-		const bwNo = opts.blend.weightsNoEmbed || null; // for the AI-contribution indicator
-		const embedCosFn = opts.blend.embedCosFn || null;
-		const gbt = opts.blend.gbt || null; // GBT model (preferred); falls back to linear weights
-		const groupIndex = opts.blend.groupIndex || null; // live canonical-GROUP features
 		for (const f of fine) {
 			if (!f.it || f.s >= 1e8) continue;
-			const feats = extractBlendFeatures(ctx, f.it, {
+			const { score, aiDelta } = scorePairBlended(ctx, f.it, f.s, opts.blend, {
 				vocab,
 				sizePenaltyFn,
 				pricePenaltyFn,
-				embedCosFn,
-				detScore: f.s,
 			});
-			// Merge live group↔group features (mirrors the trainer's groupPairFeatures).
-			if (groupIndex) Object.assign(feats, groupIndex.features(ctx.sku, f.it.sku));
-			let p;
-			if (gbt) {
-				// Trees route a MISSING embedding natively — mark it NaN, not 0 ("dissimilar").
-				if (embedCosFn) {
-					const c = embedCosFn(ctx.sku, f.it.sku);
-					feats.embedCos = c == null ? NaN : c;
-				}
-				p = gbtScore(gbt, feats);
-				// aiDelta = how much the embedding moved the score (vs the same model, embed blanked).
-				const pNo = gbtScore(gbt, { ...feats, embedCos: NaN });
-				if (p != null && pNo != null) f.aiDelta = p - pNo;
-			} else {
-				// Linear blend. A missing embedding vector → use the no-embed weights for this
-				// pair (the embed-weights model relies on a real cosine; absent it under-scores).
-				const cosVal = embedCosFn ? embedCosFn(ctx.sku, f.it.sku) : null;
-				const useNoEmbed = cosVal == null && !!bwNo;
-				p = blendScore(feats, useNoEmbed ? bwNo : bw);
-				if (bwNo) f.aiDelta = useNoEmbed ? 0 : p - blendScore(feats, bwNo);
-			}
-			if (p != null) f.s = p;
+			if (score != null) f.s = score;
+			if (aiDelta !== undefined) f.aiDelta = aiDelta;
 		}
 	}
 

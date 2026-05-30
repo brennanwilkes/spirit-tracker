@@ -100,6 +100,14 @@ Flag suspected mislabels explicitly so they get relabeled, not chased.
 - **Token-level fuzzy canonicalization (levenshtein/prefix) does NOT help** — tested,
   it lowered AUC+ by collapsing tokens the hard-negatives rely on. The *narrow*
   mid-word-cut (strict prefix of the last token only) is the safe subset and is kept.
+- **Edition-code conflict must DOMINATE a shared code** (`editionCodeMultiplier`, 2026-05-29):
+  a shared `year:1997` was masking a conflicting `season:s22` vs `s24` → returned a 1.15 boost
+  instead of penalizing (Glenfarclas Family Casks scored as matches). Now `conflictAny → 0.1`
+  is checked BEFORE `sharedAny → 1.15`. FN-risk 6/3415 = 0.18%, all themselves mislabels
+  (Lagavulin DE 2020↔2022, GlenDronach 2011↔2013) → safe.
+- **Year-as-size misparse fixed** (`size.js`, 2026-05-29): a URL slug like `…-2023-ml-…` parsed
+  `2023` as a 2023 mL bottle → spurious size conflict that killed real links (HP Cask Strength).
+  `parseSizesMlFromText` now rejects a 4-digit value in [1900,2099] when the unit is `ml`.
 
 ## What's left (the residual, per the reports)
 

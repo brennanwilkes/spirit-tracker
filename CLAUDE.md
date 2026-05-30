@@ -187,9 +187,14 @@ Flag suspected mislabels explicitly so they can be relabeled rather than chased.
 The deterministic scorer is bag-of-tokens and structurally cannot match names that share no
 tokens (`TBWC` ↔ `That Boutique-y Whisky Company`, `Compass Box Artist` ↔ `Great King Street
 Artist's Blend`). `tools/linker_ml/` **augments** it (does not replace it) with a learned
-**logistic-regression blend** over the existing ~18 factors **plus a MiniLM attention
-embedding fine-tuned contrastively on `data/sku_links.json`**. The full deterministic score is
-one of the blend's features, so the current algo's strengths are preserved.
+classifier over the existing factors **+ 13 canonical-GROUP↔GROUP features + a MiniLM attention
+embedding** (fine-tuned on `data/sku_links.json`, its text enriched with group-resolved
+size/abv/year/category). The full deterministic score is one feature, so the current algo's
+strengths are preserved. **The shipping classifier is a gradient-boosted tree** (`export_gbt.py`
+→ `gbt_model.json`, run live via `viz/app/linker_page/gbt.js`); a logistic blend
+(`blend_weights.js`) is the graceful fallback. The GBT fixed the linear blend's tail pathologies
+(over-scored zero-token-overlap pairs; under-scored matches with a missing embedding vector).
+Measured held-out auto-link **recall @99% precision: 14.5% → ~69%**.
 
 **Start here:** `tools/linker_ml/CLAUDE.md` — the iteration + **re-train** guide (the exact
 6-step chain to re-run when the labeled set grows, the venv prereqs, the no-leakage group

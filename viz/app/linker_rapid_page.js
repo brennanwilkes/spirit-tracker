@@ -32,13 +32,14 @@ import {
 	dedupeByGroupRep,
 	prepScorePairCtx,
 	scorePairWithVocab,
+	scorePairBlended,
 } from "./linker_page/suggestions.js";
-import { extractBlendFeatures, blendScore, toConfidence01 } from "./linker_page/blend.js";
+import { toConfidence01 } from "./linker_page/blend.js";
 import { buildVocab } from "./linker_page/vocab.js";
 import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
-import { loadGbtModel, gbtScore } from "./linker_page/gbt.js";
+import { loadGbtModel } from "./linker_page/gbt.js";
 import { buildGroupIndex } from "./linker_page/group_features.js";
 import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
@@ -192,11 +193,15 @@ export async function renderSkuLinkerRapid($app) {
 
 	/* ---------------- worklist ---------------- */
 
+	// "" is the sentinel for the global "All stores" view (no per-store filter). A stored
+	// value of null means the user has never chosen — so we can default to the busiest store
+	// without clobbering a deliberate "All stores" ("") selection.
+	const ALL_STORES = "";
 	let storeLabel = (() => {
 		try {
-			return localStorage.getItem(STORE_KEY) || "";
+			return localStorage.getItem(STORE_KEY);
 		} catch {
-			return "";
+			return null;
 		}
 	})();
 
@@ -210,7 +215,11 @@ export async function renderSkuLinkerRapid($app) {
 	}
 	const storeCounts = unlinkedCountByStore();
 	const storeOptions = [...storeCounts.entries()].sort((a, b) => b[1] - a[1]);
-	if (!storeLabel || !storeCounts.has(storeLabel)) storeLabel = storeOptions[0] ? storeOptions[0][0] : "";
+	const totalUnlinked = allAgg.reduce((n, it) => (it && !isLinked(it.sku) ? n + 1 : n), 0);
+	if (storeLabel === null || (storeLabel !== ALL_STORES && !storeCounts.has(storeLabel))) {
+		// Never chosen, or a saved store that no longer has unlinked items → busiest store.
+		storeLabel = storeOptions[0] ? storeOptions[0][0] : ALL_STORES;
+	}
 
 	// Two-pass sort:
 	//   1) Fast pre-pass — term-index proxy (weightedOverlap against up to PROXY_K
@@ -218,14 +227,17 @@ export async function renderSkuLinkerRapid($app) {
 	//   2) Refine top REFINE_TOP_K by fast-score with the FULL recommendSimilar
 	//      pipeline (includes size/price/abv/age penalties + top-term bonus).
 	//   The top-K stay in their refined order; the long tail keeps fast-score order.
-	const REFINE_TOP_K = 40;
+	// REFINE_TOP_K is the part of the list the user actually walks through, so refining
+	// deeper (was 40) buys a much better-ordered head — the dominant initial-sort quality
+	// lever — at a modest one-time build cost.
+	const REFINE_TOP_K = 120;
 	const PROXY_K = 6;
 
 	function buildTermIndex() {
 		const termIndex = new Map();
 		for (const it of allAgg) {
 			if (!it || isLinked(it.sku)) continue;
-			if (it.stores && it.stores.has(storeLabel) && it.stores.size <= 1) continue;
+			if (storeLabel && it.stores && it.stores.has(storeLabel) && it.stores.size <= 1) continue;
 			const terms = simVocab.distinctiveUnigramsForName(it.name || "");
 			if (!terms || !terms.size) continue;
 			for (const t of terms) {
@@ -307,24 +319,12 @@ export async function renderSkuLinkerRapid($app) {
 				if (sameGroupLocal(itSku, csku)) continue;
 				let s = scorePairWithVocab(ctx, cand);
 				if (useBlend) {
-					const feats = extractBlendFeatures(ctx, cand, {
+					const { score } = scorePairBlended(ctx, cand, s, blend, {
 						vocab: simVocab,
 						sizePenaltyFn: sizePenaltyForPair,
 						pricePenaltyFn: pricePenaltyForPair,
-						embedCosFn: blend.embedCosFn,
-						detScore: s,
 					});
-					if (blend.groupIndex) Object.assign(feats, blend.groupIndex.features(ctx.sku, cand.sku));
-					if (blend.gbt) {
-						if (blend.embedCosFn) {
-							const c = blend.embedCosFn(ctx.sku, csku);
-							feats.embedCos = c == null ? NaN : c;
-						}
-						const g = gbtScore(blend.gbt, feats);
-						if (g != null) s = g;
-					} else {
-						s = blendScore(feats, blend.weights);
-					}
+					if (score != null) s = score;
 				}
 				if (s > best) best = s;
 				if (++visited >= REFINE_CAND_CAP) break outer;
@@ -336,7 +336,8 @@ export async function renderSkuLinkerRapid($app) {
 	function buildWorklist() {
 		const items = [];
 		for (const it of allAgg) {
-			if (!it || !it.stores || !it.stores.has(storeLabel)) continue;
+			if (!it || !it.stores) continue;
+			if (storeLabel && !it.stores.has(storeLabel)) continue; // "" = all stores, no filter
 			if (isLinked(it.sku)) continue;
 			items.push(it);
 		}
@@ -345,12 +346,17 @@ export async function renderSkuLinkerRapid($app) {
 		const fast = new Map();
 		for (const it of items) fast.set(it, fastScore(it, termIndex));
 
-		const byFast = items.slice().sort((a, b) => (fast.get(b) || 0) - (fast.get(a) || 0));
+		// Drop dead-ends: items whose best proxy score is 0 share no distinctive token with any
+		// cross-store candidate, so the suggester can never surface a match for them — walking
+		// them is wasted keystrokes. They stay reachable via the `/` search box.
+		const live = items.filter((it) => (fast.get(it) || 0) > 0);
+
+		const byFast = live.slice().sort((a, b) => (fast.get(b) || 0) - (fast.get(a) || 0));
 		const refineSet = byFast.slice(0, REFINE_TOP_K);
 		const refined = new Map();
 		for (const it of refineSet) refined.set(it, refinedScore(it));
 
-		items.sort((a, b) => {
+		live.sort((a, b) => {
 			const ra = (refined.get(a) || 0) > 0;
 			const rb = (refined.get(b) || 0) > 0;
 			if (ra && rb) {
@@ -366,7 +372,7 @@ export async function renderSkuLinkerRapid($app) {
 			if (ea) return ea;
 			return String(a.name || "").localeCompare(String(b.name || ""));
 		});
-		return items;
+		return live;
 	}
 
 	let worklist = buildWorklist();
@@ -396,13 +402,22 @@ export async function renderSkuLinkerRapid($app) {
 		if (!anchor) return [];
 		const q = String($search?.value || "").trim();
 		const tokens = tokenizeQuery(q);
-		// `blended` = the score is already a 0–1 probability (AI on, not a name search).
-		// Everything else is a raw classical score → squash to 0–1 so the displayed scale
-		// is identical in both modes.
-		const blended = !tokens.length && aiOn && !!(blend && blend.weights);
+		// `blended` = the score is already a 0–1 probability (AI on). Raw classical scores get
+		// squashed to 0–1 by toConfidence01 below so the displayed scale matches. This must NOT
+		// depend on whether the user is searching — a search hit and a suggestion for the SAME
+		// pair must show the SAME score (both go through scorePairBlended).
+		const activeBlend = aiOn && blend && (blend.weights || blend.gbt) ? blend : null;
+		const blended = !!activeBlend;
 		let scored;
 		if (tokens.length) {
 			const aSku = String(anchor.sku);
+			// Score search hits with the SAME pipeline as suggestions (was raw weightedOverlap →
+			// it disagreed with the AI score shown on the suggestion cards).
+			const sctx = prepScorePairCtx(anchor, {
+				vocab: simVocab,
+				sizePenaltyFn: sizePenaltyForPair,
+				pricePenaltyFn: pricePenaltyForPair,
+			});
 			scored = allAgg
 				.filter(
 					(it) =>
@@ -412,7 +427,15 @@ export async function renderSkuLinkerRapid($app) {
 						matchesAllTokens(it.searchText, tokens),
 				)
 				.slice(0, RECOMMEND_LIMIT)
-				.map((it) => ({ it, score: simVocab.weightedOverlap(anchor.name || "", it.name || "").score }));
+				.map((it) => {
+					const det = scorePairWithVocab(sctx, it);
+					const { score, aiDelta } = scorePairBlended(sctx, it, det, activeBlend, {
+						vocab: simVocab,
+						sizePenaltyFn: sizePenaltyForPair,
+						pricePenaltyFn: pricePenaltyForPair,
+					});
+					return { it, score, aiDelta };
+				});
 		} else {
 			scored = recommendSimilar(
 				allAgg,
@@ -809,7 +832,7 @@ export async function renderSkuLinkerRapid($app) {
 			? candidates.filter((c) => isPairStaged(anchorSkuStr, String(c.it.sku))).length
 			: 0;
 		if ($anchor)
-			$anchor.innerHTML = `<div class="small rapidColLabel">Matching — ${esc(storeLabel)}</div>${anchorHtml}${
+			$anchor.innerHTML = `<div class="small rapidColLabel">Matching — ${esc(storeLabel || "All stores")}</div>${anchorHtml}${
 				anchor
 					? `<div class="rapidCommit small">${accN} staged for this item</div>`
 					: ""
@@ -854,6 +877,7 @@ export async function renderSkuLinkerRapid($app) {
 			<a id="rapidBack" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 			<span class="badge">⚡ Rapid Linker</span>
 			<select id="rapidStore" class="input" style="max-width:260px;">
+				<option value="" ${storeLabel === ALL_STORES ? "selected" : ""}>All stores (${totalUnlinked})</option>
 				${storeOptions
 					.map(
 						([lbl, n]) =>

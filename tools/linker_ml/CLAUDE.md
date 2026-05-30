@@ -34,37 +34,61 @@ pip install -r tools/linker_ml/requirements.txt
 Node 18+ (repo default). The eval/build scripts are ESM `.mjs` importing the live viz
 modules directly (so they never drift from the ranker).
 
-**Re-train chain:**
+**The shipping classifier is now a GRADIENT-BOOSTED TREE (`export_gbt.py` → `out/gbt_model.json`),
+not the logistic blend.** The LR (`train_blend.mjs` → `blend_weights.js`) is kept only as a
+graceful fallback if `gbt_model.json` fails to load. The GBT runs live via a vanilla-JS tree
+evaluator (`viz/app/linker_page/gbt.js`). It beats the LR decisively (held-out rec@99% 17.6% →
+~69%) because the LR has **suppressor-weight pathologies at the tail** — e.g. `woScore` learned a
+negative weight, so a zero-name-overlap pair (rum-18 vs whisky-18) got *pushed up* to 0.9; and the
+LR under-scored real matches when an embedding vector was missing. Trees don't extrapolate and
+route missing values natively, fixing both.
+
+**Re-train chain (2026-05-29 architecture — GBT + 13 group features + enriched embeddings):**
 ```bash
-# 1. mine the dataset from the (now larger) labels — pure Node, no deps
+# 1. mine the dataset — pure Node. sku_texts.jsonl uses skuToTextEnriched (NAME + group-resolved
+#    size/abv/year/category tokens). 13 grp* features are computed per pair in featurizePair.
 node tools/linker_ml/build_dataset.mjs
 
-# 2. compute the ~25 deterministic feature columns per pair — pure Node
-node tools/linker_ml/dump_features.mjs          # embed_cosine = 0 until step 4
+# 2. feature columns per pair (det score + sub-factors + 13 grp* + embed_cosine slot) — pure Node
+node tools/linker_ml/dump_features.mjs          # embed_cosine = 0 until embeddings exist
 
-# 3. baseline blend (no embeddings yet) + pre-embedding gap baseline
-node tools/linker_ml/train_blend.mjs
-node tools/linker_ml/eval_gap.mjs
-
-# 4. fine-tune the attention encoder on the new labels (CPU, ~3–5 min)
+# 3. fine-tune the encoder on the ENRICHED text (CPU, ~5 min). e6·s30 is the tuned sweet spot.
 HF_HOME="$PWD/tools/linker_ml/.hf_cache" \
-  tools/linker_ml/.venv/bin/python tools/linker_ml/train_embed.py --epochs 3
-#   writes out/embeddings.json (fine-tuned) + out/embeddings_base.json (off-the-shelf)
-#   --no-hard-negs to ablate the curated-ignore/hard contrastive negatives
-#   --skip-base    to skip re-encoding the off-the-shelf model
+  tools/linker_ml/.venv/bin/python tools/linker_ml/train_embed.py --epochs 6 --scale 30 --skip-base
+#   --epochs/--scale/--lr/--tag are tunable. SWEEP RESULT: 3–6 epochs best, scale 30 ≳ 20;
+#   16 epochs OVERFITS (lowest train loss, WORST held-out rec@99). Judge held-out, never train loss.
 
-# 5. fold embed_cosine in, re-train the blend WITH the semantic feature
+# 4. fold embed_cosine in
 node tools/linker_ml/dump_features.mjs          # now fills embed_cosine from embeddings.json
-node tools/linker_ml/train_blend.mjs            # → out/blend_weights.json + metrics
 
-# 6. the semantic-gap before/after (named cases + harvested ≤1-token positives)
-node tools/linker_ml/eval_gap.mjs
+# 5. THE SHIPPING MODEL — gradient-boosted-tree blend (Python venv, sklearn HistGBT)
+tools/linker_ml/.venv/bin/python tools/linker_ml/export_gbt.py   # → out/gbt_model.json (trees + missing-routing)
 
-# 7. SHIP to the live #/link recommender (see "Live integration" below)
+# 6. LR FALLBACK (group-aware) + sanity metrics
+node tools/linker_ml/train_blend.mjs            # LR held-out metrics
 node tools/linker_ml/make_blend_weights.mjs     # → viz/app/linker_page/blend_weights.js (commit on main)
-cp tools/linker_ml/out/embeddings.json \
-   .worktrees/data/viz/data/sku_embeddings.json  # LFS artifact on the data branch
+node tools/linker_ml/eval_gap.mjs               # semantic-gap before/after
+
+# 7. SHIP: code on main (gbt.js, group_features.js, blend_weights.js, suggestions/page wiring);
+#    artifacts to the worktree (LFS, data branch):
+cp tools/linker_ml/out/embeddings.json .worktrees/data/viz/data/sku_embeddings.json
+cp tools/linker_ml/out/gbt_model.json  .worktrees/data/viz/data/gbt_model.json
 ```
+
+**The 13 group↔group features** (canonical-GROUP level, the dimension neither the token scorer
+nor the bi-encoder can see): `grpStoreOverlap/CollideCount/Jaccard/SameSkuShare`,
+`grpSizeConflict/Jaccard`, `grpAbvDiff/Both`, `grpYearDiff/Both`, `grpPriceRatio`, `grpCountA/B`.
+Computed in `featurize.mjs::groupPairFeatures` (offline, **edge-cuts** the scored pair so positives
+use PRE-merge groups — no leakage) and `viz/app/linker_page/group_features.js` (live, full groups —
+identical to the trainer for cross-group pairs, which is all the live ranker scores since
+same-group candidates are filtered). **Keep these two parallel implementations in sync.**
+`grpStoreOverlap` is upgrade-discounted (same-store near-identical-name SKUs = a re-list, not a
+collision). Feature importances: after `embedCos`/`logDet`, the grp* features dominate.
+
+**Embedding now carries per-SKU group-resolved attributes** (`skuToTextEnriched`): the bi-encoder
+gets size/abv/year/category as text tokens (their meaning ALIGNS with cosine — same size → closer).
+PAIRWISE relations like store-overlap can't go in the text (a shared token raises cosine, but
+shared-store means *less* likely same product) — those stay blend features. No raw store names.
 
 ## ⭐ Live integration (wired into `#/link` and `#/link-rapid`)
 
@@ -79,11 +103,23 @@ deterministic scorer:
 - **`viz/app/linker_page/embeddings.js`** — fetches `viz/data/sku_embeddings.json` (the LFS
   vectors file). **Optional**: if absent (e.g. on deployed Pages until shipped), it returns
   null and the pages use `BLEND_WEIGHTS_NOEMBED` — no error, graceful fallback.
-- **`recommendSimilar(..., { blend })`** in `suggestions.js` retrieves with the
-  deterministic score, then re-ranks the top candidates by `blendScore` (probability). SMWS
-  pins stay on top. `linker_page.js` / `linker_rapid_page.js` build `blend` from the weights
-  + embeddings and pass it; their "strong suggestion" cutoffs switched to the probability
-  scale (`isStrongProb`, `STRONG_*_PROB` in `strong_threshold.js`).
+- **`recommendSimilar(..., { blend })`** in `suggestions.js` retrieves with the deterministic
+  score, then re-ranks the top candidates. `blend` now carries `{ gbt, groupIndex, embedCosFn,
+  weights, weightsNoEmbed }`. Per candidate it: `extractBlendFeatures` → `Object.assign` the live
+  group features (`blend.groupIndex.features(a,b)`) → score with **`gbtScore` (gbt.js)** when a
+  GBT model is loaded, else the linear `blendScore`. SMWS pins stay on top. The pages
+  (`linker_page.js` / `linker_rapid_page.js`) build the blend, `loadGbtModel()`, and
+  `buildGroupIndex(allAgg, rules.canonicalSku)` (rebuilt on every rules reload). "Strong" cutoffs
+  use the probability scale (`isStrongProb`, `STRONG_*_PROB`).
+- **`viz/app/linker_page/gbt.js`** — vanilla-JS tree inference for `out/gbt_model.json` (deployed
+  to `viz/data/gbt_model.json` on the data branch). Routes a MISSING embed_cosine via the tree's
+  missing branch (mark it NaN, NOT 0 — 0 means "dissimilar" and wrongly crushed real matches).
+- **`viz/app/linker_page/group_features.js`** — live `buildGroupIndex()` + `.features(a,b)`; the
+  parallel of `featurize.mjs::groupPairFeatures` (keep in sync).
+- **Missing embedding vectors are normal in prod** (SKUs scraped after the last encode). The GBT
+  routes them natively; the LR path falls back to no-embed weights per-pair. So a fresh SKU works
+  via deterministic + group features until its next encode. See `[[project_linker_encode_pipeline_todo]]`
+  — the per-build re-encode (~15 s) is NOT yet wired into `run_daily.sh` (deferred).
 
 **Refreshing the two artifacts after a retrain:** (1) `make_blend_weights.mjs` rewrites
 `blend_weights.js` (commit on `main`); (2) copy `out/embeddings.json` →
