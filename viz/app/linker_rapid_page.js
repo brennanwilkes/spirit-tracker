@@ -323,6 +323,10 @@ export async function renderSkuLinkerRapid($app) {
 				seen.add(csku);
 				if (isIgnoredPairLocal(itSku, csku)) continue;
 				if (sameGroupLocal(itSku, csku)) continue;
+				// A staged-but-not-yet-flushed link is a decided pair: exclude it so this
+				// item's worklist priority reflects its best UNDECIDED candidate, not the one
+				// already handled (ignores drop out above via isIgnoredPairLocal).
+				if (isPairStagedEither(itSku, csku)) continue;
 				let s = scorePairWithVocab(ctx, cand);
 				if (useBlend) {
 					const { score } = scorePairBlended(ctx, cand, s, blend, {
@@ -425,14 +429,12 @@ export async function renderSkuLinkerRapid($app) {
 		});
 	}
 
-	let worklist = buildWorklist();
-	let workIdx = 0;
-	let candidates = []; // [{ it, score, shared, sameStore }]
-	let highlight = 0;
-
 	// Per-pair staged-op references so Space can toggle a single (anchor,candidate)
 	// link in/out of the staged queue. Key: `${anchorSku}|${candSku}` → array of op
 	// objects pushed into `staged` (matched by reference for removal).
+	// Declared BEFORE buildWorklist() runs — refinedScore() consults it (staged pairs are
+	// excluded from an item's best-remaining-candidate score), so it must exist (empty) at
+	// build time, not be in the temporal dead zone.
 	const pairOps = new Map();
 	const pairKey = (a, b) => `${String(a)}|${String(b)}`;
 	// Candidate SKUs that are staged for a link with SOME anchor. Used to filter
@@ -447,6 +449,30 @@ export async function renderSkuLinkerRapid($app) {
 	}
 	function isPairStaged(anchorSku, candSku) {
 		return pairOps.has(pairKey(anchorSku, candSku));
+	}
+	function isPairStagedEither(a, b) {
+		return isPairStaged(a, b) || isPairStaged(b, a);
+	}
+
+	// sku (aggregate representative) → aggregate, for re-scoring a specific item after a
+	// decision changes its best-remaining candidate.
+	const aggBySku = new Map();
+	for (const it of allAgg) if (it && it.sku != null) aggBySku.set(String(it.sku), it);
+
+	let worklist = buildWorklist();
+	let workIdx = 0;
+	let candidates = []; // [{ it, score, shared, sameStore }]
+	let highlight = 0;
+
+	// A decision (staged link or ignore) removes that pair from each item's candidate pool, so
+	// the two items' best-remaining-candidate scores can drop. Recompute them and re-sort the
+	// tail so a now-weak item sinks instead of resurfacing next with a leftover low suggestion.
+	function rescoreAfterDecision(...skus) {
+		for (const s of skus) {
+			const it = aggBySku.get(String(s || ""));
+			if (it) refinedMap.set(it, refinedScore(it));
+		}
+		resortTail();
 	}
 
 	function skipLinkedForward() {
@@ -567,6 +593,7 @@ export async function renderSkuLinkerRapid($app) {
 			persistQueue();
 			rebuildSession();
 			setStatus(`Unstaged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
+			rescoreAfterDecision(a, b);
 			render(true);
 			return;
 		}
@@ -600,6 +627,7 @@ export async function renderSkuLinkerRapid($app) {
 		persistQueue();
 		actionsSinceFlush += 1;
 		setStatus(`Staged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
+		rescoreAfterDecision(a, b);
 		render(true);
 	}
 
@@ -624,6 +652,7 @@ export async function renderSkuLinkerRapid($app) {
 			persistQueue();
 			rebuildSession();
 			setStatus(`Un-ignored: ${displaySku(a)} × ${displaySku(b)}.`);
+			rescoreAfterDecision(a, b);
 			render(true);
 			return;
 		}
@@ -639,6 +668,7 @@ export async function renderSkuLinkerRapid($app) {
 		persistQueue();
 		rebuildSession();
 		setStatus(`Staged ignore: ${displaySku(a)} × ${displaySku(b)}.`);
+		rescoreAfterDecision(a, b);
 		render(true);
 	}
 
@@ -672,6 +702,7 @@ export async function renderSkuLinkerRapid($app) {
 		const targetIdx = worklist.findIndex((it) => String(it.sku) === d.anchorSku);
 		if (targetIdx >= 0) workIdx = targetIdx;
 		highlight = 0;
+		rescoreAfterDecision(d.anchorSku, d.candSku);
 		render();
 	}
 
@@ -681,6 +712,16 @@ export async function renderSkuLinkerRapid($app) {
 			return;
 		}
 		const n = staged.length;
+		// Collect every sku touched by a staged decision before wiping — their
+		// best-remaining-candidate scores rise back once the decisions are gone.
+		const affected = new Set();
+		for (const key of pairOps.keys()) for (const s of key.split("|")) affected.add(s);
+		for (const op of staged) {
+			if (op.type === "ignore") {
+				affected.add(String(op.skuA));
+				affected.add(String(op.skuB));
+			}
+		}
 		staged.length = 0;
 		decisions.length = 0;
 		pairOps.clear();
@@ -690,6 +731,7 @@ export async function renderSkuLinkerRapid($app) {
 		rebuildSession();
 		setStatus(`Cleared ${n} unsaved staged change(s).`);
 		document.querySelector(".rapidRecover")?.remove();
+		rescoreAfterDecision(...affected);
 		render();
 	}
 
