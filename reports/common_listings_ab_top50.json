@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T16:16:13.025Z",
+  "generatedAt": "2026-05-30T19:26:12.471Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8553,
-    "removedRows": 4277,
-    "canonSkus": 4940,
+    "liveRows": 8543,
+    "removedRows": 4288,
+    "canonSkus": 4937,
     "outputCount": 50
   },
   "rows": [
@@ -352,7 +352,7 @@
         "bsw": 74.99,
         "coop": 89.99,
         "craftcellars": 86.99,
-        "kwm": 89.99,
+        "kwm": 76.49,
         "maltsandgrains": 91.58,
         "sierrasprings": 89.42,
         "willowpark": 84.99
@@ -1169,7 +1169,7 @@
         "coop": 154.99,
         "craftcellars": 123.99,
         "kegncork": 154.96,
-        "kwm": 154.99,
+        "kwm": 131.74,
         "willowpark": 149.99
       },
       "representative": {
@@ -1780,48 +1780,6 @@
       }
     },
     {
-      "canonSku": "752142",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 72.99,
-        "craftcellars": 84.99,
-        "kegncork": 82.96,
-        "kwm": 83.99,
-        "sierrasprings": 70.37,
-        "willowpark": 78.49
-      },
-      "representative": {
-        "name": "BUNNAHABHAIN 12YO",
-        "price": "$70.37",
-        "priceNum": 70.37,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "752142",
-        "skuKey": "752142",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$70.37",
-        "priceNum": 70.37,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/"
-      }
-    },
-    {
       "canonSku": "034672",
       "storeCount": 5,
       "stores": [
@@ -2003,27 +1961,27 @@
       "storePrices": {
         "coop": 159.99,
         "craftcellars": 154.99,
-        "kwm": 154.99,
+        "kwm": 131.74,
         "maltsandgrains": 159.9,
         "willowpark": 154.99
       },
       "representative": {
-        "name": "Ardbeg SMOKIVERSE",
-        "price": "$154.99",
-        "priceNum": 154.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Ardbeg Smokiverse",
+        "price": "$131.74",
+        "priceNum": 131.74,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "124194",
         "skuKey": "124194",
-        "url": "https://craftcellars.ca/products/ardbeg-smokiverse",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://kensingtonwinemarket.com/product/124194/ardbeg-smokiverse",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$154.99",
-        "priceNum": 154.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-smokiverse"
+        "price": "$131.74",
+        "priceNum": 131.74,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/124194/ardbeg-smokiverse"
       }
     },
     {
@@ -2147,6 +2105,47 @@
         "priceNum": 52.28,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/lowland/auchentoshan-american-oak-scotch-whisky-40-abv/"
+      }
+    },
+    {
+      "canonSku": "752142",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 72.99,
+        "craftcellars": 84.99,
+        "kegncork": 82.96,
+        "sierrasprings": 70.37,
+        "willowpark": 78.49
+      },
+      "representative": {
+        "name": "BUNNAHABHAIN 12YO",
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "752142",
+        "skuKey": "752142",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+      },
+      "cheapest": {
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/"
       }
     }
   ]

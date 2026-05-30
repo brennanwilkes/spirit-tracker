@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T16:16:13.638Z",
+  "generatedAt": "2026-05-30T19:26:13.105Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8553,
-    "removedRows": 4277,
-    "canonSkus": 4940,
+    "liveRows": 8543,
+    "removedRows": 4288,
+    "canonSkus": 4937,
     "outputCount": 1000
   },
   "rows": [
@@ -352,7 +352,7 @@
         "bsw": 74.99,
         "coop": 89.99,
         "craftcellars": 86.99,
-        "kwm": 89.99,
+        "kwm": 76.49,
         "maltsandgrains": 91.58,
         "sierrasprings": 89.42,
         "willowpark": 84.99
@@ -1468,7 +1468,7 @@
         "coop": 154.99,
         "craftcellars": 123.99,
         "kegncork": 154.96,
-        "kwm": 154.99,
+        "kwm": 131.74,
         "willowpark": 149.99
       },
       "representative": {
@@ -3507,48 +3507,6 @@
       }
     },
     {
-      "canonSku": "752142",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "bsw": 72.99,
-        "craftcellars": 84.99,
-        "kegncork": 82.96,
-        "kwm": 83.99,
-        "sierrasprings": 70.37,
-        "willowpark": 78.49
-      },
-      "representative": {
-        "name": "BUNNAHABHAIN 12YO",
-        "price": "$70.37",
-        "priceNum": 70.37,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "752142",
-        "skuKey": "752142",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$70.37",
-        "priceNum": 70.37,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/"
-      }
-    },
-    {
       "canonSku": "757360",
       "storeCount": 6,
       "stores": [
@@ -4801,27 +4759,27 @@
       "storePrices": {
         "coop": 159.99,
         "craftcellars": 154.99,
-        "kwm": 154.99,
+        "kwm": 131.74,
         "maltsandgrains": 159.9,
         "willowpark": 154.99
       },
       "representative": {
-        "name": "Ardbeg SMOKIVERSE",
-        "price": "$154.99",
-        "priceNum": 154.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "name": "Ardbeg Smokiverse",
+        "price": "$131.74",
+        "priceNum": 131.74,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "124194",
         "skuKey": "124194",
-        "url": "https://craftcellars.ca/products/ardbeg-smokiverse",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "url": "https://kensingtonwinemarket.com/product/124194/ardbeg-smokiverse",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$154.99",
-        "priceNum": 154.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-smokiverse"
+        "price": "$131.74",
+        "priceNum": 131.74,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/124194/ardbeg-smokiverse"
       }
     },
     {
@@ -7323,6 +7281,47 @@
         "priceNum": 160,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/highland-park-15-year-old"
+      }
+    },
+    {
+      "canonSku": "752142",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 72.99,
+        "craftcellars": 84.99,
+        "kegncork": 82.96,
+        "sierrasprings": 70.37,
+        "willowpark": 78.49
+      },
+      "representative": {
+        "name": "BUNNAHABHAIN 12YO",
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "752142",
+        "skuKey": "752142",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+      },
+      "cheapest": {
+        "price": "$70.37",
+        "priceNum": 70.37,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bunnahabhain-12-years-46-3-abv/"
       }
     },
     {
@@ -10535,26 +10534,26 @@
       "storePrices": {
         "bsw": 215,
         "kegncork": 254.96,
-        "kwm": 249.99,
+        "kwm": 212.49,
         "willowpark": 249.99
       },
       "representative": {
-        "name": "Ardbeg 17 Year Old",
-        "price": "$215.00",
-        "priceNum": 215,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Ardbeg 17 Year",
+        "price": "$212.49",
+        "priceNum": 212.49,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "112273",
         "skuKey": "112273",
-        "url": "https://www.bswliquor.com/products/ardbeg-17-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://kensingtonwinemarket.com/product/112273/ardbeg-17-year",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$215.00",
-        "priceNum": 215,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-17-year-old"
+        "price": "$212.49",
+        "priceNum": 212.49,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/112273/ardbeg-17-year"
       }
     },
     {
@@ -13678,46 +13677,6 @@
       }
     },
     {
-      "canonSku": "358341",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 57.99,
-        "craftcellars": 70.99,
-        "kwm": 69.99,
-        "willowpark": 71.49
-      },
-      "representative": {
-        "name": "anCnoc 12 Year Old",
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "358341",
-        "skuKey": "358341",
-        "url": "https://www.bswliquor.com/products/ancnoc-12-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ancnoc-12-year-old-1"
-      }
-    },
-    {
       "canonSku": "368597",
       "storeCount": 4,
       "stores": [
@@ -14035,46 +13994,6 @@
         "priceNum": 99.9,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-storm-45-8-abv/"
-      }
-    },
-    {
-      "canonSku": "407390",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kwm"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 86.99,
-        "coop": 89.99,
-        "craftcellars": 88.99,
-        "kwm": 88.99
-      },
-      "representative": {
-        "name": "Compass Box Orchard House 46% ABV",
-        "price": "$86.99",
-        "priceNum": 86.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "858586",
-        "skuKey": "858586",
-        "url": "https://www.bswliquor.com/products/compass-box-orchard-box",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$86.99",
-        "priceNum": 86.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/compass-box-orchard-box"
       }
     },
     {
@@ -14814,7 +14733,7 @@
       ],
       "storePrices": {
         "bsw": 37.99,
-        "coop": 51.99,
+        "coop": 52.99,
         "craftcellars": 36.99,
         "sierrasprings": 46.56
       },
@@ -16795,46 +16714,6 @@
         "priceNum": 215,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/paul-john-mithuna-indian-single-malt"
-      }
-    },
-    {
-      "canonSku": "845141",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 625,
-        "craftcellars": 714.99,
-        "kwm": 724.99,
-        "willowpark": 699.99
-      },
-      "representative": {
-        "name": "Glengoyne 25 Year Old",
-        "price": "$625.00",
-        "priceNum": 625,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "845141",
-        "skuKey": "845141",
-        "url": "https://www.bswliquor.com/products/glengoyne-25-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$625.00",
-        "priceNum": 625,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glengoyne-25-year-old-1"
       }
     },
     {
@@ -20915,45 +20794,6 @@
         "priceNum": 93.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/lindores-thiron-lowland-single-malt"
-      }
-    },
-    {
-      "canonSku": "116562",
-      "storeCount": 3,
-      "stores": [
-        "bsw",
-        "kwm",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "maltsandgrains",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 66.99,
-        "kwm": 69.99,
-        "willowpark": 64.99
-      },
-      "representative": {
-        "name": "Loch Lomond Inchmoan 12 Year Old Single Malt Scotch Whisky",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "116562",
-        "skuKey": "116562",
-        "url": "https://www.willowpark.net/products/inchmoan-12-yr",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/inchmoan-12-yr"
       }
     },
     {
@@ -26144,6 +25984,45 @@
       }
     },
     {
+      "canonSku": "358341",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 57.99,
+        "craftcellars": 70.99,
+        "willowpark": 71.49
+      },
+      "representative": {
+        "name": "anCnoc 12 Year Old",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "358341",
+        "skuKey": "358341",
+        "url": "https://www.bswliquor.com/products/ancnoc-12-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ancnoc-12-year-old-1"
+      }
+    },
+    {
       "canonSku": "366388",
       "storeCount": 3,
       "stores": [
@@ -26531,6 +26410,45 @@
         "priceNum": 83.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/scarabus-batch-strength"
+      }
+    },
+    {
+      "canonSku": "407390",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "coop",
+        "kwm"
+      ],
+      "missingStores": [
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 86.99,
+        "coop": 89.99,
+        "kwm": 88.99
+      },
+      "representative": {
+        "name": "Compass Box Orchard House 46% ABV",
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "858586",
+        "skuKey": "858586",
+        "url": "https://www.bswliquor.com/products/compass-box-orchard-box",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/compass-box-orchard-box"
       }
     },
     {
@@ -30314,6 +30232,45 @@
         "priceNum": 45.29,
         "storeKey": "maltsandgrains",
         "url": "https://maltsandgrains.store/product/kilbeggan-black/"
+      }
+    },
+    {
+      "canonSku": "845141",
+      "storeCount": 3,
+      "stores": [
+        "bsw",
+        "kwm",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 625,
+        "kwm": 724.99,
+        "willowpark": 699.99
+      },
+      "representative": {
+        "name": "Glengoyne 25 Year Old",
+        "price": "$625.00",
+        "priceNum": 625,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "845141",
+        "skuKey": "845141",
+        "url": "https://www.bswliquor.com/products/glengoyne-25-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$625.00",
+        "priceNum": 625,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glengoyne-25-year-old-1"
       }
     },
     {
@@ -37045,6 +37002,44 @@
         "priceNum": 45.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/teeda-white-japanese-craft-rum"
+      }
+    },
+    {
+      "canonSku": "116562",
+      "storeCount": 2,
+      "stores": [
+        "bsw",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 66.99,
+        "willowpark": 64.99
+      },
+      "representative": {
+        "name": "Loch Lomond Inchmoan 12 Year Old Single Malt Scotch Whisky",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "116562",
+        "skuKey": "116562",
+        "url": "https://www.willowpark.net/products/inchmoan-12-yr",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/inchmoan-12-yr"
       }
     },
     {
