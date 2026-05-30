@@ -221,16 +221,22 @@ export async function renderSkuLinkerRapid($app) {
 		storeLabel = storeOptions[0] ? storeOptions[0][0] : ALL_STORES;
 	}
 
-	// Two-pass sort:
+	// Incremental two-pass sort:
 	//   1) Fast pre-pass — term-index proxy (weightedOverlap against up to PROXY_K
 	//      cross-store candidates that share a distinctive unigram). O(storeSize × K).
-	//   2) Refine top REFINE_TOP_K by fast-score with the FULL recommendSimilar
-	//      pipeline (includes size/price/abv/age penalties + top-term bonus).
-	//   The top-K stay in their refined order; the long tail keeps fast-score order.
-	// REFINE_TOP_K is the part of the list the user actually walks through, so refining
-	// deeper (was 40) buys a much better-ordered head — the dominant initial-sort quality
-	// lever — at a modest one-time build cost.
-	const REFINE_TOP_K = 120;
+	//   2) Refine by fast-score with the FULL recommendSimilar pipeline (size/price/abv/age
+	//      penalties + top-term bonus + AI blend). Only REFINE_HEAD_SYNC items are refined
+	//      synchronously so first paint stays fast; the REST are refined in the background
+	//      (chunked, yielding to the event loop), re-sorting the not-yet-visited tail after
+	//      each chunk. Because the user walks the list sequentially and we refine in
+	//      fast-score order, the background pass stays ahead of the cursor — so by the time
+	//      they reach an item it is properly scored, without ever stalling page load.
+	//   A refined item sorts above an un-refined one (bucketed comparator); since we refine
+	//   highest-fast-first, un-refined items always have lower proxy scores than refined
+	//   ones, so the boundary sits at the fast-rank frontier and converges to a full true
+	//   ordering as the background pass completes.
+	const REFINE_HEAD_SYNC = 120;
+	const BG_REFINE_CHUNK = 40;
 	const PROXY_K = 6;
 
 	function buildTermIndex() {
@@ -333,7 +339,37 @@ export async function renderSkuLinkerRapid($app) {
 		return best;
 	}
 
+	// Sort state shared between the synchronous head build and the background refiner.
+	// `worklistGen` invalidates any in-flight background loop when the worklist is rebuilt
+	// (store change / AI toggle).
+	let fastMap = new Map();
+	let refinedMap = new Map();
+	let byFastOrder = [];
+	let bgPointer = 0;
+	let worklistGen = 0;
+
+	function worklistCompare(a, b) {
+		const ra = (refinedMap.get(a) || 0) > 0;
+		const rb = (refinedMap.get(b) || 0) > 0;
+		if (ra && rb) {
+			const ds = (refinedMap.get(b) || 0) - (refinedMap.get(a) || 0);
+			if (Math.abs(ds) > 1e-9) return ds;
+		} else if (ra !== rb) {
+			return ra ? -1 : 1;
+		} else {
+			const ds = (fastMap.get(b) || 0) - (fastMap.get(a) || 0);
+			if (Math.abs(ds) > 1e-9) return ds;
+		}
+		const ea = (a.stores ? a.stores.size : 99) - (b.stores ? b.stores.size : 99);
+		if (ea) return ea;
+		return String(a.name || "").localeCompare(String(b.name || ""));
+	}
+
 	function buildWorklist() {
+		worklistGen++;
+		fastMap = new Map();
+		refinedMap = new Map();
+
 		const items = [];
 		for (const it of allAgg) {
 			if (!it || !it.stores) continue;
@@ -343,36 +379,50 @@ export async function renderSkuLinkerRapid($app) {
 		}
 
 		const termIndex = buildTermIndex();
-		const fast = new Map();
-		for (const it of items) fast.set(it, fastScore(it, termIndex));
+		for (const it of items) fastMap.set(it, fastScore(it, termIndex));
 
 		// Drop dead-ends: items whose best proxy score is 0 share no distinctive token with any
 		// cross-store candidate, so the suggester can never surface a match for them — walking
 		// them is wasted keystrokes. They stay reachable via the `/` search box.
-		const live = items.filter((it) => (fast.get(it) || 0) > 0);
+		const live = items.filter((it) => (fastMap.get(it) || 0) > 0);
 
-		const byFast = live.slice().sort((a, b) => (fast.get(b) || 0) - (fast.get(a) || 0));
-		const refineSet = byFast.slice(0, REFINE_TOP_K);
-		const refined = new Map();
-		for (const it of refineSet) refined.set(it, refinedScore(it));
+		byFastOrder = live.slice().sort((a, b) => (fastMap.get(b) || 0) - (fastMap.get(a) || 0));
+		const headEnd = Math.min(REFINE_HEAD_SYNC, byFastOrder.length);
+		for (let i = 0; i < headEnd; i++) refinedMap.set(byFastOrder[i], refinedScore(byFastOrder[i]));
+		bgPointer = headEnd;
 
-		live.sort((a, b) => {
-			const ra = (refined.get(a) || 0) > 0;
-			const rb = (refined.get(b) || 0) > 0;
-			if (ra && rb) {
-				const ds = (refined.get(b) || 0) - (refined.get(a) || 0);
-				if (Math.abs(ds) > 1e-9) return ds;
-			} else if (ra !== rb) {
-				return ra ? -1 : 1;
-			} else {
-				const ds = (fast.get(b) || 0) - (fast.get(a) || 0);
-				if (Math.abs(ds) > 1e-9) return ds;
-			}
-			const ea = (a.stores ? a.stores.size : 99) - (b.stores ? b.stores.size : 99);
-			if (ea) return ea;
-			return String(a.name || "").localeCompare(String(b.name || ""));
-		});
+		live.sort(worklistCompare);
+		scheduleBackgroundRefine(worklistGen);
 		return live;
+	}
+
+	function scheduleNextChunk(fn) {
+		if (typeof requestIdleCallback === "function") requestIdleCallback(fn, { timeout: 200 });
+		else setTimeout(fn, 0);
+	}
+
+	// Re-sort only the not-yet-visited tail; items at/before workIdx (current anchor +
+	// already-walked) stay frozen so the background pass never reorders under the cursor.
+	function resortTail() {
+		if (workIdx + 1 >= worklist.length) return;
+		const head = worklist.slice(0, workIdx + 1);
+		const tail = worklist.slice(workIdx + 1);
+		tail.sort(worklistCompare);
+		worklist = head.concat(tail);
+	}
+
+	function scheduleBackgroundRefine(gen) {
+		if (bgPointer >= byFastOrder.length) return;
+		scheduleNextChunk(function run() {
+			if (gen !== worklistGen) return; // a rebuild superseded this pass
+			const end = Math.min(bgPointer + BG_REFINE_CHUNK, byFastOrder.length);
+			for (; bgPointer < end; bgPointer++) {
+				const it = byFastOrder[bgPointer];
+				if (!refinedMap.has(it)) refinedMap.set(it, refinedScore(it));
+			}
+			resortTail();
+			if (bgPointer < byFastOrder.length) scheduleNextChunk(run);
+		});
 	}
 
 	let worklist = buildWorklist();
