@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T17:48:07.343Z",
+  "generatedAt": "2026-06-01T20:23:45.361Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 4403,
-    "removedRows": 590,
+    "liveRows": 4404,
+    "removedRows": 593,
     "canonSkus": 2186,
     "outputCount": 50
   },
@@ -1785,6 +1785,48 @@
       }
     },
     {
+      "canonSku": "014910",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 37.89,
+        "bcl": 34.99,
+        "gull": 36.6,
+        "legacyliquor": 39.82,
+        "tudor": 34.99,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "BUSHMILLS - TRIPLE DISTILLED",
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "014910",
+        "skuKey": "014910",
+        "url": "https://www.bcliquorstores.com/product/14910",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$34.99",
+        "priceNum": 34.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/14910"
+      }
+    },
+    {
       "canonSku": "017577",
       "storeCount": 6,
       "stores": [
@@ -2114,47 +2156,6 @@
         "priceNum": 29.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/11130"
-      }
-    },
-    {
-      "canonSku": "014910",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 37.89,
-        "bcl": 34.99,
-        "gull": 36.6,
-        "legacyliquor": 39.82,
-        "tudor": 34.99
-      },
-      "representative": {
-        "name": "BUSHMILLS - TRIPLE DISTILLED",
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "014910",
-        "skuKey": "014910",
-        "url": "https://www.bcliquorstores.com/product/14910",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$34.99",
-        "priceNum": 34.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/14910"
       }
     }
   ]

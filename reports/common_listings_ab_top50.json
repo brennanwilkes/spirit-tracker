@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T17:48:08.113Z",
+  "generatedAt": "2026-06-01T20:23:46.137Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -26,8 +26,8 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8469,
-    "removedRows": 4363,
+    "liveRows": 8471,
+    "removedRows": 4361,
     "canonSkus": 4898,
     "outputCount": 50
   },
@@ -73,49 +73,6 @@
         "priceNum": 44.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/victoria-distillers-empress-1908"
-      }
-    },
-    {
-      "canonSku": "368456",
-      "storeCount": 8,
-      "stores": [
-        "bsw",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "bsw": 69.99,
-        "coop": 79.99,
-        "craftcellars": 89.99,
-        "kegncork": 88.96,
-        "kwm": 78.99,
-        "maltsandgrains": 91.73,
-        "sierrasprings": 89.42,
-        "willowpark": 77.99
-      },
-      "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "761474",
-        "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -893,6 +850,49 @@
       }
     },
     {
+      "canonSku": "368456",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "kwm"
+      ],
+      "storePrices": {
+        "bsw": 69.99,
+        "coop": 79.99,
+        "craftcellars": 89.99,
+        "kegncork": 88.96,
+        "maltsandgrains": 91.73,
+        "sierrasprings": 89.42,
+        "willowpark": 77.99
+      },
+      "representative": {
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "761474",
+        "skuKey": "761474",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+      }
+    },
+    {
       "canonSku": "413410",
       "storeCount": 7,
       "stores": [
@@ -1655,6 +1655,48 @@
       }
     },
     {
+      "canonSku": "202028",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 110,
+        "craftcellars": 104.99,
+        "kegncork": 132.96,
+        "kwm": 133.99,
+        "maltsandgrains": 139.9,
+        "willowpark": 131.49
+      },
+      "representative": {
+        "name": "Ardbeg Uigeadail",
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "717559",
+        "skuKey": "717559",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$104.99",
+        "priceNum": 104.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-uigeadail-54-2-abv"
+      }
+    },
+    {
       "canonSku": "285734",
       "storeCount": 6,
       "stores": [
@@ -1757,7 +1799,7 @@
         "bsw": 69.99,
         "coop": 79.99,
         "craftcellars": 86.99,
-        "kegncork": 84.96,
+        "kegncork": 77.96,
         "kwm": 89.99,
         "maltsandgrains": 87.17
       },
@@ -1985,47 +2027,6 @@
         "priceNum": 675,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/auchentoshan-px-1988"
-      }
-    },
-    {
-      "canonSku": "202028",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "craftcellars",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 110,
-        "kegncork": 132.96,
-        "kwm": 133.99,
-        "maltsandgrains": 139.9,
-        "willowpark": 131.49
-      },
-      "representative": {
-        "name": "Ardbeg Uigeadail 54.2% ABV",
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "717559",
-        "skuKey": "717559",
-        "url": "https://www.bswliquor.com/products/ardbeg-uigedail",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-uigedail"
       }
     },
     {
