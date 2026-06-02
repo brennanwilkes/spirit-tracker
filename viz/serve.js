@@ -65,21 +65,21 @@ function dedupeLinks(links, ignores) {
 		return parent.get(x);
 	}
 	const kept = [];
-	for (const { fromSku, toSku } of links) {
-		const ra = find(fromSku), rb = find(toSku);
+	for (const link of links) {
+		const ra = find(link.fromSku), rb = find(link.toSku);
 		if (ra !== rb) {
 			parent.set(ra, rb);
-			kept.push({ fromSku, toSku });
+			kept.push(link.noTrain ? { fromSku: link.fromSku, toSku: link.toSku, noTrain: true } : { fromSku: link.fromSku, toSku: link.toSku });
 		}
 	}
 
 	const seenIgnores = new Set();
 	const keptIgnores = [];
-	for (const { skuA, skuB } of ignores) {
-		const key = [skuA, skuB].sort().join("\0");
+	for (const ig of ignores) {
+		const key = [ig.skuA, ig.skuB].sort().join("\0");
 		if (!seenIgnores.has(key)) {
 			seenIgnores.add(key);
-			keptIgnores.push({ skuA, skuB });
+			keptIgnores.push(ig.noTrain ? { skuA: ig.skuA, skuB: ig.skuB, noTrain: true } : { skuA: ig.skuA, skuB: ig.skuB });
 		}
 	}
 
