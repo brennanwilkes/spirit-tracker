@@ -42,21 +42,21 @@ export async function apiReadSkuMetaFromLocalServer() {
 	};
 }
 
-export async function apiWriteSkuLink(fromSku, toSku) {
+export async function apiWriteSkuLink(fromSku, toSku, noTrain) {
 	const res = await fetch("/__stviz/sku-links", {
 		method: "POST",
 		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ fromSku, toSku }),
+		body: JSON.stringify({ fromSku, toSku, ...(noTrain ? { noTrain: true } : {}) }),
 	});
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	return await res.json();
 }
 
-export async function apiWriteSkuIgnore(skuA, skuB) {
+export async function apiWriteSkuIgnore(skuA, skuB, noTrain) {
 	const res = await fetch("/__stviz/sku-ignores", {
 		method: "POST",
 		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ skuA, skuB }),
+		body: JSON.stringify({ skuA, skuB, ...(noTrain ? { noTrain: true } : {}) }),
 	});
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	return await res.json();

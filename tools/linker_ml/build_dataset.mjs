@@ -43,6 +43,29 @@ function union(a, b) {
 	const rb = find(b);
 	if (ra !== rb) parent.set(ra, rb);
 }
+// Build set of noTrain direct pairs (canonical key → {label, a, b}).
+// noTrain entries ARE real equivalences, so they still enter the union-find (canonical groups
+// stay correct for featurization), but they must NOT appear in TRAIN or VAL — only TEST.
+const noTrainPairKeys = new Map(); // canonicalKey → {label, a, b}
+for (const l of env.manualLinks) {
+	if (!l.noTrain) continue;
+	const f = String(l.fromSku || "").trim();
+	const t = String(l.toSku || "").trim();
+	if (f && t && f !== t && env.bySku.has(f) && env.bySku.has(t)) {
+		const k = [f, t].sort().join("|");
+		noTrainPairKeys.set(k, { label: 1, a: f, b: t });
+	}
+}
+for (const ig of env.ignoreEntries) {
+	if (!ig.noTrain) continue;
+	const a = String(ig.skuA || ig.fromSku || "").trim();
+	const b = String(ig.skuB || ig.toSku || "").trim();
+	if (a && b && a !== b && env.bySku.has(a) && env.bySku.has(b)) {
+		const k = [a, b].sort().join("|");
+		noTrainPairKeys.set(k, { label: 0, a, b });
+	}
+}
+
 for (const l of env.allLinks) {
 	const f = String(l.fromSku || "").trim();
 	const t = String(l.toSku || "").trim();
@@ -89,35 +112,47 @@ function sharedTokCount(a, b) {
 const pairs = [];
 const seen = new Set();
 const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
-function add(a, b, label, kind) {
+function add(a, b, label, kind, noTrain) {
 	if (a === b) return false;
 	const k = key(a, b);
 	if (seen.has(k)) return false;
 	seen.add(k);
-	pairs.push({ a, b, label, kind });
+	pairs.push({ a, b, label, kind, ...(noTrain ? { noTrain: true } : {}) });
 	return true;
 }
 
 // Positives — within-group pairs, capped per group (matches linker_eval POS_PER_GROUP).
+// noTrain link pairs are added separately below; skip them here so the cap isn't wasted on them.
 const POS_PER_GROUP = 20;
 for (const skus of canonToSkus.values()) {
 	if (skus.length < 2) continue;
 	let count = 0;
 	outer: for (let i = 0; i < skus.length; i++)
 		for (let j = i + 1; j < skus.length; j++) {
-			add(skus[i], skus[j], 1, "pos");
-			if (++count >= POS_PER_GROUP) break outer;
+			const isNoTrain = noTrainPairKeys.has(key(skus[i], skus[j]));
+			if (!isNoTrain) {
+				add(skus[i], skus[j], 1, "pos");
+				if (++count >= POS_PER_GROUP) break outer;
+			}
 		}
 }
 const posCount = pairs.filter((p) => p.label === 1).length;
 
-// Negatives — curated ignores.
+// Negatives — curated ignores (excluding noTrain entries; those are added below).
 for (const ig of env.ignoreEntries) {
+	if (ig.noTrain) continue;
 	const a = String(ig.skuA || ig.fromSku || "").trim();
 	const b = String(ig.skuB || ig.toSku || "").trim();
 	if (!a || !b || !env.bySku.has(a) || !env.bySku.has(b)) continue;
 	if (canonOf(a) === canonOf(b)) continue;
 	add(a, b, 0, "ignore");
+}
+
+// noTrain pairs — explicitly emitted with noTrain:true so trainers can route them to TEST only.
+for (const { label, a, b } of noTrainPairKeys.values()) {
+	if (!env.bySku.has(a) || !env.bySku.has(b)) continue;
+	if (label === 0 && canonOf(a) === canonOf(b)) continue; // contradiction check for ignores
+	add(a, b, label, label === 1 ? "pos" : "ignore", true);
 }
 
 // Hard negatives — share a distinctive bigram (idf ≥ 5), different canonical group.

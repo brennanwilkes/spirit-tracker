@@ -142,7 +142,7 @@ const server = http.createServer((req, res) => {
 					if (!fromSku || !toSku) return sendJson(res, 400, { ok: false, error: "fromSku/toSku required" });
 
 					const obj = readMeta();
-					obj.links.push({ fromSku, toSku });
+					obj.links.push({ fromSku, toSku, ...(inp.noTrain ? { noTrain: true } : {}) });
 					const saved = writeMeta(obj);
 
 					return sendJson(res, 200, { ok: true, count: saved.links.length, file: "data/sku_links.json" });
@@ -182,7 +182,7 @@ const server = http.createServer((req, res) => {
 					if (skuA === skuB) return sendJson(res, 400, { ok: false, error: "skuA and skuB must differ" });
 
 					const obj = readMeta();
-					obj.ignores.push({ skuA, skuB });
+					obj.ignores.push({ skuA, skuB, ...(inp.noTrain ? { noTrain: true } : {}) });
 					const saved = writeMeta(obj);
 
 					return sendJson(res, 200, { ok: true, count: saved.ignores.length, file: "data/sku_links.json" });

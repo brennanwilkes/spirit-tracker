@@ -81,6 +81,7 @@ for (const line of lines) {
 			kind: p.kind,
 			canonA: canonOf(p.a),
 			canonB: canonOf(p.b),
+			...(p.noTrain ? { noTrain: true } : {}),
 			...f,
 		}),
 	);

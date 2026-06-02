@@ -63,7 +63,7 @@ for (const x of Array.isArray(linksData.links) ? linksData.links : []) {
 	}
 	seen.add(key);
 
-	nextLinks.push({ fromSku: a, toSku: b });
+	nextLinks.push({ fromSku: a, toSku: b, ...(x.noTrain ? { noTrain: true } : {}) });
 }
 
 const ignores = Array.isArray(linksData.ignores) ? linksData.ignores : [];

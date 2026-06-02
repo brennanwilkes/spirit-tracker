@@ -37,11 +37,14 @@ def fnv(s):
     return h
 # Three-way split by canonical group (same FNV hash as train_embed.py / train_blend.mjs):
 # [0,0.15)=TEST, [0.15,0.30)=VAL, [0.30,1)=TRAIN. TEST is never used for any model choice.
+# noTrain pairs are always forced into TEST — they were labeled using external information
+# the classifier cannot access, so they must not influence model selection or training.
 bucket = np.array([(fnv(r["canonA"]) % 1000) / 1000.0 for r in rows])
 kind = np.array([r["kind"] for r in rows])
-is_test = bucket < 0.15
-is_val = (bucket >= 0.15) & (bucket < 0.30)
-is_train = bucket >= 0.30
+no_train = np.array([bool(r.get("noTrain")) for r in rows])
+is_test = no_train | (bucket < 0.15)
+is_val = (~no_train) & (bucket >= 0.15) & (bucket < 0.30)
+is_train = (~no_train) & (bucket >= 0.30)
 
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_auc_score
@@ -63,8 +66,8 @@ print("metric model trained on TRAIN groups only (VAL = selection, TEST = never 
 report(is_val, "VAL")
 report(is_test, "TEST")
 
-# Ship model: refit on ALL labeled data (the metric above estimates how it generalizes).
-final = make().fit(X, y)
+# Ship model: refit on all labeled data EXCEPT noTrain pairs (which the model can't learn from).
+final = make().fit(X[~no_train], y[~no_train])
 
 def export_tree(pred):
     nodes = pred.nodes

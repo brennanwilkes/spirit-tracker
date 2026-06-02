@@ -119,6 +119,7 @@ export async function renderSkuLinkerRapid($app) {
 	const parent = new Map();
 	const linkedThisSession = new Set();
 	const ignoredLocal = new Set();
+	const ignoredLocalNoTrain = new Set();
 
 	function findRep(sku) {
 		let x = baseCanon(sku);
@@ -154,6 +155,14 @@ export async function renderSkuLinkerRapid($app) {
 		const k = rules.canonicalPairKey(a, b);
 		return k ? ignoredLocal.has(k) : false;
 	}
+	function isPairIgnoredNoTrain(a, b) {
+		const k = rules.canonicalPairKey(a, b);
+		return k ? ignoredLocalNoTrain.has(k) : false;
+	}
+	function isPairStagedNoTrain(a, b) {
+		const ops = pairOps.get(pairKey(a, b)) || pairOps.get(pairKey(b, a));
+		return !!(ops && ops.length && ops[0].noTrain);
+	}
 	function isLinked(sku) {
 		const s = String(sku || "");
 		if (mappedSkus.has(s) || mappedSkus.has(baseCanon(s))) return true;
@@ -168,10 +177,14 @@ export async function renderSkuLinkerRapid($app) {
 	// Persistence happens only on flush(), which then unions + marks linked.
 	function rebuildSession() {
 		ignoredLocal.clear();
+		ignoredLocalNoTrain.clear();
 		for (const op of staged) {
 			if (op.type === "ignore") {
 				const k = rules.canonicalPairKey(op.skuA, op.skuB);
-				if (k) ignoredLocal.add(k);
+				if (k) {
+					ignoredLocal.add(k);
+					if (op.noTrain) ignoredLocalNoTrain.add(k);
+				}
 			}
 		}
 	}
@@ -617,7 +630,7 @@ export async function renderSkuLinkerRapid($app) {
 
 	/* ---------------- actions ---------------- */
 
-	function togglePairStaged(candIdx) {
+	function togglePairStaged(candIdx, noTrain = false) {
 		const anchor = currentAnchor();
 		const cand = candidates[candIdx];
 		if (!anchor || !cand) return;
@@ -660,7 +673,7 @@ export async function renderSkuLinkerRapid($app) {
 			const k = `${from}→${preferred}`;
 			if (seen.has(k)) continue;
 			seen.add(k);
-			ops.push({ type: "link", fromSku: from, toSku: preferred });
+			ops.push({ type: "link", fromSku: from, toSku: preferred, ...(noTrain ? { noTrain: true } : {}) });
 		}
 		if (!ops.length) {
 			setStatus("Nothing to link (already canonical).");
@@ -672,12 +685,13 @@ export async function renderSkuLinkerRapid($app) {
 		decisions.push({ kind: "link", anchorSku: a, candSku: b, ops });
 		persistQueue();
 		actionsSinceFlush += 1;
-		setStatus(`Staged link: "${anchor.name || a}" × "${cand.it.name || b}".`);
+		const noTrainNote = noTrain ? " (no-train)" : "";
+		setStatus(`Staged link${noTrainNote}: "${anchor.name || a}" × "${cand.it.name || b}".`);
 		rescoreAfterDecision(a, b);
 		render(true);
 	}
 
-	function stageIgnorePair(anchorSku, candSku) {
+	function stageIgnorePair(anchorSku, candSku, noTrain = false) {
 		const a = String(anchorSku || "");
 		const b = String(candSku || "");
 		if (!a || !b || a === b) return;
@@ -708,12 +722,13 @@ export async function renderSkuLinkerRapid($app) {
 			return;
 		}
 
-		const op = { type: "ignore", skuA: a, skuB: b };
+		const op = { type: "ignore", skuA: a, skuB: b, ...(noTrain ? { noTrain: true } : {}) };
 		staged.push(op);
 		decisions.push({ kind: "ignore", anchorSku: a, candSku: b, ops: [op] });
 		persistQueue();
 		rebuildSession();
-		setStatus(`Staged ignore: ${displaySku(a)} × ${displaySku(b)}.`);
+		const noTrainNote = noTrain ? " (no-train)" : "";
+		setStatus(`Staged ignore${noTrainNote}: ${displaySku(a)} × ${displaySku(b)}.`);
 		rescoreAfterDecision(a, b);
 		render(true);
 	}
@@ -791,13 +806,13 @@ export async function renderSkuLinkerRapid($app) {
 		try {
 			if (localWrite) {
 				for (const op of batch) {
-					if (op.type === "link") await apiWriteSkuLink(op.fromSku, op.toSku);
-					else await apiWriteSkuIgnore(op.skuA, op.skuB);
+					if (op.type === "link") await apiWriteSkuLink(op.fromSku, op.toSku, op.noTrain);
+					else await apiWriteSkuIgnore(op.skuA, op.skuB, op.noTrain);
 				}
 			} else {
 				for (const op of batch) {
-					if (op.type === "link") addPendingLink(op.fromSku, op.toSku);
-					else addPendingIgnore(op.skuA, op.skuB);
+					if (op.type === "link") addPendingLink(op.fromSku, op.toSku, op.noTrain);
+					else addPendingIgnore(op.skuA, op.skuB, op.noTrain);
 				}
 			}
 			// Apply the now-persisted ops to the in-memory DSU + linked set so
@@ -891,11 +906,20 @@ export async function renderSkuLinkerRapid($app) {
 					${aiChip}
 				</div>`
 				: "";
-		const accBadge = o.candidate
-			? `<span class="rapidAcc">${o.ignored ? "✕ ignored" : o.accepted ? "✓ linked" : "press to link"}</span>`
-			: "";
+		const accLabel = o.ignoredNoTrain ? "✕ no-train ignore"
+			: o.ignored ? "✕ ignored"
+			: o.acceptedNoTrain ? "✓ linked (no-train)"
+			: o.accepted ? "✓ linked"
+			: "press to link";
+		const accBadge = o.candidate ? `<span class="rapidAcc">${accLabel}</span>` : "";
 		const ignoreBtn = o.candidate
 			? `<button class="rapidIgnoreBtn ${o.ignored ? "rapidIgnoreBtnActive" : ""}" title="${o.ignored ? "Ignored — press N or click to un-ignore" : "Mark as 'do not suggest' (false positive) — shortcut: N"}" data-sku="${esc(String(it.sku))}">${o.ignored ? "↺ un-ignore" : "✕ ignore"}</button>`
+			: "";
+		const noTrainLinkBtn = o.candidate && !o.ignored && !o.acceptedNoTrain
+			? `<button class="rapidNoTrainLinkBtn" title="Link but exclude from training data — use when you confirmed via external info (shortcut: Y)" data-sku="${esc(String(it.sku))}">Y link∗</button>`
+			: "";
+		const noTrainIgnoreBtn = o.candidate && !o.ignored && !o.accepted
+			? `<button class="rapidNoTrainIgnoreBtn" title="Ignore but exclude from training data — use when you confirmed via external info (shortcut: M)" data-sku="${esc(String(it.sku))}">M ignore∗</button>`
 			: "";
 
 		return `
@@ -904,7 +928,7 @@ export async function renderSkuLinkerRapid($app) {
 			<div class="thumbBox thumbInternalLink" data-sku="${esc(String(it.sku))}" title="Open item page">${renderThumbHtml(it.img)}</div>
 			<div class="rapidBody">
 				<div class="rapidName">${esc(it.name || "(no name)")}</div>
-				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}${ignoreBtn}</div>
+				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}${ignoreBtn}${noTrainLinkBtn}${noTrainIgnoreBtn}</div>
 				${conf}
 				${meta ? `<div class="rapidMeta">${meta}</div>` : ""}
 			</div>
@@ -963,7 +987,9 @@ export async function renderSkuLinkerRapid($app) {
 				candidate: true,
 				highlight: c.idx === highlight,
 				accepted: isPairStaged(anchorSkuStr, String(c.it.sku)),
+				acceptedNoTrain: isPairStagedNoTrain(anchorSkuStr, String(c.it.sku)),
 				ignored: isPairIgnoredSession(anchorSkuStr, String(c.it.sku)),
+				ignoredNoTrain: isPairIgnoredNoTrain(anchorSkuStr, String(c.it.sku)),
 				score: c.score,
 				aiDelta: c.aiDelta,
 				pct: topScore > 0 ? c.score / topScore : 0,
@@ -1041,10 +1067,35 @@ export async function renderSkuLinkerRapid($app) {
 				stageIgnorePair(String(anchor.sku), candSku);
 			});
 		});
+		$cands.querySelectorAll(".rapidNoTrainLinkBtn").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const anchor = currentAnchor();
+				const candSku = btn.getAttribute("data-sku");
+				if (!anchor || !candSku) return;
+				const i = candidates.findIndex((c) => String(c.it.sku) === candSku);
+				if (i < 0) return;
+				highlight = i;
+				togglePairStaged(i, true);
+			});
+		});
+		$cands.querySelectorAll(".rapidNoTrainIgnoreBtn").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const anchor = currentAnchor();
+				const candSku = btn.getAttribute("data-sku");
+				if (!anchor || !candSku) return;
+				stageIgnorePair(String(anchor.sku), candSku, true);
+			});
+		});
 		$cands.querySelectorAll(".rapidCard").forEach((el) => {
 			el.addEventListener("click", (e) => {
 				if (e.target.closest("a")) return;
 				if (e.target.closest(".rapidIgnoreBtn")) return;
+				if (e.target.closest(".rapidNoTrainLinkBtn")) return;
+				if (e.target.closest(".rapidNoTrainIgnoreBtn")) return;
 				if (e.target.closest(".thumbInternalLink")) return;
 				const sku = el.getAttribute("data-sku");
 				const i = candidates.findIndex((c) => String(c.it.sku) === sku);
@@ -1110,7 +1161,7 @@ export async function renderSkuLinkerRapid($app) {
 
 		<div id="rapidStatus" class="small" style="margin-top:8px; min-height:1.2em;"></div>
 		<div class="small rapidHelp">
-			<b>← →</b> previous / next item · <b>↑ ↓</b> highlight · <b>Space</b> toggle link · <b>N</b> ignore
+			<b>← →</b> previous / next item · <b>↑ ↓</b> highlight · <b>Space</b> toggle link · <b>N</b> ignore · <b>Y</b> link∗ · <b>M</b> ignore∗ <span style="color:var(--muted)">(∗ = verified externally, excluded from training)</span>
 		</div>
 	</div>`;
 
@@ -1198,11 +1249,19 @@ export async function renderSkuLinkerRapid($app) {
 		if (e.key === " " || e.code === "Space") {
 			e.preventDefault();
 			if (candidates[highlight]) togglePairStaged(highlight);
+		} else if (e.key === "y" || e.key === "Y") {
+			e.preventDefault();
+			if (candidates[highlight]) togglePairStaged(highlight, true);
 		} else if (e.key === "n" || e.key === "N") {
 			e.preventDefault();
 			const anchor = currentAnchor();
 			const cand = candidates[highlight];
 			if (anchor && cand) stageIgnorePair(String(anchor.sku), String(cand.it.sku));
+		} else if (e.key === "m" || e.key === "M") {
+			e.preventDefault();
+			const anchor = currentAnchor();
+			const cand = candidates[highlight];
+			if (anchor && cand) stageIgnorePair(String(anchor.sku), String(cand.it.sku), true);
 		} else if (e.key === "ArrowDown") {
 			e.preventDefault();
 			highlight = Math.min(candidates.length - 1, highlight + 1);

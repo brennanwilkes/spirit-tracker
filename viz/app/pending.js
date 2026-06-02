@@ -101,7 +101,7 @@ export function pendingCounts() {
 	};
 }
 
-export function addPendingLink(fromSku, toSku) {
+export function addPendingLink(fromSku, toSku, noTrain) {
 	const f = normSku(fromSku);
 	const t = normSku(toSku);
 	const k = linkKey(f, t);
@@ -119,12 +119,12 @@ export function addPendingLink(fromSku, toSku) {
 
 	if (seen.has(k)) return false;
 
-	pending.links.push({ fromSku: f, toSku: t });
+	pending.links.push({ fromSku: f, toSku: t, ...(noTrain ? { noTrain: true } : {}) });
 	savePendingEdits(pending);
 	return true;
 }
 
-export function addPendingIgnore(skuA, skuB) {
+export function addPendingIgnore(skuA, skuB, noTrain) {
 	const a = normSku(skuA);
 	const b = normSku(skuB);
 	const k = pairKey(a, b);
@@ -142,7 +142,7 @@ export function addPendingIgnore(skuA, skuB) {
 
 	if (seen.has(k)) return false;
 
-	pending.ignores.push({ skuA: a, skuB: b });
+	pending.ignores.push({ skuA: a, skuB: b, ...(noTrain ? { noTrain: true } : {}) });
 	savePendingEdits(pending);
 	return true;
 }
