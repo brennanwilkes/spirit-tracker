@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T14:18:34.385Z",
+  "generatedAt": "2026-06-02T17:20:54.037Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12847,
-    "removedRows": 4985,
-    "canonSkus": 5978,
+    "liveRows": 12969,
+    "removedRows": 4862,
+    "canonSkus": 6008,
     "outputCount": 50
   },
   "rows": [
@@ -127,7 +127,7 @@
         "bcl": 79.99,
         "bsw": 74.99,
         "coop": 89.99,
-        "craftcellars": 86.99,
+        "craftcellars": 89.99,
         "gull": 83.45,
         "kwm": 89.99,
         "legacyliquor": 83.51,
@@ -1041,7 +1041,7 @@
         "bcl": 64.99,
         "bsw": 69.99,
         "coop": 72.99,
-        "craftcellars": 79.99,
+        "craftcellars": 53.99,
         "gull": 72.99,
         "legacyliquor": 77.99,
         "maltsandgrains": 84.9,
@@ -1051,22 +1051,22 @@
         "vessel": 64.99
       },
       "representative": {
-        "name": "BENROMACH 10YO",
-        "price": "$59.29",
-        "priceNum": 59.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "074548",
-        "skuKey": "074548",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+        "name": "Benromach 10 Year Old Speyside Single Malt",
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "837223",
+        "skuKey": "837223",
+        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$59.29",
-        "priceNum": 59.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/benromach-10-year-old-speyside-single-malt-43-abv"
       }
     },
     {
@@ -1683,6 +1683,62 @@
         "priceNum": 39.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/bumbu-craft-rum"
+      }
+    },
+    {
+      "canonSku": "368456",
+      "storeCount": 12,
+      "stores": [
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "kwm",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 79.99,
+        "bsw": 69.99,
+        "coop": 79.99,
+        "craftcellars": 89.99,
+        "gull": 84.99,
+        "kegncork": 88.96,
+        "legacyliquor": 90.28,
+        "maltsandgrains": 91.73,
+        "sierrasprings": 89.42,
+        "tudor": 86.99,
+        "vessel": 79.99,
+        "willowpark": 77.99
+      },
+      "representative": {
+        "name": "Bruichladdich The Classic Laddie Scottish Barley",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "761474",
+        "skuKey": "761474",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
@@ -2403,61 +2459,6 @@
         "priceNum": 57.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aglc-bowmore-12yr-726251"
-      }
-    },
-    {
-      "canonSku": "368456",
-      "storeCount": 11,
-      "stores": [
-        "bcl",
-        "bsw",
-        "coop",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "craftcellars",
-        "kwm",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 79.99,
-        "bsw": 69.99,
-        "coop": 79.99,
-        "gull": 84.99,
-        "kegncork": 88.96,
-        "legacyliquor": 90.28,
-        "maltsandgrains": 91.73,
-        "sierrasprings": 89.42,
-        "tudor": 86.99,
-        "vessel": 79.99,
-        "willowpark": 77.99
-      },
-      "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "761474",
-        "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
       }
     },
     {
