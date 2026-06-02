@@ -861,9 +861,8 @@ export async function renderSkuLinker($app) {
 
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-
-			location.reload();
 			return;
 		}
 
@@ -892,9 +891,8 @@ export async function renderSkuLinker($app) {
 			$status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-
-			location.reload();
 		} catch (e) {
 			$status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
 		}
@@ -953,8 +951,8 @@ export async function renderSkuLinker($app) {
 
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-			location.reload();
 
 			return;
 		}
@@ -967,8 +965,8 @@ export async function renderSkuLinker($app) {
 			$status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-			location.reload();
 		} catch (e) {
 			$status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
 		}

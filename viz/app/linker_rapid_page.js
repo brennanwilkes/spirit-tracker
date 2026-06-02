@@ -352,16 +352,62 @@ export async function renderSkuLinkerRapid($app) {
 	let bgPointer = 0;
 	let worklistGen = 0;
 
+	// Temperature jitter on the worklist order — so refreshing gives a slightly different
+	// (but still high-quality) first pair, mirroring the manual #/link page's Temp slider.
+	// Reuses that same persisted setting (`stviz_linker_temp_v1`): 0 = deterministic, 0.2 =
+	// mild variety. The jitter is a stable multiplicative perturbation per item (seeded once
+	// per page load), so the order is consistent across background resorts within a session
+	// but varies between refreshes. It only reorders within a score bucket — a junk item can
+	// never leap a strong one.
+	const SORT_TEMP = (() => {
+		try {
+			const raw = localStorage.getItem("stviz_linker_temp_v1");
+			const v = raw == null ? 0.2 : parseFloat(raw);
+			return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.2;
+		} catch {
+			return 0.2;
+		}
+	})();
+	const SORT_JITTER_AMP = 0.35; // ±35% score perturbation at temp=1 (±7% at the 0.2 default)
+	let _rngState = (() => {
+		try {
+			const u = new Uint32Array(1);
+			crypto.getRandomValues(u);
+			return u[0] >>> 0 || 1;
+		} catch {
+			return ((Date.now() ^ ((Math.random() * 1e9) | 0)) >>> 0) || 1;
+		}
+	})();
+	function nextRand() {
+		_rngState = (_rngState + 0x6d2b79f5) >>> 0;
+		let x = Math.imul(_rngState ^ (_rngState >>> 15), 1 | _rngState);
+		x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
+		return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+	}
+	const jitterCache = new Map();
+	function scoreJitter(it) {
+		if (SORT_TEMP <= 0) return 1;
+		let j = jitterCache.get(it);
+		if (j === undefined) {
+			j = 1 + (nextRand() * 2 - 1) * SORT_TEMP * SORT_JITTER_AMP;
+			if (j < 0.01) j = 0.01;
+			jitterCache.set(it, j);
+		}
+		return j;
+	}
+
 	function worklistCompare(a, b) {
+		const ja = scoreJitter(a);
+		const jb = scoreJitter(b);
 		const ra = (refinedMap.get(a) || 0) > 0;
 		const rb = (refinedMap.get(b) || 0) > 0;
 		if (ra && rb) {
-			const ds = (refinedMap.get(b) || 0) - (refinedMap.get(a) || 0);
+			const ds = (refinedMap.get(b) || 0) * jb - (refinedMap.get(a) || 0) * ja;
 			if (Math.abs(ds) > 1e-9) return ds;
 		} else if (ra !== rb) {
 			return ra ? -1 : 1;
 		} else {
-			const ds = (fastMap.get(b) || 0) - (fastMap.get(a) || 0);
+			const ds = (fastMap.get(b) || 0) * jb - (fastMap.get(a) || 0) * ja;
 			if (Math.abs(ds) > 1e-9) return ds;
 		}
 		const ea = (a.stores ? a.stores.size : 99) - (b.stores ? b.stores.size : 99);
@@ -855,7 +901,7 @@ export async function renderSkuLinkerRapid($app) {
 		return `
 		<div class="rapidCard ${o.highlight ? "rapidHi" : ""} ${o.anchor ? "rapidAnchor" : ""} ${accClass}" data-sku="${esc(String(it.sku))}">
 			${numHint}
-			<div class="thumbBox">${renderThumbHtml(it.img)}</div>
+			<div class="thumbBox thumbInternalLink" data-sku="${esc(String(it.sku))}" title="Open item page">${renderThumbHtml(it.img)}</div>
 			<div class="rapidBody">
 				<div class="rapidName">${esc(it.name || "(no name)")}</div>
 				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}${ignoreBtn}</div>
@@ -961,6 +1007,25 @@ export async function renderSkuLinkerRapid($app) {
 		if ($cands) $cands.innerHTML = candHtml;
 		renderHeader();
 		wireCardClicks();
+		// Thumb → item page (matches the manual #/link page). Wired on BOTH columns so the
+		// anchor's image is clickable too; the cand-card click handler skips thumb clicks.
+		wireThumbLinks($anchor);
+		wireThumbLinks($cands);
+	}
+
+	function wireThumbLinks($root) {
+		if (!$root) return;
+		$root.querySelectorAll(".thumbInternalLink").forEach((el) => {
+			el.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const sku = (el.getAttribute("data-sku") || "").trim();
+				if (!sku) return;
+				const u = new URL(location.href);
+				u.hash = `#/item/${encodeURIComponent(sku)}`;
+				window.open(u.toString(), "_blank", "noopener,noreferrer");
+			});
+		});
 	}
 
 	function wireCardClicks() {
@@ -980,6 +1045,7 @@ export async function renderSkuLinkerRapid($app) {
 			el.addEventListener("click", (e) => {
 				if (e.target.closest("a")) return;
 				if (e.target.closest(".rapidIgnoreBtn")) return;
+				if (e.target.closest(".thumbInternalLink")) return;
 				const sku = el.getAttribute("data-sku");
 				const i = candidates.findIndex((c) => String(c.it.sku) === sku);
 				if (i < 0) return;
