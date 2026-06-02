@@ -915,12 +915,6 @@ export async function renderSkuLinkerRapid($app) {
 		const ignoreBtn = o.candidate
 			? `<button class="rapidIgnoreBtn ${o.ignored ? "rapidIgnoreBtnActive" : ""}" title="${o.ignored ? "Ignored — press N or click to un-ignore" : "Mark as 'do not suggest' (false positive) — shortcut: N"}" data-sku="${esc(String(it.sku))}">${o.ignored ? "↺ un-ignore" : "✕ ignore"}</button>`
 			: "";
-		const noTrainLinkBtn = o.candidate && !o.ignored && !o.acceptedNoTrain
-			? `<button class="rapidNoTrainLinkBtn" title="Link but exclude from training data — use when you confirmed via external info (shortcut: Y)" data-sku="${esc(String(it.sku))}">Y link∗</button>`
-			: "";
-		const noTrainIgnoreBtn = o.candidate && !o.ignored && !o.accepted
-			? `<button class="rapidNoTrainIgnoreBtn" title="Ignore but exclude from training data — use when you confirmed via external info (shortcut: M)" data-sku="${esc(String(it.sku))}">M ignore∗</button>`
-			: "";
 
 		return `
 		<div class="rapidCard ${o.highlight ? "rapidHi" : ""} ${o.anchor ? "rapidAnchor" : ""} ${accClass}" data-sku="${esc(String(it.sku))}">
@@ -928,7 +922,7 @@ export async function renderSkuLinkerRapid($app) {
 			<div class="thumbBox thumbInternalLink" data-sku="${esc(String(it.sku))}" title="Open item page">${renderThumbHtml(it.img)}</div>
 			<div class="rapidBody">
 				<div class="rapidName">${esc(it.name || "(no name)")}</div>
-				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}${ignoreBtn}${noTrainLinkBtn}${noTrainIgnoreBtn}</div>
+				<div class="rapidLine">${storeHtml}<span class="price">${esc(price)}</span><span class="badge mono">${esc(displaySku(it.sku))}</span>${accBadge}${ignoreBtn}</div>
 				${conf}
 				${meta ? `<div class="rapidMeta">${meta}</div>` : ""}
 			</div>
@@ -1067,35 +1061,10 @@ export async function renderSkuLinkerRapid($app) {
 				stageIgnorePair(String(anchor.sku), candSku);
 			});
 		});
-		$cands.querySelectorAll(".rapidNoTrainLinkBtn").forEach((btn) => {
-			btn.addEventListener("click", (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const anchor = currentAnchor();
-				const candSku = btn.getAttribute("data-sku");
-				if (!anchor || !candSku) return;
-				const i = candidates.findIndex((c) => String(c.it.sku) === candSku);
-				if (i < 0) return;
-				highlight = i;
-				togglePairStaged(i, true);
-			});
-		});
-		$cands.querySelectorAll(".rapidNoTrainIgnoreBtn").forEach((btn) => {
-			btn.addEventListener("click", (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const anchor = currentAnchor();
-				const candSku = btn.getAttribute("data-sku");
-				if (!anchor || !candSku) return;
-				stageIgnorePair(String(anchor.sku), candSku, true);
-			});
-		});
 		$cands.querySelectorAll(".rapidCard").forEach((el) => {
 			el.addEventListener("click", (e) => {
 				if (e.target.closest("a")) return;
 				if (e.target.closest(".rapidIgnoreBtn")) return;
-				if (e.target.closest(".rapidNoTrainLinkBtn")) return;
-				if (e.target.closest(".rapidNoTrainIgnoreBtn")) return;
 				if (e.target.closest(".thumbInternalLink")) return;
 				const sku = el.getAttribute("data-sku");
 				const i = candidates.findIndex((c) => String(c.it.sku) === sku);
