@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T17:34:37.094Z",
+  "generatedAt": "2026-06-03T20:12:48.118Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -26,9 +26,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 8482,
-    "removedRows": 4364,
-    "canonSkus": 4902,
+    "liveRows": 8483,
+    "removedRows": 4366,
+    "canonSkus": 4906,
     "outputCount": 250
   },
   "rows": [
@@ -2247,48 +2247,6 @@
       }
     },
     {
-      "canonSku": "236740",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "coop",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "craftcellars": 112.99,
-        "kegncork": 199.96,
-        "kwm": 116.99,
-        "maltsandgrains": 110.99,
-        "willowpark": 209.99
-      },
-      "representative": {
-        "name": "Craigellachie 17 Yr 46% – Speyside",
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "864257",
-        "skuKey": "864257",
-        "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/"
-      }
-    },
-    {
       "canonSku": "238097",
       "storeCount": 6,
       "stores": [
@@ -3837,6 +3795,47 @@
         "priceNum": 50.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/jim-beam-single-barrel-kentucky-straight-bourbon-54-abv/"
+      }
+    },
+    {
+      "canonSku": "034672",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "maltsandgrains"
+      ],
+      "storePrices": {
+        "bsw": 110,
+        "craftcellars": 139.99,
+        "kwm": 139.99,
+        "sierrasprings": 114.18,
+        "willowpark": 129.99
+      },
+      "representative": {
+        "name": "The Macallan 12 Year Old Double Cask",
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "787186",
+        "skuKey": "787186",
+        "url": "https://www.bswliquor.com/products/the-macallan-12-year-old-double-cask",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$110.00",
+        "priceNum": 110,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/the-macallan-12-year-old-double-cask"
       }
     },
     {
@@ -5398,44 +5397,44 @@
       }
     },
     {
-      "canonSku": "210763",
+      "canonSku": "236740",
       "storeCount": 5,
       "stores": [
         "bsw",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "maltsandgrains"
-      ],
-      "missingStores": [
         "kegncork",
-        "sierrasprings",
+        "kwm",
+        "maltsandgrains",
         "willowpark"
       ],
+      "missingStores": [
+        "coop",
+        "craftcellars",
+        "sierrasprings"
+      ],
       "storePrices": {
-        "bsw": 200,
-        "coop": 229.99,
-        "craftcellars": 229.99,
-        "kwm": 229.99,
-        "maltsandgrains": 239.9
+        "bsw": 150,
+        "kegncork": 199.96,
+        "kwm": 116.99,
+        "maltsandgrains": 110.99,
+        "willowpark": 209.99
       },
       "representative": {
-        "name": "The GlenAllachie 18 Year Old",
-        "price": "$200.00",
-        "priceNum": 200,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "805310",
-        "skuKey": "805310",
-        "url": "https://www.bswliquor.com/products/glenallachie-18-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "name": "Craigellachie 17 Yr 46% – Speyside",
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "864257",
+        "skuKey": "864257",
+        "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
       },
       "cheapest": {
-        "price": "$200.00",
-        "priceNum": 200,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenallachie-18-year-old"
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/craigellachie-17-yr-46-speyside/"
       }
     },
     {
@@ -6215,6 +6214,47 @@
         "priceNum": 79.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/nikka-taketsuru-pure-malt-japanese-whisk"
+      }
+    },
+    {
+      "canonSku": "530345",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains",
+        "willowpark"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "sierrasprings"
+      ],
+      "storePrices": {
+        "bsw": 74.99,
+        "craftcellars": 94.99,
+        "kwm": 97.99,
+        "maltsandgrains": 99.9,
+        "willowpark": 90.49
+      },
+      "representative": {
+        "name": "Glenfiddich 15 Year Old Solera",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "728132",
+        "skuKey": "728132",
+        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/glenfiddich-15-year-old-solera"
       }
     },
     {
@@ -7729,46 +7769,6 @@
       }
     },
     {
-      "canonSku": "034672",
-      "storeCount": 4,
-      "stores": [
-        "craftcellars",
-        "kwm",
-        "sierrasprings",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "maltsandgrains"
-      ],
-      "storePrices": {
-        "craftcellars": 139.99,
-        "kwm": 139.99,
-        "sierrasprings": 114.18,
-        "willowpark": 129.99
-      },
-      "representative": {
-        "name": "THE MACALLAN DOUBLE CASK 12 YEAR OLD",
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "787186",
-        "skuKey": "787186",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/macallan-12-year-double-cask-58-2-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$114.18",
-        "priceNum": 114.18,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/macallan-12-year-double-cask-58-2-abv/"
-      }
-    },
-    {
       "canonSku": "050647",
       "storeCount": 4,
       "stores": [
@@ -8609,6 +8609,46 @@
       }
     },
     {
+      "canonSku": "210763",
+      "storeCount": 4,
+      "stores": [
+        "coop",
+        "craftcellars",
+        "kwm",
+        "maltsandgrains"
+      ],
+      "missingStores": [
+        "bsw",
+        "kegncork",
+        "sierrasprings",
+        "willowpark"
+      ],
+      "storePrices": {
+        "coop": 229.99,
+        "craftcellars": 229.99,
+        "kwm": 229.99,
+        "maltsandgrains": 239.9
+      },
+      "representative": {
+        "name": "Glenallachie 18 Year Old",
+        "price": "$229.99",
+        "priceNum": 229.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "805310",
+        "skuKey": "805310",
+        "url": "https://craftcellars.ca/products/glenallachie-18-year-old-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$229.99",
+        "priceNum": 229.99,
+        "storeKey": "coop",
+        "url": "https://shoponlinewhisky-wine.coopwinespiritsbeer.com/store/world-of-whisky/products/110808504-glenallachie-18-year-old"
+      }
+    },
+    {
       "canonSku": "224499",
       "storeCount": 4,
       "stores": [
@@ -9006,46 +9046,6 @@
         "priceNum": 309.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/glenfarclas-25-year-old-j-g-grant"
-      }
-    },
-    {
-      "canonSku": "530345",
-      "storeCount": 4,
-      "stores": [
-        "craftcellars",
-        "kwm",
-        "maltsandgrains",
-        "willowpark"
-      ],
-      "missingStores": [
-        "bsw",
-        "coop",
-        "kegncork",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "craftcellars": 94.99,
-        "kwm": 97.99,
-        "maltsandgrains": 99.9,
-        "willowpark": 90.49
-      },
-      "representative": {
-        "name": "Glenfiddich Solera 15 Year-Old Scotch Whisky",
-        "price": "$90.49",
-        "priceNum": 90.49,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "728132",
-        "skuKey": "728132",
-        "url": "https://www.willowpark.net/products/glenfiddich-15yr-res",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/willowpark__scotch__41f07f89.json"
-      },
-      "cheapest": {
-        "price": "$90.49",
-        "priceNum": 90.49,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/glenfiddich-15yr-res"
       }
     },
     {
