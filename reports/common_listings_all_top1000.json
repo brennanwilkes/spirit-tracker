@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T20:12:46.775Z",
+  "generatedAt": "2026-06-03T22:40:39.525Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12891,
-    "removedRows": 4966,
-    "canonSkus": 5994,
+    "liveRows": 12892,
+    "removedRows": 4972,
+    "canonSkus": 5987,
     "outputCount": 1000
   },
   "rows": [
@@ -2572,6 +2572,61 @@
       }
     },
     {
+      "canonSku": "263304",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 32.49,
+        "bcl": 31.99,
+        "bsw": 29.99,
+        "coop": 39.99,
+        "craftcellars": 38.99,
+        "gull": 33.99,
+        "legacyliquor": 32.99,
+        "sierrasprings": 35.99,
+        "strath": 32.96,
+        "tudor": 32.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "J.P. Wiser's 10 Year Old",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "877328",
+        "skuKey": "877328",
+        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky"
+      }
+    },
+    {
       "canonSku": "301515",
       "storeCount": 11,
       "stores": [
@@ -3773,6 +3828,60 @@
       }
     },
     {
+      "canonSku": "071746",
+      "storeCount": 10,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "kegncork",
+        "kwm",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 36.99,
+        "bsw": 41.99,
+        "craftcellars": 42.99,
+        "gull": 42.35,
+        "legacyliquor": 41.99,
+        "maltsandgrains": 44.9,
+        "sierrasprings": 41.99,
+        "tudor": 39.99,
+        "vessel": 37.49,
+        "willowpark": 40.49
+      },
+      "representative": {
+        "name": "TULLAMORE DEW",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "071746",
+        "skuKey": "071746",
+        "url": "https://www.bcliquorstores.com/product/71746",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/71746"
+      }
+    },
+    {
       "canonSku": "101967",
       "storeCount": 10,
       "stores": [
@@ -4421,60 +4530,6 @@
       }
     },
     {
-      "canonSku": "263304",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 32.49,
-        "bcl": 31.99,
-        "bsw": 29.99,
-        "coop": 39.99,
-        "craftcellars": 38.99,
-        "gull": 33.99,
-        "legacyliquor": 32.99,
-        "strath": 32.96,
-        "tudor": 32.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "J.P. Wiser's 10 Year Old",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "877328",
-        "skuKey": "877328",
-        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky"
-      }
-    },
-    {
       "canonSku": "264232",
       "storeCount": 10,
       "stores": [
@@ -4580,60 +4635,6 @@
         "priceNum": 300,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/johnnie-walker-blue-label-3"
-      }
-    },
-    {
-      "canonSku": "325866",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "kwm",
-        "legacyliquor",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "gull",
-        "kegncork",
-        "maltsandgrains",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 52.99,
-        "bsw": 48.99,
-        "craftcellars": 55.99,
-        "kwm": 56.99,
-        "legacyliquor": 57.89,
-        "sierrasprings": 50,
-        "strath": 58.17,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "willowpark": 39.99
-      },
-      "representative": {
-        "name": "Victoria DIstillers Empress 1908 Elderflower Rose Gin",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "willowpark",
-        "storeLabel": "Willow Park",
-        "skuRaw": "884744",
-        "skuKey": "884744",
-        "url": "https://www.willowpark.net/products/empress-elderflower-rose-gin",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/willowpark__gin__c408a3b4.json"
-      },
-      "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "willowpark",
-        "url": "https://www.willowpark.net/products/empress-elderflower-rose-gin"
       }
     },
     {
@@ -6136,59 +6137,6 @@
       }
     },
     {
-      "canonSku": "071746",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 36.99,
-        "bsw": 41.99,
-        "craftcellars": 42.99,
-        "gull": 42.35,
-        "legacyliquor": 41.99,
-        "maltsandgrains": 44.9,
-        "tudor": 39.99,
-        "vessel": 37.49,
-        "willowpark": 40.49
-      },
-      "representative": {
-        "name": "TULLAMORE DEW",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "071746",
-        "skuKey": "071746",
-        "url": "https://www.bcliquorstores.com/product/71746",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/71746"
-      }
-    },
-    {
       "canonSku": "096953",
       "storeCount": 9,
       "stores": [
@@ -6928,6 +6876,59 @@
         "priceNum": 54.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/tomatin-12-year-old"
+      }
+    },
+    {
+      "canonSku": "325866",
+      "storeCount": 9,
+      "stores": [
+        "bcl",
+        "bsw",
+        "kwm",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "maltsandgrains",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 52.99,
+        "bsw": 48.99,
+        "kwm": 56.99,
+        "legacyliquor": 57.89,
+        "sierrasprings": 50,
+        "strath": 58.17,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "willowpark": 39.99
+      },
+      "representative": {
+        "name": "Victoria DIstillers Empress 1908 Elderflower Rose Gin",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "willowpark",
+        "storeLabel": "Willow Park",
+        "skuRaw": "884744",
+        "skuKey": "884744",
+        "url": "https://www.willowpark.net/products/empress-elderflower-rose-gin",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/willowpark__gin__c408a3b4.json"
+      },
+      "cheapest": {
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "willowpark",
+        "url": "https://www.willowpark.net/products/empress-elderflower-rose-gin"
       }
     },
     {
@@ -25535,55 +25536,6 @@
       }
     },
     {
-      "canonSku": "255156",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bsw",
-        "craftcellars",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "coop",
-        "gull",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 122.99,
-        "bsw": 120,
-        "craftcellars": 124.99,
-        "legacyliquor": 138.72,
-        "tudor": 199.99
-      },
-      "representative": {
-        "name": "Knappogue Castle 16 Year Old Irish Whiskey",
-        "price": "$120.00",
-        "priceNum": 120,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "777786",
-        "skuKey": "777786",
-        "url": "https://www.bswliquor.com/products/knappogue-castle-irish-whiskey-16-yr-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$120.00",
-        "priceNum": 120,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/knappogue-castle-irish-whiskey-16-yr-old"
-      }
-    },
-    {
       "canonSku": "265165",
       "storeCount": 5,
       "stores": [
@@ -27933,6 +27885,55 @@
         "priceNum": 94.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/compass-box-peat-ml-420"
+      }
+    },
+    {
+      "canonSku": "605063",
+      "storeCount": 5,
+      "stores": [
+        "bsw",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 39.99,
+        "coop": 41.99,
+        "craftcellars": 46.99,
+        "kwm": 43.99,
+        "sierrasprings": 40.99
+      },
+      "representative": {
+        "name": "Buffalo Trace Bourbon",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "714233",
+        "skuKey": "714233",
+        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1"
       }
     },
     {
@@ -35319,6 +35320,54 @@
       }
     },
     {
+      "canonSku": "255156",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bsw",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 122.99,
+        "bsw": 120,
+        "legacyliquor": 138.72,
+        "tudor": 199.99
+      },
+      "representative": {
+        "name": "Knappogue Castle 16 Year Old Irish Whiskey",
+        "price": "$120.00",
+        "priceNum": 120,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "777786",
+        "skuKey": "777786",
+        "url": "https://www.bswliquor.com/products/knappogue-castle-irish-whiskey-16-yr-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$120.00",
+        "priceNum": 120,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/knappogue-castle-irish-whiskey-16-yr-old"
+      }
+    },
+    {
       "canonSku": "269269",
       "storeCount": 4,
       "stores": [
@@ -37956,54 +38005,6 @@
         "priceNum": 215,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/jameson-18yo-irish-whiskey"
-      }
-    },
-    {
-      "canonSku": "605063",
-      "storeCount": 4,
-      "stores": [
-        "bsw",
-        "coop",
-        "kwm",
-        "sierrasprings"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "legacyliquor",
-        "maltsandgrains",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 39.99,
-        "coop": 41.99,
-        "kwm": 43.99,
-        "sierrasprings": 40.99
-      },
-      "representative": {
-        "name": "Buffalo Trace Bourbon",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "714233",
-        "skuKey": "714233",
-        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/buffalo-trace-bourbon-1"
       }
     },
     {
@@ -41207,6 +41208,53 @@
         "priceNum": 94.18,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/glenfiddich-project-xx/"
+      }
+    },
+    {
+      "canonSku": "030332",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "bsw",
+        "sierrasprings"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 31.99,
+        "bsw": 35.99,
+        "sierrasprings": 33.99
+      },
+      "representative": {
+        "name": "PADDY - IRISH WHISKEY",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "030332",
+        "skuKey": "030332",
+        "url": "https://www.bcliquorstores.com/product/30332",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/30332"
       }
     },
     {
@@ -47409,52 +47457,6 @@
         "priceNum": 32.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/6291"
-      }
-    },
-    {
-      "canonSku": "030332",
-      "storeCount": 2,
-      "stores": [
-        "bcl",
-        "bsw"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 31.99,
-        "bsw": 35.99
-      },
-      "representative": {
-        "name": "PADDY - IRISH WHISKEY",
-        "price": "$31.99",
-        "priceNum": 31.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "030332",
-        "skuKey": "030332",
-        "url": "https://www.bcliquorstores.com/product/30332",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$31.99",
-        "priceNum": 31.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/30332"
       }
     },
     {

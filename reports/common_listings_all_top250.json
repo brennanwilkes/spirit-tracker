@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T20:12:46.374Z",
+  "generatedAt": "2026-06-03T22:40:39.136Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -34,9 +34,9 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12891,
-    "removedRows": 4966,
-    "canonSkus": 5994,
+    "liveRows": 12892,
+    "removedRows": 4972,
+    "canonSkus": 5987,
     "outputCount": 250
   },
   "rows": [
@@ -2572,6 +2572,61 @@
       }
     },
     {
+      "canonSku": "263304",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 32.49,
+        "bcl": 31.99,
+        "bsw": 29.99,
+        "coop": 39.99,
+        "craftcellars": 38.99,
+        "gull": 33.99,
+        "legacyliquor": 32.99,
+        "sierrasprings": 35.99,
+        "strath": 32.96,
+        "tudor": 32.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "J.P. Wiser's 10 Year Old",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "877328",
+        "skuKey": "877328",
+        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky"
+      }
+    },
+    {
       "canonSku": "301515",
       "storeCount": 11,
       "stores": [
@@ -3773,6 +3828,60 @@
       }
     },
     {
+      "canonSku": "071746",
+      "storeCount": 10,
+      "stores": [
+        "bcl",
+        "bsw",
+        "craftcellars",
+        "gull",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark"
+      ],
+      "missingStores": [
+        "arc",
+        "coop",
+        "kegncork",
+        "kwm",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 36.99,
+        "bsw": 41.99,
+        "craftcellars": 42.99,
+        "gull": 42.35,
+        "legacyliquor": 41.99,
+        "maltsandgrains": 44.9,
+        "sierrasprings": 41.99,
+        "tudor": 39.99,
+        "vessel": 37.49,
+        "willowpark": 40.49
+      },
+      "representative": {
+        "name": "TULLAMORE DEW",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "071746",
+        "skuKey": "071746",
+        "url": "https://www.bcliquorstores.com/product/71746",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/71746"
+      }
+    },
+    {
       "canonSku": "101967",
       "storeCount": 10,
       "stores": [
@@ -4364,60 +4473,6 @@
         "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/kilchoman-sanaig-1"
-      }
-    },
-    {
-      "canonSku": "263304",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "sierrasprings",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 32.49,
-        "bcl": 31.99,
-        "bsw": 29.99,
-        "coop": 39.99,
-        "craftcellars": 38.99,
-        "gull": 33.99,
-        "legacyliquor": 32.99,
-        "strath": 32.96,
-        "tudor": 32.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "J.P. Wiser's 10 Year Old",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "877328",
-        "skuKey": "877328",
-        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/wisers-10-year-old-whisky"
       }
     },
     {
@@ -5812,59 +5867,6 @@
         "priceNum": 44.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4776163-appleton-12yo-rare-casks"
-      }
-    },
-    {
-      "canonSku": "071746",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "bsw",
-        "craftcellars",
-        "gull",
-        "legacyliquor",
-        "maltsandgrains",
-        "tudor",
-        "vessel",
-        "willowpark"
-      ],
-      "missingStores": [
-        "arc",
-        "coop",
-        "kegncork",
-        "kwm",
-        "sierrasprings",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 36.99,
-        "bsw": 41.99,
-        "craftcellars": 42.99,
-        "gull": 42.35,
-        "legacyliquor": 41.99,
-        "maltsandgrains": 44.9,
-        "tudor": 39.99,
-        "vessel": 37.49,
-        "willowpark": 40.49
-      },
-      "representative": {
-        "name": "TULLAMORE DEW",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "071746",
-        "skuKey": "071746",
-        "url": "https://www.bcliquorstores.com/product/71746",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/71746"
       }
     },
     {
