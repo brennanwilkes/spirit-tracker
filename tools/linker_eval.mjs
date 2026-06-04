@@ -43,6 +43,8 @@ import { buildSizePenaltyForPair } from "../viz/app/linker_page/size.js";
 import { buildPricePenaltyForPair } from "../viz/app/linker_page/price.js";
 import { tokenizeQuery, normSearchText } from "../viz/app/sku.js";
 import { filterSimTokens } from "../viz/app/linker_page/similarity.js";
+import { normalizeImplicitSkuKey } from "../viz/app/sku_canonical.js";
+const normKey = (s) => normalizeImplicitSkuKey(String(s || "").trim());
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -121,13 +123,17 @@ function union(a, b) {
 	const rb = find(b);
 	if (ra !== rb) parent.set(ra, rb);
 }
+// Union over ALL link edges regardless of catalog presence, on NORMALIZED keys — a delisted
+// intermediate SKU must not break a transitive chain (A→[absent]→C are still one product). Bug
+// fixed 2026-06-04 (mirrors tools/linker_ml/build_dataset.mjs); the old bySku.has guard fragmented
+// groups and mined real matches as hard negatives, deflating AUC+.
 for (const l of allLinks) {
-	const f = String(l.fromSku || "").trim();
-	const t = String(l.toSku || "").trim();
-	if (f && t && f !== t && bySku.has(f) && bySku.has(t)) union(f, t);
+	const f = normKey(l.fromSku);
+	const t = normKey(l.toSku);
+	if (f && t && f !== t) union(f, t);
 }
 
-const canonOf = (s) => find(String(s));
+const canonOf = (s) => find(normKey(s));
 const canonToSkus = new Map();
 for (const s of bySku.keys()) {
 	const c = canonOf(s);

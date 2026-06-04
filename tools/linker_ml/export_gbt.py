@@ -19,7 +19,11 @@ import json, os, numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "out")
 SKIP = {"a", "b", "label", "kind", "canonA", "canonB", "detScore"}  # detScore excluded; logDet is its transform
 
-rows = [json.loads(l) for l in open(os.path.join(OUT, "features.jsonl")) if l.strip()]
+# FEATURES_PATH / GBT_OUT env overrides let A/B experiments (e.g. extra co-occurrence columns)
+# run without clobbering the shipping features.jsonl / gbt_model.json.
+FEATURES_PATH = os.environ.get("FEATURES_PATH", os.path.join(OUT, "features.jsonl"))
+GBT_OUT = os.environ.get("GBT_OUT", os.path.join(OUT, "gbt_model.json"))
+rows = [json.loads(l) for l in open(FEATURES_PATH) if l.strip()]
 KEYS = [k for k in rows[0] if k not in SKIP]
 EMB_I = KEYS.index("embedCos")
 def vec(r):
@@ -37,12 +41,14 @@ def fnv(s):
     return h
 # Three-way split by canonical group (same FNV hash as train_embed.py / train_blend.mjs):
 # [0,0.15)=TEST, [0.15,0.30)=VAL, [0.30,1)=TRAIN. TEST is never used for any model choice.
-# noTrain pairs are always forced into TEST — they were labeled using external information
-# the classifier cannot access, so they must not influence model selection or training.
+# noTrain pairs are EXCLUDED from every split (train, val, AND test): they were labeled using
+# external information the classifier cannot access, so a noTrain pair scoring "wrong" is not a
+# model failure — counting it in TEST artificially depressed rec@99 (~49%→~63% once dropped).
+# See [[feedback_notrain_and_hidden_exclusion]].
 bucket = np.array([(fnv(r["canonA"]) % 1000) / 1000.0 for r in rows])
 kind = np.array([r["kind"] for r in rows])
 no_train = np.array([bool(r.get("noTrain")) for r in rows])
-is_test = no_train | (bucket < 0.15)
+is_test = (~no_train) & (bucket < 0.15)
 is_val = (~no_train) & (bucket >= 0.15) & (bucket < 0.30)
 is_train = (~no_train) & (bucket >= 0.30)
 
@@ -93,6 +99,6 @@ model = {
     "baseline": float(np.ravel(final._baseline_prediction)[0]),
     "trees": trees,
 }
-path = os.path.join(OUT, "gbt_model.json")
+path = GBT_OUT
 json.dump(model, open(path, "w"))
 print(f"exported {len(trees)} trees, {len(KEYS)} features → {path}  ({os.path.getsize(path)//1024} KB)")

@@ -70,6 +70,7 @@ def main():
     ap.add_argument("--scale", type=float, default=20.0, help="MNRL temperature scale")
     ap.add_argument("--lr", type=float, default=2e-5, help="AdamW learning rate")
     ap.add_argument("--tag", default="ft", help="output tag: writes embeddings_<tag>.json (or embeddings.json if 'ft')")
+    ap.add_argument("--texts", default="sku_texts.jsonl", help="embedder-input jsonl under out/ (ablations point elsewhere)")
     ap.add_argument(
         "--no-hard-negs",
         action="store_true",
@@ -88,10 +89,25 @@ def main():
             "  pip install -r tools/linker_ml/requirements.txt"
         )
 
-    texts = load_jsonl(os.path.join(OUT, "sku_texts.jsonl"))
+    texts = load_jsonl(os.path.join(OUT, args.texts))
     sku_text = {r["sku"]: r["text"] for r in texts}
     sku_canon = {r["sku"]: r["canon"] for r in texts}
     groups = json.load(open(os.path.join(OUT, "groups.json")))
+
+    # noTrain pairs are labeled using EXTERNAL info the model can't derive from text; they
+    # are held out for honest TEST (same policy as export_gbt.py / train_blend.mjs). The
+    # embedder must not learn them — neither as positives (a noTrain link merges its two SKUs
+    # into one canonical group, so the within-group enumeration below would otherwise emit it)
+    # nor as hard negatives (the 300+ noTrain ignores). Key off dataset_pairs.jsonl, the single
+    # place build_dataset.mjs flags them, so this can't drift from the other trainers.
+    def _pkey(a, b):
+        return f"{a}|{b}" if a < b else f"{b}|{a}"
+
+    no_train_keys = set()
+    for r in load_jsonl(os.path.join(OUT, "dataset_pairs.jsonl")):
+        if r.get("noTrain"):
+            no_train_keys.add(_pkey(r["a"], r["b"]))
+    print(f"noTrain pairs held out of embedder training: {len(no_train_keys)}", flush=True)
 
     skus_all = list(sku_text.keys())
     text_all = [sku_text[s] for s in skus_all]
@@ -128,6 +144,8 @@ def main():
         cnt = 0
         for i in range(len(members)):
             for j in range(i + 1, len(members)):
+                if _pkey(members[i], members[j]) in no_train_keys:
+                    continue  # held out for TEST — never a training positive
                 pair_skus.append((members[i], members[j]))
                 cnt += 1
                 if cnt >= args.max_pairs_per_group:
@@ -148,6 +166,8 @@ def main():
         for r in load_jsonl(os.path.join(OUT, "dataset_pairs.jsonl")):
             if r.get("label") != 0 or r.get("kind") not in ("ignore", "hard"):
                 continue
+            if r.get("noTrain"):
+                continue  # noTrain ignores held out for TEST — not a training hard-neg
             a, b = r["a"], r["b"]
             if a not in sku_text or b not in sku_text:
                 continue

@@ -45,10 +45,10 @@ function hash32(str) {
 // Three-way split by canonical group (same FNV hash as export_gbt.py / train_embed.py):
 // [0,0.15)=TEST (never touched for selection), [0.15,0.30)=VAL, [0.30,1)=TRAIN. A whole group
 // stays on one side (positives have canonA===canonB; negatives keyed by canonA).
-// noTrain pairs are always forced into TEST regardless of group hash — they were labeled using
-// external information the classifier cannot access, so they must not influence model selection.
+// noTrain pairs are EXCLUDED from every split (labeled with external info the classifier can't
+// access; counting them in TEST falsely depresses rec@99). See [[feedback_notrain_and_hidden_exclusion]].
 const bucketOf = (r) => (hash32(r.canonA) % 1000) / 1000;
-const isTest = (r) => r.noTrain || bucketOf(r) < 0.15;
+const isTest = (r) => !r.noTrain && bucketOf(r) < 0.15;
 const isVal = (r) => !r.noTrain && bucketOf(r) >= 0.15 && bucketOf(r) < 0.3;
 const isTrain = (r) => !r.noTrain && bucketOf(r) >= 0.3;
 

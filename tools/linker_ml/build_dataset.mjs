@@ -21,6 +21,8 @@ import fs from "fs";
 import path from "path";
 import { buildEnv, skuToTextEnriched, OUT_DIR } from "./featurize.mjs";
 import { normSearchText, tokenizeQuery } from "../../viz/app/sku.js";
+import { normalizeImplicitSkuKey } from "../../viz/app/sku_canonical.js";
+const normKey = (s) => normalizeImplicitSkuKey(String(s || "").trim());
 import { filterSimTokens } from "../../viz/app/linker_page/similarity.js";
 
 const env = buildEnv();
@@ -66,13 +68,20 @@ for (const ig of env.ignoreEntries) {
 	}
 }
 
+// Union over ALL link edges REGARDLESS of catalog presence, on NORMALIZED keys (id:NNN→padded,
+// matching the live map src/utils/sku_map.js::loadSkuMap). BUG FIXED 2026-06-04: the old guard
+// `bySku.has(f) && bySku.has(t)` dropped any edge whose endpoint was a delisted SKU, which broke
+// transitive chains (A→[absent B]→C) and split one product into several groups — those fragments
+// were then mined as HARD NEGATIVES, feeding real matches to the model as negatives and corrupting
+// both training and eval. Now we union the full link graph, then emit pairs only among PRESENT
+// catalog SKUs (so every pair is still trainable). See [[feedback_notrain_and_hidden_exclusion]].
 for (const l of env.allLinks) {
-	const f = String(l.fromSku || "").trim();
-	const t = String(l.toSku || "").trim();
-	if (f && t && f !== t && env.bySku.has(f) && env.bySku.has(t)) union(f, t);
+	const f = normKey(l.fromSku);
+	const t = normKey(l.toSku);
+	if (f && t && f !== t) union(f, t);
 }
-const canonOf = (s) => find(String(s));
-const canonToSkus = new Map();
+const canonOf = (s) => find(normKey(s));
+const canonToSkus = new Map(); // present catalog SKUs only, grouped by full-graph canonical root
 for (const s of env.bySku.keys()) {
 	const c = canonOf(s);
 	if (!canonToSkus.has(c)) canonToSkus.set(c, []);
@@ -121,9 +130,11 @@ function add(a, b, label, kind, noTrain) {
 	return true;
 }
 
-// Positives — within-group pairs, capped per group (matches linker_eval POS_PER_GROUP).
-// noTrain link pairs are added separately below; skip them here so the cap isn't wasted on them.
-const POS_PER_GROUP = 20;
+// Positives — ALL within-group pairs (the full transitive closure: if A,B,C,D are one canonical
+// group via any mix of manual/auto/shared-SKU links, every pairing is a valid positive). High
+// safety cap only to bound a pathological mega-group. Raised from 20 → 500 on 2026-06-04 (the old
+// cap silently dropped pairs in the few large groups). noTrain link pairs are added separately.
+const POS_PER_GROUP = 500;
 for (const skus of canonToSkus.values()) {
 	if (skus.length < 2) continue;
 	let count = 0;

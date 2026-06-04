@@ -16,6 +16,49 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## Latest retrain (2026-06-04, ~2× labels): honest TEST AUC+ 0.984, **rec@99 80.7%**, rec@95 95.5%
+
+The headline jumped from the prior ~69% almost entirely from ONE bug fix (below), not new features.
+What changed + the dead-ends (don't re-try):
+
+- **★ THE BIG ONE — transitive-grouping bug fixed** (`build_dataset.mjs` AND `tools/linker_eval.mjs`).
+  Both only unioned a link edge when BOTH endpoints were in the current catalog (`bySku.has(f)&&
+  bySku.has(t)`). A DELISTED intermediate SKU (absent from the index) then broke a transitive chain
+  `A→[absent B]→C`, splitting one product into fragments — which were mined as HARD NEGATIVES, feeding
+  REAL MATCHES to the model as negatives and corrupting both training and the metric. Fix: union the
+  FULL link graph regardless of catalog presence, on NORMALIZED keys (`normalizeImplicitSkuKey`,
+  matching `src/utils/sku_map.js`), then emit pairs only among present SKUs. Also raised the silent
+  `POS_PER_GROUP` cap 20→500. Effect: **positives 5,648→9,418 (+67%)**, TEST rec@99 **69.6→80.7%**,
+  deterministic AUC+ **0.82→0.92**. Lesson: any DSU over the links MUST not gate edges on catalog
+  presence. (Other DSU-building tools — `tools/rarity_report.js`, `build_email_event_pack.js` via
+  `sku_canonical.js` — go through the shared module and are likely fine, but worth auditing.)
+- **noTrain EXCLUDED from every split** (was forced into TEST → falsely depressed rec@99 ~49→63);
+  embedder noTrain LEAK fixed; **hidden SKUs excluded** in `buildEnv`. See §"Train/val/TEST honesty".
+- **Permutation importance**: `embedCos` dominates (+0.21 AUC+ drop; ~18× the next). `grpPriceRatio`,
+  `grpCountB`, `logDet`, `grpStoreOverlap` are the only other non-trivial ones. Most det sub-factors +
+  many `grp*` ≈0 for AUC+ — BUT size/abv/edition/concept are precision-tail GUARDS (barely move AUC+,
+  block specific rec@99 FPs) so DON'T prune on this table alone. Future lift = embedding + labels.
+- **DEAD-END — char-trigram cosine** (`blend.js`, now removed): helped on the BUGGY data (+6.2 rec@99)
+  by rescuing spelling-variant pairs the fragmentation mislabeled. After the grouping fix those pairs
+  are proper positives and the embedding handles them → char-tri REGRESSED TEST (80.7→79.5) and was
+  removed. **Re-test idea:** may still help SKUs with NO embedding vector (freshly scraped). The code
+  is in git history if revisited.
+- **DEAD-END — co-occurrence necessity** (`cooccur_*.mjs`) and **learned alias-PMI**
+  (`feat_experiments.mjs`): both confirmed-negative AGAIN on corrected data (GBT TEST rec@99 79.2 /
+  77.2 vs 80.7 baseline). Necessity self-corrects nicely (`cadenhead` 0.79 vs `gordon` 0.35 — G&M is
+  fragmented by surface forms `g&m`→`g m`→dropped) but is redundant with embeddings+`crossEntityConflicts`.
+  Alias-PMI mostly rediscovers possessive/misspelling variants; true abbreviation aliases are too
+  sparse (<4 co-occ) to learn → embedding's job. Don't re-add either without a fundamentally new angle.
+- **Embedding-enrichment ablation** (`embed_ablation.sh`): enriched text beats bare name on net
+  (+0.01 cosine, 85 better/33 worse); the 33 hurt cases are enrichment ASYMMETRY (one side's group
+  resolved an attr the other didn't). Deferred refinement, not a quick patch.
+
+New scripts: `report_offenders.mjs` (noTrain/hidden-excluded worst FP/FN), `perm_importance.py`,
+`feat_experiments.mjs`, `cooccur_*.mjs`, `embed_ablation.sh`, orchestrators `run_full_experiment.sh`/
+`run_final.sh`/`run_ship.sh`/`re_experiments.sh`. `export_gbt.py` honors `FEATURES_PATH`/`GBT_OUT`
+env vars; `train_embed.py` takes `--texts`. **Lesson the hard way: after a dataset/grouping change,
+RE-RUN every feature A/B — char-tri's verdict flipped from +6.2 to −1.2 once the bug was fixed.**
+
 ## ⭐ How to RE-TRAIN (new session, bigger dataset)
 
 Everything keys off `data/sku_links.json` (+ `_auto`) in the `.worktrees/data` worktree, so
@@ -151,8 +194,21 @@ All three trainers (`train_embed.py`, `train_blend.mjs`, `export_gbt.py`) split 
 group** with the SAME FNV hash: **`[0,0.15)=TEST`, `[0.15,0.30)=VAL`, `[0.30,1)=TRAIN`**.
 The embedder + GBT + LR train ONLY on TRAIN; VAL is for selection; **TEST is never touched
 until the final number** (it caught val-selection bias — val rec@99 ran ~10pt optimistic).
-The shipped GBT still refits on ALL labels; the TEST metric estimates how it generalizes.
-If you change the split fractions or hash in one file, change all three.
+The shipped GBT still refits on ALL labels (minus noTrain); the TEST metric estimates how it
+generalizes. If you change the split fractions or hash in one file, change all three.
+
+**noTrain pairs are EXCLUDED from EVERY split — train, val, AND test (changed 2026-06-04).** They
+were previously *forced into TEST*; that was wrong — a noTrain pair was labeled with info the
+classifier can't access, so scoring it "wrong" is expected, not a model failure, and counting it
+in TEST falsely depressed rec@99 (**~49% → ~63% just by dropping them from TEST**). They're also
+excluded from `report_offenders.mjs`. Before 2026-06-04, `train_embed.py` ALSO leaked them as
+positives (via canonical-group membership) and as hard-negs — now keyed off `dataset_pairs.jsonl`'s
+`noTrain` flag. See [[feedback_notrain_and_hidden_exclusion]].
+
+**Hidden SKUs (`data/sku_hidden.json`) are excluded from EVERYTHING** at the single chokepoint
+`featurize.buildEnv` (mirrors `viz/app/catalog.js`'s per-`(storeId,rawSku)` filter via
+`r.storeLabel||r.store`). Stricter than the rest of the system (where hide is presentation-only).
+Dropping them removed spurious hard cases and *raised* honest TEST rec@98 (~60%→~71%).
 
 **Report TEST, not VAL, as the headline.** And ALWAYS pair the aggregate with the spot-panel
 in `TODO_COOCCURRENCE_FEATURE.md` — this session a change raised TEST AUC+/rec@99 while

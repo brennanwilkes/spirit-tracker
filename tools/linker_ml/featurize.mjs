@@ -23,7 +23,8 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { normSearchText, tokenizeQuery, parsePriceToNumber } from "../../viz/app/sku.js";
+import { normSearchText, tokenizeQuery, parsePriceToNumber, keySkuForRow } from "../../viz/app/sku.js";
+import { normalizeStoreId } from "../../viz/app/stores.js";
 import {
 	filterSimTokens,
 	tokenContainmentScore,
@@ -50,6 +51,25 @@ export const OUT_DIR = path.join(__dirname, "out");
 const INDEX_PATH = path.join(WORKTREE, "viz/data/index.json");
 const LINKS_PATH = path.join(WORKTREE, "data/sku_links.json");
 const LINKS_AUTO_PATH = path.join(WORKTREE, "data/sku_links_auto.json");
+const HIDDEN_PATH = path.join(WORKTREE, "data/sku_hidden.json");
+
+// (storeId,rawSku) listings curated as "never track" in sku_hidden.json. The LINKER ML
+// excludes them from EVERYTHING (training/eval/analysis) — stricter than the rest of the
+// system where hide is presentation-only. Mirror viz/app/hidden.js's key + catalog.js's
+// per-listing filter. See [[feedback_notrain_and_hidden_exclusion]].
+function loadHiddenSet() {
+	const set = new Set();
+	try {
+		for (const e of readJson(HIDDEN_PATH).hidden || []) {
+			const sid = normalizeStoreId(e?.storeId);
+			const sku = String(e?.sku || "").trim();
+			if (sid && sku) set.add(`${sid}|${sku}`);
+		}
+	} catch {
+		/* no hidden file → no exclusions */
+	}
+	return set;
+}
 
 export function readJson(p) {
 	return JSON.parse(fs.readFileSync(p, "utf8"));
@@ -63,10 +83,19 @@ export function buildEnv() {
 	const idx = readJson(INDEX_PATH);
 	const rows = idx.items || [];
 
+	const hiddenSet = loadHiddenSet();
+	let nHidden = 0;
 	const bySku = new Map();
 	for (const r of rows) {
 		const sku = String(r.sku || "");
 		if (!sku) continue;
+		// Per-listing hidden exclusion (matches viz/app/catalog.js::aggregateBySku): skip a
+		// hidden store-listing before it enters any aggregate, so it never reaches training,
+		// eval, or analysis. A SKU hidden at every store drops out entirely.
+		if (hiddenSet.size && hiddenSet.has(`${normalizeStoreId(r.storeLabel || r.store)}|${keySkuForRow(r)}`)) {
+			nHidden++;
+			continue;
+		}
 		let a = bySku.get(sku);
 		if (!a) {
 			a = {
@@ -161,6 +190,7 @@ export function buildEnv() {
 		autoLinks,
 		allLinks,
 		ignoreEntries,
+		nHidden,
 	};
 }
 

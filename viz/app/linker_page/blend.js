@@ -77,6 +77,13 @@ export const FEATURE_KEYS = [
 	"embedCos",
 ];
 
+// NOTE (2026-06-04): a character-trigram cosine feature was prototyped here. On the
+// transitive-grouping-BUGGY dataset it helped (+6.2 rec@99) by rescuing spelling-variant pairs
+// the fragmentation had mislabeled. After the grouping fix, those pairs are correctly grouped as
+// positives and the fine-tuned embedding already handles them, so char-tri became redundant and
+// slightly REGRESSED TEST (rec@99 80.7→79.5). Removed. (Possible future re-test: it may still help
+// SKUs with NO embedding vector — freshly scraped — where string similarity is the only fallback.)
+
 // A distinctive token whose co-occurrence DEGREE-per-df (distinct catalog companions ÷ its
 // own listing count) is below this is treated as an ENTITY (distillery — repeats the same
 // few bottlers/casks); at or above it, a TRAIT/descriptor (oloroso/speyside/limited — broad,
