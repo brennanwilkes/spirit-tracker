@@ -43,21 +43,23 @@ What changed + the dead-ends (don't re-try):
   are proper positives and the embedding handles them → char-tri REGRESSED TEST (80.7→79.5) and was
   removed. **Re-test idea:** may still help SKUs with NO embedding vector (freshly scraped). The code
   is in git history if revisited.
-- **DEAD-END — co-occurrence necessity** (`cooccur_*.mjs`) and **learned alias-PMI**
-  (`feat_experiments.mjs`): both confirmed-negative AGAIN on corrected data (GBT TEST rec@99 79.2 /
+- **DEAD-END — co-occurrence necessity** and **learned alias-PMI**
+  (scripts deleted): both confirmed-negative AGAIN on corrected data (GBT TEST rec@99 79.2 /
   77.2 vs 80.7 baseline). Necessity self-corrects nicely (`cadenhead` 0.79 vs `gordon` 0.35 — G&M is
   fragmented by surface forms `g&m`→`g m`→dropped) but is redundant with embeddings+`crossEntityConflicts`.
   Alias-PMI mostly rediscovers possessive/misspelling variants; true abbreviation aliases are too
   sparse (<4 co-occ) to learn → embedding's job. Don't re-add either without a fundamentally new angle.
-- **Embedding-enrichment ablation** (`embed_ablation.sh`): enriched text beats bare name on net
+- **Embedding-enrichment ablation** (script deleted): enriched text beats bare name on net
   (+0.01 cosine, 85 better/33 worse); the 33 hurt cases are enrichment ASYMMETRY (one side's group
   resolved an attr the other didn't). Deferred refinement, not a quick patch.
 
-New scripts: `report_offenders.mjs` (noTrain/hidden-excluded worst FP/FN), `perm_importance.py`,
-`feat_experiments.mjs`, `cooccur_*.mjs`, `embed_ablation.sh`, orchestrators `run_full_experiment.sh`/
-`run_final.sh`/`run_ship.sh`/`re_experiments.sh`. `export_gbt.py` honors `FEATURES_PATH`/`GBT_OUT`
-env vars; `train_embed.py` takes `--texts`. **Lesson the hard way: after a dataset/grouping change,
-RE-RUN every feature A/B — char-tri's verdict flipped from +6.2 to −1.2 once the bug was fixed.**
+Analysis helpers kept: `report_offenders.mjs` (noTrain/hidden-excluded worst FP/FN), `perm_importance.py`,
+`miss_attribution.mjs`, `other_pattern.mjs`, `size_unlink_audit.mjs`, `trend_fn.mjs`, `find_mislabels.mjs`.
+`run_ship.sh` runs the full retrain chain. `export_gbt.py` honors `FEATURES_PATH`/`GBT_OUT`; `train_embed.py`
+takes `--texts`/`--tag`. (The one-off experiment scripts — co-occurrence, alias-PMI, char-tri ablations,
+cross-encoder, the multi-run orchestrators — were deleted after their dead-end verdicts below; recover from
+git history if ever revisited.) **Lesson the hard way: after a dataset/grouping change, RE-RUN every feature
+A/B — char-tri's verdict flipped from +6.2 to −1.2 once the bug was fixed.**
 
 ## 2026-06-05 (b) — `containGated` SHIPPED + `charTriCosLowTok` was never actually committed
 
@@ -100,8 +102,8 @@ Shipped state now: TEST **AUC+ 0.985, rec@99 ~84–85%** (within embedder run-to
 - **Embedding coverage is already 100%** — `train_embed` encodes ALL current `sku_texts.jsonl` SKUs, so a
   fresh build has no `embedCos==0` gap. (Stale `embedCos==0` misses only appear when scoring against an
   OLDER embeddings file than the catalog.)
-- **DEAD-END (done correctly) — cross-encoder re-ranker.** A 5-fold OUT-OF-FOLD cross-encoder
-  (`train_crossenc_oof.py`, every pair scored by a model that never saw its canonical group — the honest
+- **DEAD-END (done correctly) — cross-encoder re-ranker** (scripts deleted). A 5-fold OUT-OF-FOLD
+  cross-encoder (every pair scored by a model that never saw its canonical group — the honest
   version; an earlier in-fold attempt leaked to 79.8%) scored 81.6% rec@99 vs 84.5% shipped. It **shifts
   the curve, not lifts it**: −2.9 rec@99 for +2.9 rec@98 / +1.1 rec@95, AUC+ flat. Aggregate separation is
   strong (pos 0.90 vs neg 0.11) so it's tail-noise/redundancy, not a weak model. At our 99%-precision
@@ -146,9 +148,12 @@ node tools/linker_ml/build_dataset.mjs
 node tools/linker_ml/dump_features.mjs          # embed_cosine = 0 until embeddings exist
 
 # 3. fine-tune the encoder on the ENRICHED text (CPU, ~5 min). e6·s30 is the tuned sweet spot.
+#    Also SAVES the checkpoint → out/model_ft (printed at the end) — that checkpoint is what CI's
+#    per-build re-encode uses, so it MUST be re-released after every retrain (see §"Shipping the
+#    checkpoint" below). --epochs/--scale/--lr/--tag are tunable.
 HF_HOME="$PWD/tools/linker_ml/.hf_cache" \
   tools/linker_ml/.venv/bin/python tools/linker_ml/train_embed.py --epochs 6 --scale 30 --skip-base
-#   --epochs/--scale/--lr/--tag are tunable. SWEEP RESULT: 3–6 epochs best, scale 30 ≳ 20;
+#   SWEEP RESULT: 3–6 epochs best, scale 30 ≳ 20;
 #   16 epochs OVERFITS (lowest train loss, WORST held-out rec@99). Judge held-out, never train loss.
 
 # 4. fold embed_cosine in
@@ -162,10 +167,18 @@ node tools/linker_ml/train_blend.mjs            # LR held-out metrics
 node tools/linker_ml/make_blend_weights.mjs     # → viz/app/linker_page/blend_weights.js (commit on main)
 node tools/linker_ml/eval_gap.mjs               # semantic-gap before/after
 
-# 7. SHIP: code on main (gbt.js, group_features.js, blend_weights.js, suggestions/page wiring);
-#    artifacts to the worktree (LFS, data branch):
+# 7. SHIP — three destinations (see §"Shipping the checkpoint" for the full why):
+#  (a) CODE on main: gbt.js, group_features.js, blend_weights.js, suggestions/page wiring.
+#  (b) ARTIFACTS to the data worktree (LFS), commit on data:
 cp tools/linker_ml/out/embeddings.json .worktrees/data/viz/data/sku_embeddings.json
 cp tools/linker_ml/out/gbt_model.json  .worktrees/data/viz/data/gbt_model.json
+#  (c) CHECKPOINT as a GitHub Release asset (NOT git/LFS) so CI's per-build re-encode picks up the
+#      new weights — bump MODEL_VERSION, upload, then commit the bump on main:
+echo "$(date -u +%F)" > tools/linker_ml/MODEL_VERSION                       # bump the version
+tar czf /tmp/model_ft.tar.gz -C tools/linker_ml/out/model_ft .
+gh release create "model-ft-$(cat tools/linker_ml/MODEL_VERSION)" /tmp/model_ft.tar.gz \
+  --title "linker encoder $(cat tools/linker_ml/MODEL_VERSION)" --notes "fine-tuned all-MiniLM checkpoint"
+# git add tools/linker_ml/MODEL_VERSION && commit on main  → busts CI cache → CI pulls the new asset
 ```
 
 **The 13 group↔group features** (canonical-GROUP level, the dimension neither the token scorer
@@ -209,20 +222,39 @@ deterministic scorer:
   missing branch (mark it NaN, NOT 0 — 0 means "dissimilar" and wrongly crushed real matches).
 - **`viz/app/linker_page/group_features.js`** — live `buildGroupIndex()` + `.features(a,b)`; the
   parallel of `featurize.mjs::groupPairFeatures` (keep in sync).
-- **Missing embedding vectors are normal in prod** (SKUs scraped after the last encode). The GBT
-  routes them natively; the LR path falls back to no-embed weights per-pair. So a fresh SKU works
-  via deterministic + group features until its next encode. See `[[project_linker_encode_pipeline_todo]]`
-  — the per-build re-encode (~15 s) is NOT yet wired into `run_daily.sh` (deferred).
+- **Missing embedding vectors are rare in prod now** — `run_daily.sh` RE-ENCODES every scrape
+  (`build_dataset.mjs` → `encode.py`, see §"Per-build re-encode (SHIPPED in CI)"), so freshly-scraped
+  SKUs get vectors within one cron cycle. If a vector is still missing the GBT routes it via the
+  tree's NaN branch (the LR path falls back to no-embed weights) — never a crash.
 
-**Refreshing the two artifacts after a retrain:** (1) `make_blend_weights.mjs` rewrites
-`blend_weights.js` (commit on `main`); (2) copy `out/embeddings.json` →
-`.worktrees/data/viz/data/sku_embeddings.json` (LFS, on the `data` branch). The embeddings
-file only covers SKUs present at build time — newly-scraped SKUs get `embedCos=0` (blend
-still works via the other factors) until the next re-embed. To deploy the vectors to the
-public Pages site, also stage `viz/data/sku_embeddings.json` in `.github/workflows/pages.yaml`
-(parallel to `sku_links*.json`); left undone intentionally while the file is uncommitted.
-Always re-run `tools/linker_eval.mjs` too — it scores the *deterministic* algo on the same
-labels and is the apples-to-apples reference.
+## ⭐ Shipping the checkpoint + per-build re-encode (READ BEFORE TOUCHING THE MODEL)
+
+The encoder is hand-trained infrequently (`train_embed.py`); CI re-encodes the catalog every scrape
+with the FIXED checkpoint so new SKUs get vectors WITHOUT retraining. Two facts drive the design:
+1. **CI must get the checkpoint, but the cron does NOT smudge data-branch LFS** (verified in run logs —
+   it regenerates `index.json`/`recent.json`/`sku_embeddings.json` and never `git lfs pull`s `data`).
+   An LFS checkpoint would reach the cron as a useless pointer. → The checkpoint ships as a **GitHub
+   Release asset**, never git/LFS. (Bonus: zero LFS bandwidth/storage on free tier.)
+2. The re-encode output is deterministic, so an unchanged catalog → byte-identical `sku_embeddings.json`
+   → no LFS churn; a new LFS version appears only when SKUs actually change.
+
+**Per-build re-encode (SHIPPED in CI):** `scripts/run_daily.sh` runs `build_dataset.mjs` then
+`tools/linker_ml/encode.py` (reads `$LINKER_MODEL_DIR`, writes `out/embeddings.json`) and copies it to
+`viz/data/sku_embeddings.json`. `.github/workflows/cron_tracker.yaml` sets up a cached venv (CPU torch
++ ST + sklearn, pinned in `requirements.txt`) and restores the checkpoint from the Release asset via
+`actions/cache` keyed on `tools/linker_ml/MODEL_VERSION`.
+
+**After EVERY hand-retrain you MUST re-release the checkpoint** (step 7c above), else CI keeps encoding
+with the OLD weights while `gbt_model.json`/`blend_weights.js` expect the NEW space — a silent
+train/serve skew. The chain: bump `MODEL_VERSION` → `gh release create model-ft-<ver> model_ft.tar.gz`
+→ commit the bump on `main` (busts the CI cache → CI downloads the new asset on its next run).
+`train_embed.py` prints this checklist at the end of every run. Keep `requirements.txt` (and the
+`torch==` pin in `cron_tracker.yaml`) matched to your local venv so CI vectors match the checkpoint.
+
+**Also after a retrain:** `make_blend_weights.mjs` rewrites `blend_weights.js` (commit on `main`); copy
+`out/{embeddings.json,gbt_model.json}` to the data worktree (LFS) and commit on `data`
+(`pages.yaml` already deploys all of `viz/`). Re-run `tools/linker_eval.mjs` (the deterministic
+apples-to-apples reference).
 
 ## Files
 
@@ -232,10 +264,13 @@ labels and is the apples-to-apples reference.
 | `build_dataset.mjs` | Node ESM | Mines `out/dataset_pairs.jsonl` (pos/ignore/hard/random — same logic + seed as `linker_eval.mjs`), `out/sku_texts.jsonl` (embedder inputs), `out/groups.json` (canonical groups), `out/semantic_gap_cases.json` (the benchmark). |
 | `dump_features.mjs` | Node ESM | `dataset_pairs × featurizePair → out/features.jsonl`. Fills `embed_cosine` from `out/embeddings.json` if present. |
 | `train_blend.mjs` | Node ESM | Logistic regression over the factors. Group-split train/val (FNV hash, 25%), balanced classes, L2. Prints AUC+ / threshold tables vs the raw deterministic score; writes `out/blend_weights.json`. |
-| `train_embed.py` | Python venv | Contrastive fine-tune of all-MiniLM-L6-v2 (manual torch MNRL loop — **no `datasets` dep**) with curated hard negatives. Writes `out/embeddings.json` + `out/embeddings_base.json`. |
+| `train_embed.py` | Python venv | Contrastive fine-tune of all-MiniLM-L6-v2 (manual torch MNRL loop — **no `datasets` dep**) with curated hard negatives. Writes `out/embeddings.json` AND **saves the checkpoint → `out/model_ft`** (then prints the re-release checklist). |
+| `encode.py` | Python venv | **Per-build re-encode** (run by `run_daily.sh` in CI). Loads `$LINKER_MODEL_DIR` (the Release-asset checkpoint) + `out/sku_texts.jsonl` → `out/embeddings.json`. Deterministic; no retraining. |
+| `export_gbt.py` | Python venv | Trains + exports the SHIPPING GBT → `out/gbt_model.json` (sklearn HistGBT; honors `FEATURES_PATH`/`GBT_OUT`). |
 | `eval_gap.mjs` | Node ESM | Semantic-gap before/after: det vs cosBase vs cosFt vs blendProb, on the named cases + harvested ≤1-token positives + concrete 0-token examples. |
-| `requirements.txt` | — | Python deps (CPU torch installed separately via its index URL). |
-| `out/` | — | All artifacts (gitignored). `blend_weights.json` is the shippable model. |
+| `requirements.txt` | — | Python deps, **version-pinned to the local venv** for CI vector parity (CPU torch installed separately via its index URL). |
+| `MODEL_VERSION` | — | Checkpoint version string. CI cache key + Release-tag suffix (`model-ft-<ver>`). **Bump on every hand-retrain.** |
+| `out/` | — | All artifacts (gitignored), incl. `model_ft/` (the local checkpoint, shipped as a Release asset — see §"Shipping the checkpoint"). |
 | `.venv/`, `.hf_cache/` | — | Python env + HuggingFace model cache (both gitignored, in-project). |
 
 ## Train/val/TEST honesty (do not break) — THREE-WAY split as of 2026-05-30
@@ -303,8 +338,8 @@ higher rec@99).
 
 A wrong auto-link corrupts a canonical group, so the headline is **recall at ≥99%
 precision** (positives vs ignores+hard), then **AUC+** (vs hard negatives). `eval_gap.mjs`
-covers the semantic class the embedding uniquely targets. See `RESULTS.md` for the measured
-before/after of this prototype.
+covers the semantic class the embedding uniquely targets. Measured before/after lives in the dated
+retrain notes at the top of this file (the `RESULTS.md` scratch report was deleted).
 
 ## Hard-won notes
 

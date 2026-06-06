@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# FINAL clean retrain after the transitive-grouping fix (+ char-tri, corrected noTrain masks,
-# hidden excluded). Embedder retrains because canonical groups changed materially. ~12 min.
+# Full hand-retrain of the linker: dataset → embedder fine-tune (saves out/model_ft) → GBT →
+# LR fallback → eval. ~12 min on CPU. Run from repo root. This is the canonical retrain runner;
+# the per-scrape CI re-encode (encode.py) is separate and does NOT retrain.
+# ⚠️ AFTER this finishes you MUST ship the artifacts AND re-release the checkpoint — see the
+#    reminder printed at the end + tools/linker_ml/CLAUDE.md §"Shipping the checkpoint".
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 1
 ML=tools/linker_ml; OUT=$ML/out; PY=$ML/.venv/bin/python; R=$OUT/REPORT_FINAL2.md
@@ -29,3 +32,19 @@ node tools/linker_eval.mjs > $OUT/s_eval.log 2>&1; grep -iE "AUC\+|auc vs|trivia
 sec "Worst offenders (shipping model, noTrain + hidden excluded)"
 node $ML/report_offenders.mjs $OUT/gbt_model.json > $OUT/s_off.log 2>&1; cat $OUT/s_off.log >> "$R"
 echo -e "\nDONE — $R" | tee -a "$R"
+cat <<EOF
+
+================ SHIP CHECKLIST (do all three, or CI runs stale weights) ================
+ (a) CODE on main:   git add viz/app/linker_page/blend_weights.js && commit
+ (b) ARTIFACTS on data worktree (LFS), commit on data:
+       cp $OUT/embeddings.json .worktrees/data/viz/data/sku_embeddings.json
+       cp $OUT/gbt_model.json  .worktrees/data/viz/data/gbt_model.json
+ (c) CHECKPOINT as a GitHub Release asset (NOT git/LFS) so CI re-encode uses the new weights:
+       echo "\$(date -u +%F)" > tools/linker_ml/MODEL_VERSION
+       tar czf /tmp/model_ft.tar.gz -C $OUT/model_ft .
+       gh release create "model-ft-\$(cat tools/linker_ml/MODEL_VERSION)" /tmp/model_ft.tar.gz \\
+         --title "linker encoder \$(cat tools/linker_ml/MODEL_VERSION)" --notes "fine-tuned all-MiniLM checkpoint"
+       git add tools/linker_ml/MODEL_VERSION && commit on main   # busts CI cache → CI pulls new asset
+ Full rationale: tools/linker_ml/CLAUDE.md §"Shipping the checkpoint".
+=========================================================================================
+EOF

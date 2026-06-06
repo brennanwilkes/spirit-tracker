@@ -87,8 +87,11 @@ Each run executes `scripts/run_daily.sh`, which:
 2. Pulls latest `data` branch and merges `main` into it
 3. Runs the tracker (writes `data/db/` JSON + a `reports/*.txt` file)
 4. Builds viz artifacts via `tools/build_*.js` scripts
-5. Commits + pushes all changes to the `data` branch
-6. Triggers the Pages deploy and email pack workflows
+5. **Re-encodes the linker embeddings** (`build_dataset.mjs` → `tools/linker_ml/encode.py`) with the
+   fixed fine-tuned checkpoint so newly-scraped SKUs get vectors — weights are NOT retrained here.
+   See `tools/linker_ml/CLAUDE.md` §"Shipping the checkpoint" (best-effort; skips if no venv/checkpoint).
+6. Commits + pushes all changes to the `data` branch
+7. Triggers the Pages deploy and email pack workflows
 
 ## Scripts (`scripts/`)
 
@@ -196,10 +199,15 @@ strengths are preserved. **The shipping classifier is a gradient-boosted tree** 
 (over-scored zero-token-overlap pairs; under-scored matches with a missing embedding vector).
 Measured held-out auto-link **recall @99% precision: 14.5% → ~69%**.
 
-**Start here:** `tools/linker_ml/CLAUDE.md` — the iteration + **re-train** guide (the exact
-6-step chain to re-run when the labeled set grows, the venv prereqs, the no-leakage group
-split, and the hard-won notes). `tools/linker_ml/README.md` is the pipeline diagram;
-`tools/linker_ml/RESULTS.md` is the measured before/after.
+**Start here:** `tools/linker_ml/CLAUDE.md` — the iteration + **re-train** guide (the retrain
+chain to re-run when the labeled set grows, the venv prereqs, the no-leakage group split, the
+hard-won notes, and **§"Shipping the checkpoint"** — the must-do re-release after every retrain so
+CI's per-build re-encode uses the new weights). `tools/linker_ml/README.md` is the pipeline diagram.
+
+**Per-build re-encode (SHIPPED):** `run_daily.sh` re-encodes `sku_embeddings.json` every scrape with
+the FIXED fine-tuned checkpoint (`encode.py`), so new SKUs get vectors without retraining. The
+checkpoint ships as a **GitHub Release asset** (`model-ft-<MODEL_VERSION>`), restored in CI via
+`actions/cache` — NOT git/LFS (the cron never smudges data-branch LFS; details in that CLAUDE.md).
 
 - Pure-Node, zero-dep substrate (`featurize.mjs`, `build_dataset.mjs`, `dump_features.mjs`,
   `train_blend.mjs`, `eval_gap.mjs`) — runs immediately, reuses the live scorer's helpers.

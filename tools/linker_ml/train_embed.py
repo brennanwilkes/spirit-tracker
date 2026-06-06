@@ -256,6 +256,26 @@ def main():
 
     model.eval()
     encode_all(model, args.tag)
+
+    # Persist the fine-tuned encoder so CI can re-encode newly-scraped SKUs with the SAME weights
+    # (run_daily.sh → encode.py). Saved into out/ (gitignored). The checkpoint is shipped as a GitHub
+    # RELEASE ASSET (NOT git/LFS — see encode.py / tools/linker_ml/CLAUDE.md §"Shipping the checkpoint"
+    # for why and the exact commands). Only the 'ft' (shipping) tag saves a model.
+    if args.tag == "ft":
+        model_dir = os.path.join(OUT, "model_ft")
+        model.save(model_dir)
+        print(f"saved fine-tuned checkpoint → {model_dir}", flush=True)
+        print(
+            "SHIP THE CHECKPOINT (so CI re-encode picks up the new weights):\n"
+            "  1. bump tools/linker_ml/MODEL_VERSION  (e.g. to today's date)\n"
+            "  2. tar czf /tmp/model_ft.tar.gz -C out/model_ft .\n"
+            "  3. gh release create \"model-ft-$(cat tools/linker_ml/MODEL_VERSION)\" \\\n"
+            "       /tmp/model_ft.tar.gz --title \"linker encoder $(cat tools/linker_ml/MODEL_VERSION)\" --notes 'fine-tuned all-MiniLM checkpoint'\n"
+            "  4. commit the bumped MODEL_VERSION on main (busts the CI cache → CI pulls the new asset)\n"
+            "  Full chain + parity notes: tools/linker_ml/CLAUDE.md §'Shipping the checkpoint'.",
+            flush=True,
+        )
+
     print("done. Now run: node tools/linker_ml/dump_features.mjs && node tools/linker_ml/train_blend.mjs", flush=True)
 
 

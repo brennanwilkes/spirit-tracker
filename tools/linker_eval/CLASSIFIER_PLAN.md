@@ -10,8 +10,8 @@ automatically. It is deliberately realistic — we are not building Claude-for-b
 > MiniLM attention embedder** (§5) with hard-negative mining. Measured on the labeled set
 > (held-out by canonical group): **AUC+ 0.81 → 0.91**, and **recall at 99% precision rose
 > several-fold**, with the semantic-gap class (`TBWC`↔expansion, `Compass Box`↔`Great King
-> Street`) recovered. Re-train guide + numbers: `tools/linker_ml/CLAUDE.md` +
-> `tools/linker_ml/RESULTS.md`. Still future: the GitHub-Action auto-triage loop (§2 "CI
+> Street`) recovered. Re-train guide + numbers: `tools/linker_ml/CLAUDE.md` (dated retrain notes).
+> Still future: the GitHub-Action auto-triage loop (§2 "CI
 > auto-linker"), group-profile leave-one-out features (§4), and ONNX export for CI.
 
 ## 1. The goal, stated precisely

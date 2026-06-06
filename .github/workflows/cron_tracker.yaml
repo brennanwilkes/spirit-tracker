@@ -34,12 +34,66 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true
+          lfs: true   # unchanged from original; main carries no LFS objects, so this is ~free
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      - name: Setup Python (for linker embedding re-encode)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Cache the whole venv (CPU torch + sentence-transformers + sklearn). Cold ~1-2 min; warm
+      # restore ~seconds. Key includes a torch-version salt so bumping it busts the cache.
+      - name: Cache linker_ml venv
+        id: venv-cache
+        uses: actions/cache@v4
+        with:
+          path: tools/linker_ml/.venv
+          key: linker-venv-${{ runner.os }}-py312-torch2.12-${{ hashFiles('tools/linker_ml/requirements.txt') }}
+
+      - name: Create venv + install deps (on cache miss)
+        if: steps.venv-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv tools/linker_ml/.venv
+          tools/linker_ml/.venv/bin/python -m pip install --upgrade pip
+          tools/linker_ml/.venv/bin/pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cpu
+          tools/linker_ml/.venv/bin/pip install -r tools/linker_ml/requirements.txt
+
+      # The ~90 MB fine-tuned encoder checkpoint is NOT in git/LFS (the cron never smudges data-branch
+      # LFS, so an LFS checkpoint would arrive as a useless pointer; and a release asset costs no LFS
+      # bandwidth/storage). It's a GitHub Release asset; we cache it keyed on tools/linker_ml/MODEL_VERSION
+      # (bumped on every hand-retrain), so it's downloaded only when the model actually changes.
+      - name: Restore encoder checkpoint (cache)
+        id: ckpt-cache
+        uses: actions/cache@v4
+        with:
+          path: tools/linker_ml/model_ft
+          key: linker-model-ft-${{ hashFiles('tools/linker_ml/MODEL_VERSION') }}
+
+      - name: Download encoder checkpoint from Release (on cache miss only)
+        if: steps.ckpt-cache.outputs.cache-hit != 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Tolerant: if the release/asset is missing, leave model_ft empty and let run_daily.sh's
+        # encode step skip gracefully (it guards on a populated checkpoint dir). Never fails the cron.
+        run: |
+          set -uo pipefail
+          tag="model-ft-$(cat tools/linker_ml/MODEL_VERSION)"
+          rm -rf tools/linker_ml/model_ft
+          if gh release download "$tag" --pattern 'model_ft.tar.gz' --output /tmp/model_ft.tar.gz; then
+            mkdir -p tools/linker_ml/model_ft
+            tar xzf /tmp/model_ft.tar.gz -C tools/linker_ml/model_ft
+            echo "checkpoint restored ($(du -sh tools/linker_ml/model_ft | cut -f1))"
+          else
+            echo "WARN: could not download release '$tag'; embedding re-encode will be skipped this run" >&2
+          fi
 
       - name: Configure git author (for commits made by scripts/run_daily.sh)
         shell: bash
@@ -101,6 +155,8 @@ jobs:
           MAIN_BRANCH: main
           DATA_BRANCH: data
           STORES: ${{ steps.plan.outputs.stores }}
+          # Point encode.py at the Release-asset checkpoint restored above (absolute path).
+          LINKER_MODEL_DIR: ${{ github.workspace }}/tools/linker_ml/model_ft
         run: |
           set -euo pipefail
           bash scripts/run_daily.sh

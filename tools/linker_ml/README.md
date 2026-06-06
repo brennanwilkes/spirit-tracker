@@ -5,9 +5,15 @@ Augments the deterministic SKU matcher (`viz/app/linker_page/suggestions.js`) wi
 similarity, to drive up AUC+ / precision-recall in the eval harness. The deterministic
 algo is **kept as a feature** — this augments, it does not replace.
 
-This folder is dev/analysis tooling. Nothing here runs in `run_daily.sh`. It reads the
-`.worktrees/data` worktree (override with `DATA_WORKTREE=...`). All artifacts land in
-`out/` (gitignored); the Python venv lives in `.venv/` (gitignored).
+Mostly dev/analysis tooling — **except `encode.py`**, which `run_daily.sh` runs every scrape to
+re-encode `sku_embeddings.json` with the fixed fine-tuned checkpoint (new SKUs get vectors without
+retraining). It reads the `.worktrees/data` worktree (override with `DATA_WORKTREE=...`). All
+artifacts land in `out/` (gitignored); the Python venv lives in `.venv/` (gitignored).
+
+**The shipping classifier is a gradient-boosted tree** (`export_gbt.py` → `out/gbt_model.json`, run
+live via `viz/app/linker_page/gbt.js`); the logistic blend is a fallback. **Retraining the encoder is
+infrequent and HAS A MANDATORY re-release step** so CI picks up the new weights — see
+`CLAUDE.md` §"⭐ How to RE-TRAIN" + §"Shipping the checkpoint". `MODEL_VERSION` is the checkpoint version.
 
 ## Why
 
