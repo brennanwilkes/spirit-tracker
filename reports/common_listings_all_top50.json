@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-06T05:10:31.244Z",
+  "generatedAt": "2026-06-06T07:55:37.921Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,17 +34,16 @@
     "willowpark"
   ],
   "totals": {
-    "liveRows": 12989,
-    "removedRows": 4924,
-    "canonSkus": 6044,
+    "liveRows": 12986,
+    "removedRows": 4929,
+    "canonSkus": 6042,
     "outputCount": 50
   },
   "rows": [
     {
       "canonSku": "006968",
-      "storeCount": 16,
+      "storeCount": 15,
       "stores": [
-        "arc",
         "bcl",
         "bsw",
         "coop",
@@ -61,9 +60,10 @@
         "vintage",
         "willowpark"
       ],
-      "missingStores": [],
+      "missingStores": [
+        "arc"
+      ],
       "storePrices": {
-        "arc": 49.99,
         "bcl": 54.99,
         "bsw": 48.99,
         "coop": 54.99,
@@ -156,6 +156,65 @@
         "priceNum": 74.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/ardbeg-wee-beastie-5-year-old"
+      }
+    },
+    {
+      "canonSku": "560474",
+      "storeCount": 15,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "gull",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "maltsandgrains",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vintage",
+        "willowpark"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 102.99,
+        "bcl": 99.99,
+        "bsw": 84.99,
+        "coop": 99.99,
+        "craftcellars": 79.99,
+        "gull": 100.35,
+        "kegncork": 99.96,
+        "kwm": 99.99,
+        "legacyliquor": 129.06,
+        "maltsandgrains": 89.17,
+        "sierrasprings": 80.99,
+        "strath": 113.09,
+        "tudor": 99.99,
+        "vintage": 123.39,
+        "willowpark": 94.49
+      },
+      "representative": {
+        "name": "Ardbeg 10 Year Old Scotch Whisky",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
       }
     },
     {
@@ -391,64 +450,6 @@
       }
     },
     {
-      "canonSku": "560474",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "gull",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "maltsandgrains",
-        "sierrasprings",
-        "tudor",
-        "vintage",
-        "willowpark"
-      ],
-      "missingStores": [
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 102.99,
-        "bcl": 99.99,
-        "bsw": 84.99,
-        "coop": 99.99,
-        "craftcellars": 79.99,
-        "gull": 100.35,
-        "kegncork": 99.96,
-        "kwm": 99.99,
-        "legacyliquor": 129.06,
-        "maltsandgrains": 89.17,
-        "sierrasprings": 80.99,
-        "tudor": 99.99,
-        "vintage": 123.39,
-        "willowpark": 94.49
-      },
-      "representative": {
-        "name": "Ardbeg 10 Year Old Scotch Whisky",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/ardbeg-10-year-old-scotch-whisky-46-abv"
-      }
-    },
-    {
       "canonSku": "002838",
       "storeCount": 13,
       "stores": [
@@ -596,7 +597,7 @@
         "maltsandgrains": 54.71,
         "sierrasprings": 52.27,
         "strath": 58.17,
-        "tudor": 51.99,
+        "tudor": 52.99,
         "vessel": 52.99,
         "willowpark": 53.49
       },
@@ -1105,7 +1106,7 @@
         "maltsandgrains": 54.99,
         "sierrasprings": 68.99,
         "strath": 77.57,
-        "tudor": 75.99,
+        "tudor": 65.99,
         "vessel": 64.99,
         "willowpark": 75.49
       },
