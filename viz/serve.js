@@ -50,15 +50,47 @@ function readMeta() {
 		const links = obj && Array.isArray(obj.links) ? obj.links : [];
 		const ignores = obj && Array.isArray(obj.ignores) ? obj.ignores : [];
 
-		return { generatedAt: obj?.generatedAt || new Date().toISOString(), links, ignores };
+		return { links, ignores };
 	} catch {}
-	return { generatedAt: new Date().toISOString(), links: [], ignores: [] };
+	return { links: [], ignores: [] };
+}
+
+// Union-find dedup: keep only links that actually merge two distinct components.
+// Also dedupes ignores by unordered pair.
+function dedupeLinks(links, ignores) {
+	const parent = new Map();
+	function find(x) {
+		if (!parent.has(x)) parent.set(x, x);
+		if (parent.get(x) !== x) parent.set(x, find(parent.get(x)));
+		return parent.get(x);
+	}
+	const kept = [];
+	for (const link of links) {
+		const ra = find(link.fromSku), rb = find(link.toSku);
+		if (ra !== rb) {
+			parent.set(ra, rb);
+			kept.push(link.noTrain ? { fromSku: link.fromSku, toSku: link.toSku, noTrain: true } : { fromSku: link.fromSku, toSku: link.toSku });
+		}
+	}
+
+	const seenIgnores = new Set();
+	const keptIgnores = [];
+	for (const ig of ignores) {
+		const key = [ig.skuA, ig.skuB].sort().join("\0");
+		if (!seenIgnores.has(key)) {
+			seenIgnores.add(key);
+			keptIgnores.push(ig.noTrain ? { skuA: ig.skuA, skuB: ig.skuB, noTrain: true } : { skuA: ig.skuA, skuB: ig.skuB });
+		}
+	}
+
+	return { links: kept, ignores: keptIgnores };
 }
 
 function writeMeta(obj) {
-	obj.generatedAt = new Date().toISOString();
+	const deduped = dedupeLinks(obj.links, obj.ignores);
 	fs.mkdirSync(path.dirname(LINKS_FILE), { recursive: true });
-	fs.writeFileSync(LINKS_FILE, JSON.stringify(obj, null, 2) + "\n", "utf8");
+	fs.writeFileSync(LINKS_FILE, JSON.stringify({ links: deduped.links, ignores: deduped.ignores }) + "\n", "utf8");
+	return deduped;
 }
 
 function readHidden() {
@@ -110,10 +142,10 @@ const server = http.createServer((req, res) => {
 					if (!fromSku || !toSku) return sendJson(res, 400, { ok: false, error: "fromSku/toSku required" });
 
 					const obj = readMeta();
-					obj.links.push({ fromSku, toSku, createdAt: new Date().toISOString() });
-					writeMeta(obj);
+					obj.links.push({ fromSku, toSku, ...(inp.noTrain ? { noTrain: true } : {}) });
+					const saved = writeMeta(obj);
 
-					return sendJson(res, 200, { ok: true, count: obj.links.length, file: "data/sku_links.json" });
+					return sendJson(res, 200, { ok: true, count: saved.links.length, file: "data/sku_links.json" });
 				} catch (e) {
 					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
 				}
@@ -150,10 +182,10 @@ const server = http.createServer((req, res) => {
 					if (skuA === skuB) return sendJson(res, 400, { ok: false, error: "skuA and skuB must differ" });
 
 					const obj = readMeta();
-					obj.ignores.push({ skuA, skuB, createdAt: new Date().toISOString() });
-					writeMeta(obj);
+					obj.ignores.push({ skuA, skuB, ...(inp.noTrain ? { noTrain: true } : {}) });
+					const saved = writeMeta(obj);
 
-					return sendJson(res, 200, { ok: true, count: obj.ignores.length, file: "data/sku_links.json" });
+					return sendJson(res, 200, { ok: true, count: saved.ignores.length, file: "data/sku_links.json" });
 				} catch (e) {
 					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
 				}

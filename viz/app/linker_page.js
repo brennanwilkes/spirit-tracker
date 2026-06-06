@@ -10,6 +10,7 @@ import {
 } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
+import { loadHiddenSet } from "./hidden.js";
 import { loadSkuRules, clearSkuRulesCache } from "./mapping.js";
 import {
 	inferGithubOwnerRepo,
@@ -30,13 +31,22 @@ import { buildUrlBySkuStore } from "./linker_page/url_map.js";
 import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker_page/store_cache.js";
 import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { pickPreferredCanonical } from "./linker_page/canonical_pref.js";
-import { smwsKeyFromName, similarityScore } from "./linker_page/similarity.js";
+import { smwsKeyFromName } from "./linker_page/similarity.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
+import { buildVocab } from "./linker_page/vocab.js";
 import {
 	topSuggestions,
 	recommendSimilar,
 	computeInitialPairsFast,
+	dedupeByGroupRep,
 } from "./linker_page/suggestions.js";
+import { isStrongProb } from "./linker_page/strong_threshold.js";
+import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
+import { buildBlend } from "./linker_page/embeddings.js";
+import { toConfidence01 } from "./linker_page/blend.js";
+import { loadGbtModel } from "./linker_page/gbt.js";
+import { buildGroupIndex } from "./linker_page/group_features.js";
+import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 /* ---------------- Page ---------------- */
 
@@ -83,6 +93,8 @@ export async function renderSkuLinker($app) {
 	}
 
 	let currentTemp = loadTemp();
+	// AI toggle state — read BEFORE the header template renders its checkbox (avoids a TDZ).
+	let aiOn = aiEnabled();
 
 	$app.innerHTML = `
     <div class="container" style="max-width:1200px;">
@@ -103,6 +115,10 @@ export async function renderSkuLinker($app) {
 		</div>
 
         <div style="flex:1"></div>
+        <a class="btn" href="#/link-rapid" style="padding:6px 10px;">⚡ Rapid</a>
+        <label id="linkAiToggle" class="btn" title="Re-rank suggestions with the fine-tuned AI embedding. Off = classical scorer. On = embedding blend, with an 'AI ±x' chip showing its influence." style="padding:6px 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="linkAiChk" ${aiOn ? "checked" : ""} style="cursor:pointer;margin:0;" />🧠 AI
+        </label>
         ${!localWrite ? `<span id="pendingTop" class="badge mono" style="display:none;"></span>` : ``}
         ${
 					!localWrite
@@ -151,6 +167,19 @@ export async function renderSkuLinker($app) {
 		e.preventDefault();
 		goBack();
 	});
+
+	const $aiChk = document.getElementById("linkAiChk");
+	if ($aiChk) {
+		$aiChk.addEventListener("change", async (e) => {
+			aiOn = !!e.target.checked;
+			setAiEnabled(aiOn);
+			if (aiOn && !blend) {
+				blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
+				await attachGbtGroup(blend);
+			}
+			updateAll();
+		});
+	}
 
 	const $qL = document.getElementById("qL");
 	const $qR = document.getElementById("qR");
@@ -210,13 +239,33 @@ export async function renderSkuLinker($app) {
 	$listL.innerHTML = `<div class="small">Loading index…</div>`;
 	$listR.innerHTML = `<div class="small">Loading index…</div>`;
 
-	const idx = await loadIndex();
+	const [idx, hiddenSet] = await Promise.all([loadIndex(), loadHiddenSet()]);
 	const allRows = Array.isArray(idx.items) ? idx.items : [];
 
 	// ✅ moved into helper
 	const URL_BY_SKU_STORE = buildUrlBySkuStore(allRows);
 
-	const allAgg = aggregateBySku(allRows, (x) => x);
+	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
+
+	// IDF term vocabulary built from the full catalog (the union of all DB files
+	// via index.json). Drives the distinctive-shared-term boost in recommendSimilar.
+	const simVocab = buildVocab(allAgg);
+
+	// AI embedding blend — OFF by default (the original scorer has the sharp separation).
+	// Lazily loaded when the user opts in; `blend` is null when off so suggestions use the
+	// raw scorer. See linker_page/blend.js + embeddings.js + ai_pref.js.
+	let blend = aiOn ? await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED) : null;
+
+	// Attach the GBT classifier + live canonical-GROUP feature index to the blend. The GBT is
+	// the shipping model (it fixed the linear blend's tail pathologies); the group index feeds
+	// it the group↔group signal. gbt=null (no model file) falls back to the linear weights
+	// gracefully. Rebuilt on every rules reload (see rebuildCachesAfterRulesReload).
+	async function attachGbtGroup(b) {
+		if (!b) return;
+		if (b.gbt === undefined) b.gbt = await loadGbtModel();
+		b.groupIndex = buildGroupIndex(allAgg, (s) => String(rules.canonicalSku(s) || s));
+	}
+	if (blend) await attachGbtGroup(blend);
 
 	const meta = await loadSkuMetaBestEffort();
 	const mappedSkus = buildMappedSkuSet(meta.links || [], rules);
@@ -237,6 +286,7 @@ export async function renderSkuLinker($app) {
 		sameStoreCanon = makeSameStoreCanonFn(rules, CANON_STORE_CACHE);
 		sizePenaltyForPair = buildSizePenaltyForPair({ allRows, allAgg, rules });
 		pricePenaltyForPair = buildPricePenaltyForPair({ allAgg, rules });
+		if (blend) blend.groupIndex = buildGroupIndex(allAgg, (s) => String(rules.canonicalSku(s) || s));
 	}
 
 	function isIgnoredPair(a, b) {
@@ -246,52 +296,6 @@ export async function renderSkuLinker($app) {
 	function sameGroup(aSku, bSku) {
 		if (!aSku || !bSku) return false;
 		return String(rules.canonicalSku(aSku)) === String(rules.canonicalSku(bSku));
-	}
-
-	// ✅ NEW: helpers for same-store override gating
-	const EMPTY_SET = new Set();
-
-	function canonStoresForSkuKey(skuKey) {
-		const s = String(skuKey || "").trim();
-		if (!s) return EMPTY_SET;
-		const canon = String(rules.canonicalSku(s) || s);
-		return CANON_STORE_CACHE.get(canon) || EMPTY_SET;
-	}
-
-	function sameStoreOverrideAllowed(aIt, bIt) {
-		const aSku = String(aIt?.sku || "");
-		const bSku = String(bIt?.sku || "");
-		if (!aSku || !bSku) return false;
-		if (!sameStoreCanon(aSku, bSku)) return false;
-
-		const A = canonStoresForSkuKey(aSku);
-		const B = canonStoresForSkuKey(bSku);
-		if (!A.size || !B.size) return false;
-
-		// Prefer overlap on the user-visible “selected” store label (cheapest)
-		const aPrimary = String(aIt?.cheapestStoreLabel || "").trim();
-		const bPrimary = String(bIt?.cheapestStoreLabel || "").trim();
-
-		// Determine overlap
-		let anyOverlap = false;
-		let primaryOverlap = false;
-		for (const s of A) {
-			if (!B.has(s)) continue;
-			anyOverlap = true;
-			if ((aPrimary && s === aPrimary) || (bPrimary && s === bPrimary)) primaryOverlap = true;
-		}
-		if (!anyOverlap) return false;
-
-		// If we know a primary store, require overlap on it (tightens to “this looks like a relist on that store”)
-		if ((aPrimary || bPrimary) && !primaryOverlap) return false;
-
-		// SMWS exact code is a slam-dunk
-		const ka = smwsKeyFromName(aIt?.name || "");
-		const kb = smwsKeyFromName(bIt?.name || "");
-		if (ka && kb && ka === kb) return true;
-
-		// Otherwise require strong name similarity
-		return similarityScore(aIt?.name || "", bIt?.name || "") >= 3.1;
 	}
 
 	let initialPairs = null;
@@ -315,7 +319,7 @@ export async function renderSkuLinker($app) {
 			sizePenaltyForPair,
 			pricePenaltyForPair,
 			PAGE_SEED,
-			{ temp: currentTemp }, // 0.00 = deterministic, 0.15–0.30 = mild variety, 0.50+ = very diverse
+			{ temp: currentTemp, vocab: simVocab }, // 0.00 = deterministic, 0.15–0.30 = mild variety, 0.50+ = very diverse
 		);
 
 		return initialPairs;
@@ -327,8 +331,12 @@ export async function renderSkuLinker($app) {
 	// if page was opened with #/link/?left=... (or sku=...), reload after LINK completes
 	let shouldReloadAfterLink = false;
 
-	function renderCard(it, pinned) {
-		const storeCount = it.stores.size || 0;
+	function renderCard(it, pinned, opts) {
+		// Count distinct stores across the whole canonical group, not just this raw
+		// SKU — so a card representing several already-linked listings shows the
+		// real combined store presence.
+		const groupStores = CANON_STORE_CACHE.get(String(rules.canonicalSku(it.sku) || it.sku));
+		const storeCount = (groupStores ? groupStores.size : it.stores.size) || 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)";
 		const store = it.cheapestStoreLabel || [...it.stores][0] || "Store";
@@ -343,11 +351,32 @@ export async function renderSkuLinker($app) {
 			: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`;
 
 		const pinnedBadge = pinned ? `<span class="badge">PINNED</span>` : ``;
+		const score = opts && Number.isFinite(opts.score) ? opts.score : null;
+		const aiDelta = opts && Number.isFinite(opts.aiDelta) ? opts.aiDelta : null;
+		const strong = !!(opts && opts.strong);
+		// Scores are a 0–1 confidence in both modes now (probability when AI on, squashed
+		// classical score otherwise) → always 2 decimals.
+		const scoreTxt = score == null ? "" : score.toFixed(2);
+		// AI chip colour-coded by SIGN: red/rose ▲ = AI pushed the score UP (scrutinise),
+		// blue ▼ = AI pushed it DOWN, grey = negligible.
+		let aiChip = ``;
+		if (aiDelta != null) {
+			const negl = Math.abs(aiDelta) < 0.02;
+			const bg = negl ? "rgba(148,163,184,0.16)" : aiDelta > 0 ? "rgba(244,63,94,0.28)" : "rgba(56,189,248,0.22)";
+			const fg = negl ? "#9aa6b2" : aiDelta > 0 ? "#fb7185" : "#7dd3fc";
+			const arrow = negl ? "" : aiDelta > 0 ? "▲ " : "▼ ";
+			aiChip = `<span class="badge mono" title="AI embedding shifts this score by ${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)} vs the classical algorithm" style="font-weight:700;background:${bg};color:${fg};">AI ${arrow}${aiDelta >= 0 ? "+" : ""}${aiDelta.toFixed(2)}</span>`;
+		}
+		const scoreHtml =
+			score != null
+				? `<span class="badge mono simScore" title="match score">${scoreTxt}</span>${aiChip}`
+				: ``;
 
 		return `
-      <div class="item ${pinned ? "pinnedItem" : ""}" data-sku="${esc(it.sku)}">
+      <div class="item ${pinned ? "pinnedItem" : ""} ${strong ? "strongSuggestion" : ""}" data-sku="${esc(it.sku)}">
         <div class="itemTitle">
           <div class="itemName">${esc(it.name || "(no name)")}</div>
+          ${scoreHtml}
           <span class="badge mono">${esc(displaySku(it.sku))}</span>
         </div>
         <div class="itemRow">
@@ -366,6 +395,7 @@ export async function renderSkuLinker($app) {
 	function sideItems(side, query, otherPinned) {
 		const tokens = tokenizeQuery(query);
 		const otherSku = otherPinned ? String(otherPinned.sku || "") : "";
+		const groupRep = (s) => String(rules.canonicalSku(s) || s);
 
 		// manual search: allow mapped SKUs so you can merge groups,
 		// BUT if the other side is pinned, hide anything already in that pinned's group
@@ -386,12 +416,15 @@ export async function renderSkuLinker($app) {
 				out = out.filter((it) => !sameGroup(oSku, String(it.sku || "")));
 			}
 
-			return out.slice(0, 80);
+			// Collapse already-linked results into one card per canonical group.
+			out = dedupeByGroupRep(out, (it) => it && it.sku, groupRep);
+
+			return out.slice(0, 80).map((it) => ({ it, score: null }));
 		}
 
 		// auto-suggestions: never include mapped skus
-		if (otherPinned)
-			return recommendSimilar(
+		if (otherPinned) {
+			const scored = recommendSimilar(
 				allAgg,
 				otherPinned,
 				60,
@@ -402,20 +435,39 @@ export async function renderSkuLinker($app) {
 				pricePenaltyForPair,
 				sameStoreCanon,
 				sameGroup,
+				{
+					vocab: simVocab,
+					allowSameStore: true,
+					withScores: true,
+					groupRepFn: groupRep,
+					blend: aiOn ? blend : null,
+				},
 			);
+			// AI on → score is already a 0–1 probability; otherwise squash the raw score to 0–1.
+			const blended = aiOn && !!(blend && blend.weights);
+			return scored.map((x) =>
+				x && x.it
+					? { it: x.it, score: blended ? x.score || 0 : toConfidence01(x.score || 0), aiDelta: x.aiDelta }
+					: { it: x, score: null },
+			);
+		}
 
 		const pairs = getInitialPairsIfNeeded();
 		if (pairs && pairs.length) {
-			const list = side === "L" ? pairs.map((p) => p.a) : pairs.map((p) => p.b);
+			// Initial suggested pairs carry raw classical scores — squash to the 0–1 scale.
+			const list =
+				side === "L"
+					? pairs.map((p) => ({ it: p.a, score: toConfidence01(p.score || 0) }))
+					: pairs.map((p) => ({ it: p.b, score: toConfidence01(p.score || 0) }));
 			return list.filter(
-				(it) =>
+				({ it }) =>
 					it &&
 					it.sku !== otherSku &&
 					(!mappedSkus.has(String(it.sku)) || smwsKeyFromName(it.name || "")),
 			);
 		}
 
-		return topSuggestions(allAgg, 60, otherSku, mappedSkus);
+		return topSuggestions(allAgg, 60, otherSku, mappedSkus).map((it) => ({ it, score: null }));
 	}
 
 	function attachHandlers($root, side) {
@@ -475,9 +527,20 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		const items = sideItems(side, query, other);
-		$list.innerHTML = items.length
-			? items.map((it) => renderCard(it, false)).join("")
+		const entries = sideItems(side, query, other);
+		const scores = entries.map((e) => (Number.isFinite(e.score) ? e.score : null));
+		const topScore = scores.reduce((m, s) => (s != null && s > m ? s : m), 0);
+		const shouldStrong = !!other;
+		$list.innerHTML = entries.length
+			? entries
+					.map(({ it, score, aiDelta }) =>
+						renderCard(it, false, {
+							score: score,
+							aiDelta: aiDelta,
+							strong: shouldStrong && score != null && isStrongProb(score, topScore),
+						}),
+					)
+					.join("")
 			: `<div class="small">No matches.</div>`;
 		attachHandlers($list, side);
 	}
@@ -527,17 +590,19 @@ export async function renderSkuLinker($app) {
 			return;
 		}
 
-		// ✅ CHANGED: same-store blocks normal link/ignore, but may enable LINK SAME-STORE
+		// same-store blocks normal link/ignore; LINK SAME-STORE is the manual override
 		if (sameStoreCanon(a, b)) {
 			$linkBtn.disabled = true;
 			$ignoreBtn.disabled = true;
 
-			const ok = sameStoreOverrideAllowed(pinnedL, pinnedR);
-			$forceLinkBtn.disabled = !ok;
+			if (sameGroup(a, b)) {
+				$forceLinkBtn.disabled = true;
+				$status.textContent = "Already linked: both SKUs are in the same group.";
+				return;
+			}
 
-			$status.textContent = ok
-				? "Same-store duplicate candidate. Use LINK SAME-STORE to merge."
-				: "Not allowed: both items belong to the same store.";
+			$forceLinkBtn.disabled = false;
+			$status.textContent = "Same-store pair. Use LINK SAME-STORE to merge.";
 			return;
 		}
 
@@ -741,10 +806,6 @@ export async function renderSkuLinker($app) {
 				$status.textContent = "Not allowed: both items belong to the same store.";
 				return;
 			}
-			if (!sameStoreOverrideAllowed(pinnedL, pinnedR)) {
-				$status.textContent = "Not allowed: same-store override gate failed.";
-				return;
-			}
 		}
 
 		const aCanon = rules.canonicalSku(a);
@@ -800,9 +861,8 @@ export async function renderSkuLinker($app) {
 
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-
-			location.reload();
 			return;
 		}
 
@@ -831,9 +891,8 @@ export async function renderSkuLinker($app) {
 			$status.textContent = `Saved. Canonical is now ${displaySku(preferred)}.`;
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-
-			location.reload();
 		} catch (e) {
 			$status.textContent = `Write failed: ${String(e && e.message ? e.message : e)}`;
 		}
@@ -892,8 +951,8 @@ export async function renderSkuLinker($app) {
 
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-			location.reload();
 
 			return;
 		}
@@ -906,8 +965,8 @@ export async function renderSkuLinker($app) {
 			$status.textContent = `Ignored: ${displaySku(a)} × ${displaySku(b)} (ignores=${out.count}).`;
 			pinnedL = null;
 			pinnedR = null;
+			initialPairs = null; // recompute fresh suggestions in-place (no page reload)
 			updateAll();
-			location.reload();
 		} catch (e) {
 			$status.textContent = `Ignore failed: ${String(e && e.message ? e.message : e)}`;
 		}

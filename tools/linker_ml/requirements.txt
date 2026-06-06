@@ -1,0 +1,13 @@
+# Linker ML prototype — Python deps for the contrastive embedding fine-tune.
+# CPU-only torch (install with the CPU index URL to skip the multi-GB CUDA wheels):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+#
+# Base encoder (all-MiniLM-L6-v2, ~90 MB) auto-downloads from HuggingFace on first run.
+#
+# Versions PINNED to the local training env so CI's per-scrape re-encode (encode.py) produces
+# vectors that match the hand-trained checkpoint bit-for-bit. Bump these only alongside a retrain
+# (and the torch pin in .github/workflows/cron_tracker.yaml).
+sentence-transformers==5.5.1
+scikit-learn==1.8.0
+numpy>=1.24

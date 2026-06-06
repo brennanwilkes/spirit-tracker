@@ -118,6 +118,32 @@ done
 "$NODE_BIN" tools/build_viz_sku_cache.js
 "$NODE_BIN" tools/build_viz_rarity.js
 
+# --- Re-encode SKU embeddings with the FIXED fine-tuned encoder (linker page) ---
+# Cheap per-scrape vector refresh so newly-scraped SKUs get embeddings WITHOUT retraining weights
+# (the encoder + GBT stay hand-trained — see tools/linker_ml/CLAUDE.md). encode.py is deterministic,
+# so an unchanged catalog yields byte-identical output → no LFS churn. Scripts run from REPO_ROOT
+# (so OUT_DIR + venv resolve in the main checkout) but featurize reads the worktree's fresh
+# index/links. Best-effort: a failure must NOT abort the scrape commit (viz falls back to the
+# no-embed blend if embeddings go stale). Skips cleanly when the venv/checkpoint aren't present
+# (e.g. a plain local run).
+PYTHON_BIN="${PYTHON_BIN:-$REPO_ROOT/tools/linker_ml/.venv/bin/python}"
+# CI sets LINKER_MODEL_DIR to the Release-asset checkpoint it restored; a local run defaults to
+# out/model_ft (where train_embed.py saved it). encode.py reads LINKER_MODEL_DIR from the env.
+export LINKER_MODEL_DIR="${LINKER_MODEL_DIR:-$REPO_ROOT/tools/linker_ml/out/model_ft}"
+if [[ -x "$PYTHON_BIN" && -d "$LINKER_MODEL_DIR" ]]; then
+  set +e
+  "$NODE_BIN" "$REPO_ROOT/tools/linker_ml/build_dataset.mjs" \
+    && "$PYTHON_BIN" "$REPO_ROOT/tools/linker_ml/encode.py" \
+    && cp -f "$REPO_ROOT/tools/linker_ml/out/embeddings.json" "$WORKTREE_DIR/viz/data/sku_embeddings.json"
+  enc_rc=$?
+  set -e
+  if [[ $enc_rc -ne 0 ]]; then
+    echo "WARN: embedding re-encode failed (rc=$enc_rc); keeping previous sku_embeddings.json" >&2
+  fi
+else
+  echo "INFO: skipping embedding re-encode (no venv at $PYTHON_BIN or no checkpoint at $LINKER_MODEL_DIR)" >&2
+fi
+
 # Stage only data/report/viz outputs
 git add -A data/db reports viz/data
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).

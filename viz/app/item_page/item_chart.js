@@ -124,9 +124,57 @@ export function lastFiniteFromEnd(arr) {
 // ── Y-axis helpers ─────────────────────────────────────────────────────────
 
 /**
- * Compute Chart.js suggestedMin / suggestedMax with optional minimum span.
+ * When many stores are tracked, one or two that price way above the rest stretch
+ * the y-axis and squash all the meaningful detail into a thin band. This detects
+ * such high outliers and returns a y-axis cap (the highest "normal" price) so the
+ * chart fills with the bulk of the data while outlier lines simply clip near the
+ * top. Low prices are never capped — this only ever returns an upper bound, and
+ * returns null when no capping should apply.
+ *
+ * @param {Array<{label:string, rep:number, values:number[]}>} stores  per-store label, representative price, data points
+ * @param {object} [opts]
+ * @param {number} [opts.minStores=5]  only engage past this many stores ("more than 4")
+ * @returns {{cap:number, outliers:Set<string>}|null}
  */
-export function computeSuggestedY(values, minRange) {
+export function computeHighOutlierCap(stores, opts = {}) {
+	const minStores = Number.isFinite(opts.minStores) ? opts.minStores : 5;
+	const list = (Array.isArray(stores) ? stores : []).filter((s) => Number.isFinite(s?.rep));
+	if (list.length < minStores) return null;
+
+	const reps = list.map((s) => s.rep);
+	const median = medianFinite(reps);
+	if (!Number.isFinite(median) || median <= 0) return null;
+
+	const mad = medianFinite(reps.map((r) => Math.abs(r - median)));
+	const scaledMad = Number.isFinite(mad) ? mad * 1.4826 : 0;
+
+	// A store is a high outlier only if it clears the median by BOTH a robust
+	// statistical margin and a generous relative margin — it must be "way" above.
+	const threshold = median + Math.max(3 * scaledMad, median * 0.6);
+
+	const normal = list.filter((s) => s.rep <= threshold);
+	if (normal.length === list.length) return null; // nothing way above the pack
+
+	const outliers = new Set(list.filter((s) => s.rep > threshold).map((s) => String(s.label)));
+
+	let cap = null;
+	for (const s of normal) {
+		for (const v of Array.isArray(s.values) ? s.values : []) {
+			if (Number.isFinite(v) && (cap === null || v > cap)) cap = v;
+		}
+	}
+	if (cap === null) return null;
+	return { cap, outliers };
+}
+
+/**
+ * Compute Chart.js suggestedMin / suggestedMax with optional minimum span.
+ *
+ * @param {number[]} values
+ * @param {number} [minRange]  enforce a minimum visible span
+ * @param {number} [maxCap]    clamp the upper bound (e.g. from computeHighOutlierCap)
+ */
+export function computeSuggestedY(values, minRange, maxCap) {
 	const nums = values.filter((v) => Number.isFinite(v));
 	if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
@@ -136,6 +184,8 @@ export function computeSuggestedY(values, minRange) {
 		if (n < min) min = n;
 		if (n > max) max = n;
 	}
+
+	if (Number.isFinite(maxCap) && maxCap < max) max = maxCap;
 
 	const range = max - min;
 	const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;

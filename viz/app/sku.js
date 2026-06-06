@@ -41,6 +41,11 @@ export function isUnknownSkuKey(key) {
 // Normalize for search: lowercase, punctuation -> space, collapse spaces
 export function normSearchText(s) {
 	return String(s ?? "")
+		// Fold diacritics so "Diplomático"→"diplomatico", "Añejo"→"anejo",
+		// "Càirdeas"→"cairdeas" — otherwise the accented letter is stripped to a
+		// space and splits the word (matching + search both break).
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, " ")
 		.replace(/\s+/g, " ")

@@ -43,13 +43,7 @@ jobs:
             cp -f data/sku_links.json viz/data/sku_links.json
           else
             # keep site functional even if file is missing
-            cat > viz/data/sku_links.json <<'EOF'
-          {
-            "generatedAt": "",
-            "links": [],
-            "ignores": []
-          }
-          EOF
+            echo '{"links":[],"ignores":[]}' > viz/data/sku_links.json
           fi
           if [[ -f data/sku_links_auto.json ]]; then
             cp -f data/sku_links_auto.json viz/data/sku_links_auto.json

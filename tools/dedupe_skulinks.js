@@ -63,23 +63,18 @@ for (const x of Array.isArray(linksData.links) ? linksData.links : []) {
 	}
 	seen.add(key);
 
-	// preserve datestamps/metadata; just normalize the SKUs
-	nextLinks.push({
-		...x,
-		fromSku: a,
-		toSku: b,
-	});
+	nextLinks.push({ fromSku: a, toSku: b, ...(x.noTrain ? { noTrain: true } : {}) });
 }
 
-linksData.links = nextLinks;
+const ignores = Array.isArray(linksData.ignores) ? linksData.ignores : [];
 
-// write back in place
-fs.writeFileSync(LINKS_FILE, JSON.stringify(linksData, null, 2) + "\n");
+// write back in place (compact, no timestamps)
+fs.writeFileSync(LINKS_FILE, JSON.stringify({ links: nextLinks, ignores }) + "\n");
 
-const totalPruned = originalCount - linksData.links.length;
+const totalPruned = originalCount - nextLinks.length;
 
 console.log(`Pruned ${totalPruned} total links`);
 console.log(`- ${prunedAuto} now-implicit (id:<1-6> ↔ CSPC)`);
 console.log(`- ${prunedMissing} missing/invalid vs db`);
 console.log(`- ${prunedDup} duplicates after normalization`);
-console.log(`Remaining ${linksData.links.length}`);
+console.log(`Remaining ${nextLinks.length}`);

@@ -3,11 +3,33 @@ import { tokenizeQuery, normSearchText } from "../sku.js";
 import {
 	smwsKeyFromName,
 	extractAgeFromText,
+	extractAbv,
+	abvMultiplier,
+	extractEditionCodes,
+	editionCodeMultiplier,
+	bareAgeCandidates,
 	filterSimTokens,
 	tokenContainmentScore,
 	fastSimilarityScore,
 	similarityScore,
+	levenshtein,
 } from "./similarity.js";
+import { conceptConflictMultiplier } from "./concepts.js";
+import { extractBlendFeatures, blendScore } from "./blend.js";
+import { gbtScore } from "./gbt.js";
+import {
+	DISTINCTIVE_IDF,
+	WO_POW,
+	TOP_TERM_BONUS,
+	BASE_FLOOR,
+	COVERAGE_PENALTY_FLOOR,
+	COVERAGE_PENALTY_EXP,
+	COVERAGE_PENALTY_FLOOR_CAND,
+	COVERAGE_PENALTY_EXP_CAND,
+	BRAND_DESCRIPTOR_BROADNESS_MIN,
+	GRADED_COVERAGE_FLOOR,
+	GRADED_COVERAGE_EXP,
+} from "./vocab.js";
 
 /* ---------------- Randomization helpers ---------------- */
 
@@ -31,6 +53,33 @@ function shuffleInPlace(arr, rnd) {
 	return arr;
 }
 
+/* ---------------- Canonical-group dedup ---------------- */
+// Candidates are scored per *raw* SKU (the linker aggregates by raw SKU so it can
+// create links). But two candidates that are already linked to each other belong
+// to one canonical group and must not appear as two separate cards — linking the
+// anchor to either one joins the whole group. Collapse to the single best member
+// per group. `items` must already be sorted best-first so the survivor is the
+// strongest. `getSku(x)` extracts the SKU; `groupRepFn(sku)` returns the group
+// representative (no-op passthrough when absent → behavior unchanged for callers
+// that don't supply it, e.g. tools/linker_eval.mjs).
+export function dedupeByGroupRep(items, getSku, groupRepFn) {
+	if (typeof groupRepFn !== "function") return items;
+	const seen = new Set();
+	const out = [];
+	for (const x of items) {
+		const sku = String(getSku(x) || "");
+		const rep = String(groupRepFn(sku) || sku);
+		if (!rep) {
+			out.push(x);
+			continue;
+		}
+		if (seen.has(rep)) continue;
+		seen.add(rep);
+		out.push(x);
+	}
+	return out;
+}
+
 /* ---------------- Bad/invalid SKU detection ---------------- */
 // A "bad" SKU is one that can never be matched automatically by ID and
 // therefore is more likely to need manual linking. These are exactly the
@@ -43,6 +92,340 @@ function isBadSku(sku) {
 	if (s.startsWith("upc:")) return true;
 	if (s === "unknown") return true;
 	return false;
+}
+
+// Store-exclusivity penalty. A store almost never lists the SAME product under
+// two distinct REAL skus, so if the candidate's group already covers one of the
+// target's stores (and both skus are real), they're very likely DIFFERENT
+// products the store stocks side-by-side — most often two sizes whose size isn't
+// in the name (Chivas Regal 12 at BCL as a 750 and a 1.75L). Measured on the
+// labeled set: gated real↔real this fires on 56% of ignores but only ~4.5% of
+// links. Gated to real↔real because a synthetic u:/upc: sku sharing a store is
+// usually that store's own id-upgrade of the SAME listing (a true link).
+const STORE_EXCLUSIVITY_PENALTY = 0.35;
+
+// A shared SMWS cask code (e.g. 94.34, GN6.3) is a unique product fingerprint —
+// two listings carrying the same code are the same single-cask bottling. Floor
+// the score so the match survives even though the code's digits are filtered out
+// of the name vocabulary (which otherwise leaves these pairs near 0).
+const SMWS_SHARED_FLOOR = 12;
+
+// Two names whose distinctive content is IDENTICAL once spacing/hyphenation and
+// short numbers are removed are the same product, even if tokenization split them
+// differently ("MACALONEYS CATHNAHAVEN" ↔ "Macaloney's Cath-Na-Haven" — one glued
+// token vs three). Floor the base before size/age apply, so a genuine size variant
+// with an identical core is still cut by the size penalty.
+const SPACELESS_CORE_FLOOR = 12;
+
+// Distinctive spaceless "core": filtered tokens minus 1–2 digit numbers (age/ABV
+// noise), concatenated. 3+ digit edition/proof numbers are kept so "Glenfarclas
+// 105" ≠ "Glenfarclas". Possessive 's' folds in naturally via the join.
+function spacelessCore(norm) {
+	let out = "";
+	for (const t of filterSimTokens(tokenizeQuery(String(norm || "")))) {
+		if (/^\d{1,2}$/.test(t)) continue;
+		out += t;
+	}
+	return out;
+}
+
+// Mid-word DB truncation: every token of the shorter name matches the longer's
+// except its LAST token, which is an incomplete prefix of the longer's token there
+// ("…TRIPLE WOO" ← "WOOD", "Straight Edge Bourbo" ← "Bourbon"). Distinct from a
+// size/expression variant (where the shorter's last token is COMPLETE and the
+// longer merely appends) — and 0 ignore-pairs in the labeled set match it.
+function midWordCut(aNorm, bNorm) {
+	let x = String(aNorm || "").split(" ").filter(Boolean);
+	let y = String(bNorm || "").split(" ").filter(Boolean);
+	if (x.length > y.length) [x, y] = [y, x];
+	if (x.length < 2) return false;
+	const k = x.length - 1;
+	for (let i = 0; i < k; i++) if (x[i] !== y[i]) return false;
+	const last = x[k];
+	const yk = y[k] || "";
+	return last.length >= 3 && yk.length > last.length && yk.startsWith(last);
+}
+
+/* ---------------- Per-pair scoring (single source of truth) ---------------- */
+
+// Build the per-anchor context once; pass it to scorePairWithVocab for each
+// candidate. Used by recommendSimilar, computeInitialPairsFast, and
+// tools/linker_eval.mjs — so the live ranker and the eval can never drift.
+export function prepScorePairCtx(pinned, opts) {
+	const name = String(pinned?.name || "");
+	const norm = normSearchText(name);
+	const rawToks = tokenizeQuery(norm);
+	const toks = filterSimTokens(rawToks);
+	const vocab = opts && opts.vocab ? opts.vocab : null;
+
+	// Distinctive unigrams of the TARGET — terms a true match should share.
+	const distinctiveTerms = vocab ? vocab.distinctiveUnigramsForName(name) : null;
+	const allUnigrams = vocab ? vocab.allUnigramsForName(name) : null;
+
+	return {
+		sku: String(pinned?.sku || ""),
+		name,
+		norm,
+		rawToks,
+		toks,
+		brand: toks[0] || "",
+		age: extractAgeFromText(norm),
+		core: vocab ? spacelessCore(norm) : "",
+		stores: pinned?.stores instanceof Set ? pinned.stores : new Set(pinned?.stores || []),
+		abv: vocab ? extractAbv(norm) : null,
+		editionCodes: vocab ? extractEditionCodes(name) : null,
+		topTerm: vocab ? vocab.topTerm(name) : null,
+		distinctiveTerms,
+		allUnigrams,
+		vocab,
+		sizePenaltyFn: opts && opts.sizePenaltyFn,
+		pricePenaltyFn: opts && opts.pricePenaltyFn,
+	};
+}
+
+// Score a single candidate against the pinned-side ctx using the vocab formula.
+// Returns 0 when the candidate has no usable name/tokens, when scoring would be
+// undefined, or when ctx has no vocab. Penalties (size/price) are applied if
+// the ctx carries those fns; bad-SKU boost is applied last.
+export function scorePairWithVocab(ctx, candidate) {
+	if (!ctx || !ctx.vocab || !candidate) return 0;
+	const itName = String(candidate.name || "");
+	const itNorm = normSearchText(itName);
+	if (!itNorm) return 0;
+	const itRawToks = tokenizeQuery(itNorm);
+	const itToks = filterSimTokens(itRawToks);
+	if (!itToks.length) return 0;
+	const itSku = String(candidate.sku || "");
+
+	const contain = tokenContainmentScore(ctx.rawToks, itRawToks);
+	const wo = ctx.vocab.weightedOverlap(ctx.name, itName);
+	let s = (BASE_FLOOR + contain) * Math.pow(1 + wo.score, WO_POW);
+
+	if (
+		ctx.topTerm &&
+		ctx.topTerm.idf >= DISTINCTIVE_IDF &&
+		ctx.vocab.termsForName(itName).has(ctx.topTerm.term)
+	) {
+		s *= 1 + TOP_TERM_BONUS;
+	}
+
+	// Distinctive-coverage penalty (symmetric): how many of the target's
+	// distinctive unigrams does the candidate share, AND how many of the
+	// candidate's distinctive unigrams does the target share? Missing on either
+	// side means "same brand, different edition" (Compass Box Stranger lacks
+	// `magic`; Detour Amethyst has its own distinctive `amethyst` the target
+	// lacks). The two sides multiply.
+	if (ctx.distinctiveTerms) {
+		const candDistinctive = ctx.vocab.distinctiveUnigramsForName(itName);
+		const targetAllTerms = ctx.vocab.termsForName(ctx.name);
+		const candAllTerms = ctx.vocab.termsForName(itName);
+
+		// Target-side: candidate missing target's edition word → strong penalty.
+		// (Tried symmetric cooc brand-descriptor filtering here too; it caused
+		// regressions like BNS Voodoo 2.25 → 1.05 because terms whose absence
+		// was legitimately demoting got filtered. Kept candidate-side-only.)
+		let targetBinaryFullCoverage = true;
+		if (ctx.distinctiveTerms.size > 0) {
+			let m = 0;
+			for (const t of ctx.distinctiveTerms) if (candAllTerms.has(t)) m++;
+			const coverage = m / ctx.distinctiveTerms.size;
+			if (coverage < 1) {
+				targetBinaryFullCoverage = false;
+				s *= Math.max(COVERAGE_PENALTY_FLOOR, Math.pow(coverage, COVERAGE_PENALTY_EXP));
+			}
+		}
+
+		// Graded coverage on ALL target unigrams, applied only when binary
+		// distinctive coverage was full. Catches sub-distinctive terms the
+		// candidate lacks (e.g. `sherry` in Bridgeland Innisfail Sherry Cask).
+		if (targetBinaryFullCoverage && ctx.allUnigrams && ctx.allUnigrams.size > 0) {
+			let interW = 0;
+			let totalW = 0;
+			for (const t of ctx.allUnigrams) {
+				const w = ctx.vocab.idf(t);
+				totalW += w;
+				if (candAllTerms.has(t)) interW += w;
+			}
+			if (totalW > 0) {
+				const covIdf = interW / totalW;
+				if (covIdf < 1) s *= Math.max(GRADED_COVERAGE_FLOOR, Math.pow(covIdf, GRADED_COVERAGE_EXP));
+			}
+		}
+
+		// Candidate-side: candidate has its OWN distinctive edition that target
+		// lacks → penalty. But EXCLUDE brand-descriptor words (broadly co-occur
+		// with many distinctive terms AND with a shared distinctive from the
+		// target). "Island Distillery" across Macaloney variants is brand
+		// boilerplate; "amethyst" only with Detour is an edition.
+		if (candDistinctive && candDistinctive.size > 0) {
+			// Which target distinctives did the candidate share? Those are the
+			// "shared distinctive" anchors used to validate brand-descriptor cooc.
+			const sharedDistinctive = [];
+			for (const t of ctx.distinctiveTerms) if (candAllTerms.has(t)) sharedDistinctive.push(t);
+
+			let m = 0;
+			let k = 0;
+			for (const t of candDistinctive) {
+				if (targetAllTerms.has(t)) {
+					m++;
+					k++;
+					continue;
+				}
+				// Unshared candidate distinctive: brand-descriptor or edition?
+				const cooc = ctx.vocab.coocSet(t);
+				let isBrandDescriptor = false;
+				if (cooc && cooc.size >= BRAND_DESCRIPTOR_BROADNESS_MIN) {
+					for (const sd of sharedDistinctive)
+						if (cooc.has(sd)) {
+							isBrandDescriptor = true;
+							break;
+						}
+				}
+				if (!isBrandDescriptor) k++;
+			}
+			if (k > 0) {
+				const coverage = m / k;
+				if (coverage < 1)
+					s *= Math.max(
+						COVERAGE_PENALTY_FLOOR_CAND,
+						Math.pow(coverage, COVERAGE_PENALTY_EXP_CAND),
+					);
+			}
+		}
+	}
+
+	// Identical distinctive core (spacing/hyphenation/possessive aside) → same
+	// product. Floor BEFORE size so size variants with an identical core still get cut.
+	if (ctx.core && ctx.core.length >= 10 && ctx.core === spacelessCore(itNorm)) {
+		s = Math.max(s, SPACELESS_CORE_FLOOR);
+	}
+	// Mid-word truncated title (DB cut the name) → same product.
+	if (ctx.norm && midWordCut(ctx.norm, itNorm)) s = Math.max(s, SPACELESS_CORE_FLOOR);
+
+	// In-context fuzzy distinctive match: an UNSHARED distinctive token on each side
+	// that's a 1-edit typo or truncation of the other ("saphire"↔"sapphire",
+	// "potrero"↔"portrero") is almost certainly the same identity word misspelled.
+	// Gated (distinctive + unshared + len≥5) and pairwise, so it doesn't pollute the
+	// global vocab the way a token-level canon did.
+	if (ctx.distinctiveTerms && ctx.distinctiveTerms.size && ctx.vocab) {
+		const candTerms = ctx.vocab.termsForName(itName);
+		const targetTerms = ctx.vocab.termsForName(ctx.name);
+		const candDist = ctx.vocab.distinctiveUnigramsForName(itName);
+		const aOnly = [...ctx.distinctiveTerms].filter(
+			(t) => /^[a-z]{5,}$/.test(t) && !candTerms.has(t),
+		);
+		const bOnly = [...candDist].filter((t) => /^[a-z]{5,}$/.test(t) && !targetTerms.has(t));
+		let fuzzy = 0;
+		for (const x of aOnly)
+			for (const y of bOnly) {
+				const indel = Math.abs(x.length - y.length) <= 1 && levenshtein(x, y) <= 1;
+				const trunc =
+					(x.startsWith(y) || y.startsWith(x)) &&
+					Math.min(x.length, y.length) / Math.max(x.length, y.length) >= 0.8;
+				if (indel || trunc) {
+					fuzzy++;
+					break;
+				}
+			}
+		if (fuzzy > 0) s *= 1 + 0.9 * fuzzy;
+	}
+
+	if (typeof ctx.sizePenaltyFn === "function") s *= ctx.sizePenaltyFn(ctx.sku, itSku);
+	if (typeof ctx.pricePenaltyFn === "function") s *= ctx.pricePenaltyFn(ctx.sku, itSku);
+
+	const itAge = extractAgeFromText(itNorm);
+	if (ctx.age && itAge) {
+		if (ctx.age === itAge) s *= 1.8;
+		else s *= 0.2;
+	} else if (ctx.age && !itAge && bareAgeCandidates(itNorm).has(ctx.age)) {
+		s *= 1.8;
+	}
+
+	if (ctx.abv != null) s *= abvMultiplier(ctx.abv, extractAbv(itNorm));
+
+	// Hard if/else on edition codes: SMWS X.YYY / R4 / G1, Roman numerals
+	// (III/IV/V…), season codes (S22/S24/S2023). When both sides carry codes of
+	// the same kind and they differ, the products are different (different cask,
+	// release, batch).
+	let smwsShared = false;
+	if (ctx.editionCodes && ctx.editionCodes.size > 0) {
+		const itCodes = extractEditionCodes(itName);
+		s *= editionCodeMultiplier(ctx.editionCodes, itCodes);
+		for (const code of ctx.editionCodes) {
+			if (code.startsWith("smws:") && itCodes.has(code)) {
+				smwsShared = true;
+				break;
+			}
+		}
+	}
+
+	// Mutually-exclusive concept walls (gin vs whisky, single malt vs bourbon,
+	// single barrel vs small batch, 0.0% vs real spirit, …). Demotes only when
+	// the rest of the name matches enough to score — a hard category wall the
+	// bag-of-tokens scorer cannot see. Raw names so "0.0%" survives.
+	s *= conceptConflictMultiplier(ctx.name, itName);
+
+	// Store-exclusivity (gated real↔real): candidate's group already covers one of
+	// the target's stores → probably a different product the store stocks too.
+	if (!isBadSku(ctx.sku) && !isBadSku(itSku) && ctx.stores && ctx.stores.size && candidate.stores) {
+		const cs = candidate.stores;
+		const csHas = typeof cs.has === "function" ? (x) => cs.has(x) : (x) => cs.includes(x);
+		for (const st of ctx.stores) {
+			if (csHas(st)) {
+				s *= STORE_EXCLUSIVITY_PENALTY;
+				break;
+			}
+		}
+	}
+
+	if (isBadSku(ctx.sku) || isBadSku(itSku)) s *= 1.2;
+
+	// A shared SMWS cask code is a unique-cask fingerprint — apply its floor LAST
+	// so nothing (flavor/concept/store penalties, low name overlap) can bury a
+	// confirmed same-cask match. Many SMWS names are flavor tasting-notes, so this
+	// ordering is what lets the flavor wall coexist with SMWS matching.
+	if (smwsShared) s = Math.max(s, SMWS_SHARED_FLOOR);
+
+	return s;
+}
+
+/* ---------------- Per-candidate blend scoring (single source of truth) ---------------- */
+
+// The ONE function that turns a (ctx, candidate, det) into the displayed score, used by
+// recommendSimilar AND the rapid linker's search + worklist — so every surface shows the SAME
+// number for a pair (a search hit and a suggestion can't disagree). `det` is the precomputed
+// scorePairWithVocab. With no blend (AI off) it returns { score: det } and the caller squashes
+// via toConfidence01; with a blend it returns the calibrated probability (GBT if a model is
+// loaded, else the linear weights) plus aiDelta (how much the embedding moved it).
+export function scorePairBlended(ctx, candidate, det, blend, opts) {
+	if (!blend || !(blend.weights || blend.gbt)) return { score: det, aiDelta: undefined };
+	const aSku = String(ctx.sku || "");
+	const bSku = String(candidate.sku || "");
+	const feats = extractBlendFeatures(ctx, candidate, {
+		vocab: opts.vocab,
+		sizePenaltyFn: opts.sizePenaltyFn,
+		pricePenaltyFn: opts.pricePenaltyFn,
+		embedCosFn: blend.embedCosFn,
+		detScore: det,
+	});
+	if (blend.groupIndex) Object.assign(feats, blend.groupIndex.features(aSku, bSku));
+	if (blend.gbt) {
+		// Trees route a MISSING embedding natively — mark it NaN, not 0 ("dissimilar").
+		if (blend.embedCosFn) {
+			const c = blend.embedCosFn(aSku, bSku);
+			feats.embedCos = c == null ? NaN : c;
+		}
+		const p = gbtScore(blend.gbt, feats);
+		const pNo = gbtScore(blend.gbt, { ...feats, embedCos: NaN });
+		return { score: p == null ? det : p, aiDelta: p != null && pNo != null ? p - pNo : undefined };
+	}
+	// Linear blend. A missing embedding vector → no-embed weights for this pair.
+	const bwNo = blend.weightsNoEmbed || null;
+	const cosVal = blend.embedCosFn ? blend.embedCosFn(aSku, bSku) : null;
+	const useNoEmbed = cosVal == null && !!bwNo;
+	const p = blendScore(feats, useNoEmbed ? bwNo : blend.weights);
+	const aiDelta = bwNo ? (useNoEmbed ? 0 : p - blendScore(feats, bwNo)) : undefined;
+	return { score: p, aiDelta };
 }
 
 /* ---------------- Suggestion helpers ---------------- */
@@ -79,23 +462,40 @@ export function recommendSimilar(
 	pricePenaltyFn,
 	sameStoreFn,
 	sameGroupFn,
+	opts,
 ) {
 	if (!pinned || !pinned.name) return topSuggestions(allAgg, limit, otherPinnedSku, mappedSkus);
+
+	// Optional IDF-vocabulary boost + same-store enablement. When `vocab` is
+	// absent, every code path below behaves exactly as before (all new logic is
+	// guarded by `if (vocab)`).
+	const vocab = opts && opts.vocab ? opts.vocab : null;
+	const allowSameStore = !!(opts && opts.allowSameStore);
+	const groupRepFn = opts && typeof opts.groupRepFn === "function" ? opts.groupRepFn : null;
 
 	const pinnedSku = String(pinned.sku || "");
 	const otherSku = otherPinnedSku ? String(otherPinnedSku) : "";
 	const base = String(pinned.name || "");
 
-	const pinNorm = normSearchText(pinned.name || "");
-	const pinRawToks = tokenizeQuery(pinNorm);
-	const pinToks = filterSimTokens(pinRawToks);
-	const pinBrand = pinToks[0] || "";
-	const pinAge = extractAgeFromText(pinNorm);
+	// Single source of truth for per-pair scoring; used in the cheap loop below.
+	const ctx = prepScorePairCtx(pinned, { vocab, sizePenaltyFn, pricePenaltyFn });
+	const pinNorm = ctx.norm;
+	const pinRawToks = ctx.rawToks;
+	const pinToks = ctx.toks;
+	const pinBrand = ctx.brand;
+	const pinAge = ctx.age;
+	const pinTopTerm = ctx.topTerm;
 	const pinnedSmws = smwsKeyFromName(pinned.name || "");
 
 	// ---- Tuning knobs ----
-	const MAX_SCAN = 5000; // cap for huge catalogs
-	const FULL_SCAN_UNDER = 12000; // ✅ scan everything if catalog is "small"
+	// Scan the whole catalog for any realistic size. These were 5000/12000,
+	// but the 33-store catalog (~12.4k aggregates) exceeded 12000, which
+	// silently dropped ~60% of candidates from the scan — including most
+	// new-store items — so pinned suggestions never surfaced them. The cheap
+	// scoring pass is O(n) and fine at this scale; keep a high ceiling only as
+	// a guard against a pathologically huge catalog.
+	const MAX_SCAN = 200000; // cap for huge catalogs
+	const FULL_SCAN_UNDER = 200000; // scan everything below this
 	const MAX_CHEAP_KEEP = 320; // keep top candidates from cheap stage
 	const MAX_FINE = 70; // expensive score only on top-N
 	// ----------------------
@@ -133,7 +533,10 @@ export function recommendSimilar(
 		if (otherSku && itSku === otherSku) continue;
 
 		// HARD BLOCKS ONLY:
-		if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
+		// Same-store is blocked unless allowSameStore (so a store's duplicate SKUs
+		// for the same item can be matched).
+		if (!allowSameStore && typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku))
+			continue;
 		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
 		if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 
@@ -156,9 +559,16 @@ export function recommendSimilar(
 			}
 		}
 
+		if (vocab) {
+			// Single-source-of-truth scoring (also used by tools/linker_eval.mjs).
+			const s0 = scorePairWithVocab(ctx, it);
+			if (s0 > 0) pushTopK(cheap, { it, s: s0 }, MAX_CHEAP_KEEP);
+			continue;
+		}
+
+		// ---- Legacy (vocab-off) path: kept for back-compat / fallback ----
 		const itNorm = normSearchText(it.name || "");
 		if (!itNorm) continue;
-
 		const itRawToks = tokenizeQuery(itNorm);
 		const itToks = filterSimTokens(itRawToks);
 		if (!itToks.length) continue;
@@ -167,39 +577,22 @@ export function recommendSimilar(
 		const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
 		const contain = tokenContainmentScore(pinRawToks, itRawToks);
 
-		// Cheap score first (no Levenshtein)
 		let s0 = fastSimilarityScore(pinRawToks, itRawToks, pinNorm, itNorm);
 		if (s0 <= 0) s0 = 0.01 + 0.25 * contain;
-
-		// Soft first-token mismatch penalty (never blocks)
 		if (!firstMatch) {
 			const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
 			let mult = 0.1 + 0.95 * contain;
 			if (smallN <= 3 && contain < 0.78) mult *= 0.22;
 			s0 *= Math.min(1.0, mult);
 		}
-
-		// Size penalty early
-		if (typeof sizePenaltyFn === "function") {
-			s0 *= sizePenaltyFn(pinnedSku, itSku);
-		}
-
-		// Price penalty early
-		if (typeof pricePenaltyFn === "function") {
-			s0 *= pricePenaltyFn(pinnedSku, itSku);
-		}
-
-		// Age handling early
+		if (typeof sizePenaltyFn === "function") s0 *= sizePenaltyFn(pinnedSku, itSku);
+		if (typeof pricePenaltyFn === "function") s0 *= pricePenaltyFn(pinnedSku, itSku);
 		const itAge = extractAgeFromText(itNorm);
 		if (pinAge && itAge) {
 			if (pinAge === itAge) s0 *= 1.6;
 			else s0 *= 0.22;
 		}
-
-		// Bad/invalid SKU boost — these will never auto-link, so we want them
-		// to surface more often in manual suggestions.
 		if (isBadSku(pinnedSku) || isBadSku(itSku)) s0 *= 1.15;
-
 		pushTopK(cheap, { it, s: s0, itNorm, itRawToks }, MAX_CHEAP_KEEP);
 	}
 
@@ -207,54 +600,74 @@ export function recommendSimilar(
 	cheap.sort((a, b) => b.s - a.s);
 	if (cheap.length > MAX_CHEAP_KEEP) cheap.length = MAX_CHEAP_KEEP;
 
-	// Fine stage: expensive scoring only on top candidates
-	const fine = [];
-	for (const x of cheap.slice(0, MAX_FINE)) {
-		const it = x.it;
-		const itSku = String(it.sku || "");
+	let fine;
+	if (vocab) {
+		// scorePairWithVocab is the final score; no rescoring needed.
+		fine = cheap.slice(0, MAX_FINE).map((x) => ({ it: x.it, s: x.s }));
+	} else {
+		fine = [];
+		for (const x of cheap.slice(0, MAX_FINE)) {
+			const it = x.it;
+			const itSku = String(it.sku || "");
+			const itNorm = x.itNorm || normSearchText(it.name || "");
+			const itRawToks = x.itRawToks || tokenizeQuery(itNorm);
+			const itToks = filterSimTokens(itRawToks);
+			const itBrand = itToks[0] || "";
+			const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
+			const contain = tokenContainmentScore(pinRawToks, itRawToks);
 
-		let s = similarityScore(base, it.name || "");
-		if (s <= 0) continue;
-
-		const itNorm = x.itNorm || normSearchText(it.name || "");
-		const itRawToks = x.itRawToks || tokenizeQuery(itNorm);
-		const itToks = filterSimTokens(itRawToks);
-		const itBrand = itToks[0] || "";
-		const firstMatch = pinBrand && itBrand && pinBrand === itBrand;
-		const contain = tokenContainmentScore(pinRawToks, itRawToks);
-
-		if (!firstMatch) {
-			const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
-			let mult = 0.1 + 0.95 * contain;
-			if (smallN <= 3 && contain < 0.78) mult *= 0.22;
-			s *= Math.min(1.0, mult);
+			let s = similarityScore(base, it.name || "");
 			if (s <= 0) continue;
+			if (!firstMatch) {
+				const smallN = Math.min(pinToks.length || 0, itToks.length || 0);
+				let mult = 0.1 + 0.95 * contain;
+				if (smallN <= 3 && contain < 0.78) mult *= 0.22;
+				s *= Math.min(1.0, mult);
+				if (s <= 0) continue;
+			}
+			if (typeof sizePenaltyFn === "function") {
+				s *= sizePenaltyFn(pinnedSku, itSku);
+				if (s <= 0) continue;
+			}
+			if (typeof pricePenaltyFn === "function") {
+				s *= pricePenaltyFn(pinnedSku, itSku);
+				if (s <= 0) continue;
+			}
+			const itAge = extractAgeFromText(itNorm);
+			if (pinAge && itAge) {
+				if (pinAge === itAge) s *= 2.0;
+				else s *= 0.15;
+			}
+			if (isBadSku(pinnedSku) || isBadSku(itSku)) s *= 1.2;
+			fine.push({ it, s });
 		}
-
-		if (typeof sizePenaltyFn === "function") {
-			s *= sizePenaltyFn(pinnedSku, itSku);
-			if (s <= 0) continue;
-		}
-
-		if (typeof pricePenaltyFn === "function") {
-			s *= pricePenaltyFn(pinnedSku, itSku);
-			if (s <= 0) continue;
-		}
-
-		const itAge = extractAgeFromText(itNorm);
-		if (pinAge && itAge) {
-			if (pinAge === itAge) s *= 2.0;
-			else s *= 0.15;
-		}
-
-		if (isBadSku(pinnedSku) || isBadSku(itSku)) s *= 1.2;
-
-		fine.push({ it, s });
 	}
 
+	// Learned-blend re-rank (opt-in): replace the deterministic score with the calibrated
+	// blend probability for the top candidates we already retrieved (retrieve-then-rerank).
+	// The deterministic score is fed in as a feature (logDet) — this AUGMENTS the scorer,
+	// it doesn't discard it. SMWS exact-match pins (s ≈ 1e9) are left untouched so a shared
+	// cask code always stays on top.
+	if (vocab && opts && opts.blend && (opts.blend.weights || opts.blend.gbt)) {
+		for (const f of fine) {
+			if (!f.it || f.s >= 1e8) continue;
+			const { score, aiDelta } = scorePairBlended(ctx, f.it, f.s, opts.blend, {
+				vocab,
+				sizePenaltyFn,
+				pricePenaltyFn,
+			});
+			if (score != null) f.s = score;
+			if (aiDelta !== undefined) f.aiDelta = aiDelta;
+		}
+	}
+
+	const withScores = !!(opts && opts.withScores);
 	fine.sort((a, b) => b.s - a.s);
-	const out = fine.slice(0, limit).map((x) => x.it);
-	if (out.length) return out;
+	const fineDeduped = dedupeByGroupRep(fine, (x) => x.it && x.it.sku, groupRepFn);
+	if (fineDeduped.length) {
+		const top = fineDeduped.slice(0, limit);
+		return withScores ? top.map((x) => ({ it: x.it, score: x.s, aiDelta: x.aiDelta })) : top.map((x) => x.it);
+	}
 
 	// Fallback (unchanged)
 	const fallback = [];
@@ -265,7 +678,8 @@ export function recommendSimilar(
 		if (itSku === pinnedSku) continue;
 		if (otherSku && itSku === otherSku) continue;
 
-		if (typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku)) continue;
+		if (!allowSameStore && typeof sameStoreFn === "function" && sameStoreFn(pinnedSku, itSku))
+			continue;
 		if (typeof isIgnoredPairFn === "function" && isIgnoredPairFn(pinnedSku, itSku)) continue;
 		if (typeof sameGroupFn === "function" && sameGroupFn(pinnedSku, itSku)) continue;
 
@@ -277,7 +691,8 @@ export function recommendSimilar(
 	}
 
 	fallback.sort((a, b) => b.s - a.s);
-	return fallback.slice(0, limit).map((x) => x.it);
+	const fb = dedupeByGroupRep(fallback, (x) => x.it && x.it.sku, groupRepFn).slice(0, limit);
+	return withScores ? fb.map((x) => ({ it: x.it, score: x.s })) : fb.map((x) => x.it);
 }
 
 export function computeInitialPairsFast(
@@ -297,6 +712,7 @@ export function computeInitialPairsFast(
 
 	// -------- temperature (0..1) --------
 	const TEMP = Math.max(0, Math.min(1, Number(opts?.temp ?? 0.22)));
+	const vocab = opts && opts.vocab ? opts.vocab : null;
 	const lerp = (a, b, t) => a + (b - a) * t;
 	const DETERMINISTIC = TEMP <= 0;
 
@@ -337,7 +753,7 @@ export function computeInitialPairsFast(
 	const itemsShuf = itemsAll.slice();
 	shuffleInPlace(itemsShuf, rnd);
 
-	const WORK_CAP = Math.min(12000, itemsShuf.length);
+	const WORK_CAP = Math.min(200000, itemsShuf.length);
 	let workAll;
 
 	if (DETERMINISTIC) {
@@ -351,7 +767,7 @@ export function computeInitialPairsFast(
 		const itemsShuf = itemsAll.slice();
 		shuffleInPlace(itemsShuf, rnd);
 
-		const WORK_CAP = Math.min(12000, itemsShuf.length);
+		const WORK_CAP = Math.min(200000, itemsShuf.length);
 		workAll = itemsShuf.length > WORK_CAP ? itemsShuf.slice(0, WORK_CAP) : itemsShuf;
 	}
 
@@ -501,6 +917,9 @@ export function computeInitialPairsFast(
 		const aBrand = aFilt[0] || "";
 		const aAge = extractAgeFromText(aNorm);
 
+		// Per-seed scoring context (shared with eval — single source of truth).
+		const aCtx = vocab ? prepScorePairCtx(a, { vocab, sizePenaltyFn, pricePenaltyFn }) : null;
+
 		// candidates from buckets
 		const cand = new Map();
 		for (const t of aFilt.slice(0, 10)) {
@@ -523,36 +942,39 @@ export function computeInitialPairsFast(
 		const cheap = [];
 		for (const b of cand.values()) {
 			const bSku = String(b.sku || "");
+
+			let s;
+			if (vocab) {
+				s = scorePairWithVocab(aCtx, b);
+				if (s > 0) cheap.push({ b, s });
+				continue;
+			}
+
+			// Legacy (vocab-off) path
 			const bNorm = itemNorm.get(bSku) || normSearchText(b.name || "");
 			const bRaw = itemRawToks.get(bSku) || tokenizeQuery(bNorm);
 			const bFilt = itemFilt.get(bSku) || filterSimTokens(bRaw);
 			if (!bFilt.length) continue;
-
 			const contain = tokenContainmentScore(aRaw, bRaw);
 			const bBrand = bFilt[0] || "";
 			const firstMatch = aBrand && bBrand && aBrand === bBrand;
 
-			let s = fastSimilarityScore(aRaw, bRaw, aNorm, bNorm);
+			s = fastSimilarityScore(aRaw, bRaw, aNorm, bNorm);
 			if (s <= 0) s = 0.01 + 0.25 * contain;
-
 			if (!firstMatch) {
 				const smallN = Math.min(aFilt.length || 0, bFilt.length || 0);
 				let mult = 0.12 + 0.9 * contain;
 				if (smallN <= 3 && contain < 0.78) mult *= 0.22;
 				s *= Math.min(1.0, mult);
 			}
-
 			if (typeof sizePenaltyFn === "function") s *= sizePenaltyFn(aSku, bSku);
 			if (typeof pricePenaltyFn === "function") s *= pricePenaltyFn(aSku, bSku);
-
 			const bAge = extractAgeFromText(bNorm);
 			if (aAge && bAge) {
 				if (aAge === bAge) s *= 1.5;
 				else s *= 0.22;
 			}
-
 			if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.15;
-
 			if (s > 0) cheap.push({ b, s, bNorm, bRaw, bFilt, contain, firstMatch, bAge });
 		}
 		if (!cheap.length) continue;
@@ -560,40 +982,40 @@ export function computeInitialPairsFast(
 		cheap.sort((x, y) => y.s - x.s);
 
 		// fine stage
-		const fine = [];
-		for (const x of cheap.slice(0, CHEAP_TOP)) {
-			const b = x.b;
-			const bSku = String(b.sku || "");
+		let fine;
+		if (vocab) {
+			// scorePairWithVocab is already the final score.
+			fine = cheap.slice(0, CHEAP_TOP).map((x) => ({ b: x.b, s: x.s }));
+		} else {
+			fine = [];
+			for (const x of cheap.slice(0, CHEAP_TOP)) {
+				const b = x.b;
+				const bSku = String(b.sku || "");
 
-			let s = similarityScore(a.name || "", b.name || "");
-			if (s <= 0) continue;
-
-			if (!x.firstMatch) {
-				const smallN = Math.min(aFilt.length || 0, (x.bFilt || []).length || 0);
-				let mult = 0.12 + 0.9 * x.contain;
-				if (smallN <= 3 && x.contain < 0.78) mult *= 0.22;
-				s *= Math.min(1.0, mult);
+				let s = similarityScore(a.name || "", b.name || "");
 				if (s <= 0) continue;
+				if (!x.firstMatch) {
+					const smallN = Math.min(aFilt.length || 0, (x.bFilt || []).length || 0);
+					let mult = 0.12 + 0.9 * x.contain;
+					if (smallN <= 3 && x.contain < 0.78) mult *= 0.22;
+					s *= Math.min(1.0, mult);
+					if (s <= 0) continue;
+				}
+				if (typeof sizePenaltyFn === "function") {
+					s *= sizePenaltyFn(aSku, bSku);
+					if (s <= 0) continue;
+				}
+				if (typeof pricePenaltyFn === "function") {
+					s *= pricePenaltyFn(aSku, bSku);
+					if (s <= 0) continue;
+				}
+				if (aAge && x.bAge) {
+					if (aAge === x.bAge) s *= 1.9;
+					else s *= 0.15;
+				}
+				if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.2;
+				fine.push({ b, s });
 			}
-
-			if (typeof sizePenaltyFn === "function") {
-				s *= sizePenaltyFn(aSku, bSku);
-				if (s <= 0) continue;
-			}
-
-			if (typeof pricePenaltyFn === "function") {
-				s *= pricePenaltyFn(aSku, bSku);
-				if (s <= 0) continue;
-			}
-
-			if (aAge && x.bAge) {
-				if (aAge === x.bAge) s *= 1.9;
-				else s *= 0.15;
-			}
-
-			if (isBadSku(aSku) || isBadSku(bSku)) s *= 1.2;
-
-			fine.push({ b, s });
 		}
 		if (!fine.length) continue;
 
@@ -629,13 +1051,9 @@ export function computeInitialPairsFast(
 		tryAddPair(a, picked.b, picked.s);
 	}
 
-	if (!DETERMINISTIC && out.length > smwsCount) {
-		// Keep SMWS pairs pinned at the top; only shuffle the non-SMWS tail.
-		const tail = out.slice(smwsCount);
-		shuffleInPlace(tail, rnd);
-		out.length = smwsCount;
-		for (const p of tail) out.push(p);
-	}
+	// Strongest suggestions first so the user works strong → weak. SMWS pairs
+	// carry score ~1e9 so they stay pinned at the head naturally.
+	out.sort((x, y) => (y.score || 0) - (x.score || 0));
 	return out.slice(0, limitPairs);
 }
 

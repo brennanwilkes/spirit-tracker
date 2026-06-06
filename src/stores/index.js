@@ -16,17 +16,42 @@ const { createStore: createVintage } = require("./vintagespirits");
 const { createStore: createVessel } = require("./vessel");
 const { createStore: createWillowPark } = require("./willowpark");
 const { createStore: createArc } = require("./arc");
+const { createStore: createClbSpirits } = require("./clbspirits");
+const { createStore: createWhiskyDrop } = require("./whiskydrop");
+const { createStore: createLime } = require("./lime");
+const { createStore: createVineArts } = require("./vinearts");
+const { createStore: createCanadianLiquor } = require("./canadianliquor");
+const { createStore: createLiquorWarehouse } = require("./liquorwarehouse");
+const { createStore: createZyn } = require("./zyn");
+const { createStore: createWineAndBeyond } = require("./wineandbeyond");
+const { createStore: createHighlander } = require("./highlander");
+const { createStore: createLiberty } = require("./liberty");
+const { createStore: createRmwsb } = require("./rmwsb");
+const { createStore: createSherbrooke } = require("./sherbrooke");
+const { createStore: createColorDeVino } = require("./colordevino");
+const { createStore: createHighPointBws } = require("./highpointbws");
+const { createStore: createNewDistrict } = require("./newdistrict");
+const { createStore: createLiquorama } = require("./liquorama");
+const { createStore: createMarquis } = require("./marquis");
 
 function getStoreRegions() {
 	return Object.fromEntries(createStores().map((s) => [s.key, s.region || "unknown"]));
 }
 
 function createStores({ defaultUa } = {}) {
+	// Order matters: the scheduler (src/tracker/run_all.js) builds its work
+	// queue in this order and workers pick the earliest available item, so
+	// slow stores should sit near the top to overlap with the fast tail
+	// rather than straggle at the end of the run.
 	return [
+		// Slowest first — W&B paginates ~120 throttled HTML pages (~9 min);
+		// gull is rate-limited to a 12s/request throttle.
+		createWineAndBeyond(defaultUa),
+		createGull(defaultUa),
+		// Existing session/API stores.
 		createKWM(defaultUa),
 		createCraftCellars(defaultUa),
 		createSierra(defaultUa),
-		createGull(defaultUa),
 		createCoop(defaultUa),
 		createStrath(defaultUa),
 		createBCL(defaultUa),
@@ -39,6 +64,23 @@ function createStores({ defaultUa } = {}) {
 		createVintage(defaultUa),
 		createLegacy(defaultUa),
 		createArc(defaultUa),
+		// New Shopify stores, largest catalog first.
+		createLime(defaultUa),
+		createZyn(defaultUa),
+		createCanadianLiquor(defaultUa),
+		createLiquorWarehouse(defaultUa),
+		createClbSpirits(defaultUa),
+		createWhiskyDrop(defaultUa),
+		createVineArts(defaultUa),
+		createHighlander(defaultUa),
+		createLiberty(defaultUa),
+		createRmwsb(defaultUa),
+		createSherbrooke(defaultUa),
+		createColorDeVino(defaultUa),
+		createHighPointBws(defaultUa),
+		createNewDistrict(defaultUa),
+		createLiquorama(defaultUa),
+		createMarquis(defaultUa),
 	];
 }
 

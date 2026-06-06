@@ -19,7 +19,10 @@ export function buildCanonStoreCache(allAgg, rules) {
 		let set = m.get(canon);
 		if (!set) m.set(canon, (set = new Set()));
 
-		const stores = it.stores;
+		// storesEver (live + out-of-stock history), not just live `stores`: a group whose
+		// listing at a shared store is currently OOS is still the same store — the same-store
+		// signal must reflect group↔store membership over all time, not present availability.
+		const stores = it.storesEver && it.storesEver.size ? it.storesEver : it.stores;
 		if (stores && stores.size) for (const s of stores) set.add(s);
 	}
 

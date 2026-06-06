@@ -63,13 +63,193 @@ export function extractAgeFromText(normName) {
 	const s = String(normName || "");
 	if (!s) return "";
 
-	const m = s.match(/\b(?:aged\s*)?(\d{1,2})\s*(?:yr|yrs|year|years)\b/i);
+	// incl. Spanish "años/años" (accent-folded to "anos") — "7 Años" → 7.
+	const m = s.match(/\b(?:aged\s*)?(\d{1,2})\s*(?:yr|yrs|year|years|anos?)\b/i);
 	if (m && m[1]) return String(parseInt(m[1], 10));
 
 	const m2 = s.match(/\b(\d{1,2})\s*yo\b/i);
 	if (m2 && m2[1]) return String(parseInt(m2[1], 10));
 
 	return "";
+}
+
+// Best-effort ABV (% alcohol) from a name. Handles "46.8 ABV", "46%",
+// "43.5 % abv", and "92 proof" (→ 46). Returns a number or null. Deliberately
+// soft: ABV is relevant but vaguely formatted, so callers should nudge, not gate.
+export function extractAbv(normName) {
+	const s = String(normName || "");
+	let m = s.match(/(\d{2,3}(?:\.\d+)?)\s*proof\b/i);
+	if (m) {
+		const v = parseFloat(m[1]) / 2;
+		if (v >= 20 && v <= 75) return v;
+	}
+	m = s.match(/(\d{2,3}(?:\.\d+)?)\s*(?:%|abv)/i);
+	if (m) {
+		const v = parseFloat(m[1]);
+		if (v >= 20 && v <= 75) return v;
+	}
+	return null;
+}
+
+// Loose normalization that PRESERVES periods (and ' / & boundaries collapse to
+// space) so decimal edition codes like Octomore "15.1" or SMWS "53.471" survive
+// — the standard normSearchText strips the dot and would fuse them into noise.
+export function normForEditionCodes(name) {
+	return (
+		" " +
+		String(name || "")
+			.toLowerCase()
+			.replace(/[^a-z0-9.]+/g, " ")
+			.replace(/\s+/g, " ")
+			.trim() +
+		" "
+	);
+}
+
+// Extract identifying "edition codes" from a name. These are short, structured
+// tokens that uniquely identify a specific bottling and should be treated as
+// hard if/else discriminators: two items both carrying a code OF THE SAME KIND
+// but with DIFFERENT values are almost certainly different products (different
+// cask, season-batch, SMWS code, release/series number). Returned codes are
+// kind-prefixed so we only compare like with like. Pass the raw display name;
+// this applies its own period-preserving normalization internally.
+//
+// Kinds covered:
+//   - SMWS classic:  53.471, 1.234
+//   - SMWS lettered:  R4, G1   (single-letter prefix + 1-3 digits)
+//   - Roman numerals (length ≥ 2 to avoid ambiguous single letters): II, III, IV, V…
+//   - Season/Winter batch codes: S22, S24, S2023, W21, W2024
+//   - Numbered editions: Release 42, Series 3, Recipe 01, Chapter 8, No. 6, N.4
+//   - Decimal version codes: Octomore 15.1 / 16.1 (guarded against ABV/proof)
+export function extractEditionCodes(normName) {
+	const s = normForEditionCodes(normName);
+	const out = new Set();
+	if (!s.trim()) return out;
+	// SMWS classic decimal (53.471). Gated on the "smws" marker because a bare
+	// "\d.\d" pattern otherwise swallows ABV values (59.1, 46.8) now that periods
+	// survive normalization — and those would create bogus same-kind conflicts.
+	if (/\bsmws\b/.test(s)) {
+		// Numeric cask code: NN.NN … up to 3-digit distillery part (128.22, 94.34).
+		const smws = s.match(/\b\d{1,3}\.\d{1,4}\b/g);
+		if (smws) for (const m of smws) out.add("smws:" + m);
+		// Lettered distillery codes: G/B/R single-letter, GN (gin), RW (rye whisky),
+		// optionally with a decimal release (R4, G1, GN6.3, RW5.1, GN3.23). Whitelist
+		// the prefixes so volume noise like "x 750" can never be read as a code.
+		const lettered = s.match(/\b(?:gn|rw|bw|g|b|r|c|a)\d{1,3}(?:\.\d{1,3})?\b/gi);
+		if (lettered) for (const m of lettered) out.add("smws:" + m.toLowerCase());
+	}
+	const lettered = s.match(/\b[a-z]\d{1,3}\b/gi);
+	if (lettered)
+		for (const m of lettered) {
+			const v = m.toLowerCase();
+			// Only treat as SMWS-lettered if NOT a season code (s/w prefix handled below)
+			if (!/^[sw]\d{2,4}$/i.test(v)) out.add("smws:" + v);
+		}
+	// Roman numerals length ≥ 2 — skip bare "i"/"v"/"x"
+	const roman = s.match(/\b(?:ix|iv|v?i{2,3}|x{2,3}|vi{1,3}|xi{1,3})\b/gi);
+	if (roman) for (const m of roman) out.add("roman:" + m.toLowerCase());
+	const season = s.match(/\b[sw]\d{2,4}\b/gi);
+	if (season) for (const m of season) out.add("season:" + m.toLowerCase());
+
+	// Year / vintage editions (1800–2099). Both sides carrying a year that differs
+	// = different annual/vintage release (Black Tot 2024 vs 2025; Uncle Nearest 1884
+	// vs 1856). Same year is shared. Excludes 17xx (1750 mL etc.).
+	const year = s.match(/\b(?:1[89]|20)\d{2}\b/g);
+	if (year) for (const m of year) out.add("year:" + m);
+
+	// Numbered editions: "release 42", "series 3", "recipe 01", "chapter 8",
+	// "no. 6", "n.4". Leading zeros normalized so "01" ≡ "1". Each keyword is its
+	// own kind so a release number never conflicts with a series number.
+	const numbered = [
+		[/\brelease\s+(\d{1,3})\b/g, "release"],
+		[/\b(\d{1,3})(?:st|nd|rd|th)\s+release\b/g, "release"],
+		[/\bseries\s+(\d{1,3})\b/g, "series"],
+		[/\brecipe\s+(\d{1,3})\b/g, "recipe"],
+		[/\bchapter\s+(\d{1,3})\b/g, "chapter"],
+		[/\bbatch\s+(?:no\.?\s*|number\s*|#\s*)?(\d{1,3})\b/g, "batch"],
+		[/\bno\.?\s*(\d{1,3})\b/g, "no"],
+		[/\bn\.\s*(\d{1,2})\b/g, "no"],
+	];
+	for (const [re, kind] of numbered) {
+		re.lastIndex = 0;
+		let m;
+		while ((m = re.exec(s))) out.add(kind + ":" + String(parseInt(m[1], 10)));
+	}
+
+	// Decimal version codes (Octomore 15.1, 8.3). Guard against ABV/proof: skip a
+	// decimal that is immediately followed by % / "abv" / "proof", and skip values
+	// in the typical ABV range (20–75). The 1–2 digit fraction keeps SMWS-style
+	// 3+ digit fractions (already captured above) out of this bucket.
+	const verRe = /\b(\d{1,2})\.(\d{1,2})\b(?!\s*(?:%|abv|proof|percent))/gi;
+	let vm;
+	while ((vm = verRe.exec(s))) {
+		const val = parseFloat(vm[1] + "." + vm[2]);
+		if (val >= 20 && val <= 75) continue; // looks like an ABV/proof, not a version
+		out.add("ver:" + vm[1] + "." + parseInt(vm[2], 10));
+	}
+	return out;
+}
+
+// Compare two edition-code sets. If both carry codes OF THE SAME KIND and none
+// of those codes are shared, return a strong demotion factor. If they share a
+// code, return a mild boost. Otherwise neutral.
+export function editionCodeMultiplier(a, b) {
+	if (!a || !b || !a.size || !b.size) return 1;
+	const byKind = (set) => {
+		const m = new Map();
+		for (const c of set) {
+			const i = c.indexOf(":");
+			if (i < 0) continue;
+			const k = c.slice(0, i);
+			if (!m.has(k)) m.set(k, new Set());
+			m.get(k).add(c);
+		}
+		return m;
+	};
+	const aK = byKind(a);
+	const bK = byKind(b);
+	let sharedAny = false;
+	let conflictAny = false;
+	for (const [kind, aset] of aK) {
+		const bset = bK.get(kind);
+		if (!bset) continue;
+		let shared = 0;
+		for (const c of aset) if (bset.has(c)) shared++;
+		if (shared > 0) sharedAny = true;
+		else conflictAny = true;
+	}
+	// Conflict DOMINATES a shared code of another kind: same vintage year:1997 but a
+	// different release season (s22 vs s24 — Glenfarclas Family Casks) is a different
+	// bottling. A shared year/series must not mask a conflicting season/release/batch/cask.
+	if (conflictAny) return 0.1;
+	if (sharedAny) return 1.15;
+	return 1;
+}
+
+// Soft-but-firm ABV agreement multiplier. ABV is relevant but vaguely formatted,
+// so a small gap (rounding: 46 vs 46.3) is neutral/positive, while a clear gap
+// (different cask-strength batches: 58.1 vs 53.9) is a strong non-match signal.
+// Returns 1 when either side has no parseable ABV.
+export function abvMultiplier(a, b) {
+	if (a == null || b == null) return 1;
+	const d = Math.abs(a - b);
+	if (d <= 0.6) return 1.15; // effectively the same → small confidence boost
+	if (d <= 1.5) return 1.0; // rounding / minor formatting → neutral
+	if (d <= 3) return 0.4; // likely different bottling
+	return 0.12; // clearly different strength → heavy non-match
+}
+
+// Bare 1–2 digit numeric tokens (e.g. "16" in "Gray Label 16 Seagrass") that
+// could be an age but lack an explicit yr/yo suffix. Used only to *accept* a
+// match when the other side has an explicit age — never to penalize, since a
+// bare number is just as likely a batch/edition number.
+export function bareAgeCandidates(normName) {
+	const out = new Set();
+	const toks = filterSimTokens(tokenizeQuery(String(normName || "")));
+	for (const t of toks) {
+		if (/^\d{1,2}$/.test(t)) out.add(t);
+	}
+	return out;
 }
 
 export function filterSimTokens(tokens) {
@@ -84,6 +264,13 @@ export function filterSimTokens(tokens) {
 		["whiskey", "whisky"],
 		["whisky", "whisky"],
 		["bourbon", "bourbon"],
+		// Spanish/French cognates → English so cross-language listings of the same
+		// product share tokens (Diplomático "Reserva Exclusiva" ↔ "Exclusive Reserve").
+		["reserva", "reserve"],
+		["exclusiva", "exclusive"],
+		["exclusivo", "exclusive"],
+		["edicion", "edition"],
+		["limitada", "limited"],
 	]);
 
 	const VOL_UNIT = new Set(["ml", "l", "cl", "oz", "liter", "liters", "litre", "litres"]);
@@ -129,7 +316,32 @@ export function filterSimTokens(tokens) {
 		out.push(t);
 	}
 
-	return out;
+	// Collapse initialisms and fold possessives so abbreviated/punctuated brand
+	// forms tokenize the same: "J.P. Wiser's" → [j,p,wiser,s] → [jp,wisers] to match
+	// "JP WISERS" → [jp,wisers]. A run of single letters merges into one token
+	// (j p → jp, g m → gm, x o → xo); a lone trailing "s" folds into the previous
+	// multi-letter word (wiser s → wisers, macaloney s → macaloneys).
+	const merged = [];
+	let initRun = false; // previous token is an in-progress single-letter initialism
+	for (const t of out) {
+		const prev = merged.length ? merged[merged.length - 1] : "";
+		if (t === "s" && prev && !initRun && prev.length > 1 && /[a-z]$/.test(prev)) {
+			merged[merged.length - 1] = prev + "s"; // possessive
+			continue;
+		}
+		if (/^[a-z]$/.test(t)) {
+			if (initRun) merged[merged.length - 1] = prev + t; // extend initialism
+			else {
+				merged.push(t);
+				initRun = true;
+			}
+			continue;
+		}
+		merged.push(t);
+		initRun = false;
+	}
+
+	return merged;
 }
 
 export function numberMismatchPenalty(aTokens, bTokens) {
