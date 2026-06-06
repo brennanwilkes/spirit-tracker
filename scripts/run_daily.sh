@@ -177,4 +177,13 @@ MSG_FILE="$(mktemp)"
 git commit -F "$MSG_FILE" -q
 rm -f "$MSG_FILE"
 
-git push -q
+# --no-thin: a thin pack deltifies against base objects git assumes the remote already has;
+# right after a large main→data merge the remote may lack such a base, which it rejects as
+# "missing object" (the failure that lost a full scrape on 2026-06-06). A self-contained pack
+# avoids it. Retry once after re-syncing in case a concurrent run advanced origin/data.
+if ! git push --no-thin -q; then
+  echo "push rejected; re-syncing with $REMOTE/$DATA_BRANCH and retrying once" >&2
+  git fetch -q "$REMOTE" "$DATA_BRANCH"
+  git merge -q --no-edit "$REMOTE/$DATA_BRANCH"
+  git push --no-thin -q
+fi
