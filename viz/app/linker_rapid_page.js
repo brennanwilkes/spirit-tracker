@@ -34,7 +34,7 @@ import {
 	scorePairWithVocab,
 	scorePairBlended,
 } from "./linker_page/suggestions.js";
-import { toConfidence01 } from "./linker_page/blend.js";
+import { toConfidence01, extractBlendFeatures } from "./linker_page/blend.js";
 import { buildVocab } from "./linker_page/vocab.js";
 import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
@@ -314,6 +314,60 @@ export async function renderSkuLinkerRapid($app) {
 	})();
 	const REFINE_CAND_CAP = 600;
 
+	// ── Informativeness-weighted worklist ordering ──────────────────────────────────────
+	// The user mines hard negatives here ~2–3 pairs/min, so ORDER is the dominant cost.
+	// The single most valuable label for pushing auto-link rec@99 toward 99% is a BOUNDARY
+	// HARD-NEGATIVE: a pair the scorer rates HIGH (looks like a match) that actually differs
+	// on edition/age/size/abv (same-distillery / different-expression). Confirming it as an
+	// `ignore` sharpens the precision tail — exactly the negatives that crowd the 99% line.
+	// Also valuable: genuinely uncertain pairs sitting near the decision boundary. LOW value:
+	// trivially-obvious near-identical matches (scorer ~certain, no conflict — confirming them
+	// teaches nothing) and obvious non-matches (already dropped as dead-ends at fastScore=0).
+	//
+	// `informativeness(score, conflict)` maps an anchor's BEST candidate pair to a sort weight
+	// (higher = surfaced first). It REPLACES the raw best-score as the refined sort key. All
+	// constants are tunable:
+	//   - CONFLICT_BOOST: a conflicting-attribute high-score pair (likely hard-neg) is the
+	//     jackpot — multiply its weight so it floats to the very top of the worklist.
+	//   - BOUNDARY_CENTER / BOUNDARY_WIDTH: a gaussian "uncertainty" bump peaking at the
+	//     decision boundary; uncertain pairs (mid score) get a moderate boost.
+	//   - TRIVIAL_SCORE / TRIVIAL_DAMP: a near-certain, NON-conflicting pair is a trivial match
+	//     — damp it so obvious links don't hog the front of the queue.
+	// Weight stays strictly > 0 so a refined item still out-sorts an un-refined one (the
+	// two-pass machinery uses refinedMap.get(it) > 0 to mean "refined").
+	const CONFLICT_BOOST = 2.2; // multiplier on high-score pairs that have a conflicting attr
+	const CONFLICT_SCORE_MIN = 0.55; // a conflict only counts as a "boundary hard-neg" above this
+	const BOUNDARY_CENTER = 0.6; // score of peak uncertainty
+	const BOUNDARY_WIDTH = 0.22; // gaussian sigma of the uncertainty bump
+	const BOUNDARY_AMP = 0.8; // peak added weight from uncertainty
+	const TRIVIAL_SCORE = 0.92; // at/above this, a no-conflict pair is a "trivial match"
+	const TRIVIAL_DAMP = 0.45; // weight multiplier applied to trivial matches
+	function informativeness(score, conflict) {
+		const s = Math.max(0, Math.min(1, score || 0));
+		let w = s; // base: the scorer's own confidence (keeps strong, plausible pairs near top)
+		// Uncertainty bump — peaks at the decision boundary, fades toward 0 and 1.
+		const z = (s - BOUNDARY_CENTER) / BOUNDARY_WIDTH;
+		w += BOUNDARY_AMP * Math.exp(-0.5 * z * z);
+		if (conflict && s >= CONFLICT_SCORE_MIN) {
+			w *= CONFLICT_BOOST; // looks-like-a-match-but-conflicts → the highest-value label
+		} else if (!conflict && s >= TRIVIAL_SCORE) {
+			w *= TRIVIAL_DAMP; // obvious near-identical match → low label value, de-prioritise
+		}
+		return Math.max(1e-6, w);
+	}
+
+	// True when the pair has a hard conflicting attribute (different size / abv / edition / two-
+	// sided age) — the signature of a same-distillery/different-expression near-miss. Mirrors
+	// the no-conflict gate thresholds used in blend.js::containGated (kept consistent on purpose).
+	function pairHasConflict(ctx, cand) {
+		const f = extractBlendFeatures(ctx, cand, {
+			vocab: simVocab,
+			sizePenaltyFn: sizePenaltyForPair,
+			pricePenaltyFn: pricePenaltyForPair,
+		});
+		return f.sizePen < 0.9 || f.abvMult < 0.9 || f.edMult < 0.9 || f.ageRel === -1;
+	}
+
 	function refinedScore(it) {
 		const terms = simVocab.distinctiveUnigramsForName(it.name || "");
 		if (!terms || !terms.size) return 0;
@@ -326,6 +380,7 @@ export async function renderSkuLinkerRapid($app) {
 		const useBlend = aiOn && blend && (blend.weights || blend.gbt);
 		const seen = new Set();
 		let best = 0;
+		let bestCand = null;
 		let visited = 0;
 		outer: for (const t of terms) {
 			const bucket = fullTermIndex.get(t);
@@ -349,10 +404,21 @@ export async function renderSkuLinkerRapid($app) {
 					});
 					if (score != null) s = score;
 				}
-				if (s > best) best = s;
+				if (s > best) {
+					best = s;
+					bestCand = cand;
+				}
 				if (++visited >= REFINE_CAND_CAP) break outer;
 			}
 		}
+		if (!bestCand) return 0;
+		// Normalise the best pair's score to the SAME 0–1 scale the cards display: a blend
+		// probability is already 0–1; a raw classical score is squashed via toConfidence01.
+		const score01 = useBlend ? best : toConfidence01(best);
+		// Re-rank by INFORMATIVENESS, not raw match strength: a high-score pair with a
+		// conflicting attribute (likely a precision-tail hard-negative) and uncertain mid-score
+		// pairs are surfaced first; trivial near-identical matches are damped. See the block above.
+		return informativeness(score01, pairHasConflict(ctx, bestCand));
 		return best;
 	}
 

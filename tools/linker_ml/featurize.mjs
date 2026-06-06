@@ -102,6 +102,7 @@ export function buildEnv() {
 				sku,
 				name: r.name || "",
 				stores: new Set(),
+				urlsByStore: new Map(), // storeLabel → product URL (precise per-listing link)
 				cheapestPriceNum: null,
 				category: r.category || "",
 				categoryLabel: r.categoryLabel || "",
@@ -109,6 +110,7 @@ export function buildEnv() {
 			bySku.set(sku, a);
 		}
 		if (r.storeLabel) a.stores.add(r.storeLabel);
+		if (r.storeLabel && r.url && !a.urlsByStore.has(r.storeLabel)) a.urlsByStore.set(r.storeLabel, r.url);
 		const p = parsePriceToNumber(r.price);
 		if (Number.isFinite(p) && p > 0)
 			a.cheapestPriceNum = a.cheapestPriceNum == null ? p : Math.min(a.cheapestPriceNum, p);

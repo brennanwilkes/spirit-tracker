@@ -59,6 +59,56 @@ New scripts: `report_offenders.mjs` (noTrain/hidden-excluded worst FP/FN), `perm
 env vars; `train_embed.py` takes `--texts`. **Lesson the hard way: after a dataset/grouping change,
 RE-RUN every feature A/B — char-tri's verdict flipped from +6.2 to −1.2 once the bug was fixed.**
 
+## 2026-06-05 (b) — `containGated` SHIPPED + `charTriCosLowTok` was never actually committed
+
+- **`charTriCosLowTok` is NOT in `blend.js`** (HEAD): the prior session's "SHIPPED" note (above)
+  was aspirational — the feature only ever lived in the working-tree `blend_weights.js`, never in
+  `FEATURE_KEYS`. So the documented 84.5% baseline (which needed it) is not reproducible from HEAD.
+  The honest HEAD baseline (fresh rebuild on current labels + current `embeddings.json`) is
+  **TEST AUC+ 0.9832 / rec@99 80.1%**. ALWAYS rebuild a baseline before an A/B; don't trust the
+  last documented number across a charTri/embedding/label change.
+- **`containGated` SHIPPED** (`blend.js`, 41 features) — the GATED distinctive-token containment.
+  RAW `shorterDistinctiveContain` regressed rec@99 (same-distillery/diff-expression negatives
+  share the distillery token + have high containment → crowd the 99% line). Multiplying it by a
+  NO-CONFLICT gate (`edMult>=0.9 && abvMult>=0.9 && sizePen>=0.9 && ageRel!==-1`) zeroes it on
+  exactly those negatives. **TEST rec@99 80.1→81.2, rec@98 +0.4, AUC+ flat, det AUC+ untouched.**
+  Lesson: a RECALL feature that over-fires on the precision tail can be rescued by gating it on
+  the existing hard-rule conflict signals. blend_weights.js regenerated (also dropped the stale
+  charTri key). gbt_model.json copied to `.worktrees/data/viz/data/`.
+- **Rapid-linker worklist now sorts by INFORMATIVENESS, not match strength** (`linker_rapid_page.js`).
+  `refinedScore` returns `informativeness(score01, hasConflict)`: ×CONFLICT_BOOST for high-score
+  pairs with a conflicting attr (boundary hard-negatives = highest-value labels), a gaussian
+  uncertainty bump at the decision boundary, ×TRIVIAL_DAMP for near-certain non-conflicting
+  (obvious) matches. Tunable constants at the top of that block. Live-UX only (no offline A/B).
+
+## 2026-06-05 follow-up (label cleanup + targeted char-tri SHIPPED + cross-encoder rejected)
+
+Shipped state now: TEST **AUC+ 0.985, rec@99 ~84–85%** (within embedder run-to-run noise of the
+2026-06-04 build), on cleaned labels.
+
+- **Mislabel cleanup (data branch `sku_links.json`):** ~50 human-reviewed edits via `find_mislabels.mjs`
+  (scores every `ignore`/`link` with the shipped GBT → strong disagreements). Removed bad cross-product
+  links (incl. several **transitive bad-merges** — cut the bridging edge, keep correct sub-groups, e.g.
+  Kraken Gold↔Black, Silkie Dark↔Midnight, Glenmorangie Lasanta 12↔15, Paranubes Rum↔Añejo). Pattern:
+  many "FP" ignores were really unlinked matches; precision tail is gated by LABELS, not the model.
+- **Gift-pack noTrain:** all link edges where a name matches `/gift|pack|calendar|tasting|glasses|advent|sampler/i`
+  are flagged `noTrain` (format wrappers held out of training).
+- **`charTriCosLowTok` SHIPPED** (`blend.js`) — supersedes the "char-tri removed" note in the 2026-06-04
+  section. The GLOBAL char-tri regressed; the **targeted floor** (char-trigram cosine ONLY when
+  `sharedTok<=1`) is a clean marginal keep (+0.3 rec@99 isolated, AUC+ flat, det AUC+ unchanged) that
+  recovers spelling/spacing variants without polluting the well-tokenized tail. 41 features now.
+- **Embedding coverage is already 100%** — `train_embed` encodes ALL current `sku_texts.jsonl` SKUs, so a
+  fresh build has no `embedCos==0` gap. (Stale `embedCos==0` misses only appear when scoring against an
+  OLDER embeddings file than the catalog.)
+- **DEAD-END (done correctly) — cross-encoder re-ranker.** A 5-fold OUT-OF-FOLD cross-encoder
+  (`train_crossenc_oof.py`, every pair scored by a model that never saw its canonical group — the honest
+  version; an earlier in-fold attempt leaked to 79.8%) scored 81.6% rec@99 vs 84.5% shipped. It **shifts
+  the curve, not lifts it**: −2.9 rec@99 for +2.9 rec@98 / +1.1 rec@95, AUC+ flat. Aggregate separation is
+  strong (pos 0.90 vs neg 0.11) so it's tail-noise/redundancy, not a weak model. At our 99%-precision
+  auto-link target it's a NET LOSS; only worth it at a relaxed 98% target, and it needs per-candidate-pair
+  inference at serve time. Parked (scores + models in `out/`). **The ceiling for rec@99 is more/cleaner
+  labels, not more features.**
+
 ## ⭐ How to RE-TRAIN (new session, bigger dataset)
 
 Everything keys off `data/sku_links.json` (+ `_auto`) in the `.worktrees/data` worktree, so

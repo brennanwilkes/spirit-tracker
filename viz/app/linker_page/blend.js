@@ -60,6 +60,7 @@ export const FEATURE_KEYS = [
 	"minTok",
 	"maxTok",
 	"lenDiff",
+	"containGated",
 	"grpStoreOverlap",
 	"grpStoreCollideCount",
 	"grpStoreJaccard",
@@ -229,6 +230,31 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 
 	const conceptMult = conceptConflictMultiplier(nameA, nameB);
 
+	// containGated — GATED distinctive-token containment. The RAW
+	// `shorterDistinctiveContain` (fraction of the shorter name's distinctive idf≥3 tokens
+	// present in the longer name; same computation as tools/linker_ml/other_pattern.mjs)
+	// is a strong RECALL signal for diluted same-product variants, but on its own it
+	// REGRESSED the 99%-precision tail (84.5→81-84): same-distillery/different-EXPRESSION
+	// negatives (in `ignores`) share the high-idf distillery token and have equally high
+	// containment, so the raw feature pulled them over the auto-link line. The fix: multiply
+	// containment by a NO-CONFLICT gate so it only fires for pairs with no conflicting
+	// edition/age/abv/size — i.e. the crowding negatives (which differ on exactly those
+	// attributes) get 0, only genuine same-product variants keep the signal.
+	//   gate=1 iff edMult>=0.9 (no edition-code conflict: conflict→0.1)
+	//          AND abvMult>=0.9 (no abv conflict: ≥1.5 apart → ≤0.4)
+	//          AND sizePen>=0.9 (no size conflict: different format → 0.08, inferred → 0.3/0.7)
+	//          AND ageRel !== -1 (no two-sided age conflict; one-sided age is allowed).
+	// idf threshold uses vocab.idf(t) = ln((N+1)/(df(t)+1)) directly (identical to the offline
+	// reference, no separate N needed); the shorter name is the one with fewer filtered tokens.
+	const [shortToks, longSet] = fA.length <= fB.length ? [fA, setB] : [fB, setA];
+	const shortDist = shortToks.filter((t) => vocab.idf(t) >= 3);
+	const shorterDistinctiveContain = shortDist.length
+		? shortDist.filter((t) => longSet.has(t)).length / shortDist.length
+		: 0;
+	const noConflictGate =
+		edMult >= 0.9 && abvMult >= 0.9 && sizePen >= 0.9 && ageRel !== -1 ? 1 : 0;
+	const containGated = shorterDistinctiveContain * noConflictGate;
+
 	const aStores = ctx.stores instanceof Set ? ctx.stores : new Set(ctx.stores || []);
 	const bStores = candidate.stores;
 	const bHas = bStores
@@ -283,6 +309,7 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 		minTok: Math.min(fA.length, fB.length),
 		maxTok: Math.max(fA.length, fB.length),
 		lenDiff: Math.abs((ctx.norm || "").length - normB.length),
+		containGated,
 		grpStoreOverlap,
 		grpSizeConflict,
 		crossEntityConflicts: entityConflicts,
