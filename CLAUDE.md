@@ -50,6 +50,39 @@ The orphan-DB-file auto-flip in `src/tracker/orphan_dbs.js` handles the case whe
 
 **Color tokens** — defined in `viz/style.css` as CSS custom properties (`--rarity-staple-*`, `--rarity-rare-*`, plus light-theme overrides). Staple is warm amber (subtle border + glow), rare is deep purple with a diagonal corner sheen, purple ring, and outer glow. The same visual language must be mirrored in the email repo (`~/spirit-tracker-api`) as parallel CSS — neither thresholds nor colors are shipped in event packs. Each pack carries only the raw `rarity` number (0..1) per event; the renderer is responsible for thresholding and styling.
 
+## Cloudflare Egress Proxy
+
+Some Cloudflare-fronted stores serve a "Just a moment…" managed challenge (HTTP
+403) to the **GitHub-runner's Azure datacenter IP**, even though a clean/residential
+IP gets a normal 200 with no special headers. This is pure IP-reputation — UA/header
+hardening does NOT defeat it (confirmed: plain `curl` from a clean IP succeeds; full
+Chrome headers from a datacenter IP still 403). Affected: **liberty** (consistent),
+**coop** (intermittent). gull/sierra are *slow by deliberate rate-limit*, NOT blocked —
+do not proxy them.
+
+Fix: relay those stores' fetches through a `/proxy` endpoint on the
+`~/spirit-tracker-api` Cloudflare Worker. The Worker's outbound `fetch()` egresses
+from Cloudflare's own network (clean reputation), so CF→CF returns 200.
+
+- **Client** (`src/core/http.js`): `createHttpClient({ proxy })`. When a request's host
+  is in `proxy.hosts`, `doFetch()` routes through `proxyFetch()` (HMAC-signed POST,
+  same `${ts}.${body}` scheme as the email pack) and rebuilds a `Response` so the rest
+  of the client is oblivious. **Best-effort**: any worker failure (incl. free-tier
+  **Error 1027** = 100k req/day cap, resets midnight UTC) throws → falls back to a
+  direct fetch (logged `PROXY fallback`). Upstream HTTP errors arrive as a 200 wrapping
+  the real status and flow through normally.
+- **Routing set**: `PROXY_HOSTS` in `src/main.js`. Config built only if both
+  `STVIZ_PROXY_URL` and `EMAIL_PACK_HMAC_SECRET` env are present (else `proxy=null`,
+  all-direct). Wired into `cron_tracker.yaml`'s run step.
+- **Worker** (`~/spirit-tracker-api/src/proxy.ts`): HMAC-authed (reuses
+  `EMAIL_PACK_HMAC_SECRET`), enforces its OWN tiny host allowlist
+  (`PROXY_ALLOW_SUFFIXES`) — it is NOT an open proxy. Forwards method/headers/body,
+  returns `{status, finalUrl, headers, setCookie[], body}`; `setCookie` is returned as
+  an array so the client cookie jar round-trips multi-cookie/session responses (coop).
+- **Must redeploy the worker** (`npm run deploy` in `~/spirit-tracker-api`) for the
+  endpoint to exist. Verify with a real Liberty fetch that the CF-egress IP gets 200
+  (the whole premise); if it still challenges, the fallback keeps things no-worse.
+
 ## Tech Stack
 
 - **Node.js 18+** required (uses global `fetch`). No npm install needed — there are no npm dependencies.

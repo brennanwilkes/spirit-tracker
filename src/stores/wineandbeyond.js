@@ -39,11 +39,15 @@ const JSON_LIMIT = 150;
 // W&B needs ~1 fetch per catalogued product (~1900 total) plus per-location
 // price rescues, so it must run with real parallelism to finish in time. But
 // W&B uses a token-bucket limiter: it allows a large fast burst (~600 reqs)
-// then throttles hard. Bursting to 10/s drains the bucket and trips a cliff, so
-// we pace to a sustainable ~4/s from the start (250ms interval ⇒ 4/s; 10
-// concurrent connections cover the ~2s latency). The adaptive backoff in
-// http.js is the safety net if W&B still pushes back.
-const WNB_INTERVAL_MS = 150;
+// then throttles hard — and (since ~mid-2026) this now applies to plain product
+// GETs too, not just cart writes. Bursting drains the bucket and trips a cliff
+// where the adaptive backoff in http.js stalls the run for minutes at a time
+// (observed: 1397 whiskey products took ~42 min, 37× HTTP 429). So we pace to a
+// sustainable ~4/s from the start (250ms interval ⇒ 4/s; 10 concurrent
+// connections cover the ~2s latency). The adaptive backoff is the safety net if
+// W&B still pushes back. Do NOT lower this below 250 — 150ms (6.6/s) is what
+// caused the cliff above.
+const WNB_INTERVAL_MS = 250;
 const WNB_CONCURRENCY = 10;
 // W&B's /cart/update.js (the only way to pick a per-location price) is harshly
 // rate-limited: ~100 calls then a multi-minute lockout. So price rescue runs as
@@ -204,8 +208,10 @@ function scanCategoryWnB(collectionHandle) {
 		let outOfStock = 0;
 		let lastLog = Date.now();
 
-		// Pass 1: fetch every product page in parallel. Product GETs are NOT
-		// rate-limited, so this runs at full concurrency. No cart writes here.
+		// Pass 1: fetch every product page, paced by WNB_INTERVAL_MS (the http.js
+		// host throttler serialises same-host reqs to ~4/s). Product GETs ARE now
+		// rate-limited by W&B, so this pacing is what keeps us under the
+		// token-bucket cliff. No cart writes here.
 		await parallelMapStaggered(entries, WNB_CONCURRENCY, 0, async ([handle, meta]) => {
 			const url = normalizeShopifyProductUrl(`https://${HOST}/products/${handle}`);
 			let text;

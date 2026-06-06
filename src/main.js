@@ -20,6 +20,16 @@ const { mergeUpgradesIntoAutoLinks } = require("./tracker/sku_auto_links");
 
 const DEFAULT_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36";
 
+// Hosts routed through the spirit-tracker-api worker proxy (when STVIZ_PROXY_URL
+// is set). These stores sit behind Cloudflare and serve a "Just a moment…"
+// managed challenge to the GitHub-runner's Azure datacenter IP; relaying via the
+// worker (clean Cloudflare-egress reputation) gets a normal 200. The proxy is
+// best-effort: http.js falls back to a direct fetch on any proxy failure
+// (including the worker's free-tier Error 1027 daily-limit). See CLAUDE.md
+// §"Cloudflare egress proxy". The worker enforces its own host allowlist — this
+// set only decides client-side routing.
+const PROXY_HOSTS = ["www.libertywinemerchants.com", "shoponlinewhisky-wine.coopwinespiritsbeer.com"];
+
 function resolveDir(p, fallback) {
 	const v = String(p || "").trim();
 	if (!v) return fallback;
@@ -116,6 +126,12 @@ async function main() {
 		discoveryStep: args.step ?? clampInt(process.env.DISCOVERY_STEP, 5, 1, 500),
 		categoryConcurrency: clampInt(process.env.CATEGORY_CONCURRENCY, 5, 1, 64),
 		defaultUa: DEFAULT_UA,
+		proxy: (() => {
+			const url = String(process.env.STVIZ_PROXY_URL || "").trim();
+			const secret = String(process.env.EMAIL_PACK_HMAC_SECRET || "").trim();
+			if (!url || !secret) return null;
+			return { url, secret, hosts: new Set(PROXY_HOSTS) };
+		})(),
 		defaultParseProducts: parseProductsSierra,
 		dbDir: resolveDir(args.dataDir ?? process.env.DATA_DIR, path.join(process.cwd(), "data", "db")),
 		reportDir: resolveDir(args.reportDir ?? process.env.REPORT_DIR, path.join(process.cwd(), "reports")),
@@ -128,6 +144,7 @@ async function main() {
 		maxRetries: config.maxRetries,
 		timeoutMs: config.timeoutMs,
 		defaultUa: config.defaultUa,
+		proxy: config.proxy,
 		logger,
 	});
 	const stores = createStores({ defaultUa: config.defaultUa });
