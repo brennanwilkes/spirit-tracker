@@ -10,7 +10,7 @@
 
 import { esc, renderThumbHtml } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
-import { displaySku, tokenizeQuery, matchesAllTokens } from "./sku.js";
+import { displaySku, tokenizeQuery, matchesAllTokens, keySkuForRow } from "./sku.js";
 import { loadIndex } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadHiddenSet } from "./hidden.js";
@@ -45,6 +45,7 @@ import { aiEnabled, setAiEnabled } from "./linker_page/ai_pref.js";
 
 const QUEUE_KEY = "stviz:linker_rapid_queue_v1";
 const STORE_KEY = "stviz:linker_rapid_store_v1";
+const SORT_KEY = "stviz:linker_rapid_sort_v1";
 const AUTO_FLUSH_EVERY = 10;
 const RECOMMEND_LIMIT = 14;
 const MAX_SUGGEST = 6;
@@ -61,6 +62,24 @@ export async function renderSkuLinkerRapid($app) {
 	const URL_BY_SKU_STORE = buildUrlBySkuStore(allRows);
 	const allAgg = aggregateBySku(allRows, (x) => x, hiddenSet);
 	const simVocab = buildVocab(allAgg);
+
+	// Per-aggregate "added to dataset" time: the most recent firstSeenAt across the raw
+	// listings folding into this (raw-keyed) aggregate. Drives the "Recently added" sort —
+	// newest-added float to the top, surfacing freshly-scraped SKUs that need linking and
+	// recently-linked ones that warrant a sanity-check. Keyed by keySkuForRow to match the
+	// aggregate sku (aggregateBySku is called with an identity canonicalizer here).
+	const recencyBySku = (() => {
+		const m = new Map();
+		for (const r of allRows) {
+			const k = keySkuForRow(r);
+			if (!k) continue;
+			const t = Date.parse(r?.firstSeenAt || r?.updatedAt || "") || 0;
+			const cur = m.get(k);
+			if (cur === undefined || t > cur) m.set(k, t);
+		}
+		return m;
+	})();
+	const recencyOf = (it) => recencyBySku.get(String(it?.sku || "")) || 0;
 
 	// AI embedding blend — OFF by default (the original deterministic scorer has the sharp
 	// separation users rely on for rapid linking). When the user opts in, lazily load the
@@ -210,6 +229,17 @@ export async function renderSkuLinkerRapid($app) {
 	// value of null means the user has never chosen — so we can default to the busiest store
 	// without clobbering a deliberate "All stores" ("") selection.
 	const ALL_STORES = "";
+	// Worklist ordering: "default" (informativeness-weighted, the original), "absolute"
+	// (slow — fully refine everything, rank by raw match probability: easiest/most-likely
+	// bets first), or "recent" (newest-added first, INCLUDING already linked/ignored items).
+	let sortMode = (() => {
+		try {
+			const v = localStorage.getItem(SORT_KEY);
+			return v === "absolute" || v === "recent" ? v : "default";
+		} catch {
+			return "default";
+		}
+	})();
 	let storeLabel = (() => {
 		try {
 			return localStorage.getItem(STORE_KEY);
@@ -415,11 +445,12 @@ export async function renderSkuLinkerRapid($app) {
 		// Normalise the best pair's score to the SAME 0–1 scale the cards display: a blend
 		// probability is already 0–1; a raw classical score is squashed via toConfidence01.
 		const score01 = useBlend ? best : toConfidence01(best);
-		// Re-rank by INFORMATIVENESS, not raw match strength: a high-score pair with a
-		// conflicting attribute (likely a precision-tail hard-negative) and uncertain mid-score
-		// pairs are surfaced first; trivial near-identical matches are damped. See the block above.
+		// Slow absolute mode ranks by RAW match strength — the most-likely matches, the easiest
+		// bets — first. Default mode re-ranks by INFORMATIVENESS (see the block above): a high-score
+		// pair with a conflicting attribute (likely a precision-tail hard-negative) and uncertain
+		// mid-score pairs surface first; trivial near-identical matches are damped.
+		if (sortMode === "absolute") return Math.max(1e-6, score01);
 		return informativeness(score01, pairHasConflict(ctx, bestCand));
-		return best;
 	}
 
 	// Sort state shared between the synchronous head build and the background refiner.
@@ -476,6 +507,11 @@ export async function renderSkuLinkerRapid($app) {
 	}
 
 	function worklistCompare(a, b) {
+		if (sortMode === "recent") {
+			const dr = recencyOf(b) - recencyOf(a); // newest-added first
+			if (dr) return dr;
+			return String(a.name || "").localeCompare(String(b.name || ""));
+		}
 		const ja = scoreJitter(a);
 		const jb = scoreJitter(b);
 		const ra = (refinedMap.get(a) || 0) > 0;
@@ -498,6 +534,22 @@ export async function renderSkuLinkerRapid($app) {
 		worklistGen++;
 		fastMap = new Map();
 		refinedMap = new Map();
+		byFastOrder = [];
+		bgPointer = 0;
+
+		// Recent mode: every aggregate for the store — INCLUDING already linked/ignored items,
+		// so recent decisions can be sanity-checked — ordered newest-added first. No match-scoring
+		// drives the order, so there's no fast/refine pass and no dead-end drop.
+		if (sortMode === "recent") {
+			const items = [];
+			for (const it of allAgg) {
+				if (!it || !it.stores) continue;
+				if (storeLabel && !it.stores.has(storeLabel)) continue; // "" = all stores, no filter
+				items.push(it);
+			}
+			items.sort(worklistCompare);
+			return items;
+		}
 
 		const items = [];
 		for (const it of allAgg) {
@@ -516,6 +568,17 @@ export async function renderSkuLinkerRapid($app) {
 		const live = items.filter((it) => (fastMap.get(it) || 0) > 0);
 
 		byFastOrder = live.slice().sort((a, b) => (fastMap.get(b) || 0) - (fastMap.get(a) || 0));
+
+		// Absolute mode is deliberately SLOW: it refines EVERY live item to rank by raw match
+		// probability (refinedScore returns the raw score in this mode). Doing that synchronously
+		// would freeze the page, so we return the fast-ordered list now and let startAbsoluteRefine()
+		// grind through it progressively with a progress bar, re-sorting to the true order at the end.
+		if (sortMode === "absolute") {
+			bgPointer = byFastOrder.length; // the default background pass is not used in this mode
+			live.sort(worklistCompare); // fast order for now (refinedMap empty)
+			return live;
+		}
+
 		const headEnd = Math.min(REFINE_HEAD_SYNC, byFastOrder.length);
 		for (let i = 0; i < headEnd; i++) refinedMap.set(byFastOrder[i], refinedScore(byFastOrder[i]));
 		bgPointer = headEnd;
@@ -552,6 +615,66 @@ export async function renderSkuLinkerRapid($app) {
 			resortTail();
 			if (bgPointer < byFastOrder.length) scheduleNextChunk(run);
 		});
+	}
+
+	// ── Slow "Best bets" (absolute) progressive refine ──────────────────────────────────────
+	// Absolute mode scores EVERY live item, which is slow; rather than block, we grind through
+	// byFastOrder in chunks, yielding to the event loop between chunks so a progress bar paints
+	// (the user can see it's working, not frozen). The worklist stays in fast order during the
+	// pass and snaps to the true raw-score order only once every item is scored. `absGen`
+	// invalidates an in-flight pass when the store / sort / AI selection changes.
+	let absGen = 0;
+	const ABS_REFINE_CHUNK = 60;
+
+	function renderAbsoluteProgress(done, total) {
+		const pct = total ? Math.round((done / total) * 100) : 100;
+		const filled = Math.max(0, Math.min(20, Math.round(pct / 5)));
+		const bar = "█".repeat(filled) + "░".repeat(20 - filled);
+		const $cands = document.getElementById("rapidCandCol");
+		if ($cands) {
+			$cands.innerHTML = `<div class="rapidSortProgress" style="padding:28px 12px;text-align:center;">
+				<div class="small" style="margin-bottom:12px;">Computing best matches across the worklist…</div>
+				<div style="font-variant-numeric:tabular-nums;font-size:1.5em;font-weight:700;">${pct}%</div>
+				<div style="font-family:monospace;letter-spacing:1px;margin:10px 0;color:var(--accent);">${bar}</div>
+				<div class="small" style="color:var(--muted);">${done} / ${total} items scored</div>
+			</div>`;
+		}
+		setStatus(`Best bets: scoring ${done}/${total}…`);
+	}
+
+	async function startAbsoluteRefine() {
+		if (sortMode !== "absolute") return;
+		const myGen = ++absGen;
+		const order = byFastOrder.slice();
+		const total = order.length;
+		renderAbsoluteProgress(0, total);
+		for (let i = 0; i < total; i++) {
+			if (myGen !== absGen) return; // superseded by a newer rebuild
+			refinedMap.set(order[i], refinedScore(order[i]));
+			if (i % ABS_REFINE_CHUNK === ABS_REFINE_CHUNK - 1 || i === total - 1) {
+				renderAbsoluteProgress(i + 1, total);
+				await new Promise((r) => setTimeout(r, 0)); // yield so the bar paints
+			}
+		}
+		if (myGen !== absGen) return;
+		worklist = worklist.slice().sort(worklistCompare);
+		workIdx = 0;
+		highlight = 0;
+		render();
+		setStatus(`Best-bets order ready — ${total} items scored, most-likely matches first.`);
+	}
+
+	// Shared rebuild used by the store / sort / AI controls: invalidate any running absolute
+	// refine, rebuild the worklist (fast for absolute), reset to the top, render, and — in
+	// absolute mode — kick off the progressive slow refine.
+	function applyWorklistRebuild() {
+		absGen++;
+		worklist = buildWorklist();
+		workIdx = 0;
+		skipLinkedForward();
+		highlight = 0;
+		render();
+		if (sortMode === "absolute") startAbsoluteRefine();
 	}
 
 	// Per-pair staged-op references so Space can toggle a single (anchor,candidate)
@@ -593,6 +716,7 @@ export async function renderSkuLinkerRapid($app) {
 	// the two items' best-remaining-candidate scores can drop. Recompute them and re-sort the
 	// tail so a now-weak item sinks instead of resurfacing next with a leftover low suggestion.
 	function rescoreAfterDecision(...skus) {
+		if (sortMode === "recent") return; // order is by recency, unaffected by decisions
 		for (const s of skus) {
 			const it = aggBySku.get(String(s || ""));
 			if (it) refinedMap.set(it, refinedScore(it));
@@ -601,6 +725,7 @@ export async function renderSkuLinkerRapid($app) {
 	}
 
 	function skipLinkedForward() {
+		if (sortMode === "recent") return; // Recent intentionally surfaces linked/ignored items.
 		while (workIdx < worklist.length && isLinked(worklist[workIdx].sku)) workIdx++;
 	}
 	function currentAnchor() {
@@ -1158,6 +1283,11 @@ export async function renderSkuLinkerRapid($app) {
 					)
 					.join("")}
 			</select>
+			<select id="rapidSort" class="input" style="max-width:170px;" title="Worklist order: Default (informativeness), Best bets (slow, most-likely matches first), or Recently added (newest SKUs, incl. already linked/ignored)">
+				<option value="default" ${sortMode === "default" ? "selected" : ""}>Default sort</option>
+				<option value="absolute" ${sortMode === "absolute" ? "selected" : ""}>Best bets (slow)</option>
+				<option value="recent" ${sortMode === "recent" ? "selected" : ""}>Recently added</option>
+			</select>
 			<span id="rapidProgress" class="badge mono"></span>
 			<div style="flex:1"></div>
 			<button id="rapidUndo" class="btn" style="padding:6px 10px;">↩ Undo</button>
@@ -1231,10 +1361,6 @@ export async function renderSkuLinkerRapid($app) {
 				blend = await buildBlend(allAgg, BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED);
 				await attachGbtGroup(blend);
 			}
-			worklist = buildWorklist();
-			workIdx = 0;
-			skipLinkedForward();
-			highlight = 0;
 			setStatus(
 				aiOn
 					? blend && blend.embeddings
@@ -1242,7 +1368,7 @@ export async function renderSkuLinkerRapid($app) {
 						: "AI ON, but embeddings unavailable/mismatched — using the classical blend."
 					: "AI embeddings OFF — classical scorer.",
 			);
-			render();
+			applyWorklistRebuild();
 		});
 	}
 
@@ -1251,12 +1377,17 @@ export async function renderSkuLinkerRapid($app) {
 		try {
 			localStorage.setItem(STORE_KEY, storeLabel);
 		} catch {}
-		worklist = buildWorklist();
-		workIdx = 0;
-		skipLinkedForward();
-		highlight = 0;
 		if ($search) $search.value = "";
-		render();
+		applyWorklistRebuild();
+	});
+
+	document.getElementById("rapidSort").addEventListener("change", (e) => {
+		sortMode = e.target.value;
+		try {
+			localStorage.setItem(SORT_KEY, sortMode);
+		} catch {}
+		if ($search) $search.value = "";
+		applyWorklistRebuild();
 	});
 
 	document.getElementById("rapidUndo").addEventListener("click", () => undo());
@@ -1328,4 +1459,7 @@ export async function renderSkuLinkerRapid($app) {
 	});
 
 	render();
+	// Persisted "Best bets" mode: the initial buildWorklist returned the fast order; now grind
+	// through the slow full refine with a progress bar (same as picking it from the dropdown).
+	if (sortMode === "absolute") startAbsoluteRefine();
 }
