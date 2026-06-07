@@ -9,13 +9,6 @@ export function clearSkuRulesCache() {
 	CACHED = null;
 }
 
-function canonicalPairKey(a, b) {
-	const x = normalizeImplicitSkuKey(a);
-	const y = normalizeImplicitSkuKey(b);
-	if (!x || !y) return "";
-	return x < y ? `${x}|${y}` : `${y}|${x}`;
-}
-
 function buildForwardMap(links) {
 	const m = new Map();
 	for (const x of Array.isArray(links) ? links : []) {
@@ -24,17 +17,6 @@ function buildForwardMap(links) {
 		if (fromSku && toSku && fromSku !== toSku) m.set(fromSku, toSku);
 	}
 	return m;
-}
-
-function buildIgnoreSet(ignores) {
-	const s = new Set();
-	for (const x of Array.isArray(ignores) ? ignores : []) {
-		const a = String(x?.skuA || x?.a || x?.left || "").trim();
-		const b = String(x?.skuB || x?.b || x?.right || "").trim();
-		const k = canonicalPairKey(a, b);
-		if (k) s.add(k);
-	}
-	return s;
 }
 
 export async function loadSkuRules() {
@@ -53,7 +35,6 @@ export async function loadSkuRules() {
 	const forwardMap = buildForwardMap(links);
 
 	const { canonBySku, groupsByCanon } = buildGroupsAndCanonicalMap(links);
-	const ignoreSet = buildIgnoreSet(ignores);
 
 	function canonicalSku(sku) {
 		const s = normalizeImplicitSkuKey(sku);
@@ -65,6 +46,25 @@ export async function loadSkuRules() {
 		const canon = canonicalSku(toSku);
 		const g = groupsByCanon.get(canon);
 		return g ? new Set(g) : new Set([canon]);
+	}
+
+	// Pair key over CANONICAL GROUPS (not raw SKUs): every member of a linked group maps to the
+	// same key, so an ignore recorded against ONE raw SKU suppresses the whole equivalent group.
+	// Fixes the transitive leak — `A↮B` ignored, then `C` linked to `B`, would otherwise resurface
+	// `A↮C` as a fresh suggestion. SKU identity is system-wide; ignores must honor it too.
+	function canonicalPairKey(a, b) {
+		const x = canonicalSku(a);
+		const y = canonicalSku(b);
+		if (!x || !y) return "";
+		return x < y ? `${x}|${y}` : `${y}|${x}`;
+	}
+
+	const ignoreSet = new Set();
+	for (const x of Array.isArray(ignores) ? ignores : []) {
+		const a = String(x?.skuA || x?.a || x?.left || "").trim();
+		const b = String(x?.skuB || x?.b || x?.right || "").trim();
+		const k = canonicalPairKey(a, b);
+		if (k) ignoreSet.add(k);
 	}
 
 	function isIgnoredPair(a, b) {
