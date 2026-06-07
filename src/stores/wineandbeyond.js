@@ -36,18 +36,19 @@ const { parallelMapStaggered } = require("../utils/async");
 const HOST = "www.wineandbeyond.ca";
 // gin collection 500s at limit>=200; use a single safe ceiling everywhere.
 const JSON_LIMIT = 150;
-// W&B needs ~1 fetch per catalogued product (~1900 total) plus per-location
-// price rescues. W&B rate-limits plain product GETs (not just cart writes) with
-// a token bucket whose SUSTAINED refill is only ~1 req/s. Pacing faster than that
-// doesn't finish faster — it trips a limit cycle: the http.js adaptive backoff
-// fires on the 429, then its short (now 40s) penalty half-life lets the rate
-// climb back over the bucket and re-trip, over and over. Measured at 250ms (4/s):
-// net throughput collapsed to ~0.85/s with 35× HTTP 429 across the run. So we
-// pace AT the bucket's sustained rate (~1/s) from the start — slower nominal rate,
-// but it stops the oscillation, so effective throughput is the same or better and
-// 429s nearly vanish. 1397 whiskey products ≈ 23 min; the store is simply slow.
-// Do NOT lower below ~1000 — anything faster re-enters the limit cycle.
-const WNB_INTERVAL_MS = 1000;
+// W&B needs ~1 fetch per catalogued product (~1900 total) plus per-location price
+// rescues, and rate-limits plain product GETs (not just cart writes). There's an
+// inherent throughput floor of ~0.5–0.7 req/s no matter how we pace — the store is
+// just slow — so W&B is the run's long pole (~45–60 min). Measured across CI runs:
+//   150ms  → 37× HTTP 429, 63 min total
+//   250ms  → ~0.67/s, 35× 429, 52 min total (fastest)
+//   1000ms → ~0.50/s,  0× 429, 68 min total (clean but ~15 min slower)
+// We pick 300ms: near the fast end, with a little headroom over 250 for 429 margin.
+// The 40s adaptive-backoff half-life in http.js (raised from 20s) damps the 429
+// limit cycle so residual 429s don't thrash throughput like they used to.
+// The only real wall-clock fix is splitting W&B into its own parallel CI job so it
+// stops gating the rest (deferred); caching is out for data-freshness reasons.
+const WNB_INTERVAL_MS = 300;
 const WNB_CONCURRENCY = 10;
 // W&B's /cart/update.js (the only way to pick a per-location price) is harshly
 // rate-limited: ~100 calls then a multi-minute lockout. So price rescue runs as

@@ -155,11 +155,6 @@ jobs:
           MAIN_BRANCH: main
           DATA_BRANCH: data
           STORES: ${{ steps.plan.outputs.stores }}
-          # Cloudflare-egress proxy for stores that challenge the runner's datacenter
-          # IP (Liberty, coop). Best-effort: http.js falls back to direct fetch if the
-          # secret/URL are absent or the worker errors. Reuses the email-pack HMAC secret.
-          STVIZ_PROXY_URL: https://spirit-tracker-api.brennan-a53.workers.dev/proxy
-          EMAIL_PACK_HMAC_SECRET: ${{ secrets.EMAIL_PACK_HMAC_SECRET }}
           # Point encode.py at the Release-asset checkpoint restored above (absolute path).
           LINKER_MODEL_DIR: ${{ github.workspace }}/tools/linker_ml/model_ft
         run: |
