@@ -235,9 +235,15 @@ item's most-distinctive term).
   in this mode.
 
 All three are routed through `applyWorklistRebuild()`. For each anchor, candidates from `recommendSimilar`
-(`withScores: true`) are split by an **adaptive cutoff** — `max(STRONG_ABS=1.0,
-STRONG_REL=0.5 × topScore)` — into "Suggestions" (count flexes with quality) and "Other
-options", each with a confidence bar + score. **One anchor can link to multiple items**:
+(`withScores: true`) are split by a **pure absolute ≤1%-FP certainty gate** at the monitored
+99%-precision operating point (`autoLinkConfidenceBar` in `strong_threshold.js`) — only a
+candidate we're genuinely *certain* of becomes a "Suggestion"; everything else is "Other options".
+The bar is scorer-specific on the displayed 0–1 score: **GBT/blend probability ≥ 0.95** (AI on;
+conservative — the measured held-out 99%-precision line is ~0.91) and **classical raw
+`scorePairWithVocab` ≥ 16.13** (AI off; `tools/linker_eval.mjs` auto-link @99% precision, ≈ 0.9416
+after `s/(s+1)` squashing). There is NO relative-to-best term — a near-best-of-a-weak-bunch pair is
+not surfaced as a suggestion. Re-derive these via `tools/linker_eval.mjs` (classical) and
+`tools/linker_ml/export_gbt.py` (GBT) after any scorer/label change. **One anchor can link to multiple items**:
 toggle-accept candidates then commit. Keys: `Y`/`Space` toggle-accept highlighted (moves
 down), `1–9`/click toggle a candidate, `↑/↓` move, `Enter`/`→` link all accepted &
 advance (none accepted = skip), `X` ignore highlighted pair, `/` search, `U` undo, `F`

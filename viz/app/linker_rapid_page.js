@@ -36,7 +36,7 @@ import {
 } from "./linker_page/suggestions.js";
 import { toConfidence01, extractBlendFeatures } from "./linker_page/blend.js";
 import { buildVocab } from "./linker_page/vocab.js";
-import { STRONG_ABS_PROB, STRONG_REL_PROB } from "./linker_page/strong_threshold.js";
+import { autoLinkConfidenceBar } from "./linker_page/strong_threshold.js";
 import { BLEND_WEIGHTS_EMBED, BLEND_WEIGHTS_NOEMBED } from "./linker_page/blend_weights.js";
 import { buildBlend } from "./linker_page/embeddings.js";
 import { loadGbtModel } from "./linker_page/gbt.js";
@@ -1151,11 +1151,13 @@ export async function renderSkuLinkerRapid($app) {
 		const topScore = candidates.length ? Math.max(...candidates.map((c) => c.score)) : 0;
 		const isSearch = !!String($search?.value || "").trim();
 
-		// Adaptive split: a "Suggestion" is a candidate that's strong both
-		// absolutely and relative to the best — so the count flexes with quality.
-		// Scores are 0–1 in both modes now (probability when AI on, squashed classical
-		// otherwise), so one cutoff scale applies.
-		const cutoff = Math.max(STRONG_ABS_PROB, STRONG_REL_PROB * topScore);
+		// "Suggestion" split is a PURE ABSOLUTE certainty gate at the ≤1%-FP (99%-precision)
+		// operating point we monitor — only surface a confident match if we're actually certain.
+		// No relative-to-best term: a near-best-of-a-weak-bunch candidate is NOT a suggestion.
+		// The bar is scorer-specific (blend probability vs squashed-classical), both on the 0–1
+		// displayed score (see autoLinkConfidenceBar / strong_threshold.js).
+		const blendActive = !!(aiOn && blend && (blend.weights || blend.gbt));
+		const cutoff = autoLinkConfidenceBar(blendActive);
 		const strong = [];
 		const other = [];
 		candidates.forEach((c, i) => {
