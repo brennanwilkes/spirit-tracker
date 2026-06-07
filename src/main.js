@@ -173,11 +173,16 @@ async function main() {
 	});
 	process.stdout.write(reportTextColor);
 
-	// Stable, parseable sentinel for run_daily.sh to lift onto the commit first
-	// line (always emitted, even on no-op runs). Format: semicolon-separated
-	// "Store | Label" entries, empty after the marker when nothing failed.
-	const failedList = (report.failedCategories || []).map((f) => `${f.store} | ${f.label}`).join("; ");
+	// Stable, parseable sentinels for run_daily.sh (always emitted, even on no-op
+	// runs). FAILED-CATEGORIES → human-readable "Store | Label" list for the commit
+	// first line. FAILED-STORES → unique store KEYS for a one-shot retry (run_daily
+	// surfaces these to CI so a fresh runner re-scrapes just the failed stores on a
+	// new egress IP). Both empty after the marker when nothing failed.
+	const failed = report.failedCategories || [];
+	const failedList = failed.map((f) => `${f.store} | ${f.label}`).join("; ");
+	const failedStoreKeys = [...new Set(failed.map((f) => f.key).filter(Boolean))].join(",");
 	console.log(`[[FAILED-CATEGORIES]] ${failedList}`);
+	console.log(`[[FAILED-STORES]] ${failedStoreKeys}`);
 
 	if (!meaningful) {
 		logger.ok("No meaningful changes; skipping report write.");

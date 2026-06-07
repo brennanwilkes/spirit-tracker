@@ -46,9 +46,10 @@ async function runAllStores(stores, { config, logger, http }) {
 			await discoverAndScanCategory(w.ctx, w.prevDb, report);
 		} catch (e) {
 			const storeName = w?.ctx?.store?.name || w?.ctx?.store?.host || "unknown-store";
+			const storeKey = w?.ctx?.store?.key || "";
 			const catLabel = w?.ctx?.cat?.label || w?.ctx?.cat?.key || "unknown-category";
 
-			report.failedCategories.push({ store: storeName, label: catLabel });
+			report.failedCategories.push({ store: storeName, key: storeKey, label: catLabel });
 
 			// Keep it loud in logs, but do not fail the entire run.
 			logger.warn(`Category failed (continuing): ${storeName} | ${catLabel}\n${formatErr(e)}`);

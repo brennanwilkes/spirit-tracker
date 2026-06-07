@@ -100,9 +100,18 @@ Exit code `3` = no meaningful changes (normal, not an error).
 
 ## CI / Automation
 
-GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules:
-- **Big** (all 33 stores): 6:45 and 18:45 UTC daily
-- **Small** (sierra_springs + craft_cellars only): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC
+GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules (times
+chosen so the **commit** — run end — lands ~on the 3-hour marks in Pacific time):
+- **Big** (all 33 stores): 5:45 and 17:45 UTC daily (~1 h runtime → commits ~00:00 / 12:00 PT)
+- **Small** (sierra_springs + craft_cellars only): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
+
+**One-shot failed-store retry.** Store failures are usually a bad random Azure egress
+IP (see §"Datacenter-IP Blocking"), and recover on the next run's different IP. So after
+a run, if the tracker's `[[FAILED-STORES]]` sentinel is non-empty, `run_daily.sh` surfaces
+those store keys as the `failed_stores` step output, and the workflow **re-dispatches
+itself** for exactly those stores (`-f stores=… -f mode=big -f is_retry=true`) on a fresh
+runner/IP. `is_retry=true` makes the retry skip its own retry step (no recursion — exactly
+one retry), and `concurrency: tracker-cron` queues it until the first run fully completes.
 
 Each run executes `scripts/run_daily.sh`, which:
 1. Sets up / repairs the `.worktrees/data/` worktree

@@ -94,6 +94,14 @@ set +e
 rc=${PIPESTATUS[0]}
 set -e
 
+# Surface failed store KEYS so CI can fire a one-shot retry on a fresh runner
+# (new egress IP). Emitted even on a no-op run (rc=3), so failures that produced
+# no committable data still get retried. Empty when nothing failed.
+FAILED_STORES="$(grep -aoE '\[\[FAILED-STORES\]\].*' "$TRACKER_LOG" | tail -n1 | sed -E 's/^\[\[FAILED-STORES\]\] ?//')"
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  echo "failed_stores=${FAILED_STORES}" >> "$GITHUB_OUTPUT"
+fi
+
 if [[ $rc -eq 3 ]]; then
   echo "No meaningful changes; resetting worktree and skipping commit." >&2
   git reset --hard -q
