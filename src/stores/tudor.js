@@ -52,59 +52,31 @@ function tudorProductUrl(ctx, slug) {
 	return new URL(path, BASE).toString();
 }
 
-function parseVolumeMl(v) {
-	const raw = String(v?.volume || v?.shortName || v?.fullName || "").toUpperCase();
-
-	// Match "1.75L", "1L", "750ML", etc.
-	const m = raw.match(/(\d+(?:\.\d+)?)\s*(ML|L)\b/);
-	if (!m) return null;
-
-	const n = Number(m[1]);
-	if (!Number.isFinite(n)) return null;
-
-	return m[2] === "L" ? Math.round(n * 1000) : Math.round(n);
+// Strip any size token already baked into a product name so we can append the
+// authoritative one from the variant (e.g. "BALLANTINES 750ML" -> "BALLANTINES").
+function stripSizeTokens(name) {
+	let s = String(name || "").replace(/\|/g, " ");
+	s = s.replace(/\b\d+(?:\.\d+)?\s*(?:ML|L)\b/gi, " "); // 750ML, 1.75L, 1L
+	s = s.replace(/(^|\s)\.\d{3,4}\b/g, " "); // .750 / .375
+	return s.replace(/\s{2,}/g, " ").trim();
 }
 
-function tudorPickVariant(p) {
-	const vs = Array.isArray(p?.variants) ? p.variants : [];
-	const inStock = vs.filter((v) => Number(v?.quantity) > 0);
-	const pool = inStock.length ? inStock : vs;
-	if (!pool.length) return null;
-	if (pool.length === 1) return pool[0];
-
-	let best = pool[0];
-	let bestVol = parseVolumeMl(best);
-	let bestPrice = Number(best?.price);
-
-	for (let i = 1; i < pool.length; i++) {
-		const v = pool[i];
-		const vol = parseVolumeMl(v);
-		const price = Number(v?.price);
-
-		const volA = bestVol == null ? -1 : bestVol;
-		const volB = vol == null ? -1 : vol;
-
-		// 1) largest volume wins
-		if (volB > volA) {
-			best = v;
-			bestVol = vol;
-			bestPrice = price;
-			continue;
-		}
-		if (volB < volA) continue;
-
-		// 2) tie-break: higher price wins
-		const priceA = Number.isFinite(bestPrice) ? bestPrice : -1;
-		const priceB = Number.isFinite(price) ? price : -1;
-		if (priceB > priceA) {
-			best = v;
-			bestVol = vol;
-			bestPrice = price;
-		}
+// Multi-size products share one product page; disambiguate listings by SKU in a
+// query param so each size is a distinct, stable URL (the page ignores the param).
+function tudorVariantUrl(productUrl, discriminator) {
+	try {
+		const u = new URL(productUrl);
+		u.searchParams.set("variant", String(discriminator || "").trim());
+		return u.toString();
+	} catch {
+		return productUrl;
 	}
-
-	return best;
 }
+
+function variantImg(v, p) {
+	return normalizeAbsUrl(firstNonEmptyStr(v?.image, p?.gulpImages, p?.posImages, p?.customImages, p?.imageIds));
+}
+
 function parseDisplayPriceFromHtml(html) {
 	const s = String(html || "");
 
@@ -196,7 +168,7 @@ const PRODUCTS_QUERY = `
         priceFrom
         priceTo
         isOnSale
-        variants { id price retailPrice quantity sku volume image deposit }
+        variants { id price retailPrice quantity sku volume shortName fullName image deposit }
         gulpImages
         posImages
         customImages
@@ -381,69 +353,97 @@ async function tudorDetailFromProductPage(ctx, url) {
 
 /* ---------------- item builder (fast, no extra calls) ---------------- */
 
-function tudorItemFromProductFast(p, ctx) {
-	if (!p) return null;
+// One product page can expose several sizes via a variant <select>, each with its
+// own real CSPC SKU, price, and shortName ("375ML"). The GQL listing query carries
+// all of that, so we emit ONE listing per in-stock variant — no detail fetch needed
+// for price/size. Single-variant products keep their bare URL and name unchanged.
+function tudorItemsFromProduct(p, ctx) {
+	if (!p) return [];
 
 	const name = cleanText(p?.name || "");
 	const slug = String(p?.slug || "").trim();
-	if (!name || !slug) return null;
+	if (!name || !slug) return [];
 
-	const v = tudorPickVariant(p);
-	if (v && Number(v?.quantity) <= 0) return null; // only keep in-stock
+	const productUrl = tudorProductUrl(ctx, slug);
+	const variants = Array.isArray(p?.variants) ? p.variants : [];
+	const isMulti = variants.length >= 2;
 
-	const url = tudorProductUrl(ctx, slug);
+	const variantSnapshot = variants.map((x) => ({
+		sku: String(x?.sku || "").trim(),
+		price: x?.price,
+		retailPrice: x?.retailPrice,
+		quantity: x?.quantity,
+	}));
 
-	// NOTE: fast-path price is a best-effort; may be overridden in repair pass for multi-variant products
-	const price = money(v?.price ?? p?.priceFrom ?? p?.priceTo);
+	if (!isMulti) {
+		const v = variants[0] || null;
+		if (v && Number(v?.quantity) <= 0) return []; // only keep in-stock
 
-	const skuRaw = String(v?.sku || "").trim() || pickAnySkuFromProduct(p);
-	const sku = normalizeTudorSku(skuRaw);
+		const skuRaw = String(v?.sku || "").trim() || pickAnySkuFromProduct(p);
+		return [
+			{
+				name,
+				price: money(v?.price ?? p?.priceFrom ?? p?.priceTo),
+				url: productUrl,
+				sku: normalizeTudorSku(skuRaw),
+				img: variantImg(v, p),
+				_skuProbe: skuRaw,
+				_variants: variantSnapshot,
+				_multi: false,
+			},
+		];
+	}
 
-	const img = normalizeAbsUrl(firstNonEmptyStr(v?.image, p?.gulpImages, p?.posImages, p?.customImages, p?.imageIds));
+	const out = [];
+	for (const v of variants) {
+		if (Number(v?.quantity) <= 0) continue; // only keep in-stock sizes
 
-	// NEW: keep lightweight variant snapshot so repair can match HTML SKU -> exact GQL variant price
-	const variants = Array.isArray(p?.variants)
-		? p.variants.map((x) => ({
-				sku: String(x?.sku || "").trim(),
-				price: x?.price,
-				retailPrice: x?.retailPrice,
-				quantity: x?.quantity,
-			}))
-		: [];
+		const skuRaw = String(v?.sku || "").trim();
+		const size = cleanText(v?.shortName || "");
+		const url = tudorVariantUrl(productUrl, skuRaw || v?.id || "");
 
-	return { name, price, url, sku, img, _skuProbe: skuRaw, _variants: variants };
+		out.push({
+			name: size ? `${stripSizeTokens(name)} ${size}`.trim() : name,
+			price: money(v?.price ?? p?.priceFrom),
+			url,
+			sku: normalizeTudorSku(skuRaw),
+			img: variantImg(v, p),
+			_skuProbe: skuRaw,
+			_variants: variantSnapshot,
+			_multi: true,
+		});
+	}
+	return out;
 }
 
 /* ---------------- repair (second pass, budgeted) ---------------- */
 
 async function tudorRepairItem(ctx, it) {
-	// Determine if we need HTML for precision:
-	// - Missing/synthetic SKU (existing behavior)
-	// - OR multi-variant product where fast-path may choose the wrong variant for this URL
-	const inStockVariants = Array.isArray(it._variants) ? it._variants.filter((v) => Number(v?.quantity) > 0) : [];
-
-	const hasMultiInStock = inStockVariants.length >= 2;
-	const hasMultiVariant = Array.isArray(it._variants) && it._variants.length >= 2;
-
-	// 1) HTML: fix SKU if missing/synthetic, AND fix price for multi-variant URLs
-	if (isSyntheticSku(it.sku) || hasMultiInStock || hasMultiVariant) {
-		const d = await tudorDetailFromProductPage(ctx, it.url);
-
-		// Prefer real SKU from HTML
-		if (d?.sku && !isSyntheticSku(d.sku)) {
-			it.sku = d.sku;
+	// Multi-variant items already carry authoritative per-variant SKU/price/size from
+	// GQL — never override those from the shared HTML page (it only shows one size).
+	// Repair only fills a missing image via the budgeted bySku lookup.
+	if (it._multi) {
+		if (!it.img) {
+			const skuProbe = String(it._skuProbe || "").trim();
+			if (skuProbe) {
+				const supp = await supplementImageFromSku(ctx, skuProbe);
+				if (supp?.img) it.img = supp.img;
+			}
 		}
-
-		// Fill image if missing
-		if (!it.img && d?.img) it.img = d.img;
-
-		// HTML-displayed price is authoritative — GQL variant prices can lag or differ
-		if (Number.isFinite(d?.priceNum)) {
-			it.price = money(d.priceNum);
-		}
+		if (isSyntheticSku(it.sku)) it.sku = normalizeCspc(it.url) || "";
+		return it;
 	}
 
-	// 2) Missing image -> limited productsBySku (existing behavior)
+	// Single-variant: HTML page unambiguously describes the one listing.
+	if (isSyntheticSku(it.sku)) {
+		const d = await tudorDetailFromProductPage(ctx, it.url);
+
+		if (d?.sku && !isSyntheticSku(d.sku)) it.sku = d.sku;
+		if (!it.img && d?.img) it.img = d.img;
+		if (Number.isFinite(d?.priceNum)) it.price = money(d.priceNum);
+	}
+
+	// Missing image -> limited productsBySku (existing behavior)
 	if (!it.img) {
 		const skuProbe = String(it._skuProbe || "").trim();
 		if (skuProbe) {
@@ -478,22 +478,21 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 
 		let kept = 0;
 		for (const p of arr) {
-			const it = tudorItemFromProductFast(p, ctx);
-			if (!it) continue;
+			for (const it of tudorItemsFromProduct(p, ctx)) {
+				// NEW: seed from cached DB to avoid repeating detail HTML
+				const prev = prevDb?.byUrl?.get(it.url) || null;
+				if (prev) {
+					it.sku = pickBetterSku(it.sku, prev.sku);
+					if (!it.img && prev.img) it.img = prev.img;
+				}
 
-			// NEW: seed from cached DB to avoid repeating detail HTML
-			const prev = prevDb?.byUrl?.get(it.url) || null;
-			if (prev) {
-				it.sku = pickBetterSku(it.sku, prev.sku);
-				if (!it.img && prev.img) it.img = prev.img;
+				// queue only; do not do detail calls inline. Multi-variant items already
+				// have authoritative price/sku/size from GQL — only fetch for sku/image.
+				if (isSyntheticSku(it.sku) || !it.img) needsDetail.push(it);
+
+				discovered.set(it.url, it);
+				kept++;
 			}
-
-			// queue only; do not do detail calls inline
-			const hasMultiVariant = Array.isArray(it._variants) && it._variants.length >= 2;
-			if (isSyntheticSku(it.sku) || !it.img || hasMultiVariant) needsDetail.push(it);
-
-			discovered.set(it.url, it);
-			kept++;
 		}
 
 		done++;
@@ -523,7 +522,7 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 	let gqlUsed = 0;
 
 	for (const it of needsDetail) {
-		const wantsHtml = isSyntheticSku(it.sku) || (Array.isArray(it._variants) && it._variants.length >= 2);
+		const wantsHtml = !it._multi && isSyntheticSku(it.sku);
 		const wantsGql = !it.img && String(it._skuProbe || "").trim();
 
 		// enforce caps
