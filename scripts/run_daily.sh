@@ -86,9 +86,12 @@ if [[ $DEBUG -eq 1 ]]; then
   TRACKER_ARGS+=(--debug)
 fi
 
+# Tee tracker output so we can lift its [[FAILED-CATEGORIES]] sentinel onto the
+# commit first line, while still streaming everything to the CI log.
+TRACKER_LOG="$(mktemp)"
 set +e
-"$NODE_BIN" bin/tracker.js "${TRACKER_ARGS[@]}"
-rc=$?
+"$NODE_BIN" bin/tracker.js "${TRACKER_ARGS[@]}" 2>&1 | tee "$TRACKER_LOG"
+rc=${PIPESTATUS[0]}
 set -e
 
 if [[ $rc -eq 3 ]]; then
@@ -155,7 +158,8 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-# Commit message: include the latest report as the commit body.
+# Commit message: failed-category summary on the first line, runner metadata +
+# the full report in the body.
 ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
 REPORT_FILE=""
@@ -163,9 +167,29 @@ if compgen -G "reports/*.txt" > /dev/null; then
   REPORT_FILE="$(ls -1t reports/*.txt | head -n 1 || true)"
 fi
 
+# Failed categories: lift from the tracker's sentinel (empty after the marker
+# when nothing failed). Last occurrence wins (one per process).
+FAILED_LINE=""
+if [[ -f "$TRACKER_LOG" ]]; then
+  FAILED_LINE="$(grep -aoE '\[\[FAILED-CATEGORIES\]\].*' "$TRACKER_LOG" | tail -n1 | sed -E 's/^\[\[FAILED-CATEGORIES\]\] ?//')"
+fi
+
+if [[ -n "$FAILED_LINE" ]]; then
+  n="$(awk -F'; ' '{print NF}' <<<"$FAILED_LINE")"
+  FIRST_LINE="run: ${ts} | FAILED(${n}): ${FAILED_LINE}"
+else
+  FIRST_LINE="run: ${ts}"
+fi
+
+# Runner egress IP + identity, so store blocks can be correlated to the IP over
+# time. Best-effort: never let it abort the commit.
+RUNNER_IP="$(curl -fsS --max-time 8 https://api.ipify.org 2>/dev/null || echo unknown)"
+
 MSG_FILE="$(mktemp)"
 {
-  echo "run: ${ts}"
+  echo "$FIRST_LINE"
+  echo
+  echo "runner: ip=${RUNNER_IP} run_id=${GITHUB_RUN_ID:-local} os=${RUNNER_OS:-?} name=${RUNNER_NAME:-?}"
   echo
   if [[ -n "$REPORT_FILE" && -f "$REPORT_FILE" ]]; then
     cat "$REPORT_FILE"
@@ -175,7 +199,7 @@ MSG_FILE="$(mktemp)"
 } > "$MSG_FILE"
 
 git commit -F "$MSG_FILE" -q
-rm -f "$MSG_FILE"
+rm -f "$MSG_FILE" "$TRACKER_LOG"
 
 # --no-thin: a thin pack deltifies against base objects git assumes the remote already has;
 # right after a large main→data merge the remote may lack such a base, which it rejects as

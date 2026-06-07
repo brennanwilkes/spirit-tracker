@@ -204,14 +204,16 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger, proxy = nu
 
 	// Adaptive overload backoff. On 429/503/529 we widen the host's effective
 	// interval (and halve its inflight cap). Recovery is TIME-based, not
-	// per-success: the penalty decays exponentially with a short half-life, so a
-	// host that goes quiet recovers in a couple minutes regardless of how slow
-	// requests have become. The cap is deliberately low so backoff can never
-	// freeze the run — it eases off, it doesn't stall.
+	// per-success: the penalty decays exponentially with a half-life, so a host
+	// that goes quiet recovers without needing successful requests to prove it.
+	// The half-life is 40s (was 20s): a 20s half-life recovered too fast against a
+	// slow token bucket (e.g. Wine and Beyond, ~1/s) — the rate climbed back over
+	// the bucket and re-tripped the 429 in a limit cycle. A gentler decay damps
+	// that oscillation. The cap stays low so backoff eases off without stalling.
 	const hostPenalty = new Map(); // host -> { p: ms, ts: epochMs }
 	const PENALTY_STEP_MS = 1000;
 	const PENALTY_CAP_MS = 4000;
-	const PENALTY_HALFLIFE_MS = 20000;
+	const PENALTY_HALFLIFE_MS = 40000;
 
 	function currentPenalty(host) {
 		const e = hostPenalty.get(host);

@@ -37,17 +37,17 @@ const HOST = "www.wineandbeyond.ca";
 // gin collection 500s at limit>=200; use a single safe ceiling everywhere.
 const JSON_LIMIT = 150;
 // W&B needs ~1 fetch per catalogued product (~1900 total) plus per-location
-// price rescues, so it must run with real parallelism to finish in time. But
-// W&B uses a token-bucket limiter: it allows a large fast burst (~600 reqs)
-// then throttles hard — and (since ~mid-2026) this now applies to plain product
-// GETs too, not just cart writes. Bursting drains the bucket and trips a cliff
-// where the adaptive backoff in http.js stalls the run for minutes at a time
-// (observed: 1397 whiskey products took ~42 min, 37× HTTP 429). So we pace to a
-// sustainable ~4/s from the start (250ms interval ⇒ 4/s; 10 concurrent
-// connections cover the ~2s latency). The adaptive backoff is the safety net if
-// W&B still pushes back. Do NOT lower this below 250 — 150ms (6.6/s) is what
-// caused the cliff above.
-const WNB_INTERVAL_MS = 250;
+// price rescues. W&B rate-limits plain product GETs (not just cart writes) with
+// a token bucket whose SUSTAINED refill is only ~1 req/s. Pacing faster than that
+// doesn't finish faster — it trips a limit cycle: the http.js adaptive backoff
+// fires on the 429, then its short (now 40s) penalty half-life lets the rate
+// climb back over the bucket and re-trip, over and over. Measured at 250ms (4/s):
+// net throughput collapsed to ~0.85/s with 35× HTTP 429 across the run. So we
+// pace AT the bucket's sustained rate (~1/s) from the start — slower nominal rate,
+// but it stops the oscillation, so effective throughput is the same or better and
+// 429s nearly vanish. 1397 whiskey products ≈ 23 min; the store is simply slow.
+// Do NOT lower below ~1000 — anything faster re-enters the limit cycle.
+const WNB_INTERVAL_MS = 1000;
 const WNB_CONCURRENCY = 10;
 // W&B's /cart/update.js (the only way to pick a per-location price) is harshly
 // rate-limited: ~100 calls then a multi-minute lockout. So price rescue runs as

@@ -60,9 +60,21 @@ Chrome headers from a datacenter IP still 403). Affected: **liberty** (consisten
 **coop** (intermittent). gull/sierra are *slow by deliberate rate-limit*, NOT blocked —
 do not proxy them.
 
-Fix: relay those stores' fetches through a `/proxy` endpoint on the
+**STATUS (2026-06-07): the Worker proxy does NOT fix this — kept dormant only.**
+A full CI run with the proxy live still got the `Just a moment` 403 for Liberty
+(0 fallback logs + relayed 403 = the worker fetched it and got challenged). A
+Cloudflare Worker's egress IP is *itself* on the flagged list, so CF→CF gets the
+same managed challenge — a Worker `fetch()` can't solve the JS. The proxy code
+stays in place (best-effort, falls back to direct, costs nothing) in case a future
+block is plain datacenter-reputation rather than a JS challenge, but it is a no-op
+for these stores. **The real fix needs a clean, non-datacenter egress IP** (e.g. a
+free-cloud VM such as Oracle Always-Free as a self-hosted runner or proxy host) —
+deferred. Local runs are explicitly off the table. The attempted approach below is
+retained for context:
+
+Attempted fix: relay those stores' fetches through a `/proxy` endpoint on the
 `~/spirit-tracker-api` Cloudflare Worker. The Worker's outbound `fetch()` egresses
-from Cloudflare's own network (clean reputation), so CF→CF returns 200.
+from Cloudflare's own network — hypothesised (wrongly) to have clean reputation.
 
 - **Client** (`src/core/http.js`): `createHttpClient({ proxy })`. When a request's host
   is in `proxy.hosts`, `doFetch()` routes through `proxyFetch()` (HMAC-signed POST,
@@ -125,6 +137,23 @@ Each run executes `scripts/run_daily.sh`, which:
    See `tools/linker_ml/CLAUDE.md` §"Shipping the checkpoint" (best-effort; skips if no venv/checkpoint).
 6. Commits + pushes all changes to the `data` branch
 7. Triggers the Pages deploy and email pack workflows
+
+## Run Observability (commit messages)
+
+Every `data`-branch commit from `run_daily.sh` encodes run health so failures are
+visible at a glance in `git log` over time:
+
+- **First line**: `run: <ts>` — and, when any category's scan threw, ` | FAILED(n): Store | Label; …`.
+  Source of truth: the tracker prints a stable `[[FAILED-CATEGORIES]] …` sentinel on
+  stdout (always, even on no-op runs); `run_daily.sh` tees tracker output and lifts it.
+  Internally, `report.failedCategories[]` (populated in `run_all.js`'s catch) also
+  renders a `FAILED CATEGORIES (n)` section in the report body.
+- **Body**: a `runner: ip=<egress-ip> run_id=… os=… name=…` line (egress IP via
+  best-effort `api.ipify.org`) so store blocks can be correlated to the runner IP —
+  most store failures are datacenter-IP reputation (see §"Cloudflare Egress Proxy").
+- **Limitation**: the `meaningful`-changes short-circuit means a run where *everything*
+  fails (no data at all) writes no commit, so it leaves no record. Partial failures
+  (the common case) do commit and are recorded.
 
 ## Scripts (`scripts/`)
 
