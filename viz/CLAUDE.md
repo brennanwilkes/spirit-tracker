@@ -216,7 +216,25 @@ vocab-boosted (only `recommendSimilar`). Constants live in `vocab.js`
 
 Keyboard-driven anchor-a-store tool for clearing the unlinked backlog. Pick a store; walk
 its unlinked items **strongest-matchable first** (worklist ordered by the idf of each
-item's most-distinctive term). For each anchor, candidates from `recommendSimilar`
+item's most-distinctive term).
+
+**Sort modes** (`#rapidSort` dropdown, persisted to `stviz:linker_rapid_sort_v1`):
+- `default` — informativeness-weighted order (the original): boundary hard-negatives and
+  uncertain mid-score pairs first, trivial near-identical matches damped.
+- `absolute` ("Best bets (slow)") — fully refines EVERY live item, then ranks by RAW match
+  probability (most-likely matches / easiest bets first). `refinedScore` returns the raw
+  `score01` instead of `informativeness()` in this mode. The refine is done progressively by
+  `startAbsoluteRefine()` (chunked, yields to paint, shows a % progress bar in the candidate
+  column, `absGen` invalidates an in-flight pass on store/sort/AI change) so the page never
+  freezes; the worklist stays in fast order until every item is scored, then snaps to the
+  true order.
+- `recent` ("Recently added") — orders by the **most recent `firstSeenAt`** across each
+  aggregate's raw listings (`recencyBySku`/`recencyOf`), newest first. INCLUDES already
+  linked/ignored items on purpose (so recent decisions can be sanity-checked) — `isLinked`
+  filtering, dead-end drop, `skipLinkedForward`, and `rescoreAfterDecision` are all bypassed
+  in this mode.
+
+All three are routed through `applyWorklistRebuild()`. For each anchor, candidates from `recommendSimilar`
 (`withScores: true`) are split by an **adaptive cutoff** — `max(STRONG_ABS=1.0,
 STRONG_REL=0.5 × topScore)` — into "Suggestions" (count flexes with quality) and "Other
 options", each with a confidence bar + score. **One anchor can link to multiple items**:
