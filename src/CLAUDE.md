@@ -26,6 +26,33 @@ Each store is a file in `src/stores/` that exports a plain object with:
 
 `src/stores/index.js` exports `createStores()` which instantiates all 33 adapters.
 
+## Tudor House multi-size variants (`src/stores/tudor.js`)
+
+One Tudor product page can expose several sizes via a `<select>`, each a GQL variant
+with its **own real CSPC SKU, price, and `shortName`** (e.g. `"375ML"`). The bulk
+`products` listing query carries `shortName`/`fullName` per variant, so size + price +
+SKU come for free — **no detail fetch needed** for multi-size products.
+
+- `tudorItemsFromProduct()` returns an **array**: one listing per in-stock variant for
+  multi-variant products (`variants.length >= 2`), or a single listing (unchanged
+  behavior, bare URL, name untouched) for single-variant products.
+- Multi-size listings get a stable discriminator URL `…/<slug>?variant=<rawSku>` (the
+  page ignores the param) so the two sizes are distinct keys in the URL-keyed merge.
+  Single-size listings keep the bare URL — no identity churn.
+- Multi-size names = `stripSizeTokens(baseName) + " " + shortName` (strips any size
+  already baked into the name, e.g. `BALLANTINES 750ML` → `BALLANTINES`, then appends
+  the variant's authoritative size).
+- For multi (`it._multi`), GQL per-variant SKU/price/size are **authoritative**;
+  `tudorRepairItem` never overrides them from the shared HTML page (which only shows
+  one size) — it only fills a missing image via budgeted `productsBySku`.
+- **Why it changed (2026-06-07):** the old code emitted ONE listing per product and
+  `tudorPickVariant` flipped between sizes run-to-run (e.g. when the 750ML sold out it
+  fell back to the in-stock 375ML), so a single listing's price bounced and registered
+  as a huge fake "sale %". Per-variant emission fixes this at the root. Cutover means
+  old single-listing records for these products go OOS once and the split listings
+  appear fresh (the larger size keeps history via merge's skuKey-rematch); their stale
+  `data/sku_links.json` entries were bulk-removed for manual relinking.
+
 ## Category Scan Flow (`src/tracker/`)
 
 1. `run_all.js` — schedules all stores/categories with host-level serialization (never run two categories from the same host concurrently) inside a concurrency pool.
