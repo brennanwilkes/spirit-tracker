@@ -48,6 +48,8 @@ async function runAllStores(stores, { config, logger, http }) {
 			const storeName = w?.ctx?.store?.name || w?.ctx?.store?.host || "unknown-store";
 			const catLabel = w?.ctx?.cat?.label || w?.ctx?.cat?.key || "unknown-category";
 
+			report.failedCategories.push({ store: storeName, label: catLabel });
+
 			// Keep it loud in logs, but do not fail the entire run.
 			logger.warn(`Category failed (continuing): ${storeName} | ${catLabel}\n${formatErr(e)}`);
 		}

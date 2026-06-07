@@ -26,6 +26,7 @@ function createReport() {
 		removedItems: [],
 		restoredItems: [],
 		skuUpgrades: [], // { fromSku, toSku, url, ts, dbFile } per in-place SKU upgrade detected this run
+		failedCategories: [], // { store, label } per category whose scan threw (run_all.js catch)
 	};
 }
 
@@ -103,6 +104,13 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
 			)}`,
 	);
 	ln("");
+
+	const failed = Array.isArray(report.failedCategories) ? report.failedCategories : [];
+	if (failed.length) {
+		ln(paint(`FAILED CATEGORIES (${failed.length})`, C.bold + C.red));
+		for (const f of failed) ln(paint(`  ✗ ${f.store} | ${f.label}`, C.red));
+		ln("");
+	}
 
 	ln(paint("Per-category summary:", C.bold));
 	const rows = report.categories.map((c) => ({

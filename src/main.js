@@ -190,6 +190,12 @@ async function main() {
 	});
 	process.stdout.write(reportTextColor);
 
+	// Stable, parseable sentinel for run_daily.sh to lift onto the commit first
+	// line (always emitted, even on no-op runs). Format: semicolon-separated
+	// "Store | Label" entries, empty after the marker when nothing failed.
+	const failedList = (report.failedCategories || []).map((f) => `${f.store} | ${f.label}`).join("; ");
+	console.log(`[[FAILED-CATEGORIES]] ${failedList}`);
+
 	if (!meaningful) {
 		logger.ok("No meaningful changes; skipping report write.");
 		process.exitCode = 3; // special "no-op" code
