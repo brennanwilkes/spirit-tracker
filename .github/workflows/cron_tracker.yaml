@@ -122,7 +122,7 @@ jobs:
         env:
           CRON_BIG: "45 5,17 * * *"
           CRON_SMALL: "45 0,3,9,12,15,21 * * *"
-          STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars"
+          STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars,colordevino,liquorama"
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_STORES: ${{ inputs.stores }}
           FIRED_SCHEDULE: ${{ github.event.schedule }}

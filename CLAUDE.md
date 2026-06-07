@@ -103,7 +103,7 @@ Exit code `3` = no meaningful changes (normal, not an error).
 GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules (times
 chosen so the **commit** — run end — lands ~on the 3-hour marks in Pacific time):
 - **Big** (all 33 stores): 5:45 and 17:45 UTC daily (~1 h runtime → commits ~00:00 / 12:00 PT)
-- **Small** (sierra_springs + craft_cellars only): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
+- **Small** (sierra_springs, craft_cellars, colordevino, liquorama): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
 
 **One-shot failed-store retry.** Store failures are usually a bad random Azure egress
 IP (see §"Datacenter-IP Blocking"), and recover on the next run's different IP. So after
