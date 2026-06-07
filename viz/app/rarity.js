@@ -176,7 +176,6 @@ export function scoreSku(eventsByStore, nowMs) {
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
-	let lastInStockEverTs = -Infinity;
 	const completedPeriodsMs = [];
 	const openDurationsMs = [];
 	let totalRestocks = 0;
@@ -187,11 +186,12 @@ export function scoreSku(eventsByStore, nowMs) {
 	let totalEvents = 0;
 
 	let rareActingStores = 0;
-	// Epochs of currently-in-stock stores — used to anchor confidence for in-stock
-	// items so a fresh restock at a newly-tracked store can't inherit an old store's
-	// observation window. Mirror of src/utils/rarity.js. (NOTE: this file's ageSignal
-	// has separately drifted from the CJS three-branch version — reconcile later.)
-	const stockedEpochs = [];
+	// Per-store epoch signals, combined with MAX below. The epoch penalty is per DB
+	// file (each has its own tracking-start date); the item is confidently rare as
+	// soon as ANY store has watched it long enough past its own epoch. A fresh flicker
+	// at a brand-new store is discounted on its own merits but can't suppress the
+	// confidence a long-observing store already earned. Mirror of src/utils/rarity.js.
+	const storeEpochSignals = [];
 	for (const s of stores) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
@@ -234,18 +234,29 @@ export function scoreSku(eventsByStore, nowMs) {
 			// store from making a ubiquitous staple look scarce. Mirror of src/utils/rarity.js.
 			const inStockSinceEpoch = Number.isFinite(epOpen) && stillOpen.start <= epOpen + COALESCE_GAP_MS;
 			effectiveStockedStores += inStockSinceEpoch ? 1 : Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
-			if (Number.isFinite(epOpen)) stockedEpochs.push(epOpen);
 		}
 		if (distinctPrices > 1) totalPriceChanges += distinctPrices - 1;
 
+		let storeLastInStockTs = -Infinity;
 		for (const ev of evs) {
 			const t = new Date(ev.ts).getTime();
 			if (!Number.isFinite(t)) continue;
 			if (t < firstEverTs) firstEverTs = t;
 			if (t > lastEverTs) lastEverTs = t;
-			if (ev.p != null && t > lastInStockEverTs) lastInStockEverTs = t;
+			if (ev.p != null && t > storeLastInStockTs) storeLastInStockTs = t;
 		}
-		if (stillOpen) lastInStockEverTs = Math.max(lastInStockEverTs, NOW);
+		if (stillOpen) storeLastInStockTs = NOW;
+		// This store's epoch-signal contribution: how far its most recent in-stock
+		// observation sits past its OWN epoch (quadratic ramp, full by day 30). A
+		// store that never stocked the item offers no epoch evidence. Mirror of
+		// src/utils/rarity.js.
+		if (storeLastInStockTs > -Infinity) {
+			const epStore = eventsByStore[s] && eventsByStore[s].epochMs;
+			const anchor = Number.isFinite(epStore) ? epStore : TRACKER_EPOCH_MS;
+			const d = Math.max(0, (storeLastInStockTs - anchor) / 86400000);
+			const ramp = Math.min(d / 30, 1);
+			storeEpochSignals.push(ramp * ramp);
+		}
 	}
 
 	const breadth = stores.length;
@@ -296,31 +307,18 @@ export function scoreSku(eventsByStore, nowMs) {
 	//   ageSignal — penalty if we've just started seeing this item; ramps to
 	//   full over the first 7 days of any observation history. Anything past
 	//   a week of any visibility is enough to commit to a tier.
-	//   epochSignal — penalty if the last in-stock observation was suspiciously
-	//   close to the tracker's absolute start date (we can't tell if a 5-day
-	//   post-epoch sellout is genuinely scarce or just an artifact of catching
-	//   the item mid-cycle). Quadratic ramp so the penalty is sharp in the
-	//   first weeks and irrelevant by day 30.
+	//   epochSignal — penalty if the most recent in-stock observation was
+	//   suspiciously close to a store's tracking start. Computed PER STORE against
+	//   that store's own epoch (in the loop above), then combined with MAX: the
+	//   penalty applies to each store's evidence individually, but the item is
+	//   confident as soon as ANY store has watched it long enough past its own epoch.
+	//   A fresh flicker at a brand-new store is discounted on its own merits yet can't
+	//   erase a long-observing store's earned confidence. Mirror of src/utils/rarity.js.
+	// NOTE: this file's ageSignal is a single ramp; the CJS src/utils/rarity.js
+	// version branches on stock state (OOS / partial / full). Pre-existing drift —
+	// reconcile later. The epochSignal below is identical to the CJS version.
 	const ageSignal = Math.min(ageDays / 7, 1);
-	// In-stock items: anchor confidence to the earliest epoch among CURRENTLY-stocked
-	// stores only (a fresh restock at a new store must not inherit an old store's
-	// window). Fully-OOS items keep the global-min anchor. Mirror of src/utils/rarity.js.
-	let effectiveEpochMs = Infinity;
-	if (currentlyStockedStores > 0 && stockedEpochs.length) {
-		for (const ep of stockedEpochs) if (ep < effectiveEpochMs) effectiveEpochMs = ep;
-	} else {
-		for (const s of stores) {
-			const ep = eventsByStore[s] && eventsByStore[s].epochMs;
-			if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
-		}
-	}
-	if (!Number.isFinite(effectiveEpochMs)) effectiveEpochMs = TRACKER_EPOCH_MS;
-	const daysFromEpochToLastInStock =
-		lastInStockEverTs === -Infinity
-			? 0
-			: Math.max(0, (lastInStockEverTs - effectiveEpochMs) / 86400000);
-	const epochRamp = Math.min(daysFromEpochToLastInStock / 30, 1);
-	const epochSignal = epochRamp * epochRamp;
+	const epochSignal = storeEpochSignals.length ? Math.max(...storeEpochSignals) : 0;
 	const confidence = ageSignal * epochSignal;
 
 	return {
