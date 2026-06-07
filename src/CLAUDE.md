@@ -45,6 +45,13 @@ SKU come for free — **no detail fetch needed** for multi-size products.
 - For multi (`it._multi`), GQL per-variant SKU/price/size are **authoritative**;
   `tudorRepairItem` never overrides them from the shared HTML page (which only shows
   one size) — it only fills a missing image via budgeted `productsBySku`.
+- **Re-SKU / size-drop handling:** if a single-size product's tracked CSPC no longer
+  matches any live variant (e.g. it dropped from two sizes to one and the old size was
+  delisted), the scanner routes the live listing through a fresh `?variant=<sku>` URL so
+  the stale bare-URL record retires and the correct SKU takes over. This is necessary
+  because `merge.js`'s same-URL `pickBetterSku` keeps the existing value on a
+  CSPC-vs-CSPC tie — so a scanner-only SKU swap can't win; the URL must change. Only
+  fires for the handful of re-SKU'd singles (verified: no churn on clean singles).
 - **Why it changed (2026-06-07):** the old code emitted ONE listing per product and
   `tudorPickVariant` flipped between sizes run-to-run (e.g. when the 750ML sold out it
   fell back to the in-stock 375ML), so a single listing's price bounced and registered
