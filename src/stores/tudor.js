@@ -1,7 +1,7 @@
 "use strict";
 
 const { cleanText } = require("../utils/html");
-const { normalizeCspc, pickBetterSku, needsSkuDetail } = require("../utils/sku");
+const { normalizeCspc, normalizeSkuKey, pickBetterSku, needsSkuDetail } = require("../utils/sku");
 const { padLeft, padRight, firstNonEmptyStr } = require("../utils/string");
 const { kbStr, secStr, pageStr, cad: money } = require("../utils/format");
 const { normalizeAbsUrl: _normUrl } = require("../utils/url");
@@ -479,10 +479,27 @@ async function scanCategoryTudor(ctx, prevDb, report) {
 		let kept = 0;
 		for (const p of arr) {
 			for (const it of tudorItemsFromProduct(p, ctx)) {
-				// NEW: seed from cached DB to avoid repeating detail HTML
-				const prev = prevDb?.byUrl?.get(it.url) || null;
+				// If a single-size product was re-SKU'd at the same URL — its tracked CSPC
+				// no longer matches any live variant (e.g. it dropped from two sizes to
+				// one and the old size was delisted) — route the live listing through a
+				// fresh variant-keyed URL. Otherwise merge's same-URL pickBetterSku keeps
+				// the stale CSPC forever (CSPC-vs-CSPC tie favours the existing value).
+				// Multi-size items are already variant-keyed, so this only touches singles.
+				const skuKeyOf = (s) => normalizeSkuKey(s, { storeLabel: ctx.store.name, url: it.url });
+				let prev = prevDb?.byUrl?.get(it.url) || null;
+				if (!it._multi && prev && !isSyntheticSku(it.sku) && it._skuProbe) {
+					const prevKey = skuKeyOf(prev.sku);
+					const currentKeys = new Set((it._variants || []).map((v) => skuKeyOf(normalizeTudorSku(v.sku))));
+					if (prevKey && !/^u:/i.test(prevKey) && !currentKeys.has(prevKey)) {
+						it.url = tudorVariantUrl(it.url, it._skuProbe);
+						prev = prevDb?.byUrl?.get(it.url) || null;
+					}
+				}
+
+				// Seed image from cache, and recover a real SKU from history only when the
+				// fresh one is synthetic (a real live CSPC always stands on its own).
 				if (prev) {
-					it.sku = pickBetterSku(it.sku, prev.sku);
+					if (isSyntheticSku(it.sku)) it.sku = pickBetterSku(it.sku, prev.sku);
 					if (!it.img && prev.img) it.img = prev.img;
 				}
 
