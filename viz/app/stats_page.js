@@ -485,7 +485,7 @@ function adaptiveSmooth(arr) {
 	const window = Math.max(3, Math.min(31, Math.round(Math.sqrt(n))));
 	const half = Math.floor(window / 2);
 
-	const JUMP_THRESH = 5;
+	const JUMP_THRESH = 2;
 	const anchored = new Array(n).fill(false);
 	for (let i = 1; i < n; i++) {
 		const a = arr[i - 1];

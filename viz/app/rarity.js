@@ -187,6 +187,11 @@ export function scoreSku(eventsByStore, nowMs) {
 	let totalEvents = 0;
 
 	let rareActingStores = 0;
+	// Epochs of currently-in-stock stores — used to anchor confidence for in-stock
+	// items so a fresh restock at a newly-tracked store can't inherit an old store's
+	// observation window. Mirror of src/utils/rarity.js. (NOTE: this file's ageSignal
+	// has separately drifted from the CJS three-branch version — reconcile later.)
+	const stockedEpochs = [];
 	for (const s of stores) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
@@ -223,7 +228,13 @@ export function scoreSku(eventsByStore, nowMs) {
 			openDurationsMs.push(openDur);
 			totalInStockMs += openDur;
 			currentlyStockedStores += 1;
-			effectiveStockedStores += Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
+			const epOpen = eventsByStore[s] && eventsByStore[s].epochMs;
+			// Spell that began at this store's epoch = in stock since we started watching →
+			// full availability credit, not a ramped "fresh restock". Prevents a newly-added
+			// store from making a ubiquitous staple look scarce. Mirror of src/utils/rarity.js.
+			const inStockSinceEpoch = Number.isFinite(epOpen) && stillOpen.start <= epOpen + COALESCE_GAP_MS;
+			effectiveStockedStores += inStockSinceEpoch ? 1 : Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
+			if (Number.isFinite(epOpen)) stockedEpochs.push(epOpen);
 		}
 		if (distinctPrices > 1) totalPriceChanges += distinctPrices - 1;
 
@@ -291,10 +302,17 @@ export function scoreSku(eventsByStore, nowMs) {
 	//   the item mid-cycle). Quadratic ramp so the penalty is sharp in the
 	//   first weeks and irrelevant by day 30.
 	const ageSignal = Math.min(ageDays / 7, 1);
+	// In-stock items: anchor confidence to the earliest epoch among CURRENTLY-stocked
+	// stores only (a fresh restock at a new store must not inherit an old store's
+	// window). Fully-OOS items keep the global-min anchor. Mirror of src/utils/rarity.js.
 	let effectiveEpochMs = Infinity;
-	for (const s of stores) {
-		const ep = eventsByStore[s] && eventsByStore[s].epochMs;
-		if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
+	if (currentlyStockedStores > 0 && stockedEpochs.length) {
+		for (const ep of stockedEpochs) if (ep < effectiveEpochMs) effectiveEpochMs = ep;
+	} else {
+		for (const s of stores) {
+			const ep = eventsByStore[s] && eventsByStore[s].epochMs;
+			if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
+		}
 	}
 	if (!Number.isFinite(effectiveEpochMs)) effectiveEpochMs = TRACKER_EPOCH_MS;
 	const daysFromEpochToLastInStock =

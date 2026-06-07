@@ -12,7 +12,7 @@ import { loadIndex, loadRecent, loadRarity } from "./state.js";
 import { aggregateBySku } from "./catalog.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing } from "./hidden.js";
-import { normalizeStoreId } from "./stores.js";
+import { normalizeStoreId, storesByRegion } from "./stores.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import {
 	AuthError,
@@ -380,31 +380,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	// Populate store dropdown (live stores only) — grouped by province
 	{
-		const BC_STORE_NORMS = new Set(
-			[
-				"ARC Liquor",
-				"BCL",
-				"Gull Liquor",
-				"Legacy Liquor",
-				"Strath Liquor",
-				"Tudor House",
-				"Vessel Liquor",
-				"Vintage Spirits",
-			].map(normStoreLabel),
-		);
-
-		const AB_STORE_NORMS = new Set(
-			[
-				"BSW",
-				"Co-op World of Whisky",
-				"Craft Cellars",
-				"Keg N Cork",
-				"Kensington Wine Market",
-				"Malts & Grains",
-				"Sierra Springs",
-				"Willow Park",
-			].map(normStoreLabel),
-		);
+		const BC_STORE_NORMS = new Set(storesByRegion("bc").flatMap((s) => [s.id, s.label, ...s.aliases].map(normStoreLabel)));
+		const AB_STORE_NORMS = new Set(storesByRegion("ab").flatMap((s) => [s.id, s.label, ...s.aliases].map(normStoreLabel)));
 
 		const opts = Array.from(storeDisplayByNorm.entries())
 			.map(([norm, label]) => ({ norm, label }))

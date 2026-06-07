@@ -249,6 +249,10 @@ function scoreSku(eventsByStore, nowMs) {
 	let totalEvents = 0;
 
 	let rareActingStores = 0;
+	// Epochs of stores that are CURRENTLY in stock — used to resolve the confidence
+	// epoch for in-stock items (a fresh restock at a newly-tracked store must not
+	// inherit an old store's long observation window). See effectiveEpochMs below.
+	const stockedEpochs = [];
 	for (const s of stores) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
@@ -290,7 +294,16 @@ function scoreSku(eventsByStore, nowMs) {
 			openDurationsMs.push(openDur);
 			totalInStockMs += openDur;
 			currentlyStockedStores += 1;
-			effectiveStockedStores += Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
+			const epOpen = eventsByStore[s] && eventsByStore[s].epochMs;
+			// If the spell began when we STARTED tracking this store (start ≈ its epoch), the
+			// item has been on the shelf the whole time we've watched — not a suspicious fresh
+			// restock — so credit FULL availability instead of ramping. Without this, a newly-
+			// added store makes a ubiquitous staple look scarce (it inflates S_avail, which in
+			// turn disables the widely-available discount). A genuine restock at a long-tracked
+			// store (spell starts well after its epoch) still ramps. Mirrors the confidence fix.
+			const inStockSinceEpoch = Number.isFinite(epOpen) && stillOpen.start <= epOpen + COALESCE_GAP_MS;
+			effectiveStockedStores += inStockSinceEpoch ? 1 : Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
+			if (Number.isFinite(epOpen)) stockedEpochs.push(epOpen);
 		}
 		if (distinctPrices > 1) totalPriceChanges += distinctPrices - 1;
 
@@ -388,15 +401,25 @@ function scoreSku(eventsByStore, nowMs) {
 	} else {
 		ageSignal = Math.min(ageDays / 7, 1);
 	}
-	// Resolve effective epoch: earliest per-entry epochMs across the stores
-	// tracking this item, falling back to the global default for entries that
-	// haven't been backfilled yet. Earliest wins because once ANY DB file has
-	// been tracking the item for 30+ days, our "last in stock" signal is no
-	// longer suspicious — we wouldn't have missed a substantial sellout.
+	// Resolve effective epoch for the confidence calc.
+	//   • Item currently IN STOCK at ≥1 store: use the earliest epoch among ONLY the
+	//     currently-stocked stores. A fresh restock observed at a store we started
+	//     tracking days ago carries little information — it must NOT inherit a long
+	//     observation window from an unrelated old store that dumped the item at epoch
+	//     (that produced false "confident rare" scores, e.g. an item OOS at one old
+	//     store since launch but freshly in stock at a brand-new store).
+	//   • Item fully OOS: use the earliest epoch across ALL stores — once ANY DB file
+	//     has tracked it 30+ days, a sustained OOS is no longer suspicious (we'd have
+	//     caught a restock), so the oldest epoch is the right confidence anchor.
+	// Falls back to the global default for entries not yet backfilled.
 	let effectiveEpochMs = Infinity;
-	for (const s of stores) {
-		const ep = eventsByStore[s] && eventsByStore[s].epochMs;
-		if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
+	if (currentlyStockedStores > 0 && stockedEpochs.length) {
+		for (const ep of stockedEpochs) if (ep < effectiveEpochMs) effectiveEpochMs = ep;
+	} else {
+		for (const s of stores) {
+			const ep = eventsByStore[s] && eventsByStore[s].epochMs;
+			if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
+		}
 	}
 	if (!Number.isFinite(effectiveEpochMs)) effectiveEpochMs = TRACKER_EPOCH_MS;
 	const daysFromEpochToLastInStock =
