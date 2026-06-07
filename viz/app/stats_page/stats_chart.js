@@ -8,34 +8,13 @@
  */
 
 import { buildStoreColorMap, storeColor, lighten } from "../storeColors.js";
+import { storeById } from "../stores.js";
 
 let _chart = null;
 
-// ── Store display names ───────────────────────────────────────────────────
-
-const STORE_LABELS = {
-	bcl: "BCL",
-	bsw: "BSW",
-	coop: "Co-op World of Whisky",
-	craftcellars: "Craft Cellars",
-	gull: "Gull Liquor",
-	kegncork: "Keg N Cork",
-	kwm: "Kensington Wine Market",
-	legacy: "Legacy Liquor",
-	legacyliquor: "Legacy Liquor",
-	maltsandgrains: "Malts & Grains",
-	sierrasprings: "Sierra Springs",
-	strath: "Strath Liquor",
-	tudor: "Tudor House",
-	vessel: "Vessel Liquor",
-	vintage: "Vintage Spirits",
-	willowpark: "Willow Park",
-	arc: "Arc Liquor",
-};
-
 function displayStoreName(storeKey) {
-	const k = String(storeKey || "").toLowerCase();
-	return STORE_LABELS[k] || storeKey;
+	const store = storeById(String(storeKey || ""));
+	return store ? store.label : storeKey;
 }
 
 // ── Chart.js loader ───────────────────────────────────────────────────────
