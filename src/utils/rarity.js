@@ -238,7 +238,6 @@ function scoreSku(eventsByStore, nowMs) {
 	const stores = Object.keys(eventsByStore || {});
 	let firstEverTs = Infinity;
 	let lastEverTs = -Infinity;
-	let lastInStockEverTs = -Infinity;
 	const completedPeriodsMs = [];
 	const openDurationsMs = [];
 	let totalRestocks = 0;
@@ -249,10 +248,15 @@ function scoreSku(eventsByStore, nowMs) {
 	let totalEvents = 0;
 
 	let rareActingStores = 0;
-	// Epochs of stores that are CURRENTLY in stock — used to resolve the confidence
-	// epoch for in-stock items (a fresh restock at a newly-tracked store must not
-	// inherit an old store's long observation window). See effectiveEpochMs below.
-	const stockedEpochs = [];
+	// Per-store epoch signals. The epoch penalty (a sellout suspiciously close to a
+	// store's tracking start might be an artifact of catching the item mid-cycle) is
+	// inherently PER STORE: each DB file has its own start date. We compute the signal
+	// independently for every store, then take the MAX across stores — the item is
+	// confidently rare if ANY store has watched it long enough past its own epoch to
+	// trust what it sees. A fresh in-stock flicker at a brand-new store contributes a
+	// near-zero signal (correctly discounted), but it can't suppress the strong signal
+	// a long-observing store already earned.
+	const storeEpochSignals = [];
 	for (const s of stores) {
 		const rawEvs = (eventsByStore[s] && eventsByStore[s].events) || [];
 		const evs = dedupRenameEvents(rawEvs);
@@ -303,19 +307,31 @@ function scoreSku(eventsByStore, nowMs) {
 			// store (spell starts well after its epoch) still ramps. Mirrors the confidence fix.
 			const inStockSinceEpoch = Number.isFinite(epOpen) && stillOpen.start <= epOpen + COALESCE_GAP_MS;
 			effectiveStockedStores += inStockSinceEpoch ? 1 : Math.min(openDur / 86400000 / AVAIL_RAMP_DAYS, 1);
-			if (Number.isFinite(epOpen)) stockedEpochs.push(epOpen);
 		}
 		if (distinctPrices > 1) totalPriceChanges += distinctPrices - 1;
 
+		let storeLastInStockTs = -Infinity;
 		for (const ev of evs) {
 			const t = new Date(ev.ts).getTime();
 			if (!Number.isFinite(t)) continue;
 			if (t < firstEverTs) firstEverTs = t;
 			if (t > lastEverTs) lastEverTs = t;
-			if (ev.p != null && t > lastInStockEverTs) lastInStockEverTs = t;
+			if (ev.p != null && t > storeLastInStockTs) storeLastInStockTs = t;
 		}
 		// A currently-open period also implies "last in stock = now"
-		if (stillOpen) lastInStockEverTs = Math.max(lastInStockEverTs, NOW);
+		if (stillOpen) storeLastInStockTs = NOW;
+		// This store's contribution to the epoch signal: how far its most recent
+		// in-stock observation sits past its OWN tracking epoch. Quadratic ramp,
+		// full credit by day 30. A store that never had the item in stock has no
+		// epoch evidence to offer and contributes nothing. Falls back to the global
+		// epoch for stores not yet backfilled with a per-file createdAt.
+		if (storeLastInStockTs > -Infinity) {
+			const epStore = eventsByStore[s] && eventsByStore[s].epochMs;
+			const anchor = Number.isFinite(epStore) ? epStore : TRACKER_EPOCH_MS;
+			const d = Math.max(0, (storeLastInStockTs - anchor) / 86400000);
+			const ramp = Math.min(d / 30, 1);
+			storeEpochSignals.push(ramp * ramp);
+		}
 	}
 
 	const breadth = stores.length;
@@ -387,11 +403,16 @@ function scoreSku(eventsByStore, nowMs) {
 	//                         continuous availability at every known store is
 	//                         the weakest signal: it could just mean the
 	//                         retailers got generous initial allocations.
-	//   epochSignal — penalty if the last in-stock observation was suspiciously
-	//   close to the tracker's absolute start date (we can't tell if a 5-day
-	//   post-epoch sellout is genuinely scarce or just an artifact of catching
-	//   the item mid-cycle). Quadratic ramp so the penalty is sharp in the
-	//   first weeks and irrelevant by day 30.
+	//   epochSignal — penalty if the most recent in-stock observation was
+	//   suspiciously close to a store's tracking start (we can't tell if a 5-day
+	//   post-epoch sellout is genuinely scarce or just an artifact of catching the
+	//   item mid-cycle). Computed PER STORE against that store's own epoch (above),
+	//   then combined with MAX: the penalty applies to each store's evidence
+	//   individually, but the item is confident as soon as ANY store has watched it
+	//   long enough past its own epoch. A fresh in-stock flicker at a brand-new store
+	//   is discounted on its own merits, yet it cannot erase the confidence a
+	//   long-observing store already earned. (An item seen ONLY at new stores still
+	//   scores low — every store's signal is near-zero, so the max is too.)
 	let ageSignal;
 	if (currentlyStockedStores === 0) {
 		const oosTime = Math.max(0, ageDays - totalInStockDays);
@@ -401,33 +422,7 @@ function scoreSku(eventsByStore, nowMs) {
 	} else {
 		ageSignal = Math.min(ageDays / 7, 1);
 	}
-	// Resolve effective epoch for the confidence calc.
-	//   • Item currently IN STOCK at ≥1 store: use the earliest epoch among ONLY the
-	//     currently-stocked stores. A fresh restock observed at a store we started
-	//     tracking days ago carries little information — it must NOT inherit a long
-	//     observation window from an unrelated old store that dumped the item at epoch
-	//     (that produced false "confident rare" scores, e.g. an item OOS at one old
-	//     store since launch but freshly in stock at a brand-new store).
-	//   • Item fully OOS: use the earliest epoch across ALL stores — once ANY DB file
-	//     has tracked it 30+ days, a sustained OOS is no longer suspicious (we'd have
-	//     caught a restock), so the oldest epoch is the right confidence anchor.
-	// Falls back to the global default for entries not yet backfilled.
-	let effectiveEpochMs = Infinity;
-	if (currentlyStockedStores > 0 && stockedEpochs.length) {
-		for (const ep of stockedEpochs) if (ep < effectiveEpochMs) effectiveEpochMs = ep;
-	} else {
-		for (const s of stores) {
-			const ep = eventsByStore[s] && eventsByStore[s].epochMs;
-			if (Number.isFinite(ep) && ep < effectiveEpochMs) effectiveEpochMs = ep;
-		}
-	}
-	if (!Number.isFinite(effectiveEpochMs)) effectiveEpochMs = TRACKER_EPOCH_MS;
-	const daysFromEpochToLastInStock =
-		lastInStockEverTs === -Infinity
-			? 0
-			: Math.max(0, (lastInStockEverTs - effectiveEpochMs) / 86400000);
-	const epochRamp = Math.min(daysFromEpochToLastInStock / 30, 1);
-	const epochSignal = epochRamp * epochRamp;
+	const epochSignal = storeEpochSignals.length ? Math.max(...storeEpochSignals) : 0;
 	const confidence = ageSignal * epochSignal;
 
 	return {
