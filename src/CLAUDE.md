@@ -93,8 +93,6 @@ All optional. CLI flags take precedence over env vars.
 | `DATA_DIR` | `./data/db` | DB output directory |
 | `REPORT_DIR` | `./reports` | Report output directory |
 | `DEBUG` / `TRACKER_DEBUG` | off | Enable verbose logging |
-| `STVIZ_PROXY_URL` | (none) | Worker `/proxy` URL. With `EMAIL_PACK_HMAC_SECRET`, routes `PROXY_HOSTS` (liberty, coop) via the CF-egress proxy; absent → all direct. See project CLAUDE.md §"Cloudflare Egress Proxy" |
-| `EMAIL_PACK_HMAC_SECRET` | (none) | HMAC secret shared with the API worker; signs proxy requests (`${ts}.${body}`) |
 
 ## Stores Reference
 

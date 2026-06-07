@@ -3,7 +3,6 @@
 
 const { setTimeout: sleep } = require("timers/promises");
 const { setTimeout: setTimeoutCb, clearTimeout } = require("timers");
-const crypto = require("crypto");
 
 /* ---------------- Errors ---------------- */
 
@@ -128,68 +127,11 @@ function createCookieJar() {
 
 /* ---------------- HTTP client ---------------- */
 
-function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger, proxy = null }) {
+function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 	let inflight = 0;
 	let reqSeq = 0;
 
 	const cookieJar = createCookieJar();
-
-	// Relay a request through the spirit-tracker-api worker proxy (clean
-	// Cloudflare-egress IP) and rebuild a Response so the rest of fetchWithRetry
-	// is oblivious to whether the fetch was proxied. HMAC scheme matches the
-	// worker's /email endpoint: sign `${ts}.${body}`.
-	async function proxyFetch(url, init) {
-		const payload = JSON.stringify({
-			url,
-			method: init.method || "GET",
-			headers: init.headers || {},
-			body: init.body != null ? String(init.body) : null,
-		});
-		const ts = Math.floor(Date.now() / 1000);
-		const sig = crypto.createHmac("sha256", proxy.secret).update(`${ts}.${payload}`).digest("hex");
-
-		const pres = await fetch(proxy.url, {
-			method: "POST",
-			headers: {
-				"content-type": "application/json",
-				"x-spirit-timestamp": String(ts),
-				"x-spirit-signature": `v1=${sig}`,
-			},
-			body: payload,
-			signal: init.signal,
-		});
-		// Worker-level failure (incl. free-tier Error 1027 daily cap, or bad auth):
-		// throw so doFetch falls back to a direct fetch. Upstream HTTP errors, by
-		// contrast, arrive as a 200 wrapping the real status and flow through normally.
-		if (!pres.ok) throw new RetryableError(`proxy HTTP ${pres.status}`);
-
-		const data = await pres.json();
-		const h = new Headers();
-		for (const [k, v] of Object.entries(data.headers || {})) {
-			const lk = k.toLowerCase();
-			// Body is already decoded into a string; stale framing headers would lie about it.
-			if (lk === "content-encoding" || lk === "content-length" || lk === "transfer-encoding") continue;
-			try {
-				h.set(k, v);
-			} catch {}
-		}
-		for (const c of data.setCookie || []) h.append("set-cookie", c);
-
-		const status = data.status;
-		const body = status === 204 || status === 304 ? null : data.body ?? "";
-		return new Response(body, { status, headers: h });
-	}
-
-	async function doFetch(url, init) {
-		if (proxy && proxy.hosts.has(hostFromUrl(url))) {
-			try {
-				return await proxyFetch(url, init);
-			} catch (e) {
-				logger?.warn?.(`PROXY fallback host=${hostFromUrl(url)} reason=${e?.message || e}`);
-			}
-		}
-		return fetch(url, { ...init, redirect: "follow" });
-	}
 
 	// host -> epoch ms when next request is allowed
 	const hostNextOkAt = new Map();
@@ -348,8 +290,9 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger, proxy = nu
 				const cookieHdr =
 					cookies && !("Cookie" in headers) && !("cookie" in headers) ? cookieJar.cookieHeaderFor(url) : "";
 
-				const res = await doFetch(url, {
+				const res = await fetch(url, {
 					method,
+					redirect: "follow",
 					body,
 					signal: ctrl.signal,
 					headers: {
