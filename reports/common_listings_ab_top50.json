@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-08T17:04:45.150Z",
+  "generatedAt": "2026-06-08T18:44:57.895Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 17567,
-    "removedRows": 4365,
-    "canonSkus": 5603,
+    "liveRows": 17564,
+    "removedRows": 4378,
+    "canonSkus": 5602,
     "outputCount": 50
   },
   "rows": [
@@ -1593,7 +1593,7 @@
         "canadianliquor": 87.88,
         "clbspirits": 80.63,
         "coop": 89.99,
-        "craftcellars": 69.99,
+        "craftcellars": 91.99,
         "kwm": 93.99,
         "lime": 84.99,
         "liquorama": 84.99,
@@ -1606,21 +1606,21 @@
       },
       "representative": {
         "name": "Old Forester 1920 Prohibition Style Bourbon",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "820253",
         "skuKey": "820253",
-        "url": "https://craftcellars.ca/products/old-forester-1920-prohibition-style-bourbon-57-5-abv",
+        "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/old-forester-1920-prohibition-style-bourbon-57-5-abv"
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920"
       }
     },
     {
@@ -2425,67 +2425,6 @@
       }
     },
     {
-      "canonSku": "249680",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "kegncork",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 82.99,
-        "canadianliquor": 110.99,
-        "clbspirits": 86.8,
-        "craftcellars": 122.99,
-        "highlander": 82.99,
-        "kwm": 109.99,
-        "lime": 92,
-        "liquorama": 114.99,
-        "maltsandgrains": 114.62,
-        "sierrasprings": 89.99,
-        "willowpark": 103.99,
-        "wineandbeyond": 99.99,
-        "zyn": 89.99
-      },
-      "representative": {
-        "name": "Talisker 10 Year Old",
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$82.99",
-        "priceNum": 82.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
-      }
-    },
-    {
       "canonSku": "349670",
       "storeCount": 13,
       "stores": [
@@ -3145,6 +3084,66 @@
         "priceNum": 185,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glen-grant-18-year-old-2020-release"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 12,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kegncork",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 82.99,
+        "canadianliquor": 110.99,
+        "clbspirits": 86.8,
+        "craftcellars": 122.99,
+        "kwm": 109.99,
+        "lime": 92,
+        "liquorama": 114.99,
+        "maltsandgrains": 114.62,
+        "sierrasprings": 89.99,
+        "willowpark": 103.99,
+        "wineandbeyond": 99.99,
+        "zyn": 89.99
+      },
+      "representative": {
+        "name": "Talisker 10 Year Old",
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$82.99",
+        "priceNum": 82.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     }
   ]
