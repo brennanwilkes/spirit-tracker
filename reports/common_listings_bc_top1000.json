@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-08T05:28:25.828Z",
+  "generatedAt": "2026-06-08T07:33:39.622Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -30,8 +30,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 5327,
-    "removedRows": 618,
+    "liveRows": 5320,
+    "removedRows": 625,
     "canonSkus": 2260,
     "outputCount": 1000
   },
@@ -343,6 +343,57 @@
       }
     },
     {
+      "canonSku": "006968",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
       "canonSku": "001222",
       "storeCount": 10,
       "stores": [
@@ -440,56 +491,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "marquis"
-      ],
-      "storePrices": {
-        "bcl": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -1633,55 +1634,6 @@
         "priceNum": 109.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/dalmore-12-year-old-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "liquorwarehouse",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 66.39,
-        "bcl": 65.99,
-        "highpointbws": 84.49,
-        "legacyliquor": 79.03,
-        "marquis": 78.99,
-        "newdistrict": 81.29,
-        "strath": 77.57,
-        "tudor": 65.99,
-        "vessel": 64.99
-      },
-      "representative": {
-        "name": "Glenmorangie - The Original 12 Year Old Single Malt Scotch",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "309562",
-        "skuKey": "309562",
-        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch"
       }
     },
     {
@@ -3091,6 +3043,54 @@
       }
     },
     {
+      "canonSku": "114799",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 66.39,
+        "bcl": 65.99,
+        "highpointbws": 84.49,
+        "marquis": 78.99,
+        "newdistrict": 81.29,
+        "strath": 77.57,
+        "tudor": 65.99,
+        "vessel": 64.99
+      },
+      "representative": {
+        "name": "Glenmorangie - The Original 12 Year Old Single Malt Scotch",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "309562",
+        "skuKey": "309562",
+        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "121484",
       "storeCount": 8,
       "stores": [
@@ -3763,54 +3763,6 @@
       }
     },
     {
-      "canonSku": "387316",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.99,
-        "gull": 114.99,
-        "highpointbws": 134.49,
-        "legacyliquor": 127.13,
-        "liquorwarehouse": 114.99,
-        "marquis": 127.99,
-        "tudor": 124.99,
-        "vessel": 119.99
-      },
-      "representative": {
-        "name": "Balvenie – 12 Year Old Doublewood 750ml",
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "387316",
-        "skuKey": "387316",
-        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/"
-      }
-    },
-    {
       "canonSku": "404723",
       "storeCount": 8,
       "stores": [
@@ -4341,14 +4293,14 @@
         "arc",
         "bcl",
         "gull",
-        "liquorwarehouse",
+        "legacyliquor",
         "newdistrict",
         "tudor",
         "vessel"
       ],
       "missingStores": [
         "highpointbws",
-        "legacyliquor",
+        "liquorwarehouse",
         "marquis",
         "strath",
         "vintage"
@@ -4357,7 +4309,7 @@
         "arc": 39.59,
         "bcl": 40.99,
         "gull": 38.75,
-        "liquorwarehouse": 41.99,
+        "legacyliquor": 42.99,
         "newdistrict": 42.79,
         "tudor": 40.99,
         "vessel": 37.49
@@ -4426,53 +4378,6 @@
         "priceNum": 34.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2220"
-      }
-    },
-    {
-      "canonSku": "003517",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -6497,6 +6402,53 @@
       }
     },
     {
+      "canonSku": "387316",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.99,
+        "gull": 114.99,
+        "highpointbws": 134.49,
+        "liquorwarehouse": 114.99,
+        "marquis": 127.99,
+        "tudor": 124.99,
+        "vessel": 119.99
+      },
+      "representative": {
+        "name": "Balvenie – 12 Year Old Doublewood 750ml",
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "387316",
+        "skuKey": "387316",
+        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/"
+      }
+    },
+    {
       "canonSku": "427313",
       "storeCount": 7,
       "stores": [
@@ -7896,6 +7848,52 @@
         "priceNum": 28,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/cutty-sark-750m/"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "gull": 13.05,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -14840,51 +14838,6 @@
       }
     },
     {
-      "canonSku": "956953",
-      "storeCount": 5,
-      "stores": [
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "newdistrict",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 78.25,
-        "highpointbws": 82.79,
-        "legacyliquor": 85.99,
-        "newdistrict": 78.29,
-        "vessel": 84.99
-      },
-      "representative": {
-        "name": "Brbn – Bourbon Style Corn Whisky 750ml",
-        "price": "$78.25",
-        "priceNum": 78.25,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "956953",
-        "skuKey": "956953",
-        "url": "https://gullliquorstore.com/product/brbn-bourbon-style-corn-whisky-750ml/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$78.25",
-        "priceNum": 78.25,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/brbn-bourbon-style-corn-whisky-750ml/"
-      }
-    },
-    {
       "canonSku": "000802",
       "storeCount": 4,
       "stores": [
@@ -15366,50 +15319,6 @@
         "priceNum": 89.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4586361-glen-scotia-double-cask"
-      }
-    },
-    {
-      "canonSku": "012746",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "newdistrict",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 138.39,
-        "newdistrict": 148.29,
-        "strath": 142.83,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "GLEN SCOTIA 15YO",
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "012746",
-        "skuKey": "012746",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$138.39",
-        "priceNum": 138.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4739113-glen-scotia-15yo"
       }
     },
     {
@@ -19593,50 +19502,6 @@
       }
     },
     {
-      "canonSku": "425339",
-      "storeCount": 4,
-      "stores": [
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 88.99,
-        "highpointbws": 89.99,
-        "legacyliquor": 97.21,
-        "tudor": 94.99
-      },
-      "representative": {
-        "name": "Wheelhorse – Bourbon 750ml",
-        "price": "$88.99",
-        "priceNum": 88.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "425339",
-        "skuKey": "425339",
-        "url": "https://gullliquorstore.com/product/wheelhorse-bourbon-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$88.99",
-        "priceNum": 88.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/wheelhorse-bourbon-750m/"
-      }
-    },
-    {
       "canonSku": "426896",
       "storeCount": 4,
       "stores": [
@@ -20957,6 +20822,50 @@
       }
     },
     {
+      "canonSku": "956953",
+      "storeCount": 4,
+      "stores": [
+        "gull",
+        "highpointbws",
+        "newdistrict",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 78.25,
+        "highpointbws": 82.79,
+        "newdistrict": 78.29,
+        "vessel": 84.99
+      },
+      "representative": {
+        "name": "Brbn – Bourbon Style Corn Whisky 750ml",
+        "price": "$78.25",
+        "priceNum": 78.25,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "956953",
+        "skuKey": "956953",
+        "url": "https://gullliquorstore.com/product/brbn-bourbon-style-corn-whisky-750ml/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$78.25",
+        "priceNum": 78.25,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/brbn-bourbon-style-corn-whisky-750ml/"
+      }
+    },
+    {
       "canonSku": "000471",
       "storeCount": 3,
       "stores": [
@@ -21172,49 +21081,6 @@
       }
     },
     {
-      "canonSku": "005940",
-      "storeCount": 3,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 88.99,
-        "legacyliquor": 96.99,
-        "tudor": 89.99
-      },
-      "representative": {
-        "name": "Chairman’s Reserve Forgotten Cask’s – Saint Lucia 750ml",
-        "price": "$88.99",
-        "priceNum": 88.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "005940",
-        "skuKey": "005940",
-        "url": "https://gullliquorstore.com/product/chairmans-rsv-forgot-750m/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$88.99",
-        "priceNum": 88.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/chairmans-rsv-forgot-750m/"
-      }
-    },
-    {
       "canonSku": "006932",
       "storeCount": 3,
       "stores": [
@@ -21298,6 +21164,49 @@
         "priceNum": 34.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4662396-dewars-8yo-caribbean-smooth"
+      }
+    },
+    {
+      "canonSku": "012746",
+      "storeCount": 3,
+      "stores": [
+        "newdistrict",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "newdistrict": 148.29,
+        "strath": 142.83,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "Glen Scotia - 15 Year Old Single Malt Scotch",
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "012746",
+        "skuKey": "012746",
+        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/glen-scotia-15-year-old-single-malt-scotch"
       }
     },
     {
@@ -24999,6 +24908,49 @@
       }
     },
     {
+      "canonSku": "200741",
+      "storeCount": 3,
+      "stores": [
+        "bcl",
+        "liquorwarehouse",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 72.99,
+        "liquorwarehouse": 74.99,
+        "tudor": 72.99
+      },
+      "representative": {
+        "name": "GIBSONS - FINEST RARE 12 YEAR OLD",
+        "price": "$72.99",
+        "priceNum": 72.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "200741",
+        "skuKey": "200741",
+        "url": "https://www.bcliquorstores.com/product/200741",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$72.99",
+        "priceNum": 72.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/200741"
+      }
+    },
+    {
       "canonSku": "201973",
       "storeCount": 3,
       "stores": [
@@ -27278,6 +27230,49 @@
       }
     },
     {
+      "canonSku": "425339",
+      "storeCount": 3,
+      "stores": [
+        "gull",
+        "highpointbws",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 88.99,
+        "highpointbws": 89.99,
+        "tudor": 94.99
+      },
+      "representative": {
+        "name": "Wheelhorse – Bourbon 750ml",
+        "price": "$88.99",
+        "priceNum": 88.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "425339",
+        "skuKey": "425339",
+        "url": "https://gullliquorstore.com/product/wheelhorse-bourbon-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$88.99",
+        "priceNum": 88.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/wheelhorse-bourbon-750m/"
+      }
+    },
+    {
       "canonSku": "428458",
       "storeCount": 3,
       "stores": [
@@ -29291,6 +29286,48 @@
         "priceNum": 299.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/adelphi-kincardine-700m/"
+      }
+    },
+    {
+      "canonSku": "005940",
+      "storeCount": 2,
+      "stores": [
+        "gull",
+        "legacyliquor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 88.99,
+        "legacyliquor": 96.99
+      },
+      "representative": {
+        "name": "Chairman’s Reserve Forgotten Cask’s – Saint Lucia 750ml",
+        "price": "$88.99",
+        "priceNum": 88.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "005940",
+        "skuKey": "005940",
+        "url": "https://gullliquorstore.com/product/chairmans-rsv-forgot-750m/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$88.99",
+        "priceNum": 88.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/chairmans-rsv-forgot-750m/"
       }
     },
     {
@@ -35171,48 +35208,6 @@
         "priceNum": 216.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/157186"
-      }
-    },
-    {
-      "canonSku": "162446",
-      "storeCount": 2,
-      "stores": [
-        "legacyliquor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 52.72,
-        "vessel": 49.99
-      },
-      "representative": {
-        "name": "Leblon - Cachaça",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "162446",
-        "skuKey": "162446",
-        "url": "https://vesselliquor.com/products/leblon-cachaca",
-        "categoryLabel": "Rum / Cane Spirit",
-        "dbFile": "data/db/vessel__rum-cane-spirit__f0a980b4.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/leblon-cachaca"
       }
     },
     {

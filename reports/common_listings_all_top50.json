@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-08T05:28:23.863Z",
+  "generatedAt": "2026-06-08T07:33:37.586Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -50,9 +50,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 22897,
-    "removedRows": 4980,
-    "canonSkus": 6356,
+    "liveRows": 22887,
+    "removedRows": 4990,
+    "canonSkus": 6355,
     "outputCount": 50
   },
   "rows": [
@@ -185,7 +185,7 @@
       "storePrices": {
         "arc": 77.19,
         "bcl": 73.99,
-        "bsw": 77.99,
+        "bsw": 64.99,
         "canadianliquor": 77.88,
         "clbspirits": 83.11,
         "colordevino": 97.81,
@@ -232,8 +232,9 @@
     },
     {
       "canonSku": "006968",
-      "storeCount": 25,
+      "storeCount": 26,
       "stores": [
+        "arc",
         "bcl",
         "bsw",
         "canadianliquor",
@@ -261,7 +262,6 @@
         "zyn"
       ],
       "missingStores": [
-        "arc",
         "clbspirits",
         "colordevino",
         "marquis",
@@ -270,6 +270,7 @@
         "whiskydrop"
       ],
       "storePrices": {
+        "arc": 49.99,
         "bcl": 54.99,
         "bsw": 48.99,
         "canadianliquor": 53.99,
@@ -1451,7 +1452,7 @@
       "storePrices": {
         "arc": 110.99,
         "bcl": 120.99,
-        "bsw": 94.99,
+        "bsw": 82.99,
         "canadianliquor": 110.99,
         "clbspirits": 86.8,
         "craftcellars": 122.99,
@@ -1474,22 +1475,22 @@
         "zyn": 89.99
       },
       "representative": {
-        "name": "Talisker 10 YR 750ml",
+        "name": "Talisker 10 Year Old",
         "price": "$82.99",
         "priceNum": 82.99,
-        "storeKey": "highlander",
-        "storeLabel": "Highlander Wine & Spirits",
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "249680",
         "skuKey": "249680",
-        "url": "https://highlanderwine.com/product/talisker-10yr-old-skye-single-malt-750ml/",
-        "categoryLabel": "Whiskey",
-        "dbFile": "data/db/highlander__whiskey__a84f92bb.json"
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
         "price": "$82.99",
         "priceNum": 82.99,
-        "storeKey": "highlander",
-        "url": "https://highlanderwine.com/product/talisker-10yr-old-skye-single-malt-750ml/"
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/talisker-10-year-old-1"
       }
     },
     {
@@ -1901,88 +1902,6 @@
         "priceNum": 48.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/empress-1908-cucumber-lemon-gin"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 22,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "highpointbws",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "liquorama",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "gull",
-        "highlander",
-        "lime",
-        "liquorwarehouse",
-        "rmwsb",
-        "vinearts",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 66.39,
-        "bcl": 65.99,
-        "bsw": 69.99,
-        "coop": 79.99,
-        "craftcellars": 78.99,
-        "highpointbws": 84.49,
-        "kegncork": 79.96,
-        "kwm": 79.99,
-        "legacyliquor": 79.03,
-        "liquorama": 72.99,
-        "maltsandgrains": 54.99,
-        "marquis": 78.99,
-        "newdistrict": 81.29,
-        "sherbrooke": 80.4,
-        "sierrasprings": 68.99,
-        "strath": 77.57,
-        "tudor": 65.99,
-        "vessel": 64.99,
-        "whiskydrop": 83,
-        "willowpark": 75.49,
-        "wineandbeyond": 69.99,
-        "zyn": 76
-      },
-      "representative": {
-        "name": "Glenmorangie 12 Yr 40% (750ml)",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "114799",
-        "skuKey": "114799",
-        "url": "https://maltsandgrains.store/product/glenmorangie-12-yr-40-750ml/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/glenmorangie-12-yr-40-750ml/"
       }
     },
     {
@@ -2475,6 +2394,87 @@
         "priceNum": 51.76,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/suntory-toki"
+      }
+    },
+    {
+      "canonSku": "114799",
+      "storeCount": 21,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "craftcellars",
+        "highpointbws",
+        "kegncork",
+        "kwm",
+        "liquorama",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "gull",
+        "highlander",
+        "legacyliquor",
+        "lime",
+        "liquorwarehouse",
+        "rmwsb",
+        "vinearts",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 66.39,
+        "bcl": 65.99,
+        "bsw": 69.99,
+        "coop": 79.99,
+        "craftcellars": 78.99,
+        "highpointbws": 84.49,
+        "kegncork": 79.96,
+        "kwm": 79.99,
+        "liquorama": 72.99,
+        "maltsandgrains": 54.99,
+        "marquis": 78.99,
+        "newdistrict": 81.29,
+        "sherbrooke": 80.4,
+        "sierrasprings": 68.99,
+        "strath": 77.57,
+        "tudor": 65.99,
+        "vessel": 64.99,
+        "whiskydrop": 83,
+        "willowpark": 75.49,
+        "wineandbeyond": 69.99,
+        "zyn": 76
+      },
+      "representative": {
+        "name": "Glenmorangie 12 Yr 40% (750ml)",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "114799",
+        "skuKey": "114799",
+        "url": "https://maltsandgrains.store/product/glenmorangie-12-yr-40-750ml/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/glenmorangie-12-yr-40-750ml/"
       }
     },
     {
@@ -3954,7 +3954,7 @@
       "storePrices": {
         "arc": 110.99,
         "bcl": 119.99,
-        "bsw": 86.99,
+        "bsw": 99.99,
         "canadianliquor": 111.99,
         "clbspirits": 102.4,
         "craftcellars": 122.99,
@@ -3973,8 +3973,8 @@
       },
       "representative": {
         "name": "Dalwhinnie 15 Year Old",
-        "price": "$86.99",
-        "priceNum": 86.99,
+        "price": "$99.99",
+        "priceNum": 99.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "238097",
@@ -3984,8 +3984,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$86.99",
-        "priceNum": 86.99,
+        "price": "$99.99",
+        "priceNum": 99.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/dalwhinnie-15-year-old-1"
       }

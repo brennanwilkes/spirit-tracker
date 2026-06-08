@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-08T05:28:25.554Z",
+  "generatedAt": "2026-06-08T07:33:39.342Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -30,8 +30,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 5327,
-    "removedRows": 618,
+    "liveRows": 5320,
+    "removedRows": 625,
     "canonSkus": 2260,
     "outputCount": 250
   },
@@ -343,6 +343,57 @@
       }
     },
     {
+      "canonSku": "006968",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
       "canonSku": "001222",
       "storeCount": 10,
       "stores": [
@@ -440,56 +491,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "marquis"
-      ],
-      "storePrices": {
-        "bcl": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -1633,55 +1634,6 @@
         "priceNum": 109.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/dalmore-12-year-old-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "liquorwarehouse",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 66.39,
-        "bcl": 65.99,
-        "highpointbws": 84.49,
-        "legacyliquor": 79.03,
-        "marquis": 78.99,
-        "newdistrict": 81.29,
-        "strath": 77.57,
-        "tudor": 65.99,
-        "vessel": 64.99
-      },
-      "representative": {
-        "name": "Glenmorangie - The Original 12 Year Old Single Malt Scotch",
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "309562",
-        "skuKey": "309562",
-        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$64.99",
-        "priceNum": 64.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch"
       }
     },
     {
@@ -3091,6 +3043,54 @@
       }
     },
     {
+      "canonSku": "114799",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 66.39,
+        "bcl": 65.99,
+        "highpointbws": 84.49,
+        "marquis": 78.99,
+        "newdistrict": 81.29,
+        "strath": 77.57,
+        "tudor": 65.99,
+        "vessel": 64.99
+      },
+      "representative": {
+        "name": "Glenmorangie - The Original 12 Year Old Single Malt Scotch",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "309562",
+        "skuKey": "309562",
+        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/glenmorangie-the-original-12-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "121484",
       "storeCount": 8,
       "stores": [
@@ -3763,54 +3763,6 @@
       }
     },
     {
-      "canonSku": "387316",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.99,
-        "gull": 114.99,
-        "highpointbws": 134.49,
-        "legacyliquor": 127.13,
-        "liquorwarehouse": 114.99,
-        "marquis": 127.99,
-        "tudor": 124.99,
-        "vessel": 119.99
-      },
-      "representative": {
-        "name": "Balvenie – 12 Year Old Doublewood 750ml",
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "387316",
-        "skuKey": "387316",
-        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/"
-      }
-    },
-    {
       "canonSku": "404723",
       "storeCount": 8,
       "stores": [
@@ -4341,14 +4293,14 @@
         "arc",
         "bcl",
         "gull",
-        "liquorwarehouse",
+        "legacyliquor",
         "newdistrict",
         "tudor",
         "vessel"
       ],
       "missingStores": [
         "highpointbws",
-        "legacyliquor",
+        "liquorwarehouse",
         "marquis",
         "strath",
         "vintage"
@@ -4357,7 +4309,7 @@
         "arc": 39.59,
         "bcl": 40.99,
         "gull": 38.75,
-        "liquorwarehouse": 41.99,
+        "legacyliquor": 42.99,
         "newdistrict": 42.79,
         "tudor": 40.99,
         "vessel": 37.49
@@ -4426,53 +4378,6 @@
         "priceNum": 34.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2220"
-      }
-    },
-    {
-      "canonSku": "003517",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -6403,6 +6308,53 @@
       }
     },
     {
+      "canonSku": "387316",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.99,
+        "gull": 114.99,
+        "highpointbws": 134.49,
+        "liquorwarehouse": 114.99,
+        "marquis": 127.99,
+        "tudor": 124.99,
+        "vessel": 119.99
+      },
+      "representative": {
+        "name": "Balvenie – 12 Year Old Doublewood 750ml",
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "387316",
+        "skuKey": "387316",
+        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/"
+      }
+    },
+    {
       "canonSku": "427313",
       "storeCount": 7,
       "stores": [
@@ -7569,6 +7521,52 @@
         "priceNum": 28,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/cutty-sark-750m/"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "gull": 13.05,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
