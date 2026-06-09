@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-09T05:30:38.949Z",
+  "generatedAt": "2026-06-09T07:13:13.183Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -30,8 +30,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 5330,
-    "removedRows": 615,
+    "liveRows": 5333,
+    "removedRows": 621,
     "canonSkus": 2260,
     "outputCount": 50
   },
@@ -343,6 +343,56 @@
       }
     },
     {
+      "canonSku": "000570",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 28.69,
+        "bcl": 25.99,
+        "gull": 29.8,
+        "highpointbws": 29.99,
+        "legacyliquor": 29.39,
+        "liquorwarehouse": 28.99,
+        "newdistrict": 29.79,
+        "strath": 30.35,
+        "tudor": 27.99,
+        "vessel": 26.99
+      },
+      "representative": {
+        "name": "BEEFEATER - LONDON DRY",
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000570",
+        "skuKey": "000570",
+        "url": "https://www.bcliquorstores.com/product/570",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/570"
+      }
+    },
+    {
       "canonSku": "001222",
       "storeCount": 10,
       "stores": [
@@ -490,56 +540,6 @@
         "priceNum": 48.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
-      }
-    },
-    {
-      "canonSku": "007880",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 64.99,
-        "gull": 64.95,
-        "highpointbws": 69.99,
-        "legacyliquor": 67.99,
-        "liquorwarehouse": 65.99,
-        "marquis": 66.99,
-        "newdistrict": 69.49,
-        "tudor": 64.99,
-        "vessel": 65.99
-      },
-      "representative": {
-        "name": "Johnnie Walker – 12 Year Old Black Label 750ml",
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/"
       }
     },
     {
@@ -993,52 +993,52 @@
       }
     },
     {
-      "canonSku": "000570",
+      "canonSku": "007880",
       "storeCount": 9,
       "stores": [
         "arc",
         "bcl",
-        "gull",
         "highpointbws",
         "legacyliquor",
         "liquorwarehouse",
+        "marquis",
         "newdistrict",
-        "strath",
+        "tudor",
         "vessel"
       ],
       "missingStores": [
-        "marquis",
-        "tudor",
+        "gull",
+        "strath",
         "vintage"
       ],
       "storePrices": {
-        "arc": 28.69,
-        "bcl": 25.99,
-        "gull": 29.8,
-        "highpointbws": 29.99,
-        "legacyliquor": 29.39,
-        "liquorwarehouse": 28.99,
-        "newdistrict": 29.79,
-        "strath": 30.35,
-        "vessel": 26.99
+        "arc": 65.99,
+        "bcl": 64.99,
+        "highpointbws": 69.99,
+        "legacyliquor": 67.99,
+        "liquorwarehouse": 65.99,
+        "marquis": 66.99,
+        "newdistrict": 69.49,
+        "tudor": 64.99,
+        "vessel": 65.99
       },
       "representative": {
-        "name": "BEEFEATER - LONDON DRY",
-        "price": "$25.99",
-        "priceNum": 25.99,
+        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
+        "price": "$64.99",
+        "priceNum": 64.99,
         "storeKey": "bcl",
         "storeLabel": "BCL",
-        "skuRaw": "000570",
-        "skuKey": "000570",
-        "url": "https://www.bcliquorstores.com/product/570",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://www.bcliquorstores.com/product/7880",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$25.99",
-        "priceNum": 25.99,
+        "price": "$64.99",
+        "priceNum": 64.99,
         "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/570"
+        "url": "https://www.bcliquorstores.com/product/7880"
       }
     },
     {
@@ -1789,7 +1789,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 59.29,
+        "arc": 60.99,
         "bcl": 64.99,
         "gull": 72.99,
         "legacyliquor": 77.99,
@@ -1800,8 +1800,8 @@
       },
       "representative": {
         "name": "BENROMACH 10YO",
-        "price": "$59.29",
-        "priceNum": 59.29,
+        "price": "$60.99",
+        "priceNum": 60.99,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "074548",
@@ -1811,8 +1811,8 @@
         "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
       },
       "cheapest": {
-        "price": "$59.29",
-        "priceNum": 59.29,
+        "price": "$60.99",
+        "priceNum": 60.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
       }

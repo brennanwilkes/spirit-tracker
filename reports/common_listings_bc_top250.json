@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-09T05:30:39.240Z",
+  "generatedAt": "2026-06-09T07:13:13.458Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -30,8 +30,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 5330,
-    "removedRows": 615,
+    "liveRows": 5333,
+    "removedRows": 621,
     "canonSkus": 2260,
     "outputCount": 250
   },
@@ -394,6 +394,56 @@
       }
     },
     {
+      "canonSku": "000570",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 28.69,
+        "bcl": 25.99,
+        "gull": 29.8,
+        "highpointbws": 29.99,
+        "legacyliquor": 29.39,
+        "liquorwarehouse": 28.99,
+        "newdistrict": 29.79,
+        "strath": 30.35,
+        "tudor": 27.99,
+        "vessel": 26.99
+      },
+      "representative": {
+        "name": "BEEFEATER - LONDON DRY",
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000570",
+        "skuKey": "000570",
+        "url": "https://www.bcliquorstores.com/product/570",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/570"
+      }
+    },
+    {
       "canonSku": "001222",
       "storeCount": 10,
       "stores": [
@@ -541,56 +591,6 @@
         "priceNum": 48.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
-      }
-    },
-    {
-      "canonSku": "007880",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 64.99,
-        "gull": 64.95,
-        "highpointbws": 69.99,
-        "legacyliquor": 67.99,
-        "liquorwarehouse": 65.99,
-        "marquis": 66.99,
-        "newdistrict": 69.49,
-        "tudor": 64.99,
-        "vessel": 65.99
-      },
-      "representative": {
-        "name": "Johnnie Walker – 12 Year Old Black Label 750ml",
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$64.95",
-        "priceNum": 64.95,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-black-750m/"
       }
     },
     {
@@ -1194,55 +1194,6 @@
       }
     },
     {
-      "canonSku": "000570",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "marquis",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 28.69,
-        "bcl": 25.99,
-        "gull": 29.8,
-        "highpointbws": 29.99,
-        "legacyliquor": 29.39,
-        "liquorwarehouse": 28.99,
-        "newdistrict": 29.79,
-        "strath": 30.35,
-        "vessel": 26.99
-      },
-      "representative": {
-        "name": "BEEFEATER - LONDON DRY",
-        "price": "$25.99",
-        "priceNum": 25.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "000570",
-        "skuKey": "000570",
-        "url": "https://www.bcliquorstores.com/product/570",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$25.99",
-        "priceNum": 25.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/570"
-      }
-    },
-    {
       "canonSku": "000893",
       "storeCount": 9,
       "stores": [
@@ -1387,6 +1338,55 @@
         "priceNum": 22.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1206"
+      }
+    },
+    {
+      "canonSku": "007880",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 64.99,
+        "highpointbws": 69.99,
+        "legacyliquor": 67.99,
+        "liquorwarehouse": 65.99,
+        "marquis": 66.99,
+        "newdistrict": 69.49,
+        "tudor": 64.99,
+        "vessel": 65.99
+      },
+      "representative": {
+        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://www.bcliquorstores.com/product/7880",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/7880"
       }
     },
     {
@@ -2321,54 +2321,6 @@
       }
     },
     {
-      "canonSku": "000125",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 36.49,
-        "bcl": 34.99,
-        "gull": 36.99,
-        "legacyliquor": 37.99,
-        "liquorwarehouse": 36.99,
-        "newdistrict": 37.29,
-        "tudor": 35.99,
-        "vessel": 33.99
-      },
-      "representative": {
-        "name": "Canadian Club - Whisky",
-        "price": "$33.99",
-        "priceNum": 33.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "000125",
-        "skuKey": "000125",
-        "url": "https://vesselliquor.com/products/canadian-club-whisky-1140-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$33.99",
-        "priceNum": 33.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/canadian-club-whisky-1140-ml"
-      }
-    },
-    {
       "canonSku": "000463",
       "storeCount": 8,
       "stores": [
@@ -2414,6 +2366,54 @@
         "priceNum": 12.49,
         "storeKey": "newdistrict",
         "url": "https://shop.newdistrict.ca/products/3183099-canadian-club-375"
+      }
+    },
+    {
+      "canonSku": "000596",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 12.99,
+        "bcl": 13.99,
+        "gull": 13.9,
+        "legacyliquor": 14.11,
+        "liquorwarehouse": 13.49,
+        "newdistrict": 14.79,
+        "tudor": 13.99,
+        "vessel": 14.99
+      },
+      "representative": {
+        "name": "BACARDI WHITE 375ML*",
+        "price": "$12.99",
+        "priceNum": 12.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "000596",
+        "skuKey": "000596",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$12.99",
+        "priceNum": 12.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml"
       }
     },
     {
@@ -2606,6 +2606,54 @@
         "priceNum": 99.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/bruichladdich-port-charlotte-10-year-old-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "gull": 13.05,
+        "legacyliquor": 12.23,
+        "liquorwarehouse": 12.49,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -3012,7 +3060,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 59.29,
+        "arc": 60.99,
         "bcl": 64.99,
         "gull": 72.99,
         "legacyliquor": 77.99,
@@ -3023,8 +3071,8 @@
       },
       "representative": {
         "name": "BENROMACH 10YO",
-        "price": "$59.29",
-        "priceNum": 59.29,
+        "price": "$60.99",
+        "priceNum": 60.99,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "074548",
@@ -3034,8 +3082,8 @@
         "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
       },
       "cheapest": {
-        "price": "$59.29",
-        "priceNum": 59.29,
+        "price": "$60.99",
+        "priceNum": 60.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
       }
@@ -4193,50 +4241,50 @@
       }
     },
     {
-      "canonSku": "000596",
+      "canonSku": "000125",
       "storeCount": 7,
       "stores": [
-        "arc",
         "bcl",
         "gull",
         "legacyliquor",
+        "liquorwarehouse",
         "newdistrict",
         "tudor",
         "vessel"
       ],
       "missingStores": [
+        "arc",
         "highpointbws",
-        "liquorwarehouse",
         "marquis",
         "strath",
         "vintage"
       ],
       "storePrices": {
-        "arc": 12.99,
-        "bcl": 13.99,
-        "gull": 13.9,
-        "legacyliquor": 14.11,
-        "newdistrict": 14.79,
-        "tudor": 13.99,
-        "vessel": 14.99
+        "bcl": 34.99,
+        "gull": 36.99,
+        "legacyliquor": 37.99,
+        "liquorwarehouse": 36.99,
+        "newdistrict": 37.29,
+        "tudor": 35.99,
+        "vessel": 33.99
       },
       "representative": {
-        "name": "BACARDI WHITE 375ML*",
-        "price": "$12.99",
-        "priceNum": 12.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "000596",
-        "skuKey": "000596",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+        "name": "Canadian Club - Whisky",
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "000125",
+        "skuKey": "000125",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-1140-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$12.99",
-        "priceNum": 12.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590852-bacardi-white-375ml"
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-1140-ml"
       }
     },
     {
@@ -4472,53 +4520,6 @@
         "priceNum": 34.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/2220"
-      }
-    },
-    {
-      "canonSku": "003517",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -6399,53 +6400,6 @@
         "priceNum": 114.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/balvenie-12y-dblwood-750m/"
-      }
-    },
-    {
-      "canonSku": "427313",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "legacyliquor",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 61.99,
-        "gull": 71.05,
-        "highpointbws": 74.29,
-        "liquorwarehouse": 74.99,
-        "marquis": 79.99,
-        "tudor": 69.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "BASIL HAYDEN TOAST BOURBON",
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "427313",
-        "skuKey": "427313",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4750124-basil-hayden-toast-bourbon",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$61.99",
-        "priceNum": 61.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4750124-basil-hayden-toast-bourbon"
       }
     },
     {
@@ -8813,6 +8767,52 @@
       }
     },
     {
+      "canonSku": "427313",
+      "storeCount": 6,
+      "stores": [
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "gull": 71.05,
+        "highpointbws": 74.29,
+        "liquorwarehouse": 74.99,
+        "marquis": 79.99,
+        "tudor": 69.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "Basil Hayden Toast",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "427313",
+        "skuKey": "427313",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/basil-hayden-toast-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/basil-hayden-toast-ml-380"
+      }
+    },
+    {
       "canonSku": "460855",
       "storeCount": 6,
       "stores": [
@@ -8881,7 +8881,7 @@
         "arc": 17.49,
         "bcl": 17.99,
         "gull": 19.65,
-        "marquis": 17.99,
+        "marquis": 18.99,
         "strath": 19.04,
         "vessel": 18.99
       },
