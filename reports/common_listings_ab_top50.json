@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-09T16:46:15.031Z",
+  "generatedAt": "2026-06-09T19:15:34.985Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 17553,
-    "removedRows": 4399,
-    "canonSkus": 5598,
+    "liveRows": 17573,
+    "removedRows": 4403,
+    "canonSkus": 5601,
     "outputCount": 50
   },
   "rows": [
@@ -463,7 +463,7 @@
         "canadianliquor": 73.99,
         "clbspirits": 72.85,
         "coop": 79.99,
-        "craftcellars": 89.99,
+        "craftcellars": 55.99,
         "highlander": 57.99,
         "kegncork": 88.96,
         "lime": 82.99,
@@ -477,22 +477,22 @@
         "zyn": 76
       },
       "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich Scottish Barley Laddie",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv"
       }
     },
     {
@@ -938,6 +938,69 @@
       }
     },
     {
+      "canonSku": "281717",
+      "storeCount": 15,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "maltsandgrains",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "highlander",
+        "liquorama",
+        "rmwsb",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 41.99,
+        "canadianliquor": 39.88,
+        "clbspirits": 41.11,
+        "coop": 46.99,
+        "craftcellars": 48.99,
+        "kegncork": 47.96,
+        "kwm": 49.99,
+        "lime": 44.99,
+        "maltsandgrains": 35.49,
+        "sherbrooke": 49.08,
+        "sierrasprings": 39.9,
+        "vinearts": 48.39,
+        "whiskydrop": 49,
+        "wineandbeyond": 45.99,
+        "zyn": 46
+      },
+      "representative": {
+        "name": "Wild Turkey Brbn 101 50.5%",
+        "price": "$35.49",
+        "priceNum": 35.49,
+        "storeKey": "maltsandgrains",
+        "storeLabel": "Malts & Grains",
+        "skuRaw": "281717",
+        "skuKey": "281717",
+        "url": "https://maltsandgrains.store/product/wild-turkey-brbn-101-50-5/",
+        "categoryLabel": "All Spirits",
+        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
+      },
+      "cheapest": {
+        "price": "$35.49",
+        "priceNum": 35.49,
+        "storeKey": "maltsandgrains",
+        "url": "https://maltsandgrains.store/product/wild-turkey-brbn-101-50-5/"
+      }
+    },
+    {
       "canonSku": "330803",
       "storeCount": 15,
       "stores": [
@@ -1313,68 +1376,6 @@
       }
     },
     {
-      "canonSku": "141495",
-      "storeCount": 14,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "highlander",
-        "liquorama",
-        "rmwsb",
-        "vinearts"
-      ],
-      "storePrices": {
-        "bsw": 150,
-        "canadianliquor": 189.99,
-        "clbspirits": 131.45,
-        "craftcellars": 165.99,
-        "kegncork": 164.96,
-        "kwm": 164.99,
-        "lime": 144.99,
-        "maltsandgrains": 174.9,
-        "sherbrooke": 167.77,
-        "sierrasprings": 163.7,
-        "whiskydrop": 160,
-        "willowpark": 169.99,
-        "wineandbeyond": 154.99,
-        "zyn": 138.99
-      },
-      "representative": {
-        "name": "Bowmore 18 Year Old 750ml",
-        "price": "$131.45",
-        "priceNum": 131.45,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "805160",
-        "skuKey": "805160",
-        "url": "https://clbspirits.com/products/bowmore-18-year-old-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$131.45",
-        "priceNum": 131.45,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/bowmore-18-year-old-1"
-      }
-    },
-    {
       "canonSku": "179473",
       "storeCount": 14,
       "stores": [
@@ -1499,68 +1500,6 @@
       }
     },
     {
-      "canonSku": "281717",
-      "storeCount": 14,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "kegncork",
-        "kwm",
-        "lime",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "craftcellars",
-        "highlander",
-        "liquorama",
-        "rmwsb",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 41.99,
-        "canadianliquor": 39.88,
-        "clbspirits": 41.11,
-        "coop": 46.99,
-        "kegncork": 47.96,
-        "kwm": 49.99,
-        "lime": 44.99,
-        "maltsandgrains": 35.49,
-        "sherbrooke": 49.08,
-        "sierrasprings": 39.9,
-        "vinearts": 48.39,
-        "whiskydrop": 49,
-        "wineandbeyond": 45.99,
-        "zyn": 46
-      },
-      "representative": {
-        "name": "Wild Turkey Brbn 101 50.5%",
-        "price": "$35.49",
-        "priceNum": 35.49,
-        "storeKey": "maltsandgrains",
-        "storeLabel": "Malts & Grains",
-        "skuRaw": "281717",
-        "skuKey": "281717",
-        "url": "https://maltsandgrains.store/product/wild-turkey-brbn-101-50-5/",
-        "categoryLabel": "All Spirits",
-        "dbFile": "data/db/maltsandgrains__all-minus-gin-tequila-mezcal__c85199a7.json"
-      },
-      "cheapest": {
-        "price": "$35.49",
-        "priceNum": 35.49,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/product/wild-turkey-brbn-101-50-5/"
-      }
-    },
-    {
       "canonSku": "410910",
       "storeCount": 14,
       "stores": [
@@ -1620,6 +1559,68 @@
         "priceNum": 72.4,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/michters-straight-rye"
+      }
+    },
+    {
+      "canonSku": "531690",
+      "storeCount": 14,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "liquorama",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "highlander",
+        "kegncork",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "canadianliquor": 87.88,
+        "clbspirits": 80.63,
+        "coop": 89.99,
+        "craftcellars": 91.99,
+        "kwm": 93.99,
+        "lime": 84.99,
+        "liquorama": 84.99,
+        "sierrasprings": 80.85,
+        "vinearts": 84.21,
+        "whiskydrop": 97,
+        "willowpark": 92.99,
+        "wineandbeyond": 85.99,
+        "zyn": 87
+      },
+      "representative": {
+        "name": "Old Forester 1920 Prohibition Style Bourbon",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "820253",
+        "skuKey": "820253",
+        "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920"
       }
     },
     {
@@ -2119,67 +2120,6 @@
       }
     },
     {
-      "canonSku": "014723",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "maltsandgrains",
-        "sherbrooke",
-        "vinearts",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "highlander",
-        "liquorama",
-        "rmwsb",
-        "sierrasprings",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "canadianliquor": 88.99,
-        "clbspirits": 79.6,
-        "craftcellars": 89.99,
-        "kegncork": 89.96,
-        "kwm": 91.99,
-        "lime": 79.99,
-        "maltsandgrains": 94.74,
-        "sherbrooke": 92.82,
-        "vinearts": 91.61,
-        "willowpark": 92.99,
-        "wineandbeyond": 95.99,
-        "zyn": 95
-      },
-      "representative": {
-        "name": "Nikka Yoichi Single Malt Japanese Whisky 45 ABV 700ml",
-        "price": "$79.60",
-        "priceNum": 79.6,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "785115",
-        "skuKey": "785115",
-        "url": "https://clbspirits.com/products/nikka-yoichi-single-malt-japanese-whisky-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$79.60",
-        "priceNum": 79.6,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/nikka-yoichi-single-malt-japanese-whisky-1"
-      }
-    },
-    {
       "canonSku": "083028",
       "storeCount": 13,
       "stores": [
@@ -2363,6 +2303,67 @@
       }
     },
     {
+      "canonSku": "141495",
+      "storeCount": 13,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "maltsandgrains",
+        "sherbrooke",
+        "sierrasprings",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kegncork",
+        "liquorama",
+        "rmwsb",
+        "vinearts"
+      ],
+      "storePrices": {
+        "bsw": 150,
+        "canadianliquor": 189.99,
+        "clbspirits": 131.45,
+        "craftcellars": 165.99,
+        "kwm": 164.99,
+        "lime": 144.99,
+        "maltsandgrains": 174.9,
+        "sherbrooke": 167.77,
+        "sierrasprings": 163.7,
+        "whiskydrop": 160,
+        "willowpark": 169.99,
+        "wineandbeyond": 154.99,
+        "zyn": 138.99
+      },
+      "representative": {
+        "name": "Bowmore 18 Year Old 750ml",
+        "price": "$131.45",
+        "priceNum": 131.45,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "805160",
+        "skuKey": "805160",
+        "url": "https://clbspirits.com/products/bowmore-18-year-old-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$131.45",
+        "priceNum": 131.45,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/bowmore-18-year-old-1"
+      }
+    },
+    {
       "canonSku": "349670",
       "storeCount": 13,
       "stores": [
@@ -2485,67 +2486,6 @@
       }
     },
     {
-      "canonSku": "531690",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "kwm",
-        "lime",
-        "liquorama",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "canadianliquor": 87.88,
-        "clbspirits": 80.63,
-        "coop": 89.99,
-        "kwm": 93.99,
-        "lime": 84.99,
-        "liquorama": 84.99,
-        "sierrasprings": 80.85,
-        "vinearts": 84.21,
-        "whiskydrop": 97,
-        "willowpark": 92.99,
-        "wineandbeyond": 85.99,
-        "zyn": 87
-      },
-      "representative": {
-        "name": "Old Forester 1920 Prohibition Style Bourbon",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "820253",
-        "skuKey": "820253",
-        "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920"
-      }
-    },
-    {
       "canonSku": "002838",
       "storeCount": 12,
       "stores": [
@@ -2663,6 +2603,66 @@
         "priceNum": 77.2,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/benriach-12-year-old-1"
+      }
+    },
+    {
+      "canonSku": "014723",
+      "storeCount": 12,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "maltsandgrains",
+        "sherbrooke",
+        "vinearts",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kegncork",
+        "liquorama",
+        "rmwsb",
+        "sierrasprings",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "canadianliquor": 88.99,
+        "clbspirits": 79.6,
+        "craftcellars": 89.99,
+        "kwm": 91.99,
+        "lime": 79.99,
+        "maltsandgrains": 94.74,
+        "sherbrooke": 92.82,
+        "vinearts": 91.61,
+        "willowpark": 92.99,
+        "wineandbeyond": 95.99,
+        "zyn": 95
+      },
+      "representative": {
+        "name": "Nikka Yoichi Single Malt Japanese Whisky 45 ABV 700ml",
+        "price": "$79.60",
+        "priceNum": 79.6,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "785115",
+        "skuKey": "785115",
+        "url": "https://clbspirits.com/products/nikka-yoichi-single-malt-japanese-whisky-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$79.60",
+        "priceNum": 79.6,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/nikka-yoichi-single-malt-japanese-whisky-1"
       }
     },
     {
