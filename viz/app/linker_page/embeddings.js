@@ -16,10 +16,19 @@ import { keySkuForRow } from "../sku.js";
 
 let EMB = undefined; // undefined = not tried; null = absent; object = loaded
 
+// sku_embeddings.json is no longer committed to the data branch — it's a ~40 MB blob rewritten
+// ~3x/day, so it ships as a GitHub Release asset (fixed tag, overwritten each scrape by
+// run_daily.sh; see CLAUDE.md "LFS removal"). Try the local path first (present in local dev,
+// where run_daily.sh copies it into the worktree); fall back to the Release asset in prod, where
+// the local path 404s. The Release CDN sends permissive CORS, so the cross-origin fetch works.
+const EMB_RELEASE_URL =
+	"https://github.com/brennanwilkes/spirit-tracker/releases/download/embeddings-latest/sku_embeddings.json";
+
 export async function loadSkuEmbeddings() {
 	if (EMB !== undefined) return EMB;
 	try {
-		const raw = await fetchJson("./data/sku_embeddings.json");
+		let raw = await fetchJson("./data/sku_embeddings.json").catch(() => null);
+		if (!raw) raw = await fetchJson(EMB_RELEASE_URL);
 		if (!raw || typeof raw !== "object") {
 			EMB = null;
 			return EMB;

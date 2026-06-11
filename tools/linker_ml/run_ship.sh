@@ -36,9 +36,11 @@ cat <<EOF
 
 ================ SHIP CHECKLIST (do all three, or CI runs stale weights) ================
  (a) CODE on main:   git add viz/app/linker_page/blend_weights.js && commit
- (b) ARTIFACTS on data worktree (LFS), commit on data:
-       cp $OUT/embeddings.json .worktrees/data/viz/data/sku_embeddings.json
+ (b) ARTIFACTS on data worktree (plain git now — NOT LFS), commit on data:
        cp $OUT/gbt_model.json  .worktrees/data/viz/data/gbt_model.json
+     embeddings.json is NO LONGER committed — it's a Release asset. Push it now so the linker
+     page has the new vectors immediately (the next cron re-encode would also do this):
+       gh release upload embeddings-latest $OUT/embeddings.json --clobber
  (c) CHECKPOINT as a GitHub Release asset (NOT git/LFS) so CI re-encode uses the new weights:
        echo "\$(date -u +%F)" > tools/linker_ml/MODEL_VERSION
        tar czf /tmp/model_ft.tar.gz -C $OUT/model_ft .

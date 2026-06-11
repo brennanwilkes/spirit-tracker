@@ -12,6 +12,45 @@ Two-branch model:
 
 Remote branches `stviz/issue-*` are auto-created by GitHub Actions for issue-based edits to SKU link data.
 
+## Git LFS removal (2026-06-11)
+
+`viz/data/*` artifacts were formerly Git LFS-tracked. **They are no longer.** LFS *storage*
+was never the problem — LFS **bandwidth** was: every CI job (cron worktree pull, Pages deploy,
+email pack) did a full `lfs: true` checkout, re-smudging the entire ~60 MB working set on every
+run (~24×/day ≈ 30–44 GB/mo), which blew the 10 GB/mo free LFS bandwidth budget in days. Plain-git
+clone/fetch and Pages-CDN traffic are **not** metered, so the fix is: get everything out of LFS.
+
+Every LFS file was a **derived artifact** regenerated each run from `data/db/**` (which is itself
+plain git), so nothing of value lived only in LFS. Decision, by file (measured over 5 months of
+real history — git delta-compresses these beautifully because consecutive versions are ~99%
+identical; ~37–290 KB added per commit, not the whole file):
+
+- `index.json`, `recent.json`, `db_commits.json`, `skus/**` → **plain git**. Sustainable
+  (~15–25 MB/mo total, squashable since the `data` branch is regenerable).
+- `sku_embeddings.json` (~40 MB, rewritten ~3×/day, poor delta, retrain spikes) → **GitHub Release
+  asset** on the fixed tag `embeddings-latest`, overwritten by `run_daily.sh` each scrape via
+  `gh release upload --clobber`. Zero git/LFS growth, unmetered CDN download. Mirrors the encoder-
+  checkpoint pattern. The browser linker page (`viz/app/linker_page/embeddings.js`) tries the local
+  `./data/sku_embeddings.json` first (present in local dev) then falls back to the Release URL
+  (prod). NOT committed: `run_daily.sh` keeps a worktree copy for local consumers but excludes it
+  from the commit (`git rm --cached` + `:(exclude)` pathspec).
+
+How it self-heals (no hand-commit to `data`; the next cron run does it):
+1. `.gitattributes` drops all 5 LFS patterns.
+2. `run_daily.sh` exports `GIT_LFS_SKIP_SMUDGE=1` so the worktree pull/merge never hits the
+   (budget-blocked) LFS endpoint — still-LFS-tracked files in the old `data` HEAD arrive as
+   pointer text instead of failing.
+3. The build tools overwrite `index/recent/db_commits` wholesale → re-staged as plain blobs under
+   the new LFS-free attributes. For the **incremental** per-SKU cache, `run_daily.sh` detects any
+   lingering pointer in `viz/data/skus` (`grep git-lfs.github.com`) and runs a one-time
+   `build_viz_sku_cache.js --full-reindex` (rebuilds every SKU from `data/db/**` git history) so
+   unchanged SKUs don't persist as pointer text. Reverts to incremental once no pointers remain.
+4. All workflow checkouts are now `lfs: false`. Net metered LFS traffic: **zero**.
+
+Bonus fix: this also un-breaks Pages deploys (they'd been failing on the LFS-budget 403 since the
+budget ran out → prod was frozen on a stale deploy, e.g. `gbt_model.json` 404'd). With `lfs: false`
+they succeed again.
+
 ## SKU Identity & Canonical Mapping
 
 Two link sources feed one canonical map (union-find):

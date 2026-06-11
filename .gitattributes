@@ -1,5 +1,10 @@
-viz/data/index.json filter=lfs diff=lfs merge=lfs -text
-viz/data/recent.json filter=lfs diff=lfs merge=lfs -text
-viz/data/db_commits.json filter=lfs diff=lfs merge=lfs -text
-viz/data/skus/** filter=lfs diff=lfs merge=lfs -text
-viz/data/sku_embeddings.json filter=lfs diff=lfs merge=lfs -text
+# NOTE: viz/data/* artifacts (index.json, recent.json, db_commits.json, skus/**,
+# sku_embeddings.json) were formerly Git LFS-tracked. They are now plain git objects.
+# Reason: every one is a DERIVED artifact regenerated each run from data/db/** (which is
+# itself plain git), so LFS bought us nothing but a metered-bandwidth bill — each CI job
+# (cron worktree pull, Pages deploy, email pack) re-smudged the full ~60 MB working set on
+# every run, blowing the 10 GB/mo LFS bandwidth budget in days. Plain-git clone/fetch and
+# Pages-CDN traffic are NOT metered, so moving them out of LFS drops metered traffic to zero.
+# Bootstrap: run_daily.sh exports GIT_LFS_SKIP_SMUDGE=1 so the worktree pull never touches the
+# (now budget-blocked) LFS endpoint; the build tools overwrite the pointer-text files and
+# re-add them as normal blobs under these (LFS-free) attributes. See CLAUDE.md "LFS removal".

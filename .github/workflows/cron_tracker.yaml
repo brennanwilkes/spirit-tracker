@@ -41,7 +41,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true   # unchanged from original; main carries no LFS objects, so this is ~free
+          lfs: false  # viz/data/* is no longer LFS; nothing here needs smudging (run_daily.sh
+                      # also exports GIT_LFS_SKIP_SMUDGE=1 for the data-branch worktree it manages)
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -165,6 +166,9 @@ jobs:
           STORES: ${{ steps.plan.outputs.stores }}
           # Point encode.py at the Release-asset checkpoint restored above (absolute path).
           LINKER_MODEL_DIR: ${{ github.workspace }}/tools/linker_ml/model_ft
+          # Lets run_daily.sh upload the freshly-encoded sku_embeddings.json to the
+          # 'embeddings-latest' Release asset (gh CLI). contents:write (above) authorizes it.
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           bash scripts/run_daily.sh
