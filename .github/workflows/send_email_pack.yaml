@@ -24,7 +24,7 @@ jobs:
         with:
           ref: data
           fetch-depth: 0
-          lfs: true
+          lfs: false   # viz/data/* is plain git now; the pack reads skus/** as plain files. No smudge.
 
       - name: Checkout requested data SHA (optional)
         if: inputs.data_sha != ''

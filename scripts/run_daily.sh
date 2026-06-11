@@ -22,6 +22,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# viz/data/* artifacts are no longer Git LFS-tracked (see .gitattributes). The data branch's
+# HISTORY still contains old LFS pointer blobs, and our LFS bandwidth budget is exhausted, so any
+# smudge attempt (worktree add / pull / merge / checkout) against those old pointers would fail
+# the whole run. Skip smudge entirely: the build tools below regenerate every derived file from
+# data/db/** (plain git) and re-add it as a normal blob, so we never need real LFS bytes.
+export GIT_LFS_SKIP_SMUDGE=1
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
 DATA_BRANCH="${DATA_BRANCH:-data}"
@@ -126,7 +133,18 @@ done
 "$NODE_BIN" tools/build_viz_index.js
 "$NODE_BIN" tools/build_viz_commits.js
 "$NODE_BIN" tools/build_viz_recent.js
-"$NODE_BIN" tools/build_viz_sku_cache.js
+# index/recent/db_commits are overwritten wholesale, so they self-heal from a skip-smudge
+# (pointer-text) checkout. The per-SKU cache is INCREMENTAL — it only rewrites changed SKUs, so
+# unchanged ones left as LFS pointer text by the skip-smudge checkout would persist as garbage.
+# Detect any lingering pointer and do a one-time full reindex (rebuilds every SKU from data/db/**
+# git history, which is plain git); this also self-heals any future stray pointer. Idempotent:
+# once no pointers remain it reverts to the fast incremental path.
+if [[ -d viz/data/skus ]] && grep -rlq "git-lfs.github.com" viz/data/skus 2>/dev/null; then
+  echo "INFO: LFS pointer(s) found in viz/data/skus; running one-time --full-reindex to materialize real content" >&2
+  "$NODE_BIN" tools/build_viz_sku_cache.js --full-reindex
+else
+  "$NODE_BIN" tools/build_viz_sku_cache.js
+fi
 "$NODE_BIN" tools/build_viz_rarity.js
 
 # --- Re-encode SKU embeddings with the FIXED fine-tuned encoder (linker page) ---
@@ -141,11 +159,12 @@ PYTHON_BIN="${PYTHON_BIN:-$REPO_ROOT/tools/linker_ml/.venv/bin/python}"
 # CI sets LINKER_MODEL_DIR to the Release-asset checkpoint it restored; a local run defaults to
 # out/model_ft (where train_embed.py saved it). encode.py reads LINKER_MODEL_DIR from the env.
 export LINKER_MODEL_DIR="${LINKER_MODEL_DIR:-$REPO_ROOT/tools/linker_ml/out/model_ft}"
+EMB_OUT="$REPO_ROOT/tools/linker_ml/out/embeddings.json"
 if [[ -x "$PYTHON_BIN" && -d "$LINKER_MODEL_DIR" ]]; then
   set +e
   "$NODE_BIN" "$REPO_ROOT/tools/linker_ml/build_dataset.mjs" \
     && "$PYTHON_BIN" "$REPO_ROOT/tools/linker_ml/encode.py" \
-    && cp -f "$REPO_ROOT/tools/linker_ml/out/embeddings.json" "$WORKTREE_DIR/viz/data/sku_embeddings.json"
+    && cp -f "$EMB_OUT" "$WORKTREE_DIR/viz/data/sku_embeddings.json"
   enc_rc=$?
   set -e
   if [[ $enc_rc -ne 0 ]]; then
@@ -155,8 +174,32 @@ else
   echo "INFO: skipping embedding re-encode (no venv at $PYTHON_BIN or no checkpoint at $LINKER_MODEL_DIR)" >&2
 fi
 
-# Stage only data/report/viz outputs
-git add -A data/db reports viz/data
+# sku_embeddings.json is NOT committed (a ~40 MB blob rewritten ~3x/day; see CLAUDE.md "LFS
+# removal"). It ships as a GitHub Release asset on a FIXED tag, overwritten each scrape — zero
+# git/LFS growth, unmetered CDN download. The browser linker page + ad-hoc tools fetch it from
+# there. The worktree copy above is kept ONLY for local consumers (serve.js, eval harness) and is
+# excluded from the commit below. Best-effort: needs gh + a token; never aborts the scrape.
+if command -v gh >/dev/null 2>&1 && [[ -s "$WORKTREE_DIR/viz/data/sku_embeddings.json" ]]; then
+  set +e
+  gh release upload embeddings-latest "$WORKTREE_DIR/viz/data/sku_embeddings.json" --clobber 2>/dev/null \
+    || gh release create embeddings-latest "$WORKTREE_DIR/viz/data/sku_embeddings.json" \
+         --title "Latest SKU embeddings" \
+         --notes "Auto-uploaded by run_daily.sh each scrape. Overwritten in place; only 'latest' is kept." 2>/dev/null
+  up_rc=$?
+  set -e
+  [[ $up_rc -ne 0 ]] && echo "WARN: embeddings Release upload failed (rc=$up_rc); linker page will use the previous asset" >&2
+else
+  echo "INFO: skipping embeddings Release upload (no gh CLI or no embeddings file)" >&2
+fi
+
+# Drop sku_embeddings.json from version control — it now lives as a Release asset (uploaded
+# above), not in git. One-time on the first post-migration run; idempotent thereafter
+# (--ignore-unmatch is a no-op once it's untracked). The ':(exclude)' pathspec below then keeps
+# the (still-on-disk, for local consumers) worktree copy from being re-staged.
+git rm --cached --quiet --ignore-unmatch viz/data/sku_embeddings.json 2>/dev/null || true
+
+# Stage only data/report/viz outputs (embeddings excluded — see above)
+git add -A data/db reports viz/data ':(exclude)viz/data/sku_embeddings.json'
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
 # May not exist on first run; -- pathspec avoids erroring out in that case.
 git add -A -- data/sku_links_auto.json 2>/dev/null || true
