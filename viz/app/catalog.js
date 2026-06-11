@@ -4,6 +4,59 @@ import { resolveItemSpiritTypes } from "./spirit_types.js";
 import { normalizeStoreId } from "./stores.js";
 import { isHiddenListing } from "./hidden.js";
 
+// Display priority for name/photo selection across the site.
+// Photo bumps a store up one tier (floored at 0) — so a BCL record with a photo
+// can beat a Strath record without one, but not a Strath record with a photo.
+const STORE_DISPLAY_TIER = Object.freeze({
+	strath: 0,
+	bcl: 1,
+	kwm: 2,
+	craftcellars: 3,
+	vintage: 4,
+	vessel: 5,
+	clbspirits: 6,
+});
+
+function storeDisplayTier(storeLabel) {
+	return STORE_DISPLAY_TIER[normalizeStoreId(storeLabel)] ?? 7;
+}
+
+/**
+ * Pick the best name and image for a canonical SKU group.
+ *
+ * Sort key per row: (displayTier, hasPhoto, -nameLength)
+ *   - displayTier: photo bumps up one tier (max(0, tier-1))
+ *   - hasPhoto: rows with a photo sort first (same-tier tiebreaker)
+ *   - nameLength: longer names preferred (final tiebreaker)
+ *
+ * Name: first row in sorted order.
+ * Image: first row in sorted order with a non-empty image.
+ */
+export function selectBestDisplayInfo(rows) {
+	const scored = [];
+	for (const r of rows) {
+		const name = String(r?.name || "");
+		const img = normImg(r?.img || r?.image || r?.thumb || "");
+		const storeLabel = String(r?.storeLabel || r?.store || "");
+		if (!name && !img) continue;
+		const tier = storeDisplayTier(storeLabel);
+		const hasPhoto = !!img;
+		const displayTier = hasPhoto ? Math.max(0, tier - 1) : tier;
+		scored.push({ name, img, displayTier, hasPhoto, nameLen: name.length });
+	}
+
+	scored.sort((a, b) => {
+		if (a.displayTier !== b.displayTier) return a.displayTier - b.displayTier;
+		if (a.hasPhoto !== b.hasPhoto) return a.hasPhoto ? -1 : 1;
+		return b.nameLen - a.nameLen;
+	});
+
+	return {
+		bestName: scored.find((s) => s.name)?.name || "",
+		bestImg: scored.find((s) => s.img)?.img || "",
+	};
+}
+
 // Build one row per *canonical* SKU (after applying sku map) + combined searchable text
 export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 	const canon = typeof canonicalizeSkuFn === "function" ? canonicalizeSkuFn : (x) => x;
@@ -34,7 +87,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 		if (!agg) {
 			agg = {
 				sku, // canonical sku
-				name: name || "",
+				name: "",
 				img: "",
 				cheapestPriceStr: pStr || "",
 				cheapestPriceNum: pNum,
@@ -45,9 +98,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 				spiritTypes: new Set(), // normalized spirit type ids from all rows
 				_searchParts: [],
 				searchText: "",
-
-				_imgByName: new Map(),
-				_imgAny: "",
+				_rows: [],
 			};
 			bySku.set(sku, agg);
 		}
@@ -62,18 +113,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 		}
 		if (!agg.sampleUrl && url) agg.sampleUrl = url;
 
-		// Keep first non-empty name, but keep thumbnail aligned to chosen name
-		if (!agg.name && name) {
-			agg.name = name;
-			if (img) agg.img = img;
-		} else if (agg.name && name === agg.name && img && !agg.img) {
-			agg.img = img;
-		}
-
-		if (img) {
-			if (!agg._imgAny) agg._imgAny = img;
-			if (name) agg._imgByName.set(name, img);
-		}
+		agg._rows.push({ name, img, storeLabel });
 
 		// cheapest across LIVE rows only (so removed history doesn't "win")
 		if (!removed && pNum !== null) {
@@ -96,14 +136,10 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 	const out = [...bySku.values()];
 
 	for (const it of out) {
-		if (!it.img) {
-			const m = it._imgByName;
-			if (it.name && m && m.has(it.name)) it.img = m.get(it.name) || "";
-			else it.img = it._imgAny || "";
-		}
-
-		delete it._imgByName;
-		delete it._imgAny;
+		const { bestName, bestImg } = selectBestDisplayInfo(it._rows);
+		it.name = bestName;
+		it.img = bestImg;
+		delete it._rows;
 
 		it.storeCount = it.stores.size;
 		it.storeCountEver = it.storesEver.size;

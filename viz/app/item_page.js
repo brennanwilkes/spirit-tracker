@@ -9,6 +9,7 @@ import { normalizeStoreId } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
+import { selectBestDisplayInfo } from "./catalog.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
 import {
 	isBcStoreLabel,
@@ -466,59 +467,10 @@ export async function renderItem($app, skuInput) {
 
 	const isRemovedEverywhere = liveRows.length === 0;
 
-	// pick bestName by most common across LIVE rows (fallback to allRows)
-	const basisForName = liveRows.length ? liveRows : allRows;
-
-	const nameCounts = new Map();
-	for (const r of basisForName) {
-		const n = String(r.name || "");
-		if (!n) continue;
-		nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
-	}
-
-	let bestName = basisForName[0].name || `(SKU ${sku})`;
-	let bestCount = -1;
-	for (const [n, c] of nameCounts.entries()) {
-		if (c > bestCount) {
-			bestName = n;
-			bestCount = c;
-		}
-	}
-	$title.textContent = bestName;
-
-	// choose thumbnail from cheapest LIVE listing (fallback: any matching name; fallback: any)
-	let bestImg = "";
-	let bestPrice = null;
-
-	const basisForThumb = liveRows.length ? liveRows : allRows;
-
-	for (const r of basisForThumb) {
-		const p = parsePriceToNumber(r.price);
-		const img = String(r?.img || "").trim();
-		if (p !== null && img) {
-			if (bestPrice === null || p < bestPrice) {
-				bestPrice = p;
-				bestImg = img;
-			}
-		}
-	}
-	if (!bestImg) {
-		for (const r of basisForThumb) {
-			if (String(r?.name || "") === String(bestName || "") && String(r?.img || "").trim()) {
-				bestImg = String(r.img).trim();
-				break;
-			}
-		}
-	}
-	if (!bestImg) {
-		for (const r of basisForThumb) {
-			if (String(r?.img || "").trim()) {
-				bestImg = String(r.img).trim();
-				break;
-			}
-		}
-	}
-
+	// pick best name and image using shared priority logic (store hierarchy + photo + name length)
+	const basis = liveRows.length ? liveRows : allRows;
+	const { bestName, bestImg } = selectBestDisplayInfo(basis);
+	$title.textContent = bestName || `(SKU ${sku})`;
 	$thumbBox.innerHTML = bestImg
 		? renderThumbHtml(bestImg, "detailThumb")
 		: `<div class="thumbPlaceholder"></div>`;
