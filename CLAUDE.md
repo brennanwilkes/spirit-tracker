@@ -83,13 +83,20 @@ fields, so pending links group in the catalog and fire email alerts with NO load
 `status` field is purely the marker the review UI keys off. **Do not add a pending filter to those
 consumers** — that would defeat the design.
 
-- **Anchor recency-bound (idempotency + cost).** Cost is `#anchors × full-catalog scan` (~20
-  anchors/s), so `run_daily.sh` passes `--since 2` (anchor only on SKUs first-seen in the last 2
-  days; ample margin over the ≤12h run gap). The full catalog is still the CANDIDATE pool, so new
-  cross-store matches are found; only the ANCHOR set is bounded. Stable orphans were already scored
-  on a prior run — re-scanning them every run is wasted work. Dedup against existing links/ignores
-  makes re-runs within the window a no-op (no write → no commit churn). One-time backlog sweep over
-  ALL SKUs: run the tool by hand with no `--since` (slow, ~10 min). `--dry-run` previews without writing.
+- **Candidate blocking (speed).** A confident match shares a distinctive token (or SMWS cask code)
+  with the anchor, so the tool scores only candidates from a distinctive-token/SMWS inverted index,
+  not the full ~12.6k catalog — a per-anchor handful of comparisons. **Precision-preserving** (the
+  full live scorer still runs on every candidate it scores; it can only drop a few zero-shared-token
+  semantic matches, which `recommendSimilar`'s retrieve-then-rerank already misses). Measured: 6201
+  anchors in ~38s, a 900-SKU store add in ~10s, full catalog sweep ~75s. `vocab`/`groupIndex`/
+  `sameGroup` stay full-catalog so any candidate's score is identical to the live ranker.
+- **Anchor recency-bound (idempotency).** `run_daily.sh` passes `--since 2` (anchor only on SKUs
+  first-seen in the last 2 days; ample margin over the ≤12h run gap). The full catalog is still the
+  CANDIDATE pool; only the ANCHOR set is bounded. Stable orphans were already scored on a prior run,
+  so the window just avoids redundant rescans. Dedup against existing links/ignores makes re-runs a
+  no-op (no write → no commit churn). Flushes every 400 anchors, so a cancelled run keeps its
+  progress and a re-run resumes cleanly. `--max-anchors N` hard-caps (newest first); `--dry-run`
+  previews. One-time backlog sweep over ALL SKUs: run by hand with no `--since`.
 - **Review at `#/link-review`** (`viz/app/link_review_page.js`, off-menu, reachable from `#/link`
   and `#/link-rapid`). Newest-first feed of (a) pending auto-links — rendered as the TWO SKUs shown
   SEPARATELY side-by-side (not collapsed), Approve / Reject; and (b) orphan SKUs (canonical group

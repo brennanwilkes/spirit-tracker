@@ -204,12 +204,14 @@ fi
 # scrape commit.
 #
 # --since 2: anchor ONLY on SKUs first-seen in the last 2 days (a comfortable margin over the
-# ≤12h gap between runs). Cost is (#anchors × full-catalog scan) at ~20 anchors/s, so bounding
-# the anchor set keeps this to seconds-to-minutes; a stable orphan was already scored on an
-# earlier run and nothing changed, so re-scanning the whole catalog every run is wasted work.
-# New cross-store matches are still found because the full catalog is the CANDIDATE pool — only
-# the ANCHOR set is recency-bounded. (One-time backlog sweep over ALL SKUs: run the tool by hand
-# with no --since.) Dedup against existing links/ignores makes re-runs within the window a no-op.
+# ≤12h gap between runs). The tool blocks candidates by shared distinctive token / SMWS code, so
+# per-anchor cost is a handful of comparisons, not a full-catalog scan — ~10s even for a fresh
+# 900-SKU store add, seconds on a normal run. A stable orphan was already scored on an earlier run
+# and nothing changed, so the window just avoids redundant rescans; new cross-store matches are
+# still found (the candidate POOL is the full catalog, only the ANCHOR set is recency-bounded).
+# (One-time backlog sweep over ALL SKUs: run the tool by hand with no --since, ~75s.) Dedup against
+# existing links/ignores makes re-runs a no-op, and the tool flushes every 400 anchors so a
+# cancelled/timed-out run keeps its progress and resumes cleanly.
 set +e
 "$NODE_BIN" "$REPO_ROOT/tools/auto_link_classify.mjs" --top 10 --since 2
 alc_rc=$?
