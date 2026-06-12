@@ -167,17 +167,29 @@ export async function renderSkuLinkReview($app) {
 		const name = String(it?.name || "(no name)");
 		const store = it?.cheapestStoreLabel || (it?.stores && it.stores.size ? [...it.stores][0] : "") || "";
 		const price = it?.cheapestPriceStr || "";
-		const url = it?.sampleUrl || "";
+		const url = it?.sampleUrl || ""; // product URL on the store
+		const itemHref = sku ? `#/item/${encodeURIComponent(sku)}` : ""; // viz item detail page
+		// Image → item detail page; store label → product URL; SKU badge → product URL. Open in new
+		// tabs (target=_blank) so a click never loses the review queue / a half-finished decision.
+		const thumb = renderThumbHtml(it?.img || "", "thumb");
+		const thumbEl = itemHref
+			? `<a href="${esc(itemHref)}" target="_blank" rel="noopener noreferrer">${thumb}</a>`
+			: thumb;
+		const storeEl = store
+			? url
+				? `<a class="itemStore" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(store)}</a>`
+				: `<span class="itemStore">${esc(store)}</span>`
+			: "";
 		const skuBadge = url
 			? `<a class="badge mono skuLink" target="_blank" rel="noopener noreferrer" href="${esc(url)}">${esc(displaySku(sku))}</a>`
 			: `<span class="badge mono">${esc(displaySku(sku))}</span>`;
 		return `
       <div class="rvCard">
-        <div class="rvThumb">${renderThumbHtml(it?.img || "", "thumb")}</div>
+        <div class="rvThumb">${thumbEl}</div>
         <div class="rvBody">
           <div class="rvName">${esc(name)}</div>
           <div class="rvMeta">
-            ${store ? `<span class="rvStore">${esc(store)}</span>` : ""}
+            ${storeEl}
             ${price ? `<span class="price">${esc(price)}</span>` : ""}
             ${skuBadge}
           </div>
