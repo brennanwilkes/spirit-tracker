@@ -69,7 +69,11 @@ function dedupeLinks(links, ignores) {
 		const ra = find(link.fromSku), rb = find(link.toSku);
 		if (ra !== rb) {
 			parent.set(ra, rb);
-			kept.push(link.noTrain ? { fromSku: link.fromSku, toSku: link.toSku, noTrain: true } : { fromSku: link.fromSku, toSku: link.toSku });
+			// Preserve the WHOLE link object (not just fromSku/toSku) so auto-classify metadata
+			// — status:"pending", confidence, source, ts — survives any local write. The review
+			// page (#/link-review) keys off `status`, so stripping it here would silently mark
+			// every pending link confirmed on the next unrelated edit.
+			kept.push(link);
 		}
 	}
 
@@ -79,7 +83,7 @@ function dedupeLinks(links, ignores) {
 		const key = [ig.skuA, ig.skuB].sort().join("\0");
 		if (!seenIgnores.has(key)) {
 			seenIgnores.add(key);
-			keptIgnores.push(ig.noTrain ? { skuA: ig.skuA, skuB: ig.skuB, noTrain: true } : { skuA: ig.skuA, skuB: ig.skuB });
+			keptIgnores.push(ig);
 		}
 	}
 
@@ -153,6 +157,79 @@ const server = http.createServer((req, res) => {
 			return;
 		}
 
+		return send(res, 405, "Method Not Allowed");
+	}
+
+	// Resolve a pending auto-classified link. matchPair finds link entries for the unordered
+	// (fromSku,toSku) pair in either stored direction.
+	function matchPair(link, f, t) {
+		const lf = String(link.fromSku || "").trim();
+		const lt = String(link.toSku || "").trim();
+		return (lf === f && lt === t) || (lf === t && lt === f);
+	}
+
+	// Approve: drop the pending annotation in place — the entry stays a (now confirmed) link.
+	if (url.pathname === "/__stviz/sku-links/confirm") {
+		if (req.method === "POST") {
+			let body = "";
+			req.on("data", (c) => (body += c));
+			req.on("end", () => {
+				try {
+					const inp = JSON.parse(body || "{}");
+					const fromSku = String(inp.fromSku || "").trim();
+					const toSku = String(inp.toSku || "").trim();
+					if (!fromSku || !toSku) return sendJson(res, 400, { ok: false, error: "fromSku/toSku required" });
+
+					const obj = readMeta();
+					let confirmed = 0;
+					for (const link of obj.links) {
+						if (!matchPair(link, fromSku, toSku) || link.status !== "pending") continue;
+						delete link.status;
+						delete link.confidence;
+						delete link.source;
+						delete link.ts;
+						confirmed++;
+					}
+					writeMeta(obj);
+					return sendJson(res, 200, { ok: true, confirmed, file: "data/sku_links.json" });
+				} catch (e) {
+					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
+				}
+			});
+			return;
+		}
+		return send(res, 405, "Method Not Allowed");
+	}
+
+	// Reject: remove the link entry entirely AND record an ignore (a curated hard negative).
+	if (url.pathname === "/__stviz/sku-links/reject") {
+		if (req.method === "POST") {
+			let body = "";
+			req.on("data", (c) => (body += c));
+			req.on("end", () => {
+				try {
+					const inp = JSON.parse(body || "{}");
+					const fromSku = String(inp.fromSku || "").trim();
+					const toSku = String(inp.toSku || "").trim();
+					if (!fromSku || !toSku) return sendJson(res, 400, { ok: false, error: "fromSku/toSku required" });
+
+					const obj = readMeta();
+					const before = obj.links.length;
+					obj.links = obj.links.filter((link) => !matchPair(link, fromSku, toSku));
+					obj.ignores.push({ skuA: fromSku, skuB: toSku });
+					const saved = writeMeta(obj);
+					return sendJson(res, 200, {
+						ok: true,
+						removed: before - obj.links.length,
+						ignores: saved.ignores.length,
+						file: "data/sku_links.json",
+					});
+				} catch (e) {
+					return sendJson(res, 400, { ok: false, error: String(e && e.message ? e.message : e) });
+				}
+			});
+			return;
+		}
 		return send(res, 405, "Method Not Allowed");
 	}
 

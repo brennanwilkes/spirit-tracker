@@ -192,6 +192,32 @@ else
   echo "INFO: skipping embeddings Release upload (no gh CLI or no embeddings file)" >&2
 fi
 
+# --- Auto-link classification (learned classifier) ---
+# With fresh embeddings now in the worktree, score unlinked SKUs with the live GBT blend and
+# append high-confidence (≥99%-precision bar) cross-store matches to data/sku_links.json as
+# status:"pending" links. They are treated as REAL links everywhere immediately (catalog
+# grouping + email alerts, which read only fromSku/toSku); the #/link-review page lets a human
+# approve/reject them later. Runs AFTER embeddings and BEFORE the email pack (triggered
+# post-commit) so alerts reflect the new groupings. Uses $REPO_ROOT absolute path so featurize's
+# default WORKTREE resolves the worktree (same pattern as the re-encode above); it reads + writes
+# the worktree's data/sku_links.json (staged below). Best-effort: a failure must NOT abort the
+# scrape commit.
+#
+# --since 2: anchor ONLY on SKUs first-seen in the last 2 days (a comfortable margin over the
+# ≤12h gap between runs). The tool blocks candidates by shared distinctive token / SMWS code, so
+# per-anchor cost is a handful of comparisons, not a full-catalog scan — ~10s even for a fresh
+# 900-SKU store add, seconds on a normal run. A stable orphan was already scored on an earlier run
+# and nothing changed, so the window just avoids redundant rescans; new cross-store matches are
+# still found (the candidate POOL is the full catalog, only the ANCHOR set is recency-bounded).
+# (One-time backlog sweep over ALL SKUs: run the tool by hand with no --since, ~75s.) Dedup against
+# existing links/ignores makes re-runs a no-op, and the tool flushes every 400 anchors so a
+# cancelled/timed-out run keeps its progress and resumes cleanly.
+set +e
+"$NODE_BIN" "$REPO_ROOT/tools/auto_link_classify.mjs" --top 10 --since 2
+alc_rc=$?
+set -e
+[[ $alc_rc -ne 0 ]] && echo "WARN: auto-link classification failed (rc=$alc_rc); no pending links added this run" >&2
+
 # Drop sku_embeddings.json from version control — it now lives as a Release asset (uploaded
 # above), not in git. One-time on the first post-migration run; idempotent thereafter
 # (--ignore-unmatch is a no-op once it's untracked). The ':(exclude)' pathspec below then keeps
@@ -203,6 +229,13 @@ git add -A data/db reports viz/data ':(exclude)viz/data/sku_embeddings.json'
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
 # May not exist on first run; -- pathspec avoids erroring out in that case.
 git add -A -- data/sku_links_auto.json 2>/dev/null || true
+# Curated SKU links incl. status:"pending" entries appended by auto_link_classify.mjs above. Stage
+# ONLY when that step succeeded (alc_rc==0): on a clean cron worktree the classifier is the sole
+# writer of this file, so this commits exactly its appends — and gating on success means a crash
+# mid-write can never commit a half-written sku_links.json. (No change → git diff is empty → no-op.)
+if [[ ${alc_rc:-1} -eq 0 ]]; then
+  git add -A -- data/sku_links.json 2>/dev/null || true
+fi
 
 if git diff --cached --quiet; then
   echo "No data/report/viz changes to commit." >&2

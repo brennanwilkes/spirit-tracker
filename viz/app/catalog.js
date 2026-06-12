@@ -14,7 +14,6 @@ const STORE_DISPLAY_TIER = Object.freeze({
 	craftcellars: 3,
 	vintage: 4,
 	vessel: 5,
-	clbspirits: 6,
 });
 
 function storeDisplayTier(storeLabel) {
