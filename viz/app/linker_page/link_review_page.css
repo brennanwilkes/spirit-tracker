@@ -70,6 +70,11 @@
 .rvThumb {
 	flex: 0 0 auto;
 }
+.rvThumb a {
+	display: block;
+	line-height: 0;
+	cursor: pointer;
+}
 .rvThumb .thumb {
 	width: 48px;
 	height: 48px;
@@ -93,9 +98,6 @@
 	margin-top: 4px;
 	color: var(--muted);
 	font-size: 0.85rem;
-}
-.rvStore {
-	color: var(--muted);
 }
 
 .rvSide {
