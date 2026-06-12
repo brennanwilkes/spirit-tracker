@@ -227,6 +227,20 @@ deterministic scorer:
   SKUs get vectors within one cron cycle. If a vector is still missing the GBT routes it via the
   tree's NaN branch (the LR path falls back to no-embed weights) — never a crash.
 
+## ⭐ Production auto-linking (`tools/auto_link_classify.mjs`) + the active-learning loop
+
+A SECOND CI consumer of the live ranker (besides the linker pages): `tools/auto_link_classify.mjs`
+runs every scrape in `run_daily.sh` (after the re-encode), reuses `buildEnv` + `recommendSimilar`
++ the GBT blend (so it can never drift from eval/serve), and writes `status:"pending"` links to
+`data/sku_links.json` for any candidate ≥ `autoLinkConfidenceBar` (0.95). Root `CLAUDE.md`
+§"Auto-Link Classification + Review" is the spec. **Why it matters here:** the `#/link-review`
+Approve/Reject decisions are the cheapest way to grow the labeled set precisely where the model is
+uncertain — Approve → a positive link, Reject → a curated `ignore` (hard negative). This is exactly
+the "mine an IB review queue → grow curated ignores → higher rec@99" path noted in §"Next planned
+improvement". So after a wave of reviews, RE-TRAIN (the chain above) to bank the new supervision.
+The classifier reads the SAME labels you train on, so a retrain immediately sharpens what it
+auto-links next.
+
 ## ⭐ Shipping the checkpoint + per-build re-encode (READ BEFORE TOUCHING THE MODEL)
 
 The encoder is hand-trained infrequently (`train_embed.py`); CI re-encodes the catalog every scrape

@@ -66,6 +66,46 @@ Tools that build local DSUs (`tools/rarity_report.js`, `tools/build_email_event_
 
 The orphan-DB-file auto-flip in `src/tracker/orphan_dbs.js` handles the case where a store's category URL changes and the old DB file becomes stranded — runs at the end of every `node bin/tracker.js` invocation.
 
+## Auto-Link Classification + Review (pending links)
+
+`tools/auto_link_classify.mjs` (Node ESM) runs every scrape in `run_daily.sh` — AFTER the
+per-build embeddings are written, BEFORE the email pack. It reuses the LIVE ranker end-to-end
+(via `tools/linker_ml/featurize.mjs::buildEnv` + `recommendSimilar` + the GBT blend — never forks
+scoring) to find cross-store matches and appends high-confidence ones (≥ `autoLinkConfidenceBar`,
+the 99%-precision bar = 0.95) to `data/sku_links.json` as:
+
+    { fromSku, toSku, status: "pending", confidence, source: "auto-classify", ts }
+
+**Key invariant: a `status:"pending"` link is a REAL link everywhere, immediately.** Every
+consumer (`src/utils/sku_map.js`, `viz/app/mapping.js`, `sku_canonical.js` both,
+`build_email_event_pack.js`, `viz/app/api.js`) reads only `fromSku`/`toSku` and ignores extra
+fields, so pending links group in the catalog and fire email alerts with NO loader changes. The
+`status` field is purely the marker the review UI keys off. **Do not add a pending filter to those
+consumers** — that would defeat the design.
+
+- **Anchor recency-bound (idempotency + cost).** Cost is `#anchors × full-catalog scan` (~20
+  anchors/s), so `run_daily.sh` passes `--since 2` (anchor only on SKUs first-seen in the last 2
+  days; ample margin over the ≤12h run gap). The full catalog is still the CANDIDATE pool, so new
+  cross-store matches are found; only the ANCHOR set is bounded. Stable orphans were already scored
+  on a prior run — re-scanning them every run is wasted work. Dedup against existing links/ignores
+  makes re-runs within the window a no-op (no write → no commit churn). One-time backlog sweep over
+  ALL SKUs: run the tool by hand with no `--since` (slow, ~10 min). `--dry-run` previews without writing.
+- **Review at `#/link-review`** (`viz/app/link_review_page.js`, off-menu, reachable from `#/link`
+  and `#/link-rapid`). Newest-first feed of (a) pending auto-links — rendered as the TWO SKUs shown
+  SEPARATELY side-by-side (not collapsed), Approve / Reject; and (b) orphan SKUs (canonical group
+  size 1 AND single-store, i.e. no implicit cross-store link) with live candidate suggestions to
+  Link / Ignore. Orphan candidates are scored lazily per chunk (`recommendSimilar`).
+- **Approve / Reject** are local-write only (`viz/serve.js`): `POST /__stviz/sku-links/confirm`
+  drops the `status` annotation in place (already a real link); `POST /__stviz/sku-links/reject`
+  removes the entry AND records an `ignore` (a curated hard negative). API helpers:
+  `apiConfirmSkuLink` / `apiRejectSkuLink` in `viz/app/api.js`. **`serve.js::dedupeLinks` now
+  preserves whole link objects** (status/confidence/source/ts) so a later unrelated local write
+  doesn't strip pending markers.
+- **Active-learning loop:** Approve → trainable positive link; Reject → trainable hard-negative
+  ignore. Both feed the next `tools/linker_ml` retrain. Neither sets `noTrain` (human-verified).
+- `run_daily.sh` stages `data/sku_links.json` so the classifier's appends commit (and reach the
+  email pack + Pages, which already stage it into `viz/data/`).
+
 ## Hidden Listings
 
 `data/sku_hidden.json` curates per-`(storeId, rawSku)` listings that should never appear in the UI or fire email events (e.g. a store mis-categorized a wine under whisky). Hides apply to the specific store's record only — linked SKUs in the same canonical cluster from other stores are unaffected.
@@ -160,8 +200,12 @@ Each run executes `scripts/run_daily.sh`, which:
 5. **Re-encodes the linker embeddings** (`build_dataset.mjs` → `tools/linker_ml/encode.py`) with the
    fixed fine-tuned checkpoint so newly-scraped SKUs get vectors — weights are NOT retrained here.
    See `tools/linker_ml/CLAUDE.md` §"Shipping the checkpoint" (best-effort; skips if no venv/checkpoint).
-6. Commits + pushes all changes to the `data` branch
-7. Triggers the Pages deploy and email pack workflows
+6. **Auto-link classification** (`tools/auto_link_classify.mjs --since 2`) — appends high-confidence
+   `status:"pending"` cross-store links to `data/sku_links.json` using the just-written embeddings.
+   See §"Auto-Link Classification + Review". Best-effort; before the email pack so alerts reflect
+   the new groupings.
+7. Commits + pushes all changes to the `data` branch
+8. Triggers the Pages deploy and email pack workflows
 
 ## Run Observability (commit messages)
 
@@ -202,6 +246,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `build_viz_sku_cache.js` | Generate `viz/data/skus/{sku}.json` per-SKU price event files (LFS). Incremental by default; `--full-reindex` walks full git history. Run from `.worktrees/data/` |
 | `build_common_listings.js` | Top-N product lists by region (all/bc/ab) and size (50/250/1000) |
 | `build_email_event_pack.js` | Package email event bundles |
+| `auto_link_classify.mjs` | Auto-link SKUs with the live GBT blend; append `status:"pending"` links to `data/sku_links.json` (≥99%-precision bar). `--since N` bounds anchors by recency, `--top K`, `--dry-run`. See §"Auto-Link Classification + Review" |
 | `diff_report.js` | Compare two report files |
 | `discover_bad_skus.js` | Find synthetic (`u:`) SKUs that need repair |
 | `rank_discrepency.js` | Analyze ranking discrepancies |

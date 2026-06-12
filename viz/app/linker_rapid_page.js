@@ -1296,6 +1296,7 @@ export async function renderSkuLinkerRapid($app) {
 			<button id="rapidFlush" class="btn" style="padding:6px 10px;">Save</button>
 			<button id="rapidClear" class="btn" style="padding:6px 10px;">Clear</button>
 			<a class="btn" href="#/link" style="padding:6px 10px;">Manual</a>
+			<a class="btn" href="#/link-review" style="padding:6px 10px;">📋 Review</a>
 			<label id="rapidAiToggle" class="btn" title="Re-rank suggestions with the fine-tuned AI embedding. Off = classical scorer (sharp). On = embedding blend, with an 'AI ±x' chip showing how much it shifts each score." style="padding:6px 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
 				<input type="checkbox" id="rapidAiChk" ${aiOn ? "checked" : ""} style="cursor:pointer;margin:0;" />🧠 AI embeddings
 			</label>

@@ -31,6 +31,7 @@ Hash-based SPA routing in `app/main.js`:
 | `#/stores` | `stores_page.js` | All-stores directory |
 | `#/stats` | `stats_page.js` | Aggregate analytics dashboard |
 | `#/link` | `linker_page.js` | SKU canonical mapping curation tool |
+| `#/link-review` | `link_review_page.js` | Audit auto-classified pending links (Approve/Reject) + link orphan SKUs |
 | `#/shortlist/<uuid>` | `shortlist_page.js` | User shortlist |
 | `#/shortlists` | `public_shortlists_page.js` | Public shortlists directory |
 | `#/login` `#/signup` `#/forgot` `#/reset` `#/oauth` | `auth_page.js` | Authentication flows |
@@ -262,6 +263,23 @@ ordered strongest-first too, so `#/link` works strong → weak.)
 - **Local dev only:** `scripts/serve_viz.sh` serves the `.worktrees/data` worktree (the
   `data` branch with `main` merged in), so viz code changes must reach the `data` branch
   (via the run_daily merge) before they appear locally.
+
+### Auto-link review (`#/link-review`, `link_review_page.js`)
+
+Audit surface for the `tools/auto_link_classify.mjs` classifier (off-menu; linked from `#/link`
+and `#/link-rapid`). Newest-first feed (by `firstSeenAt` recency) of two row types:
+- **Pending auto-links** — `rules.links` entries with `status === "pending"`, rendered as the TWO
+  SKUs SEPARATELY side-by-side (deliberately NOT collapsed into one listing like every other page),
+  so the human sees exactly what the classifier joined. **Approve** → `apiConfirmSkuLink` (drops the
+  `status` field in place; it was already a real link). **Reject** → `apiRejectSkuLink` (removes the
+  entry + records an `ignore`).
+- **Orphan SKUs** — no link of any kind (canonical group size 1 AND single-store, so no implicit
+  same-raw-SKU cross-store link). Live `recommendSimilar` candidates (scored lazily per chunk) to
+  **Link** / **Ignore**.
+
+Local-write only (mutations via `viz/serve.js`); read-only display on Pages. A pending link is
+treated as a REAL link everywhere else (catalog grouping + email) — review is an audit, not a gate.
+See root `CLAUDE.md` §"Auto-Link Classification + Review".
 
 ## Patterns & Conventions
 

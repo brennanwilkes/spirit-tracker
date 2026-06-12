@@ -62,6 +62,30 @@ export async function apiWriteSkuIgnore(skuA, skuB, noTrain) {
 	return await res.json();
 }
 
+// Approve an auto-classified pending link: drops the status annotation in place (the entry
+// stays a real, now-confirmed, link). Used by the #/link-review page (local-write only).
+export async function apiConfirmSkuLink(fromSku, toSku) {
+	const res = await fetch("/__stviz/sku-links/confirm", {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ fromSku, toSku }),
+	});
+	if (!res.ok) throw new Error(`HTTP ${res.status}`);
+	return await res.json();
+}
+
+// Reject an auto-classified pending link: removes the link entry and records an ignore pair
+// (a curated hard negative). Used by the #/link-review page (local-write only).
+export async function apiRejectSkuLink(fromSku, toSku) {
+	const res = await fetch("/__stviz/sku-links/reject", {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ fromSku, toSku }),
+	});
+	if (!res.ok) throw new Error(`HTTP ${res.status}`);
+	return await res.json();
+}
+
 export async function apiWriteSkuHidden(storeId, sku, reason) {
 	const res = await fetch("/__stviz/sku-hidden", {
 		method: "POST",

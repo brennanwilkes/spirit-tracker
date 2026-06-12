@@ -116,6 +116,7 @@ export async function renderSkuLinker($app) {
 
         <div style="flex:1"></div>
         <a class="btn" href="#/link-rapid" style="padding:6px 10px;">⚡ Rapid</a>
+        <a class="btn" href="#/link-review" style="padding:6px 10px;">📋 Review</a>
         <label id="linkAiToggle" class="btn" title="Re-rank suggestions with the fine-tuned AI embedding. Off = classical scorer. On = embedding blend, with an 'AI ±x' chip showing its influence." style="padding:6px 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
           <input type="checkbox" id="linkAiChk" ${aiOn ? "checked" : ""} style="cursor:pointer;margin:0;" />🧠 AI
         </label>

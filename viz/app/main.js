@@ -20,6 +20,7 @@ import { renderSearch } from "./search_page.js";
 import { renderItem } from "./item_page.js";
 import { renderSkuLinker } from "./linker_page.js";
 import { renderSkuLinkerRapid } from "./linker_rapid_page.js";
+import { renderSkuLinkReview } from "./link_review_page.js";
 import { renderStore } from "./store_page.js";
 import { renderStats, destroyStatsChart } from "./stats_page.js";
 import { renderLogin, renderSignup, renderOauth, renderForgot, renderReset } from "./auth_page.js";
@@ -85,6 +86,7 @@ function route() {
 	if (parts[0] === "item" && parts[1]) return renderItem($app, decodeURIComponent(parts[1]));
 	if (parts[0] === "store" && parts[1]) return renderStore($app, decodeURIComponent(parts[1]));
 	if (parts[0] === "link-rapid") return renderSkuLinkerRapid($app);
+	if (parts[0] === "link-review") return renderSkuLinkReview($app);
 	if (parts[0] === "link") return renderSkuLinker($app);
 	if (parts[0] === "stats") return renderStats($app);
 	if (parts[0] === "stores") return renderStores($app);

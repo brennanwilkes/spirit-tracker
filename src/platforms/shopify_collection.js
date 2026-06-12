@@ -336,4 +336,12 @@ function createShopifyCollectionAdapter(opts) {
 	};
 }
 
-module.exports = { createShopifyCollectionAdapter };
+module.exports = {
+	createShopifyCollectionAdapter,
+	fetchCollectionProductsJson,
+	fetchProductJs,
+	resolveShopifyProductSku,
+	shopifyPickImage,
+	anyVariantAvailable,
+	priceFromShopifyDollarsStr,
+};
