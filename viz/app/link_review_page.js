@@ -31,6 +31,7 @@ import {
 	apiRejectSkuLink,
 } from "./api.js";
 import { normalizeImplicitSkuKey } from "./sku_canonical.js";
+import { buildUrlBySkuStore } from "./linker_page/url_map.js";
 import { buildSizePenaltyForPair } from "./linker_page/size.js";
 import { buildPricePenaltyForPair } from "./linker_page/price.js";
 import { buildCanonStoreCache, makeSameStoreCanonFn } from "./linker_page/store_cache.js";
@@ -57,6 +58,9 @@ export async function renderSkuLinkReview($app) {
 
 	const bySku = new Map();
 	for (const it of allAgg) bySku.set(String(it.sku), it);
+	// Per-(sku, store) product URL — so a card's store label links to THAT store's page, not the
+	// arbitrary first URL seen during aggregation (which can belong to a different store).
+	const URL_BY_SKU_STORE = buildUrlBySkuStore(allRows);
 	// Stored link skus come from the tracker/classifier raw SKU space (e.g. "id:123"); the catalog
 	// keys by keySkuForRow ("000123"). normalizeImplicitSkuKey bridges the id: form; fall back to raw.
 	const resolveAgg = (s) => {
@@ -162,12 +166,29 @@ export async function renderSkuLinkReview($app) {
 
 	/* ---------------- card helpers ---------------- */
 
+	// Choose the store to display and the URL that BELONGS to it. Prefer the cheapest store (it
+	// matches the price shown); use that store's own product URL. Fall back to any store that has a
+	// URL so the label and link always refer to the same store (never a cross-store mismatch).
+	function pickStoreAndUrl(it) {
+		const sku = String(it?.sku || "");
+		const byStore = URL_BY_SKU_STORE.get(sku) || null;
+		const cheapest = it?.cheapestStoreLabel || "";
+		if (cheapest) {
+			return { store: cheapest, url: (byStore && byStore.get(cheapest)) || "" };
+		}
+		if (byStore && byStore.size) {
+			const [store, url] = [...byStore.entries()][0];
+			return { store, url };
+		}
+		const anyStore = it?.stores && it.stores.size ? [...it.stores][0] : "";
+		return { store: anyStore, url: "" };
+	}
+
 	function miniCardHtml(it) {
 		const sku = String(it?.sku || "");
 		const name = String(it?.name || "(no name)");
-		const store = it?.cheapestStoreLabel || (it?.stores && it.stores.size ? [...it.stores][0] : "") || "";
+		const { store, url } = pickStoreAndUrl(it); // store label + its OWN product URL (consistent)
 		const price = it?.cheapestPriceStr || "";
-		const url = it?.sampleUrl || ""; // product URL on the store
 		const itemHref = sku ? `#/item/${encodeURIComponent(sku)}` : ""; // viz item detail page
 		// Image → item detail page; store label → product URL; SKU badge → product URL. Open in new
 		// tabs (target=_blank) so a click never loses the review queue / a half-finished decision.
