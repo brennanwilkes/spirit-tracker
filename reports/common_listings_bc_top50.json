@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-13T05:17:38.010Z",
+  "generatedAt": "2026-06-13T07:16:13.760Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 9
+      "cutoffStoreCount": 8
     }
   },
   "storeCount": 12,
@@ -30,9 +30,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 5376,
-    "removedRows": 618,
-    "canonSkus": 2265,
+    "liveRows": 5379,
+    "removedRows": 625,
+    "canonSkus": 2267,
     "outputCount": 50
   },
   "rows": [
@@ -187,6 +187,57 @@
         "priceNum": 37.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/10157"
+      }
+    },
+    {
+      "canonSku": "001099",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 32.19,
+        "bcl": 32.99,
+        "gull": 30.99,
+        "highpointbws": 36.99,
+        "legacyliquor": 34.99,
+        "liquorwarehouse": 34.99,
+        "marquis": 34.99,
+        "newdistrict": 35.29,
+        "strath": 33.79,
+        "tudor": 33.49,
+        "vessel": 33.99
+      },
+      "representative": {
+        "name": "Johnnie Walker – Red Label 750ml",
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "001099",
+        "skuKey": "001099",
+        "url": "https://gullliquorstore.com/product/johnnie-walker-red-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/johnnie-walker-red-750m/"
       }
     },
     {
@@ -444,56 +495,6 @@
       }
     },
     {
-      "canonSku": "001099",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 32.19,
-        "bcl": 32.99,
-        "gull": 30.99,
-        "highpointbws": 36.99,
-        "legacyliquor": 34.99,
-        "marquis": 34.99,
-        "newdistrict": 35.29,
-        "strath": 33.79,
-        "tudor": 33.49,
-        "vessel": 33.99
-      },
-      "representative": {
-        "name": "Johnnie Walker – Red Label 750ml",
-        "price": "$30.99",
-        "priceNum": 30.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "001099",
-        "skuKey": "001099",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-red-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$30.99",
-        "priceNum": 30.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/johnnie-walker-red-750m/"
-      }
-    },
-    {
       "canonSku": "001206",
       "storeCount": 10,
       "stores": [
@@ -513,7 +514,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 25.99,
+        "arc": 26.69,
         "bcl": 22.97,
         "gull": 25.65,
         "highpointbws": 27.99,
@@ -863,7 +864,7 @@
         "newdistrict"
       ],
       "storePrices": {
-        "arc": 47.19,
+        "arc": 47.89,
         "bcl": 46.99,
         "gull": 48.25,
         "highpointbws": 50.49,
@@ -963,7 +964,7 @@
         "newdistrict"
       ],
       "storePrices": {
-        "arc": 27.59,
+        "arc": 28.29,
         "bcl": 28.49,
         "gull": 30.65,
         "highpointbws": 31.99,
@@ -975,22 +976,72 @@
         "vintage": 32.09
       },
       "representative": {
-        "name": "HAVANA CLUB 3YO ANEJO",
-        "price": "$27.59",
-        "priceNum": 27.59,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "name": "Havana Club - 3 Year Old Añejo Rum",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
         "skuRaw": "222554",
         "skuKey": "222554",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587469-havana-club-3yo-anejo",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+        "url": "https://vesselliquor.com/products/havana-club-3-year-old-anejo-rum",
+        "categoryLabel": "Rum / Cane Spirit",
+        "dbFile": "data/db/vessel__rum-cane-spirit__f0a980b4.json"
       },
       "cheapest": {
-        "price": "$27.59",
-        "priceNum": 27.59,
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/havana-club-3-year-old-anejo-rum"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 158.99,
+        "bcl": 169.99,
+        "gull": 169.99,
+        "highpointbws": 175.99,
+        "legacyliquor": 173.47,
+        "marquis": 172.99,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "LAGAVULIN 16YO",
+        "price": "$158.99",
+        "priceNum": 158.99,
         "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587469-havana-club-3yo-anejo"
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$158.99",
+        "priceNum": 158.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -1244,56 +1295,6 @@
       }
     },
     {
-      "canonSku": "656546",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 89.99,
-        "gull": 74.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 109.83,
-        "liquorwarehouse": 100.99,
-        "marquis": 91.99,
-        "strath": 105.66,
-        "tudor": 106.99,
-        "vessel": 89.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
       "canonSku": "776724",
       "storeCount": 10,
       "stores": [
@@ -1461,7 +1462,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 23.89,
+        "arc": 24.49,
         "bcl": 24.49,
         "gull": 26.2,
         "highpointbws": 26.29,
@@ -1473,8 +1474,8 @@
       },
       "representative": {
         "name": "LAMBS NAVY 750ML",
-        "price": "$23.89",
-        "priceNum": 23.89,
+        "price": "$24.49",
+        "priceNum": 24.49,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "002063",
@@ -1484,8 +1485,8 @@
         "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
       },
       "cheapest": {
-        "price": "$23.89",
-        "priceNum": 23.89,
+        "price": "$24.49",
+        "priceNum": 24.49,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587313-lambs-navy-750ml"
       }
@@ -1559,7 +1560,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 55.29,
+        "arc": 55.79,
         "bcl": 54.99,
         "gull": 51.99,
         "highpointbws": 57.99,
@@ -1804,7 +1805,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 29.49,
+        "arc": 30.29,
         "bcl": 29.99,
         "gull": 32.3,
         "legacyliquor": 30.99,
@@ -1818,19 +1819,19 @@
         "name": "APPLETON ESTATE 750ML",
         "price": "$29.49",
         "priceNum": 29.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "storeKey": "liquorwarehouse",
+        "storeLabel": "Liquor Warehouse",
         "skuRaw": "177808",
         "skuKey": "177808",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586999-appleton-estate-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+        "url": "https://liquorwarehouse.ca/products/177808",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/liquorwarehouse__rum__d5d4cd07.json"
       },
       "cheapest": {
         "price": "$29.49",
         "priceNum": 29.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586999-appleton-estate-750ml"
+        "storeKey": "liquorwarehouse",
+        "url": "https://liquorwarehouse.ca/products/177808"
       }
     },
     {
@@ -1853,7 +1854,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 64.69,
+        "arc": 66.39,
         "bcl": 66.99,
         "gull": 71.4,
         "highpointbws": 70.99,
@@ -1865,8 +1866,8 @@
       },
       "representative": {
         "name": "BUMBU XO RUM",
-        "price": "$64.69",
-        "priceNum": 64.69,
+        "price": "$66.39",
+        "priceNum": 66.39,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "185921",
@@ -1876,8 +1877,8 @@
         "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
       },
       "cheapest": {
-        "price": "$64.69",
-        "priceNum": 64.69,
+        "price": "$66.39",
+        "priceNum": 66.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4797111-bumbu-xo-rum"
       }
@@ -1929,55 +1930,6 @@
         "priceNum": 78.69,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587272-midleton-green-spot"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "newdistrict",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "gull": 169.99,
-        "highpointbws": 175.99,
-        "legacyliquor": 173.47,
-        "marquis": 172.99,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "LAGAVULIN 16YO",
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
       }
     },
     {
@@ -2052,7 +2004,7 @@
         "arc": 29.99,
         "bcl": 31.99,
         "gull": 33.99,
-        "highpointbws": 30.99,
+        "highpointbws": 33.99,
         "legacyliquor": 32.99,
         "liquorwarehouse": 32.99,
         "strath": 32.96,
@@ -2098,7 +2050,7 @@
         "tudor"
       ],
       "storePrices": {
-        "arc": 38.99,
+        "arc": 39.19,
         "bcl": 40.99,
         "gull": 39.65,
         "highpointbws": 43.79,
@@ -2110,8 +2062,8 @@
       },
       "representative": {
         "name": "WRAY AND NEPHEW OVERPROOF",
-        "price": "$38.99",
-        "priceNum": 38.99,
+        "price": "$39.19",
+        "priceNum": 39.19,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "326223",
@@ -2121,10 +2073,59 @@
         "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
       },
       "cheapest": {
-        "price": "$38.99",
-        "priceNum": 38.99,
+        "price": "$39.19",
+        "priceNum": 39.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4752593-wray-and-nephew-overproof"
+      }
+    },
+    {
+      "canonSku": "656546",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 89.99,
+        "gull": 74.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 109.83,
+        "liquorwarehouse": 100.99,
+        "marquis": 91.99,
+        "strath": 105.66,
+        "tudor": 106.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     },
     {
@@ -2435,7 +2436,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 34.89,
+        "arc": 35.89,
         "bcl": 34.49,
         "gull": 36.35,
         "highpointbws": 36.49,
