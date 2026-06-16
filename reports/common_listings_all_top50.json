@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T19:23:05.551Z",
+  "generatedAt": "2026-06-16T22:33:11.811Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -50,8 +50,8 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 23672,
-    "removedRows": 5370,
+    "liveRows": 23678,
+    "removedRows": 5369,
     "canonSkus": 6632,
     "outputCount": 50
   },
@@ -1132,7 +1132,7 @@
         "lime": 90,
         "maltsandgrains": 94.89,
         "sherbrooke": 101.1,
-        "sierrasprings": 100.85,
+        "sierrasprings": 80.99,
         "strath": 113.09,
         "tudor": 99.99,
         "vintage": 123.39,
@@ -3371,6 +3371,86 @@
       }
     },
     {
+      "canonSku": "116752",
+      "storeCount": 20,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "canadianliquor",
+        "colordevino",
+        "gull",
+        "highpointbws",
+        "kegncork",
+        "legacyliquor",
+        "lime",
+        "marquis",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "liquorama",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "newdistrict",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "arc": 47.89,
+        "bcl": 46.99,
+        "bsw": 49.99,
+        "canadianliquor": 48.99,
+        "colordevino": 53.2,
+        "gull": 48.25,
+        "highpointbws": 50.49,
+        "kegncork": 50.96,
+        "legacyliquor": 58.99,
+        "lime": 46.99,
+        "marquis": 52.99,
+        "sherbrooke": 51.22,
+        "sierrasprings": 42.75,
+        "strath": 54.7,
+        "tudor": 50.99,
+        "vessel": 47.99,
+        "vintage": 56.43,
+        "willowpark": 47.99,
+        "wineandbeyond": 49.99,
+        "zyn": 43.5
+      },
+      "representative": {
+        "name": "PLANTATION PINEAPPLE RUM",
+        "price": "$42.75",
+        "priceNum": 42.75,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "774462",
+        "skuKey": "774462",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$42.75",
+        "priceNum": 42.75,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/"
+      }
+    },
+    {
       "canonSku": "677666",
       "storeCount": 20,
       "stores": [
@@ -3685,85 +3765,6 @@
         "priceNum": 122.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bowmore-15-year-old-sherry-oak-43-abv/"
-      }
-    },
-    {
-      "canonSku": "116752",
-      "storeCount": 19,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "canadianliquor",
-        "gull",
-        "highpointbws",
-        "kegncork",
-        "legacyliquor",
-        "lime",
-        "marquis",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "liquorama",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "newdistrict",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "arc": 47.89,
-        "bcl": 46.99,
-        "bsw": 49.99,
-        "canadianliquor": 48.99,
-        "gull": 48.25,
-        "highpointbws": 50.49,
-        "kegncork": 50.96,
-        "legacyliquor": 58.99,
-        "lime": 46.99,
-        "marquis": 52.99,
-        "sherbrooke": 51.22,
-        "sierrasprings": 42.75,
-        "strath": 54.7,
-        "tudor": 50.99,
-        "vessel": 47.99,
-        "vintage": 56.43,
-        "willowpark": 47.99,
-        "wineandbeyond": 49.99,
-        "zyn": 43.5
-      },
-      "representative": {
-        "name": "PLANTATION PINEAPPLE RUM",
-        "price": "$42.75",
-        "priceNum": 42.75,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "774462",
-        "skuKey": "774462",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$42.75",
-        "priceNum": 42.75,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/plantation-pineapple-rum-40-abv/"
       }
     },
     {
