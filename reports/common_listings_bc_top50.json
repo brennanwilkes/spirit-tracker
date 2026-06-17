@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T05:30:54.581Z",
+  "generatedAt": "2026-06-17T08:05:23.902Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -30,63 +30,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 5363,
-    "removedRows": 651,
-    "canonSkus": 2267,
+    "liveRows": 5356,
+    "removedRows": 659,
+    "canonSkus": 2266,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 27.99,
-        "gull": 29.5,
-        "highpointbws": 31.29,
-        "legacyliquor": 31.81,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "BOMBAY SAPPHIRE - LONDON DRY",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://www.bcliquorstores.com/product/316844",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/316844"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 12,
@@ -139,57 +88,6 @@
       }
     },
     {
-      "canonSku": "010157",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 38.99,
-        "bcl": 37.99,
-        "gull": 41.35,
-        "highpointbws": 41.49,
-        "legacyliquor": 41.99,
-        "liquorwarehouse": 40.49,
-        "marquis": 41.99,
-        "newdistrict": 41.49,
-        "strath": 39.57,
-        "tudor": 37.99,
-        "vessel": 37.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://www.bcliquorstores.com/product/10157",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/10157"
-      }
-    },
-    {
       "canonSku": "001099",
       "storeCount": 11,
       "stores": [
@@ -238,6 +136,57 @@
         "priceNum": 30.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/johnnie-walker-red-750m/"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 27.99,
+        "highpointbws": 31.29,
+        "legacyliquor": 31.81,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "BOMBAY SAPPHIRE - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://www.bcliquorstores.com/product/316844",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/316844"
       }
     },
     {
@@ -340,6 +289,108 @@
         "priceNum": 49.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4797116-tanqueray-ten"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse"
+      ],
+      "storePrices": {
+        "arc": 38.99,
+        "bcl": 37.99,
+        "gull": 41.35,
+        "highpointbws": 41.49,
+        "legacyliquor": 41.99,
+        "marquis": 41.99,
+        "newdistrict": 41.49,
+        "strath": 39.57,
+        "tudor": 37.99,
+        "vessel": 37.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "JAMESON - IRISH",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://www.bcliquorstores.com/product/10157",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/10157"
+      }
+    },
+    {
+      "canonSku": "665257",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bcl": 105.99,
+        "gull": 96.99,
+        "highpointbws": 117.29,
+        "legacyliquor": 110.8,
+        "liquorwarehouse": 109.99,
+        "marquis": 107.99,
+        "newdistrict": 106.99,
+        "strath": 119.7,
+        "tudor": 105.99,
+        "vessel": 104.99
+      },
+      "representative": {
+        "name": "Lagavulin – 8 Year Old 750ml",
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "665257",
+        "skuKey": "665257",
+        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
       }
     },
     {
@@ -894,56 +945,6 @@
       }
     },
     {
-      "canonSku": "135210",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 77.19,
-        "bcl": 73.99,
-        "gull": 73.99,
-        "highpointbws": 90.49,
-        "legacyliquor": 88.13,
-        "liquorwarehouse": 89.99,
-        "marquis": 82.99,
-        "strath": 79.22,
-        "tudor": 73.99,
-        "vessel": 76.99
-      },
-      "representative": {
-        "name": "LAPHROAIG - 10 YEAR OLD",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://www.bcliquorstores.com/product/135210",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/135210"
-      }
-    },
-    {
       "canonSku": "143393",
       "storeCount": 10,
       "stores": [
@@ -1163,7 +1164,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 85.89,
+        "arc": 87.29,
         "bcl": 88.99,
         "gull": 94.25,
         "highpointbws": 97.99,
@@ -1176,8 +1177,8 @@
       },
       "representative": {
         "name": "NIKKA TAKETSURU PURE MALT",
-        "price": "$85.89",
-        "priceNum": 85.89,
+        "price": "$87.29",
+        "priceNum": 87.29,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "521992",
@@ -1187,8 +1188,8 @@
         "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
       },
       "cheapest": {
-        "price": "$85.89",
-        "priceNum": 85.89,
+        "price": "$87.29",
+        "priceNum": 87.29,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5080063-nikka-taketsuru-pure-malt"
       }
@@ -1341,56 +1342,6 @@
         "priceNum": 74.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
-      "canonSku": "665257",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 102.69,
-        "bcl": 105.99,
-        "gull": 96.99,
-        "highpointbws": 117.29,
-        "legacyliquor": 110.8,
-        "liquorwarehouse": 109.99,
-        "marquis": 107.99,
-        "newdistrict": 106.99,
-        "strath": 119.7,
-        "tudor": 105.99
-      },
-      "representative": {
-        "name": "Lagavulin – 8 Year Old 750ml",
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "665257",
-        "skuKey": "665257",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
       }
     },
     {
@@ -1786,6 +1737,55 @@
       }
     },
     {
+      "canonSku": "135210",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 77.19,
+        "bcl": 73.99,
+        "gull": 73.99,
+        "highpointbws": 90.49,
+        "legacyliquor": 88.13,
+        "liquorwarehouse": 89.99,
+        "marquis": 82.99,
+        "strath": 79.22,
+        "tudor": 73.99
+      },
+      "representative": {
+        "name": "LAPHROAIG - 10 YEAR OLD",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "135210",
+        "skuKey": "135210",
+        "url": "https://www.bcliquorstores.com/product/135210",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/135210"
+      }
+    },
+    {
       "canonSku": "139388",
       "storeCount": 9,
       "stores": [
@@ -1952,7 +1952,7 @@
         "vessel"
       ],
       "storePrices": {
-        "arc": 78.69,
+        "arc": 80.89,
         "bcl": 84.99,
         "gull": 79.65,
         "highpointbws": 85.99,
@@ -1963,22 +1963,22 @@
         "vintage": 89.48
       },
       "representative": {
-        "name": "MIDLETON GREEN SPOT",
-        "price": "$78.69",
-        "priceNum": 78.69,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "name": "Midleton – Green Spot 750ml",
+        "price": "$79.65",
+        "priceNum": 79.65,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
         "skuRaw": "201770",
         "skuKey": "201770",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587272-midleton-green-spot",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$78.69",
-        "priceNum": 78.69,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587272-midleton-green-spot"
+        "price": "$79.65",
+        "priceNum": 79.65,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/"
       }
     },
     {
