@@ -24,7 +24,7 @@ Each store is a file in `src/stores/` that exports a plain object with:
 }
 ```
 
-`src/stores/index.js` exports `createStores()` which instantiates all 33 adapters.
+`src/stores/index.js` exports `createStores()` which instantiates all 34 adapters.
 
 ## Tudor House multi-size variants (`src/stores/tudor.js`)
 
@@ -59,6 +59,36 @@ SKU come for free — **no detail fetch needed** for multi-size products.
   old single-listing records for these products go OOS once and the split listings
   appear fresh (the larger size keeps history via merge's skuKey-rematch); their stale
   `data/sku_links.json` entries were bulk-removed for manual relinking.
+
+## Everything Wine (`src/stores/everythingwine.js`) — Magento gotchas
+
+BC chain, Magento storefront, uses a **custom `scanCategory`** (not the standard probe flow)
+for two reasons:
+
+- **Pagination CLAMPS.** `?p=99999` returns page 1, not an empty grid — the standard
+  binary-search discovery would never see a MISS and would hit the safety cap. Instead the
+  scan reads the total product count from the `toolbar-number` markup ("1-24 of **543**")
+  and computes `pages = ceil(total / itemsOnPage1)`. Page URLs via
+  `makePageUrlQueryParam(baseUrl, "p", N)`. Do NOT add `?p=` to the shared
+  `extractTotalPagesFromPaginationHtml` — the on-page nav only lists pages 1–5, so it would
+  under-scan.
+- **Real SKU = BCL CSPC, sourced from the IMAGE filename.** Listing cards expose only the
+  Magento entity id (`data-product-id`), which is NOT the catalogue code. But the catalog
+  image filename is prefixed with the real CSPC (`.../4/2/42_canadian_club.jpg` → `42`),
+  verified to equal the detail-page SKU for every non-placeholder image. `parseProducts`
+  extracts it (no fetch). 6-digit codes are CSPCs as-is; shorter ones get the liquorama-style
+  `id:` zero-pad (`42` → `000042`) so they implicitly link with other BC stores (~20/24
+  whisky SKUs already match strath/gull/arc/bcl/tudor/legacy). Only **placeholder-image**
+  products (no number) fall through to a budgeted detail-page fetch (`"sku"` in JSON-LD,
+  seeded from prevDb). Measured: ~5/24 placeholders/page.
+- **Stock: treat all listed products as in-stock.** The per-card stock class
+  (`stock available`/`unavailable`) is relative to the *selected* store (Vancouver), NOT a
+  global signal — e.g. an item "unavailable" at Vancouver can be in stock at South Surrey.
+  An audit of a full listing page found every listed product globally salable
+  (`is_salable:1`), incl. all "unavailable"-at-default ones — Magento drops
+  sold-out-everywhere products from category listings. The detail fetch (done anyway for
+  placeholder SKUs) reads `is_salable` and drops a product only if it's explicitly `0`
+  (defense-in-depth; none seen on listings).
 
 ## Category Scan Flow (`src/tracker/`)
 
@@ -130,7 +160,7 @@ All optional. CLI flags take precedence over env vars.
 
 ## Stores Reference
 
-33 adapters (extracted from `createStores()`; categories reflect current config —
+34 adapters (extracted from `createStores()`; categories reflect current config —
 note **Gin** is now scraped across all stores, not just whisky/rum). Region: BC =
 British Columbia, AB = Alberta. Many AB stores run on **Shopify**, which is why
 they often share raw SKUs across stores (the implicit "free" SKU links).
@@ -145,6 +175,7 @@ they often share raw SKUs across stores (the implicit "free" SKU links).
 | `colordevino` | Color de Vino | AB | WooCommerce | Whisky/Whiskey, Whisky SC SM, Rum, Gin |
 | `coop` | Co-op World of Whisky | AB | Custom session API (POST /api/v2/products/category) | Canadian Whisky, Bourbon, Scottish Single Malts, American Whiskey, Rum, Gin |
 | `craftcellars` | Craft Cellars | AB | Shopify `/products.json` + HTML fallback | Whisky, Rum, Gin |
+| `everythingwine` | Everything Wine | BC | Magento HTML (custom scanCategory) | Whisky, Rum, Gin |
 | `gull` | Gull Liquor | BC | WooCommerce HTML (12 s throttle) | Whisky, Rum, Gin |
 | `highlander` | Highlander Wine & Spirits | AB | WooCommerce | Whiskey, Rum, Gin |
 | `highpointbws` | High Point BWS | BC | Barnet network API | Whiskey, Rum, Gin |

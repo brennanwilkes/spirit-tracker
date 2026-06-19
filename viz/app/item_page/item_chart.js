@@ -26,6 +26,7 @@ export const BC_STORE_NAMES = new Set([
 	"vintagespirits",
 	"legacyliquor",
 	"arc",
+	"everythingwine",
 ]);
 
 function _normForProvince(s) {
@@ -48,6 +49,7 @@ export function isBcStoreLabel(label) {
 	if (n.includes("vintagespirits")) return true;
 	if (n.includes("legacy")) return true;
 	if (n.includes("arc")) return true;
+	if (n.includes("everything")) return true;
 	return false;
 }
 
