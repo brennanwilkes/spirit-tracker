@@ -33,6 +33,7 @@ const { createStore: createHighPointBws } = require("./highpointbws");
 const { createStore: createNewDistrict } = require("./newdistrict");
 const { createStore: createLiquorama } = require("./liquorama");
 const { createStore: createMarquis } = require("./marquis");
+const { createStore: createEverythingWine } = require("./everythingwine");
 
 function getStoreRegions() {
 	return Object.fromEntries(createStores().map((s) => [s.key, s.region || "unknown"]));
@@ -64,6 +65,8 @@ function createStores({ defaultUa } = {}) {
 		createVintage(defaultUa),
 		createLegacy(defaultUa),
 		createArc(defaultUa),
+		// Magento; does a budgeted detail-fetch SKU repair pass (slow-ish) so sits high.
+		createEverythingWine(defaultUa),
 		// New Shopify stores, largest catalog first.
 		createLime(defaultUa),
 		createZyn(defaultUa),

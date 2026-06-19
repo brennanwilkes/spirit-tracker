@@ -6,6 +6,15 @@
 export const STORES = [
 	// ── BC stores ──────────────────────────────────────────────────────────
 	{
+		id: "everythingwine",
+		label: "Everything Wine",
+		region: "bc",
+		color: "#3B7A57",
+		logo: "https://www.everythingwine.ca/static/version1781781446/frontend/Everythingwine/everythingwine/en_US/images/logo.svg",
+		url: "https://www.everythingwine.ca",
+		aliases: [],
+	},
+	{
 		id: "arc",
 		label: "ARC Liquor",
 		region: "bc",
