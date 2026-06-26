@@ -635,7 +635,6 @@ export async function renderItem($app, skuInput) {
 				.join("")}</div>`
 		: "";
 
-	const moreOpen = window.innerWidth > 640 ? " open" : "";
 	const listHtml = linkRows
 		.map(({ store, r }) => {
 			const href = String(r.url || "").trim();
@@ -655,7 +654,7 @@ export async function renderItem($app, skuInput) {
 		.join("");
 
 	setLinksHtml(
-		`${pinnedHtml}<details class="storeLinksMore"${moreOpen}><summary>All stores (${linkRows.length})</summary><div class="storeLinksList">${listHtml}</div></details>`,
+		`${pinnedHtml}<details class="storeLinksMore"><summary>All stores (${linkRows.length})</summary><div class="storeLinksList">${listHtml}</div></details>`,
 	);
 
 	if (canHide) {

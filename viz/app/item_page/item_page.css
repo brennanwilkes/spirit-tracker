@@ -234,8 +234,9 @@
 
 .sqlInfo {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
   min-width: 0;
 }
 .sqlLoc {
@@ -244,19 +245,32 @@
   color: var(--muted);
 }
 
-/* Borderless disclosure — just a toggle line + the list (no boxed border). */
+/* Toggle reads as a button: bordered row, label left, rotating chevron right. */
 .storeLinksMore > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   cursor: pointer;
   list-style: none;
-  padding: 6px 2px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel);
   font-size: 13px;
+  font-weight: 600;
   color: var(--muted);
   user-select: none;
 }
-.storeLinksMore > summary:hover { color: var(--text); }
+.storeLinksMore > summary:hover { color: var(--text); border-color: var(--text); }
 .storeLinksMore > summary::-webkit-details-marker { display: none; }
-.storeLinksMore > summary::before { content: "▸ "; }
-.storeLinksMore[open] > summary::before { content: "▾ "; }
+.storeLinksMore > summary::after {
+  content: "▾";
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+.storeLinksMore:not([open]) > summary::after { transform: rotate(-90deg); }
 
 .storeLinksList {
   display: flex;

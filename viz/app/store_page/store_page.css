@@ -66,48 +66,48 @@
 
 /* ── Filter bar (wraps freely — never crunched) ─────────────────────────── */
 
-/* Mobile-first: every filter stacks label-above-control, full width. */
+/* Mobile-first: each filter is its own full-width row with an INLINE label
+   (fixed-width column so controls line up). Matches the search page. */
 .storeFilterRow {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   margin-top: 12px;
 }
 
 .storeControl {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   min-width: 0;
 }
 .storeControlLabel {
+  flex: 0 0 70px;
   font-size: 12px;
   opacity: 0.7;
   white-space: nowrap;
 }
 .storeControl > .selectSmall,
-.storeControl > .spiritFilter { width: 100%; }
+.storeControl > .spiritFilter { flex: 1 1 auto; min-width: 0; }
+.storeControl .selectSmall { width: 100%; }
 .storeControl .spiritFilterTrigger { width: 100%; max-width: none; }
 
-/* Max price: its own full-width line; label above, slider + value below */
+/* Max price: same inline row pattern — label, slider fills, value at the end */
 .storePriceRow {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  margin-top: 12px;
-}
-.storePriceTrack {
-  display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
+  margin-top: 10px;
 }
+.storePriceRow .storeControlLabel { flex: 0 0 70px; }
 .storePriceSlider {
-  flex: 1 1 0;
+  flex: 1 1 auto;
+  width: auto;
   min-width: 0;
   margin: 0;
   height: 18px;
@@ -116,13 +116,13 @@
 }
 .storePriceLabel {
   flex: 0 0 auto;
-  min-width: 50px;
+  min-width: 44px;
   text-align: right;
   white-space: nowrap;
   opacity: 0.9;
 }
 
-/* Desktop: filters flow inline (label beside control) at natural widths */
+/* Desktop: filters flow inline at natural widths */
 @media (min-width: 641px) {
   .storeFilterRow {
     flex-direction: row;
@@ -130,14 +130,10 @@
     align-items: center;
     gap: 10px 16px;
   }
-  .storeControl {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    width: auto;
-  }
+  .storeControl { width: auto; }
+  .storeControlLabel { flex: 0 0 auto; }
   .storeControl > .selectSmall,
-  .storeControl > .spiritFilter { width: auto; }
+  .storeControl > .spiritFilter { flex: 0 0 auto; }
   .storeControl .selectSmall { width: auto; min-width: 0; }
   .storeControl .spiritFilterTrigger { width: 120px; }
 }
