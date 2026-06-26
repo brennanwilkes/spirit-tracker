@@ -80,15 +80,16 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   min-width: 0;
 }
 .storeControlLabel {
-  flex: 0 0 70px;
+  flex: 0 0 64px;
   font-size: 12px;
   opacity: 0.7;
   white-space: nowrap;
+  text-align: right;
 }
 .storeControl > .selectSmall,
 .storeControl > .spiritFilter { flex: 1 1 auto; min-width: 0; }
@@ -100,11 +101,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   margin-top: 10px;
 }
-.storePriceRow .storeControlLabel { flex: 0 0 70px; }
+.storePriceRow .storeControlLabel { flex: 0 0 64px; }
 .storePriceSlider {
   flex: 1 1 auto;
   width: auto;
@@ -114,10 +115,9 @@
   accent-color: #9aa3b2;
   opacity: 0.85;
 }
+/* Size to content so the value sits flush after the slider (no right-align gap) */
 .storePriceLabel {
   flex: 0 0 auto;
-  min-width: 44px;
-  text-align: right;
   white-space: nowrap;
   opacity: 0.9;
 }
