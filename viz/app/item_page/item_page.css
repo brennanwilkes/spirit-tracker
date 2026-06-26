@@ -122,6 +122,9 @@
 
 /* Off-canvas chart legend (.chartLegend*) is shared — see style.css. */
 
+/* Desktop-only dropdown container — hidden on mobile */
+.linksDropdown { display: none; }
+
 /* ── Store links: pinned quick-access + collapsible full list ──────────── */
 
 /* Stack the quick-links above the "All stores" disclosure. */
@@ -216,7 +219,10 @@
 
 /* Squared full-width rows in the disclosure (override the global pill .links a). */
 .links .storeLinkRow a {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   flex: 1 1 auto;
   min-width: 0;
   padding: 8px 12px;
@@ -228,6 +234,7 @@
   text-decoration: none;
 }
 .links .storeLinkRow a:hover { color: var(--text); border-color: var(--text); }
+.links .storeLinkRow a .sqlPrice { color: var(--muted); }
 
 /* Faded appearance for out-of-stock store entries — still clickable. */
 .links .storeLinkRow a.storeRemoved {
@@ -292,9 +299,10 @@
   .detailTopRow { flex: 1 1 auto; align-items: stretch; }
   .detailRight { align-self: flex-start; }
 
-  /* Distribute item name (top) / quick-links (middle) / All-stores (bottom)
-     down the photo's height. `gap` is the minimum spacing; space-between adds
-     any extra so they fill the height without ever cramping. #links is
+  /* Distribute item name (top) / pinned quick-links (bottom) down the
+     photo's height. `gap` is the minimum spacing; space-between pushes the
+     pins to the bottom (the slot the All-stores dropdown would have occupied)
+     so the layout stays filled even when no dropdown is shown. #links is
      display:contents so its children join the title as flex siblings (the
      hide-button click delegation still works — events bubble through it). */
   .detailLeft {
@@ -349,6 +357,37 @@
     width: auto;
   }
   .links .storeLinkRow a {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  /* Dropdown container below header — full-width, prominent button */
+  .linksDropdown { display: block; }
+  .linksDropdown .storeLinksMore { margin-top: 8px; }
+  .linksDropdown .storeLinksMore > summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--panel);
+  }
+  .linksDropdown .storeLinksList {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+  .linksDropdown .storeLinkRow {
+    width: auto;
+  }
+  .linksDropdown .storeLinkRow a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     flex: 0 0 auto;
     padding: 5px 10px;
     font-size: 12px;

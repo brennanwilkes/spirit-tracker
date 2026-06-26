@@ -276,6 +276,9 @@ export async function renderItem($app, skuInput) {
 				</div>
 				</div>
 
+				<!-- DESKTOP: store links dropdown on its own line below header -->
+				<div id="linksDropdown" class="links linksDropdown"></div>
+
 				<!-- DESKTOP debug/status below the whole header (both columns) -->
 				<div class="small detailStatus" id="status"></div>
 				<div class="loadingBar" id="loadingBar"><div class="loadingBarFill"></div></div>
@@ -313,6 +316,7 @@ export async function renderItem($app, skuInput) {
 	const $thumbBox = document.getElementById("thumbBox");
 
 	const $linksMobile = document.getElementById("linksMobile");
+	const $linksDropdown = document.getElementById("linksDropdown");
 	const $statusMobile = document.getElementById("statusMobile");
 	const $loadingBar = document.getElementById("loadingBar");
 	const $loadingBarMobile = document.getElementById("loadingBarMobile");
@@ -339,6 +343,10 @@ export async function renderItem($app, skuInput) {
 	const setLinksHtml = (html) => {
 		if ($links) $links.innerHTML = html;
 		if ($linksMobile) $linksMobile.innerHTML = html;
+	};
+	const setListHtml = (html) => {
+		if ($linksDropdown) $linksDropdown.innerHTML = html;
+		if ($linksMobile) $linksMobile.insertAdjacentHTML("beforeend", html);
 	};
 
 	const setStatusText = (txt) => {
@@ -593,8 +601,8 @@ export async function renderItem($app, skuInput) {
 	// label replaces the province and its dedicated pin is skipped (no duplicate).
 	// If the cheapest Vancouver and Victoria stores happen to be the same store
 	// (e.g. BCL spans both), only one pin is shown with a combined label.
-	// When 3 or fewer live stores carry the item, all are shown as featured pins
-	// and the "All stores" dropdown is omitted entirely.
+	// When 3 or fewer live stores carry the item, all are shown as featured pins.
+	// The "All stores" dropdown is always shown separately below the header.
 	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
 	const storeOf = (r) => storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
 	const citiesOf = (r) => {
@@ -681,7 +689,24 @@ export async function renderItem($app, skuInput) {
 
 	function rowLinkHtml({ store, r }, isRemoved) {
 		const href = String(r.url || "").trim();
-		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${isRemoved ? ' class="storeRemoved"' : ""}>${esc(store)}</a>`;
+
+		const num = rowMinPrice(r);
+		const priceStr = Number.isFinite(num) ? `$${num.toFixed(2)}` : "";
+		const priceHtml = priceStr ? `<span class="sqlPrice">${esc(priceStr)}</span>` : "";
+
+		const st = storeOf(r);
+		const province = st?.region ? st.region.toUpperCase() : "";
+		const cities = st && Array.isArray(st.cities) ? st.cities : [];
+		let loc = province;
+		if (cities.length === 1) {
+			loc = cityLabel(cities[0]);
+		} else if (cities.length >= 2) {
+			loc = cities.map(cityLabel).join(" and ");
+		}
+		const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
+
+		const cls = isRemoved ? ' class="storeRemoved"' : "";
+		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${cls}><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span>${priceHtml}</a>`;
 		let inner = anchor;
 		if (canHide) {
 			const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
@@ -712,11 +737,8 @@ export async function renderItem($app, skuInput) {
 		listHtml = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
 	}
 
-	if (showAllAsFeatured) {
-		setLinksHtml(pinnedHtml);
-	} else {
-		setLinksHtml(`${pinnedHtml}${listHtml}`);
-	}
+	setLinksHtml(pinnedHtml);
+	setListHtml(listHtml);
 
 	if (canHide) {
 		const onHideClick = async (ev) => {
@@ -739,7 +761,7 @@ export async function renderItem($app, skuInput) {
 				console.error("Failed to hide listing:", e);
 			}
 		};
-		for (const el of [$links, $linksMobile]) {
+		for (const el of [$links, $linksMobile, $linksDropdown]) {
 			if (el) el.addEventListener("click", onHideClick);
 		}
 	}
@@ -905,7 +927,8 @@ export async function renderItem($app, skuInput) {
 	const outlierCap = outlierInfo ? outlierInfo.cap : null;
 	const outlierStores = outlierInfo ? outlierInfo.outliers : null;
 
-	const ySug = computeSuggestedY(allVals, undefined, outlierCap);
+	const isMobile = window.innerWidth <= 640;
+	const ySug = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
 
 	// Rather than let outlier lines clip away (the data point vanishes), clamp them
 	// into a reserved band at the top so they "sit at the top". The true price is
@@ -1073,7 +1096,7 @@ export async function renderItem($app, skuInput) {
 	const tickCount = yScale?.ticks?.length || 0;
 
 	if (tickCount >= 2) {
-		const minRange = (tickCount - 1) * 10; // $10 per gap, same number of gaps as before
+		const minRange = (tickCount - 1) * (isMobile ? 5 : 10); // $5 per gap on mobile, $10 desktop
 		const ySug2 = computeSuggestedY(allVals, minRange, outlierCap);
 
 		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
