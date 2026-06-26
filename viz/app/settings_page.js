@@ -111,13 +111,12 @@ export async function renderSettings($app) {
 					<div>
 						<div class="settingsSectionTitle">My Stores</div>
 						<div class="small" style="margin-bottom:10px;">
-							Pick your favourite stores. The “My Stores” filter on the search and store pages then shows just these.
+							Pick your favourite stores. The “My Stores” filter on search/store pages and any
+							email rule set to “My Stores” use this set. Changes save with the button below.
 						</div>
 						<div class="myStoresRow">
 							${storeSetSelectorHtml()}
-							<button id="myStoresSave" class="btn" type="button">Save</button>
 						</div>
-						<div class="small" id="myStoresStatus" style="margin-top:6px;"></div>
 					</div>
 
 					<hr class="hrClean" />
@@ -275,9 +274,17 @@ export async function renderSettings($app) {
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
 	rules = rules.map(normalizeRule);
 
-	// The user's saved "My Stores" ids — loaded async below; shared by the My Stores
-	// editor and every per-rule "My Stores" selector for display.
+	// The user's "My Stores" ids. `myStoresRef` is the STAGED set (live, shown in
+	// rule selectors); `myStoresSaved` is the last-persisted set, to detect changes.
+	// Both loaded async below; the bottom Save persists `myStoresRef`.
 	let myStoresRef = [];
+	let myStoresSaved = [];
+
+	function sameIds(a, b) {
+		if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+		const s = new Set(a);
+		return b.every((x) => s.has(x));
+	}
 
 	function ensureFilters(r) {
 		return r && r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
@@ -889,6 +896,11 @@ export async function renderSettings($app) {
 		};
 
 		try {
+			// Persist My Stores (separate resource) only when it actually changed.
+			if (!sameIds(myStoresRef, myStoresSaved)) {
+				await putMyStores(myStoresRef);
+				myStoresSaved = myStoresRef.slice();
+			}
 			await putDetails(auth.userId, nextDetails);
 			setStatusText("Saved. Reloading…");
 			setTimeout(() => location.reload(), 150);
@@ -909,46 +921,35 @@ export async function renderSettings($app) {
 		if ((e.ctrlKey || e.metaKey) && e.key === "Enter") doSave();
 	});
 
-	// --- My Stores editor ---
-	let myStoresCtl = null; // selector controller; getSpec() is the source of truth at save
+	// --- My Stores editor (staged; persisted by the bottom Save) ---
+	// Edits update myStoresRef immediately; any email rule set to "My Stores"
+	// re-resolves against that staged set so the UI stays consistent before saving.
+	function refreshRuleStores() {
+		if (rules.some((r) => r?.filters?.useMyStores === true)) renderRules();
+	}
 	function mountMyStores(ids) {
 		const arr = Array.isArray(ids) ? ids.filter((x) => typeof x === "string") : [];
+		myStoresSaved = arr.slice();
+		myStoresRef = arr.slice();
 		const spec = arr.length ? { kind: "stores", ids: arr } : { kind: "all" };
 		const $c = document.querySelector(".myStoresRow .storeSet");
 		if (!$c) return;
 		// authed:false → no recursive "My Stores" preset; you're editing that set here.
-		myStoresCtl = installStoreSetSelector({
+		installStoreSetSelector({
 			$container: $c,
 			spec,
 			myStores: null,
 			authed: false,
-			onChange: () => {},
+			onChange: (next) => {
+				myStoresRef = [...(resolveStoreSet(next, { myStores: null }) || new Set())];
+				refreshRuleStores();
+			},
 		});
 	}
 	getMyStores()
 		.then((ids) => {
-			myStoresRef = Array.isArray(ids) ? ids.filter((x) => typeof x === "string") : [];
-			mountMyStores(myStoresRef);
+			mountMyStores(ids);
 			renderRules(); // re-mount per-rule selectors now that My Stores is known
 		})
 		.catch(() => mountMyStores([]));
-
-	const $myStoresSave = document.getElementById("myStoresSave");
-	const $myStoresStatus = document.getElementById("myStoresStatus");
-	if ($myStoresSave) {
-		$myStoresSave.addEventListener("click", async () => {
-			const spec = myStoresCtl ? myStoresCtl.getSpec() : { kind: "all" };
-			const ids = [...(resolveStoreSet(spec, { myStores: null }) || new Set())];
-			$myStoresSave.disabled = true;
-			$myStoresStatus.textContent = "Saving…";
-			try {
-				await putMyStores(ids);
-				$myStoresStatus.textContent = ids.length ? `Saved ${ids.length} store(s).` : "Cleared (all stores).";
-			} catch (e) {
-				$myStoresStatus.textContent = isAuthErr(e) ? "Please log in again." : "Save failed.";
-			} finally {
-				$myStoresSave.disabled = false;
-			}
-		});
-	}
 }

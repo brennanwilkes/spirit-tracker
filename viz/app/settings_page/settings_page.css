@@ -3,6 +3,8 @@
 .settingsWrap {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 15px;
+  /* room for the fixed Save bar at every width */
+  padding-bottom: 130px;
 }
 
 .settingsWrap button,
@@ -175,10 +177,23 @@
   cursor: not-allowed;
 }
 
+/* Save bar: fixed to the bottom, centered, at every width (mobile + desktop) */
 .saveArea {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: calc(100% - 28px);
+  max-width: 980px;
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(18, 22, 27, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  z-index: 1000;
 }
 .saveStatus {
   margin-top: -2px;
@@ -312,24 +327,6 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-@media (max-width: 640px) {
-  .settingsWrap { padding-bottom: 130px; }
-  .saveArea {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 0;
-    width: calc(100% - 28px);
-    max-width: 980px;
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(18,22,27,0.92);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    z-index: 1000;
-  }
 }
 
 .addRuleRow { margin-top: 12px; }
