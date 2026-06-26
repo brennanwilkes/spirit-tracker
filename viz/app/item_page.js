@@ -809,15 +809,13 @@ export async function renderItem($app, skuInput) {
 			+ (liveHtml.length && removedHtml.length ? `<hr class="storeListDivider">` : "")
 			+ removedHtml.join("");
 
+		// Mobile always uses the collapsible <details> (starts retracted). Desktop
+		// shows a toggle button only when there are two categories to switch between;
+		// a single-category list renders inline-open (see linksDropdownOpen below).
+		listContentHtml = `<div class="storeLinksList">${inner}</div>`;
+		listHtmlMobile = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
 		if (bothCategories) {
-			// Both categories — toggle between them
 			summaryBtnHtml = `<button class="storeLinksToggle" type="button">${esc(summary)} <span class="storeLinksChevron">▾</span></button>`;
-			listContentHtml = `<div class="storeLinksList">${inner}</div>`;
-			listHtmlMobile = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
-		} else {
-			// Only one category — show list directly
-			listContentHtml = `<div class="storeLinksList">${inner}</div>`;
-			listHtmlMobile = `<div class="storeLinksList">${inner}</div>`;
 		}
 	}
 
