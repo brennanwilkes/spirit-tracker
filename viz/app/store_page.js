@@ -34,56 +34,62 @@ export async function renderStore($app, storeLabelRaw) {
       </div>
 
       <div class="card">
-        <div class="storeControls">
-          <div class="storeSearchRow">
-            <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
-            <button id="clearSearch" class="btn btnSm" type="button">Clear</button>
-          </div>
-
-          <div class="storeFilterRow">
-            <div class="storeControl">
-              <span class="small searchControlLabel">Sort</span>
-              <select id="sort" class="selectSmall" aria-label="Sort">
-                <option value="priceDesc">Price (high)</option>
-                <option value="priceAsc">Price (low)</option>
-                <option value="dateDesc">Newest</option>
-                <option value="dateAsc">Oldest</option>
-                <option value="rarityDesc">Rarest</option>
-                <option value="rarityAsc">Common</option>
-                <option value="salePct">Sale %</option>
-                <option value="saleAbs">Sale $</option>
-              </select>
-            </div>
-
-            <div class="storeControl" id="cmpModeWrap">
-              <span class="small searchControlLabel">Diff vs others</span>
-              <select id="cmpMode" class="selectSmall" aria-label="Comparison technique">
-                <option value="dollar">Dollars</option>
-                <option value="percent">Percent</option>
-              </select>
-            </div>
-
-            <div class="storeControl storeTypeFilter">
-              <span class="small searchControlLabel">Type</span>
-              ${spiritFilterHtml()}
-            </div>
-
-            <div class="storeControl storePriceControl" id="priceWrap">
-              <span class="small searchControlLabel">Max price</span>
-              <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
-              <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
-            </div>
-          </div>
+        <div class="storeSearchRow">
+          <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
+          <button id="clearSearch" class="btn btnSm" type="button">Clear</button>
         </div>
 
         <div class="storeTabs" id="storeTabs" role="tablist">
-          <button class="storeTab" type="button" role="tab" data-tab="all">All</button>
-          <button class="storeTab" type="button" role="tab" data-tab="exclusive">Exclusive</button>
-          <button class="storeTab" type="button" role="tab" data-tab="compare">Price Compare</button>
-          <button class="storeTab" type="button" role="tab" data-tab="laststock">Last Stock</button>
+          <button class="storeTab" type="button" role="tab" data-tab="all">
+            <span class="storeTabName">All</span><span class="storeTabCount"></span>
+          </button>
+          <button class="storeTab" type="button" role="tab" data-tab="exclusive">
+            <span class="storeTabName">Exclusive</span><span class="storeTabCount"></span>
+          </button>
+          <button class="storeTab" type="button" role="tab" data-tab="compare">
+            <span class="storeTabName">Compare</span><span class="storeTabCount"></span>
+          </button>
+          <button class="storeTab" type="button" role="tab" data-tab="laststock">
+            <span class="storeTabName">Last Stock</span><span class="storeTabCount"></span>
+          </button>
         </div>
 
-        <div class="small" id="status" style="margin-top:10px;"></div>
+        <div class="storeFilterRow">
+          <label class="storeControl">
+            <span class="storeControlLabel">Sort</span>
+            <select id="sort" class="selectSmall" aria-label="Sort">
+              <option value="priceDesc">Price (high)</option>
+              <option value="priceAsc">Price (low)</option>
+              <option value="dateDesc">Newest</option>
+              <option value="dateAsc">Oldest</option>
+              <option value="rarityDesc">Rarest</option>
+              <option value="rarityAsc">Common</option>
+              <option value="salePct">Sale %</option>
+              <option value="saleAbs">Sale $</option>
+            </select>
+          </label>
+
+          <label class="storeControl" id="cmpModeWrap">
+            <span class="storeControlLabel">Compare</span>
+            <select id="cmpMode" class="selectSmall" aria-label="Price difference units">
+              <option value="dollar">Dollars</option>
+              <option value="percent">Percent</option>
+            </select>
+          </label>
+
+          <div class="storeControl storeTypeFilter">
+            <span class="storeControlLabel">Type</span>
+            ${spiritFilterHtml()}
+          </div>
+
+          <div class="storeControl storePriceControl" id="priceWrap">
+            <span class="storeControlLabel">Max</span>
+            <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
+            <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
+          </div>
+        </div>
+
+        <div class="small" id="status" style="margin-top:12px;"></div>
 
         <div id="results" class="storeList"></div>
 
@@ -827,8 +833,6 @@ export async function renderStore($app, storeLabelRaw) {
 		baseFiltered = base;
 	}
 
-	const TAB_LABELS = { all: "All", exclusive: "Exclusive", compare: "Price Compare", laststock: "Last Stock" };
-
 	function syncTabs() {
 		const counts = { all: baseFiltered.length, exclusive: 0, compare: 0, laststock: 0 };
 		for (const it of baseFiltered) {
@@ -838,11 +842,12 @@ export async function renderStore($app, storeLabelRaw) {
 		}
 		for (const btn of $tabs.querySelectorAll(".storeTab")) {
 			const tab = btn.getAttribute("data-tab");
-			const n = counts[tab] ?? 0;
-			btn.textContent = `${TAB_LABELS[tab]} (${n})`;
+			const cnt = btn.querySelector(".storeTabCount");
+			if (cnt) cnt.textContent = String(counts[tab] ?? 0);
 			btn.classList.toggle("isOn", tab === activeTab);
+			btn.setAttribute("aria-selected", String(tab === activeTab));
 		}
-		// The $/% diff toggle only matters on the Price Compare view.
+		// The $/% comparison toggle only matters on the Compare view.
 		$cmpModeWrap.style.display = activeTab === "compare" ? "" : "none";
 	}
 

@@ -184,6 +184,86 @@
   white-space: nowrap;
 }
 
+/* ── Store links: pinned quick-access + collapsible full list ──────────── */
+
+/* Stack the quick-links row above the "All stores" disclosure. */
+.detailLeft .links,
+.detailMobileLinks .links {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.storeQuickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Squared, prominent quick-links (override the global pill .links a).
+   Sized for a comfortable mobile touch target (~44px); desktop tightens below. */
+.links a.storeQuickLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.links a.storeQuickLink:hover { border-color: var(--text); color: var(--text); }
+.links a.storeQuickLink .sqlPrice { color: var(--muted); }
+
+/* Cheapest-overall pin gets the "best price" gold accent. */
+.links a.storeQuickLink.best {
+  border-color: rgba(210, 170, 60, 0.5);
+  background: rgba(210, 170, 60, 0.1);
+}
+.links a.storeQuickLink.best .sqlPrice { color: rgba(210, 170, 60, 0.95); }
+
+.storeLinksMore {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 0 10px;
+}
+.storeLinksMore > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 9px 2px;
+  font-size: 13px;
+  color: var(--muted);
+  user-select: none;
+}
+.storeLinksMore > summary::-webkit-details-marker { display: none; }
+.storeLinksMore > summary::before { content: "▸ "; }
+.storeLinksMore[open] > summary::before { content: "▾ "; }
+
+.storeLinksList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 2px 0 10px;
+}
+
+/* Squared links in the disclosure (override the global pill .links a). */
+.links .storeLinksList a {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.links .storeLinksList a:hover { color: var(--text); border-color: var(--text); }
+
 /* ── Mobile: show links row, rework header grid ─────────────────────────── */
 
 #links, #status, #loadingBar { display: none; }
@@ -215,8 +295,6 @@
   #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
 
-  .detailLeft #links > a { margin: 3px; }
-
   .detailThumbBox {
     width: 96px;
     height: 96px;
@@ -233,6 +311,12 @@
 
   .chartLegendList {
     max-height: 220px;
+  }
+
+  /* Pointer device — tighten the quick-links from the 44px mobile target. */
+  .links a.storeQuickLink {
+    min-height: 0;
+    padding: 6px 12px;
   }
 }
 

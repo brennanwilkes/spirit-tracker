@@ -622,6 +622,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 }
 .storeSetTrigger.is-active { color: var(--text); }
 
+.storeSetPanel[hidden] { display: none; }
 .storeSetPanel {
   position: absolute;
   top: calc(100% + 4px);

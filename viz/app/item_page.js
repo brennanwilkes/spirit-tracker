@@ -5,7 +5,7 @@ import { loadIndex } from "./state.js";
 import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
-import { normalizeStoreId } from "./stores.js";
+import { normalizeStoreId, storeById } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
@@ -586,20 +586,67 @@ export async function renderItem($app, skuInput) {
 		});
 
 	const canHide = isLocalWriteMode();
+
+	// Pinned quick-links: the few stores users click most — cheapest overall,
+	// plus cheapest in Vancouver / Victoria (the local pickup options) when they
+	// add a store the "overall" pin doesn't already cover. linkRows is sorted
+	// cheapest-first, so the first live match per geography is the cheapest there.
+	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
+	const cheapestInCity = (city) =>
+		liveLinkRows.find(({ r }) => {
+			const st = storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
+			return st && Array.isArray(st.cities) && st.cities.includes(city);
+		}) || null;
+
+	const pinnedSpec = [
+		liveLinkRows[0] ? { ...liveLinkRows[0], best: true, hint: "Cheapest overall" } : null,
+		(() => {
+			const v = cheapestInCity("vancouver");
+			return v ? { ...v, hint: "Cheapest in Vancouver" } : null;
+		})(),
+		(() => {
+			const v = cheapestInCity("victoria");
+			return v ? { ...v, hint: "Cheapest in Victoria" } : null;
+		})(),
+	].filter(Boolean);
+
+	const seenPin = new Set();
+	const pinned = [];
+	for (const c of pinnedSpec) {
+		if (seenPin.has(c.store)) continue;
+		seenPin.add(c.store);
+		pinned.push(c);
+	}
+
+	const pinnedHtml = pinned.length
+		? `<div class="storeQuickLinks">${pinned
+				.map(({ store, r, best, hint }) => {
+					const href = String(r.url || "").trim();
+					const num = rowMinPrice(r);
+					const priceStr = Number.isFinite(num) ? `$${num.toFixed(2)}` : "";
+					const cls = "storeQuickLink" + (best ? " best" : "");
+					return `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint)}"><span class="sqlStore">${esc(store)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+				})
+				.join("")}</div>`
+		: "";
+
+	const moreOpen = window.innerWidth > 640 ? " open" : "";
+	const listHtml = linkRows
+		.map(({ store, r }) => {
+			const href = String(r.url || "").trim();
+			const suffix = Boolean(r?.removed) ? " (removed)" : "";
+			const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
+			if (!canHide) return anchor;
+			const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
+			const rawSku = String(keySkuForRow(r) || "");
+			if (!sid || !rawSku) return anchor;
+			const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
+			return `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
+		})
+		.join("");
+
 	setLinksHtml(
-		linkRows
-			.map(({ store, r }) => {
-				const href = String(r.url || "").trim();
-				const suffix = Boolean(r?.removed) ? " (removed)" : "";
-				const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
-				if (!canHide) return anchor;
-				const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
-				const rawSku = String(keySkuForRow(r) || "");
-				if (!sid || !rawSku) return anchor;
-				const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
-				return `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
-			})
-			.join(""),
+		`${pinnedHtml}<details class="storeLinksMore"${moreOpen}><summary>All stores (${linkRows.length})</summary><div class="storeLinksList">${listHtml}</div></details>`,
 	);
 
 	if (canHide) {
