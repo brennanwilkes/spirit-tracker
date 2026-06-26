@@ -212,12 +212,19 @@ export function renderSearch($app) {
 	let rarityRef = null;
 	let hiddenSetRef = new Set();
 
+	// storeNorm -> canonical storeId (built during data loading)
+	let storeNormToStoreId = new Map();
+	// Set<storeNorm> | null (null = no filter, all stores)
+	let resolvedStoreNorms = null;
+
 	// sku -> earliest firstSeenAt across any row (ms)
 	let firstSeenMsBySku = new Map();
 	// sku -> latest event ms (any kind, within recent window we build)
 	let latestEventMsBySku = new Map();
 	// sku -> most recent event that changed GLOBAL min price (across stores), within window
 	let globalSaleMetaBySku = new Map(); // sku -> { ms, pct, delta }
+	// sku -> events[] (kept for filter-aware sale recompute)
+	let recentEventsBySku = new Map();
 
 	// canonicalSku -> storeLabel -> url
 	let URL_BY_SKU_STORE = new Map();
@@ -280,7 +287,7 @@ export function renderSearch($app) {
 		return { storeCount, outOfStock, lastStock, exclusive };
 	}
 
-	function bestLiveStoreForSku(sku) {
+	function bestLiveStoreForSku(sku, normsSet) {
 		const m = liveMinPriceBySkuStore.get(sku);
 		if (!m) return { storeNorm: "", storeLabel: "", priceNum: null };
 
@@ -289,6 +296,7 @@ export function renderSearch($app) {
 		let bestStore = "";
 		for (const [st, p] of m.entries()) {
 			if (!Number.isFinite(p)) continue;
+			if (normsSet && !normsSet.has(st)) continue;
 			if (best === null || p < best - EPS || (Math.abs(p - best) <= EPS && st < bestStore)) {
 				best = p;
 				bestStore = st;
@@ -327,6 +335,15 @@ export function renderSearch($app) {
 			if (resolvedStoreIdSet.has(id)) return true;
 		}
 		return false;
+	}
+
+	function computeResolvedStoreNorms() {
+		if (!resolvedStoreIdSet || !storeNormToStoreId.size) return null;
+		const norms = new Set();
+		for (const [norm, id] of storeNormToStoreId) {
+			if (resolvedStoreIdSet.has(id)) norms.add(norm);
+		}
+		return norms.size > 0 ? norms : null;
 	}
 
 	function passesType(it) {
@@ -374,13 +391,22 @@ export function renderSearch($app) {
 	// Find most recent event (within window) that changed the GLOBAL min price (across stores)
 	// Find most recent event (within window) that changed the CURRENT GLOBAL min price (across stores),
 	// but only when that min change was caused by a store price change (up/down), not stock churn.
-	function computeGlobalSaleMetaForSku(sku, evts) {
+	function computeGlobalSaleMetaForSku(sku, evts, normsSet) {
 		const m = liveMinPriceBySkuStore.get(sku);
 		if (!m || m.size === 0) return null;
 		if (!Array.isArray(evts) || !evts.length) return null;
 
 		// state = storeNorm -> current live min price for that store
-		let state = new Map(m);
+		let state;
+		if (normsSet) {
+			state = new Map();
+			for (const [st, p] of m.entries()) {
+				if (normsSet.has(st)) state.set(st, p);
+			}
+			if (state.size === 0) return null;
+		} else {
+			state = new Map(m);
+		}
 		const EPS = 0.01;
 
 		function globalMin(st) {
@@ -391,10 +417,12 @@ export function renderSearch($app) {
 		const currentMin = globalMin(state);
 		if (!Number.isFinite(currentMin)) return null;
 
-		const sorted = evts.slice().sort((a, b) => {
-			if (b.ms !== a.ms) return b.ms - a.ms;
-			return String(a.storeNorm).localeCompare(String(b.storeNorm));
-		});
+		const sorted = evts.slice()
+			.filter((e) => !normsSet || normsSet.has(e.storeNorm))
+			.sort((a, b) => {
+				if (b.ms !== a.ms) return b.ms - a.ms;
+				return String(a.storeNorm).localeCompare(String(b.storeNorm));
+			});
 
 		for (const e of sorted) {
 			const afterMin = globalMin(state);
@@ -444,6 +472,7 @@ export function renderSearch($app) {
 	function rebuildRecentMeta(recent, canonSkuFn) {
 		latestEventMsBySku = new Map();
 		globalSaleMetaBySku = new Map();
+		recentEventsBySku = new Map();
 
 		const rawItems = Array.isArray(recent?.items) ? recent.items : [];
 		const items = hiddenSetRef && hiddenSetRef.size > 0
@@ -490,6 +519,8 @@ export function renderSearch($app) {
 			arr.push({ ms, storeNorm, kind, oldNum, newNum, priceNum });
 		}
 
+		recentEventsBySku = eventsBySku;
+
 		for (const [sku, evts] of eventsBySku.entries()) {
 			const meta = computeGlobalSaleMetaForSku(sku, evts);
 			if (meta) globalSaleMetaBySku.set(sku, meta);
@@ -508,17 +539,36 @@ export function renderSearch($app) {
 	}
 
 	function salePctForSku(sku) {
-		const m = globalSaleMetaBySku.get(String(sku || ""));
+		const s = String(sku || "");
+		if (resolvedStoreNorms) {
+			const evts = recentEventsBySku.get(s) || [];
+			const meta = computeGlobalSaleMetaForSku(s, evts, resolvedStoreNorms);
+			return meta && Number.isFinite(meta.pct) ? meta.pct : null;
+		}
+		const m = globalSaleMetaBySku.get(s);
 		return m && Number.isFinite(m.pct) ? m.pct : null;
 	}
 
 	function saleDeltaForSku(sku) {
-		const m = globalSaleMetaBySku.get(String(sku || ""));
+		const s = String(sku || "");
+		if (resolvedStoreNorms) {
+			const evts = recentEventsBySku.get(s) || [];
+			const meta = computeGlobalSaleMetaForSku(s, evts, resolvedStoreNorms);
+			return meta && Number.isFinite(meta.delta) ? meta.delta : null;
+		}
+		const m = globalSaleMetaBySku.get(s);
 		return m && Number.isFinite(m.delta) ? m.delta : null;
 	}
 
 	function saleBadgeHtmlForSku(sku, mode) {
-		const sm = globalSaleMetaBySku.get(String(sku || "")) || null;
+		const s = String(sku || "");
+		let sm;
+		if (resolvedStoreNorms) {
+			const evts = recentEventsBySku.get(s) || [];
+			sm = computeGlobalSaleMetaForSku(s, evts, resolvedStoreNorms) || null;
+		} else {
+			sm = globalSaleMetaBySku.get(s) || null;
+		}
 		if (!sm) return "";
 
 		const pct = Number.isFinite(sm.pct) ? sm.pct : 0;
@@ -541,7 +591,7 @@ export function renderSearch($app) {
 	function priceNumForSku(sku) {
 		const s = String(sku || "");
 		if (priceNumCache.has(s)) return priceNumCache.get(s);
-		const best = bestLiveStoreForSku(s);
+		const best = bestLiveStoreForSku(s, resolvedStoreNorms);
 		let n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
 		if (n === null) {
 			// Out of stock everywhere — sort by its cheapest last-known price.
@@ -617,7 +667,7 @@ export function renderSearch($app) {
 		const stock = stockMetaForSku(sku);
 		const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
 
-		const best = bestLiveStoreForSku(sku);
+		const best = bestLiveStoreForSku(sku, resolvedStoreNorms);
 		const store = !stock.outOfStock
 			? best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store"
 			: "";
@@ -674,6 +724,8 @@ export function renderSearch($app) {
 	}
 
 	function renderAggregates(items) {
+		priceNumCache.clear();
+
 		let list = items.filter((it) => {
 			const sku = String(it?.sku || "");
 			return passesAvailability(sku) && passesStoreSet(sku);
@@ -900,8 +952,14 @@ export function renderSearch($app) {
 		const agg = aggBySku.get(sku) || null;
 		const img = agg?.img || "";
 
-		// Always show the global cheapest price for this SKU
-		const priceLine = agg?.cheapestPriceStr || r.newPrice || r.price || "";
+		// Show cheapest price within the active store filter (or global if no filter)
+		let priceLine;
+		if (resolvedStoreNorms) {
+			const best = bestLiveStoreForSku(sku, resolvedStoreNorms);
+			priceLine = best.priceNum !== null ? priceStrFromNum(best.priceNum) : "";
+		} else {
+			priceLine = agg?.cheapestPriceStr || r.newPrice || r.price || "";
+		}
 
 		const stock = stockMetaForSku(sku);
 		const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
@@ -1027,6 +1085,7 @@ export function renderSearch($app) {
 			liveStoresBySku = new Map();
 			everStoresBySku = new Map();
 			storeIdsBySku = new Map();
+			storeNormToStoreId = new Map();
 			storeDisplayByNorm = new Map();
 			liveMinPriceBySkuStore = new Map();
 			lastKnownMinPriceBySku = new Map();
@@ -1092,6 +1151,7 @@ export function renderSearch($app) {
 						let ss = storeIdsBySku.get(sku);
 						if (!ss) storeIdsBySku.set(sku, (ss = new Set()));
 						ss.add(storeId);
+						if (!storeNormToStoreId.has(stNorm)) storeNormToStoreId.set(stNorm, storeId);
 					}
 				}
 
@@ -1104,6 +1164,8 @@ export function renderSearch($app) {
 					if (prev === undefined || p < prev) m.set(stNorm, p);
 				}
 			}
+
+			resolvedStoreNorms = computeResolvedStoreNorms();
 
 			allAgg = aggregateBySku(listings, rules.canonicalSku);
 			const missing = allAgg
@@ -1130,6 +1192,7 @@ export function renderSearch($app) {
 					onChange: (next) => {
 						storeSetSpec = next;
 						resolvedStoreIdSet = resolveStoreSet(next, { myStores: myStoresRef });
+						resolvedStoreNorms = computeResolvedStoreNorms();
 						try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
 						renderCurrent();
 					},
