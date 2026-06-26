@@ -225,9 +225,9 @@ export function renderSearch($app) {
 	// sku -> Set(storeNorm) / etc (LIVE = !removed)
 	let liveStoresBySku = new Map();
 	let everStoresBySku = new Map();
-	// sku -> Set(canonical storeId) across ALL listings (incl. removed), for the
-	// store-set filter — so an item carried by a selected store still shows even
-	// when currently out of stock there (availability is a separate filter).
+	// sku -> Set(canonical storeId) across LIVE listings only, for the
+	// store-set filter — an item only shows when currently in stock at
+	// a selected store.
 	let storeIdsBySku = new Map();
 	let storeDisplayByNorm = new Map(); // norm -> display label
 	let liveMinPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> min price)
@@ -1064,16 +1064,6 @@ export function renderSearch($app) {
 					ss.add(stNorm);
 				}
 
-				// canonical store ids for the store-set filter (incl. removed rows)
-				{
-					const storeId = normalizeStoreId(storeLabel);
-					if (storeId) {
-						let ss = storeIdsBySku.get(sku);
-						if (!ss) storeIdsBySku.set(sku, (ss = new Set()));
-						ss.add(storeId);
-					}
-				}
-
 				if (r.removed) {
 					// Capture the last-known price so out-of-stock items remain sortable
 					// (and showable) by price.
@@ -1093,6 +1083,16 @@ export function renderSearch($app) {
 					let ss = liveStoresBySku.get(sku);
 					if (!ss) liveStoresBySku.set(sku, (ss = new Set()));
 					ss.add(stNorm);
+				}
+
+				// canonical store ids for the store-set filter (live rows only)
+				{
+					const storeId = normalizeStoreId(storeLabel);
+					if (storeId) {
+						let ss = storeIdsBySku.get(sku);
+						if (!ss) storeIdsBySku.set(sku, (ss = new Set()));
+						ss.add(storeId);
+					}
 				}
 
 				// per-store live min price

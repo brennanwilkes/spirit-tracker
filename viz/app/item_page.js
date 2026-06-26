@@ -627,9 +627,8 @@ export async function renderItem($app, skuInput) {
 					const num = rowMinPrice(r);
 					const priceStr = Number.isFinite(num) ? `$${num.toFixed(2)}` : "";
 					const st = storeOf(r);
-					const displayCity = city || citiesOf(r)[0] || null;
-					const province = st?.region ? st.region.toUpperCase() : "";
-					const loc = [displayCity ? cityLabel(displayCity) : null, province].filter(Boolean).join(", ");
+				const province = st?.region ? st.region.toUpperCase() : "";
+					const loc = city ? cityLabel(city) : province;
 					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
 					return `<a class="storeQuickLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint)}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
