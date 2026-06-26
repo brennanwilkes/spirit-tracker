@@ -466,8 +466,13 @@ function validateEmailNotificationsV1(v) {
 			if (kwAny.length) out.keywordsAny = kwAny;
 			if (kwNone.length) out.keywordsNone = kwNone;
 
-			// store filter — multi-select storeIds (any-of) supersedes the legacy
-			// single storeId; both are preserved so existing rules keep working.
+			// store filter — "My Stores" (dynamic per-user ref) supersedes storeIds,
+			// which supersedes the legacy single storeId. All preserved as present.
+			if (filtersIn.useMyStores != null) {
+				if (typeof filtersIn.useMyStores !== "boolean")
+					throw new TypeError("useMyStores must be boolean");
+				if (filtersIn.useMyStores) out.useMyStores = true;
+			}
 			if (filtersIn.storeIds != null) {
 				if (!Array.isArray(filtersIn.storeIds))
 					throw new TypeError("storeIds must be an array");

@@ -388,12 +388,17 @@ ids) on the Worker API (`~/spirit-tracker-api`: added to `RESOURCES`, `defaultVa
 - **Settings** has a **My Stores editor** (`#myStoresSave` + `.myStoresRow .storeSet`): mounts
   the selector with `authed:false` (no recursive "My Stores" preset), resolves the chosen spec
   to ids on Save → `putMyStores`. Saved as concrete ids (preset selections are snapshotted).
-- **Email-alert rules** store filter is now the **same multi-select** (`filters.storeIds: string[]`,
-  any-of), replacing the legacy single `filters.storeId` (still read for back-compat, and migrated
-  off on edit). One selector mounted per rule via `mountRuleStoreSelectors()` after each
-  `renderRules()`; "All stores" = no filter. Backend: `validateEmailRuleV1` validates `storeIds`,
-  and `ruleMatchesEvent` matches `ev.storeId ∈ storeIds` (falling back to legacy `storeId`).
-  The rule editor's delegated handlers safely ignore the selector's events (no `data-i`/`data-k`).
+- **Email-alert rules** store filter is the **same multi-select**. Three forms, in precedence
+  order: **`filters.useMyStores: true`** (a LIVE reference to the user's My Stores set, resolved
+  server-side per-user at send time — pick "My Stores" once and editing the set in Settings updates
+  every rule), then **`filters.storeIds: string[]`** (any-of concrete set), then legacy
+  `filters.storeId` (read for back-compat, migrated off on edit). The selector is mounted per rule
+  via `mountRuleStoreSelectors()` with `authed:true` so "My Stores" is offered; "All stores" = no
+  filter. Backend: `validateEmailRuleV1` validates `useMyStores`+`storeIds`; `handleEmailPack` loads
+  the user's `stores` only when a rule needs it and passes a `Set` to `ruleMatchesEvent`, which checks
+  `useMyStores` → `storeIds` → `storeId`. The "My Stores" preset shows for any signed-in user even
+  before the set is defined (it's a reference). Rule editor's delegated handlers ignore the
+  selector's events (no `data-i`/`data-k`).
 
 ## Store Page — tabs + shared filter bar (`store_page.js`)
 

@@ -1,6 +1,11 @@
 /* ── 1. Tokens ─────────────────────────────────────────────────────────── */
 
 :root {
+  /* Declare the page is dark so mobile browsers (Chrome/WebView "auto dark
+     theme") don't algorithmically re-invert our already-dark UI — which was
+     flipping dropdown panels to white on real phones. */
+  color-scheme: dark;
+
   --bg: #0b0d10;
   --panel: #12161b;
   --text: #e7edf3;
@@ -1157,6 +1162,8 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
  */
 @media (prefers-color-scheme: light) {
   :root {
+    color-scheme: light;
+
     /* ── Base palette ── */
     --bg:     #dde3ea;
     --panel:  #ffffff;
@@ -1303,6 +1310,8 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 
 /* Force light regardless of OS */
 :root[data-theme="light"] {
+  color-scheme: light;
+
   --bg:     #dde3ea;
   --panel:  #ffffff;
   --text:   #0f172a;
@@ -1410,6 +1419,8 @@ html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline
 
 /* Force dark even when OS is light */
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   --bg: #0b0d10;
   --panel: #12161b;
   --text: #e7edf3;

@@ -275,6 +275,10 @@ export async function renderSettings($app) {
 	let rules = Array.isArray(emailNotifications.rules) ? emailNotifications.rules.slice() : [];
 	rules = rules.map(normalizeRule);
 
+	// The user's saved "My Stores" ids — loaded async below; shared by the My Stores
+	// editor and every per-rule "My Stores" selector for display.
+	let myStoresRef = [];
+
 	function ensureFilters(r) {
 		return r && r.filters && typeof r.filters === "object" ? { ...r.filters } : {};
 	}
@@ -288,6 +292,8 @@ export async function renderSettings($app) {
 		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
 
 		if (f.storeIds !== undefined && (!Array.isArray(f.storeIds) || !f.storeIds.length)) delete f.storeIds;
+
+		if (f.useMyStores !== true) delete f.useMyStores;
 
 		if (Array.isArray(f.spiritTypes) && !f.spiritTypes.length) delete f.spiritTypes;
 
@@ -614,9 +620,12 @@ export async function renderSettings($app) {
 		mountRuleStoreSelectors();
 	}
 
-	// The rule store filter is the shared multi-select (any-of). "All stores" = no
-	// filter. Reads the new `storeIds` array, migrating the legacy single `storeId`.
+	// The rule store filter is the shared store-set selector. "All stores" = no
+	// filter; "My Stores" = a live per-user reference (resolved server-side at send
+	// time); otherwise a concrete `storeIds` set. Reads `useMyStores`/`storeIds`,
+	// migrating the legacy single `storeId`.
 	function ruleStoreSpec(f) {
+		if (f.useMyStores === true) return { kind: "mine" };
 		if (Array.isArray(f.storeIds) && f.storeIds.length) return { kind: "stores", ids: f.storeIds };
 		if (typeof f.storeId === "string" && f.storeId.trim()) return { kind: "stores", ids: [f.storeId.trim()] };
 		return { kind: "all" };
@@ -632,15 +641,21 @@ export async function renderSettings($app) {
 			installStoreSetSelector({
 				$container: $c,
 				spec: ruleStoreSpec(f),
-				myStores: null,
-				authed: false,
+				myStores: myStoresRef,
+				authed: true, // expose the "My Stores" preset
 				onChange: (next) => {
-					const ids = [...(resolveStoreSet(next, { myStores: null }) || new Set())];
 					const cur = { ...rules[i] };
 					const f2 = ensureFilters(cur);
-					if (ids.length) f2.storeIds = ids;
-					else delete f2.storeIds;
 					delete f2.storeId; // migrate off the legacy single-store field
+					if (next.kind === "mine") {
+						f2.useMyStores = true;
+						delete f2.storeIds;
+					} else {
+						delete f2.useMyStores;
+						const ids = [...(resolveStoreSet(next, { myStores: myStoresRef }) || new Set())];
+						if (ids.length) f2.storeIds = ids;
+						else delete f2.storeIds;
+					}
 					setRuleAt(i, { ...cur, filters: f2 });
 				},
 			});
@@ -895,33 +910,40 @@ export async function renderSettings($app) {
 	});
 
 	// --- My Stores editor ---
-	let myStoresSpec = { kind: "all" };
+	let myStoresCtl = null; // selector controller; getSpec() is the source of truth at save
 	function mountMyStores(ids) {
 		const arr = Array.isArray(ids) ? ids.filter((x) => typeof x === "string") : [];
-		myStoresSpec = arr.length ? { kind: "stores", ids: arr } : { kind: "all" };
+		const spec = arr.length ? { kind: "stores", ids: arr } : { kind: "all" };
 		const $c = document.querySelector(".myStoresRow .storeSet");
 		if (!$c) return;
 		// authed:false → no recursive "My Stores" preset; you're editing that set here.
-		installStoreSetSelector({
+		myStoresCtl = installStoreSetSelector({
 			$container: $c,
-			spec: myStoresSpec,
+			spec,
 			myStores: null,
 			authed: false,
-			onChange: (next) => { myStoresSpec = next; },
+			onChange: () => {},
 		});
 	}
-	getMyStores().then(mountMyStores).catch(() => mountMyStores([]));
+	getMyStores()
+		.then((ids) => {
+			myStoresRef = Array.isArray(ids) ? ids.filter((x) => typeof x === "string") : [];
+			mountMyStores(myStoresRef);
+			renderRules(); // re-mount per-rule selectors now that My Stores is known
+		})
+		.catch(() => mountMyStores([]));
 
 	const $myStoresSave = document.getElementById("myStoresSave");
 	const $myStoresStatus = document.getElementById("myStoresStatus");
 	if ($myStoresSave) {
 		$myStoresSave.addEventListener("click", async () => {
-			const ids = [...(resolveStoreSet(myStoresSpec, { myStores: null }) || new Set())];
+			const spec = myStoresCtl ? myStoresCtl.getSpec() : { kind: "all" };
+			const ids = [...(resolveStoreSet(spec, { myStores: null }) || new Set())];
 			$myStoresSave.disabled = true;
 			$myStoresStatus.textContent = "Saving…";
 			try {
 				await putMyStores(ids);
-				$myStoresStatus.textContent = ids.length ? `Saved ${ids.length} store(s).` : "Cleared.";
+				$myStoresStatus.textContent = ids.length ? `Saved ${ids.length} store(s).` : "Cleared (all stores).";
 			} catch (e) {
 				$myStoresStatus.textContent = isAuthErr(e) ? "Please log in again." : "Save failed.";
 			} finally {
