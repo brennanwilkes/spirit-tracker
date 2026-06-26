@@ -229,7 +229,7 @@ export async function renderItem($app, skuInput) {
 	}
 
 	$app.innerHTML = `
-		<div class="container">
+		<div class="container detailContainer">
 			<div class="topbar">
 				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<span class="badge mono">${esc(displaySku(sku))}</span>
@@ -588,35 +588,33 @@ export async function renderItem($app, skuInput) {
 	const canHide = isLocalWriteMode();
 
 	// Pinned quick-links: the few stores users click most — cheapest overall,
-	// plus cheapest in Vancouver / Victoria (the local pickup options) when they
-	// add a store the "overall" pin doesn't already cover. linkRows is sorted
-	// cheapest-first, so the first live match per geography is the cheapest there.
+	// then the cheapest *distinct* store in Vancouver / Victoria. linkRows is
+	// sorted cheapest-first, so the first live match per geography is the cheapest
+	// there. We fall through to the next store when the cheapest is already pinned
+	// (a chain like BCL/Everything Wine spans both cities) so each pin surfaces a
+	// genuinely different buy option rather than collapsing to one store.
 	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
-	const cheapestInCity = (city) =>
-		liveLinkRows.find(({ r }) => {
-			const st = storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
-			return st && Array.isArray(st.cities) && st.cities.includes(city);
-		}) || null;
+	const citiesOf = (r) => {
+		const st = storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
+		return st && Array.isArray(st.cities) ? st.cities : [];
+	};
 
-	const pinnedSpec = [
-		liveLinkRows[0] ? { ...liveLinkRows[0], best: true, hint: "Cheapest overall" } : null,
-		(() => {
-			const v = cheapestInCity("vancouver");
-			return v ? { ...v, hint: "Cheapest in Vancouver" } : null;
-		})(),
-		(() => {
-			const v = cheapestInCity("victoria");
-			return v ? { ...v, hint: "Cheapest in Victoria" } : null;
-		})(),
-	].filter(Boolean);
-
-	const seenPin = new Set();
 	const pinned = [];
-	for (const c of pinnedSpec) {
-		if (seenPin.has(c.store)) continue;
-		seenPin.add(c.store);
-		pinned.push(c);
-	}
+	const seenPin = new Set();
+	const addPin = (row, extra) => {
+		if (!row || seenPin.has(row.store)) return;
+		seenPin.add(row.store);
+		pinned.push({ ...row, ...extra });
+	};
+	addPin(liveLinkRows[0], { best: true, hint: "Cheapest overall" });
+	addPin(
+		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver")),
+		{ hint: "Cheapest in Vancouver" },
+	);
+	addPin(
+		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
+		{ hint: "Cheapest in Victoria" },
+	);
 
 	const pinnedHtml = pinned.length
 		? `<div class="storeQuickLinks">${pinned
@@ -636,12 +634,16 @@ export async function renderItem($app, skuInput) {
 			const href = String(r.url || "").trim();
 			const suffix = Boolean(r?.removed) ? " (removed)" : "";
 			const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
-			if (!canHide) return anchor;
-			const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
-			const rawSku = String(keySkuForRow(r) || "");
-			if (!sid || !rawSku) return anchor;
-			const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
-			return `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
+			let inner = anchor;
+			if (canHide) {
+				const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
+				const rawSku = String(keySkuForRow(r) || "");
+				if (sid && rawSku) {
+					const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
+					inner = `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
+				}
+			}
+			return `<span class="storeLinkRow">${inner}</span>`;
 		})
 		.join("");
 

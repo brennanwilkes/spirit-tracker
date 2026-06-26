@@ -1,9 +1,19 @@
 /* ── Item detail page layout ───────────────────────────────────────────── */
 
+/* Fill the viewport so the panel surface reaches the bottom even when the
+   chart legend / store-link disclosures are collapsed and content is short. */
+.detailContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 .detailCard {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1 1 auto;
 }
 
 .detailHeader {
@@ -186,7 +196,7 @@
 
 /* ── Store links: pinned quick-access + collapsible full list ──────────── */
 
-/* Stack the quick-links row above the "All stores" disclosure. */
+/* Stack the quick-links above the "All stores" disclosure. */
 .detailLeft .links,
 .detailMobileLinks .links {
   flex-direction: column;
@@ -194,18 +204,22 @@
   gap: 8px;
 }
 
+/* Mobile-first: every link is a full-width stacked row (no ragged flex-wrap
+   gaps from varying label widths). Desktop switches to inline wrap below. */
 .storeQuickLinks {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
 }
 
 /* Squared, prominent quick-links (override the global pill .links a).
-   Sized for a comfortable mobile touch target (~44px); desktop tightens below. */
+   Full-width with the price pushed right; ~44px mobile touch target. */
 .links a.storeQuickLink {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
   min-height: 44px;
   padding: 8px 14px;
   border-radius: 7px;
@@ -225,44 +239,48 @@
 }
 .links a.storeQuickLink.best .sqlPrice { color: rgba(210, 170, 60, 0.95); }
 
-.storeLinksMore {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel);
-  padding: 0 10px;
-}
+/* Borderless disclosure — just a toggle line + the list (no boxed border). */
 .storeLinksMore > summary {
   cursor: pointer;
   list-style: none;
-  padding: 9px 2px;
+  padding: 6px 2px;
   font-size: 13px;
   color: var(--muted);
   user-select: none;
 }
+.storeLinksMore > summary:hover { color: var(--text); }
 .storeLinksMore > summary::-webkit-details-marker { display: none; }
 .storeLinksMore > summary::before { content: "▸ "; }
 .storeLinksMore[open] > summary::before { content: "▾ "; }
 
 .storeLinksList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  padding: 2px 0 10px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0 6px;
 }
 
-/* Squared links in the disclosure (override the global pill .links a). */
-.links .storeLinksList a {
-  display: inline-block;
-  padding: 5px 10px;
+.storeLinkRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Squared full-width rows in the disclosure (override the global pill .links a). */
+.links .storeLinkRow a {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid var(--border);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  white-space: nowrap;
   text-decoration: none;
 }
-.links .storeLinksList a:hover { color: var(--text); border-color: var(--text); }
+.links .storeLinkRow a:hover { color: var(--text); border-color: var(--text); }
 
 /* ── Mobile: show links row, rework header grid ─────────────────────────── */
 
@@ -313,10 +331,31 @@
     max-height: 220px;
   }
 
-  /* Pointer device — tighten the quick-links from the 44px mobile target. */
+  /* Pointer device — inline, auto-width links instead of full-width stacked rows. */
+  .storeQuickLinks {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
   .links a.storeQuickLink {
+    width: auto;
+    justify-content: flex-start;
     min-height: 0;
     padding: 6px 12px;
+  }
+
+  .storeLinksList {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+  .storeLinkRow {
+    width: auto;
+  }
+  .links .storeLinkRow a {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    font-size: 12px;
+    white-space: nowrap;
   }
 }
 

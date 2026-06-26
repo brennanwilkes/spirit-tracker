@@ -378,17 +378,20 @@ Price shown is always `agg.cheapestPriceStr` (global cheapest across all stores)
 ## Store Page — tabs + shared filter bar (`store_page.js`)
 
 Mobile-first redesign (replaced the old two-column Exclusive|Compare grid). One full-width
-list driven by a **segmented view switcher** (`.storeTabs`): **All / Exclusive / Price Compare /
-Last Stock** (counts per tab, persisted `viz:storeTab:<store>`). Each item keeps its decoration
-flags (`_exclusive`/`_lastStock`/`_isBest`/diff fields), so `renderCard` works in any tab; the
-tab is just a predicate filter over the shared `baseFiltered` set.
+list (single column at **every** width, container 760px) driven by a **connected segmented
+view switcher** (`.storeTabs`, equal-width two-line name+count segments): **All / Exclusive /
+Price / Last Stock** (persisted `viz:storeTab:<store>`). Each item keeps its decoration flags
+(`_exclusive`/`_lastStock`/`_isBest`/diff fields), so `renderCard` works in any tab; the tab is
+just a predicate filter over the shared `baseFiltered` set.
 
-Shared filter bar: **Sort** (price, newest/oldest, **rarity** via `rarityForSku`+`effectiveRarity`,
-sale %/$ — persisted `viz:storeSort:<store>`), spirit **Type**, **Max price** slider, and search.
-The **Diff vs others** `$`/`%` toggle is display-only and shown only on the Price Compare tab.
-Single-list infinite scroll via `createInfiniteScroll` (80/page). The store page is inherently
-in-stock-only (`rowsStoreLive`), so there is no availability filter. On desktop the list becomes
-a 2-column card grid for density.
+Filter bar (wraps, never crunched): inline **Sort** (price, newest/oldest, **rarity** via
+`rarityForSku`+`effectiveRarity`, sale %/$ — persisted `viz:storeSort:<store>`), spirit **Type**,
+and a **Difference** `$`/`%` select shown ONLY on the Price tab. **Max price** is always its own
+full-width row (`.storePriceRow`). On the **Price tab**, "Price (low/high)" sorts by the
+**difference vs other stores** (best deal here → worst) in the unit the Difference toggle picks —
+not absolute price; the toggle drives both the diff badge and that sort. Single-list infinite
+scroll via `createInfiniteScroll` (80/page). The store page is inherently in-stock-only
+(`rowsStoreLive`), so there is no availability filter.
 
 ## CSS Variables
 

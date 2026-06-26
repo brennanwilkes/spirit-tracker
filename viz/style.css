@@ -628,7 +628,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   top: calc(100% + 4px);
   left: 0;
   z-index: 100;
-  width: min(320px, calc(100vw - 28px));
+  width: min(380px, calc(100vw - 24px));
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -652,7 +652,16 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   overflow-y: auto;
   flex: 1 1 auto;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
+.storeSetListWrap::-webkit-scrollbar { width: 8px; }
+.storeSetListWrap::-webkit-scrollbar-track { background: transparent; }
+.storeSetListWrap::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+}
+.storeSetListWrap::-webkit-scrollbar-thumb:hover { background: #2f3a46; }
 
 .storeSetGroup { margin-bottom: 6px; }
 .storeSetGroupLabel {

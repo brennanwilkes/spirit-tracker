@@ -22,33 +22,38 @@
   min-width: 96px;
 }
 
-/* Sort + Availability + Type controls row */
+/* Filter controls — mobile-first: each stacks label-above-control, full width.
+   Stacking (vs. an inline label column) lets each control start at the card edge
+   so its dropdown panel aligns to the screen instead of sitting offset. */
 .searchControls {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
-  flex-wrap: wrap;
-  justify-content: space-between;
 }
 
 .searchControl {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1 1 0;
-  justify-content: flex-start;
-}
-
-/* Type filter drops to its own line on mobile */
-.searchControlType {
-  flex: 1 1 100%;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
 }
 
 .searchControlLabel {
   opacity: 0.8;
   white-space: nowrap;
+  font-size: 12px;
+}
+
+/* Every control fills the row */
+.searchControl > .selectSmall,
+.searchControl > .storeSet,
+.searchControl > .spiritFilter { width: 100%; }
+.searchControl .storeSetTrigger,
+.searchControl .spiritFilterTrigger {
+  width: 100%;
+  max-width: none;
 }
 
 /* Infinite-scroll sentinel / "Showing N / M" footer */
@@ -58,24 +63,24 @@
   opacity: 0.7;
 }
 
+/* Desktop: controls flow inline (label beside) at their natural width */
 @media (min-width: 641px) {
   .searchControls {
+    flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    align-items: center;
+    gap: 10px 14px;
   }
-
   .searchControl {
-    flex: 0 0 auto;
-    justify-content: flex-start;
-  }
-
-  /* Type rejoins the row on desktop */
-  .searchControlType {
-    flex: 0 0 auto;
-  }
-
-  .searchControl .selectSmall:not(.spiritFilterTrigger) {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
     width: auto;
-    min-width: 0;
   }
+  .searchControl > .selectSmall,
+  .searchControl > .storeSet,
+  .searchControl > .spiritFilter { width: auto; }
+  .searchControl .selectSmall { width: auto; min-width: 0; }
+  .searchControl .storeSetTrigger { width: auto; }
+  .searchControl .spiritFilterTrigger { width: 120px; }
 }

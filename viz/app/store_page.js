@@ -47,7 +47,7 @@ export async function renderStore($app, storeLabelRaw) {
             <span class="storeTabName">Exclusive</span><span class="storeTabCount"></span>
           </button>
           <button class="storeTab" type="button" role="tab" data-tab="compare">
-            <span class="storeTabName">Compare</span><span class="storeTabCount"></span>
+            <span class="storeTabName">Price</span><span class="storeTabCount"></span>
           </button>
           <button class="storeTab" type="button" role="tab" data-tab="laststock">
             <span class="storeTabName">Last Stock</span><span class="storeTabCount"></span>
@@ -55,7 +55,7 @@ export async function renderStore($app, storeLabelRaw) {
         </div>
 
         <div class="storeFilterRow">
-          <label class="storeControl">
+          <label class="storeControl" id="sortWrap">
             <span class="storeControlLabel">Sort</span>
             <select id="sort" class="selectSmall" aria-label="Sort">
               <option value="priceDesc">Price (high)</option>
@@ -70,7 +70,7 @@ export async function renderStore($app, storeLabelRaw) {
           </label>
 
           <label class="storeControl" id="cmpModeWrap">
-            <span class="storeControlLabel">Compare</span>
+            <span class="storeControlLabel">Difference</span>
             <select id="cmpMode" class="selectSmall" aria-label="Price difference units">
               <option value="dollar">Dollars</option>
               <option value="percent">Percent</option>
@@ -81,12 +81,12 @@ export async function renderStore($app, storeLabelRaw) {
             <span class="storeControlLabel">Type</span>
             ${spiritFilterHtml()}
           </div>
+        </div>
 
-          <div class="storeControl storePriceControl" id="priceWrap">
-            <span class="storeControlLabel">Max</span>
-            <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
-            <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
-          </div>
+        <div class="storePriceRow" id="priceWrap">
+          <span class="storeControlLabel">Max price</span>
+          <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
+          <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
         </div>
 
         <div class="small" id="status" style="margin-top:12px;"></div>
@@ -109,6 +109,7 @@ export async function renderStore($app, storeLabelRaw) {
 	const $results = document.getElementById("results");
 	const $sentinel = document.getElementById("sentinel");
 	const $tabs = document.getElementById("storeTabs");
+	const $sortWrap = document.getElementById("sortWrap");
 	const $cmpModeWrap = document.getElementById("cmpModeWrap");
 	const favSet = new Set();
 	installFavStars($results, favSet);
@@ -739,8 +740,24 @@ export async function renderStore($app, storeLabelRaw) {
 	});
 
 	function sortItemsInPlace(arr) {
-		const mode = sortMode();
 		const nameKey = (x) => (String(x.name) + x.sku).toLowerCase();
+
+		// Price tab: always best deal vs other stores first (most below others), in the
+		// unit the Difference toggle picks. The generic Sort dropdown is hidden here.
+		if (activeTab === "compare") {
+			const pct = compareMode() === "percent";
+			arr.sort((a, b) => {
+				const da = pct ? a._diffVsOtherPct : a._diffVsOtherDollar;
+				const db = pct ? b._diffVsOtherPct : b._diffVsOtherDollar;
+				const aKey = da === null || !Number.isFinite(da) ? 9e15 : da;
+				const bKey = db === null || !Number.isFinite(db) ? 9e15 : db;
+				if (aKey !== bKey) return aKey - bKey;
+				return nameKey(a).localeCompare(nameKey(b));
+			});
+			return;
+		}
+
+		const mode = sortMode();
 
 		if (mode === "salePct" || mode === "saleAbs") {
 			const key = (x) =>
@@ -786,7 +803,7 @@ export async function renderStore($app, storeLabelRaw) {
 			return;
 		}
 
-		// price (default)
+		// Price (absolute in-store price) — All / Exclusive / Last Stock tabs.
 		arr.sort((a, b) => {
 			const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
 			const bp = Number.isFinite(b._storePrice) ? b._storePrice : null;
@@ -847,8 +864,12 @@ export async function renderStore($app, storeLabelRaw) {
 			btn.classList.toggle("isOn", tab === activeTab);
 			btn.setAttribute("aria-selected", String(tab === activeTab));
 		}
-		// The $/% comparison toggle only matters on the Compare view.
-		$cmpModeWrap.style.display = activeTab === "compare" ? "" : "none";
+		// On the Price tab the list is always sorted by best deal vs other stores,
+		// so the generic Sort dropdown is hidden and the $/% Difference toggle (which
+		// picks the sort/badge unit) takes its place. Everywhere else: the reverse.
+		const onCompare = activeTab === "compare";
+		$sortWrap.style.display = onCompare ? "none" : "";
+		$cmpModeWrap.style.display = onCompare ? "" : "none";
 	}
 
 	function applyTab() {
@@ -920,8 +941,8 @@ export async function renderStore($app, storeLabelRaw) {
 
 	$cmpMode.addEventListener("change", () => {
 		localStorage.setItem(LS_CMP_MODE, String($cmpMode.value || ""));
-		// Display-only: re-render so compare cards pick up the new $/% badge.
-		renderNext(true);
+		// Affects both the diff badge AND (on the Price tab) the price sort metric.
+		applyTab();
 	});
 
 	let tp = null;

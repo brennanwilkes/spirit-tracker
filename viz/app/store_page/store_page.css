@@ -91,11 +91,17 @@
   min-width: 0;
 }
 
-/* Max price grows to fill the row; wraps to its own line when space is tight */
-.storePriceControl { flex: 1 1 220px; min-width: 170px; }
+/* Max price: always its own full-width line, below the inline filters */
+.storePriceRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+}
 .storePriceSlider {
   flex: 1 1 auto;
-  min-width: 80px;
+  min-width: 0;
   height: 18px;
   accent-color: #9aa3b2;
   opacity: 0.85;
