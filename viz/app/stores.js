@@ -314,6 +314,62 @@ export const STORES = [
 	},
 ];
 
+// ── City registry ─────────────────────────────────────────────────────────
+// Each store carries an optional `cities` array (a store can serve more than one
+// metro — e.g. Everything Wine and BCL span Vancouver + Victoria). A store with
+// no city simply never appears in a city preset (e.g. ARC in Kelowna, online-only
+// or unknown). Order here is the order presets render in.
+export const CITIES = [
+	{ id: "vancouver", label: "Vancouver" },
+	{ id: "victoria", label: "Victoria" },
+	{ id: "calgary", label: "Calgary" },
+	{ id: "edmonton", label: "Edmonton" },
+];
+
+const _cityLabel = new Map(CITIES.map((c) => [c.id, c.label]));
+
+// storeId -> cities[]. Kept as a map (not inlined per store) so the geography is
+// editable in one place. Stores absent here have no city. clbspirits: unknown.
+const CITY_BY_STORE = {
+	// BC
+	everythingwine: ["vancouver", "victoria"],
+	bcl: ["vancouver", "victoria"],
+	gull: ["vancouver"],
+	legacyliquor: ["vancouver"],
+	liberty: ["vancouver"],
+	highpointbws: ["vancouver"],
+	newdistrict: ["vancouver"],
+	marquis: ["vancouver"],
+	strath: ["victoria"],
+	tudor: ["victoria"],
+	vessel: ["victoria"],
+	vintage: ["victoria"],
+	// AB
+	bsw: ["calgary"],
+	coop: ["calgary"],
+	craftcellars: ["calgary"],
+	kwm: ["calgary"],
+	sierrasprings: ["calgary"],
+	willowpark: ["calgary"],
+	lime: ["calgary"],
+	vinearts: ["calgary"],
+	zyn: ["calgary"],
+	wineandbeyond: ["calgary"],
+	highlander: ["calgary"],
+	rmwsb: ["calgary"],
+	liquorama: ["calgary"],
+	kegncork: ["edmonton"],
+	maltsandgrains: ["edmonton"],
+	whiskydrop: ["edmonton"],
+	canadianliquor: ["edmonton"],
+	sherbrooke: ["edmonton"],
+	colordevino: ["edmonton"],
+};
+
+for (const s of STORES) {
+	s.cities = CITY_BY_STORE[s.id] || [];
+}
+
 // ── Lookup helpers ──────────────────────────────────────────────────────────
 
 const _byId = new Map(STORES.map((s) => [s.id, s]));
@@ -324,6 +380,19 @@ export function storeById(id) {
 
 export function storesByRegion(region) {
 	return STORES.filter((s) => s.region === region);
+}
+
+export function storesByCity(city) {
+	return STORES.filter((s) => Array.isArray(s.cities) && s.cities.includes(city));
+}
+
+// Cities that actually have at least one store, in CITIES order.
+export function allCities() {
+	return CITIES.filter((c) => STORES.some((s) => Array.isArray(s.cities) && s.cities.includes(c.id)));
+}
+
+export function cityLabel(city) {
+	return _cityLabel.get(city) || String(city || "");
 }
 
 function _normalizeRaw(s) {

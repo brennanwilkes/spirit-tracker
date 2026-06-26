@@ -1,59 +1,123 @@
-/* ── Price + type filter row ────────────────────────────────────────────── */
+/* ── Store page container ───────────────────────────────────────────────── */
+
+.containerStoreWide { max-width: 980px; }
+
+/* ── Controls (search + shared filter bar) ──────────────────────────────── */
+
+.storeControls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.storeSearchRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+.storeSearchRow .input { flex: 1 1 auto; }
+.storeSearchRow .btn { flex: 0 0 auto; }
 
 .storeFilterRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 10px 12px;
   width: 100%;
   flex-wrap: wrap;
 }
 
-/* Type filter: own line on mobile, inline on desktop */
-.storeTypeFilter {
+.storeControl {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex: 1 1 100%;
+  gap: 8px;
+  min-width: 0;
+}
+.storeControl .searchControlLabel {
+  white-space: nowrap;
+  opacity: 0.8;
+}
+.storeControl .selectSmall:not(.spiritFilterTrigger) {
+  width: auto;
+  min-width: 0;
+}
+
+/* Type filter + price slider take their own line on mobile */
+.storeTypeFilter { flex: 1 1 100%; }
+.storePriceControl { flex: 1 1 100%; }
+
+.storePriceSlider {
+  flex: 1 1 auto;
+  min-width: 80px;
+  height: 18px;
+  accent-color: #9aa3b2;
+  opacity: 0.85;
+}
+.storePriceLabel {
+  flex: 0 0 auto;
+  width: 64px;
+  text-align: right;
+  white-space: nowrap;
+  opacity: 0.9;
 }
 
 @media (min-width: 641px) {
   .storeFilterRow { flex-wrap: nowrap; }
   .storeTypeFilter { flex: 0 0 auto; }
+  .storePriceControl { flex: 1 1 auto; }
 }
 
-/* ── Store page: two-column results layout ─────────────────────────────── */
+/* ── Tabs (segmented view switcher) ─────────────────────────────────────── */
 
-.containerStoreWide { max-width: 980px; }
-
-@media (min-width: 1200px) {
-  .containerStoreWide { max-width: 1240px; }
-}
-
-.storeGrid {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-@media (min-width: 641px) {
-  .containerStoreWide { max-width: 1180px; }
-  .storeGrid { grid-template-columns: 1fr 1fr; }
-}
-
-.storeCol { min-width: 0; }
-
-.storeColHeader {
+.storeTabs {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 2px 10px 2px;
+  gap: 6px;
+  margin-top: 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.storeTabs::-webkit-scrollbar { display: none; }
+
+.storeTab {
+  flex: 0 0 auto;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+.storeTab:hover { color: var(--text); border-color: #2f3a46; }
+.storeTab.isOn {
+  color: var(--text);
+  border-color: var(--accent);
+  background: rgba(125, 211, 252, 0.08);
 }
 
-.storeColList {
+/* ── Single results list ────────────────────────────────────────────────── */
+
+.storeList {
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.storeSentinel { text-align: center; padding: 12px 0; }
+
+/* Two columns of cards on wide screens for density */
+@media (min-width: 641px) {
+  .storeList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+  }
 }

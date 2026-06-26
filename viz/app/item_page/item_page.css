@@ -93,8 +93,12 @@
 
 .chartBox {
   width: 100%;
-  height: min(58vh, 720px);
-  min-height: 260px;
+  /* Aspect-driven on mobile so the plot keeps a sane shape in portrait
+     instead of a wide-and-short strip; capped so it never dominates the screen. */
+  aspect-ratio: 3 / 2;
+  height: auto;
+  max-height: 70vh;
+  min-height: 280px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: #0f1318;
@@ -104,6 +108,80 @@
 .chartBox canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+/* ── Off-canvas store legend ───────────────────────────────────────────── */
+
+.chartLegend {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 0 10px;
+}
+
+.chartLegend > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 2px;
+  font-size: 13px;
+  color: var(--muted);
+  user-select: none;
+}
+
+.chartLegend > summary::-webkit-details-marker { display: none; }
+
+.chartLegend > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.chartLegend[open] > summary::before {
+  content: "▾ ";
+}
+
+.chartLegendList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 2px 0 10px;
+}
+
+.chartLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.chartLegendItem:hover { border-color: var(--text); }
+
+.chartLegendItem.dimmed {
+  opacity: 0.4;
+}
+
+.chartLegendItem.dimmed .chartLegendSwatch {
+  opacity: 0.5;
+}
+
+.chartLegendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: 0 0 12px;
+}
+
+.chartLegendLabel {
+  white-space: nowrap;
 }
 
 /* ── Mobile: show links row, rework header grid ─────────────────────────── */
@@ -146,9 +224,15 @@
   }
 
   .chartBox {
+    aspect-ratio: auto;
     height: min(72vh, 720px);
+    max-height: 720px;
     min-height: 320px;
     padding: 10px;
+  }
+
+  .chartLegendList {
+    max-height: 220px;
   }
 }
 

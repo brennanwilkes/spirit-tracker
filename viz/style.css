@@ -595,6 +595,127 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 }
 .spiritFilterOption input:checked ~ span:last-of-type { color: var(--text); }
 
+/* ── Store-set selector (presets + ad-hoc multi-select) ────────────────── */
+
+.storeSet {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.storeSetTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  max-width: 60vw;
+}
+.storeSetTrigger #storeSetLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.storeSetTrigger.is-open,
+.storeSetTrigger:focus {
+  border-color: #37566b;
+  outline: 1px solid #37566b;
+  color: var(--text);
+}
+.storeSetTrigger.is-active { color: var(--text); }
+
+.storeSetPanel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  width: min(320px, calc(100vw - 28px));
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: #0f1318;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.storeSetPresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.storeSetListWrap {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.storeSetGroup { margin-bottom: 6px; }
+.storeSetGroupLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 4px 6px;
+  position: sticky;
+  top: 0;
+  background: #0f1318;
+}
+
+.storeSetOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  user-select: none;
+}
+.storeSetOption:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); }
+.storeSetOption input[type="checkbox"] { display: none; }
+
+.storeSetCheck {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  position: relative;
+}
+.storeSetOption input:checked ~ .storeSetCheck {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.storeSetOption input:checked ~ .storeSetCheck::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: 2px solid #0b0d10;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+.storeSetOption input:checked ~ .storeSetOptionLabel { color: var(--text); }
+
+.storeSetActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
 /* Settings-page rule: inline spirit type checkboxes */
 .stRuleTypeChecks {
   display: flex;
@@ -1080,6 +1201,13 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   .spiritFilterOption:hover { background: var(--lt-hover-bg); }
   .spiritFilterTrigger.is-open,
   .spiritFilterTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
+
+  /* Store-set selector panel */
+  .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+  .storeSetGroupLabel { background: var(--lt-control); }
+  .storeSetOption:hover { background: var(--lt-hover-bg); }
+  .storeSetTrigger.is-open,
+  .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 }
 
 /* ── 10. Manual theme overrides (data-theme beats prefers-color-scheme) ─── */
@@ -1185,6 +1313,11 @@ html[data-theme="light"] .spiritFilterPanel { background: var(--lt-control); box
 html[data-theme="light"] .spiritFilterOption:hover { background: var(--lt-hover-bg); }
 html[data-theme="light"] .spiritFilterTrigger.is-open,
 html[data-theme="light"] .spiritFilterTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
+html[data-theme="light"] .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+html[data-theme="light"] .storeSetGroupLabel { background: var(--lt-control); }
+html[data-theme="light"] .storeSetOption:hover { background: var(--lt-hover-bg); }
+html[data-theme="light"] .storeSetTrigger.is-open,
+html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 
 /* Force dark even when OS is light */
 :root[data-theme="dark"] {

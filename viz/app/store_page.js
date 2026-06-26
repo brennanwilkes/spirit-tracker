@@ -16,6 +16,8 @@ import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { normalizeStoreId, storeById } from "./stores.js";
 import { loadHiddenSet, isHiddenListing } from "./hidden.js";
+import { createInfiniteScroll } from "./components/infinite_scroll.js";
+import { effectiveRarity } from "./rarity.js";
 
 let rulesCache = null;
 let rarityCache = null;
@@ -32,93 +34,60 @@ export async function renderStore($app, storeLabelRaw) {
       </div>
 
       <div class="card">
-        <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="storeControls">
+          <div class="storeSearchRow">
+            <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" />
+            <button id="clearSearch" class="btn btnSm" type="button">Clear</button>
+          </div>
+
           <div class="storeFilterRow">
-            <div id="priceWrap" style="display:flex; align-items:center; gap:10px; flex: 1 1 auto; min-width: 0;">
-              <div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
-
-              <input
-                id="maxPrice"
-                type="range"
-                min="0"
-                max="1000"
-                step="1"
-                value="1000"
-                style="
-                  flex: 1 1 auto;
-                  width: 100%;
-                  height: 18px;
-                  accent-color: #9aa3b2;
-                  opacity: .85;
-                "
-              />
-
-              <div
-                class="badge mono"
-                id="maxPriceLabel"
-                style="
-                  width: 120px;
-                  text-align: right;
-                  white-space: nowrap;
-                  opacity: .9;
-                  flex: 0 0 auto;
-                "
-              ></div>
+            <div class="storeControl">
+              <span class="small searchControlLabel">Sort</span>
+              <select id="sort" class="selectSmall" aria-label="Sort">
+                <option value="priceDesc">Price (high)</option>
+                <option value="priceAsc">Price (low)</option>
+                <option value="dateDesc">Newest</option>
+                <option value="dateAsc">Oldest</option>
+                <option value="rarityDesc">Rarest</option>
+                <option value="rarityAsc">Common</option>
+                <option value="salePct">Sale %</option>
+                <option value="saleAbs">Sale $</option>
+              </select>
             </div>
 
-            <div class="storeTypeFilter">
-              <span class="small" style="white-space:nowrap; opacity:.75;">Type</span>
+            <div class="storeControl" id="cmpModeWrap">
+              <span class="small searchControlLabel">Diff vs others</span>
+              <select id="cmpMode" class="selectSmall" aria-label="Comparison technique">
+                <option value="dollar">Dollars</option>
+                <option value="percent">Percent</option>
+              </select>
+            </div>
+
+            <div class="storeControl storeTypeFilter">
+              <span class="small searchControlLabel">Type</span>
               ${spiritFilterHtml()}
             </div>
-          </div>
 
-          <div style="display:flex; gap:10px; align-items:center; width:100%;">
-            <input id="q" class="input" placeholder="Search in this store..." autocomplete="off" style="flex: 1 1 auto;" />
-            <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
+            <div class="storeControl storePriceControl" id="priceWrap">
+              <span class="small searchControlLabel">Max price</span>
+              <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
+              <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
+            </div>
           </div>
+        </div>
+
+        <div class="storeTabs" id="storeTabs" role="tablist">
+          <button class="storeTab" type="button" role="tab" data-tab="all">All</button>
+          <button class="storeTab" type="button" role="tab" data-tab="exclusive">Exclusive</button>
+          <button class="storeTab" type="button" role="tab" data-tab="compare">Price Compare</button>
+          <button class="storeTab" type="button" role="tab" data-tab="laststock">Last Stock</button>
         </div>
 
         <div class="small" id="status" style="margin-top:10px;"></div>
 
-        <div id="results" class="storeGrid">
-          <div class="storeCol">
-            <div class="storeColHeader">
-              <div>
-                <span class="badge badgeExclusive">Exclusive</span>
-                <span class="small">and</span>
-                <span class="badge badgeLastStock">Last Stock</span>
-              </div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span class="small">Sort</span>
-                <select id="exSort" class="selectSmall" aria-label="Sort exclusives">
-                  <option value="priceDesc">Highest Price</option>
-                  <option value="priceAsc">Lowest Price</option>
-                  <option value="dateDesc">Newest</option>
-                  <option value="dateAsc">Oldest</option>
-                  <option value="salePct">Sale %</option>
-                  <option value="saleAbs">Sale $</option>
-                </select>
-              </div>
-            </div>
-            <div id="resultsExclusive" class="storeColList"></div>
-          </div>
+        <div id="results" class="storeList"></div>
 
-          <div class="storeCol">
-            <div class="storeColHeader">
-              <span class="badge">Price compare</span>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span class="small">Comparison</span>
-                <select id="cmpMode" class="selectSmall" aria-label="Comparison technique">
-                  <option value="dollar">Dollar Amount</option>
-                  <option value="percent">Percentage Difference</option>
-                </select>
-              </div>
-            </div>
-            <div id="resultsCompare" class="storeColList"></div>
-          </div>
-        </div>
-
-        <div id="sentinel" class="small" style="text-align:center; padding:12px 0;"></div>
+        <div id="sentinel" class="small storeSentinel"></div>
       </div>
     </div>
   `;
@@ -131,19 +100,19 @@ export async function renderStore($app, storeLabelRaw) {
 
 	const $q = document.getElementById("q");
 	const $status = document.getElementById("status");
-	const $resultsExclusive = document.getElementById("resultsExclusive");
-	const $resultsCompare = document.getElementById("resultsCompare");
+	const $results = document.getElementById("results");
 	const $sentinel = document.getElementById("sentinel");
-	const $resultsWrap = document.getElementById("results");
+	const $tabs = document.getElementById("storeTabs");
+	const $cmpModeWrap = document.getElementById("cmpModeWrap");
 	const favSet = new Set();
-	installFavStars($resultsWrap, favSet);
+	installFavStars($results, favSet);
 
 	const $maxPrice = document.getElementById("maxPrice");
 	const $maxPriceLabel = document.getElementById("maxPriceLabel");
 	const $priceWrap = document.getElementById("priceWrap");
 
 	const $clearSearch = document.getElementById("clearSearch");
-	const $exSort = document.getElementById("exSort");
+	const $sort = document.getElementById("sort");
 	const $cmpMode = document.getElementById("cmpMode");
 
 	// Persist query per store
@@ -158,10 +127,16 @@ export async function renderStore($app, storeLabelRaw) {
 	let savedMaxPrice = savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
 	if (!Number.isFinite(savedMaxPrice)) savedMaxPrice = null;
 
-	// Persist exclusives sort per store
-	const LS_EX_SORT = `viz:storeExclusiveSort:${storeNorm}`;
-	const savedExSort = String(localStorage.getItem(LS_EX_SORT) || "");
-	if (savedExSort) $exSort.value = savedExSort;
+	// Persist sort per store
+	const LS_SORT = `viz:storeSort:${storeNorm}`;
+	const savedSort = String(localStorage.getItem(LS_SORT) || "");
+	if (savedSort) $sort.value = savedSort;
+
+	// Persist active tab per store
+	const LS_TAB = `viz:storeTab:${storeNorm}`;
+	const TAB_IDS = ["all", "exclusive", "compare", "laststock"];
+	let activeTab = String(localStorage.getItem(LS_TAB) || "all");
+	if (!TAB_IDS.includes(activeTab)) activeTab = "all";
 
 	// Persist comparison technique per store
 	const LS_CMP_MODE = `viz:storeCompareMode:${storeNorm}`;
@@ -180,8 +155,7 @@ export async function renderStore($app, storeLabelRaw) {
 		if (Array.isArray(saved)) selectedTypeSet = new Set(saved);
 	} catch {}
 
-	$resultsExclusive.innerHTML = `<div class="small">Loading…</div>`;
-	$resultsCompare.innerHTML = ``;
+	$results.innerHTML = `<div class="small">Loading…</div>`;
 
 	const [idx, rulesLoaded, fav, rarity, hiddenSet] = await Promise.all([
 		loadIndex(),
@@ -592,6 +566,18 @@ export async function renderStore($app, storeLabelRaw) {
 		return $cmpMode && $cmpMode.value === "percent" ? "percent" : "dollar";
 	}
 
+	function sortMode() {
+		return String($sort?.value || "priceDesc");
+	}
+
+	function rarityForSku(rawSku) {
+		if (!rarityCache || !rules) return null;
+		const canon = rules.canonicalSku(String(rawSku || ""));
+		const entry = rarityCache.byCanon?.[canon];
+		if (!entry) return null;
+		return effectiveRarity(entry.r, entry.c);
+	}
+
 	function priceBadgeHtml(it) {
 		if (it._exclusive || it._lastStock) return "";
 
@@ -625,7 +611,7 @@ export async function renderStore($app, storeLabelRaw) {
 	}
 
 	function exclusiveAnnotHtml(it) {
-		const mode = String($exSort.value || "priceDesc");
+		const mode = sortMode();
 
 		// Sale sorts: show price change for THIS store (7d recent), unchanged => nothing.
 		if (mode === "salePct") {
@@ -702,73 +688,42 @@ export async function renderStore($app, storeLabelRaw) {
     `;
 	}
 
-	// ---- Infinite scroll paging (shared across both columns) ----
-	const PAGE_SIZE = 140;
-	const PAGE_EACH = Math.max(1, Math.floor(PAGE_SIZE / 2));
+	// ---- Single-list infinite scroll (one list per active tab) ----
+	const PAGE_SIZE = 80;
 
-	let filteredExclusive = [];
-	let filteredCompare = [];
-	let shownExclusive = 0;
-	let shownCompare = 0;
-
-	function totalFiltered() {
-		return filteredExclusive.length + filteredCompare.length;
-	}
-	function totalShown() {
-		return shownExclusive + shownCompare;
-	}
+	let filtered = [];
+	let shown = 0;
 
 	function setStatus() {
-		const total = totalFiltered();
+		const total = filtered.length;
 		if (!total) {
-			$status.textContent = "No in-stock items for this store.";
+			$status.textContent = "No matching items for this store.";
 			return;
 		}
-
-		if (pageMax !== null) {
-			$status.textContent = `In stock: ${total} item(s) (≤ ${formatDollars(selectedMaxPrice)}).`;
-			return;
-		}
-
-		$status.textContent = `In stock: ${total} item(s).`;
+		const cap = pageMax !== null ? ` (≤ ${formatDollars(selectedMaxPrice)})` : "";
+		$status.textContent = `${total} item(s)${cap}.`;
 	}
 
 	function renderNext(reset) {
 		if (reset) {
-			$resultsExclusive.innerHTML = "";
-			$resultsCompare.innerHTML = "";
-			shownExclusive = 0;
-			shownCompare = 0;
+			$results.innerHTML = "";
+			shown = 0;
 		}
 
-		const sliceEx = filteredExclusive.slice(shownExclusive, shownExclusive + PAGE_EACH);
-		const sliceCo = filteredCompare.slice(shownCompare, shownCompare + PAGE_EACH);
-
-		shownExclusive += sliceEx.length;
-		shownCompare += sliceCo.length;
-
-		if (sliceEx.length) {
-			$resultsExclusive.insertAdjacentHTML("beforeend", sliceEx.map(renderCard).join(""));
-			decorateRarity($resultsExclusive);
-		}
-		if (sliceCo.length) {
-			$resultsCompare.insertAdjacentHTML("beforeend", sliceCo.map(renderCard).join(""));
-			decorateRarity($resultsCompare);
+		const slice = filtered.slice(shown, shown + PAGE_SIZE);
+		shown += slice.length;
+		if (slice.length) {
+			$results.insertAdjacentHTML("beforeend", slice.map(renderCard).join(""));
+			decorateRarity($results);
 		}
 
-		const total = totalFiltered();
-		const shown = totalShown();
-
-		if (!total) {
-			$sentinel.textContent = "";
-		} else if (shown >= total) {
-			$sentinel.textContent = `Showing ${shown} / ${total}`;
-		} else {
-			$sentinel.textContent = `Showing ${shown} / ${total}…`;
-		}
+		const total = filtered.length;
+		if (!total) $sentinel.textContent = "";
+		else if (shown >= total) $sentinel.textContent = total > PAGE_SIZE ? `Showing all ${total}` : "";
+		else $sentinel.textContent = `Showing ${shown} / ${total}…`;
 	}
 
-	$resultsWrap.addEventListener("click", (e) => {
+	$results.addEventListener("click", (e) => {
 		if (e.target.closest(".favStarBtn")) return;
 		const el = e.target.closest(".item");
 		if (!el) return;
@@ -777,50 +732,41 @@ export async function renderStore($app, storeLabelRaw) {
 		openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
 	});
 
-	function sortExclusiveInPlace(arr) {
-		const mode = String($exSort.value || "priceDesc");
+	function sortItemsInPlace(arr) {
+		const mode = sortMode();
+		const nameKey = (x) => (String(x.name) + x.sku).toLowerCase();
 
-		if (mode === "salePct") {
+		if (mode === "salePct" || mode === "saleAbs") {
+			const key = (x) =>
+				mode === "salePct"
+					? Number.isFinite(x._salePct) ? x._salePct : 0
+					: Number.isFinite(x._saleDelta) ? x._saleDelta : 0;
 			arr.sort((a, b) => {
-				const ap = Number.isFinite(a._salePct) ? a._salePct : 0; // negative = better
-				const bp = Number.isFinite(b._salePct) ? b._salePct : 0;
-				if (ap !== bp) return ap - bp; // best deal first
-				const an = (String(a.name) + a.sku).toLowerCase();
-				const bn = (String(b.name) + b.sku).toLowerCase();
-				return an.localeCompare(bn);
+				const ka = key(a);
+				const kb = key(b);
+				if (ka !== kb) return ka - kb; // biggest drop (most negative) first
+				return nameKey(a).localeCompare(nameKey(b));
 			});
 			return;
 		}
 
-		if (mode === "saleAbs") {
+		if (mode === "rarityDesc" || mode === "rarityAsc") {
 			arr.sort((a, b) => {
-				const ad = Number.isFinite(a._saleDelta) ? a._saleDelta : 0; // negative = better
-				const bd = Number.isFinite(b._saleDelta) ? b._saleDelta : 0;
-				if (ad !== bd) return ad - bd; // best deal first
-				const an = (String(a.name) + a.sku).toLowerCase();
-				const bn = (String(b.name) + b.sku).toLowerCase();
-				return an.localeCompare(bn);
-			});
-			return;
-		}
-
-		if (mode === "priceAsc" || mode === "priceDesc") {
-			arr.sort((a, b) => {
-				const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
-				const bp = Number.isFinite(b._storePrice) ? b._storePrice : null;
-				const aKey = ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
-				const bKey = bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
-				if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
-				return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+				const ar = rarityForSku(a.sku);
+				const br = rarityForSku(b.sku);
+				if (ar === null && br === null) return nameKey(a).localeCompare(nameKey(b));
+				if (ar === null) return 1;
+				if (br === null) return -1;
+				if (ar !== br) return mode === "rarityDesc" ? br - ar : ar - br;
+				return nameKey(a).localeCompare(nameKey(b));
 			});
 			return;
 		}
 
 		if (mode === "dateAsc" || mode === "dateDesc") {
-			// dateAsc ("oldest first") stays anchored to firstSeenAt — the
-			// intuitive meaning is "added longest ago", which restocks
-			// shouldn't disturb. dateDesc ("newest first") uses the
-			// availability-aware signal so allocated restocks float up.
+			// dateAsc ("oldest first") stays anchored to firstSeenAt — "added
+			// longest ago", which restocks shouldn't disturb. dateDesc ("newest")
+			// uses the availability-aware signal so allocated restocks float up.
 			arr.sort((a, b) => {
 				const aField = mode === "dateAsc" ? a._firstSeenMs : a._latestAvailMs;
 				const bField = mode === "dateAsc" ? b._firstSeenMs : b._latestAvailMs;
@@ -829,33 +775,39 @@ export async function renderStore($app, storeLabelRaw) {
 				const aKey = ad === null ? (mode === "dateAsc" ? 9e15 : -9e15) : ad;
 				const bKey = bd === null ? (mode === "dateAsc" ? 9e15 : -9e15) : bd;
 				if (aKey !== bKey) return mode === "dateAsc" ? aKey - bKey : bKey - aKey;
-				return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+				return nameKey(a).localeCompare(nameKey(b));
 			});
+			return;
 		}
-	}
 
-	function sortCompareInPlace(arr) {
-		const mode = compareMode();
+		// price (default)
 		arr.sort((a, b) => {
-			const da = mode === "percent" ? a._diffVsOtherPct : a._diffVsOtherDollar;
-			const db = mode === "percent" ? b._diffVsOtherPct : b._diffVsOtherDollar;
-
-			const sa = da === null || !Number.isFinite(da) ? 999999 : da;
-			const sb = db === null || !Number.isFinite(db) ? 999999 : db;
-			if (sa !== sb) return sa - sb;
-
-			return (String(a.name) + a.sku).localeCompare(String(b.name) + b.sku);
+			const ap = Number.isFinite(a._storePrice) ? a._storePrice : null;
+			const bp = Number.isFinite(b._storePrice) ? b._storePrice : null;
+			const aKey = ap === null ? (mode === "priceAsc" ? 9e15 : -9e15) : ap;
+			const bKey = bp === null ? (mode === "priceAsc" ? 9e15 : -9e15) : bp;
+			if (aKey !== bKey) return mode === "priceAsc" ? aKey - bKey : bKey - aKey;
+			return nameKey(a).localeCompare(nameKey(b));
 		});
 	}
 
-	function applyFilter() {
+	function tabPredicate(tab) {
+		if (tab === "exclusive") return (it) => it._exclusive;
+		if (tab === "laststock") return (it) => it._lastStock;
+		if (tab === "compare") return (it) => !it._exclusive && !it._lastStock;
+		return () => true; // all
+	}
+
+	// base items after type/search/price filters (tab-independent), cached so a
+	// tab switch doesn't re-run the whole filter chain.
+	let baseFiltered = [];
+
+	function computeBase() {
 		const raw = String($q.value || "");
 		localStorage.setItem(LS_KEY, raw);
-
 		const tokens = tokenizeQuery(raw);
 
 		let base = items;
-
 		if (selectedTypeSet.size) {
 			base = base.filter((it) => {
 				const st = it?.spiritTypes;
@@ -864,11 +816,7 @@ export async function renderStore($app, storeLabelRaw) {
 				return false;
 			});
 		}
-
-		if (tokens.length) {
-			base = base.filter((it) => matchesAllTokens(it.searchText, tokens));
-		}
-
+		if (tokens.length) base = base.filter((it) => matchesAllTokens(it.searchText, tokens));
 		if (pageMax !== null && Number.isFinite(selectedMaxPrice)) {
 			const cap = selectedMaxPrice + 0.0001;
 			base = base.filter((it) => {
@@ -876,29 +824,61 @@ export async function renderStore($app, storeLabelRaw) {
 				return p === null ? true : p <= cap;
 			});
 		}
+		baseFiltered = base;
+	}
 
-		filteredExclusive = base.filter((it) => it._exclusive || it._lastStock);
-		filteredCompare = base.filter((it) => !it._exclusive && !it._lastStock);
+	const TAB_LABELS = { all: "All", exclusive: "Exclusive", compare: "Price Compare", laststock: "Last Stock" };
 
-		sortExclusiveInPlace(filteredExclusive);
-		sortCompareInPlace(filteredCompare);
+	function syncTabs() {
+		const counts = { all: baseFiltered.length, exclusive: 0, compare: 0, laststock: 0 };
+		for (const it of baseFiltered) {
+			if (it._exclusive) counts.exclusive++;
+			else if (it._lastStock) counts.laststock++;
+			else counts.compare++;
+		}
+		for (const btn of $tabs.querySelectorAll(".storeTab")) {
+			const tab = btn.getAttribute("data-tab");
+			const n = counts[tab] ?? 0;
+			btn.textContent = `${TAB_LABELS[tab]} (${n})`;
+			btn.classList.toggle("isOn", tab === activeTab);
+		}
+		// The $/% diff toggle only matters on the Price Compare view.
+		$cmpModeWrap.style.display = activeTab === "compare" ? "" : "none";
+	}
 
+	function applyTab() {
+		filtered = baseFiltered.filter(tabPredicate(activeTab));
+		sortItemsInPlace(filtered);
 		setStatus();
 		renderNext(true);
 	}
 
+	function applyFilter() {
+		computeBase();
+		syncTabs();
+		applyTab();
+	}
+
 	applyFilter();
 
-	const io = new IntersectionObserver(
-		(entries) => {
-			const hit = entries.some((x) => x.isIntersecting);
-			if (!hit) return;
-			if (totalShown() >= totalFiltered()) return;
+	createInfiniteScroll({
+		sentinel: $sentinel,
+		onLoadMore: () => {
+			if (shown >= filtered.length) return;
 			renderNext(false);
 		},
-		{ root: null, rootMargin: "600px 0px", threshold: 0.01 },
-	);
-	io.observe($sentinel);
+	});
+
+	$tabs.addEventListener("click", (e) => {
+		const btn = e.target.closest(".storeTab");
+		if (!btn) return;
+		const tab = btn.getAttribute("data-tab");
+		if (!TAB_IDS.includes(tab) || tab === activeTab) return;
+		activeTab = tab;
+		localStorage.setItem(LS_TAB, activeTab);
+		syncTabs();
+		applyTab();
+	});
 
 	let t = null;
 	$q.addEventListener("input", () => {
@@ -928,14 +908,15 @@ export async function renderStore($app, storeLabelRaw) {
 		$q.focus();
 	});
 
-	$exSort.addEventListener("change", () => {
-		localStorage.setItem(LS_EX_SORT, String($exSort.value || ""));
-		applyFilter();
+	$sort.addEventListener("change", () => {
+		localStorage.setItem(LS_SORT, String($sort.value || ""));
+		applyTab();
 	});
 
 	$cmpMode.addEventListener("change", () => {
 		localStorage.setItem(LS_CMP_MODE, String($cmpMode.value || ""));
-		applyFilter();
+		// Display-only: re-render so compare cards pick up the new $/% badge.
+		renderNext(true);
 	});
 
 	let tp = null;

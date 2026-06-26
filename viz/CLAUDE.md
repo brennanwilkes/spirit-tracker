@@ -103,7 +103,9 @@ viz/
 
 | File | Purpose |
 |------|---------|
-| `app/stores.js` | All 33 store entries (id, label, region, color, logo, aliases). Use `storeById()`, `storesByRegion()`, `normalizeStoreId()` |
+| `app/stores.js` | All store entries (id, label, region, color, logo, aliases, **`cities[]`**). Use `storeById()`, `storesByRegion()`, `storesByCity()`, `allCities()`, `cityLabel()`, `normalizeStoreId()`. `cities` is an array (a store can serve >1 metro, e.g. Everything Wine/BCL = Vancouver+Victoria); set via the `CITY_BY_STORE` map. Stores with no city never appear in a city preset. |
+| `app/store_set.js` | **Store-set model** — a selection of stores any list surface can filter by. Spec kinds: `all` / `region` / `city` / `stores` (ad-hoc) / `mine` (user profile). `resolveStoreSet()`→`Set<id>`\|null (null=all), `parse/serializeStoreSet()` (URL-encodable: `?stores=region:bc`), `storeSetLabel()`, `builtInPresets()`, `sameStoreSet()`. |
+| `app/components/store_set_selector.js` | Reusable store-set dropdown (preset chips + ad-hoc checkbox multi-select). Mirrors the spirit-filter pattern. `storeSetSelectorHtml()` + `installStoreSetSelector({spec, myStores, authed, onChange})`. Styles live in `style.css` (`.storeSet*`). |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
 | `app/mapping.js` | Load and apply SKU canonical map (union-find) |
 | `app/state.js` | In-memory + localStorage cache (5-min TTL, cross-tab coherent) |
@@ -335,19 +337,58 @@ Two-zone card structure used on all list pages:
 | `.badgeLastStock` | orange | Last remaining stock |
 | `.badgeNeutral` | muted | Informational |
 
-## Search Page — Recent Results (`renderRecent`)
+## Search Page — sort/filter pipeline
 
-The initial prefill on `#/` shows **market-wide changes only** from the last 3 days. An event is only surfaced if it represents a change visible to the whole market:
+The search page (`search_page.js`) pages results through a **shared infinite-scroll
+pager** (`startPager`, 60/page, wired to `components/infinite_scroll.js`) — no more hard
+`slice()` caps. Every sort mode is effectively infinite. Items are appended incrementally,
+so navigation + fav stars use **event delegation** on `#results` (one listener, not
+per-card).
+
+Sort decoupling (important):
+- **Newest** (and all non-`activity` sorts) lists the **full `index.json` catalog** sorted by
+  `firstSeenMsBySku`, with the store/type/availability filters applied — even on an empty query.
+  This is what fixed the old "~10 results" bug: empty-query+Newest used to route to the tiny
+  `recent.json` event feed.
+- **Recent activity** (`activity` sort) is the only mode that renders the curated `recent.json`
+  feed (`renderRecent`). It now surfaces the latest notable event of **any** kind per SKU
+  (new/restored/removed/price up/down), newest-first — not just market-wide arrivals.
+
+**Store filter:** a store-set selector (`#storeSet`) is the first control; `storeIdsBySku`
+(canonical ids per SKU, incl. removed rows) + `passesStoreSet()` filter the catalog by the
+selected set. Persisted to `localStorage` (`viz:searchStoreSet`) and seeded from `?stores=` in
+the URL hash for shareable links. `myStores` is `null` until the profile backend lands.
+
+## Search Page — Recent activity feed (`renderRecent`)
+
+The `activity` sort keeps the **latest event of any kind per SKU** and surfaces it per these
+rules (the market-wide gate applies only to arrivals/restocks; everything else is inherently
+notable and always passes):
 
 | Event kind | Filter condition | Badge shown |
 |------------|-----------------|-------------|
 | `new` | `agg.stores.size <= 1` (first store ever) | JUST LANDED (`badgeAccent`) |
 | `restored` | `stock.storeCount <= 1` (back after being gone everywhere) | BACK IN STOCK (`badgeAccent`) |
-| `removed` | `stock.outOfStock === true` (gone from all stores) | OUT OF STOCK (`badgeBad`) |
-| `price_down` | `newPrice <= globalCheapest + $0.01` (moves the global cheapest) | ON SALE (`badgeGood`) |
-| `price_up` / `price_change` | always filtered out | — |
+| `removed` | always passes | OUT OF STOCK (`badgeBad`) |
+| `price_down` | always passes | ON SALE (`badgeGood`) |
+| `price_up` | always passes | PRICE UP (`badgeBad`) |
 
 Price shown is always `agg.cheapestPriceStr` (global cheapest across all stores), not the event store's specific price.
+
+## Store Page — tabs + shared filter bar (`store_page.js`)
+
+Mobile-first redesign (replaced the old two-column Exclusive|Compare grid). One full-width
+list driven by a **segmented view switcher** (`.storeTabs`): **All / Exclusive / Price Compare /
+Last Stock** (counts per tab, persisted `viz:storeTab:<store>`). Each item keeps its decoration
+flags (`_exclusive`/`_lastStock`/`_isBest`/diff fields), so `renderCard` works in any tab; the
+tab is just a predicate filter over the shared `baseFiltered` set.
+
+Shared filter bar: **Sort** (price, newest/oldest, **rarity** via `rarityForSku`+`effectiveRarity`,
+sale %/$ — persisted `viz:storeSort:<store>`), spirit **Type**, **Max price** slider, and search.
+The **Diff vs others** `$`/`%` toggle is display-only and shown only on the Price Compare tab.
+Single-list infinite scroll via `createInfiniteScroll` (80/page). The store page is inherently
+in-stock-only (`rowsStoreLive`), so there is no availability filter. On desktop the list becomes
+a 2-column card grid for density.
 
 ## CSS Variables
 

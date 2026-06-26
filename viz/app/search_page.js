@@ -19,6 +19,9 @@ import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 import { decorateRarity } from "./rarity_decorate.js";
 import { effectiveRarity } from "./rarity.js";
+import { createInfiniteScroll } from "./components/infinite_scroll.js";
+import { storeSetSelectorHtml, installStoreSetSelector } from "./components/store_set_selector.js";
+import { parseStoreSet, serializeStoreSet, resolveStoreSet } from "./store_set.js";
 
 
 export function renderSearch($app) {
@@ -85,9 +88,15 @@ export function renderSearch($app) {
 
           <div class="searchControls">
             <div class="searchControl">
+              <span class="small searchControlLabel">Stores</span>
+              ${storeSetSelectorHtml()}
+            </div>
+
+            <div class="searchControl">
               <span class="small searchControlLabel">Sort</span>
               <select id="sort" class="selectSmall" aria-label="Sort">
                 <option value="newest">Newest</option>
+                <option value="activity">Recent activity</option>
                 <option value="salePct">Sale %</option>
                 <option value="saleAbs">Sale $</option>
                 <option value="priceAsc">Price (low)</option>
@@ -128,6 +137,7 @@ export function renderSearch($app) {
 	const LS_SORT = "viz:searchSort";
 	const LS_AVAIL = "viz:searchAvail";
 	const LS_TYPE  = "viz:searchType";
+	const LS_STORESET = "viz:searchStoreSet";
 	if ($sort && localStorage.getItem(LS_SORT))
 		$sort.value = String(localStorage.getItem(LS_SORT) || "newest");
 	if ($avail && localStorage.getItem(LS_AVAIL))
@@ -144,8 +154,33 @@ export function renderSearch($app) {
 		if (Array.isArray(saved)) selectedTypeSet = new Set(saved);
 	} catch {}
 
+	// Store-set filter: a shared spec (presets / ad-hoc). Seed from the URL hash
+	// (?stores=…) so a filtered view is shareable, falling back to localStorage.
+	function readStoreSetFromUrl() {
+		const h = location.hash || "";
+		const qi = h.indexOf("?");
+		if (qi === -1) return null;
+		return new URLSearchParams(h.slice(qi + 1)).get("stores");
+	}
+	const urlStoreSet = readStoreSetFromUrl();
+	let storeSetSpec = parseStoreSet(urlStoreSet != null ? urlStoreSet : localStorage.getItem(LS_STORESET) || "");
+	// Set<storeId> | null (null = all stores, no filter). myStores wired in task 5.
+	let resolvedStoreIdSet = resolveStoreSet(storeSetSpec, { myStores: null });
+
 	const favSet = new Set();
 	installFavStars($results, favSet);
+
+	// Delegated navigation — items are appended incrementally by the pager, so a
+	// single listener on the container covers all current and future cards.
+	$results.addEventListener("click", (e) => {
+		if (e.target.closest(".favStarBtn")) return;
+		const el = e.target.closest(".item");
+		if (!el) return;
+		const sku = el.getAttribute("data-sku") || "";
+		if (!sku) return;
+		saveQuery($q.value);
+		openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
+	});
 
 	const $logoutBtn = document.getElementById("logoutBtn");
 	if ($logoutBtn) {
@@ -188,6 +223,10 @@ export function renderSearch($app) {
 	// sku -> Set(storeNorm) / etc (LIVE = !removed)
 	let liveStoresBySku = new Map();
 	let everStoresBySku = new Map();
+	// sku -> Set(canonical storeId) across ALL listings (incl. removed), for the
+	// store-set filter — so an item carried by a selected store still shows even
+	// when currently out of stock there (availability is a separate filter).
+	let storeIdsBySku = new Map();
 	let storeDisplayByNorm = new Map(); // norm -> display label
 	let liveMinPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> min price)
 
@@ -273,6 +312,16 @@ export function renderSearch($app) {
 		if (m === "in") return !st.outOfStock;
 		if (m === "out") return !!st.outOfStock;
 		return true;
+	}
+
+	function passesStoreSet(sku) {
+		if (!resolvedStoreIdSet) return true; // all stores
+		const ids = storeIdsBySku.get(String(sku || ""));
+		if (!ids) return false;
+		for (const id of ids) {
+			if (resolvedStoreIdSet.has(id)) return true;
+		}
+		return false;
 	}
 
 	function passesType(it) {
@@ -503,15 +552,123 @@ export function renderSearch($app) {
 		return effectiveRarity(entry.r, entry.c);
 	}
 
-	function renderAggregates(items) {
-		if (!items.length) {
-			$results.innerHTML = `<div class="small">No matches.</div>`;
+	// ---- Shared infinite-scroll pager ----
+	// Both renderAggregates (full catalog) and renderRecent (activity feed) page
+	// through a sorted array instead of slicing to a hard cap, so every sort/filter
+	// combination is effectively infinite.
+	const PAGE_SIZE = 60;
+	let pager = null; // { destroy } | null
+
+	function clearPager() {
+		if (pager) {
+			pager.destroy();
+			pager = null;
+		}
+	}
+
+	function startPager(list, renderItemHtml, { headerHtml = "", emptyHtml = `<div class="small">No matches.</div>` } = {}) {
+		clearPager();
+
+		if (!list.length) {
+			$results.innerHTML = headerHtml + emptyHtml;
 			return;
 		}
 
-		let list = items.filter((it) => passesAvailability(String(it?.sku || "")));
+		$results.innerHTML = headerHtml + `<div id="searchSentinel" class="small searchSentinel"></div>`;
+		const $sentinel = document.getElementById("searchSentinel");
+		let shown = 0;
 
-		const mode = sortMode();
+		function renderNext() {
+			const slice = list.slice(shown, shown + PAGE_SIZE);
+			shown += slice.length;
+			if (slice.length) {
+				$sentinel.insertAdjacentHTML("beforebegin", slice.map(renderItemHtml).join(""));
+				decorateRarity($results);
+			}
+			if (shown >= list.length) {
+				$sentinel.textContent = list.length > PAGE_SIZE ? `Showing all ${list.length}` : "";
+				if (pager) {
+					pager.destroy();
+					pager = null;
+				}
+			} else {
+				$sentinel.textContent = `Showing ${shown} / ${list.length}…`;
+			}
+		}
+
+		renderNext();
+		if (shown < list.length) {
+			pager = createInfiniteScroll({ sentinel: $sentinel, onLoadMore: renderNext });
+		}
+	}
+
+	function aggregateCardHtml(it, mode) {
+		const sku = String(it?.sku || "");
+		const stock = stockMetaForSku(sku);
+		const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
+
+		const best = bestLiveStoreForSku(sku);
+		const store = !stock.outOfStock
+			? best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store"
+			: "";
+
+		const price =
+			(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
+			(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
+
+		const saleBadge = saleBadgeHtmlForSku(sku, mode);
+
+		const stockBadge = stock.outOfStock
+			? `<span class="badge badgeBad">OUT OF STOCK</span>`
+			: "";
+		const specialBadge = stock.lastStock
+			? `<span class="badge badgeLastStock">Last Stock</span>`
+			: stock.exclusive
+				? `<span class="badge badgeExclusive">Exclusive</span>`
+				: "";
+
+		const storeHref =
+			store && !stock.outOfStock
+				? urlForAgg(it, store) || String(it.sampleUrl || "").trim()
+				: "";
+		const storeHtml =
+			store && !stock.outOfStock
+				? storeHref
+					? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
+					: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`
+				: "";
+
+		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
+
+		return `
+			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
+				<div class="itemTitle">
+          <div class="itemName">${esc(it.name || "(no name)")}</div>
+          <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+          ${favStarHtml(it.sku, favSet.has(it.sku))}
+        </div>
+				<div class="itemRow">
+          <div class="thumbBox">
+            ${renderThumbHtml(it.img)}
+          </div>
+          <div class="itemBody">
+            <div class="itemLine1">${storeHtml}<span class="price">${esc(price)}</span></div>
+            <div class="metaRow">${saleBadge}${stockBadge}${specialBadge}</div>
+          </div>
+        </div>
+      </div>
+    `;
+	}
+
+	function renderAggregates(items) {
+		let list = items.filter((it) => {
+			const sku = String(it?.sku || "");
+			return passesAvailability(sku) && passesStoreSet(sku);
+		});
+
+		// "activity" only governs the empty-query feed; if a sort-with-query lands
+		// here while activity is selected, order by recency (newest) like the feed.
+		const mode = sortMode() === "activity" ? "newest" : sortMode();
 
 		function nameKey(it) {
 			return (String(it?.name || "") + "|" + String(it?.sku || "")).toLowerCase();
@@ -570,78 +727,7 @@ export function renderSearch($app) {
 			return nameKey(a).localeCompare(nameKey(b));
 		});
 
-		const limited = list.slice(0, 80);
-		$results.innerHTML = limited
-			.map((it) => {
-				const sku = String(it?.sku || "");
-				const stock = stockMetaForSku(sku);
-				const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
-
-				const best = bestLiveStoreForSku(sku);
-				const store = !stock.outOfStock
-					? best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store"
-					: "";
-
-				const price =
-					(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
-					(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
-
-				const saleBadge = saleBadgeHtmlForSku(sku, mode);
-
-				const stockBadge = stock.outOfStock
-					? `<span class="badge badgeBad">OUT OF STOCK</span>`
-					: "";
-				const specialBadge = stock.lastStock
-					? `<span class="badge badgeLastStock">Last Stock</span>`
-					: stock.exclusive
-						? `<span class="badge badgeExclusive">Exclusive</span>`
-						: "";
-
-				const storeHref =
-					store && !stock.outOfStock
-						? urlForAgg(it, store) || String(it.sampleUrl || "").trim()
-						: "";
-				const storeHtml =
-					store && !stock.outOfStock
-						? storeHref
-							? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(store)}${esc(plus)}</a>`
-							: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`
-						: "";
-
-				const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
-
-				return `
-			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
-				<div class="itemTitle">
-              <div class="itemName">${esc(it.name || "(no name)")}</div>
-              <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
-              ${favStarHtml(it.sku, favSet.has(it.sku))}
-            </div>
-				<div class="itemRow">
-              <div class="thumbBox">
-                ${renderThumbHtml(it.img)}
-              </div>
-              <div class="itemBody">
-                <div class="itemLine1">${storeHtml}<span class="price">${esc(price)}</span></div>
-                <div class="metaRow">${saleBadge}${stockBadge}${specialBadge}</div>
-              </div>
-            </div>
-          </div>
-        `;
-			})
-			.join("");
-
-		for (const el of Array.from($results.querySelectorAll(".item"))) {
-			el.addEventListener("click", (e) => {
-				if (e.target.closest(".favStarBtn")) return;
-				const sku = el.getAttribute("data-sku") || "";
-				if (!sku) return;
-				saveQuery($q.value);
-				openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
-			});
-		}
-
-		decorateRarity($results);
+		startPager(list, (it) => aggregateCardHtml(it, mode));
 	}
 
 	function renderRecent(recent, canonicalSkuFn) {
@@ -650,6 +736,7 @@ export function renderSearch($app) {
 			? rawItems.filter((r) => !isHiddenListing(hiddenSetRef, normalizeStoreId(r?.storeLabel || r?.store || ""), String(r?.sku || "").trim()))
 			: rawItems;
 		if (!items.length) {
+			clearPager();
 			$results.innerHTML = `<div class="small">Type to search…</div>`;
 			return;
 		}
@@ -668,19 +755,17 @@ export function renderSearch($app) {
 		});
 
 		if (!inWindow.length) {
+			clearPager();
 			$results.innerHTML = `<div class="small">No recent changes.</div>`;
 			return;
 		}
 
-		// Keep only the latest "new" or "restored" event per sku. Filtering at
-		// intake (not later) is what lets allocated bottles still surface even
-		// when a removed event lands moments after the restock — otherwise the
-		// removed would shadow the restored in this map and the bottle would
-		// never reach the JUST LANDED / BACK IN STOCK card.
+		// "Recent activity" surfaces the latest notable event of ANY kind per sku
+		// (new / restored / removed / price up / price down) — not just market-wide
+		// arrivals. Keeping the single most-recent event per sku keeps the feed one
+		// row per product rather than a flood of per-store churn.
 		const bySku = new Map(); // sku -> { r, ms, sku }
 		for (const r of inWindow) {
-			const k = normalizeKindForPrice(r);
-			if (k !== "new" && k !== "restored") continue;
 			const rawSku = String(r?.sku || "").trim();
 			if (!rawSku) continue;
 			const sku = String(canon(rawSku) || "").trim();
@@ -704,22 +789,21 @@ export function renderSearch($app) {
 			});
 		}
 
-		// Market-wide filter: a "new" event only surfaces if the item is at
-		// <=1 store overall (truly new to market, not just new at this store).
-		// A "restored" event only surfaces if the item is currently at <=1
-		// store (it was gone everywhere and just came back). Availability
-		// kind filtering already happened at the bySku intake above.
+		// Market-wide gate applies only to arrivals/restocks: a "new" event surfaces
+		// only if the item is at <=1 store overall (truly new to market, not just new
+		// at one store), and a "restored" event only if it's currently at <=1 store
+		// (gone everywhere, just back). Removals and price moves are inherently
+		// notable, so they always pass.
 		picked = picked.filter((x) => {
 			const sku = String(x.sku || "");
+			if (!passesStoreSet(sku)) return false;
 			if (!passesAvailability(sku)) return false;
 			const k = normalizeKindForPrice(x.r);
 			const agg = aggBySku.get(sku) || null;
 			const stock = stockMetaForSku(sku);
-			if (k === "new") {
-				return (agg?.stores?.size ?? stock.storeCount) <= 1;
-			}
-			// restored
-			return stock.storeCount <= 1;
+			if (k === "new") return (agg?.stores?.size ?? stock.storeCount) <= 1;
+			if (k === "restored") return stock.storeCount <= 1;
+			return true;
 		});
 
 		const mode = sortMode();
@@ -762,100 +846,85 @@ export function renderSearch($app) {
 			return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 		});
 
-		const limited = picked.slice(0, 140);
+		startPager(picked, ({ r, sku }) => recentCardHtml(r, sku, mode), {
+			headerHtml: `<div class="small">Recently changed:</div>`,
+			emptyHtml: `<div class="small">No recent changes.</div>`,
+		});
+	}
 
-		$results.innerHTML =
-			`<div class="small">Recently changed:</div>` +
-			limited
-				.map(({ r, sku }) => {
-					const kind = normalizeKindForPrice(r);
+	function recentCardHtml(r, sku, mode) {
+		const kind = normalizeKindForPrice(r);
 
-					const kindLabel =
-						kind === "new"
-							? "JUST LANDED"
-							: kind === "restored"
-								? "BACK IN STOCK"
-								: kind === "removed"
-									? "OUT OF STOCK"
-									: kind === "price_down"
-										? "ON SALE"
-										: "CHANGE";
+		const kindLabel =
+			kind === "new"
+				? "JUST LANDED"
+				: kind === "restored"
+					? "BACK IN STOCK"
+					: kind === "removed"
+						? "OUT OF STOCK"
+						: kind === "price_down"
+							? "ON SALE"
+							: kind === "price_up"
+								? "PRICE UP"
+								: "CHANGE";
 
-					const kindBadgeClass =
-						kind === "new" || kind === "restored"
-							? "badgeAccent"
-							: kind === "removed"
-								? "badgeBad"
-								: kind === "price_down"
-									? "badgeGood"
-									: "";
-
-					const when = r.ts ? prettyTs(r.ts) : r.date || "";
-
-					const agg = aggBySku.get(sku) || null;
-					const img = agg?.img || "";
-
-					// Always show the global cheapest price for this SKU
-					const priceLine = agg?.cheapestPriceStr || r.newPrice || r.price || "";
-
-					const stock = stockMetaForSku(sku);
-					const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
-
-					const stockBadge = stock.outOfStock
-						? `<span class="badge badgeBad">OUT OF STOCK</span>`
-						: "";
-					const specialBadge = stock.lastStock
-						? `<span class="badge badgeLastStock">Last Stock</span>`
-						: stock.exclusive
-							? `<span class="badge badgeExclusive">Exclusive</span>`
-							: "";
-
-					const storeHref = String(r.url || "").trim();
-					const storeLabel = (r.storeLabel || r.store || "") + plus;
-					const storeHtml = storeLabel
-						? storeHref
-							? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
-							: `<span class="itemStore">${esc(storeLabel)}</span>`
+		const kindBadgeClass =
+			kind === "new" || kind === "restored"
+				? "badgeAccent"
+				: kind === "removed" || kind === "price_up"
+					? "badgeBad"
+					: kind === "price_down"
+						? "badgeGood"
 						: "";
 
-					const dateBadge = when ? `<span class="badge mono">${esc(when)}</span>` : "";
+		const agg = aggBySku.get(sku) || null;
+		const img = agg?.img || "";
 
-					const saleBadge = saleBadgeHtmlForSku(sku, mode);
+		// Always show the global cheapest price for this SKU
+		const priceLine = agg?.cheapestPriceStr || r.newPrice || r.price || "";
 
-					const skuLink = `#/link/?left=${encodeURIComponent(String(sku || ""))}`;
+		const stock = stockMetaForSku(sku);
+		const plus = stock.storeCount > 1 ? ` +${stock.storeCount - 1}` : "";
 
-					return `
-					<div class="item itemHasStar" data-sku="${esc(sku)}">
-					<div class="itemTitle">
-                <div class="itemName">${esc(r.name || "(no name)")}</div>
-                <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
-                ${favStarHtml(sku, favSet.has(sku))}
-              </div>
-					<div class="itemRow">
-                <div class="thumbBox">
-                  ${renderThumbHtml(img)}
-                </div>
-                <div class="itemBody">
-                  <div class="itemLine1">${storeHtml}<span class="price">${esc(priceLine)}</span></div>
-                  <div class="metaRow"><span class="badge ${kindBadgeClass}">${esc(kindLabel)}</span>${saleBadge}${kind !== "removed" ? stockBadge : ""}${specialBadge}</div>
-                </div>
-              </div>
-            </div>
-          `;
-				})
-				.join("");
+		const stockBadge = stock.outOfStock
+			? `<span class="badge badgeBad">OUT OF STOCK</span>`
+			: "";
+		const specialBadge = stock.lastStock
+			? `<span class="badge badgeLastStock">Last Stock</span>`
+			: stock.exclusive
+				? `<span class="badge badgeExclusive">Exclusive</span>`
+				: "";
 
-		for (const el of Array.from($results.querySelectorAll(".item"))) {
-			el.addEventListener("click", (e) => {
-				if (e.target.closest(".favStarBtn")) return;
-				const sku = el.getAttribute("data-sku") || "";
-				if (!sku) return;
-				saveQuery($q.value);
-				openOrNavigateTo(e, `#/item/${encodeURIComponent(sku)}`);
-			});
-		}
+		const storeHref = String(r.url || "").trim();
+		const storeLabel = (r.storeLabel || r.store || "") + plus;
+		const storeHtml = storeLabel
+			? storeHref
+				? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
+				: `<span class="itemStore">${esc(storeLabel)}</span>`
+			: "";
 
-		decorateRarity($results);
+		const saleBadge = saleBadgeHtmlForSku(sku, mode);
+
+		const skuLink = `#/link/?left=${encodeURIComponent(String(sku || ""))}`;
+
+		return `
+			<div class="item itemHasStar" data-sku="${esc(sku)}">
+			<div class="itemTitle">
+        <div class="itemName">${esc(r.name || "(no name)")}</div>
+        <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
+        ${favStarHtml(sku, favSet.has(sku))}
+      </div>
+			<div class="itemRow">
+        <div class="thumbBox">
+          ${renderThumbHtml(img)}
+        </div>
+        <div class="itemBody">
+          <div class="itemLine1">${storeHtml}<span class="price">${esc(priceLine)}</span></div>
+          <div class="metaRow"><span class="badge ${kindBadgeClass}">${esc(kindLabel)}</span>${saleBadge}${kind !== "removed" ? stockBadge : ""}${specialBadge}</div>
+        </div>
+      </div>
+    </div>
+  `;
 	}
 
 	function renderCurrent() {
@@ -863,9 +932,16 @@ export function renderSearch($app) {
 
 		const tokens = tokenizeQuery($q.value);
 		if (!tokens.length) {
-			if (sortMode() === "newest") {
+			// "Recent activity" is the only mode that shows the curated event feed.
+			// Every other sort (incl. Newest) lists the FULL catalog with infinite
+			// scroll, so "Newest + Rum + In stock" returns the whole rum catalog,
+			// not just the handful of market-wide arrivals in recent.json.
+			if (sortMode() === "activity") {
 				if (recentCache) renderRecent(recentCache, rulesRef?.canonicalSku);
-				else $results.innerHTML = `<div class="small">Type to search…</div>`;
+				else {
+					clearPager();
+					$results.innerHTML = `<div class="small">No recent changes.</div>`;
+				}
 			} else {
 				const typeFiltered = selectedTypeSet.size ? allAgg.filter(passesType) : allAgg;
 				renderAggregates(typeFiltered);
@@ -927,6 +1003,7 @@ export function renderSearch($app) {
 
 			liveStoresBySku = new Map();
 			everStoresBySku = new Map();
+			storeIdsBySku = new Map();
 			storeDisplayByNorm = new Map();
 			liveMinPriceBySkuStore = new Map();
 			firstSeenMsBySku = new Map();
@@ -961,6 +1038,16 @@ export function renderSearch($app) {
 					let ss = everStoresBySku.get(sku);
 					if (!ss) everStoresBySku.set(sku, (ss = new Set()));
 					ss.add(stNorm);
+				}
+
+				// canonical store ids for the store-set filter (incl. removed rows)
+				{
+					const storeId = normalizeStoreId(storeLabel);
+					if (storeId) {
+						let ss = storeIdsBySku.get(sku);
+						if (!ss) storeIdsBySku.set(sku, (ss = new Set()));
+						ss.add(storeId);
+					}
 				}
 
 				if (r.removed) continue;
@@ -1051,6 +1138,22 @@ export function renderSearch($app) {
 			selectedSet: selectedTypeSet,
 			onChange: () => {
 				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
+				renderCurrent();
+			},
+		});
+	}
+
+	const $storeSet = document.getElementById("storeSet");
+	if ($storeSet) {
+		installStoreSetSelector({
+			$container: $storeSet,
+			spec: storeSetSpec,
+			myStores: null, // wired to the user profile in task 5
+			authed,
+			onChange: (next) => {
+				storeSetSpec = next;
+				resolvedStoreIdSet = resolveStoreSet(next, { myStores: null });
+				try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
 				renderCurrent();
 			},
 		});

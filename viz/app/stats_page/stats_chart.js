@@ -78,7 +78,16 @@ export function destroyStatsChart() {
 
 export function resizeStatsChart() {
 	try {
-		if (_chart) _chart.resize();
+		if (!_chart) return;
+		_chart.resize();
+		const canvas = document.getElementById("statsChart");
+		const hPx = canvas?.clientHeight || canvas?.parentElement?.clientHeight || 320;
+		const maxTicks = Math.max(4, Math.min(10, Math.round(hPx / 44)));
+		const yt = _chart.options?.scales?.y?.ticks;
+		if (yt && yt.maxTicksLimit !== maxTicks) {
+			yt.maxTicksLimit = maxTicks;
+			_chart.update("none");
+		}
 	} catch {}
 }
 
@@ -232,18 +241,23 @@ export async function drawOrUpdateChart(series, yBounds) {
 		return `${n.toFixed(0)}%`;
 	};
 
+	// Tick density follows available pixel height so a tall range doesn't bunch up
+	// on a short mobile chart (~44px min spacing per label).
+	const hPx = canvas.clientHeight || canvas.parentElement?.clientHeight || 320;
+	const maxTicks = Math.max(4, Math.min(10, Math.round(hPx / 44)));
+
 	const yTicks = isDollars
 		? {
 				stepSize: yStep,
 				precision: 0,
 				autoSkip: true,
-				maxTicksLimit: 10,
+				maxTicksLimit: maxTicks,
 				callback: yTickCallback,
 			}
 		: {
-				stepSize: 1,
 				precision: 0,
-				autoSkip: false, // don't skip integer % ticks
+				autoSkip: true,
+				maxTicksLimit: maxTicks,
 				callback: yTickCallback,
 			};
 

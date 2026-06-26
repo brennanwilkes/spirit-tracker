@@ -34,6 +34,55 @@ export function destroyChart() {
 	}
 }
 
+// Renders the off-canvas store legend (#chartLegend). A store can have several
+// SKU variants (multiple datasets share one store label), so entries are grouped
+// by label and clicking toggles the whole group's visibility — mirroring the old
+// on-canvas legend's de-dup + group-toggle behavior.
+function buildChartLegend(chart) {
+	const panel = document.getElementById("chartLegend");
+	const list = document.getElementById("chartLegendList");
+	const countEl = document.getElementById("chartLegendCount");
+	if (!panel || !list || !countEl) return;
+
+	const groups = new Map(); // store label -> { color, idxs }
+	chart.data.datasets.forEach((ds, i) => {
+		const label = String(ds.label || "");
+		if (!label) return;
+		if (!groups.has(label)) groups.set(label, { color: ds.borderColor, idxs: [] });
+		groups.get(label).idxs.push(i);
+	});
+
+	if (groups.size === 0) {
+		panel.hidden = true;
+		return;
+	}
+
+	panel.hidden = false;
+	panel.open = window.innerWidth > 640;
+	countEl.textContent = `Stores (${groups.size})`;
+
+	const frag = document.createDocumentFragment();
+	for (const [label, { color, idxs }] of groups) {
+		const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
+		const item = document.createElement("button");
+		item.type = "button";
+		item.className = "chartLegendItem" + (allHidden ? " dimmed" : "");
+		const swatch = typeof color === "string" ? color : "var(--muted)";
+		item.innerHTML = `<span class="chartLegendSwatch" style="background:${esc(swatch)}"></span><span class="chartLegendLabel">${esc(label)}</span>`;
+		item.addEventListener("click", () => {
+			const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
+			for (const j of idxs) {
+				if (typeof chart.setDatasetVisibility === "function") chart.setDatasetVisibility(j, !anyVisible);
+				else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
+			}
+			chart.update();
+			item.classList.toggle("dimmed", anyVisible);
+		});
+		frag.appendChild(item);
+	}
+	list.replaceChildren(frag);
+}
+
 /* ---------------- SKU history from pre-built cache files ---------------- */
 
 function storeIdFromDbFile(dbFile) {
@@ -240,6 +289,10 @@ export async function renderItem($app, skuInput) {
 				<div class="chartBox">
 				<canvas id="chart"></canvas>
 				</div>
+				<details class="chartLegend" id="chartLegend" hidden>
+				<summary><span id="chartLegendCount">Stores</span></summary>
+				<div class="chartLegendList" id="chartLegendList"></div>
+				</details>
 			</div>
 			</div>
 		`;
@@ -821,48 +874,10 @@ export async function renderItem($app, skuInput) {
 					axisInset: 2,
 				},
 
-				// De-dupe legend items by label WITHOUT changing legend styling.
-				legend: {
-					display: true,
-					labels: {
-						generateLabels: (chart) => {
-							const gen = Chart?.defaults?.plugins?.legend?.labels?.generateLabels;
-							const items = typeof gen === "function" ? gen(chart) : [];
-
-							const seen = new Map(); // text -> { item, idxs }
-							for (const it of items) {
-								const t = String(it.text || "");
-								if (!seen.has(t)) {
-									seen.set(t, { item: { ...it, _group: [it.datasetIndex] } });
-								} else {
-									seen.get(t).item._group.push(it.datasetIndex);
-								}
-							}
-
-							// make "hidden" reflect ALL datasets in the group
-							const out = [];
-							for (const { item } of seen.values()) {
-								const idxs = item._group || [item.datasetIndex];
-								const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
-								out.push({ ...item, hidden: allHidden, datasetIndex: idxs[0], _group: idxs });
-							}
-							return out;
-						},
-					},
-					onClick: (_e, legendItem, legend) => {
-						const chart = legend.chart;
-						const idxs = legendItem._group || [legendItem.datasetIndex];
-
-						// toggle all as a group
-						const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
-						for (const j of idxs) {
-							if (typeof chart.setDatasetVisibility === "function")
-								chart.setDatasetVisibility(j, !anyVisible);
-							else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
-						}
-						chart.update();
-					},
-				},
+				// On-canvas legend is replaced by a collapsible HTML panel below the
+				// chart (#chartLegend) — see buildChartLegend() — so a 20-30 store
+				// legend doesn't eat the plot height on mobile.
+				legend: { display: false },
 
 				tooltip: {
 					filter: (tctx) => {
@@ -952,6 +967,8 @@ export async function renderItem($app, skuInput) {
 
 		CHART.update();
 	}
+
+	buildChartLegend(CHART);
 
 	clearProgress();
 	setStatusText(
