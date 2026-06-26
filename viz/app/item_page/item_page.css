@@ -120,79 +120,7 @@
   height: 100% !important;
 }
 
-/* ── Off-canvas store legend ───────────────────────────────────────────── */
-
-.chartLegend {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel);
-  padding: 0 10px;
-}
-
-.chartLegend > summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 10px 2px;
-  font-size: 13px;
-  color: var(--muted);
-  user-select: none;
-}
-
-.chartLegend > summary::-webkit-details-marker { display: none; }
-
-.chartLegend > summary::before {
-  content: "▸ ";
-  display: inline-block;
-  transition: transform 0.15s ease;
-}
-
-.chartLegend[open] > summary::before {
-  content: "▾ ";
-}
-
-.chartLegendList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 6px;
-  max-height: 160px;
-  overflow-y: auto;
-  padding: 2px 0 10px;
-}
-
-.chartLegendItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text);
-  font-size: 12px;
-  line-height: 1.2;
-  cursor: pointer;
-}
-
-.chartLegendItem:hover { border-color: var(--text); }
-
-.chartLegendItem.dimmed {
-  opacity: 0.4;
-}
-
-.chartLegendItem.dimmed .chartLegendSwatch {
-  opacity: 0.5;
-}
-
-.chartLegendSwatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  flex: 0 0 12px;
-}
-
-.chartLegendLabel {
-  white-space: nowrap;
-}
+/* Off-canvas chart legend (.chartLegend*) is shared — see style.css. */
 
 /* ── Store links: pinned quick-access + collapsible full list ──────────── */
 
@@ -332,11 +260,35 @@
   #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
 
+  /* Larger product photo defines the header height; the title / quick-links /
+     All-stores column stretches to fill that height beside it. */
   .detailThumbBox {
-    width: 96px;
-    height: 96px;
-    flex: 0 0 96px;
+    width: 200px;
+    height: 200px;
+    flex: 0 0 200px;
+    align-self: flex-start;
   }
+
+  .detailHeader { align-items: stretch; }
+  .detailHeaderText { display: flex; flex-direction: column; }
+  .detailTopRow { flex: 1 1 auto; align-items: stretch; }
+  .detailRight { align-self: flex-start; }
+
+  /* Distribute the three lines evenly across the photo's height: item name at
+     the top, quick-links in the middle, All-stores at the bottom. #links is
+     display:contents so its two children join the title as flex siblings (the
+     hide-button click delegation still works — events bubble through it). */
+  .detailLeft {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .detailLeft #links {
+    display: contents;
+  }
+
+  /* status/debug sits below both columns */
+  .detailStatus { margin-top: 12px; }
 
   .chartBox {
     aspect-ratio: auto;
@@ -344,10 +296,6 @@
     max-height: 720px;
     min-height: 320px;
     padding: 10px;
-  }
-
-  .chartLegendList {
-    max-height: 220px;
   }
 
   /* Pointer device — inline, auto-width links instead of full-width stacked rows. */
@@ -439,6 +387,9 @@ html[data-theme="dark"] .chartBox { background: #0f1318; }
 
 /* ── Loading progress bar ───────────────────────────────────────────────── */
 
+/* Separate the status/debug line from the All-stores toggle above it. */
+#statusMobile { margin-top: 10px; }
+
 .loadingBar {
   height: 3px;
   background: var(--border);
@@ -447,6 +398,13 @@ html[data-theme="dark"] .chartBox { background: #0f1318; }
   opacity: 0;
   transition: opacity 0.2s;
   margin-top: 4px;
+}
+
+/* At rest (load finished) the bar is invisible — collapse it so it doesn't
+   leave a dead gap below the status text. */
+.loadingBar:not(.loadingBarActive) {
+  height: 0;
+  margin-top: 0;
 }
 
 .loadingBar.loadingBarActive {

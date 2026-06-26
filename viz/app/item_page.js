@@ -277,6 +277,10 @@ export async function renderItem($app, skuInput) {
 				</div>
 				</div>
 
+				<!-- DESKTOP debug/status below the whole header (both columns) -->
+				<div class="small detailStatus" id="status"></div>
+				<div class="loadingBar" id="loadingBar"><div class="loadingBarFill"></div></div>
+
 				<!-- MOBILE full-width links/status (different ids, no collisions) -->
 				<div class="detailMobileLinks">
 				<div id="linksMobile" class="links"></div>

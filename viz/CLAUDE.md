@@ -105,7 +105,7 @@ viz/
 |------|---------|
 | `app/stores.js` | All store entries (id, label, region, color, logo, aliases, **`cities[]`**). Use `storeById()`, `storesByRegion()`, `storesByCity()`, `allCities()`, `cityLabel()`, `normalizeStoreId()`. `cities` is an array (a store can serve >1 metro, e.g. Everything Wine/BCL = Vancouver+Victoria); set via the `CITY_BY_STORE` map. Stores with no city never appear in a city preset. |
 | `app/store_set.js` | **Store-set model** — a selection of stores any list surface can filter by. Spec kinds: `all` / `region` / `city` / `stores` (ad-hoc) / `mine` (user profile). `resolveStoreSet()`→`Set<id>`\|null (null=all), `parse/serializeStoreSet()` (URL-encodable: `?stores=region:bc`), `storeSetLabel()`, `builtInPresets()`, `sameStoreSet()`. |
-| `app/components/store_set_selector.js` | Reusable store-set dropdown (preset chips + ad-hoc checkbox multi-select). Mirrors the spirit-filter pattern. `storeSetSelectorHtml()` + `installStoreSetSelector({spec, myStores, authed, onChange})`. Styles live in `style.css` (`.storeSet*`). |
+| `app/components/store_set_selector.js` | Reusable store-set dropdown (preset chips + ad-hoc checkbox multi-select). **Multi-instance safe**: class-based internals (no ids) + ONE shared outside-click listener (`ensureDocListener`), so many can coexist (search filter, settings "My Stores", one per email-alert rule). Locate the root via `.storeSet`. `storeSetSelectorHtml()` + `installStoreSetSelector({$container, spec, myStores, authed, onChange})`. Styles in `style.css` (`.storeSet*`); panel spans full row on mobile, fixed-width dropdown ≥641px. |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
 | `app/mapping.js` | Load and apply SKU canonical map (union-find) |
 | `app/state.js` | In-memory + localStorage cache (5-min TTL, cross-tab coherent) |
@@ -374,6 +374,26 @@ notable and always passes):
 | `price_up` | always passes | PRICE UP (`badgeBad`) |
 
 Price shown is always `agg.cheapestPriceStr` (global cheapest across all stores), not the event store's specific price.
+
+## "My Stores" + store filtering everywhere
+
+A signed-in user's favourite-stores set is a profile resource `stores` (array of store
+ids) on the Worker API (`~/spirit-tracker-api`: added to `RESOURCES`, `defaultValue`,
+`validateStringArray` PUT, `acct/<uuid>/stores`). Frontend: `cloud.js` `getStores`/
+`putStores` (+ `getMyStores`/`putMyStores`), validated like favourites.
+
+- **Search page** loads `getMyStores()` with page data (best-effort, authed only) and passes
+  it to the store-set selector → the **My Stores** preset appears (authed + non-empty). The
+  selector install is deferred into the data `.then` so `myStores` is known first.
+- **Settings** has a **My Stores editor** (`#myStoresSave` + `.myStoresRow .storeSet`): mounts
+  the selector with `authed:false` (no recursive "My Stores" preset), resolves the chosen spec
+  to ids on Save → `putMyStores`. Saved as concrete ids (preset selections are snapshotted).
+- **Email-alert rules** store filter is now the **same multi-select** (`filters.storeIds: string[]`,
+  any-of), replacing the legacy single `filters.storeId` (still read for back-compat, and migrated
+  off on edit). One selector mounted per rule via `mountRuleStoreSelectors()` after each
+  `renderRules()`; "All stores" = no filter. Backend: `validateEmailRuleV1` validates `storeIds`,
+  and `ruleMatchesEvent` matches `ev.storeId ∈ storeIds` (falling back to legacy `storeId`).
+  The rule editor's delegated handlers safely ignore the selector's events (no `data-i`/`data-k`).
 
 ## Store Page — tabs + shared filter bar (`store_page.js`)
 

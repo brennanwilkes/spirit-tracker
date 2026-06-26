@@ -14,7 +14,7 @@ import { loadHiddenSet, isHiddenListing } from "./hidden.js";
 import { normalizeStoreId } from "./stores.js";
 import { smwsDistilleryCodesForQueryPrefix, smwsDistilleryCodeFromName } from "./smws.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-import { getAuthStatus, logoutAndReload } from "./cloud.js";
+import { getAuthStatus, logoutAndReload, getMyStores } from "./cloud.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
 import { decorateRarity } from "./rarity_decorate.js";
@@ -164,8 +164,10 @@ export function renderSearch($app) {
 	}
 	const urlStoreSet = readStoreSetFromUrl();
 	let storeSetSpec = parseStoreSet(urlStoreSet != null ? urlStoreSet : localStorage.getItem(LS_STORESET) || "");
-	// Set<storeId> | null (null = all stores, no filter). myStores wired in task 5.
-	let resolvedStoreIdSet = resolveStoreSet(storeSetSpec, { myStores: null });
+	// The signed-in user's saved "My Stores" ids (loaded with page data; null until known).
+	let myStoresRef = null;
+	// Set<storeId> | null (null = all stores, no filter).
+	let resolvedStoreIdSet = resolveStoreSet(storeSetSpec, { myStores: myStoresRef });
 
 	const favSet = new Set();
 	installFavStars($results, favSet);
@@ -229,6 +231,9 @@ export function renderSearch($app) {
 	let storeIdsBySku = new Map();
 	let storeDisplayByNorm = new Map(); // norm -> display label
 	let liveMinPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> min price)
+	// sku -> cheapest last-known price across REMOVED rows. Out-of-stock items have no
+	// live price, so this is what price-sort + the card fall back to for them.
+	let lastKnownMinPriceBySku = new Map();
 
 	function buildUrlMap(listings, canonicalSkuFn) {
 		const out = new Map();
@@ -537,7 +542,12 @@ export function renderSearch($app) {
 		const s = String(sku || "");
 		if (priceNumCache.has(s)) return priceNumCache.get(s);
 		const best = bestLiveStoreForSku(s);
-		const n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
+		let n = Number.isFinite(best?.priceNum) ? best.priceNum : null;
+		if (n === null) {
+			// Out of stock everywhere — sort by its cheapest last-known price.
+			const last = lastKnownMinPriceBySku.get(s);
+			if (Number.isFinite(last)) n = last;
+		}
 		priceNumCache.set(s, n);
 		return n;
 	}
@@ -612,9 +622,12 @@ export function renderSearch($app) {
 			? best.storeLabel || it.cheapestStoreLabel || [...(it.stores || [])][0] || "Store"
 			: "";
 
+		const lastKnown = lastKnownMinPriceBySku.get(sku);
 		const price =
 			(best.priceNum !== null ? priceStrFromNum(best.priceNum) : "") ||
-			(it.cheapestPriceStr ? it.cheapestPriceStr : "(no price)");
+			(it.cheapestPriceStr ? it.cheapestPriceStr : "") ||
+			(stock.outOfStock && Number.isFinite(lastKnown) ? priceStrFromNum(lastKnown) : "") ||
+			"(no price)";
 
 		const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
@@ -749,9 +762,16 @@ export function renderSearch($app) {
 		// surfaces older legitimate restocks/arrivals when nothing fresh is
 		// happening today.
 		const nowMs = Date.now();
+		// "In stock only" must not surface removal events — a removal at one store badges
+		// the row OUT OF STOCK even when the item is still live elsewhere. Dropping them
+		// from the pool (before the per-SKU latest pick) lets an older in-stock-relevant
+		// event surface instead, or the row falls away entirely.
+		const hideRemovals = availMode() === "in";
 		const inWindow = items.filter((r) => {
 			const ms = eventMsRecent(r);
-			return ms <= nowMs;
+			if (ms > nowMs) return false;
+			if (hideRemovals && normalizeKindForPrice(r) === "removed") return false;
+			return true;
 		});
 
 		if (!inWindow.length) {
@@ -983,12 +1003,15 @@ export function renderSearch($app) {
 		loadRecent().catch(() => null),
 		loadRarity().catch(() => null),
 		loadHiddenSet().catch(() => new Set()),
+		authed ? getMyStores().catch(() => []) : Promise.resolve([]),
 	])
-		.then(([idx, rules, fav, recent, rarity, hiddenSet]) => {
+		.then(([idx, rules, fav, recent, rarity, hiddenSet, myStores]) => {
 			rulesRef = rules;
 			recentCache = recent;
 			rarityRef = rarity;
 			hiddenSetRef = hiddenSet || new Set();
+			myStoresRef = Array.isArray(myStores) ? myStores.filter((x) => typeof x === "string") : [];
+			resolvedStoreIdSet = resolveStoreSet(storeSetSpec, { myStores: myStoresRef });
 
 			favSet.clear();
 			for (const k of fav.set) {
@@ -1006,6 +1029,7 @@ export function renderSearch($app) {
 			storeIdsBySku = new Map();
 			storeDisplayByNorm = new Map();
 			liveMinPriceBySkuStore = new Map();
+			lastKnownMinPriceBySku = new Map();
 			firstSeenMsBySku = new Map();
 
 			for (const r of listings) {
@@ -1050,7 +1074,16 @@ export function renderSearch($app) {
 					}
 				}
 
-				if (r.removed) continue;
+				if (r.removed) {
+					// Capture the last-known price so out-of-stock items remain sortable
+					// (and showable) by price.
+					const rp = parsePriceToNumber(r.price);
+					if (rp !== null) {
+						const prev = lastKnownMinPriceBySku.get(sku);
+						if (prev === undefined || rp < prev) lastKnownMinPriceBySku.set(sku, rp);
+					}
+					continue;
+				}
 
 				// display label for store
 				if (!storeDisplayByNorm.has(stNorm)) storeDisplayByNorm.set(stNorm, storeLabel);
@@ -1087,6 +1120,21 @@ export function renderSearch($app) {
 			if (recentCache) rebuildRecentMeta(recentCache, rules.canonicalSku);
 			renderCurrent();
 
+			const $storeSet = document.querySelector(".searchControl .storeSet");
+			if ($storeSet) {
+				installStoreSetSelector({
+					$container: $storeSet,
+					spec: storeSetSpec,
+					myStores: myStoresRef,
+					authed,
+					onChange: (next) => {
+						storeSetSpec = next;
+						resolvedStoreIdSet = resolveStoreSet(next, { myStores: myStoresRef });
+						try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
+						renderCurrent();
+					},
+				});
+			}
 		})
 		.catch((e) => {
 			$results.innerHTML = `<div class="small">Failed to load: ${esc(e.message)}</div>`;
@@ -1143,19 +1191,4 @@ export function renderSearch($app) {
 		});
 	}
 
-	const $storeSet = document.getElementById("storeSet");
-	if ($storeSet) {
-		installStoreSetSelector({
-			$container: $storeSet,
-			spec: storeSetSpec,
-			myStores: null, // wired to the user profile in task 5
-			authed,
-			onChange: (next) => {
-				storeSetSpec = next;
-				resolvedStoreIdSet = resolveStoreSet(next, { myStores: null });
-				try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
-				renderCurrent();
-			},
-		});
-	}
 }

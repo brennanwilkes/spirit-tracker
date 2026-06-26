@@ -18,6 +18,28 @@ const REGION_ORDER = [
 	{ region: "ab", label: "Alberta" },
 ];
 
+// Single shared outside-click handler closes any open panel — so any number of
+// selectors (e.g. one per email-alert rule) coexist without each leaking a
+// document listener across re-renders.
+let _docListenerAdded = false;
+function ensureDocListener() {
+	if (_docListenerAdded) return;
+	_docListenerAdded = true;
+	document.addEventListener("click", (e) => {
+		for (const panel of document.querySelectorAll(".storeSetPanel:not([hidden])")) {
+			const root = panel.closest(".storeSet");
+			if (root && !root.contains(e.target)) {
+				panel.hidden = true;
+				const trig = root.querySelector(".storeSetTrigger");
+				if (trig) {
+					trig.classList.remove("is-open");
+					trig.setAttribute("aria-expanded", "false");
+				}
+			}
+		}
+	});
+}
+
 export function storeSetSelectorHtml() {
 	const groups = REGION_ORDER.map(({ region, label }) => {
 		const rows = storesByRegion(region)
@@ -37,19 +59,21 @@ export function storeSetSelectorHtml() {
 			</div>`;
 	}).join("");
 
+	// Class-based (no ids) so multiple selectors can coexist on one page
+	// (e.g. one per email-alert rule). Callers locate the root via `.storeSet`.
 	return `
-		<div class="storeSet" id="storeSet">
-			<button class="selectSmall storeSetTrigger" id="storeSetTrigger"
+		<div class="storeSet">
+			<button class="selectSmall storeSetTrigger"
 			        type="button" aria-haspopup="dialog" aria-expanded="false">
 				<i class="fa-solid fa-store" aria-hidden="true"></i>
-				<span id="storeSetLabel">All stores</span>
+				<span class="storeSetLabel">All stores</span>
 			</button>
-			<div class="storeSetPanel" id="storeSetPanel" hidden role="dialog" aria-label="Filter by store">
-				<div class="storeSetPresets" id="storeSetPresets"></div>
+			<div class="storeSetPanel" hidden role="dialog" aria-label="Filter by store">
+				<div class="storeSetPresets"></div>
 				<div class="storeSetListWrap">${groups}</div>
 				<div class="storeSetActions">
-					<span class="small" id="storeSetCount"></span>
-					<button class="btn btnSm" id="storeSetClear" type="button">All stores</button>
+					<span class="small storeSetCount"></span>
+					<button class="btn btnSm storeSetClear" type="button">All stores</button>
 				</div>
 			</div>
 		</div>`;
@@ -69,12 +93,12 @@ export function storeSetSelectorHtml() {
 export function installStoreSetSelector({ $container, spec, myStores = null, authed = false, onChange }) {
 	let current = spec || { kind: "all" };
 
-	const $trigger = $container.querySelector("#storeSetTrigger");
-	const $label = $container.querySelector("#storeSetLabel");
-	const $panel = $container.querySelector("#storeSetPanel");
-	const $presets = $container.querySelector("#storeSetPresets");
-	const $clear = $container.querySelector("#storeSetClear");
-	const $count = $container.querySelector("#storeSetCount");
+	const $trigger = $container.querySelector(".storeSetTrigger");
+	const $label = $container.querySelector(".storeSetLabel");
+	const $panel = $container.querySelector(".storeSetPanel");
+	const $presets = $container.querySelector(".storeSetPresets");
+	const $clear = $container.querySelector(".storeSetClear");
+	const $count = $container.querySelector(".storeSetCount");
 	const checkboxes = [...$panel.querySelectorAll('input[type="checkbox"]')];
 
 	// Build preset chips (My Stores only when signed in with a non-empty saved set)
@@ -142,9 +166,7 @@ export function installStoreSetSelector({ $container, spec, myStores = null, aut
 		$trigger.setAttribute("aria-expanded", String(opening));
 	});
 
-	document.addEventListener("click", (e) => {
-		if (!$container.contains(e.target)) close();
-	});
+	ensureDocListener();
 
 	$panel.addEventListener("keydown", (e) => {
 		if (e.key === "Escape") {

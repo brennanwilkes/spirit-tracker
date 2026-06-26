@@ -609,7 +609,7 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   text-align: left;
   max-width: 60vw;
 }
-.storeSetTrigger #storeSetLabel {
+.storeSetTrigger .storeSetLabel {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1011,6 +1011,73 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 }
 .links a:hover { border-color: #2f3a46; color: var(--text); text-decoration: none; }
 
+/* ── Off-canvas chart legend (shared: item + stats pages) ──────────────── */
+
+.chartLegend {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 0 10px;
+}
+
+.chartLegend > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 2px;
+  font-size: 13px;
+  color: var(--muted);
+  user-select: none;
+}
+
+.chartLegend > summary::-webkit-details-marker { display: none; }
+
+.chartLegend > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.chartLegend[open] > summary::before {
+  content: "▾ ";
+}
+
+.chartLegendList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 2px 0 10px;
+}
+
+.chartLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.chartLegendItem:hover { border-color: var(--text); }
+
+.chartLegendItem.dimmed { opacity: 0.4; }
+.chartLegendItem.dimmed .chartLegendSwatch { opacity: 0.5; }
+
+.chartLegendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: 0 0 12px;
+}
+
+.chartLegendLabel { white-space: nowrap; }
+
 /* ── 6. Modal (SweetAlert2 theme) ──────────────────────────────────────── */
 
 .stSwalPopup {
@@ -1062,6 +1129,8 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   .storeBreak { display: none; }
 
   .mobileBreak { display: block; }
+
+  .chartLegendList { max-height: 220px; }
 
   .itemTitle { padding: 11px 12px 9px; }
 

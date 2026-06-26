@@ -869,6 +869,10 @@ export async function renderStats($app) {
         <div class="chartFill">
           <canvas id="statsChart" aria-label="Statistics chart" role="img"></canvas>
         </div>
+        <details class="chartLegend" id="statsLegend" hidden>
+          <summary><span id="statsLegendCount">Series</span></summary>
+          <div class="chartLegendList" id="statsLegendList"></div>
+        </details>
       </div>
     </div>
   `;

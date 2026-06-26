@@ -1,10 +1,12 @@
 // viz/app/settings_page.js
 import { esc } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
-import { AuthError, getAuthStatus, getMyDetails, putDetails } from "./cloud.js";
+import { AuthError, getAuthStatus, getMyDetails, putDetails, getMyStores, putMyStores } from "./cloud.js";
 import { applyColorScheme } from "./theme.js";
 import { SPIRIT_TYPE_LIST } from "./spirit_types.js";
 import { storesByRegion } from "./stores.js";
+import { storeSetSelectorHtml, installStoreSetSelector } from "./components/store_set_selector.js";
+import { resolveStoreSet } from "./store_set.js";
 
 function isAuthErr(e) {
 	return e && (e.name === "AuthError" || e instanceof AuthError);
@@ -102,6 +104,20 @@ export async function renderSettings($app) {
 								</div>
 							</label>
 						</div>
+					</div>
+
+					<hr class="hrClean" />
+
+					<div>
+						<div class="settingsSectionTitle">My Stores</div>
+						<div class="small" style="margin-bottom:10px;">
+							Pick your favourite stores. The “My Stores” filter on the search and store pages then shows just these.
+						</div>
+						<div class="myStoresRow">
+							${storeSetSelectorHtml()}
+							<button id="myStoresSave" class="btn" type="button">Save</button>
+						</div>
+						<div class="small" id="myStoresStatus" style="margin-top:6px;"></div>
 					</div>
 
 					<hr class="hrClean" />
@@ -271,6 +287,8 @@ export async function renderSettings($app) {
 
 		if (typeof f.storeId === "string" && !String(f.storeId).trim()) delete f.storeId;
 
+		if (f.storeIds !== undefined && (!Array.isArray(f.storeIds) || !f.storeIds.length)) delete f.storeIds;
+
 		if (Array.isArray(f.spiritTypes) && !f.spiritTypes.length) delete f.spiritTypes;
 
 		if (f.acrossMarket !== undefined && typeof f.acrossMarket !== "boolean") delete f.acrossMarket;
@@ -381,8 +399,6 @@ export async function renderSettings($app) {
 			.map((r, i) => {
 				const f = ensureFilters(r);
 
-				const useStore = typeof f.storeId === "string" && !!String(f.storeId).trim();
-
 				const useTypes = Array.isArray(f.spiritTypes) && f.spiritTypes.length > 0;
 				const activeTypes = new Set(useTypes ? f.spiritTypes : []);
 
@@ -401,8 +417,6 @@ export async function renderSettings($app) {
 					r.eventType === "GLOBAL_RETURN" ||
 					r.eventType === "OUT_OF_STOCK";
 				const useAcrossMarket = showAcrossMarket && f.acrossMarket === true;
-
-				const storeSel = useStore ? String(f.storeId) : STORES[0] ? STORES[0].id : "";
 
 				let acrossTitle = "Across market (same SKU)";
 				let acrossHelp = "";
@@ -446,16 +460,8 @@ export async function renderSettings($app) {
 					<div class="stRuleRows">
 
 						<div class="stRuleRow">
-							<label data-i="${i}" data-k="useStore" class="switch mini ${useStore ? "isOn" : ""}" style="cursor:pointer;">
-								<input type="checkbox" ${useStore ? "checked" : ""} />
-								<div class="switchLabel">
-									<div class="switchStatus ${useStore ? "" : "muted"}">Filter by store</div>
-								</div>
-								<div class="switchPill" aria-hidden="true"><div class="switchKnob"></div></div>
-							</label>
-							<select data-i="${i}" data-k="storeId" class="stSelect" ${useStore ? "" : "disabled"}>
-								${storeOptionsHtml(storeSel)}
-							</select>
+							<div class="switchStatus" style="flex:0 0 auto;">Filter by store</div>
+							${storeSetSelectorHtml()}
 						</div>
 
 						<div class="stRuleRow">
@@ -604,6 +610,41 @@ export async function renderSettings($app) {
 			`;
 			})
 			.join("");
+
+		mountRuleStoreSelectors();
+	}
+
+	// The rule store filter is the shared multi-select (any-of). "All stores" = no
+	// filter. Reads the new `storeIds` array, migrating the legacy single `storeId`.
+	function ruleStoreSpec(f) {
+		if (Array.isArray(f.storeIds) && f.storeIds.length) return { kind: "stores", ids: f.storeIds };
+		if (typeof f.storeId === "string" && f.storeId.trim()) return { kind: "stores", ids: [f.storeId.trim()] };
+		return { kind: "all" };
+	}
+
+	function mountRuleStoreSelectors() {
+		const cards = $rulesWrap.querySelectorAll(".stRuleCard");
+		cards.forEach((card, i) => {
+			if (i < 0 || i >= rules.length) return;
+			const $c = card.querySelector(".storeSet");
+			if (!$c) return;
+			const f = ensureFilters(rules[i]);
+			installStoreSetSelector({
+				$container: $c,
+				spec: ruleStoreSpec(f),
+				myStores: null,
+				authed: false,
+				onChange: (next) => {
+					const ids = [...(resolveStoreSet(next, { myStores: null }) || new Set())];
+					const cur = { ...rules[i] };
+					const f2 = ensureFilters(cur);
+					if (ids.length) f2.storeIds = ids;
+					else delete f2.storeIds;
+					delete f2.storeId; // migrate off the legacy single-store field
+					setRuleAt(i, { ...cur, filters: f2 });
+				},
+			});
+		});
 	}
 
 	function setRuleAt(i, nextRule) {
@@ -644,14 +685,6 @@ export async function renderSettings($app) {
 
 			const cur = { ...rules[i] };
 			const f = ensureFilters(cur);
-
-			if (dk === "useStore") {
-				if (cb.checked) f.storeId = f.storeId || (STORES[0] ? STORES[0].id : "kwm");
-				else delete f.storeId;
-				setRuleAt(i, { ...cur, filters: f });
-				renderRules();
-				return;
-			}
 
 			if (dk === "useTypes") {
 				if (cb.checked) {
@@ -742,12 +775,6 @@ export async function renderSettings($app) {
 			renderRules();
 			return;
 		}
-		if (k === "storeId") {
-			f.storeId = String(el.value || "").trim();
-			setRuleAt(i, { ...cur, filters: f });
-			return;
-		}
-
 		if (k === "spiritType" && el.type === "checkbox") {
 			const val = String(el.value || "");
 			const cur2 = { ...rules[i] };
@@ -866,4 +893,40 @@ export async function renderSettings($app) {
 	$name.addEventListener("keydown", (e) => {
 		if ((e.ctrlKey || e.metaKey) && e.key === "Enter") doSave();
 	});
+
+	// --- My Stores editor ---
+	let myStoresSpec = { kind: "all" };
+	function mountMyStores(ids) {
+		const arr = Array.isArray(ids) ? ids.filter((x) => typeof x === "string") : [];
+		myStoresSpec = arr.length ? { kind: "stores", ids: arr } : { kind: "all" };
+		const $c = document.querySelector(".myStoresRow .storeSet");
+		if (!$c) return;
+		// authed:false → no recursive "My Stores" preset; you're editing that set here.
+		installStoreSetSelector({
+			$container: $c,
+			spec: myStoresSpec,
+			myStores: null,
+			authed: false,
+			onChange: (next) => { myStoresSpec = next; },
+		});
+	}
+	getMyStores().then(mountMyStores).catch(() => mountMyStores([]));
+
+	const $myStoresSave = document.getElementById("myStoresSave");
+	const $myStoresStatus = document.getElementById("myStoresStatus");
+	if ($myStoresSave) {
+		$myStoresSave.addEventListener("click", async () => {
+			const ids = [...(resolveStoreSet(myStoresSpec, { myStores: null }) || new Set())];
+			$myStoresSave.disabled = true;
+			$myStoresStatus.textContent = "Saving…";
+			try {
+				await putMyStores(ids);
+				$myStoresStatus.textContent = ids.length ? `Saved ${ids.length} store(s).` : "Cleared.";
+			} catch (e) {
+				$myStoresStatus.textContent = isAuthErr(e) ? "Please log in again." : "Save failed.";
+			} finally {
+				$myStoresSave.disabled = false;
+			}
+		});
+	}
 }
