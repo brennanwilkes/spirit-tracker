@@ -660,6 +660,18 @@ export async function renderItem($app, skuInput) {
 	const showAllAsFeatured = liveLinkRows.length <= 3 && liveLinkRows.length > 0;
 	const allFeatured = showAllAsFeatured && linkRows.length === liveLinkRows.length;
 
+	// Per-store state for subtle visual indicators (exclusive, lastStock)
+	const storeState = new Map(); // store -> "exclusive" | "lastStock"
+	for (const { store, r } of linkRows) {
+		const isLive = !Boolean(r?.removed);
+		if (!isLive) continue;
+		if (linkRows.length === 1) {
+			storeState.set(store, "exclusive");
+		} else if (liveLinkRows.length === 1) {
+			storeState.set(store, "lastStock");
+		}
+	}
+
 	if (showAllAsFeatured) {
 		for (const row of liveLinkRows) {
 			addPin(row, {});
@@ -718,11 +730,13 @@ export async function renderItem($app, skuInput) {
 					} else {
 						loc = province;
 					}
-				const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
-				const pc = storePriceChange.get(store);
-				const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
-				const pcAttr = pcCls ? ` ${pcCls}` : "";
-				return `<a class="storeQuickLink${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+			const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
+			const stCls = storeState.get(store) || "";
+			const stAttr = stCls ? ` storeState${stCls.charAt(0).toUpperCase() + stCls.slice(1)}` : "";
+			const pc = storePriceChange.get(store);
+			const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
+			const pcAttr = pcCls ? ` ${pcCls}` : "";
+			return `<a class="storeQuickLink${stAttr}${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";
@@ -747,6 +761,8 @@ export async function renderItem($app, skuInput) {
 
 		const cssClasses = [];
 		if (isRemoved) cssClasses.push("storeRemoved");
+		const stCls = storeState.get(store) || "";
+		if (stCls) cssClasses.push("storeState" + stCls.charAt(0).toUpperCase() + stCls.slice(1));
 		const pc = storePriceChange.get(store);
 		if (pc) cssClasses.push(pc.direction === "down" ? "priceDown" : "priceUp");
 		const cls = cssClasses.length ? ` class="${cssClasses.join(" ")}"` : "";

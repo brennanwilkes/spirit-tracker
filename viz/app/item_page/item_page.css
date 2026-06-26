@@ -254,7 +254,20 @@
   opacity: 0.7;
 }
 
-/* Price-change indicator dots — colored circle before the store name */
+/* Subtle state indicator dots — colored circle before the store name */
+.storeStateExclusive .sqlInfo::before,
+.storeStateLastStock .sqlInfo::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 6px;
+}
+.storeStateExclusive .sqlInfo::before { background: rgba(20, 140, 140, 0.95); }
+.storeStateLastStock .sqlInfo::before { background: rgba(200, 120, 20, 0.95); }
+
+/* Price-change indicator dots (override state dots when a recent change exists) */
 .priceDown .sqlInfo::before,
 .priceUp .sqlInfo::before {
   content: "";
