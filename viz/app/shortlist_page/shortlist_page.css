@@ -32,6 +32,9 @@
   .shortlistPage .slFilterGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  .shortlistPage .slFilterCell .storeSet {
+    position: relative;
+  }
 }
 
 .shortlistPage .slFilterCell {
@@ -47,6 +50,11 @@
   opacity: .8;
   flex: 0 0 auto;
   white-space: nowrap;
+}
+
+/* Mobile: panel spans the full cell width, not just the trigger */
+.shortlistPage .slFilterCell .storeSet {
+  position: static;
 }
 
 /* Inputs flex-shrink to fill the remaining cell width without wrapping */

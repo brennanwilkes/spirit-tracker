@@ -229,6 +229,24 @@
 }
 .links .storeLinkRow a:hover { color: var(--text); border-color: var(--text); }
 
+/* Faded appearance for out-of-stock store entries — still clickable. */
+.links .storeLinkRow a.storeRemoved {
+  opacity: 0.35;
+}
+.links .storeLinkRow a.storeRemoved:hover {
+  opacity: 0.7;
+}
+
+/* Divider between live and removed entries in the store list. */
+.storeListDivider {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+  width: 100%;
+  flex: 0 0 auto;
+}
+
 /* ── Mobile: show links row, rework header grid ─────────────────────────── */
 
 #links, #status, #loadingBar { display: none; }
