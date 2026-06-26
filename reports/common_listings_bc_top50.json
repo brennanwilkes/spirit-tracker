@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-26T05:14:53.572Z",
+  "generatedAt": "2026-06-26T08:00:09.619Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,11 +32,64 @@
   ],
   "totals": {
     "liveRows": 6202,
-    "removedRows": 685,
-    "canonSkus": 2396,
+    "removedRows": 693,
+    "canonSkus": 2395,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 27.99,
+        "everythingwine": 27.99,
+        "gull": 29.5,
+        "highpointbws": 31.29,
+        "legacyliquor": 31.81,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "BOMBAY SAPPHIRE - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://www.bcliquorstores.com/product/316844",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/316844"
+      }
+    },
     {
       "canonSku": "001487",
       "storeCount": 13,
@@ -144,7 +197,7 @@
       }
     },
     {
-      "canonSku": "001232",
+      "canonSku": "002691",
       "storeCount": 12,
       "stores": [
         "arc",
@@ -154,46 +207,46 @@
         "highpointbws",
         "legacyliquor",
         "liquorwarehouse",
-        "marquis",
         "newdistrict",
         "strath",
         "tudor",
+        "vessel",
         "vintage"
       ],
       "missingStores": [
-        "vessel"
+        "marquis"
       ],
       "storePrices": {
-        "arc": 29.99,
-        "bcl": 27.99,
-        "everythingwine": 27.99,
-        "gull": 29.5,
-        "highpointbws": 31.29,
-        "legacyliquor": 31.81,
+        "arc": 28.59,
+        "bcl": 29.49,
+        "everythingwine": 29.49,
+        "gull": 31.7,
+        "highpointbws": 32.29,
+        "legacyliquor": 30.99,
         "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
+        "newdistrict": 31.79,
+        "strath": 32.09,
         "tudor": 27.99,
-        "vintage": 33.83
+        "vessel": 29.99,
+        "vintage": 32.96
       },
       "representative": {
-        "name": "BOMBAY SAPPHIRE - LONDON DRY",
+        "name": "Tanqueray London Dry Gin 750ML",
         "price": "$27.99",
         "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://www.bcliquorstores.com/product/316844",
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+        "dbFile": "data/db/tudor__gin__26c75caf.json"
       },
       "cheapest": {
         "price": "$27.99",
         "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/316844"
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
       }
     },
     {
@@ -722,58 +775,6 @@
       }
     },
     {
-      "canonSku": "002691",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 28.59,
-        "bcl": 29.49,
-        "everythingwine": 29.49,
-        "gull": 31.7,
-        "highpointbws": 32.29,
-        "legacyliquor": 30.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 31.79,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "Tanqueray London Dry Gin 750ML",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
-      }
-    },
-    {
       "canonSku": "007880",
       "storeCount": 11,
       "stores": [
@@ -979,58 +980,6 @@
         "priceNum": 46.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/213573"
-      }
-    },
-    {
-      "canonSku": "135210",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 77.19,
-        "bcl": 73.99,
-        "everythingwine": 73.99,
-        "gull": 73.99,
-        "highpointbws": 90.49,
-        "legacyliquor": 88.13,
-        "liquorwarehouse": 89.99,
-        "marquis": 82.99,
-        "strath": 79.22,
-        "tudor": 73.99,
-        "vessel": 76.99
-      },
-      "representative": {
-        "name": "LAPHROAIG - 10 YEAR OLD",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://www.bcliquorstores.com/product/135210",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/135210"
       }
     },
     {
@@ -1242,6 +1191,58 @@
       }
     },
     {
+      "canonSku": "326223",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 39.19,
+        "bcl": 40.99,
+        "everythingwine": 40.99,
+        "gull": 42.85,
+        "highpointbws": 43.79,
+        "legacyliquor": 42.28,
+        "marquis": 41.99,
+        "strath": 43.39,
+        "tudor": 40.99,
+        "vessel": 42.99,
+        "vintage": 40.78
+      },
+      "representative": {
+        "name": "WRAY AND NEPHEW OVERPROOF",
+        "price": "$39.19",
+        "priceNum": 39.19,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "326223",
+        "skuKey": "326223",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752593-wray-and-nephew-overproof",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$39.19",
+        "priceNum": 39.19,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752593-wray-and-nephew-overproof"
+      }
+    },
+    {
       "canonSku": "521992",
       "storeCount": 11,
       "stores": [
@@ -1343,6 +1344,58 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
+      "canonSku": "656546",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 89.99,
+        "everythingwine": 89.99,
+        "gull": 74.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 109.83,
+        "liquorwarehouse": 100.99,
+        "marquis": 91.99,
+        "strath": 105.66,
+        "tudor": 106.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     },
     {
@@ -1499,6 +1552,57 @@
       }
     },
     {
+      "canonSku": "002838",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "marquis",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.29,
+        "bcl": 104.99,
+        "everythingwine": 104.99,
+        "gull": 108.99,
+        "highpointbws": 119.99,
+        "legacyliquor": 117.9,
+        "liquorwarehouse": 111.99,
+        "strath": 108.96,
+        "tudor": 111.99,
+        "vessel": 99.99
+      },
+      "representative": {
+        "name": "Bruichladdich - Port Charlotte 10 Year Old Single Malt Scotch",
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "002838",
+        "skuKey": "002838",
+        "url": "https://vesselliquor.com/products/bruichladdich-port-charlotte-10-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$99.99",
+        "priceNum": 99.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/bruichladdich-port-charlotte-10-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "034672",
       "storeCount": 10,
       "stores": [
@@ -1621,7 +1725,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 110.99,
+        "arc": 112.69,
         "bcl": 113.99,
         "everythingwine": 113.99,
         "gull": 124.99,
@@ -1751,6 +1855,57 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "135210",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 77.19,
+        "bcl": 73.99,
+        "everythingwine": 73.99,
+        "gull": 73.99,
+        "highpointbws": 90.49,
+        "legacyliquor": 88.13,
+        "liquorwarehouse": 89.99,
+        "marquis": 82.99,
+        "strath": 79.22,
+        "tudor": 73.99
+      },
+      "representative": {
+        "name": "LAPHROAIG - 10 YEAR OLD",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "135210",
+        "skuKey": "135210",
+        "url": "https://www.bcliquorstores.com/product/135210",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/135210"
       }
     },
     {
@@ -2009,57 +2164,6 @@
       }
     },
     {
-      "canonSku": "326223",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "newdistrict",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 39.19,
-        "bcl": 40.99,
-        "everythingwine": 40.99,
-        "gull": 42.85,
-        "highpointbws": 43.79,
-        "legacyliquor": 42.28,
-        "marquis": 41.99,
-        "strath": 43.39,
-        "tudor": 40.99,
-        "vintage": 40.78
-      },
-      "representative": {
-        "name": "WRAY AND NEPHEW OVERPROOF",
-        "price": "$39.19",
-        "priceNum": 39.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "326223",
-        "skuKey": "326223",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4752593-wray-and-nephew-overproof",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$39.19",
-        "priceNum": 39.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4752593-wray-and-nephew-overproof"
-      }
-    },
-    {
       "canonSku": "368597",
       "storeCount": 10,
       "stores": [
@@ -2111,57 +2215,6 @@
       }
     },
     {
-      "canonSku": "656546",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 89.99,
-        "everythingwine": 89.99,
-        "gull": 74.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 109.83,
-        "liquorwarehouse": 100.99,
-        "marquis": 91.99,
-        "strath": 105.66,
-        "tudor": 106.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
       "canonSku": "002478",
       "storeCount": 9,
       "stores": [
@@ -2209,56 +2262,6 @@
         "priceNum": 39.8,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/havana-club-7yr-750m/"
-      }
-    },
-    {
-      "canonSku": "002838",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 104.99,
-        "everythingwine": 104.99,
-        "gull": 108.99,
-        "highpointbws": 119.99,
-        "legacyliquor": 117.9,
-        "liquorwarehouse": 111.99,
-        "strath": 108.96,
-        "tudor": 111.99,
-        "vessel": 99.99
-      },
-      "representative": {
-        "name": "Bruichladdich - Port Charlotte 10 Year Old Single Malt Scotch",
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "002838",
-        "skuKey": "002838",
-        "url": "https://vesselliquor.com/products/bruichladdich-port-charlotte-10-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$99.99",
-        "priceNum": 99.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bruichladdich-port-charlotte-10-year-old-single-malt-scotch"
       }
     },
     {
