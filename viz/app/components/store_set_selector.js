@@ -101,9 +101,11 @@ export function installStoreSetSelector({ $container, spec, myStores = null, aut
 	const $count = $container.querySelector(".storeSetCount");
 	const checkboxes = [...$panel.querySelectorAll('input[type="checkbox"]')];
 
-	// Build preset chips (My Stores only when signed in with a non-empty saved set)
+	// Build preset chips. "My Stores" is a live reference editable in Settings, so
+	// it's offered to any signed-in user even before they've defined the set
+	// (selecting it then filters by whatever the set currently is).
 	const presets = builtInPresets();
-	if (authed && Array.isArray(myStores) && myStores.length) {
+	if (authed) {
 		presets.push({ spec: { kind: "mine" }, label: "My Stores" });
 	}
 	$presets.innerHTML = presets
