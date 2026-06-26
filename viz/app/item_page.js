@@ -389,6 +389,16 @@ export async function renderItem($app, skuInput) {
 		return map;
 	}
 
+	// Recent price-change indicator. Renders as a small dot on desktop (CSS
+	// ::before) and an actual badge on mobile (this element, shown via CSS).
+	function pcBadgeHtml(pc) {
+		if (!pc) return "";
+		const arrow = pc.direction === "down" ? "↓" : "↑";
+		const amt = pc.pct ? `${Math.abs(pc.pct)}%` : (pc.abs ? `$${pc.abs.toFixed(0)}` : "");
+		const cls = pc.direction === "down" ? "badgeGood" : "badgeBad";
+		return `<span class="badge sqlPcBadge ${cls}">${arrow}${amt ? ` ${amt}` : ""}</span>`;
+	}
+
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
 	const $scoreWrap = document.getElementById("scoreWrap");
@@ -733,10 +743,10 @@ export async function renderItem($app, skuInput) {
 			const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
 			const stCls = storeState.get(store) || "";
 			const stAttr = stCls ? ` storeState${stCls.charAt(0).toUpperCase() + stCls.slice(1)}` : "";
-			const pc = storePriceChange.get(store);
+			const pc = storePriceChange.get(normalizeStoreId(store));
 			const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
 			const pcAttr = pcCls ? ` ${pcCls}` : "";
-			return `<a class="storeQuickLink${stAttr}${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+			return `<a class="storeQuickLink${stAttr}${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";
@@ -763,10 +773,10 @@ export async function renderItem($app, skuInput) {
 		if (isRemoved) cssClasses.push("storeRemoved");
 		const stCls = storeState.get(store) || "";
 		if (stCls) cssClasses.push("storeState" + stCls.charAt(0).toUpperCase() + stCls.slice(1));
-		const pc = storePriceChange.get(store);
+		const pc = storePriceChange.get(normalizeStoreId(store));
 		if (pc) cssClasses.push(pc.direction === "down" ? "priceDown" : "priceUp");
 		const cls = cssClasses.length ? ` class="${cssClasses.join(" ")}"` : "";
-		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${cls}><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span>${priceHtml}</a>`;
+		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${cls}><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span>${priceHtml}</a>`;
 		let inner = anchor;
 		if (canHide) {
 			const sid = normalizeStoreId(r?.storeLabel || r?.store || "");

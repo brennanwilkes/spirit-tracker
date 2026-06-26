@@ -267,18 +267,15 @@
 .storeStateExclusive .sqlInfo::before { background: rgba(20, 140, 140, 0.95); }
 .storeStateLastStock .sqlInfo::before { background: rgba(200, 120, 20, 0.95); }
 
-/* Price-change indicator dots (override state dots when a recent change exists) */
-.priceDown .sqlInfo::before,
-.priceUp .sqlInfo::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex: 0 0 6px;
+/* Recent price-change indicator.
+   Mobile (base): a real badge (.sqlPcBadge), matching badge styling sitewide.
+   Desktop (min-width:641px, below): collapses to a small dot via ::before. */
+.sqlPcBadge {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 10px;
+  padding: 1px 6px;
 }
-.priceDown .sqlInfo::before { background: #4ade80; }
-.priceUp .sqlInfo::before { background: #f87171; }
 
 /* When all live stores are featured pins (≤3, no removed), center the
    quick-links vertically in the space the expanded list would occupy. */
@@ -329,6 +326,21 @@
   /* Restore the desktop column with links + status */
   #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
+
+  /* Desktop: collapse the price-change badge back to a dot (overrides the
+     state dot when a recent change exists). */
+  .sqlPcBadge { display: none; }
+  .priceDown .sqlInfo::before,
+  .priceUp .sqlInfo::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex: 0 0 6px;
+  }
+  .priceDown .sqlInfo::before { background: #4ade80; }
+  .priceUp .sqlInfo::before { background: #f87171; }
 
   .detailThumbBox {
     width: 96px;
