@@ -16,6 +16,13 @@
   flex: 1 1 auto;
 }
 
+@media (min-width: 641px) {
+  .detailCard {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
 .detailHeader {
   display: flex;
   gap: 12px;
@@ -247,10 +254,9 @@
   opacity: 0.7;
 }
 
-/* Subtle state indicator dots — colored circle before the store name */
-.storeStateBest .sqlInfo::before,
-.storeStateExclusive .sqlInfo::before,
-.storeStateLastStock .sqlInfo::before {
+/* Price-change indicator dots — colored circle before the store name */
+.priceDown .sqlInfo::before,
+.priceUp .sqlInfo::before {
   content: "";
   display: inline-block;
   width: 6px;
@@ -258,9 +264,17 @@
   border-radius: 50%;
   flex: 0 0 6px;
 }
-.storeStateBest .sqlInfo::before { background: rgba(210, 170, 60, 0.95); }
-.storeStateExclusive .sqlInfo::before { background: rgba(20, 140, 140, 0.95); }
-.storeStateLastStock .sqlInfo::before { background: rgba(200, 120, 20, 0.95); }
+.priceDown .sqlInfo::before { background: #4ade80; }
+.priceUp .sqlInfo::before { background: #f87171; }
+
+/* When all live stores are featured pins (≤3, no removed), center the
+   quick-links vertically in the space the expanded list would occupy. */
+.pinnedCentered {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 /* Divider between live and removed entries in the store list. */
 .storeListDivider {
@@ -334,11 +348,16 @@
   /* status/debug sits below both columns */
   .detailStatus { margin-top: 12px; }
 
+  .detailContainer {
+    height: 100dvh;
+  }
+
   .chartBox {
+    flex: 1;
+    min-height: 150px;
+    height: auto;
+    max-height: none;
     aspect-ratio: auto;
-    height: min(72vh, 720px);
-    max-height: 720px;
-    min-height: 320px;
     padding: 10px;
   }
 

@@ -1,7 +1,7 @@
 import { esc, renderThumbHtml, dateOnly } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
-import { loadIndex } from "./state.js";
+import { loadIndex, loadRecent } from "./state.js";
 import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
@@ -10,7 +10,7 @@ import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./s
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
 import { selectBestDisplayInfo } from "./catalog.js";
-import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
+import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore, getMyStores } from "./cloud.js";
 import {
 	isBcStoreLabel,
 	weightedMeanByDuration,
@@ -203,8 +203,11 @@ export async function renderItem($app, skuInput) {
 
 	// Kick off independent fetches immediately — no dependency on rules/sku
 	const idxPromise = loadIndex();
+	const recentPromise = loadRecent().catch(() => null);
 
+	const authed = getAuthStatus().ok;
 	const [rules, fav] = await Promise.all([loadSkuRules(), loadMyFavouritesSet()]);
+	const myStoresPromise = authed ? getMyStores().catch(() => []) : Promise.resolve([]);
 
 	const sku = rules.canonicalSku(String(skuInput || ""));
 	const favSet = new Set();
@@ -349,6 +352,42 @@ export async function renderItem($app, skuInput) {
 		if ($status) $status.textContent = txt;
 		if ($statusMobile) $statusMobile.textContent = txt;
 	};
+
+	function eventMsRecent(r) {
+		const t = String(r?.ts || "");
+		const ms = t ? Date.parse(t) : NaN;
+		if (Number.isFinite(ms)) return ms;
+		const d = String(r?.date || "");
+		const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
+		return Number.isFinite(ms2) ? ms2 : 0;
+	}
+
+	function buildStorePriceChangeMap(recent, rules, skuGroup) {
+		const map = new Map();
+		if (!recent?.items) return map;
+		const nowMs = Date.now();
+		const cutoffMs = nowMs - 7 * 24 * 60 * 60 * 1000;
+		for (const ev of recent.items) {
+			const ms = eventMsRecent(ev);
+			if (!(ms >= cutoffMs && ms <= nowMs)) continue;
+			const rawSku = String(ev?.sku || "").trim();
+			if (!rawSku) continue;
+			const canonSku = String(rules.canonicalSku(rawSku) || rawSku);
+			if (!skuGroup.has(canonSku)) continue;
+			const storeLabel = String(ev?.storeLabel || ev?.store || "").trim();
+			const storeId = normalizeStoreId(storeLabel);
+			if (!storeId) continue;
+			const kind = String(ev?.kind || "");
+			if (kind !== "price_down" && kind !== "price_up") continue;
+			const oldNum = parsePriceToNumber(ev?.oldPrice || "");
+			const newNum = parsePriceToNumber(ev?.newPrice || "");
+			const delta = Number.isFinite(newNum) && Number.isFinite(oldNum) ? newNum - oldNum : 0;
+			const pct = Number.isFinite(oldNum) && oldNum > 0 ? Math.round((delta / oldNum) * 100) : 0;
+			const prev = map.get(storeId);
+			if (!prev || ms > prev.ms) map.set(storeId, { direction: kind === "price_down" ? "down" : "up", pct, abs: Math.abs(delta), ms });
+		}
+		return map;
+	}
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
@@ -512,6 +551,10 @@ export async function renderItem($app, skuInput) {
 	// include toSku + all fromSkus mapped to it
 	const skuGroup = rules.groupForCanonical(sku);
 
+	const [recent, myStores] = await Promise.all([recentPromise, myStoresPromise]);
+	const myStoresSet = new Set(Array.isArray(myStores) ? myStores.filter((id) => storeById(id)) : []);
+	const storePriceChange = buildStorePriceChangeMap(recent, rules, skuGroup);
+
 	// index.json includes removed rows too. Split live vs all.
 	const allRows = all.filter((x) => skuGroup.has(String(keySkuForRow(x) || "")));
 	const liveRows = allRows.filter((x) => !Boolean(x?.removed));
@@ -615,21 +658,7 @@ export async function renderItem($app, skuInput) {
 	};
 
 	const showAllAsFeatured = liveLinkRows.length <= 3 && liveLinkRows.length > 0;
-
-	// Per-store state for subtle visual indicators
-	const bestPrice = liveLinkRows.length ? rowMinPrice(liveLinkRows[0].r) : Infinity;
-	const storeState = new Map(); // store -> "best" | "exclusive" | "lastStock"
-	for (const { store, r } of linkRows) {
-		const isLive = !Boolean(r?.removed);
-		if (!isLive) continue;
-		if (linkRows.length === 1) {
-			storeState.set(store, "exclusive");
-		} else if (liveLinkRows.length === 1) {
-			storeState.set(store, "lastStock");
-		} else if (liveLinkRows.length > 1 && rowMinPrice(r) === bestPrice) {
-			storeState.set(store, "best");
-		}
-	}
+	const allFeatured = showAllAsFeatured && linkRows.length === liveLinkRows.length;
 
 	if (showAllAsFeatured) {
 		for (const row of liveLinkRows) {
@@ -673,7 +702,7 @@ export async function renderItem($app, skuInput) {
 		}
 	}
 
-	const pinnedHtml = pinned.length
+	const pinnedContent = pinned.length
 		? `<div class="storeQuickLinks">${pinned
 				.map(({ store, r, hint, city, cities }) => {
 					const href = String(r.url || "").trim();
@@ -689,13 +718,17 @@ export async function renderItem($app, skuInput) {
 					} else {
 						loc = province;
 					}
-					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
-					const stCls = storeState.get(store) || "";
-					const stAttr = stCls ? ` storeState${stCls.charAt(0).toUpperCase() + stCls.slice(1)}` : "";
-					return `<a class="storeQuickLink${stAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+				const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
+				const pc = storePriceChange.get(store);
+				const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
+				const pcAttr = pcCls ? ` ${pcCls}` : "";
+				return `<a class="storeQuickLink${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";
+	const pinnedHtml = allFeatured && pinnedContent
+		? `<div class="pinnedCentered">${pinnedContent}</div>`
+		: pinnedContent;
 
 	const liveListRows = linkRows.filter(({ r }) => !Boolean(r?.removed));
 	const removedListRows = linkRows.filter(({ r }) => Boolean(r?.removed));
@@ -714,8 +747,8 @@ export async function renderItem($app, skuInput) {
 
 		const cssClasses = [];
 		if (isRemoved) cssClasses.push("storeRemoved");
-		const stCls = storeState.get(store) || "";
-		if (stCls) cssClasses.push("storeState" + stCls.charAt(0).toUpperCase() + stCls.slice(1));
+		const pc = storePriceChange.get(store);
+		if (pc) cssClasses.push(pc.direction === "down" ? "priceDown" : "priceUp");
 		const cls = cssClasses.length ? ` class="${cssClasses.join(" ")}"` : "";
 		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${cls}><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span>${priceHtml}</a>`;
 		let inner = anchor;
@@ -734,7 +767,7 @@ export async function renderItem($app, skuInput) {
 	let listContentHtml = "";
 	let listHtmlMobile = "";
 	let bothCategories = false;
-	if (linkRows.length > 0) {
+	if (linkRows.length > 0 && !allFeatured) {
 		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
 		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
 		bothCategories = liveHtml.length > 0 && removedHtml.length > 0;
@@ -765,7 +798,7 @@ export async function renderItem($app, skuInput) {
 	if ($links) $links.innerHTML = pinnedHtml + summaryBtnHtml;
 	if ($linksDropdown) {
 		$linksDropdown.innerHTML = listContentHtml;
-		if (!bothCategories) $linksDropdown.classList.add("linksDropdownOpen");
+		if (!bothCategories && listContentHtml) $linksDropdown.classList.add("linksDropdownOpen");
 	}
 	if ($linksMobile) $linksMobile.innerHTML = pinnedHtml + listHtmlMobile;
 
@@ -774,13 +807,9 @@ export async function renderItem($app, skuInput) {
 		$links.addEventListener("click", (ev) => {
 			const btn = ev.target.closest(".storeLinksToggle");
 			if (!btn || !$linksDropdown) return;
-			const wasOpen = $linksDropdown.classList.contains("linksDropdownOpen");
 			ev.preventDefault();
 			$linksDropdown.classList.toggle("linksDropdownOpen");
 			btn.classList.toggle("storeLinksToggleOpen");
-			if (!wasOpen) {
-				requestAnimationFrame(() => $linksDropdown.scrollIntoView({ block: "start", behavior: "smooth" }));
-			}
 		});
 	}
 
@@ -916,6 +945,7 @@ export async function renderItem($app, skuInput) {
 				borderWidth: datasetStrokeWidth(base),
 				pointRadius: (ctx) => {
 					if (suppressDots) return 0;
+					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
@@ -923,6 +953,7 @@ export async function renderItem($app, skuInput) {
 				},
 				pointHoverRadius: (ctx) => {
 					if (suppressDots) return 0;
+					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
@@ -1142,10 +1173,8 @@ export async function renderItem($app, skuInput) {
 	if (tickCount >= 2) {
 		const ySug2 = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
 
-		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
-		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
-		if (Number.isFinite(yHardMax)) CHART.options.scales.y.max = yHardMax;
-		CHART.options.scales.y.ticks.stepSize = 10;
+		if (Number.isFinite(ySug2.suggestedMin)) CHART.options.scales.y.min = Math.max(0, ySug2.suggestedMin);
+		CHART.options.scales.y.max = Number.isFinite(yHardMax) ? yHardMax : ySug2.suggestedMax;
 
 		CHART.update();
 	}
