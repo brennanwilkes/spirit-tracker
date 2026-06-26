@@ -121,10 +121,13 @@ export function installStoreSetSelector({ $container, spec, myStores = null, aut
 	}
 
 	function syncUI() {
-		$label.textContent = storeSetLabel(current);
+		const ids = resolvedIds(); // Set | null (null = all)
+
+		// "My Stores" shows its live count so a staged edit to the set is visible
+		// on the trigger (e.g. an email rule reading the in-progress set).
+		$label.textContent = current.kind === "mine" ? `My Stores (${ids ? ids.size : 0})` : storeSetLabel(current);
 		$trigger.classList.toggle("is-active", current.kind !== "all");
 
-		const ids = resolvedIds(); // Set | null (null = all)
 		for (const cb of checkboxes) {
 			cb.checked = ids ? ids.has(cb.value) : false;
 		}
