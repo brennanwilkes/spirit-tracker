@@ -1021,25 +1021,30 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
 }
 
 .chartLegend > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   cursor: pointer;
   list-style: none;
-  padding: 10px 2px;
+  padding: 10px 4px;
   font-size: 13px;
+  font-weight: 600;
   color: var(--muted);
   user-select: none;
 }
 
+.chartLegend > summary:hover { color: var(--text); }
 .chartLegend > summary::-webkit-details-marker { display: none; }
 
-.chartLegend > summary::before {
-  content: "▸ ";
-  display: inline-block;
+/* Chevron on the right that pivots, matching the store-links toggle. */
+.chartLegend > summary::after {
+  content: "▾";
+  font-size: 11px;
   transition: transform 0.15s ease;
 }
 
-.chartLegend[open] > summary::before {
-  content: "▾ ";
-}
+.chartLegend:not([open]) > summary::after { transform: rotate(-90deg); }
 
 .chartLegendList {
   display: flex;

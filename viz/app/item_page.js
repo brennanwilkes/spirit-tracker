@@ -58,7 +58,6 @@ function buildChartLegend(chart) {
 	}
 
 	panel.hidden = false;
-	panel.open = window.innerWidth > 640;
 	countEl.textContent = `Stores (${groups.size})`;
 
 	const frag = document.createDocumentFragment();
