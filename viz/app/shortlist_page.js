@@ -25,9 +25,12 @@ import {
 	setSampled,
 	getFavourites,
 	getShortlists,
+	getMyStores,
 } from "./cloud.js";
 import { computeScore } from "./shortlist_page/shortlist_scoring.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { storeSetSelectorHtml, installStoreSetSelector } from "./components/store_set_selector.js";
+import { parseStoreSet, serializeStoreSet, resolveStoreSet, storeSetLabel } from "./store_set.js";
 import { decorateRarity } from "./rarity_decorate.js";
 import { effectiveRarity } from "./rarity.js";
 
@@ -122,11 +125,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 			<div class="card">
 				<div style="display:flex; flex-direction:column; gap:10px;">
 					<div class="slFilterGrid">
-						<div class="slFilterCell">
+						<div class="slFilterCell slStoreCell">
 							<span class="small slFilterLabel">Store</span>
-							<select id="storeFilter" class="selectSmall" aria-label="Store filter">
-								<option value="">-</option>
-							</select>
+							${storeSetSelectorHtml()}
 						</div>
 
 						<div class="slFilterCell">
@@ -192,8 +193,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const $results = document.getElementById("results");
 	const $status = document.getElementById("status");
 	const $sentinel = document.getElementById("sentinel");
-	const $storeFilter = document.getElementById("storeFilter");
 	const $sort = document.getElementById("sort");
+
+	const authed = getAuthStatus().ok;
 
 	const $maxPrice = document.getElementById("maxPrice");
 	const $maxPriceLabel = document.getElementById("maxPriceLabel");
@@ -203,7 +205,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	// Persist per-account
 	const LS_Q = `viz:shortlistQuery:${accountUuid}`;
 	const LS_SORT = `viz:shortlistSort:${accountUuid}`;
-	const LS_STORE = `viz:shortlistStore:${accountUuid}`;
+	const LS_STORESET = `viz:shortlistStoreSet:${accountUuid}`;
 	const LS_MAX = `viz:shortlistMaxPrice:${accountUuid}`;
 	const LS_TYPE = `viz:shortlistType:${accountUuid}`;
 	const LS_AVAIL = `viz:shortlistAvail:${accountUuid}`;
@@ -218,10 +220,16 @@ export async function renderShortlist($app, accountUuidRaw) {
 		if (Array.isArray(saved)) selectedTypeSet = new Set(saved);
 	} catch {}
 
+	// Store-set filter (shared selector). `selectedNorms` bridges the resolved
+	// canonical store ids → this page's label-based store norms.
+	let storeSetSpec = parseStoreSet(localStorage.getItem(LS_STORESET) || "");
+	let myStoresRef = null;
+	let resolvedStoreIdSet = null; // Set<storeId> | null (null = all)
+	let selectedNorms = null;      // Set<storeNorm> | null (null = all)
+	let storeSetCtl = null;
+
 	$q.value = String(localStorage.getItem(LS_Q) || "");
 	if (localStorage.getItem(LS_SORT)) $sort.value = String(localStorage.getItem(LS_SORT) || "");
-	if (localStorage.getItem(LS_STORE))
-		$storeFilter.value = String(localStorage.getItem(LS_STORE) || "");
 	$avail.value = (localStorage.getItem(LS_AVAIL) !== null
 		? String(localStorage.getItem(LS_AVAIL))
 		: "in");
@@ -251,6 +259,12 @@ export async function renderShortlist($app, accountUuidRaw) {
 	]);
 	const _rarity = rarity;
 	const _rules = rules;
+
+	// The signed-in viewer's "My Stores" set (for the selector's My Stores preset).
+	{
+		const arr = authed ? await getMyStores().catch(() => []) : [];
+		myStoresRef = Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : [];
+	}
 
 	function isAuthErr(e) {
 		return e && (e.name === "AuthError" || e instanceof AuthError);
@@ -378,35 +392,39 @@ export async function renderShortlist($app, accountUuidRaw) {
 		}
 	}
 
-	// Populate store dropdown (live stores only) — grouped by province
+	// Resolve the store-set spec to this page's store norms. The selector deals in
+	// canonical store ids; map each known store-label-norm → id to find the matches.
+	function computeSelectedNorms() {
+		resolvedStoreIdSet = resolveStoreSet(storeSetSpec, { myStores: myStoresRef });
+		if (!resolvedStoreIdSet) {
+			selectedNorms = null;
+			return;
+		}
+		const out = new Set();
+		for (const [norm, label] of storeDisplayByNorm) {
+			if (resolvedStoreIdSet.has(normalizeStoreId(label))) out.add(norm);
+		}
+		selectedNorms = out;
+	}
+
+	// Mount the shared store-set selector in place of the old single-store dropdown.
 	{
-		const BC_STORE_NORMS = new Set(storesByRegion("bc").flatMap((s) => [s.id, s.label, ...s.aliases].map(normStoreLabel)));
-		const AB_STORE_NORMS = new Set(storesByRegion("ab").flatMap((s) => [s.id, s.label, ...s.aliases].map(normStoreLabel)));
-
-		const opts = Array.from(storeDisplayByNorm.entries())
-			.map(([norm, label]) => ({ norm, label }))
-			.sort((a, b) => a.label.localeCompare(b.label));
-
-		const bc = opts.filter((o) => BC_STORE_NORMS.has(o.norm));
-		const ab = opts.filter((o) => AB_STORE_NORMS.has(o.norm));
-		const other = opts.filter((o) => !BC_STORE_NORMS.has(o.norm) && !AB_STORE_NORMS.has(o.norm));
-
-		const optHtml = (list) =>
-			list.map((o) => `<option value="${esc(o.norm)}">${esc(o.label)}</option>`).join("");
-
-		const groupHtml = (label, list) =>
-			list.length ? `<optgroup label="${esc(label)}">${optHtml(list)}</optgroup>` : "";
-
-		$storeFilter.innerHTML =
-			`<option value="">-</option>` +
-			groupHtml("BC", bc) +
-			groupHtml("Alberta", ab) +
-			groupHtml("Other", other);
-
-		// restore persisted selection if still exists
-		const want = String(localStorage.getItem(LS_STORE) || "");
-		if (want && storeDisplayByNorm.has(want)) $storeFilter.value = want;
-		else $storeFilter.value = "";
+		const $storeSet = document.querySelector(".slStoreCell .storeSet");
+		if ($storeSet) {
+			storeSetCtl = installStoreSetSelector({
+				$container: $storeSet,
+				spec: storeSetSpec,
+				myStores: myStoresRef,
+				authed,
+				onChange: (next) => {
+					storeSetSpec = next;
+					try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
+					computeSelectedNorms();
+					applyFilter();
+				},
+			});
+		}
+		computeSelectedNorms();
 	}
 
 	// Aggregates for name/img/searchText; includes removed (so out-of-stock still renders)
@@ -478,6 +496,32 @@ export async function renderShortlist($app, accountUuidRaw) {
 		let best = null;
 		for (const [st, p] of m.entries()) {
 			if (st === storeNorm) continue;
+			if (!Number.isFinite(p)) continue;
+			best = best === null ? p : Math.min(best, p);
+		}
+		return best;
+	}
+
+	// Cheapest live price among a set of store norms (and which store achieves it).
+	function cheapestAmongNorms(sku, normSet) {
+		const m = liveMinPriceBySkuStore.get(sku);
+		if (!m || !normSet) return { storeNorm: "", price: null };
+		let best = null;
+		let bestStore = "";
+		for (const [st, p] of m.entries()) {
+			if (!normSet.has(st) || !Number.isFinite(p)) continue;
+			if (best === null || p < best) { best = p; bestStore = st; }
+		}
+		return { storeNorm: bestStore, price: best };
+	}
+
+	// Cheapest live price at any store NOT in the given set (for diff-vs-others).
+	function bestPriceExcludingNorms(sku, excludeSet) {
+		const m = liveMinPriceBySkuStore.get(sku);
+		if (!m) return null;
+		let best = null;
+		for (const [st, p] of m.entries()) {
+			if (excludeSet && excludeSet.has(st)) continue;
 			if (!Number.isFinite(p)) continue;
 			best = best === null ? p : Math.min(best, p);
 		}
@@ -782,9 +826,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const storeCount = it._storeCount || 0;
 		const plus = storeCount > 1 ? ` +${storeCount - 1}` : "";
 		const price = priceStr(it);
-		const storeNeed = String($storeFilter.value || "");
+		const storeActive = !!selectedNorms;
 		// When store-filtered: hide sale badges, show compare-vs-best badge instead.
-		const saleBadge = storeNeed ? diffVsOtherBadgeHtml(it) : saleBadgeHtml(it);
+		const saleBadge = storeActive ? diffVsOtherBadgeHtml(it) : saleBadgeHtml(it);
 		const isSmall = !!window.matchMedia?.("(max-width: 640px)")?.matches;
 		const showWInline = !isSmall && String($sort.value || "") === "weightedDesc";
 		const wDock =
@@ -890,12 +934,12 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	function setStatus() {
 		const total = filtered.length;
-		const storeVal = String($storeFilter.value || "");
-		const storeLabel = storeVal ? storeDisplayByNorm.get(storeVal) || "" : "-";
+		const storeActive = !!selectedNorms;
+		const storeLabel = storeActive ? storeSetLabel(storeSetSpec) : "";
 		const maxLabel = pageMax !== null ? `≤ ${formatDollars(selectedMaxPrice)}` : "";
 
 		$status.textContent = total
-			? `Favourites: ${total} item(s) ${maxLabel}${storeVal ? ` (in stock at ${storeLabel})` : ""}`
+			? `Favourites: ${total} item(s) ${maxLabel}${storeActive ? ` (in stock at ${storeLabel})` : ""}`
 			: `No matches.`;
 	}
 
@@ -948,8 +992,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 	function sortInPlace(arr) {
 		const mode = String($sort.value || "weightedDesc");
-		const storeNeed = String($storeFilter.value || "");
-		const storeFiltered = !!storeNeed;
+		const storeActive = !!selectedNorms;
 
 		function nameKey(x) {
 			return (String(x.name || "") + "|" + String(x.sku || "")).toLowerCase();
@@ -1017,7 +1060,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		if (mode === "salePct") {
 			arr.sort((a, b) => {
-				if (storeFiltered) {
+				if (storeActive) {
 					const ap = Number.isFinite(a._diffVsOtherPct) ? a._diffVsOtherPct : 999999;
 					const bp = Number.isFinite(b._diffVsOtherPct) ? b._diffVsOtherPct : 999999;
 					if (ap !== bp) return ap - bp; // smallest difference (best) first
@@ -1038,7 +1081,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		if (mode === "saleAbs") {
 			arr.sort((a, b) => {
-				if (storeFiltered) {
+				if (storeActive) {
 					const ad = Number.isFinite(a._diffVsOtherDollar) ? a._diffVsOtherDollar : 999999;
 					const bd = Number.isFinite(b._diffVsOtherDollar) ? b._diffVsOtherDollar : 999999;
 					if (ad !== bd) return ad - bd; // smallest difference (best) first
@@ -1076,7 +1119,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 		localStorage.setItem(LS_Q, String($q.value || ""));
 		localStorage.setItem(LS_SORT, String($sort.value || ""));
-		localStorage.setItem(LS_STORE, String($storeFilter.value || ""));
 		localStorage.setItem(LS_AVAIL, String($avail.value || "all"));
 
 		// Base = favourites (current favSet), from decorated map
@@ -1086,17 +1128,23 @@ export async function renderShortlist($app, accountUuidRaw) {
 			if (it) base.push(it);
 		}
 
-		// Store filter: only show items IN STOCK at that store
-		const storeNeed = String($storeFilter.value || "");
-		if (storeNeed) {
-			base = base.filter((it) => it && it._liveStoreNorms && it._liveStoreNorms.has(storeNeed));
+		// Store-set filter: only show items IN STOCK at any of the selected stores.
+		const storeSet = selectedNorms; // Set<storeNorm> | null (null = all stores)
+		const storeActive = !!storeSet;
+		if (storeActive) {
+			base = base.filter((it) => {
+				const ls = it && it._liveStoreNorms;
+				if (!ls) return false;
+				for (const n of storeSet) if (ls.has(n)) return true;
+				return false;
+			});
 		}
 
-		// Availability filter (ignored when a specific store is selected — that already implies in-stock)
+		// Availability filter (ignored when a store set is active — that already implies in-stock)
 		const availMode = String($avail.value || "all");
-		if (!storeNeed && availMode === "in") {
+		if (!storeActive && availMode === "in") {
 			base = base.filter((it) => !it._outOfStock);
-		} else if (!storeNeed && availMode === "out") {
+		} else if (!storeActive && availMode === "out") {
 			base = base.filter((it) => !!it._outOfStock);
 		}
 
@@ -1110,17 +1158,18 @@ export async function renderShortlist($app, accountUuidRaw) {
 			});
 		}
 
-		// Compute "view" fields based on store filter
-		const EPS = 0.01;
+		// Compute "view" fields based on the store set. When a set is active the view
+		// reflects the CHEAPEST selected store (price/label/url), and the diff badge
+		// compares it against the cheapest store outside the set.
 		for (const it of base) {
 			const sku = String(it.sku || "");
 
-			const activeStore = storeNeed || String(it._bestStoreNorm || "");
-			const storePrice = storeNeed ? storeMinPrice(sku, storeNeed) : null;
+			const pick = storeActive ? cheapestAmongNorms(sku, storeSet) : { storeNorm: "", price: null };
+			const activeStore = storeActive ? pick.storeNorm : String(it._bestStoreNorm || "");
 
 			const viewPrice =
-				storeNeed && Number.isFinite(storePrice)
-					? storePrice
+				storeActive && Number.isFinite(pick.price)
+					? pick.price
 					: Number.isFinite(it._priceNum)
 						? it._priceNum
 						: null;
@@ -1134,9 +1183,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 				: it._bestUrl || it.sampleUrl || "";
 			it._viewPriceNum = Number.isFinite(viewPrice) ? viewPrice : null;
 
-			// When store-filtered, compare vs cheapest OTHER store (matches store page)
+			// When store-filtered, compare vs cheapest store OUTSIDE the selected set
 			const vp = it._viewPriceNum;
-			const other = storeNeed ? bestOtherPrice(sku, storeNeed) : null;
+			const other = storeActive ? bestPriceExcludingNorms(sku, storeSet) : null;
 			it._diffVsOtherDollar = vp !== null && other !== null ? vp - other : null;
 			it._diffVsOtherPct =
 				vp !== null && other !== null && other > 0 ? ((vp - other) / other) * 100 : null;
@@ -1383,7 +1432,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 	});
 
 	$sort.addEventListener("change", applyFilter);
-	$storeFilter.addEventListener("change", applyFilter);
 	$avail.addEventListener("change", applyFilter);
 
 	$clear.addEventListener("click", () => {
@@ -1395,10 +1443,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 			changed = true;
 		}
 
-		if ($storeFilter.value) {
-			$storeFilter.value = "";
-			localStorage.setItem(LS_STORE, "");
-			changed = true;
+		if (storeSetSpec.kind !== "all") {
+			// setSpec fires the selector's onChange → persists + recomputes + applyFilter
+			storeSetCtl?.setSpec({ kind: "all" });
 		}
 
 		if (pageMax !== null) {
