@@ -175,6 +175,7 @@ export function computeHighOutlierCap(stores, opts = {}) {
  * @param {number[]} values
  * @param {number} [minRange]  enforce a minimum visible span
  * @param {number} [maxCap]    clamp the upper bound (e.g. from computeHighOutlierCap)
+ * @param {number} [padRatio]  fraction of range to add above/below (default 0.08)
  */
 export function computeSuggestedY(values, minRange, maxCap, padRatio = 0.08) {
 	const nums = values.filter((v) => Number.isFinite(v));

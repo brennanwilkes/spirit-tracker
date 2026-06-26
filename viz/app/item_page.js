@@ -709,13 +709,7 @@ export async function renderItem($app, skuInput) {
 
 		const st = storeOf(r);
 		const province = st?.region ? st.region.toUpperCase() : "";
-		const cities = st && Array.isArray(st.cities) ? st.cities : [];
 		let loc = province;
-		if (cities.length === 1) {
-			loc = cityLabel(cities[0]);
-		} else if (cities.length >= 2) {
-			loc = cities.map(cityLabel).join(" and ");
-		}
 		const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
 
 		const cssClasses = [];
@@ -739,9 +733,11 @@ export async function renderItem($app, skuInput) {
 	let summaryBtnHtml = "";
 	let listContentHtml = "";
 	let listHtmlMobile = "";
+	let bothCategories = false;
 	if (linkRows.length > 0) {
 		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
 		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
+		bothCategories = liveHtml.length > 0 && removedHtml.length > 0;
 		let summary;
 		if (removedHtml.length === 0) {
 			summary = `In stock (${liveHtml.length})`;
@@ -754,15 +750,23 @@ export async function renderItem($app, skuInput) {
 			+ (liveHtml.length && removedHtml.length ? `<hr class="storeListDivider">` : "")
 			+ removedHtml.join("");
 
-		// Desktop: toggle button in header, list content below
-		summaryBtnHtml = `<button class="storeLinksToggle" type="button">${esc(summary)} <span class="storeLinksChevron">▾</span></button>`;
-		listContentHtml = `<div class="storeLinksList">${inner}</div>`;
-		// Mobile: details element
-		listHtmlMobile = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
+		if (bothCategories) {
+			// Both categories — toggle between them
+			summaryBtnHtml = `<button class="storeLinksToggle" type="button">${esc(summary)} <span class="storeLinksChevron">▾</span></button>`;
+			listContentHtml = `<div class="storeLinksList">${inner}</div>`;
+			listHtmlMobile = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
+		} else {
+			// Only one category — show list directly
+			listContentHtml = `<div class="storeLinksList">${inner}</div>`;
+			listHtmlMobile = `<div class="storeLinksList">${inner}</div>`;
+		}
 	}
 
 	if ($links) $links.innerHTML = pinnedHtml + summaryBtnHtml;
-	if ($linksDropdown) $linksDropdown.innerHTML = listContentHtml;
+	if ($linksDropdown) {
+		$linksDropdown.innerHTML = listContentHtml;
+		if (!bothCategories) $linksDropdown.classList.add("linksDropdownOpen");
+	}
 	if ($linksMobile) $linksMobile.innerHTML = pinnedHtml + listHtmlMobile;
 
 	// Toggle desktop dropdown
@@ -770,9 +774,13 @@ export async function renderItem($app, skuInput) {
 		$links.addEventListener("click", (ev) => {
 			const btn = ev.target.closest(".storeLinksToggle");
 			if (!btn || !$linksDropdown) return;
+			const wasOpen = $linksDropdown.classList.contains("linksDropdownOpen");
 			ev.preventDefault();
 			$linksDropdown.classList.toggle("linksDropdownOpen");
 			btn.classList.toggle("storeLinksToggleOpen");
+			if (!wasOpen) {
+				requestAnimationFrame(() => $linksDropdown.scrollIntoView({ block: "start", behavior: "smooth" }));
+			}
 		});
 	}
 
@@ -1132,13 +1140,12 @@ export async function renderItem($app, skuInput) {
 	const tickCount = yScale?.ticks?.length || 0;
 
 	if (tickCount >= 2) {
-		const minRange = (tickCount - 1) * 10; // $10 per gap, same number of gaps as before
-		const ySug2 = computeSuggestedY(allVals, isMobile ? undefined : minRange, outlierCap, isMobile ? 0.01 : undefined);
+		const ySug2 = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
 
 		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
 		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
 		if (Number.isFinite(yHardMax)) CHART.options.scales.y.max = yHardMax;
-		CHART.options.scales.y.ticks.stepSize = 10; // lock spacing at $10 now
+		CHART.options.scales.y.ticks.stepSize = 10;
 
 		CHART.update();
 	}
