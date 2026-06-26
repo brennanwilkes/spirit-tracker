@@ -176,7 +176,7 @@ export function computeHighOutlierCap(stores, opts = {}) {
  * @param {number} [minRange]  enforce a minimum visible span
  * @param {number} [maxCap]    clamp the upper bound (e.g. from computeHighOutlierCap)
  */
-export function computeSuggestedY(values, minRange, maxCap) {
+export function computeSuggestedY(values, minRange, maxCap, padRatio = 0.08) {
 	const nums = values.filter((v) => Number.isFinite(v));
 	if (!nums.length) return { suggestedMin: undefined, suggestedMax: undefined };
 
@@ -190,7 +190,7 @@ export function computeSuggestedY(values, minRange, maxCap) {
 	if (Number.isFinite(maxCap) && maxCap < max) max = maxCap;
 
 	const range = max - min;
-	const pad = range === 0 ? Math.max(1, min * 0.05) : range * 0.08;
+	const pad = range === 0 ? Math.max(1, min * 0.05) : range * padRatio;
 
 	let suggestedMin = Math.max(0, min - pad);
 	let suggestedMax = max + pad;
