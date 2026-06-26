@@ -16,6 +16,15 @@
   flex: 1 1 auto;
 }
 
+@media (min-width: 641px) {
+  .detailCard {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+@media (min-width: 641px) {
+
 .detailHeader {
   display: flex;
   gap: 12px;
@@ -334,11 +343,16 @@
   /* status/debug sits below both columns */
   .detailStatus { margin-top: 12px; }
 
+  .detailContainer {
+    height: 100dvh;
+  }
+
   .chartBox {
+    flex: 1;
+    min-height: 150px;
+    height: auto;
+    max-height: none;
     aspect-ratio: auto;
-    height: min(72vh, 720px);
-    max-height: 720px;
-    min-height: 320px;
     padding: 10px;
   }
 

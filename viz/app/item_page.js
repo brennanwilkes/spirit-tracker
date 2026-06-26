@@ -1,7 +1,7 @@
 import { esc, renderThumbHtml, dateOnly } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
-import { loadIndex } from "./state.js";
+import { loadIndex, loadRecent } from "./state.js";
 import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
@@ -10,7 +10,7 @@ import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./s
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
 import { selectBestDisplayInfo } from "./catalog.js";
-import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore } from "./cloud.js";
+import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore, getMyStores } from "./cloud.js";
 import {
 	isBcStoreLabel,
 	weightedMeanByDuration,
@@ -203,8 +203,11 @@ export async function renderItem($app, skuInput) {
 
 	// Kick off independent fetches immediately — no dependency on rules/sku
 	const idxPromise = loadIndex();
+	const recentPromise = loadRecent().catch(() => null);
 
+	const authed = getAuthStatus().ok;
 	const [rules, fav] = await Promise.all([loadSkuRules(), loadMyFavouritesSet()]);
+	const myStoresPromise = authed ? getMyStores().catch(() => []) : Promise.resolve([]);
 
 	const sku = rules.canonicalSku(String(skuInput || ""));
 	const favSet = new Set();
@@ -349,6 +352,42 @@ export async function renderItem($app, skuInput) {
 		if ($status) $status.textContent = txt;
 		if ($statusMobile) $statusMobile.textContent = txt;
 	};
+
+	function eventMsRecent(r) {
+		const t = String(r?.ts || "");
+		const ms = t ? Date.parse(t) : NaN;
+		if (Number.isFinite(ms)) return ms;
+		const d = String(r?.date || "");
+		const ms2 = d ? Date.parse(d + "T00:00:00Z") : NaN;
+		return Number.isFinite(ms2) ? ms2 : 0;
+	}
+
+	function buildStorePriceChangeMap(recent, rules, skuGroup) {
+		const map = new Map();
+		if (!recent?.items) return map;
+		const nowMs = Date.now();
+		const cutoffMs = nowMs - 7 * 24 * 60 * 60 * 1000;
+		for (const ev of recent.items) {
+			const ms = eventMsRecent(ev);
+			if (!(ms >= cutoffMs && ms <= nowMs)) continue;
+			const rawSku = String(ev?.sku || "").trim();
+			if (!rawSku) continue;
+			const canonSku = String(rules.canonicalSku(rawSku) || rawSku);
+			if (!skuGroup.has(canonSku)) continue;
+			const storeLabel = String(ev?.storeLabel || ev?.store || "").trim();
+			const storeId = normalizeStoreId(storeLabel);
+			if (!storeId) continue;
+			const kind = String(ev?.kind || "");
+			if (kind !== "price_down" && kind !== "price_up") continue;
+			const oldNum = parsePriceToNumber(ev?.oldPrice || "");
+			const newNum = parsePriceToNumber(ev?.newPrice || "");
+			const delta = Number.isFinite(newNum) && Number.isFinite(oldNum) ? newNum - oldNum : 0;
+			const pct = Number.isFinite(oldNum) && oldNum > 0 ? Math.round((delta / oldNum) * 100) : 0;
+			const prev = map.get(storeId);
+			if (!prev || ms > prev.ms) map.set(storeId, { direction: kind === "price_down" ? "down" : "up", pct, abs: Math.abs(delta), ms });
+		}
+		return map;
+	}
 
 	// ---- Cloud: sampled + score (per canonical SKU) ----
 	const $sampledBtn = document.getElementById("sampledBtn");
@@ -511,6 +550,10 @@ export async function renderItem($app, skuInput) {
 
 	// include toSku + all fromSkus mapped to it
 	const skuGroup = rules.groupForCanonical(sku);
+
+	const [recent, myStores] = await Promise.all([recentPromise, myStoresPromise]);
+	const myStoresSet = new Set(Array.isArray(myStores) ? myStores.filter((id) => storeById(id)) : []);
+	const storePriceChange = buildStorePriceChangeMap(recent, rules, skuGroup);
 
 	// index.json includes removed rows too. Split live vs all.
 	const allRows = all.filter((x) => skuGroup.has(String(keySkuForRow(x) || "")));
@@ -734,7 +777,8 @@ export async function renderItem($app, skuInput) {
 	let listContentHtml = "";
 	let listHtmlMobile = "";
 	let bothCategories = false;
-	if (linkRows.length > 0) {
+	const allFeatured = showAllAsFeatured && removedListRows.length === 0;
+	if (linkRows.length > 0 && !allFeatured) {
 		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
 		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
 		bothCategories = liveHtml.length > 0 && removedHtml.length > 0;
@@ -765,7 +809,7 @@ export async function renderItem($app, skuInput) {
 	if ($links) $links.innerHTML = pinnedHtml + summaryBtnHtml;
 	if ($linksDropdown) {
 		$linksDropdown.innerHTML = listContentHtml;
-		if (!bothCategories) $linksDropdown.classList.add("linksDropdownOpen");
+		if (!bothCategories && listContentHtml) $linksDropdown.classList.add("linksDropdownOpen");
 	}
 	if ($linksMobile) $linksMobile.innerHTML = pinnedHtml + listHtmlMobile;
 
@@ -774,13 +818,9 @@ export async function renderItem($app, skuInput) {
 		$links.addEventListener("click", (ev) => {
 			const btn = ev.target.closest(".storeLinksToggle");
 			if (!btn || !$linksDropdown) return;
-			const wasOpen = $linksDropdown.classList.contains("linksDropdownOpen");
 			ev.preventDefault();
 			$linksDropdown.classList.toggle("linksDropdownOpen");
 			btn.classList.toggle("storeLinksToggleOpen");
-			if (!wasOpen) {
-				requestAnimationFrame(() => $linksDropdown.scrollIntoView({ block: "start", behavior: "smooth" }));
-			}
 		});
 	}
 
@@ -916,6 +956,7 @@ export async function renderItem($app, skuInput) {
 				borderWidth: datasetStrokeWidth(base),
 				pointRadius: (ctx) => {
 					if (suppressDots) return 0;
+					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
@@ -923,6 +964,7 @@ export async function renderItem($app, skuInput) {
 				},
 				pointHoverRadius: (ctx) => {
 					if (suppressDots) return 0;
+					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
