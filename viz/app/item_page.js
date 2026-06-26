@@ -658,21 +658,7 @@ export async function renderItem($app, skuInput) {
 	};
 
 	const showAllAsFeatured = liveLinkRows.length <= 3 && liveLinkRows.length > 0;
-
-	// Per-store state for subtle visual indicators
-	const bestPrice = liveLinkRows.length ? rowMinPrice(liveLinkRows[0].r) : Infinity;
-	const storeState = new Map(); // store -> "best" | "exclusive" | "lastStock"
-	for (const { store, r } of linkRows) {
-		const isLive = !Boolean(r?.removed);
-		if (!isLive) continue;
-		if (linkRows.length === 1) {
-			storeState.set(store, "exclusive");
-		} else if (liveLinkRows.length === 1) {
-			storeState.set(store, "lastStock");
-		} else if (liveLinkRows.length > 1 && rowMinPrice(r) === bestPrice) {
-			storeState.set(store, "best");
-		}
-	}
+	const allFeatured = showAllAsFeatured && linkRows.length === liveLinkRows.length;
 
 	if (showAllAsFeatured) {
 		for (const row of liveLinkRows) {
@@ -716,7 +702,7 @@ export async function renderItem($app, skuInput) {
 		}
 	}
 
-	const pinnedHtml = pinned.length
+	const pinnedContent = pinned.length
 		? `<div class="storeQuickLinks">${pinned
 				.map(({ store, r, hint, city, cities }) => {
 					const href = String(r.url || "").trim();
@@ -732,13 +718,17 @@ export async function renderItem($app, skuInput) {
 					} else {
 						loc = province;
 					}
-					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
-					const stCls = storeState.get(store) || "";
-					const stAttr = stCls ? ` storeState${stCls.charAt(0).toUpperCase() + stCls.slice(1)}` : "";
-					return `<a class="storeQuickLink${stAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+				const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
+				const pc = storePriceChange.get(store);
+				const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
+				const pcAttr = pcCls ? ` ${pcCls}` : "";
+				return `<a class="storeQuickLink${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";
+	const pinnedHtml = allFeatured && pinnedContent
+		? `<div class="pinnedCentered">${pinnedContent}</div>`
+		: pinnedContent;
 
 	const liveListRows = linkRows.filter(({ r }) => !Boolean(r?.removed));
 	const removedListRows = linkRows.filter(({ r }) => Boolean(r?.removed));
@@ -757,8 +747,8 @@ export async function renderItem($app, skuInput) {
 
 		const cssClasses = [];
 		if (isRemoved) cssClasses.push("storeRemoved");
-		const stCls = storeState.get(store) || "";
-		if (stCls) cssClasses.push("storeState" + stCls.charAt(0).toUpperCase() + stCls.slice(1));
+		const pc = storePriceChange.get(store);
+		if (pc) cssClasses.push(pc.direction === "down" ? "priceDown" : "priceUp");
 		const cls = cssClasses.length ? ` class="${cssClasses.join(" ")}"` : "";
 		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${cls}><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span>${priceHtml}</a>`;
 		let inner = anchor;
@@ -777,7 +767,6 @@ export async function renderItem($app, skuInput) {
 	let listContentHtml = "";
 	let listHtmlMobile = "";
 	let bothCategories = false;
-	const allFeatured = showAllAsFeatured && removedListRows.length === 0;
 	if (linkRows.length > 0 && !allFeatured) {
 		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
 		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
@@ -1184,10 +1173,8 @@ export async function renderItem($app, skuInput) {
 	if (tickCount >= 2) {
 		const ySug2 = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
 
-		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
-		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;
-		if (Number.isFinite(yHardMax)) CHART.options.scales.y.max = yHardMax;
-		CHART.options.scales.y.ticks.stepSize = 10;
+		if (Number.isFinite(ySug2.suggestedMin)) CHART.options.scales.y.min = Math.max(0, ySug2.suggestedMin);
+		CHART.options.scales.y.max = Number.isFinite(yHardMax) ? yHardMax : ySug2.suggestedMax;
 
 		CHART.update();
 	}
