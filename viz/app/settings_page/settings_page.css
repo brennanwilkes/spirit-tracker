@@ -367,3 +367,18 @@ html[data-theme="dark"] .stSelect {
 html[data-theme="dark"] .stSelect:hover { border-color: #2f3a46; }
 html[data-theme="dark"] .stSelect:focus { border-color: #37566b; outline-color: #37566b; }
 html[data-theme="dark"] .saveArea { background: rgba(18,22,27,0.92); }
+
+/* ── My Stores editor + per-rule store multi-select ─────────────────────── */
+.myStoresRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.myStoresRow .storeSet { flex: 1 1 auto; min-width: 0; }
+.myStoresRow .storeSetTrigger { width: 100%; max-width: none; }
+.myStoresRow .btn { flex: 0 0 auto; }
+
+/* Email-rule store filter uses the shared selector inline */
+.stRuleRow .storeSet { flex: 1 1 auto; min-width: 0; }
+.stRuleRow .storeSetTrigger { width: 100%; max-width: none; }

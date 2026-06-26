@@ -5,7 +5,7 @@ import { loadIndex } from "./state.js";
 import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
-import { normalizeStoreId } from "./stores.js";
+import { normalizeStoreId, storeById, cityLabel } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
@@ -32,6 +32,55 @@ export function destroyChart() {
 		CHART.destroy();
 		CHART = null;
 	}
+}
+
+// Renders the off-canvas store legend (#chartLegend). A store can have several
+// SKU variants (multiple datasets share one store label), so entries are grouped
+// by label and clicking toggles the whole group's visibility — mirroring the old
+// on-canvas legend's de-dup + group-toggle behavior.
+function buildChartLegend(chart) {
+	const panel = document.getElementById("chartLegend");
+	const list = document.getElementById("chartLegendList");
+	const countEl = document.getElementById("chartLegendCount");
+	if (!panel || !list || !countEl) return;
+
+	const groups = new Map(); // store label -> { color, idxs }
+	chart.data.datasets.forEach((ds, i) => {
+		const label = String(ds.label || "");
+		if (!label) return;
+		if (!groups.has(label)) groups.set(label, { color: ds.borderColor, idxs: [] });
+		groups.get(label).idxs.push(i);
+	});
+
+	if (groups.size === 0) {
+		panel.hidden = true;
+		return;
+	}
+
+	panel.hidden = false;
+	panel.open = window.innerWidth > 640;
+	countEl.textContent = `Stores (${groups.size})`;
+
+	const frag = document.createDocumentFragment();
+	for (const [label, { color, idxs }] of groups) {
+		const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
+		const item = document.createElement("button");
+		item.type = "button";
+		item.className = "chartLegendItem" + (allHidden ? " dimmed" : "");
+		const swatch = typeof color === "string" ? color : "var(--muted)";
+		item.innerHTML = `<span class="chartLegendSwatch" style="background:${esc(swatch)}"></span><span class="chartLegendLabel">${esc(label)}</span>`;
+		item.addEventListener("click", () => {
+			const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
+			for (const j of idxs) {
+				if (typeof chart.setDatasetVisibility === "function") chart.setDatasetVisibility(j, !anyVisible);
+				else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
+			}
+			chart.update();
+			item.classList.toggle("dimmed", anyVisible);
+		});
+		frag.appendChild(item);
+	}
+	list.replaceChildren(frag);
 }
 
 /* ---------------- SKU history from pre-built cache files ---------------- */
@@ -180,7 +229,7 @@ export async function renderItem($app, skuInput) {
 	}
 
 	$app.innerHTML = `
-		<div class="container">
+		<div class="container detailContainer">
 			<div class="topbar">
 				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<span class="badge mono">${esc(displaySku(sku))}</span>
@@ -197,10 +246,8 @@ export async function renderItem($app, skuInput) {
 						<div id="title" class="h1">Loading…</div>
 						</div>
 
-						<!-- DESKTOP links/status stay here -->
+						<!-- DESKTOP links stay here; status/loadingBar moved below the header -->
 						<div id="links" class="links"></div>
-						<div class="small" id="status"></div>
-						<div class="loadingBar" id="loadingBar"><div class="loadingBarFill"></div></div>
 					</div>
 
 					<div class="detailRight">
@@ -230,6 +277,10 @@ export async function renderItem($app, skuInput) {
 				</div>
 				</div>
 
+				<!-- DESKTOP debug/status below the whole header (both columns) -->
+				<div class="small detailStatus" id="status"></div>
+				<div class="loadingBar" id="loadingBar"><div class="loadingBarFill"></div></div>
+
 				<!-- MOBILE full-width links/status (different ids, no collisions) -->
 				<div class="detailMobileLinks">
 				<div id="linksMobile" class="links"></div>
@@ -240,6 +291,10 @@ export async function renderItem($app, skuInput) {
 				<div class="chartBox">
 				<canvas id="chart"></canvas>
 				</div>
+				<details class="chartLegend" id="chartLegend" hidden>
+				<summary><span id="chartLegendCount">Stores</span></summary>
+				<div class="chartLegendList" id="chartLegendList"></div>
+				</details>
 			</div>
 			</div>
 		`;
@@ -533,20 +588,75 @@ export async function renderItem($app, skuInput) {
 		});
 
 	const canHide = isLocalWriteMode();
-	setLinksHtml(
-		linkRows
-			.map(({ store, r }) => {
-				const href = String(r.url || "").trim();
-				const suffix = Boolean(r?.removed) ? " (removed)" : "";
-				const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
-				if (!canHide) return anchor;
+
+	// Pinned quick-links: the few stores users click most — cheapest overall,
+	// then the cheapest *distinct* store in Vancouver / Victoria. linkRows is
+	// sorted cheapest-first, so the first live match per geography is the cheapest
+	// there. We fall through to the next store when the cheapest is already pinned
+	// (a chain like BCL/Everything Wine spans both cities) so each pin surfaces a
+	// genuinely different buy option rather than collapsing to one store.
+	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
+	const storeOf = (r) => storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
+	const citiesOf = (r) => {
+		const st = storeOf(r);
+		return st && Array.isArray(st.cities) ? st.cities : [];
+	};
+
+	const pinned = [];
+	const seenPin = new Set();
+	const addPin = (row, extra) => {
+		if (!row || seenPin.has(row.store)) return;
+		seenPin.add(row.store);
+		pinned.push({ ...row, ...extra });
+	};
+	// `city` fixes the geography shown for the city-specific pins; the overall pin
+	// falls back to the store's first listed city.
+	addPin(liveLinkRows[0], { hint: "Cheapest overall" });
+	addPin(
+		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver")),
+		{ hint: "Cheapest in Vancouver", city: "vancouver" },
+	);
+	addPin(
+		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
+		{ hint: "Cheapest in Victoria", city: "victoria" },
+	);
+
+	const pinnedHtml = pinned.length
+		? `<div class="storeQuickLinks">${pinned
+				.map(({ store, r, hint, city }) => {
+					const href = String(r.url || "").trim();
+					const num = rowMinPrice(r);
+					const priceStr = Number.isFinite(num) ? `$${num.toFixed(2)}` : "";
+					const st = storeOf(r);
+					const displayCity = city || citiesOf(r)[0] || null;
+					const province = st?.region ? st.region.toUpperCase() : "";
+					const loc = [displayCity ? cityLabel(displayCity) : null, province].filter(Boolean).join(", ");
+					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
+					return `<a class="storeQuickLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint)}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+				})
+				.join("")}</div>`
+		: "";
+
+	const listHtml = linkRows
+		.map(({ store, r }) => {
+			const href = String(r.url || "").trim();
+			const suffix = Boolean(r?.removed) ? " (removed)" : "";
+			const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
+			let inner = anchor;
+			if (canHide) {
 				const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
 				const rawSku = String(keySkuForRow(r) || "");
-				if (!sid || !rawSku) return anchor;
-				const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
-				return `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
-			})
-			.join(""),
+				if (sid && rawSku) {
+					const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
+					inner = `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
+				}
+			}
+			return `<span class="storeLinkRow">${inner}</span>`;
+		})
+		.join("");
+
+	setLinksHtml(
+		`${pinnedHtml}<details class="storeLinksMore"><summary>All stores (${linkRows.length})</summary><div class="storeLinksList">${listHtml}</div></details>`,
 	);
 
 	if (canHide) {
@@ -821,48 +931,10 @@ export async function renderItem($app, skuInput) {
 					axisInset: 2,
 				},
 
-				// De-dupe legend items by label WITHOUT changing legend styling.
-				legend: {
-					display: true,
-					labels: {
-						generateLabels: (chart) => {
-							const gen = Chart?.defaults?.plugins?.legend?.labels?.generateLabels;
-							const items = typeof gen === "function" ? gen(chart) : [];
-
-							const seen = new Map(); // text -> { item, idxs }
-							for (const it of items) {
-								const t = String(it.text || "");
-								if (!seen.has(t)) {
-									seen.set(t, { item: { ...it, _group: [it.datasetIndex] } });
-								} else {
-									seen.get(t).item._group.push(it.datasetIndex);
-								}
-							}
-
-							// make "hidden" reflect ALL datasets in the group
-							const out = [];
-							for (const { item } of seen.values()) {
-								const idxs = item._group || [item.datasetIndex];
-								const allHidden = idxs.every((j) => chart.getDatasetMeta(j).hidden === true);
-								out.push({ ...item, hidden: allHidden, datasetIndex: idxs[0], _group: idxs });
-							}
-							return out;
-						},
-					},
-					onClick: (_e, legendItem, legend) => {
-						const chart = legend.chart;
-						const idxs = legendItem._group || [legendItem.datasetIndex];
-
-						// toggle all as a group
-						const anyVisible = idxs.some((j) => chart.getDatasetMeta(j).hidden !== true);
-						for (const j of idxs) {
-							if (typeof chart.setDatasetVisibility === "function")
-								chart.setDatasetVisibility(j, !anyVisible);
-							else chart.getDatasetMeta(j).hidden = anyVisible ? true : null;
-						}
-						chart.update();
-					},
-				},
+				// On-canvas legend is replaced by a collapsible HTML panel below the
+				// chart (#chartLegend) — see buildChartLegend() — so a 20-30 store
+				// legend doesn't eat the plot height on mobile.
+				legend: { display: false },
 
 				tooltip: {
 					filter: (tctx) => {
@@ -952,6 +1024,8 @@ export async function renderItem($app, skuInput) {
 
 		CHART.update();
 	}
+
+	buildChartLegend(CHART);
 
 	clearProgress();
 	setStatusText(

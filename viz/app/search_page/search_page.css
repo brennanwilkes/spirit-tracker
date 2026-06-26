@@ -1,74 +1,71 @@
 /* ── Search page controls ──────────────────────────────────────────────── */
 
-/* Price range wrap: grid layout so label never wraps */
-#priceWrap {
-  display: grid !important;
-  grid-template-columns: max-content 1fr 120px;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  flex-wrap: nowrap;
-}
-
-#priceWrap #maxPrice {
-  width: 100%;
-  min-width: 0;
-}
-
-#priceWrap #maxPriceLabel {
-  justify-self: end;
-  white-space: nowrap;
-  width: 96px;
-  min-width: 96px;
-}
-
-/* Sort + Availability + Type controls row */
+/* Filter controls — mobile-first: each is its own full-width row with an INLINE
+   label (fixed-width column so the controls line up). The row is the positioning
+   context for the Stores panel, and the Stores control itself is position:static,
+   so the panel spans the full row edge-to-edge instead of starting after the label. */
 .searchControls {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: center;
   width: 100%;
-  flex-wrap: wrap;
-  justify-content: space-between;
 }
 
 .searchControl {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
-  flex: 1 1 0;
-  justify-content: flex-start;
-}
-
-/* Type filter drops to its own line on mobile */
-.searchControlType {
-  flex: 1 1 100%;
-  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  position: relative;
 }
 
 .searchControlLabel {
+  flex: 0 0 70px;
   opacity: 0.8;
   white-space: nowrap;
+  font-size: 12px;
 }
 
+/* Control fills the rest of the row */
+.searchControl > .selectSmall,
+.searchControl > .storeSet,
+.searchControl > .spiritFilter {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.searchControl .selectSmall { width: 100%; }
+.searchControl .storeSetTrigger,
+.searchControl .spiritFilterTrigger {
+  width: 100%;
+  max-width: none;
+}
+/* Anchor the (wide) Stores panel to the whole row, not the offset trigger */
+.searchControl .storeSet { position: static; }
+
+/* Infinite-scroll sentinel / "Showing N / M" footer */
+.searchSentinel {
+  padding: 14px 0;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* Desktop: controls flow inline at natural widths; Stores gets a FIXED width so
+   it doesn't resize as the selected preset label changes. */
 @media (min-width: 641px) {
   .searchControls {
+    flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    align-items: center;
+    gap: 10px 14px;
   }
-
-  .searchControl {
-    flex: 0 0 auto;
-    justify-content: flex-start;
-  }
-
-  /* Type rejoins the row on desktop */
-  .searchControlType {
-    flex: 0 0 auto;
-  }
-
-  .searchControl .selectSmall:not(.spiritFilterTrigger) {
-    width: auto;
-    min-width: 0;
-  }
+  .searchControl { width: auto; }
+  .searchControlLabel { flex: 0 0 auto; }
+  .searchControl > .selectSmall,
+  .searchControl > .storeSet,
+  .searchControl > .spiritFilter { flex: 0 0 auto; }
+  .searchControl .selectSmall { width: auto; min-width: 0; }
+  .searchControl .storeSet { position: relative; }
+  .searchControl .storeSetTrigger { width: 200px; }
+  .searchControl .spiritFilterTrigger { width: 120px; }
 }

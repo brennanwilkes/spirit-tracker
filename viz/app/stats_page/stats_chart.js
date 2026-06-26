@@ -78,7 +78,16 @@ export function destroyStatsChart() {
 
 export function resizeStatsChart() {
 	try {
-		if (_chart) _chart.resize();
+		if (!_chart) return;
+		_chart.resize();
+		const canvas = document.getElementById("statsChart");
+		const hPx = canvas?.clientHeight || canvas?.parentElement?.clientHeight || 320;
+		const maxTicks = Math.max(4, Math.min(10, Math.round(hPx / 44)));
+		const yt = _chart.options?.scales?.y?.ticks;
+		if (yt && yt.maxTicksLimit !== maxTicks) {
+			yt.maxTicksLimit = maxTicks;
+			_chart.update("none");
+		}
 	} catch {}
 }
 
@@ -232,18 +241,23 @@ export async function drawOrUpdateChart(series, yBounds) {
 		return `${n.toFixed(0)}%`;
 	};
 
+	// Tick density follows available pixel height so a tall range doesn't bunch up
+	// on a short mobile chart (~44px min spacing per label).
+	const hPx = canvas.clientHeight || canvas.parentElement?.clientHeight || 320;
+	const maxTicks = Math.max(4, Math.min(10, Math.round(hPx / 44)));
+
 	const yTicks = isDollars
 		? {
 				stepSize: yStep,
 				precision: 0,
 				autoSkip: true,
-				maxTicksLimit: 10,
+				maxTicksLimit: maxTicks,
 				callback: yTickCallback,
 			}
 		: {
-				stepSize: 1,
 				precision: 0,
-				autoSkip: false, // don't skip integer % ticks
+				autoSkip: true,
+				maxTicksLimit: maxTicks,
 				callback: yTickCallback,
 			};
 
@@ -261,6 +275,7 @@ export async function drawOrUpdateChart(series, yBounds) {
 		_chart.options.plugins.tooltip.callbacks.label = tooltipLabel;
 
 		_chart.update("none");
+		buildStatsLegend(_chart);
 		return;
 	}
 
@@ -274,7 +289,9 @@ export async function drawOrUpdateChart(series, yBounds) {
 			animation: false,
 			interaction: { mode: "nearest", intersect: false },
 			plugins: {
-				legend: { display: true },
+				// On-canvas legend replaced by the collapsible HTML panel (#statsLegend)
+				// below the chart — see buildStatsLegend().
+				legend: { display: false },
 				tooltip: {
 					callbacks: { label: tooltipLabel },
 				},
@@ -282,7 +299,11 @@ export async function drawOrUpdateChart(series, yBounds) {
 			scales: {
 				x: {
 					title: { display: true, text: "Date" },
-					ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+					ticks: {
+						maxRotation: 0,
+						autoSkip: true,
+						maxTicksLimit: window.innerWidth <= 640 ? 4 : 12,
+					},
 				},
 				y: {
 					min: yBounds?.min,
@@ -299,4 +320,45 @@ export async function drawOrUpdateChart(series, yBounds) {
 			},
 		},
 	});
+	buildStatsLegend(_chart);
+}
+
+// Off-canvas collapsible legend (#statsLegend) — one entry per dataset (store
+// series + market lines). Click toggles that series' visibility. Mirrors the
+// item page's chart legend; rebuilt on every draw since filters change datasets.
+function buildStatsLegend(chart) {
+	const panel = document.getElementById("statsLegend");
+	const list = document.getElementById("statsLegendList");
+	const countEl = document.getElementById("statsLegendCount");
+	if (!panel || !list || !countEl) return;
+
+	const datasets = chart.data.datasets || [];
+	if (datasets.length === 0) {
+		panel.hidden = true;
+		return;
+	}
+
+	panel.hidden = false;
+	panel.open = window.innerWidth > 640;
+	countEl.textContent = `Series (${datasets.length})`;
+
+	const frag = document.createDocumentFragment();
+	datasets.forEach((ds, i) => {
+		const label = String(ds.label || `Series ${i + 1}`);
+		const hidden = chart.getDatasetMeta(i).hidden === true;
+		const item = document.createElement("button");
+		item.type = "button";
+		item.className = "chartLegendItem" + (hidden ? " dimmed" : "");
+		const swatch = typeof ds.borderColor === "string" ? ds.borderColor : "var(--muted)";
+		item.innerHTML = `<span class="chartLegendSwatch" style="background:${swatch}"></span><span class="chartLegendLabel"></span>`;
+		item.querySelector(".chartLegendLabel").textContent = label;
+		item.addEventListener("click", () => {
+			const nowHidden = chart.getDatasetMeta(i).hidden !== true;
+			chart.setDatasetVisibility(i, !nowHidden);
+			chart.update();
+			item.classList.toggle("dimmed", nowHidden);
+		});
+		frag.appendChild(item);
+	});
+	list.replaceChildren(frag);
 }

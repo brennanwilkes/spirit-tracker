@@ -1,9 +1,19 @@
 /* ── Item detail page layout ───────────────────────────────────────────── */
 
+/* Fill the viewport so the panel surface reaches the bottom even when the
+   chart legend / store-link disclosures are collapsed and content is short. */
+.detailContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 .detailCard {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1 1 auto;
 }
 
 .detailHeader {
@@ -93,8 +103,12 @@
 
 .chartBox {
   width: 100%;
-  height: min(58vh, 720px);
-  min-height: 260px;
+  /* Aspect-driven on mobile so the plot keeps a sane shape in portrait
+     instead of a wide-and-short strip; capped so it never dominates the screen. */
+  aspect-ratio: 3 / 2;
+  height: auto;
+  max-height: 70vh;
+  min-height: 280px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: #0f1318;
@@ -105,6 +119,115 @@
   width: 100% !important;
   height: 100% !important;
 }
+
+/* Off-canvas chart legend (.chartLegend*) is shared — see style.css. */
+
+/* ── Store links: pinned quick-access + collapsible full list ──────────── */
+
+/* Stack the quick-links above the "All stores" disclosure. */
+.detailLeft .links,
+.detailMobileLinks .links {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+/* Mobile-first: every link is a full-width stacked row (no ragged flex-wrap
+   gaps from varying label widths). Desktop switches to inline wrap below. */
+.storeQuickLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Squared, prominent quick-links (override the global pill .links a).
+   Full-width with the price pushed right; ~44px mobile touch target. */
+.links a.storeQuickLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.links a.storeQuickLink:hover { border-color: var(--text); color: var(--text); }
+.links a.storeQuickLink .sqlPrice { color: var(--muted); }
+
+.sqlInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.sqlLoc {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Toggle reads as a button: bordered row, label left, rotating chevron right. */
+.storeLinksMore > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+}
+.storeLinksMore > summary:hover { color: var(--text); border-color: var(--text); }
+.storeLinksMore > summary::-webkit-details-marker { display: none; }
+.storeLinksMore > summary::after {
+  content: "▾";
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+.storeLinksMore:not([open]) > summary::after { transform: rotate(-90deg); }
+
+.storeLinksList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0 6px;
+}
+
+.storeLinkRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Squared full-width rows in the disclosure (override the global pill .links a). */
+.links .storeLinkRow a {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+.links .storeLinkRow a:hover { color: var(--text); border-color: var(--text); }
 
 /* ── Mobile: show links row, rework header grid ─────────────────────────── */
 
@@ -137,18 +260,81 @@
   #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
 
-  .detailLeft #links > a { margin: 3px; }
-
+  /* Larger product photo defines the header height; the title / quick-links /
+     All-stores column stretches to fill that height beside it. */
   .detailThumbBox {
-    width: 96px;
-    height: 96px;
-    flex: 0 0 96px;
+    width: 200px;
+    height: 200px;
+    flex: 0 0 200px;
+    align-self: flex-start;
   }
 
+  .detailHeader { align-items: stretch; }
+  .detailHeaderText { display: flex; flex-direction: column; }
+  .detailTopRow { flex: 1 1 auto; align-items: stretch; }
+  .detailRight { align-self: flex-start; }
+
+  /* Distribute the three lines evenly across the photo's height: item name at
+     the top, quick-links in the middle, All-stores at the bottom. #links is
+     display:contents so its two children join the title as flex siblings (the
+     hide-button click delegation still works — events bubble through it). */
+  .detailLeft {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .detailLeft #links {
+    display: contents;
+  }
+
+  /* status/debug sits below both columns */
+  .detailStatus { margin-top: 12px; }
+
   .chartBox {
+    aspect-ratio: auto;
     height: min(72vh, 720px);
+    max-height: 720px;
     min-height: 320px;
     padding: 10px;
+  }
+
+  /* Pointer device — inline, auto-width links instead of full-width stacked rows. */
+  .storeQuickLinks {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .links a.storeQuickLink {
+    width: auto;
+    justify-content: flex-start;
+    min-height: 0;
+    padding: 6px 12px;
+  }
+
+  /* The full-width filled button is right for mobile but heavy in the desktop
+     side column — drop to a subtle left-hugging text + chevron toggle. */
+  .storeLinksMore > summary {
+    display: inline-flex;
+    justify-content: flex-start;
+    gap: 6px;
+    min-height: 0;
+    padding: 4px 2px;
+    border: none;
+    background: transparent;
+  }
+
+  .storeLinksList {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+  .storeLinkRow {
+    width: auto;
+  }
+  .links .storeLinkRow a {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    font-size: 12px;
+    white-space: nowrap;
   }
 }
 
@@ -201,6 +387,9 @@ html[data-theme="dark"] .chartBox { background: #0f1318; }
 
 /* ── Loading progress bar ───────────────────────────────────────────────── */
 
+/* Separate the status/debug line from the All-stores toggle above it. */
+#statusMobile { margin-top: 10px; }
+
 .loadingBar {
   height: 3px;
   background: var(--border);
@@ -209,6 +398,13 @@ html[data-theme="dark"] .chartBox { background: #0f1318; }
   opacity: 0;
   transition: opacity 0.2s;
   margin-top: 4px;
+}
+
+/* At rest (load finished) the bar is invisible — collapse it so it doesn't
+   leave a dead gap below the status text. */
+.loadingBar:not(.loadingBarActive) {
+  height: 0;
+  margin-top: 0;
 }
 
 .loadingBar.loadingBarActive {

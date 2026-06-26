@@ -80,11 +80,18 @@
   flex: 1 1 auto;
   min-height: 320px;
   display: flex;
+  flex-direction: column;
 }
 
 .chartFill {
   flex: 1 1 auto;
   min-height: 0;
+}
+
+/* Off-canvas legend sits below the chart inside the fill card. */
+.cardFill .chartLegend {
+  flex: 0 0 auto;
+  margin-top: 10px;
 }
 
 .chartFill canvas {

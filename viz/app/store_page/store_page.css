@@ -1,59 +1,150 @@
-/* ── Price + type filter row ────────────────────────────────────────────── */
+/* ── Store page container ───────────────────────────────────────────────── */
+/* Single readable column at every width — never two. */
+.containerStoreWide { max-width: 760px; }
 
+/* ── Search row ──────────────────────────────────────────────────────────── */
+
+.storeSearchRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+.storeSearchRow .input { flex: 1 1 auto; min-width: 0; }
+.storeSearchRow .btn { flex: 0 0 auto; }
+
+/* ── View switcher (connected segmented control) ────────────────────────── */
+
+.storeTabs {
+  display: flex;
+  width: 100%;
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.storeTab {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 9px 4px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.storeTab:last-child { border-right: 0; }
+.storeTab:hover { color: var(--text); }
+
+.storeTabName {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.storeTabCount {
+  font-size: 11px;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+.storeTab.isOn {
+  background: rgba(125, 211, 252, 0.10);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.storeTab.isOn .storeTabCount { opacity: 0.9; color: var(--accent); }
+
+/* ── Filter bar (wraps freely — never crunched) ─────────────────────────── */
+
+/* Mobile-first: each filter is its own full-width row with an INLINE label
+   (fixed-width column so controls line up). Matches the search page. */
 .storeFilterRow {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
   width: 100%;
-  flex-wrap: wrap;
-}
-
-/* Type filter: own line on mobile, inline on desktop */
-.storeTypeFilter {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1 1 100%;
-}
-
-@media (min-width: 641px) {
-  .storeFilterRow { flex-wrap: nowrap; }
-  .storeTypeFilter { flex: 0 0 auto; }
-}
-
-/* ── Store page: two-column results layout ─────────────────────────────── */
-
-.containerStoreWide { max-width: 980px; }
-
-@media (min-width: 1200px) {
-  .containerStoreWide { max-width: 1240px; }
-}
-
-.storeGrid {
   margin-top: 12px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  align-items: start;
 }
 
-@media (min-width: 641px) {
-  .containerStoreWide { max-width: 1180px; }
-  .storeGrid { grid-template-columns: 1fr 1fr; }
-}
-
-.storeCol { min-width: 0; }
-
-.storeColHeader {
+.storeControl {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 2px 10px 2px;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.storeControlLabel {
+  flex: 0 0 64px;
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+  text-align: right;
+}
+.storeControl > .selectSmall,
+.storeControl > .spiritFilter { flex: 1 1 auto; min-width: 0; }
+.storeControl .selectSmall { width: 100%; }
+.storeControl .spiritFilterTrigger { width: 100%; max-width: none; }
+
+/* Max price: same inline row pattern — label, slider fills, value at the end */
+.storePriceRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+.storePriceRow .storeControlLabel { flex: 0 0 64px; }
+.storePriceSlider {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  height: 18px;
+  accent-color: #9aa3b2;
+  opacity: 0.85;
+}
+/* Size to content so the value sits flush after the slider (no right-align gap) */
+.storePriceLabel {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  opacity: 0.9;
 }
 
-.storeColList {
+/* Desktop: filters flow inline at natural widths */
+@media (min-width: 641px) {
+  .storeFilterRow {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+  }
+  .storeControl { width: auto; }
+  .storeControlLabel { flex: 0 0 auto; }
+  .storeControl > .selectSmall,
+  .storeControl > .spiritFilter { flex: 0 0 auto; }
+  .storeControl .selectSmall { width: auto; min-width: 0; }
+  .storeControl .spiritFilterTrigger { width: 120px; }
+}
+
+/* ── Results list (always one column) ───────────────────────────────────── */
+
+.storeList {
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
+.storeSentinel { text-align: center; padding: 12px 0; }

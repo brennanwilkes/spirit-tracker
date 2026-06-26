@@ -466,8 +466,18 @@ function validateEmailNotificationsV1(v) {
 			if (kwAny.length) out.keywordsAny = kwAny;
 			if (kwNone.length) out.keywordsNone = kwNone;
 
-			// store filter
-			if (filtersIn.storeId != null) {
+			// store filter — multi-select storeIds (any-of) supersedes the legacy
+			// single storeId; both are preserved so existing rules keep working.
+			if (filtersIn.storeIds != null) {
+				if (!Array.isArray(filtersIn.storeIds))
+					throw new TypeError("storeIds must be an array");
+				const ids = [...new Set(
+					filtersIn.storeIds
+						.map((s) => String(s || "").trim())
+						.filter((s) => s && s.length <= 64 && /^[a-z0-9_-]+$/.test(s))
+				)];
+				if (ids.length) out.storeIds = ids.slice(0, 64);
+			} else if (filtersIn.storeId != null) {
 				const s = String(filtersIn.storeId || "").trim();
 				if (!s || s.length > 64 || !/^[a-z0-9_-]+$/.test(s))
 					throw new TypeError("storeId must be a small slug");
@@ -917,7 +927,7 @@ export function consumeOauthCallbackHash({
 function acctPath(userId, resource) {
 	const uid = assertUuid(userId);
 	const r = String(resource || "").trim();
-	if (!["details", "favourites", "sampled", "score"].includes(r))
+	if (!["details", "favourites", "sampled", "score", "stores"].includes(r))
 		throw new TypeError("Invalid resource");
 	return `/u/${encodeURIComponent(uid)}/${encodeURIComponent(r)}`;
 }
@@ -992,6 +1002,15 @@ export async function getScore(userId) {
 	});
 }
 
+export async function getStores(userId) {
+	// "My Stores" saved set — readable by the owner (and publicly if details.public)
+	return await requestJson(acctPath(userId, "stores"), {
+		method: "GET",
+		auth: false,
+		token: getStoredToken(),
+	});
+}
+
 /* Convenience: current user (from stored auth) */
 
 export async function getMyDetails() {
@@ -1009,6 +1028,10 @@ export async function getMySampled() {
 export async function getMyScore() {
 	const { userId } = requireAuth();
 	return await getScore(userId);
+}
+export async function getMyStores() {
+	const { userId } = requireAuth();
+	return await getStores(userId);
 }
 
 /* ---- PUT (full replace) ---- */
@@ -1037,6 +1060,23 @@ export async function putFavourites(userId, favouritesArray) {
 	});
 	acctGetCacheUpdate(uid, "favourites", body);
 	return r;
+}
+
+export async function putStores(userId, storesArray) {
+	const uid = assertUuid(userId);
+	const body = validateStringArray(storesArray, "stores");
+	const r = await requestJson(acctPath(uid, "stores"), {
+		method: "PUT",
+		body,
+		auth: true,
+		cache: false,
+	});
+	acctGetCacheUpdate(uid, "stores", body);
+	return r;
+}
+export async function putMyStores(storesArray) {
+	const { userId } = requireAuth();
+	return await putStores(userId, storesArray);
 }
 
 export async function putSampled(userId, sampledArray) {
