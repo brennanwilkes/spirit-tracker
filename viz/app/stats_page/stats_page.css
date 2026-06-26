@@ -51,6 +51,13 @@
   .statsFilterField {
     width: auto;
   }
+
+  /* Lock to the viewport so the dashboard fits exactly (no slight scroll);
+     the flex chart shrinks to absorb any rounding. */
+  .containerFull {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
 .statsTitleStack {
