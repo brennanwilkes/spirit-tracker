@@ -385,13 +385,16 @@ Price / Last Stock** (persisted `viz:storeTab:<store>`). Each item keeps its dec
 just a predicate filter over the shared `baseFiltered` set.
 
 Filter bar (wraps, never crunched): inline **Sort** (price, newest/oldest, **rarity** via
-`rarityForSku`+`effectiveRarity`, sale %/$ — persisted `viz:storeSort:<store>`), spirit **Type**,
-and a **Difference** `$`/`%` select shown ONLY on the Price tab. **Max price** is always its own
-full-width row (`.storePriceRow`). On the **Price tab**, "Price (low/high)" sorts by the
-**difference vs other stores** (best deal here → worst) in the unit the Difference toggle picks —
-not absolute price; the toggle drives both the diff badge and that sort. Single-list infinite
-scroll via `createInfiniteScroll` (80/page). The store page is inherently in-stock-only
-(`rowsStoreLive`), so there is no availability filter.
+`rarityForSku`+`effectiveRarity`, sale %/$ — persisted `viz:storeSort:<store>`) and spirit **Type**.
+**Max price** is always its own full-width row (`.storePriceRow`).
+
+**Price tab is special:** the generic Sort dropdown is **hidden** (`#sortWrap`) and replaced by a
+**Difference** `$`/`%` select (`#cmpModeWrap`). The list is always sorted **best deal vs other
+stores first** (most below others), in the unit the Difference toggle picks — which also drives the
+per-card diff badge. `sortItemsInPlace` short-circuits to this when `activeTab === "compare"`,
+ignoring the dropdown value. This matches the old Compare-column behavior and keeps the comparison
+view unambiguous. Single-list infinite scroll via `createInfiniteScroll` (80/page). The store page
+is inherently in-stock-only (`rowsStoreLive`), so there is no availability filter.
 
 ## CSS Variables
 

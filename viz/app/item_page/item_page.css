@@ -232,12 +232,17 @@
 .links a.storeQuickLink:hover { border-color: var(--text); color: var(--text); }
 .links a.storeQuickLink .sqlPrice { color: var(--muted); }
 
-/* Cheapest-overall pin gets the "best price" gold accent. */
-.links a.storeQuickLink.best {
-  border-color: rgba(210, 170, 60, 0.5);
-  background: rgba(210, 170, 60, 0.1);
+.sqlInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
-.links a.storeQuickLink.best .sqlPrice { color: rgba(210, 170, 60, 0.95); }
+.sqlLoc {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
 
 /* Borderless disclosure — just a toggle line + the list (no boxed border). */
 .storeLinksMore > summary {

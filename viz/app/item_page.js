@@ -5,7 +5,7 @@ import { loadIndex } from "./state.js";
 import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
-import { normalizeStoreId, storeById } from "./stores.js";
+import { normalizeStoreId, storeById, cityLabel } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
@@ -594,8 +594,9 @@ export async function renderItem($app, skuInput) {
 	// (a chain like BCL/Everything Wine spans both cities) so each pin surfaces a
 	// genuinely different buy option rather than collapsing to one store.
 	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
+	const storeOf = (r) => storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
 	const citiesOf = (r) => {
-		const st = storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
+		const st = storeOf(r);
 		return st && Array.isArray(st.cities) ? st.cities : [];
 	};
 
@@ -606,24 +607,30 @@ export async function renderItem($app, skuInput) {
 		seenPin.add(row.store);
 		pinned.push({ ...row, ...extra });
 	};
-	addPin(liveLinkRows[0], { best: true, hint: "Cheapest overall" });
+	// `city` fixes the geography shown for the city-specific pins; the overall pin
+	// falls back to the store's first listed city.
+	addPin(liveLinkRows[0], { hint: "Cheapest overall" });
 	addPin(
 		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver")),
-		{ hint: "Cheapest in Vancouver" },
+		{ hint: "Cheapest in Vancouver", city: "vancouver" },
 	);
 	addPin(
 		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
-		{ hint: "Cheapest in Victoria" },
+		{ hint: "Cheapest in Victoria", city: "victoria" },
 	);
 
 	const pinnedHtml = pinned.length
 		? `<div class="storeQuickLinks">${pinned
-				.map(({ store, r, best, hint }) => {
+				.map(({ store, r, hint, city }) => {
 					const href = String(r.url || "").trim();
 					const num = rowMinPrice(r);
 					const priceStr = Number.isFinite(num) ? `$${num.toFixed(2)}` : "";
-					const cls = "storeQuickLink" + (best ? " best" : "");
-					return `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint)}"><span class="sqlStore">${esc(store)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+					const st = storeOf(r);
+					const displayCity = city || citiesOf(r)[0] || null;
+					const province = st?.region ? st.region.toUpperCase() : "";
+					const loc = [displayCity ? cityLabel(displayCity) : null, province].filter(Boolean).join(", ");
+					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
+					return `<a class="storeQuickLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint)}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";

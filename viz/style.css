@@ -627,8 +627,8 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
+  right: 0;
   z-index: 100;
-  width: min(380px, calc(100vw - 24px));
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -637,6 +637,11 @@ button.badge.badgeBtn:hover { border-color: #2f3a46; color: var(--text); }
   border-radius: 10px;
   padding: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+/* On mobile the panel spans the full row (left:0/right:0). On desktop it anchors
+   to the trigger as a fixed-width floating dropdown. */
+@media (min-width: 641px) {
+  .storeSetPanel { right: auto; width: min(380px, calc(100vw - 24px)); }
 }
 
 .storeSetPresets {

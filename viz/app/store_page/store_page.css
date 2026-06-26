@@ -66,19 +66,21 @@
 
 /* ── Filter bar (wraps freely — never crunched) ─────────────────────────── */
 
+/* Mobile-first: every filter stacks label-above-control, full width. */
 .storeFilterRow {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 16px;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
   margin-top: 12px;
 }
 
 .storeControl {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
   min-width: 0;
 }
 .storeControlLabel {
@@ -86,22 +88,28 @@
   opacity: 0.7;
   white-space: nowrap;
 }
-.storeControl .selectSmall:not(.spiritFilterTrigger) {
-  width: auto;
-  min-width: 0;
-}
+.storeControl > .selectSmall,
+.storeControl > .spiritFilter { width: 100%; }
+.storeControl .spiritFilterTrigger { width: 100%; max-width: none; }
 
-/* Max price: always its own full-width line, below the inline filters */
+/* Max price: its own full-width line; label above, slider + value below */
 .storePriceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 12px;
+}
+.storePriceTrack {
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  margin-top: 12px;
 }
 .storePriceSlider {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
+  margin: 0;
   height: 18px;
   accent-color: #9aa3b2;
   opacity: 0.85;
@@ -112,6 +120,26 @@
   text-align: right;
   white-space: nowrap;
   opacity: 0.9;
+}
+
+/* Desktop: filters flow inline (label beside control) at natural widths */
+@media (min-width: 641px) {
+  .storeFilterRow {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+  }
+  .storeControl {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+  }
+  .storeControl > .selectSmall,
+  .storeControl > .spiritFilter { width: auto; }
+  .storeControl .selectSmall { width: auto; min-width: 0; }
+  .storeControl .spiritFilterTrigger { width: 120px; }
 }
 
 /* ── Results list (always one column) ───────────────────────────────────── */
