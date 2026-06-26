@@ -344,10 +344,6 @@ export async function renderItem($app, skuInput) {
 		if ($links) $links.innerHTML = html;
 		if ($linksMobile) $linksMobile.innerHTML = html;
 	};
-	const setListHtml = (html) => {
-		if ($linksDropdown) $linksDropdown.innerHTML = html;
-		if ($linksMobile) $linksMobile.insertAdjacentHTML("beforeend", html);
-	};
 
 	const setStatusText = (txt) => {
 		if ($status) $status.textContent = txt;
@@ -620,6 +616,21 @@ export async function renderItem($app, skuInput) {
 
 	const showAllAsFeatured = liveLinkRows.length <= 3 && liveLinkRows.length > 0;
 
+	// Per-store state for subtle visual indicators
+	const bestPrice = liveLinkRows.length ? rowMinPrice(liveLinkRows[0].r) : Infinity;
+	const storeState = new Map(); // store -> "best" | "exclusive" | "lastStock"
+	for (const { store, r } of linkRows) {
+		const isLive = !Boolean(r?.removed);
+		if (!isLive) continue;
+		if (linkRows.length === 1) {
+			storeState.set(store, "exclusive");
+		} else if (liveLinkRows.length === 1) {
+			storeState.set(store, "lastStock");
+		} else if (liveLinkRows.length > 1 && rowMinPrice(r) === bestPrice) {
+			storeState.set(store, "best");
+		}
+	}
+
 	if (showAllAsFeatured) {
 		for (const row of liveLinkRows) {
 			addPin(row, {});
@@ -679,7 +690,9 @@ export async function renderItem($app, skuInput) {
 						loc = province;
 					}
 					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
-					return `<a class="storeQuickLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+					const stCls = storeState.get(store) || "";
+					const stAttr = stCls ? ` storeState${stCls.charAt(0).toUpperCase() + stCls.slice(1)}` : "";
+					return `<a class="storeQuickLink${stAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";
@@ -705,7 +718,11 @@ export async function renderItem($app, skuInput) {
 		}
 		const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
 
-		const cls = isRemoved ? ' class="storeRemoved"' : "";
+		const cssClasses = [];
+		if (isRemoved) cssClasses.push("storeRemoved");
+		const stCls = storeState.get(store) || "";
+		if (stCls) cssClasses.push("storeState" + stCls.charAt(0).toUpperCase() + stCls.slice(1));
+		const cls = cssClasses.length ? ` class="${cssClasses.join(" ")}"` : "";
 		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${cls}><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span>${priceHtml}</a>`;
 		let inner = anchor;
 		if (canHide) {
@@ -719,7 +736,9 @@ export async function renderItem($app, skuInput) {
 		return `<span class="storeLinkRow">${inner}</span>`;
 	}
 
-	let listHtml = "";
+	let summaryBtnHtml = "";
+	let listContentHtml = "";
+	let listHtmlMobile = "";
 	if (linkRows.length > 0) {
 		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
 		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
@@ -734,11 +753,28 @@ export async function renderItem($app, skuInput) {
 		const inner = liveHtml.join("")
 			+ (liveHtml.length && removedHtml.length ? `<hr class="storeListDivider">` : "")
 			+ removedHtml.join("");
-		listHtml = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
+
+		// Desktop: toggle button in header, list content below
+		summaryBtnHtml = `<button class="storeLinksToggle" type="button">${esc(summary)} <span class="storeLinksChevron">▾</span></button>`;
+		listContentHtml = `<div class="storeLinksList">${inner}</div>`;
+		// Mobile: details element
+		listHtmlMobile = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
 	}
 
-	setLinksHtml(pinnedHtml);
-	setListHtml(listHtml);
+	if ($links) $links.innerHTML = pinnedHtml + summaryBtnHtml;
+	if ($linksDropdown) $linksDropdown.innerHTML = listContentHtml;
+	if ($linksMobile) $linksMobile.innerHTML = pinnedHtml + listHtmlMobile;
+
+	// Toggle desktop dropdown
+	if ($links) {
+		$links.addEventListener("click", (ev) => {
+			const btn = ev.target.closest(".storeLinksToggle");
+			if (!btn || !$linksDropdown) return;
+			ev.preventDefault();
+			$linksDropdown.classList.toggle("linksDropdownOpen");
+			btn.classList.toggle("storeLinksToggleOpen");
+		});
+	}
 
 	if (canHide) {
 		const onHideClick = async (ev) => {
@@ -1096,8 +1132,8 @@ export async function renderItem($app, skuInput) {
 	const tickCount = yScale?.ticks?.length || 0;
 
 	if (tickCount >= 2) {
-		const minRange = (tickCount - 1) * (isMobile ? 5 : 10); // $5 per gap on mobile, $10 desktop
-		const ySug2 = computeSuggestedY(allVals, minRange, outlierCap);
+		const minRange = (tickCount - 1) * 10; // $10 per gap, same number of gaps as before
+		const ySug2 = computeSuggestedY(allVals, isMobile ? undefined : minRange, outlierCap, isMobile ? 0.01 : undefined);
 
 		CHART.options.scales.y.suggestedMin = ySug2.suggestedMin;
 		CHART.options.scales.y.suggestedMax = ySug2.suggestedMax;

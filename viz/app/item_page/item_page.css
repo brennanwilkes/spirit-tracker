@@ -122,8 +122,11 @@
 
 /* Off-canvas chart legend (.chartLegend*) is shared — see style.css. */
 
-/* Desktop-only dropdown container — hidden on mobile */
+/* Desktop-only dropdown container — hidden by default everywhere */
 .linksDropdown { display: none; }
+
+/* Desktop toggle button — hidden on mobile */
+.storeLinksToggle { display: none; }
 
 /* ── Store links: pinned quick-access + collapsible full list ──────────── */
 
@@ -244,6 +247,21 @@
   opacity: 0.7;
 }
 
+/* Subtle state indicator dots — colored circle before the store name */
+.storeStateBest .sqlInfo::before,
+.storeStateExclusive .sqlInfo::before,
+.storeStateLastStock .sqlInfo::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 6px;
+}
+.storeStateBest .sqlInfo::before { background: rgba(210, 170, 60, 0.95); }
+.storeStateExclusive .sqlInfo::before { background: rgba(20, 140, 140, 0.95); }
+.storeStateLastStock .sqlInfo::before { background: rgba(200, 120, 20, 0.95); }
+
 /* Divider between live and removed entries in the store list. */
 .storeListDivider {
   border: none;
@@ -363,19 +381,34 @@
     white-space: nowrap;
   }
 
-  /* Dropdown container below header — full-width, prominent button */
-  .linksDropdown { display: block; }
-  .linksDropdown .storeLinksMore { margin-top: 8px; }
-  .linksDropdown .storeLinksMore > summary {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    min-height: 40px;
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--panel);
+  /* Toggle button — subtle text inline (same line as photo), no border */
+  .storeLinksToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 2px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    user-select: none;
   }
+  .storeLinksToggle:hover { color: var(--text); }
+
+  .storeLinksChevron {
+    display: inline-block;
+    font-size: 11px;
+    transition: transform 0.15s ease;
+  }
+  .storeLinksToggle:not(.storeLinksToggleOpen) .storeLinksChevron {
+    transform: rotate(-90deg);
+  }
+
+  /* Dropdown content below header — hidden until toggled */
+  .linksDropdown.linksDropdownOpen { display: block; }
   .linksDropdown .storeLinksList {
     flex-direction: row;
     flex-wrap: wrap;
