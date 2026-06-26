@@ -83,7 +83,7 @@ export async function renderStore($app, storeLabelRaw) {
           </div>
         </div>
 
-        <div class="storePriceRow" id="priceWrap">
+        <div class="storePriceRow" id="storePriceWrap">
           <span class="storeControlLabel">Max price</span>
           <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
           <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
@@ -116,7 +116,7 @@ export async function renderStore($app, storeLabelRaw) {
 
 	const $maxPrice = document.getElementById("maxPrice");
 	const $maxPriceLabel = document.getElementById("maxPriceLabel");
-	const $priceWrap = document.getElementById("priceWrap");
+	const $priceWrap = document.getElementById("storePriceWrap");
 
 	const $clearSearch = document.getElementById("clearSearch");
 	const $sort = document.getElementById("sort");

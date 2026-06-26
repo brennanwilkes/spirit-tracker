@@ -1,27 +1,5 @@
 /* ── Search page controls ──────────────────────────────────────────────── */
 
-/* Price range wrap: grid layout so label never wraps */
-#priceWrap {
-  display: grid !important;
-  grid-template-columns: max-content 1fr 120px;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  flex-wrap: nowrap;
-}
-
-#priceWrap #maxPrice {
-  width: 100%;
-  min-width: 0;
-}
-
-#priceWrap #maxPriceLabel {
-  justify-self: end;
-  white-space: nowrap;
-  width: 96px;
-  min-width: 96px;
-}
-
 /* Filter controls — mobile-first: each is its own full-width row with an INLINE
    label (fixed-width column so the controls line up). The row is the positioning
    context for the Stores panel, and the Stores control itself is position:static,

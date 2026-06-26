@@ -246,10 +246,8 @@ export async function renderItem($app, skuInput) {
 						<div id="title" class="h1">Loading…</div>
 						</div>
 
-						<!-- DESKTOP links/status stay here -->
+						<!-- DESKTOP links stay here; status/loadingBar moved below the header -->
 						<div id="links" class="links"></div>
-						<div class="small" id="status"></div>
-						<div class="loadingBar" id="loadingBar"><div class="loadingBarFill"></div></div>
 					</div>
 
 					<div class="detailRight">
