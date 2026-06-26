@@ -260,11 +260,34 @@
   #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
 
+  /* A modest photo bump (not the old huge 200) gives the right column a bit
+     more height to fill. */
   .detailThumbBox {
-    width: 96px;
-    height: 96px;
-    flex: 0 0 96px;
+    width: 132px;
+    height: 132px;
+    flex: 0 0 132px;
+    align-self: flex-start;
   }
+
+  /* Stretch the right column to the photo's height so the three lines can
+     distribute down it. */
+  .detailHeader { align-items: stretch; }
+  .detailHeaderText { display: flex; flex-direction: column; }
+  .detailTopRow { flex: 1 1 auto; align-items: stretch; }
+  .detailRight { align-self: flex-start; }
+
+  /* Distribute item name (top) / quick-links (middle) / All-stores (bottom)
+     down the photo's height. `gap` is the minimum spacing; space-between adds
+     any extra so they fill the height without ever cramping. #links is
+     display:contents so its children join the title as flex siblings (the
+     hide-button click delegation still works — events bubble through it). */
+  .detailLeft {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .detailLeft #links { display: contents; }
 
   /* status/debug sits below both columns */
   .detailStatus { margin-top: 12px; }
@@ -360,8 +383,9 @@ html[data-theme="dark"] .chartBox { background: #0f1318; }
     margin-top: 2px;
   }
 
-  /* Collapse the 10px grid row-gap: -10px + 4px links margin = 4px, matching links-to-status gap */
-  .detailMobileLinks { margin-top: -10px; }
+  /* Partially collapse the 10px grid row-gap, leaving a little breathing room
+     between the product name and the first store price row. */
+  .detailMobileLinks { margin-top: -6px; }
 }
 
 /* ── Loading progress bar ───────────────────────────────────────────────── */
