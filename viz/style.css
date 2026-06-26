@@ -1490,6 +1490,15 @@ html[data-theme="dark"] .links a:hover { border-color: #2f3a46; }
 html[data-theme="dark"] .stSwalConfirm { background: #0f1318 !important; }
 html[data-theme="dark"] .stSwalConfirm:focus { box-shadow: 0 0 0 2px #37566b !important; }
 
+/* Store-set selector: re-assert dark so forcing dark on a light-OS device wins
+   over the prefers-color-scheme:light overrides (which `color-scheme` doesn't
+   stop from matching). This was the white-dropdown bug on real phones. */
+html[data-theme="dark"] .storeSetPanel { background: #0f1318; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
+html[data-theme="dark"] .storeSetGroupLabel { background: #0f1318; }
+html[data-theme="dark"] .storeSetOption:hover { background: rgba(255, 255, 255, 0.04); }
+html[data-theme="dark"] .storeSetTrigger.is-open,
+html[data-theme="dark"] .storeSetTrigger:focus { border-color: #37566b; outline-color: #37566b; }
+
 /* ── 11. Mobile overrides (shared across all pages) ─────────────────────── */
 
 @media (max-width: 640px) {
