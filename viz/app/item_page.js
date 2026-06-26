@@ -588,12 +588,13 @@ export async function renderItem($app, skuInput) {
 
 	const canHide = isLocalWriteMode();
 
-	// Pinned quick-links: the few stores users click most — cheapest overall,
-	// then the cheapest *distinct* store in Vancouver / Victoria. linkRows is
-	// sorted cheapest-first, so the first live match per geography is the cheapest
-	// there. We fall through to the next store when the cheapest is already pinned
-	// (a chain like BCL/Everything Wine spans both cities) so each pin surfaces a
-	// genuinely different buy option rather than collapsing to one store.
+	// Pinned quick-links: cheapest overall, then cheapest *distinct* store in
+	// Vancouver / Victoria. If the cheapest overall is in a BC city, that city's
+	// label replaces the province and its dedicated pin is skipped (no duplicate).
+	// If the cheapest Vancouver and Victoria stores happen to be the same store
+	// (e.g. BCL spans both), only one pin is shown with a combined label.
+	// When 3 or fewer live stores carry the item, all are shown as featured pins
+	// and the "All stores" dropdown is omitted entirely.
 	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
 	const storeOf = (r) => storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
 	const citiesOf = (r) => {
@@ -608,54 +609,114 @@ export async function renderItem($app, skuInput) {
 		seenPin.add(row.store);
 		pinned.push({ ...row, ...extra });
 	};
-	// `city` fixes the geography shown for the city-specific pins; the overall pin
-	// falls back to the store's first listed city.
-	addPin(liveLinkRows[0], { hint: "Cheapest overall" });
-	addPin(
-		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver")),
-		{ hint: "Cheapest in Vancouver", city: "vancouver" },
-	);
-	addPin(
-		liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
-		{ hint: "Cheapest in Victoria", city: "victoria" },
-	);
+
+	const showAllAsFeatured = liveLinkRows.length <= 3 && liveLinkRows.length > 0;
+
+	if (showAllAsFeatured) {
+		for (const row of liveLinkRows) {
+			addPin(row, {});
+		}
+	} else {
+		const cheapestRow = liveLinkRows[0];
+		if (cheapestRow) {
+			const cheapestCities = citiesOf(cheapestRow.r);
+			const servesVan = cheapestCities.includes("vancouver");
+			const servesVic = cheapestCities.includes("victoria");
+
+			if (servesVan && servesVic) {
+				addPin(cheapestRow, { hint: "Cheapest overall", cities: ["vancouver", "victoria"] });
+			} else if (servesVan) {
+				addPin(cheapestRow, { hint: "Cheapest in Vancouver", city: "vancouver" });
+			} else if (servesVic) {
+				addPin(cheapestRow, { hint: "Cheapest in Victoria", city: "victoria" });
+			} else {
+				addPin(cheapestRow, { hint: "Cheapest overall" });
+			}
+
+			if (!servesVan && !servesVic) {
+				// Neither city covered → find cheapest Van and Vic separately
+				const vanRow = liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver"));
+				const vicRow = liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria"));
+				if (vanRow && vicRow && vanRow.store === vicRow.store) {
+					addPin(vanRow, { hint: "Cheapest in Vancouver & Victoria", cities: ["vancouver", "victoria"] });
+				} else {
+					addPin(vanRow, { hint: "Cheapest in Vancouver", city: "vancouver" });
+					addPin(vicRow, { hint: "Cheapest in Victoria", city: "victoria" });
+				}
+			} else if (!servesVic) {
+				// Only Vancouver covered → find cheapest Victoria store
+				addPin(
+					liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
+					{ hint: "Cheapest in Victoria", city: "victoria" },
+				);
+			}
+			// If both covered → already done (cheapest overall has both city labels)
+		}
+	}
 
 	const pinnedHtml = pinned.length
 		? `<div class="storeQuickLinks">${pinned
-				.map(({ store, r, hint, city }) => {
+				.map(({ store, r, hint, city, cities }) => {
 					const href = String(r.url || "").trim();
 					const num = rowMinPrice(r);
 					const priceStr = Number.isFinite(num) ? `$${num.toFixed(2)}` : "";
 					const st = storeOf(r);
-				const province = st?.region ? st.region.toUpperCase() : "";
-					const loc = city ? cityLabel(city) : province;
+					const province = st?.region ? st.region.toUpperCase() : "";
+					let loc;
+					if (city) {
+						loc = cityLabel(city);
+					} else if (cities) {
+						loc = cities.map(cityLabel).join(" and ");
+					} else {
+						loc = province;
+					}
 					const locHtml = loc ? `<span class="sqlLoc">${esc(loc)}</span>` : "";
-					return `<a class="storeQuickLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint)}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+					return `<a class="storeQuickLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";
 
-	const listHtml = linkRows
-		.map(({ store, r }) => {
-			const href = String(r.url || "").trim();
-			const suffix = Boolean(r?.removed) ? " (removed)" : "";
-			const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store + suffix)}</a>`;
-			let inner = anchor;
-			if (canHide) {
-				const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
-				const rawSku = String(keySkuForRow(r) || "");
-				if (sid && rawSku) {
-					const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
-					inner = `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
-				}
-			}
-			return `<span class="storeLinkRow">${inner}</span>`;
-		})
-		.join("");
+	const liveListRows = linkRows.filter(({ r }) => !Boolean(r?.removed));
+	const removedListRows = linkRows.filter(({ r }) => Boolean(r?.removed));
 
-	setLinksHtml(
-		`${pinnedHtml}<details class="storeLinksMore"><summary>All stores (${linkRows.length})</summary><div class="storeLinksList">${listHtml}</div></details>`,
-	);
+	function rowLinkHtml({ store, r }, isRemoved) {
+		const href = String(r.url || "").trim();
+		const anchor = `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${isRemoved ? ' class="storeRemoved"' : ""}>${esc(store)}</a>`;
+		let inner = anchor;
+		if (canHide) {
+			const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
+			const rawSku = String(keySkuForRow(r) || "");
+			if (sid && rawSku) {
+				const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
+				inner = `${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button>`;
+			}
+		}
+		return `<span class="storeLinkRow">${inner}</span>`;
+	}
+
+	let listHtml = "";
+	if (linkRows.length > 0) {
+		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
+		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
+		let summary;
+		if (removedHtml.length === 0) {
+			summary = `In stock (${liveHtml.length})`;
+		} else if (liveHtml.length === 0) {
+			summary = `Out of stock (${removedHtml.length})`;
+		} else {
+			summary = `In stock (${liveHtml.length}) · Out of stock (${removedHtml.length})`;
+		}
+		const inner = liveHtml.join("")
+			+ (liveHtml.length && removedHtml.length ? `<hr class="storeListDivider">` : "")
+			+ removedHtml.join("");
+		listHtml = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
+	}
+
+	if (showAllAsFeatured) {
+		setLinksHtml(pinnedHtml);
+	} else {
+		setLinksHtml(`${pinnedHtml}${listHtml}`);
+	}
 
 	if (canHide) {
 		const onHideClick = async (ev) => {
