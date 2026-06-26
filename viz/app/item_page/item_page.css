@@ -260,31 +260,10 @@
   #links, #status, #loadingBar { display: block; }
   .detailMobileLinks { display: none; }
 
-  /* Larger product photo defines the header height; the title / quick-links /
-     All-stores column stretches to fill that height beside it. */
   .detailThumbBox {
-    width: 200px;
-    height: 200px;
-    flex: 0 0 200px;
-    align-self: flex-start;
-  }
-
-  .detailHeader { align-items: stretch; }
-  .detailHeaderText { display: flex; flex-direction: column; }
-  .detailTopRow { flex: 1 1 auto; align-items: stretch; }
-  .detailRight { align-self: flex-start; }
-
-  /* Distribute the three lines evenly across the photo's height: item name at
-     the top, quick-links in the middle, All-stores at the bottom. #links is
-     display:contents so its two children join the title as flex siblings (the
-     hide-button click delegation still works — events bubble through it). */
-  .detailLeft {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .detailLeft #links {
-    display: contents;
+    width: 96px;
+    height: 96px;
+    flex: 0 0 96px;
   }
 
   /* status/debug sits below both columns */
