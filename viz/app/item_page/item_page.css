@@ -362,6 +362,18 @@
     padding: 6px 12px;
   }
 
+  /* The full-width filled button is right for mobile but heavy in the desktop
+     side column — drop to a subtle left-hugging text + chevron toggle. */
+  .storeLinksMore > summary {
+    display: inline-flex;
+    justify-content: flex-start;
+    gap: 6px;
+    min-height: 0;
+    padding: 4px 2px;
+    border: none;
+    background: transparent;
+  }
+
   .storeLinksList {
     flex-direction: row;
     flex-wrap: wrap;
