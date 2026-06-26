@@ -339,7 +339,6 @@ function buildStatsLegend(chart) {
 	}
 
 	panel.hidden = false;
-	panel.open = window.innerWidth > 640;
 	countEl.textContent = `Series (${datasets.length})`;
 
 	const frag = document.createDocumentFragment();
