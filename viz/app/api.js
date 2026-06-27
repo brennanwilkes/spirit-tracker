@@ -106,6 +106,16 @@ export async function apiDeleteSkuHidden(storeId, sku) {
 	return await res.json();
 }
 
+// Review watermark (#/link-review): the last time sku_links.json was hand-committed (a human
+// review session). The page shows only recommendations newer than this. Local-write only (git
+// access is on the dev server); returns 0 elsewhere so everything shows.
+export async function apiGetReviewWatermark() {
+	const r = await fetch("/__stviz/review-watermark", { cache: "no-store" });
+	if (!r.ok) throw new Error(`HTTP ${r.status}`);
+	const j = await r.json();
+	return { watermark: Number(j?.watermark) || 0, subject: String(j?.subject || ""), dirty: !!j?.dirty };
+}
+
 async function tryFetchLinks(path) {
 	try {
 		const j = await fetchJson(path);

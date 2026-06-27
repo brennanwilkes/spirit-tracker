@@ -110,6 +110,12 @@ consumers** — that would defeat the design.
   doesn't strip pending markers.
 - **Active-learning loop:** Approve → trainable positive link; Reject → trainable hard-negative
   ignore. Both feed the next `tools/linker_ml` retrain. Neither sets `noTrain` (human-verified).
+- **Review watermark (git-derived, no state file):** `#/link-review` shows only recommendations that
+  appeared since your last **hand**-commit of `data/sku_links.json` — `GET /__stviz/review-watermark`
+  walks `git log` and skips `run:` scrape commits. Committing by hand is the "done reviewing" signal;
+  anything older (acted on or just scrolled past) is then omitted, no per-item state or finish button.
+  A `🔍 Audit` toggle revisits the older ones; a dirty-flag banner nudges you to commit. See
+  `viz/CLAUDE.md` §"Auto-link review".
 - `run_daily.sh` stages `data/sku_links.json` so the classifier's appends commit (and reach the
   email pack + Pages, which already stage it into `viz/data/`).
 

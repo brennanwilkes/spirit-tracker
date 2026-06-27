@@ -59,6 +59,8 @@ User-specific mutable data. Base URL: `https://spirit-tracker-api.brennan-a53.wo
 For SKU link editing during local development:
 - `GET/POST /__stviz/sku-links` — read/write `data/sku_links.json`
 - `GET/POST /__stviz/sku-ignores` — read/write ignore pairs
+- `GET /__stviz/review-watermark` — last hand-commit time of `sku_links.json` (+ dirty flag) from
+  git, used by `#/link-review` to show only recommendations newer than your last review (see below)
 
 ## Directory Structure
 
@@ -283,6 +285,34 @@ and `#/link-rapid`). Newest-first feed (by `firstSeenAt` recency) of two row typ
 Local-write only (mutations via `viz/serve.js`); read-only display on Pages. A pending link is
 treated as a REAL link everywhere else (catalog grouping + email) — review is an audit, not a gate.
 See root `CLAUDE.md` §"Auto-Link Classification + Review".
+
+**Review watermark (git-derived, no state file).** The queue shows only recommendations that
+APPEARED since your **last hand-commit of `data/sku_links.json`**. There is no new file, no per-item
+log, and no "finish" button — the watermark is computed live from git history:
+`GET /__stviz/review-watermark` (`serve.js::reviewWatermarkMs` via `apiGetReviewWatermark`) walks
+`git log -- data/sku_links.json`, skips automated **scrape** commits (first line starts with `run:`
+— the cron appends pending links and commits constantly, see root `CLAUDE.md` §"Run Observability"),
+and returns the timestamp of the most recent **hand** commit. A row's appearance time is the pending
+link's creation `ts` (a new auto-link between two OLD SKUs is still new to review) or the orphan
+SKU's first-seen date. Normal view: `appearance > watermark`. Committing `sku_links.json` by hand is
+the "I'm done reviewing this batch" signal — the next load draws the line forward, so anything you
+acted on OR merely scrolled past + left is omitted automatically. `watermark = 0` (no prior hand
+commit, or read-only Pages where git isn't reachable) → show everything.
+
+- **Audit view** — `🔍 Audit (N)` topbar toggle (`auditMode`) flips the filter to `appearance <=
+  watermark`, revisiting the older (pre-last-review) recommendations on demand.
+- **Dirty nudge** — the endpoint also returns `dirty` (`skuLinksDirty()` via
+  `git status --porcelain -- data/sku_links.json`); while you have uncommitted review edits the page
+  shows a `.reviewDirty` banner reminding you to commit to advance the line. The watermark only moves
+  on commit, so mid-session reloads keep the same queue (minus pairs whose data already changed).
+- **Actions** unchanged: Approve (`apiConfirmSkuLink`) / Reject (`apiRejectSkuLink`) on pending rows;
+  Link / Ignore on orphan candidates; a session-only **Skip** dismisses an orphan from the current
+  view (returns on reload until you commit). The "Load more" button is gone — the (now small,
+  watermark-bounded) queue auto-loads via an IntersectionObserver sentinel (`#reviewSentinel`),
+  orphan candidates still scored lazily per chunk.
+- **Caveat:** relies on the `run:` commit-message convention to tell scrape commits from hand
+  commits. If a scrape commits your uncommitted review edits before you hand-commit, the watermark
+  won't reflect that session (commit by hand to set the line).
 
 ## Patterns & Conventions
 

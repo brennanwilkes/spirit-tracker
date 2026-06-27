@@ -4,6 +4,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 
 const root = path.resolve(__dirname); // viz/
 const projectRoot = path.resolve(__dirname, ".."); // repo root
@@ -111,6 +112,45 @@ function writeHidden(obj) {
 	obj.generatedAt = new Date().toISOString();
 	fs.mkdirSync(path.dirname(HIDDEN_FILE), { recursive: true });
 	fs.writeFileSync(HIDDEN_FILE, JSON.stringify(obj, null, 2) + "\n", "utf8");
+}
+
+// Review watermark for the #/link-review page: the timestamp of the last time sku_links.json was
+// committed BY HAND (a human review/curation session) — NOT by an automated scrape. The cron
+// (run_daily.sh) commits this file constantly with a "run: …" first line (it stages the auto-link
+// classifier's appended pending links), so those commits must be excluded or the watermark would
+// jump every few hours. The page shows only recommendations newer than this, so a hand-commit is
+// the "I'm done reviewing" signal that clears the queue. No state file — derived live from git.
+function reviewWatermarkMs() {
+	try {
+		const out = execFileSync("git", ["-C", projectRoot, "log", "--format=%ct\t%s", "--", "data/sku_links.json"], {
+			encoding: "utf8",
+			maxBuffer: 16 * 1024 * 1024,
+		});
+		for (const line of out.split("\n")) {
+			if (!line) continue;
+			const tab = line.indexOf("\t");
+			if (tab < 0) continue;
+			const subject = line.slice(tab + 1);
+			if (subject.startsWith("run:")) continue; // automated scrape commit — skip
+			const sec = Number(line.slice(0, tab));
+			return { ms: Number.isFinite(sec) ? sec * 1000 : 0, subject };
+		}
+	} catch {}
+	return { ms: 0, subject: "" };
+}
+
+// Whether sku_links.json has uncommitted working-tree changes — i.e. a review session is in
+// progress (Approve/Reject/Link edits written but not yet hand-committed). The watermark only
+// advances on commit, so the page nudges the user to commit to "lock in" the session.
+function skuLinksDirty() {
+	try {
+		const out = execFileSync("git", ["-C", projectRoot, "status", "--porcelain", "--", "data/sku_links.json"], {
+			encoding: "utf8",
+		});
+		return out.trim().length > 0;
+	} catch {
+		return false;
+	}
 }
 
 function send(res, code, body, headers) {
@@ -328,6 +368,17 @@ const server = http.createServer((req, res) => {
 			return;
 		}
 
+		return send(res, 405, "Method Not Allowed");
+	}
+
+	// Review audit log: GET the full event list; POST appends one review decision.
+	// Review watermark: last hand-commit time of sku_links.json (see reviewWatermarkMs). The page
+	// shows only recommendations newer than this.
+	if (url.pathname === "/__stviz/review-watermark") {
+		if (req.method === "GET") {
+			const w = reviewWatermarkMs();
+			return sendJson(res, 200, { ok: true, watermark: w.ms, subject: w.subject, dirty: skuLinksDirty() });
+		}
 		return send(res, 405, "Method Not Allowed");
 	}
 
