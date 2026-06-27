@@ -9,6 +9,7 @@ import { normalizeStoreId, storeById, cityLabel } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { unifySameStoreEntries } from "./rarity.js";
+import { detectFlapSpans } from "./flip_flop.js";
 import { selectBestDisplayInfo } from "./catalog.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore, getMyStores } from "./cloud.js";
 import {
@@ -189,7 +190,14 @@ async function loadSkuHistory(skuGroup, today, hiddenSet) {
 				}
 			}
 
-			series.push({ label: store.label || dbFile, variantKey: sku, points, values, dates });
+			series.push({
+				label: store.label || dbFile,
+				variantKey: sku,
+				points,
+				values,
+				dates,
+				flapSpans: detectFlapSpans(events),
+			});
 		}
 	}
 
@@ -953,10 +961,41 @@ export async function renderItem($app, skuInput) {
 			.sort((a, b) => String(a.variantKey).localeCompare(String(b.variantKey)));
 
 		for (const s of vars) {
+			const data = labels.map((d) => (s.points.has(d) ? s.points.get(d) : null));
+
+			// Mark days inside a transient flip-flop excursion (see flip_flop.js).
+			// For OOS flaps the excursion days are null — hold-fill them at the
+			// pre-excursion price so the dashed line bridges the gap rather than
+			// breaking, signalling "out briefly then back" instead of vanishing.
+			const flapSet = new Set();
+			if (s.flapSpans && s.flapSpans.length) {
+				for (let di = 0; di < labels.length; di++) {
+					const dayMs = Date.parse(labels[di] + "T12:00:00Z");
+					let inFlap = false;
+					for (const sp of s.flapSpans) {
+						if (dayMs >= sp.startMs && dayMs < sp.endMs) {
+							inFlap = true;
+							break;
+						}
+					}
+					if (!inFlap) continue;
+					flapSet.add(di);
+					if (data[di] === null) {
+						for (let k = di - 1; k >= 0; k--) {
+							if (Number.isFinite(data[k])) {
+								data[di] = data[k];
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			datasets.push({
 				label: st.label, // IMPORTANT: no SKU in label
 				variantKey: s.variantKey,
-				data: labels.map((d) => (s.points.has(d) ? s.points.get(d) : null)),
+				data,
+				_flapSet: flapSet.size ? flapSet : null,
 				spanGaps: false,
 				tension: 0.15,
 				backgroundColor: base,
@@ -964,9 +1003,16 @@ export async function renderItem($app, skuInput) {
 				pointBackgroundColor: base,
 				pointBorderColor: stroke,
 				borderWidth: datasetStrokeWidth(base),
+				// Dash any segment touching a flap excursion (descent/ascent + the
+				// excursion itself), matching the dashed "above chart" treatment.
+				segment: {
+					borderDash: (ctx) =>
+						flapSet.has(ctx.p0DataIndex) || flapSet.has(ctx.p1DataIndex) ? [5, 4] : undefined,
+				},
 				pointRadius: (ctx) => {
 					if (suppressDots) return 0;
 					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
+					if (ctx.dataset._flapSet?.has(ctx.dataIndex)) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
@@ -975,6 +1021,7 @@ export async function renderItem($app, skuInput) {
 				pointHoverRadius: (ctx) => {
 					if (suppressDots) return 0;
 					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
+					if (ctx.dataset._flapSet?.has(ctx.dataIndex)) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
 					const d = labels[ctx.dataIndex];
@@ -1126,7 +1173,8 @@ export async function renderItem($app, skuInput) {
 							const raw = ds._rawData ? ds._rawData[ctx.dataIndex] : ctx.parsed?.y;
 							const v = Number.isFinite(raw) ? raw : ctx.parsed?.y;
 							if (!Number.isFinite(v)) return `${ds.label}: (no data)`;
-							const suffix = ds._rawData ? "  ↑ above chart" : "";
+							let suffix = ds._rawData ? "  ↑ above chart" : "";
+							if (ds._flapSet?.has(ctx.dataIndex)) suffix += "  ~ flip-flop";
 							return `${ds.label}: $${v.toFixed(2)}${suffix}`;
 						},
 					},
