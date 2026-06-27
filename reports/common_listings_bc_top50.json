@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-27T05:07:44.138Z",
+  "generatedAt": "2026-06-27T07:38:30.007Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,9 +31,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6212,
-    "removedRows": 684,
-    "canonSkus": 2397,
+    "liveRows": 6196,
+    "removedRows": 702,
+    "canonSkus": 2391,
     "outputCount": 50
   },
   "rows": [
@@ -2113,57 +2113,6 @@
       }
     },
     {
-      "canonSku": "368597",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 51.39,
-        "bcl": 54.99,
-        "everythingwine": 54.99,
-        "gull": 52.05,
-        "highpointbws": 59.99,
-        "legacyliquor": 58.99,
-        "marquis": 56.99,
-        "newdistrict": 58.99,
-        "tudor": 54.99,
-        "vessel": 49.99
-      },
-      "representative": {
-        "name": "The Botanist - Islay Dry Gin",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "368597",
-        "skuKey": "368597",
-        "url": "https://vesselliquor.com/products/the-botanist-islay-dry-gin",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/the-botanist-islay-dry-gin"
-      }
-    },
-    {
       "canonSku": "656546",
       "storeCount": 10,
       "stores": [
@@ -2612,6 +2561,56 @@
         "priceNum": 29.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587820-jp-wisers-10yo"
+      }
+    },
+    {
+      "canonSku": "368597",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "liquorwarehouse",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 51.39,
+        "bcl": 54.99,
+        "everythingwine": 54.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 58.99,
+        "marquis": 56.99,
+        "newdistrict": 58.99,
+        "tudor": 54.99,
+        "vessel": 49.99
+      },
+      "representative": {
+        "name": "The Botanist - Islay Dry Gin",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "368597",
+        "skuKey": "368597",
+        "url": "https://vesselliquor.com/products/the-botanist-islay-dry-gin",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/vessel__gin__679fac36.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/the-botanist-islay-dry-gin"
       }
     }
   ]
