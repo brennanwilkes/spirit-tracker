@@ -1,97 +1,115 @@
 /**
- * Flip-flop (transient change) detection — the SINGLE documented definition of
- * what counts as a non-real, self-reverting change.
+ * Flip-flop (transient oscillation) detection for the ITEM PAGE CHART.
  *
- * Background: several stores report a change that reverts almost immediately —
- * a price that drops and snaps right back, or an item that goes OOS and returns
- * within hours (e.g. Craft Cellars' session-state-dependent pricing oscillating
- * between two fixed values; AMRUT @ ARC dropping $482.99→$410.59→$482.99 in one
- * day). These are scraper/store noise, not real market moves.
+ * Background: some stores report changes that oscillate — a price that bounces
+ * between two fixed values (Craft Cellars' session-state-dependent pricing), or
+ * an item that toggles in/out of stock repeatedly. These are scraper/store
+ * noise, not real market moves.
  *
- * The project already SUPPRESSES these from the "what changed" surfaces, using a
- * 48h window:
- *   - tools/build_viz_recent.js  (the recent.json activity feed)
- *   - tools/build_email_event_pack.js::isFlipFlop  (email alerts)
- *   - src/utils/rarity.js::coalescePeriods  (24h gap coalesce for availability)
- * Those operate on the cross-commit event feed. This module is the parallel
- * definition for the ITEM PAGE CHART, which works from the per-SKU cache's
- * change-point events. It does NOT suppress — it locates the transient
- * excursions so the chart can render them dashed/dot-less ("something is going
- * on here") instead of as solid, trustworthy history.
+ * Crucially, a SINGLE round-trip `A → B → A` (then stays at A) is NOT a
+ * flip-flop — it's just a one-off sale / blip. Only when the excursion REPEATS
+ * (`A → B → A → B …`, i.e. the value is revisited) is it oscillation worth
+ * flagging. This is stricter than the recent-feed / email-pack suppressors
+ * (`tools/build_viz_recent.js`, `tools/build_email_event_pack.js`), which gate a
+ * single same-kind round-trip within 48h. They suppress (drop the event); this
+ * module does NOT suppress — it locates the oscillating region so the chart can
+ * render it dashed/dot-less ("something is going on here") rather than as solid,
+ * trustworthy history.
  *
- * Keep the 48h window (FLAP_WINDOW_MS) in sync with the tools above.
+ * Window: each oscillation leg must be short (≤ FLAP_WINDOW_MS, ~3 days). A
+ * genuine periodic sale (drop to B for a day, back to A for two months, repeat)
+ * has a long interior A-leg, so it is NOT flagged — only rapid back-and-forth is.
  */
 
 import { parsePriceToNumber } from "./sku.js";
 
-// Same window the recent-feed / email-pack suppressors use.
-export const FLAP_WINDOW_MS = 48 * 60 * 60 * 1000;
+// Max duration of a single oscillation leg to count as flip-flop noise.
+export const FLAP_WINDOW_MS = 3 * 24 * 60 * 60 * 1000;
+
+// Minimum spells in an alternating run to qualify (A,B,A,B — the value B is
+// revisited, so it's a repeat, not a one-off round-trip).
+const MIN_RUN = 4;
 
 // A change-point event is { ts, p } (in stock @ price p) or { ts } (OOS).
-function stateOf(ev) {
-	if (!ev || !("p" in ev)) return { in: false, cents: null };
+// State key: integer cents for in-stock, the token "oos" for out-of-stock, or
+// NaN for an unparseable in-stock price (NaN never matches → fail-safe to "not
+// a flap"). Adjacent change-point events always differ, so a run alternates
+// cleanly between exactly two states until a third value appears.
+function stateKey(ev) {
+	if (!ev || !("p" in ev)) return "oos";
 	const n = parsePriceToNumber(ev.p);
-	return { in: true, cents: Number.isFinite(n) ? Math.round(n * 100) : null };
+	return Number.isFinite(n) ? Math.round(n * 100) : NaN;
 }
 
-/**
- * Given a store/variant's chronological change-point events, return the
- * transient excursion intervals to render dashed.
- *
- * An event at index i (with a predecessor and successor) is a flap when the
- * state RETURNS at i+1 to what it was at i-1, and the excursion was transient
- * (it reverted within FLAP_WINDOW_MS). Three shapes:
- *   - price flap   in@X → in@Y → in@X   (a dip/spike back to the prior price)
- *   - oos flap     in    → OUT  → in     (briefly out of stock, then back)
- *   - instock flap OUT   → in   → OUT    (a brief reappearance, then gone again)
- * A real, sustained sale or sellout is NOT a flap: its excursion outlasts the
- * window, so the window guard drops it (matching the tools' behavior).
- *
- * @param {Array<{ts:string, p?:any}>} events
- * @returns {Array<{startMs:number, endMs:number, kind:'price'|'oos'|'instock'}>}
- *          intervals are [startMs, endMs): startMs = excursion began, endMs = it reverted
- */
-export function detectFlapSpans(events) {
+function buildSpells(events) {
 	const evs = (Array.isArray(events) ? events : [])
-		.filter((e) => e && e.ts)
+		.filter((e) => e && e.ts && Number.isFinite(Date.parse(e.ts)))
 		.slice()
 		.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
 
-	const spans = [];
-	for (let i = 1; i < evs.length - 1; i++) {
-		const tCur = Date.parse(evs[i].ts);
-		const tNext = Date.parse(evs[i + 1].ts);
-		if (!Number.isFinite(tCur) || !Number.isFinite(tNext)) continue;
-		if (tNext - tCur > FLAP_WINDOW_MS) continue; // excursion outlasted the window → real change
-
-		const prev = stateOf(evs[i - 1]);
-		const cur = stateOf(evs[i]);
-		const next = stateOf(evs[i + 1]);
-
-		let kind = null;
-		if (prev.in && cur.in && next.in) {
-			// returns to the prior price (and the dip/spike actually differed)
-			if (prev.cents != null && next.cents != null && prev.cents === next.cents && cur.cents !== prev.cents) {
-				kind = "price";
-			}
-		} else if (prev.in && !cur.in && next.in) {
-			kind = "oos";
-		} else if (!prev.in && cur.in && !next.in) {
-			kind = "instock";
-		}
-
-		if (kind) spans.push({ startMs: tCur, endMs: tNext, kind });
+	const spells = evs.map((e) => ({ state: stateKey(e), startMs: Date.parse(e.ts) }));
+	for (let i = 0; i < spells.length; i++) {
+		spells[i].endMs = i + 1 < spells.length ? spells[i + 1].startMs : Infinity;
 	}
-	return spans;
+	return spells;
 }
 
+const dur = (s) => s.endMs - s.startMs;
+
 /**
- * Convenience: is a given day (UTC ms at noon) inside any excursion span?
+ * Given a store/variant's chronological change-point events, return the
+ * oscillating excursion intervals to render dashed.
+ *
+ * An oscillation is a maximal run of consecutive spells that strictly alternate
+ * between exactly two states A and B (e.g. price 100↔80, or 50↔OOS). It is a
+ * flip-flop when the run has ≥ 4 spells (so B is revisited — `A,B,A,B`) AND every
+ * interior leg is short (≤ FLAP_WINDOW_MS). The leading/trailing spells may be
+ * long stable baselines (the price before it started flapping, or the value it
+ * finally settled on); those stay solid — only the unstable middle is dashed.
+ *
+ * @param {Array<{ts:string, p?:any}>} events
+ * @returns {Array<{startMs:number, endMs:number}>}  intervals [startMs, endMs)
  */
-export function dayInFlap(spans, dayMs) {
-	if (!Array.isArray(spans)) return false;
-	for (const sp of spans) {
-		if (dayMs >= sp.startMs && dayMs < sp.endMs) return true;
+export function detectFlapSpans(events) {
+	const spells = buildSpells(events);
+	const spans = [];
+
+	let i = 0;
+	while (i + MIN_RUN - 1 < spells.length) {
+		const A = spells[i].state;
+		const B = spells[i + 1].state;
+		if (A === B || Number.isNaN(A) || Number.isNaN(B)) {
+			i++;
+			continue;
+		}
+
+		// Extend the alternating A,B,A,B… run as far as it holds.
+		let k = i + 1;
+		while (k + 1 < spells.length) {
+			const expected = (k + 1 - i) % 2 === 0 ? A : B;
+			if (spells[k + 1].state === expected) k++;
+			else break;
+		}
+
+		if (k - i + 1 >= MIN_RUN) {
+			let interiorShort = true;
+			for (let m = i + 1; m <= k - 1; m++) {
+				if (dur(spells[m]) > FLAP_WINDOW_MS) {
+					interiorShort = false;
+					break;
+				}
+			}
+			if (interiorShort) {
+				const startMs = dur(spells[i]) > FLAP_WINDOW_MS ? spells[i + 1].startMs : spells[i].startMs;
+				const endMs = dur(spells[k]) > FLAP_WINDOW_MS ? spells[k].startMs : spells[k].endMs;
+				spans.push({ startMs, endMs });
+			}
+			i = k + 1;
+			continue;
+		}
+
+		i++;
 	}
-	return false;
+
+	return spans;
 }

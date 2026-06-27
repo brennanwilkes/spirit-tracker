@@ -153,19 +153,25 @@ implementations enforce this; keep the window in sync across all of them:
 - `tools/build_email_event_pack.js::isFlipFlop` — same 48h window for email alerts.
 - `src/utils/rarity.js::coalescePeriods` — merges in-stock spells separated by a ≤24h OOS gap
   (narrower, since it's smoothing the rarity signal, not gating a "what changed" surface).
-- `viz/app/flip_flop.js` (ESM) — the **item-page chart** consumer. Unlike the others it does
-  NOT suppress; it locates the transient excursions so the chart renders them dashed + dot-less
-  ("something is going on here") instead of as solid, trustworthy history. Works on the per-SKU
-  cache's change-point events (`{ts,p}` = in-stock; `{ts}` = OOS), flagging an event whose state
-  RETURNS at the next event to what it was at the previous one, within `FLAP_WINDOW_MS` (price
-  dip/spike back to prior price, brief OOS-and-back, or brief reappearance). `item_page.js`
-  marks the affected day indices (`_flapSet`), hold-fills OOS-flap days at the pre-excursion
-  price so the dashed line *bridges* the gap rather than breaking, dashes any segment touching a
-  flap via `segment.borderDash`, and suppresses dots. Reuses the same dashed visual language as the
-  "↑ above chart" outlier treatment (the dashed line is the only signal — no tooltip suffix).
-  - Note: a *same-day* round-trip (AMRUT) collapses to one daily plotted value (the day's last
-    price), so the dip isn't visible — but the day still lands inside the flap span, so its
-    segment is dashed, flagging the transient activity even though the net price is unchanged.
+- `viz/app/flip_flop.js` (ESM) — the **item-page chart** consumer. This one is STRICTER than the
+  suppressors and serves a different purpose: it does NOT suppress, it locates the oscillating
+  region so the chart renders it dashed + dot-less ("something is going on here") instead of as
+  solid, trustworthy history. **Definition: a repeating oscillation, not a single round-trip.** A
+  one-off `A → B → A` (then stays at A) is just a one-day sale and is NOT flagged; only when the
+  excursion repeats (`A → B → A → B …`, the value revisited) is it a flip-flop. It works on the
+  per-SKU cache's change-point events (`{ts,p}` = in-stock; `{ts}` = OOS) reduced to "spells",
+  finds a maximal run that strictly alternates between exactly two states (price↔price or
+  price↔OOS) of length ≥ 4, and requires every interior leg to be short (≤ `FLAP_WINDOW_MS` = **3
+  days**) — so a genuine *periodic* sale (drop a day, back for two months, repeat) is NOT flagged
+  because its interior baseline leg is long. Leading/trailing long-stable spells (the price before
+  flapping started, or the value it finally settled on) stay solid; only the unstable middle is
+  dashed. `item_page.js` marks the affected day indices (`_flapSet`), hold-fills OOS-flap days at
+  the pre-excursion price so the dashed line *bridges* the gap rather than breaking, dashes any
+  segment touching a flap via `segment.borderDash`, and suppresses dots. Reuses the same dashed
+  visual language as the "↑ above chart" outlier treatment (the dashed line is the only signal —
+  no tooltip suffix).
+  - Note: this `FLAP_WINDOW_MS` (3 days, per-leg) is independent of the suppressors' 48h
+    single-round-trip window — different rule, different purpose; they do not need to match.
 
 ## Datacenter-IP Blocking (known issue, unsolved)
 
