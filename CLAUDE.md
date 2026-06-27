@@ -161,8 +161,8 @@ implementations enforce this; keep the window in sync across all of them:
   dip/spike back to prior price, brief OOS-and-back, or brief reappearance). `item_page.js`
   marks the affected day indices (`_flapSet`), hold-fills OOS-flap days at the pre-excursion
   price so the dashed line *bridges* the gap rather than breaking, dashes any segment touching a
-  flap via `segment.borderDash`, suppresses dots, and adds a `~ flip-flop` tooltip suffix. Reuses
-  the same dashed visual language as the "↑ above chart" outlier treatment.
+  flap via `segment.borderDash`, and suppresses dots. Reuses the same dashed visual language as the
+  "↑ above chart" outlier treatment (the dashed line is the only signal — no tooltip suffix).
   - Note: a *same-day* round-trip (AMRUT) collapses to one daily plotted value (the day's last
     price), so the dip isn't visible — but the day still lands inside the flap span, so its
     segment is dashed, flagging the transient activity even though the net price is unchanged.

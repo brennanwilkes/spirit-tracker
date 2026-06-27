@@ -836,8 +836,17 @@ export function renderSearch($app) {
 		// (new / restored / removed / price up / price down) — not just market-wide
 		// arrivals. Keeping the single most-recent event per sku keeps the feed one
 		// row per product rather than a flood of per-store churn.
+		// Activity is store-scoped: an event only counts for the filtered set if it
+		// HAPPENED at a store in the set. (A canonical item can be carried at a
+		// filtered store while the recent change occurred at a different store — e.g.
+		// an AMRUT price flap at ARC must not surface under a Tudor-only filter.)
+		// So the per-SKU "latest event" is the latest one at a filtered store, and an
+		// item with no events at any filtered store drops out entirely.
+		const eventStoreId = (r) => normalizeStoreId(String(r?.storeLabel || r?.store || "").trim());
+
 		const bySku = new Map(); // sku -> { r, ms, sku }
 		for (const r of inWindow) {
+			if (resolvedStoreIdSet && !resolvedStoreIdSet.has(eventStoreId(r))) continue;
 			const rawSku = String(r?.sku || "").trim();
 			if (!rawSku) continue;
 			const sku = String(canon(rawSku) || "").trim();
@@ -868,7 +877,6 @@ export function renderSearch($app) {
 		// notable, so they always pass.
 		picked = picked.filter((x) => {
 			const sku = String(x.sku || "");
-			if (!passesStoreSet(sku)) return false;
 			if (!passesAvailability(sku)) return false;
 			const k = normalizeKindForPrice(x.r);
 			const agg = aggBySku.get(sku) || null;
