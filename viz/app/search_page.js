@@ -232,10 +232,6 @@ export function renderSearch($app) {
 	// sku -> Set(storeNorm) / etc (LIVE = !removed)
 	let liveStoresBySku = new Map();
 	let everStoresBySku = new Map();
-	// sku -> Set(canonical storeId) across LIVE listings only, for the
-	// store-set filter — an item only shows when currently in stock at
-	// a selected store.
-	let storeIdsBySku = new Map();
 	let storeDisplayByNorm = new Map(); // norm -> display label
 	let liveMinPriceBySkuStore = new Map(); // sku -> Map(storeNorm -> min price)
 	// sku -> cheapest last-known price across REMOVED rows. Out-of-stock items have no
@@ -318,23 +314,40 @@ export function renderSearch($app) {
 		return String($avail?.value || "all");
 	}
 
+	// Availability is the ONLY membership gate. The store selection is a scoping lens,
+	// not a filter: under "all" it never removes an item. Under "in"/"out" it scopes the
+	// stock test to the selected stores (in = live at a selected store; out = ever carried
+	// at a selected store but not currently live there — "carried-but-OOS").
 	function passesAvailability(sku) {
 		const m = availMode();
 		if (m === "all") return true;
-		const st = stockMetaForSku(String(sku || ""));
+		const s = String(sku || "");
+
+		if (resolvedStoreNorms) {
+			const live = liveStoresBySku.get(s);
+			let inSelected = false;
+			if (live) {
+				for (const st of resolvedStoreNorms) {
+					if (live.has(st)) { inSelected = true; break; }
+				}
+			}
+			if (m === "in") return inSelected;
+			if (m === "out") {
+				if (inSelected) return false;
+				const ever = everStoresBySku.get(s);
+				if (!ever) return false;
+				for (const st of resolvedStoreNorms) {
+					if (ever.has(st)) return true;
+				}
+				return false;
+			}
+			return true;
+		}
+
+		const st = stockMetaForSku(s);
 		if (m === "in") return !st.outOfStock;
 		if (m === "out") return !!st.outOfStock;
 		return true;
-	}
-
-	function passesStoreSet(sku) {
-		if (!resolvedStoreIdSet) return true; // all stores
-		const ids = storeIdsBySku.get(String(sku || ""));
-		if (!ids) return false;
-		for (const id of ids) {
-			if (resolvedStoreIdSet.has(id)) return true;
-		}
-		return false;
 	}
 
 	function computeResolvedStoreNorms() {
@@ -726,10 +739,7 @@ export function renderSearch($app) {
 	function renderAggregates(items) {
 		priceNumCache.clear();
 
-		let list = items.filter((it) => {
-			const sku = String(it?.sku || "");
-			return passesAvailability(sku) && passesStoreSet(sku);
-		});
+		let list = items.filter((it) => passesAvailability(String(it?.sku || "")));
 
 		// "activity" only governs the empty-query feed; if a sort-with-query lands
 		// here while activity is selected, order by recency (newest) like the feed.
@@ -844,19 +854,32 @@ export function renderSearch($app) {
 		// item with no events at any filtered store drops out entirely.
 		const eventStoreId = (r) => normalizeStoreId(String(r?.storeLabel || r?.store || "").trim());
 
-		const bySku = new Map(); // sku -> { r, ms, sku }
+		// Store selection is a SCOPE here, not a hard drop: an event at a selected store
+		// ("scoped") sorts first, but non-selected activity is still reachable by scrolling
+		// (under "all"). We track the latest event per SKU twice — latest at ANY store and
+		// latest at a SELECTED store — and display/order by the scoped one when present. The
+		// in/out availability test below is what actually narrows the set store-scoped; under
+		// "all" it narrows nothing, so every item remains and only the ORDER reflects the set.
+		const bySku = new Map(); // sku -> { rAny, msAny, rScoped, msScoped }
 		for (const r of inWindow) {
-			if (resolvedStoreIdSet && !resolvedStoreIdSet.has(eventStoreId(r))) continue;
 			const rawSku = String(r?.sku || "").trim();
 			if (!rawSku) continue;
 			const sku = String(canon(rawSku) || "").trim();
 			if (!sku) continue;
 			const ms = eventMsRecent(r);
-			const prev = bySku.get(sku);
-			if (!prev || ms > prev.ms) bySku.set(sku, { r, ms, sku });
+			let e = bySku.get(sku);
+			if (!e) bySku.set(sku, (e = { rAny: null, msAny: -1, rScoped: null, msScoped: -1 }));
+			if (ms > e.msAny) { e.msAny = ms; e.rAny = r; }
+			if (resolvedStoreIdSet && resolvedStoreIdSet.has(eventStoreId(r)) && ms > e.msScoped) {
+				e.msScoped = ms;
+				e.rScoped = r;
+			}
 		}
 
-		let picked = Array.from(bySku.values());
+		let picked = Array.from(bySku.entries()).map(([sku, e]) => {
+			const scoped = e.rScoped != null;
+			return { sku, scoped, r: scoped ? e.rScoped : e.rAny, ms: scoped ? e.msScoped : e.msAny };
+		});
 
 		// Spirit type filter (applied before market-wide filter for efficiency)
 		if (selectedTypeSet.size) {
@@ -897,6 +920,9 @@ export function renderSearch($app) {
 			const as = String(a.sku || "");
 			const bs = String(b.sku || "");
 
+			// Selected-store activity always surfaces first (scope, not filter).
+			if (a.scoped !== b.scoped) return a.scoped ? -1 : 1;
+
 			if (mode === "salePct") {
 				const ap = salePctForSku(as);
 				const bp = salePctForSku(bs);
@@ -926,13 +952,13 @@ export function renderSearch($app) {
 			return nameKey(a.r, as).localeCompare(nameKey(b.r, bs));
 		});
 
-		startPager(picked, ({ r, sku }) => recentCardHtml(r, sku, mode), {
+		startPager(picked, ({ r, sku, scoped }) => recentCardHtml(r, sku, mode, scoped), {
 			headerHtml: `<div class="small">Recently changed:</div>`,
 			emptyHtml: `<div class="small">No recent changes.</div>`,
 		});
 	}
 
-	function recentCardHtml(r, sku, mode) {
+	function recentCardHtml(r, sku, mode, scoped) {
 		const kind = normalizeKindForPrice(r);
 
 		const kindLabel =
@@ -960,11 +986,15 @@ export function renderSearch($app) {
 		const agg = aggBySku.get(sku) || null;
 		const img = agg?.img || "";
 
-		// Show cheapest price within the active store filter (or global if no filter)
+		// Scoped rows show the cheapest price within the selected stores; non-scoped rows
+		// (surfaced under "all" because their activity was at a non-selected store) fall back
+		// to the global cheapest so the card isn't priceless.
 		let priceLine;
-		if (resolvedStoreNorms) {
+		if (resolvedStoreNorms && scoped) {
 			const best = bestLiveStoreForSku(sku, resolvedStoreNorms);
-			priceLine = best.priceNum !== null ? priceStrFromNum(best.priceNum) : "";
+			priceLine = best.priceNum !== null
+				? priceStrFromNum(best.priceNum)
+				: (agg?.cheapestPriceStr || r.newPrice || r.price || "");
 		} else {
 			priceLine = agg?.cheapestPriceStr || r.newPrice || r.price || "";
 		}
@@ -1092,7 +1122,6 @@ export function renderSearch($app) {
 
 			liveStoresBySku = new Map();
 			everStoresBySku = new Map();
-			storeIdsBySku = new Map();
 			storeNormToStoreId = new Map();
 			storeDisplayByNorm = new Map();
 			liveMinPriceBySkuStore = new Map();
@@ -1152,15 +1181,10 @@ export function renderSearch($app) {
 					ss.add(stNorm);
 				}
 
-				// canonical store ids for the store-set filter (live rows only)
+				// norm -> canonical storeId, for resolving the selected store set to norms
 				{
 					const storeId = normalizeStoreId(storeLabel);
-					if (storeId) {
-						let ss = storeIdsBySku.get(sku);
-						if (!ss) storeIdsBySku.set(sku, (ss = new Set()));
-						ss.add(storeId);
-						if (!storeNormToStoreId.has(stNorm)) storeNormToStoreId.set(stNorm, storeId);
-					}
+					if (storeId && !storeNormToStoreId.has(stNorm)) storeNormToStoreId.set(stNorm, storeId);
 				}
 
 				// per-store live min price
