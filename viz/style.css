@@ -1499,6 +1499,13 @@ html[data-theme="dark"] .storeSetOption:hover { background: rgba(255, 255, 255, 
 html[data-theme="dark"] .storeSetTrigger.is-open,
 html[data-theme="dark"] .storeSetTrigger:focus { border-color: #37566b; outline-color: #37566b; }
 
+/* Spirit-type filter: same fix — re-assert dark when forcing dark on a
+   light-OS device, so the panel doesn't render with light-mode background. */
+html[data-theme="dark"] .spiritFilterPanel { background: #0f1318; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
+html[data-theme="dark"] .spiritFilterOption:hover { background: rgba(255, 255, 255, 0.04); }
+html[data-theme="dark"] .spiritFilterTrigger.is-open,
+html[data-theme="dark"] .spiritFilterTrigger:focus { border-color: #37566b; outline-color: #37566b; }
+
 /* ── 11. Mobile overrides (shared across all pages) ─────────────────────── */
 
 @media (max-width: 640px) {
