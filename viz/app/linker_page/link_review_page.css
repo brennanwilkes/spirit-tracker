@@ -165,6 +165,24 @@
 	padding: 16px 0 32px;
 }
 
+/* Infinite-scroll trip wire: must have height so the IntersectionObserver fires. */
+#reviewSentinel {
+	width: 100%;
+	height: 1px;
+}
+
+/* Audit view (older recommendations, before the last review commit). */
+#auditToggle.rvAuditActive {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+/* Uncommitted-review-edits nudge. */
+.reviewDirty {
+	border-color: var(--rarity-staple-border, #b8860b);
+	color: var(--text);
+}
+
 @media (min-width: 641px) {
 	.rvPair {
 		flex-direction: row;

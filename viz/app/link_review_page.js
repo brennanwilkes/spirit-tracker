@@ -29,6 +29,7 @@ import {
 	apiWriteSkuIgnore,
 	apiConfirmSkuLink,
 	apiRejectSkuLink,
+	apiGetReviewWatermark,
 } from "./api.js";
 import { normalizeImplicitSkuKey } from "./sku_canonical.js";
 import { buildUrlBySkuStore } from "./linker_page/url_map.js";
@@ -97,44 +98,76 @@ export async function renderSkuLinkReview($app) {
 	}
 	const blended = !!(blend && (blend.weights || blend.gbt));
 
-	/* ---------------- build the feed ---------------- */
+	/* ---------------- review watermark ---------------- */
 
-	// Pending auto-links.
-	const pendingRows = [];
+	// The "I've already reviewed up to here" line: the last time sku_links.json was hand-committed
+	// (a human review/curation session), from git — NOT a scrape commit. The normal queue shows
+	// only recommendations that APPEARED after this; everything older is considered handled (you
+	// saw it last session — whether you acted on it or just scrolled past — and a hand-commit drew
+	// the line). The audit view drops the filter to revisit the older ones. 0 = no prior hand
+	// commit (or read-only Pages, where git isn't reachable) → show everything.
+	let watermark = 0;
+	let dirty = false;
+	if (localWrite) {
+		try {
+			const w = await apiGetReviewWatermark();
+			watermark = w.watermark || 0;
+			dirty = w.dirty;
+		} catch {
+			watermark = 0;
+		}
+	}
+	let auditMode = false;
+
+	/* ---------------- build the candidate rows ---------------- */
+
+	// Pending auto-links. Appearance time = link creation `ts` (when the classifier proposed it),
+	// NOT SKU recency — a newly-proposed link between two OLD SKUs is still "new to review".
+	const candidateRows = [];
 	for (const l of Array.isArray(rules.links) ? rules.links : []) {
 		if (!l || l.status !== "pending") continue;
 		const a = resolveAgg(l.fromSku);
 		const b = resolveAgg(l.toSku);
 		if (!a || !b) continue; // a side fell out of the catalog (delisted) — skip from the queue
-		pendingRows.push({
+		const fromSku = String(l.fromSku);
+		const toSku = String(l.toSku);
+		candidateRows.push({
 			kind: "pending",
-			fromSku: String(l.fromSku),
-			toSku: String(l.toSku),
+			fromSku,
+			toSku,
 			a,
 			b,
 			confidence: typeof l.confidence === "number" ? l.confidence : null,
-			recency: Math.max(recencyOf(l.fromSku), recencyOf(l.toSku)),
+			appearance: Date.parse(l.ts) || Math.max(recencyOf(fromSku), recencyOf(toSku)),
 		});
 	}
 
-	// Orphan SKUs: no link of any kind (group size 1) AND single-store (no implicit cross-store link).
-	const orphanRows = [];
+	// Orphan SKUs: no link of any kind (group size 1) AND single-store (no implicit cross-store
+	// link). Appearance time = SKU first-seen recency.
 	for (const it of allAgg) {
 		const sku = String(it.sku || "");
 		if (!sku) continue;
 		if ((it.stores ? it.stores.size : 0) > 1) continue; // implicit cross-store link → has links → skip
 		const group = rules.groupForCanonical(rules.canonicalSku(sku));
 		if (group && group.size > 1) continue; // explicit link → skip
-		orphanRows.push({ kind: "orphan", sku, it, recency: recencyOf(sku) });
+		candidateRows.push({ kind: "orphan", sku, it, appearance: recencyOf(sku) });
 	}
 
-	const feed = [...pendingRows, ...orphanRows].sort((x, y) => y.recency - x.recency);
+	// Normal view: only recommendations newer than the watermark. Audit view: only the older
+	// (previously-handled) ones, so they can be revisited.
+	const visibleNow = (row) => (auditMode ? row.appearance <= watermark : row.appearance > watermark);
+	const olderPresent = candidateRows.filter((r) => r.appearance <= watermark).length;
+	const buildFeed = () => candidateRows.filter(visibleNow).sort((x, y) => y.appearance - x.appearance);
+
+	let feed = buildFeed();
 	let shown = 0;
 
 	/* ---------------- render shell ---------------- */
 
 	const roNotice = localWrite
-		? ""
+		? dirty
+			? `<div class="reviewNotice reviewDirty">Uncommitted review edits to <span class="mono">data/sku_links.json</span> — commit by hand to advance the review line (the next load will then show only what's newer).</div>`
+			: ""
 		: `<div class="reviewNotice">Read-only — Approve/Reject need the local dev server (<span class="mono">node viz/serve.js</span>).</div>`;
 
 	$app.innerHTML = `
@@ -144,25 +177,44 @@ export async function renderSkuLinkReview($app) {
         <div style="flex:1"></div>
         <a class="btn" href="#/link" style="padding:6px 10px;">SKU Linker</a>
         <a class="btn" href="#/link-rapid" style="padding:6px 10px;">⚡ Rapid</a>
+        ${
+					olderPresent
+						? `<button id="auditToggle" class="btn" style="padding:6px 10px;" title="Revisit older recommendations from before your last review commit">🔍 Audit (${olderPresent})</button>`
+						: ""
+				}
         <span class="badge">Review</span>
       </div>
       <h2 class="reviewTitle">Auto-link review</h2>
-      <div id="reviewSummary" class="small reviewSummary">
-        ${pendingRows.length} pending auto-link${pendingRows.length === 1 ? "" : "s"} ·
-        ${orphanRows.length} unlinked SKU${orphanRows.length === 1 ? "" : "s"} · newest first
-        ${blended ? "" : `<span class="badge" title="GBT/embedding blend unavailable — using classical scores">classical</span>`}
-      </div>
+      <div id="reviewSummary" class="small reviewSummary"></div>
       ${roNotice}
       <div id="reviewList" class="reviewList"></div>
       <div class="reviewMore">
-        <button id="loadMore" class="btn" style="display:none;">Load more</button>
-        <span id="reviewDone" class="small" style="display:none;">— end of queue —</span>
+        <div id="reviewSentinel" aria-hidden="true"></div>
+        <span id="reviewDone" class="small" style="display:none;">— end of queue · all caught up —</span>
       </div>
     </div>`;
 
 	const $list = $app.querySelector("#reviewList");
-	const $more = $app.querySelector("#loadMore");
+	const $sentinel = $app.querySelector("#reviewSentinel");
 	const $done = $app.querySelector("#reviewDone");
+	const $summary = $app.querySelector("#reviewSummary");
+	const $auditToggle = $app.querySelector("#auditToggle");
+
+	const classicalBadge = blended
+		? ""
+		: `<span class="badge" title="GBT/embedding blend unavailable — using classical scores">classical</span>`;
+
+	function updateSummary() {
+		const p = feed.filter((r) => r.kind === "pending").length;
+		const o = feed.filter((r) => r.kind === "orphan").length;
+		const counts = `${p} pending auto-link${p === 1 ? "" : "s"} · ${o} unlinked SKU${o === 1 ? "" : "s"}`;
+		const since = watermark
+			? `new since last review (${esc(new Date(watermark).toLocaleString())})`
+			: "all items (no prior review commit)";
+		$summary.innerHTML = auditMode
+			? `<strong>Audit view</strong> — ${counts} from before your last review ${classicalBadge}`
+			: `${counts} new to review · ${since}${olderPresent ? ` · ${olderPresent} older held for audit` : ""} ${classicalBadge}`;
+	}
 
 	/* ---------------- card helpers ---------------- */
 
@@ -266,7 +318,7 @@ export async function renderSkuLinkReview($app) {
         <div class="rvOrphanHead">
           ${miniCardHtml(row.it)}
           <span class="badge" title="no links of any kind">no links</span>
-          <button class="btn rvSkip">Skip</button>
+          <button class="btn rvSkip" title="dismiss from this view (returns until you commit)" ${disabled}>Skip</button>
         </div>
         <div class="rvCands">${candHtml}</div>
       </div>`;
@@ -300,23 +352,71 @@ export async function renderSkuLinkReview($app) {
 			.join("");
 		$list.insertAdjacentHTML("beforeend", html);
 		shown += slice.length;
-		const remaining = feed.length - shown;
-		$more.style.display = remaining > 0 ? "" : "none";
-		$more.textContent = `Load more (${remaining})`;
-		$done.style.display = remaining > 0 || !feed.length ? "none" : "";
+		const done = shown >= feed.length;
+		$done.style.display = done && feed.length ? "" : "none";
+		if (done && io) io.disconnect();
 	}
 
-	$more.addEventListener("click", renderChunk);
-	renderChunk();
+	// Auto-load the whole queue as the sentinel nears the viewport — no manual "Load more" button.
+	// Orphan candidates are still scored lazily per chunk, so we only pay for rows actually scrolled
+	// into view. `maybeFill` keeps rendering until the viewport (plus a margin) is full, since a
+	// single IntersectionObserver tick renders just one chunk.
+	let io = null;
+	function maybeFill() {
+		if (shown >= feed.length) return;
+		const rect = $sentinel.getBoundingClientRect();
+		if (rect.top < (window.innerHeight || 0) + 600) {
+			renderChunk();
+			requestAnimationFrame(maybeFill);
+		}
+	}
+	if ("IntersectionObserver" in window) {
+		io = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((e) => e.isIntersecting)) maybeFill();
+			},
+			{ rootMargin: "600px" },
+		);
+	}
 
-	if (!feed.length) {
-		$list.innerHTML = `<div class="small" style="padding:20px 0;">Nothing to review — no pending auto-links and no unlinked SKUs. 🎉</div>`;
+	function emptyStateHtml() {
+		if (auditMode) return `<div class="small" style="padding:20px 0;">Nothing older to audit. 🎉</div>`;
+		return watermark
+			? `<div class="small" style="padding:20px 0;">All caught up — nothing new since your last review (${esc(new Date(watermark).toLocaleString())}). 🎉</div>`
+			: `<div class="small" style="padding:20px 0;">Nothing to review — no pending auto-links and no unlinked SKUs. 🎉</div>`;
+	}
+
+	// Full (re)render — used on first load and whenever the audit toggle flips the feed.
+	function render() {
+		feed = buildFeed();
+		shown = 0;
+		$list.innerHTML = "";
+		updateSummary();
+		if (!feed.length) {
+			$list.innerHTML = emptyStateHtml();
+			$done.style.display = "none";
+			if (io) io.disconnect();
+			return;
+		}
+		if (io) io.observe($sentinel); // (re)attach (renderChunk disconnects it when a feed finishes)
+		renderChunk();
+		requestAnimationFrame(maybeFill);
+	}
+
+	render();
+
+	if ($auditToggle) {
+		$auditToggle.addEventListener("click", () => {
+			auditMode = !auditMode;
+			$auditToggle.classList.toggle("rvAuditActive", auditMode);
+			$auditToggle.textContent = auditMode ? "✕ Exit audit" : `🔍 Audit (${olderPresent})`;
+			render();
+		});
 	}
 
 	/* ---------------- actions (event delegation) ---------------- */
 
 	function removeRow(el, msg) {
-		const summary = $app.querySelector("#reviewSummary");
 		el.classList.add("rvResolved");
 		el.innerHTML = `<div class="rvResolvedMsg small">${esc(msg)}</div>`;
 		clearSkuRulesCache(); // next page load reflects the change
@@ -346,7 +446,9 @@ export async function renderSkuLinkReview($app) {
 					await apiWriteSkuIgnore(row.dataset.sku, cand.dataset.cand);
 					cand.remove();
 				} else if (btn.classList.contains("rvSkip")) {
-					removeRow(row, "Skipped.");
+					// Session-only dismiss: it returns on reload until you commit (the watermark is what
+					// makes it stick). Approve/Reject/Link change the data and don't come back.
+					removeRow(row, "Skipped for now.");
 				}
 			} catch (err) {
 				btn.disabled = false;
