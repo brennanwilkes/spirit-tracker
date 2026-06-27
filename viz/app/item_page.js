@@ -660,7 +660,13 @@ export async function renderItem($app, skuInput) {
 	// (e.g. BCL spans both), only one pin is shown with a combined label.
 	// When 3 or fewer live stores carry the item, all are shown as featured pins.
 	// The "All stores" dropdown is always shown separately below the header.
+	// When EVERY store is out of stock (no live rows), we still feature a couple
+	// of out-of-stock stores so the header isn't empty — the same pin logic runs
+	// over removed rows instead, and those pins are likewise omitted from the
+	// dropdown below.
 	const liveLinkRows = linkRows.filter(({ r }) => rowMinPrice(r) < Infinity && !Boolean(r?.removed));
+	const removedLinkRows = linkRows.filter(({ r }) => Boolean(r?.removed));
+	const pinSourceRows = liveLinkRows.length ? liveLinkRows : removedLinkRows;
 	const storeOf = (r) => storeById(normalizeStoreId(r?.storeLabel || r?.store || ""));
 	const citiesOf = (r) => {
 		const st = storeOf(r);
@@ -675,8 +681,8 @@ export async function renderItem($app, skuInput) {
 		pinned.push({ ...row, ...extra });
 	};
 
-	const showAllAsFeatured = liveLinkRows.length <= 3 && liveLinkRows.length > 0;
-	const allFeatured = showAllAsFeatured && linkRows.length === liveLinkRows.length;
+	const showAllAsFeatured = pinSourceRows.length <= 3 && pinSourceRows.length > 0;
+	const allFeatured = showAllAsFeatured && linkRows.length === pinSourceRows.length;
 
 	// Per-store state for subtle visual indicators (exclusive, lastStock)
 	const storeState = new Map(); // store -> "exclusive" | "lastStock"
@@ -691,11 +697,11 @@ export async function renderItem($app, skuInput) {
 	}
 
 	if (showAllAsFeatured) {
-		for (const row of liveLinkRows) {
+		for (const row of pinSourceRows) {
 			addPin(row, {});
 		}
 	} else {
-		const cheapestRow = liveLinkRows[0];
+		const cheapestRow = pinSourceRows[0];
 		if (cheapestRow) {
 			const cheapestCities = citiesOf(cheapestRow.r);
 			const servesVan = cheapestCities.includes("vancouver");
@@ -713,8 +719,8 @@ export async function renderItem($app, skuInput) {
 
 			if (!servesVan && !servesVic) {
 				// Neither city covered → find cheapest Van and Vic separately
-				const vanRow = liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver"));
-				const vicRow = liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria"));
+				const vanRow = pinSourceRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("vancouver"));
+				const vicRow = pinSourceRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria"));
 				if (vanRow && vicRow && vanRow.store === vicRow.store) {
 					addPin(vanRow, { hint: "Cheapest in Vancouver & Victoria", cities: ["vancouver", "victoria"] });
 				} else {
@@ -724,7 +730,7 @@ export async function renderItem($app, skuInput) {
 			} else if (!servesVic) {
 				// Only Vancouver covered → find cheapest Victoria store
 				addPin(
-					liveLinkRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
+					pinSourceRows.find(({ r, store }) => !seenPin.has(store) && citiesOf(r).includes("victoria")),
 					{ hint: "Cheapest in Victoria", city: "victoria" },
 				);
 			}
@@ -765,7 +771,7 @@ export async function renderItem($app, skuInput) {
 	// Stores already surfaced as featured quick-link pins above the dropdown are
 	// omitted from the dropdown list (and its count) to avoid duplication.
 	const liveListRows = linkRows.filter(({ r, store }) => !Boolean(r?.removed) && !seenPin.has(store));
-	const removedListRows = linkRows.filter(({ r }) => Boolean(r?.removed));
+	const removedListRows = linkRows.filter(({ r, store }) => Boolean(r?.removed) && !seenPin.has(store));
 
 	function rowLinkHtml({ store, r }, isRemoved) {
 		const href = String(r.url || "").trim();
