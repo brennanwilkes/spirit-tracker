@@ -754,7 +754,9 @@ export async function renderItem($app, skuInput) {
 		? `<div class="pinnedCentered">${pinnedContent}</div>`
 		: pinnedContent;
 
-	const liveListRows = linkRows.filter(({ r }) => !Boolean(r?.removed));
+	// Stores already surfaced as featured quick-link pins above the dropdown are
+	// omitted from the dropdown list (and its count) to avoid duplication.
+	const liveListRows = linkRows.filter(({ r, store }) => !Boolean(r?.removed) && !seenPin.has(store));
 	const removedListRows = linkRows.filter(({ r }) => Boolean(r?.removed));
 
 	function rowLinkHtml({ store, r }, isRemoved) {
@@ -792,11 +794,9 @@ export async function renderItem($app, skuInput) {
 	let summaryBtnHtml = "";
 	let listContentHtml = "";
 	let listHtmlMobile = "";
-	let bothCategories = false;
-	if (linkRows.length > 0 && !allFeatured) {
+	if (liveListRows.length > 0 || removedListRows.length > 0) {
 		const liveHtml = liveListRows.map((r) => rowLinkHtml(r, false));
 		const removedHtml = removedListRows.map((r) => rowLinkHtml(r, true));
-		bothCategories = liveHtml.length > 0 && removedHtml.length > 0;
 		let summary;
 		if (removedHtml.length === 0) {
 			summary = `In stock (${liveHtml.length})`;
@@ -809,21 +809,18 @@ export async function renderItem($app, skuInput) {
 			+ (liveHtml.length && removedHtml.length ? `<hr class="storeListDivider">` : "")
 			+ removedHtml.join("");
 
-		// Mobile always uses the collapsible <details> (starts retracted). Desktop
-		// shows a toggle button only when there are two categories to switch between;
-		// a single-category list renders inline-open (see linksDropdownOpen below).
+		// Both desktop and mobile use a collapsible disclosure that starts
+		// retracted. Mobile uses native <details>; desktop uses the toggle
+		// button + #linksDropdown. The summary label ("In stock (N)" or the
+		// two-category form) is always shown, regardless of how many categories
+		// are present.
 		listContentHtml = `<div class="storeLinksList">${inner}</div>`;
 		listHtmlMobile = `<details class="storeLinksMore"><summary>${esc(summary)}</summary><div class="storeLinksList">${inner}</div></details>`;
-		if (bothCategories) {
-			summaryBtnHtml = `<button class="storeLinksToggle" type="button">${esc(summary)} <span class="storeLinksChevron">▾</span></button>`;
-		}
+		summaryBtnHtml = `<button class="storeLinksToggle" type="button">${esc(summary)} <span class="storeLinksChevron">▾</span></button>`;
 	}
 
 	if ($links) $links.innerHTML = pinnedHtml + summaryBtnHtml;
-	if ($linksDropdown) {
-		$linksDropdown.innerHTML = listContentHtml;
-		if (!bothCategories && listContentHtml) $linksDropdown.classList.add("linksDropdownOpen");
-	}
+	if ($linksDropdown) $linksDropdown.innerHTML = listContentHtml;
 	if ($linksMobile) $linksMobile.innerHTML = pinnedHtml + listHtmlMobile;
 
 	// Toggle desktop dropdown
