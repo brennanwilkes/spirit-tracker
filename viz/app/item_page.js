@@ -1173,8 +1173,7 @@ export async function renderItem($app, skuInput) {
 							const raw = ds._rawData ? ds._rawData[ctx.dataIndex] : ctx.parsed?.y;
 							const v = Number.isFinite(raw) ? raw : ctx.parsed?.y;
 							if (!Number.isFinite(v)) return `${ds.label}: (no data)`;
-							let suffix = ds._rawData ? "  ↑ above chart" : "";
-							if (ds._flapSet?.has(ctx.dataIndex)) suffix += "  ~ flip-flop";
+							const suffix = ds._rawData ? "  ↑ above chart" : "";
 							return `${ds.label}: $${v.toFixed(2)}${suffix}`;
 						},
 					},
