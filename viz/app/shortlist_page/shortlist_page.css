@@ -32,6 +32,11 @@
   .shortlistPage .slFilterGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  /* Desktop: Store is just one of four equal cells again (undo the mobile
+     full-row span); the trigger itself becomes the panel's positioning context. */
+  .shortlistPage .slStoreCell {
+    grid-column: auto;
+  }
   .shortlistPage .slFilterCell .storeSet {
     position: relative;
   }
@@ -46,13 +51,22 @@
   min-width: 0;
 }
 
+/* Mobile: the Store cell spans the full grid row so the (absolutely-positioned)
+   panel has a full-width positioning context and anchors right below the trigger.
+   Without position:relative here, the panel escapes to a distant ancestor and
+   renders ~a screen down. Mirrors the search page's .searchControl pattern. */
+.shortlistPage .slStoreCell {
+  grid-column: 1 / -1;
+  position: relative;
+}
+
 .shortlistPage .slFilterLabel {
   opacity: .8;
   flex: 0 0 auto;
   white-space: nowrap;
 }
 
-/* Mobile: panel spans the full cell width, not just the trigger */
+/* Mobile: panel spans the full row (anchored to .slStoreCell), not just the trigger */
 .shortlistPage .slFilterCell .storeSet {
   position: static;
 }
