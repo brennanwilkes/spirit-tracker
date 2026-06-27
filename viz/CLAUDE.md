@@ -113,6 +113,7 @@ viz/
 | `app/cloud.js` | All Cloudflare Workers API calls |
 | `app/dom.js` | DOM helpers — **always use `esc()` for user-visible strings in innerHTML** |
 | `app/sku.js` | SKU parsing, hashing, synthetic SKU detection |
+| `app/flip_flop.js` | `detectFlapSpans()` — locates transient self-reverting price/availability excursions (48h window) so the item-page chart renders them dashed + dot-less. See root `CLAUDE.md` §"Flip-Flop (Transient Change) Handling" |
 | `app/sku_canonical.js` | DSU + `compareSku` + `normalizeImplicitSkuKey` + `buildGroupsAndCanonicalMap`. Parallel sibling of `src/utils/sku_canonical.js` (CJS); keep both in sync manually since there is no build step. |
 | `app/storeColors.js` | Store → CSS color mapping (delegates to `stores.js` for color data) |
 | `app/smws.js` | Parse SMWS codes like `1.234` |
