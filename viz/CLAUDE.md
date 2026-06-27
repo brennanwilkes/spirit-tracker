@@ -355,10 +355,21 @@ Sort decoupling (important):
   feed (`renderRecent`). It now surfaces the latest notable event of **any** kind per SKU
   (new/restored/removed/price up/down), newest-first — not just market-wide arrivals.
 
-**Store filter:** a store-set selector (`#storeSet`) is the first control; `storeIdsBySku`
-(canonical ids per SKU, incl. removed rows) + `passesStoreSet()` filter the catalog by the
-selected set. Persisted to `localStorage` (`viz:searchStoreSet`) and seeded from `?stores=` in
-the URL hash for shareable links. `myStores` is `null` until the profile backend lands.
+**Store filter (a SCOPE, not a membership filter):** a store-set selector (`#storeSet`) is the
+first control. The store selection does **not** remove items on its own — it is a scoping lens:
+- **Availability = All:** the store selection removes nothing; every item shows. It only affects
+  sort/price scoping (and, in the activity feed, which rows surface first).
+- **Availability = In stock only + store filter:** restricts to items live at a selected store.
+- **Availability = Out of stock only + store filter:** restricts to items *ever carried* at a
+  selected store but currently OOS there ("carried-but-OOS"; an item the store never carried is
+  excluded). So when In/Out is set, the store selection **is** effectively a membership filter —
+  via the store-scoped availability test, not a separate gate.
+
+`passesAvailability()` is the single membership gate (store-scoped via `resolvedStoreNorms` /
+`liveStoresBySku` / `everStoresBySku`). There is no separate `passesStoreSet`. Sort/price scoping
+to the selected stores always applies (`resolvedStoreNorms` in `priceNumForSku`/`salePctForSku`/
+`bestLiveStoreForSku`). Persisted to `localStorage` (`viz:searchStoreSet`) and seeded from
+`?stores=` in the URL hash for shareable links.
 
 ## Search Page — Recent activity feed (`renderRecent`)
 
@@ -374,7 +385,14 @@ notable and always passes):
 | `price_down` | always passes | ON SALE (`badgeGood`) |
 | `price_up` | always passes | PRICE UP (`badgeBad`) |
 
-Price shown is always `agg.cheapestPriceStr` (global cheapest across all stores), not the event store's specific price.
+Price shown is `agg.cheapestPriceStr` (global cheapest across all stores) by default; for a
+**scoped** row under a store filter it's the cheapest within the selected stores.
+
+**Store selection scopes this feed (not a hard drop).** Per SKU it tracks the latest event at ANY
+store and the latest at a SELECTED store; an item with a selected-store event ("scoped") sorts
+**first** (primary sort key), but non-selected activity is still reachable by scrolling under
+Availability = All. Under In/Out, the store-scoped `passesAvailability` restricts the set, so you
+only ever see selected-store listings (you never scroll to a non-selected bottle).
 
 ## "My Stores" + store filtering everywhere
 
