@@ -761,7 +761,16 @@ export async function renderItem($app, skuInput) {
 			const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
 			const pcAttr = pcCls ? ` ${pcCls}` : "";
 			const removedAttr = Boolean(r?.removed) ? " storeRemoved" : "";
-			return `<a class="storeQuickLink${stAttr}${pcAttr}${removedAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+			const anchor = `<a class="storeQuickLink${stAttr}${pcAttr}${removedAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+				if (canHide) {
+					const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
+					const rawSku = String(keySkuForRow(r) || "");
+					if (sid && rawSku) {
+						const title = `Hide this listing at ${store} (storeId=${sid}, sku=${rawSku})`;
+						return `<span class="storeQuickLinkRow">${anchor}<button type="button" class="hideListingBtn" data-storeid="${esc(sid)}" data-sku="${esc(rawSku)}" data-store-label="${esc(store)}" title="${esc(title)}" aria-label="${esc(title)}">✕</button></span>`;
+					}
+				}
+				return anchor;
 				})
 				.join("")}</div>`
 		: "";

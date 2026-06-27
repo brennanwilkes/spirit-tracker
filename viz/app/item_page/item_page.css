@@ -153,6 +153,18 @@
   gap: 8px;
 }
 
+/* Local-write hide control wrapper around a featured pin. */
+.storeQuickLinkRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.storeQuickLinkRow .storeQuickLink {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 /* Squared, prominent quick-links (override the global pill .links a).
    Full-width with the price pushed right; ~44px mobile touch target. */
 .links a.storeQuickLink {
