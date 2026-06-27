@@ -760,7 +760,8 @@ export async function renderItem($app, skuInput) {
 			const pc = storePriceChange.get(normalizeStoreId(store));
 			const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
 			const pcAttr = pcCls ? ` ${pcCls}` : "";
-			return `<a class="storeQuickLink${stAttr}${pcAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+			const removedAttr = Boolean(r?.removed) ? " storeRemoved" : "";
+			return `<a class="storeQuickLink${stAttr}${pcAttr}${removedAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				})
 				.join("")}</div>`
 		: "";

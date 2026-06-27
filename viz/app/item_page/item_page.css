@@ -246,11 +246,14 @@
 .links .storeLinkRow a:hover { color: var(--text); border-color: var(--text); }
 .links .storeLinkRow a .sqlPrice { color: var(--muted); }
 
-/* Faded appearance for out-of-stock store entries — still clickable. */
-.links .storeLinkRow a.storeRemoved {
+/* Faded appearance for out-of-stock store entries — still clickable.
+   Applies to both the disclosure rows and out-of-stock featured pins. */
+.links .storeLinkRow a.storeRemoved,
+.links a.storeQuickLink.storeRemoved {
   opacity: 0.35;
 }
-.links .storeLinkRow a.storeRemoved:hover {
+.links .storeLinkRow a.storeRemoved:hover,
+.links a.storeQuickLink.storeRemoved:hover {
   opacity: 0.7;
 }
 
