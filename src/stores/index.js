@@ -34,6 +34,7 @@ const { createStore: createNewDistrict } = require("./newdistrict");
 const { createStore: createLiquorama } = require("./liquorama");
 const { createStore: createMarquis } = require("./marquis");
 const { createStore: createEverythingWine } = require("./everythingwine");
+const { createStore: createElbowLiquor } = require("./elbowliquor");
 
 function getStoreRegions() {
 	return Object.fromEntries(createStores().map((s) => [s.key, s.region || "unknown"]));
@@ -49,6 +50,8 @@ function createStores({ defaultUa } = {}) {
 		// gull is rate-limited to a 12s/request throttle.
 		createWineAndBeyond(defaultUa),
 		createGull(defaultUa),
+		// Elbow Liquor: 15 items/page over ~90 HTML pages (whisky), 2.5s/req — slow.
+		createElbowLiquor(defaultUa),
 		// Existing session/API stores.
 		createKWM(defaultUa),
 		createCraftCellars(defaultUa),

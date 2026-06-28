@@ -174,6 +174,7 @@ they often share raw SKUs across stores (the implicit "free" SKU links).
 | `clbspirits` | CLB Spirits | AB | Shopify HTML | Whisky, Rum, Gin |
 | `colordevino` | Color de Vino | AB | WooCommerce | Whisky/Whiskey, Whisky SC SM, Rum, Gin |
 | `coop` | Co-op World of Whisky | AB | Custom session API (POST /api/v2/products/category) | Canadian Whisky, Bourbon, Scottish Single Malts, American Whiskey, Rum, Gin |
+| `elbowliquor` | Elbow Liquor | AB | ASP.NET HTML grid (`?pageNumber=N`); in-stock cards' `addToCartBtn` carries `data-sku`/`data-name`/`data-price` | Whisky, Rum, Gin |
 | `craftcellars` | Craft Cellars | AB | Shopify `/products.json` + HTML fallback | Whisky, Rum, Gin |
 | `everythingwine` | Everything Wine | BC | Magento HTML (custom scanCategory) | Whisky, Rum, Gin |
 | `gull` | Gull Liquor | BC | WooCommerce HTML (12 s throttle) | Whisky, Rum, Gin |
