@@ -133,6 +133,15 @@ export const STORES = [
 	},
 	// ── AB stores ──────────────────────────────────────────────────────────
 	{
+		id: "elbowliquor",
+		label: "Elbow Liquor",
+		region: "ab",
+		color: "#D62728",
+		logo: "./img/stores/elbowliquor.png",
+		url: "https://elbowliquor.ca",
+		aliases: ["elbow"],
+	},
+	{
 		id: "bsw",
 		label: "BSW",
 		region: "ab",
@@ -345,6 +354,7 @@ const CITY_BY_STORE = {
 	vessel: ["victoria"],
 	vintage: ["victoria"],
 	// AB
+	elbowliquor: ["calgary"],
 	bsw: ["calgary"],
 	coop: ["calgary"],
 	craftcellars: ["calgary"],
