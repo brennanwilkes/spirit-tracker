@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-01T01:37:24.404Z",
+  "generatedAt": "2026-07-01T05:20:00.047Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -51,8 +51,8 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 24486,
-    "removedRows": 5742,
+    "liveRows": 24479,
+    "removedRows": 5749,
     "canonSkus": 6657,
     "outputCount": 1000
   },
@@ -23165,80 +23165,6 @@
       }
     },
     {
-      "canonSku": "177077",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "craftcellars",
-        "everythingwine",
-        "kegncork",
-        "lime",
-        "liquorama",
-        "tudor",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "gull",
-        "highlander",
-        "highpointbws",
-        "kwm",
-        "legacyliquor",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vinearts",
-        "vintage",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "arc": 58.19,
-        "bcl": 60.97,
-        "bsw": 49.99,
-        "coop": 54.99,
-        "craftcellars": 51.99,
-        "everythingwine": 60.99,
-        "kegncork": 55.96,
-        "lime": 51.99,
-        "liquorama": 49.99,
-        "tudor": 64.99,
-        "willowpark": 53.49,
-        "wineandbeyond": 56.99,
-        "zyn": 48
-      },
-      "representative": {
-        "name": "Don Papa Rum",
-        "price": "$48.00",
-        "priceNum": 48,
-        "storeKey": "zyn",
-        "storeLabel": "ZYN The Wine Market",
-        "skuRaw": "823006",
-        "skuKey": "823006",
-        "url": "https://zyn.ca/products/don-papa-rum",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/zyn__rum__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$48.00",
-        "priceNum": 48,
-        "storeKey": "zyn",
-        "url": "https://zyn.ca/products/don-papa-rum"
-      }
-    },
-    {
       "canonSku": "178415",
       "storeCount": 13,
       "stores": [
@@ -26900,22 +26826,22 @@
         "highpointbws": 120.49,
         "lime": 87.99,
         "liquorama": 86.99,
-        "sierrasprings": 84.99,
+        "sierrasprings": 105,
         "tudor": 112.99,
         "wineandbeyond": 84.95,
         "zyn": 89.99
       },
       "representative": {
-        "name": "JOHNNIE WALKER BLACK LABEL 1750ML",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "JOHNNIE WALKER BLACK LABEL",
+        "price": "$86.99",
+        "priceNum": 86.99,
+        "storeKey": "liquorama",
+        "storeLabel": "Liquorama",
         "skuRaw": "771489",
         "skuKey": "771489",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/blended/black-label-1-75l/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+        "url": "https://liquorama.ca/product/771489/johnnie-walker-black-175l",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/liquorama__whisky__d5d4cd07.json"
       },
       "cheapest": {
         "price": "$84.95",
@@ -28601,6 +28527,79 @@
         "priceNum": 26.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4586915-spicebox-whisky-750ml"
+      }
+    },
+    {
+      "canonSku": "177077",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "everythingwine",
+        "kegncork",
+        "lime",
+        "liquorama",
+        "tudor",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "craftcellars",
+        "gull",
+        "highlander",
+        "highpointbws",
+        "kwm",
+        "legacyliquor",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vinearts",
+        "vintage",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "arc": 58.19,
+        "bcl": 60.97,
+        "bsw": 49.99,
+        "coop": 54.99,
+        "everythingwine": 60.99,
+        "kegncork": 55.96,
+        "lime": 51.99,
+        "liquorama": 49.99,
+        "tudor": 64.99,
+        "willowpark": 53.49,
+        "wineandbeyond": 56.99,
+        "zyn": 48
+      },
+      "representative": {
+        "name": "Don Papa Rum",
+        "price": "$48.00",
+        "priceNum": 48,
+        "storeKey": "zyn",
+        "storeLabel": "ZYN The Wine Market",
+        "skuRaw": "823006",
+        "skuKey": "823006",
+        "url": "https://zyn.ca/products/don-papa-rum",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/zyn__rum__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$48.00",
+        "priceNum": 48,
+        "storeKey": "zyn",
+        "url": "https://zyn.ca/products/don-papa-rum"
       }
     },
     {
@@ -39464,77 +39463,6 @@
       }
     },
     {
-      "canonSku": "324205",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "liquorwarehouse",
-        "sierrasprings",
-        "zyn"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "colordevino",
-        "coop",
-        "everythingwine",
-        "gull",
-        "highlander",
-        "highpointbws",
-        "legacyliquor",
-        "liquorama",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "strath",
-        "tudor",
-        "vessel",
-        "vinearts",
-        "vintage",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 130,
-        "canadianliquor": 124.99,
-        "clbspirits": 114.48,
-        "craftcellars": 129.99,
-        "kegncork": 135.96,
-        "kwm": 134.99,
-        "lime": 119.99,
-        "liquorwarehouse": 189.99,
-        "sierrasprings": 109.99,
-        "zyn": 123
-      },
-      "representative": {
-        "name": "GLENGOYNE 15 YEAR OLD",
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "880580",
-        "skuKey": "880580",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-15-year-old-43-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-15-year-old-43-abv/"
-      }
-    },
-    {
       "canonSku": "336415",
       "storeCount": 10,
       "stores": [
@@ -47627,76 +47555,6 @@
       }
     },
     {
-      "canonSku": "311001",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "craftcellars",
-        "kwm",
-        "lime",
-        "vessel",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "everythingwine",
-        "gull",
-        "highlander",
-        "highpointbws",
-        "kegncork",
-        "legacyliquor",
-        "liquorama",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vinearts",
-        "vintage",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 65.99,
-        "canadianliquor": 69.99,
-        "craftcellars": 75.99,
-        "kwm": 75.99,
-        "lime": 69.99,
-        "vessel": 109.99,
-        "willowpark": 76.99,
-        "wineandbeyond": 69.99,
-        "zyn": 80
-      },
-      "representative": {
-        "name": "Arran 10 Year Old 46% ABV",
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "722874",
-        "skuKey": "722874",
-        "url": "https://www.bswliquor.com/products/arran-10-year-old-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$65.99",
-        "priceNum": 65.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/arran-10-year-old-1"
-      }
-    },
-    {
       "canonSku": "318673",
       "storeCount": 9,
       "stores": [
@@ -47764,6 +47622,76 @@
         "priceNum": 76.99,
         "storeKey": "rmwsb",
         "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/dunvilles-three-crown-irish-whisky-46-abv-700-ml/"
+      }
+    },
+    {
+      "canonSku": "324205",
+      "storeCount": 9,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "kegncork",
+        "kwm",
+        "lime",
+        "liquorwarehouse",
+        "sierrasprings",
+        "zyn"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "everythingwine",
+        "gull",
+        "highlander",
+        "highpointbws",
+        "legacyliquor",
+        "liquorama",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "strath",
+        "tudor",
+        "vessel",
+        "vinearts",
+        "vintage",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 130,
+        "canadianliquor": 124.99,
+        "clbspirits": 114.48,
+        "kegncork": 135.96,
+        "kwm": 134.99,
+        "lime": 119.99,
+        "liquorwarehouse": 189.99,
+        "sierrasprings": 109.99,
+        "zyn": 123
+      },
+      "representative": {
+        "name": "GLENGOYNE 15 YEAR OLD",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "880580",
+        "skuKey": "880580",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-15-year-old-43-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+      },
+      "cheapest": {
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glengoyne-15-year-old-43-abv/"
       }
     },
     {
@@ -56981,6 +56909,75 @@
         "priceNum": 1824.96,
         "storeKey": "kegncork",
         "url": "https://kegncork.com/g-m-benromach-1982-burgundy-finish-700-ml/"
+      }
+    },
+    {
+      "canonSku": "311001",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "kwm",
+        "lime",
+        "vessel",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "everythingwine",
+        "gull",
+        "highlander",
+        "highpointbws",
+        "kegncork",
+        "legacyliquor",
+        "liquorama",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vinearts",
+        "vintage",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 65.99,
+        "canadianliquor": 69.99,
+        "kwm": 75.99,
+        "lime": 69.99,
+        "vessel": 109.99,
+        "willowpark": 76.99,
+        "wineandbeyond": 69.99,
+        "zyn": 80
+      },
+      "representative": {
+        "name": "Arran 10 Year Old 46% ABV",
+        "price": "$65.99",
+        "priceNum": 65.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "722874",
+        "skuKey": "722874",
+        "url": "https://www.bswliquor.com/products/arran-10-year-old-1",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$65.99",
+        "priceNum": 65.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/arran-10-year-old-1"
       }
     },
     {
