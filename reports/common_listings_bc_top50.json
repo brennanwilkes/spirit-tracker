@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-01T05:20:00.286Z",
+  "generatedAt": "2026-07-01T07:21:38.735Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,9 +31,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6176,
-    "removedRows": 730,
-    "canonSkus": 2382,
+    "liveRows": 6165,
+    "removedRows": 742,
+    "canonSkus": 2380,
     "outputCount": 50
   },
   "rows": [
@@ -356,59 +356,6 @@
       }
     },
     {
-      "canonSku": "637504",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 55.99,
-        "everythingwine": 55.99,
-        "gull": 54.05,
-        "highpointbws": 61.99,
-        "legacyliquor": 57.99,
-        "liquorwarehouse": 57.49,
-        "marquis": 57.99,
-        "newdistrict": 59.79,
-        "strath": 59.04,
-        "tudor": 51.99,
-        "vessel": 54.99
-      },
-      "representative": {
-        "name": "HENDRICK'S GIN 750ML",
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "637504",
-        "skuKey": "637504",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/hendricks-gin-ml-350?variant=637504",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
-      },
-      "cheapest": {
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/hendricks-gin-ml-350?variant=637504"
-      }
-    },
-    {
       "canonSku": "665257",
       "storeCount": 12,
       "stores": [
@@ -512,58 +459,6 @@
         "priceNum": 43.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/776724"
-      }
-    },
-    {
-      "canonSku": "000570",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 29.39,
-        "bcl": 27.99,
-        "everythingwine": 25.99,
-        "gull": 27.05,
-        "highpointbws": 29.99,
-        "legacyliquor": 29.39,
-        "liquorwarehouse": 28.99,
-        "newdistrict": 29.79,
-        "strath": 30.35,
-        "tudor": 27.99,
-        "vessel": 26.99
-      },
-      "representative": {
-        "name": "Beefeater London Dry Gin 750 mL",
-        "price": "$25.99",
-        "priceNum": 25.99,
-        "storeKey": "everythingwine",
-        "storeLabel": "Everything Wine",
-        "skuRaw": "000570",
-        "skuKey": "000570",
-        "url": "https://www.everythingwine.ca/beefeater-london-dry-gin-750-ml",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/everythingwine__gin__c33de84b.json"
-      },
-      "cheapest": {
-        "price": "$25.99",
-        "priceNum": 25.99,
-        "storeKey": "everythingwine",
-        "url": "https://www.everythingwine.ca/beefeater-london-dry-gin-750-ml"
       }
     },
     {
@@ -1243,6 +1138,58 @@
       }
     },
     {
+      "canonSku": "637504",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 55.99,
+        "everythingwine": 55.99,
+        "highpointbws": 61.99,
+        "legacyliquor": 57.99,
+        "liquorwarehouse": 57.49,
+        "marquis": 57.99,
+        "newdistrict": 59.79,
+        "strath": 59.04,
+        "tudor": 51.99,
+        "vessel": 54.99
+      },
+      "representative": {
+        "name": "HENDRICK'S GIN 750ML",
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "637504",
+        "skuKey": "637504",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/hendricks-gin-ml-350?variant=637504",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/tudor__gin__26c75caf.json"
+      },
+      "cheapest": {
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/hendricks-gin-ml-350?variant=637504"
+      }
+    },
+    {
       "canonSku": "656546",
       "storeCount": 11,
       "stores": [
@@ -1292,6 +1239,57 @@
         "priceNum": 74.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
+      }
+    },
+    {
+      "canonSku": "000570",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "marquis",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 29.39,
+        "bcl": 27.99,
+        "everythingwine": 25.99,
+        "gull": 27.05,
+        "highpointbws": 29.99,
+        "legacyliquor": 29.39,
+        "liquorwarehouse": 28.99,
+        "newdistrict": 29.79,
+        "strath": 30.35,
+        "tudor": 27.99
+      },
+      "representative": {
+        "name": "Beefeater London Dry Gin 750 mL",
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "everythingwine",
+        "storeLabel": "Everything Wine",
+        "skuRaw": "000570",
+        "skuKey": "000570",
+        "url": "https://www.everythingwine.ca/beefeater-london-dry-gin-750-ml",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/everythingwine__gin__c33de84b.json"
+      },
+      "cheapest": {
+        "price": "$25.99",
+        "priceNum": 25.99,
+        "storeKey": "everythingwine",
+        "url": "https://www.everythingwine.ca/beefeater-london-dry-gin-750-ml"
       }
     },
     {
