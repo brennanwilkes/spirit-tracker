@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-06T18:08:14.850Z",
+  "generatedAt": "2026-07-06T19:59:59.587Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 9
+      "cutoffStoreCount": 10
     }
   },
   "storeCount": 13,
@@ -31,8 +31,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6155,
-    "removedRows": 772,
+    "liveRows": 6165,
+    "removedRows": 766,
     "canonSkus": 2379,
     "outputCount": 50
   },
@@ -250,6 +250,59 @@
       }
     },
     {
+      "canonSku": "002691",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 28.59,
+        "bcl": 27.49,
+        "everythingwine": 27.49,
+        "gull": 31.7,
+        "highpointbws": 32.29,
+        "legacyliquor": 30.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 31.79,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
       "canonSku": "005207",
       "storeCount": 12,
       "stores": [
@@ -409,59 +462,6 @@
       }
     },
     {
-      "canonSku": "665257",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 102.69,
-        "bcl": 97.99,
-        "everythingwine": 97.99,
-        "gull": 96.99,
-        "highpointbws": 117.29,
-        "legacyliquor": 110.8,
-        "liquorwarehouse": 109.99,
-        "marquis": 107.99,
-        "newdistrict": 106.99,
-        "strath": 119.7,
-        "tudor": 97.99,
-        "vessel": 99.99
-      },
-      "representative": {
-        "name": "Lagavulin – 8 Year Old 750ml",
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "665257",
-        "skuKey": "665257",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
-      }
-    },
-    {
       "canonSku": "000570",
       "storeCount": 11,
       "stores": [
@@ -566,6 +566,58 @@
       }
     },
     {
+      "canonSku": "001222",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 24.09,
+        "bcl": 23.49,
+        "everythingwine": 23.49,
+        "gull": 25,
+        "highpointbws": 25.99,
+        "legacyliquor": 24.99,
+        "liquorwarehouse": 24.99,
+        "newdistrict": 25.29,
+        "tudor": 21.99,
+        "vessel": 22.49,
+        "vintage": 25.13
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND (PLASTIC)",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "211662",
+        "skuKey": "211662",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
+      }
+    },
+    {
       "canonSku": "001610",
       "storeCount": 11,
       "stores": [
@@ -615,58 +667,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 28.59,
-        "bcl": 27.49,
-        "everythingwine": 27.49,
-        "gull": 31.7,
-        "highpointbws": 32.29,
-        "legacyliquor": 30.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 31.79,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1294,6 +1294,162 @@
       }
     },
     {
+      "canonSku": "656546",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 81.99,
+        "everythingwine": 81.99,
+        "gull": 74.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 109.83,
+        "liquorwarehouse": 100.99,
+        "marquis": 91.99,
+        "strath": 105.66,
+        "tudor": 81.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
+      }
+    },
+    {
+      "canonSku": "665257",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bcl": 97.99,
+        "everythingwine": 97.99,
+        "gull": 96.99,
+        "highpointbws": 117.29,
+        "legacyliquor": 110.8,
+        "liquorwarehouse": 109.99,
+        "marquis": 107.99,
+        "newdistrict": 106.99,
+        "strath": 119.7,
+        "tudor": 97.99
+      },
+      "representative": {
+        "name": "Lagavulin – 8 Year Old 750ml",
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "665257",
+        "skuKey": "665257",
+        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
+      }
+    },
+    {
+      "canonSku": "776724",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull",
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 45.59,
+        "bcl": 43.99,
+        "everythingwine": 43.99,
+        "highpointbws": 51.79,
+        "liquorwarehouse": 49.99,
+        "marquis": 51.99,
+        "newdistrict": 51.99,
+        "strath": 52.09,
+        "tudor": 43.99,
+        "vessel": 44.99,
+        "vintage": 52.96
+      },
+      "representative": {
+        "name": "SHERINGHAM DISTILLERY - SEASIDE GIN",
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "776724",
+        "skuKey": "776724",
+        "url": "https://www.bcliquorstores.com/product/776724",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/776724"
+      }
+    },
+    {
       "canonSku": "000893",
       "storeCount": 10,
       "stores": [
@@ -1393,57 +1549,6 @@
         "priceNum": 26.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/gordons-gin-ml-350?variant=1040"
-      }
-    },
-    {
-      "canonSku": "001222",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 24.09,
-        "bcl": 23.49,
-        "everythingwine": 23.49,
-        "gull": 25,
-        "highpointbws": 25.99,
-        "legacyliquor": 24.99,
-        "liquorwarehouse": 24.99,
-        "newdistrict": 25.29,
-        "tudor": 21.99,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND (PLASTIC)",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "211662",
-        "skuKey": "211662",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
       }
     },
     {
@@ -1750,6 +1855,57 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "139388",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 39.69,
+        "bcl": 40.99,
+        "everythingwine": 40.99,
+        "gull": 47.9,
+        "highpointbws": 48.99,
+        "legacyliquor": 47.27,
+        "strath": 47.74,
+        "tudor": 45.99,
+        "vessel": 41.99,
+        "vintage": 40.78
+      },
+      "representative": {
+        "name": "PLANTATION ORIGINAL DARK RUM",
+        "price": "$39.69",
+        "priceNum": 39.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "699116",
+        "skuKey": "699116",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$39.69",
+        "priceNum": 39.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum"
       }
     },
     {
@@ -2110,108 +2266,6 @@
       }
     },
     {
-      "canonSku": "656546",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 81.99,
-        "everythingwine": 81.99,
-        "gull": 74.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 109.83,
-        "liquorwarehouse": 100.99,
-        "marquis": 91.99,
-        "strath": 105.66,
-        "tudor": 81.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
-      "canonSku": "776724",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 45.59,
-        "bcl": 43.99,
-        "everythingwine": 43.99,
-        "highpointbws": 51.79,
-        "liquorwarehouse": 49.99,
-        "marquis": 51.99,
-        "newdistrict": 51.99,
-        "strath": 52.09,
-        "vessel": 44.99,
-        "vintage": 52.96
-      },
-      "representative": {
-        "name": "SHERINGHAM DISTILLERY - SEASIDE GIN",
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "776724",
-        "skuKey": "776724",
-        "url": "https://www.bcliquorstores.com/product/776724",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/776724"
-      }
-    },
-    {
       "canonSku": "002478",
       "storeCount": 9,
       "stores": [
@@ -2459,56 +2513,6 @@
         "priceNum": 59.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/benromach-10-year-750m/"
-      }
-    },
-    {
-      "canonSku": "139388",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 39.69,
-        "bcl": 40.99,
-        "everythingwine": 40.99,
-        "gull": 47.9,
-        "highpointbws": 48.99,
-        "legacyliquor": 47.27,
-        "strath": 47.74,
-        "tudor": 45.99,
-        "vintage": 40.78
-      },
-      "representative": {
-        "name": "PLANTATION ORIGINAL DARK RUM",
-        "price": "$39.69",
-        "priceNum": 39.69,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "699116",
-        "skuKey": "699116",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$39.69",
-        "priceNum": 39.69,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum"
       }
     },
     {
