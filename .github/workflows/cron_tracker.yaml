@@ -177,6 +177,9 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq wireguard
           echo "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
           sudo wg-quick up wg0
+          # ProtonVPN's DNS (10.2.0.1) was unreliable on GH runners; fall back to public.
+          echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
+          echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
           echo "connected=true" >> "$GITHUB_OUTPUT"
           echo "WireGuard connected. Egress IP:"
           curl -fsS --max-time 5 https://api.ipify.org || echo "(API unreachable)"
