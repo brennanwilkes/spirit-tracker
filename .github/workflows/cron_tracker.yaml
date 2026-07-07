@@ -157,6 +157,39 @@ jobs:
           git fetch --no-tags origin data
           echo "sha=$(git rev-parse origin/data)" >> "$GITHUB_OUTPUT"
 
+      # ProtonVPN WireGuard tunnel — routes ALL runner traffic through a clean
+      # residential-class egress IP so Cloudflare-fronted stores (liberty, highlander,
+      # coop, colordevino, maltsandgrains) stop getting blocked by the runner's Azure
+      # datacenter IP. Best-effort: if WireGuard isn't available or the config is
+      # missing, the run continues without the tunnel (normal failures apply).
+      # DISABLED 2026-07-06: `wg-quick up wg0` hangs on the GH runner at the
+      # `nft -f` (nftables firewall) step and freezes the whole job. Rolled back so
+      # runs keep flowing while we debug the tunnel. Re-enable by removing `if: false`.
+      # (Likely need `PostUp`/`PostDown` without the nft killswitch, or `Table = off`
+      # in the [Interface] block of PROTONVPN_WG_CONF to skip wg-quick's fw rules.)
+      - name: Connect ProtonVPN WireGuard tunnel
+        id: wg
+        if: false
+        shell: bash
+        env:
+          WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
+        run: |
+          if [[ -z "$WG_CONF" ]]; then
+            echo "WARN: PROTONVPN_WG_CONF secret not set; skipping VPN tunnel" >&2
+            echo "connected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq wireguard
+          echo "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo wg-quick up wg0
+          # ProtonVPN's DNS (10.2.0.1) was unreliable on GH runners; fall back to public.
+          echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
+          echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
+          echo "connected=true" >> "$GITHUB_OUTPUT"
+          echo "WireGuard connected. Egress IP:"
+          curl -fsS --max-time 5 https://api.ipify.org || echo "(API unreachable)"
+
       - name: Run your existing cron script (writes + pushes to data)
         id: daily
         shell: bash
