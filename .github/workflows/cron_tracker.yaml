@@ -157,6 +157,30 @@ jobs:
           git fetch --no-tags origin data
           echo "sha=$(git rev-parse origin/data)" >> "$GITHUB_OUTPUT"
 
+      # ProtonVPN WireGuard tunnel — routes ALL runner traffic through a clean
+      # residential-class egress IP so Cloudflare-fronted stores (liberty, highlander,
+      # coop, colordevino, maltsandgrains) stop getting blocked by the runner's Azure
+      # datacenter IP. Best-effort: if WireGuard isn't available or the config is
+      # missing, the run continues without the tunnel (normal failures apply).
+      - name: Connect ProtonVPN WireGuard tunnel
+        id: wg
+        shell: bash
+        env:
+          WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
+        run: |
+          if [[ -z "$WG_CONF" ]]; then
+            echo "WARN: PROTONVPN_WG_CONF secret not set; skipping VPN tunnel" >&2
+            echo "connected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq wireguard
+          echo "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo wg-quick up wg0
+          echo "connected=true" >> "$GITHUB_OUTPUT"
+          echo "WireGuard connected. Egress IP:"
+          curl -fsS --max-time 5 https://api.ipify.org || echo "(API unreachable)"
+
       - name: Run your existing cron script (writes + pushes to data)
         id: daily
         shell: bash

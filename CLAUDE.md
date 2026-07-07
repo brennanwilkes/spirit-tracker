@@ -179,27 +179,29 @@ implementations enforce this; keep the window in sync across all of them:
   - Note: this `FLAP_WINDOW_MS` (3 days, per-leg) is independent of the suppressors' 48h
     single-round-trip window — different rule, different purpose; they do not need to match.
 
-## Datacenter-IP Blocking (known issue, unsolved)
+## Datacenter-IP Blocking — SOLVED (2026-07-06)
 
-Several Cloudflare-fronted stores serve a "Just a moment…" managed challenge to the
-**GitHub-runner's Azure datacenter IP**, while a clean/residential IP gets normal
-data. It is **pure IP reputation** — not headers, not TLS/JA3 (verified: from a clean
-IP, `scripts/diag_liberty.sh` shows the scraper's store-API endpoint returns real
-JSON via both curl AND Node fetch; the same endpoint 403s in CI). Affected:
-**liberty** (consistent), **highlander** (intermittent), **coop** (intermittent), and
-**maltsandgrains** (nginx, returns a ~175-byte stub instead of a CF challenge). gull/
-sierra are *slow by deliberate rate-limit*, NOT IP-blocked.
+The GitHub-runner's Azure datacenter IP was getting challenged by Cloudflare at several
+stores (liberty, highlander, coop, colordevino, maltsandgrains). **Fix: WireGuard tunnel
+to ProtonVPN in the CI workflow** (`.github/workflows/cron_tracker.yaml`). The runner
+connects to ProtonVPN via WireGuard before the tracker runs — all `fetch()` calls exit
+from a clean residential-class IP. The tunnel is per-run (ephemeral runner), requires
+no code changes to the scraper, and best-effort (if the secret or kernel module is
+missing, the run continues without the VPN).
 
+- **Secret**: `PROTONVPN_WG_CONF` — full WireGuard config (the `[Interface]` + `[Peer]`
+  block) downloaded from ProtonVPN's WireGuard key page. Generate at
+  `account.proton.me/u/0/vpn/WireGuard` — use a fresh key (the movie-server uses a
+  different key already).
+- **One-time to do**: generate new WireGuard config, copy its contents verbatim into
+  the GitHub repo secret `PROTONVPN_WG_CONF`.
 - **Diagnostic**: `scripts/diag_liberty.sh` — run from any host; prints egress IP +
-  curl/Node probes classified OK vs CHALLENGED. Use it to A/B a candidate egress.
-- **Tried & REVERTED (2026-06-07): a Cloudflare Worker `/proxy`.** Hypothesis was
-  CF-egress has clean reputation; it does NOT — the Worker's egress IP is itself
-  challenged, so CF→CF relayed the same 403 (and a Worker `fetch()` can't solve the JS
-  challenge). Fully removed from both repos. Do not re-attempt the CF-Worker route.
-- **Real fix (deferred)**: a clean, non-datacenter egress IP — e.g. a free-cloud VM
-  (Oracle Always-Free) as a self-hosted runner or proxy host. **Local runs are off the
-  table** (per owner). Until then, failures are surfaced in commit messages (see
-  §"Run Observability") rather than fixed.
+  curl/Node probes classified OK vs CHALLENGED. Use it to verify the fix.
+- **What we tried that didn't work**: a Cloudflare Worker proxy (2026-06-07, CF→CF
+  relay still got challenged) and proxychains4/SOCKS5 (ProtonVPN does not offer SOCKS5).
+- **Existing retry logic**: the one-shot failed-store retry on a fresh runner still
+  fires up WireGuard on the new runner (the tunnel step runs every time), so retries
+  also get a clean IP.
 
 ## Tech Stack
 
