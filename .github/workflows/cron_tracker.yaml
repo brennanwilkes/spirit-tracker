@@ -162,8 +162,14 @@ jobs:
       # coop, colordevino, maltsandgrains) stop getting blocked by the runner's Azure
       # datacenter IP. Best-effort: if WireGuard isn't available or the config is
       # missing, the run continues without the tunnel (normal failures apply).
+      # DISABLED 2026-07-06: `wg-quick up wg0` hangs on the GH runner at the
+      # `nft -f` (nftables firewall) step and freezes the whole job. Rolled back so
+      # runs keep flowing while we debug the tunnel. Re-enable by removing `if: false`.
+      # (Likely need `PostUp`/`PostDown` without the nft killswitch, or `Table = off`
+      # in the [Interface] block of PROTONVPN_WG_CONF to skip wg-quick's fw rules.)
       - name: Connect ProtonVPN WireGuard tunnel
         id: wg
+        if: false
         shell: bash
         env:
           WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
