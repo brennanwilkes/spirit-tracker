@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-07T15:41:12.451Z",
+  "generatedAt": "2026-07-07T17:44:08.764Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18268,
-    "removedRows": 5157,
-    "canonSkus": 5864,
+    "liveRows": 18284,
+    "removedRows": 5146,
+    "canonSkus": 5866,
     "outputCount": 250
   },
   "rows": [
@@ -141,7 +141,7 @@
         "canadianliquor": 60.88,
         "clbspirits": 72.85,
         "coop": 79.99,
-        "craftcellars": 89.99,
+        "craftcellars": 57.99,
         "kegncork": 88.96,
         "kwm": 78.99,
         "lime": 82.99,
@@ -156,22 +156,22 @@
         "zyn": 76
       },
       "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich Scottish Barley Laddie",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv"
       }
     },
     {
@@ -492,6 +492,69 @@
         "priceNum": 48.4,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/woodford-reserve-bourbon-1"
+      }
+    },
+    {
+      "canonSku": "006968",
+      "storeCount": 15,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "sherbrooke",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "clbspirits",
+        "kegncork",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 41.99,
+        "canadianliquor": 53.99,
+        "colordevino": 59,
+        "coop": 54.99,
+        "craftcellars": 55.99,
+        "highlander": 54.99,
+        "kwm": 56.99,
+        "lime": 47.99,
+        "liquorama": 51.99,
+        "maltsandgrains": 54.7,
+        "sherbrooke": 56.78,
+        "sierrasprings": 51.32,
+        "willowpark": 44.99,
+        "wineandbeyond": 52.99,
+        "zyn": 53.5
+      },
+      "representative": {
+        "name": "Empress 1908 Indigo Gin",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "793071",
+        "skuKey": "793071",
+        "url": "https://www.bswliquor.com/products/empress-1908-gin-1",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bsw__gin__e3817c55.json"
+      },
+      "cheapest": {
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/empress-1908-gin-1"
       }
     },
     {
@@ -1562,68 +1625,6 @@
         "priceNum": 25.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aglc-bombay-sapphire-316844"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 14,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "highlander",
-        "kwm",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 41.99,
-        "canadianliquor": 53.99,
-        "colordevino": 59,
-        "coop": 54.99,
-        "highlander": 54.99,
-        "kwm": 56.99,
-        "lime": 47.99,
-        "liquorama": 51.99,
-        "maltsandgrains": 54.7,
-        "sherbrooke": 56.78,
-        "sierrasprings": 51.32,
-        "willowpark": 44.99,
-        "wineandbeyond": 52.99,
-        "zyn": 53.5
-      },
-      "representative": {
-        "name": "Empress 1908 Indigo Gin",
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "793071",
-        "skuKey": "793071",
-        "url": "https://www.bswliquor.com/products/empress-1908-gin-1",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bsw__gin__e3817c55.json"
-      },
-      "cheapest": {
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/empress-1908-gin-1"
       }
     },
     {
@@ -6352,6 +6353,65 @@
       }
     },
     {
+      "canonSku": "002838",
+      "storeCount": 11,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "lime",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kwm",
+        "liquorama",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "canadianliquor": 90.99,
+        "clbspirits": 101.66,
+        "craftcellars": 79.99,
+        "kegncork": 114.96,
+        "lime": 107.99,
+        "maltsandgrains": 120.89,
+        "sierrasprings": 79.99,
+        "willowpark": 96.49,
+        "wineandbeyond": 114.99,
+        "zyn": 90
+      },
+      "representative": {
+        "name": "Bruichladdich Port Charlotte 10",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "806524",
+        "skuKey": "806524",
+        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bruichladdich-port-charlotte-10"
+      }
+    },
+    {
       "canonSku": "005207",
       "storeCount": 11,
       "stores": [
@@ -6644,6 +6704,65 @@
         "priceNum": 55.95,
         "storeKey": "wineandbeyond",
         "url": "https://www.wineandbeyond.ca/products/glenlivet-12yr-single-malt-scotch-whisky-750ml"
+      }
+    },
+    {
+      "canonSku": "041384",
+      "storeCount": 11,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "craftcellars",
+        "highlander",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "sierrasprings",
+        "whiskydrop",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 32.99,
+        "canadianliquor": 41.99,
+        "craftcellars": 31.99,
+        "highlander": 42.99,
+        "lime": 36.99,
+        "liquorama": 39.99,
+        "sherbrooke": 43.73,
+        "sierrasprings": 36.99,
+        "whiskydrop": 45,
+        "wineandbeyond": 34.95,
+        "zyn": 41
+      },
+      "representative": {
+        "name": "Jack Daniels Old No. 7 Whisky 750Ml",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "041384",
+        "skuKey": "041384",
+        "url": "https://craftcellars.ca/products/jack-daniel-s-old-no-7-whisky-750ml-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/jack-daniel-s-old-no-7-whisky-750ml-40-abv"
       }
     },
     {
@@ -9007,6 +9126,65 @@
       }
     },
     {
+      "canonSku": "734590",
+      "storeCount": 11,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "lime",
+        "sherbrooke",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "kwm",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 41.99,
+        "canadianliquor": 45.99,
+        "clbspirits": 42.07,
+        "craftcellars": 47.99,
+        "highlander": 43.99,
+        "kegncork": 47.96,
+        "lime": 43.99,
+        "sherbrooke": 48.82,
+        "sierrasprings": 38.99,
+        "wineandbeyond": 34.95,
+        "zyn": 45.5
+      },
+      "representative": {
+        "name": "BULLEIT BOURBON FRONTIER WHISKEY",
+        "price": "$38.99",
+        "priceNum": 38.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "734590",
+        "skuKey": "734590",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bulleit-bourbon-frontier-whisky-barrel-strength-uncut-58-3-abv/",
+        "categoryLabel": "American Whiskey",
+        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
+      },
+      "cheapest": {
+        "price": "$34.95",
+        "priceNum": 34.95,
+        "storeKey": "wineandbeyond",
+        "url": "https://www.wineandbeyond.ca/products/bulleit-bourbon-750ml"
+      }
+    },
+    {
       "canonSku": "741699",
       "storeCount": 11,
       "stores": [
@@ -9712,64 +9890,6 @@
       }
     },
     {
-      "canonSku": "002838",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "kegncork",
-        "lime",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "liquorama",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 84.99,
-        "canadianliquor": 90.99,
-        "clbspirits": 101.66,
-        "kegncork": 114.96,
-        "lime": 107.99,
-        "maltsandgrains": 120.89,
-        "sierrasprings": 79.99,
-        "willowpark": 96.49,
-        "wineandbeyond": 114.99,
-        "zyn": 90
-      },
-      "representative": {
-        "name": "BRUICHLADDICH PORT CHARLOTTE 10 50% | 750ML",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "806524",
-        "skuKey": "806524",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bruichladdich-port-charlotte-10/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bruichladdich-port-charlotte-10/"
-      }
-    },
-    {
       "canonSku": "011364",
       "storeCount": 10,
       "stores": [
@@ -9883,64 +10003,6 @@
         "priceNum": 53.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/arran-american-oak-barrel-reserve-43-abv/"
-      }
-    },
-    {
-      "canonSku": "041384",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "highlander",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "sierrasprings",
-        "whiskydrop",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "vinearts",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 32.99,
-        "canadianliquor": 41.99,
-        "highlander": 42.99,
-        "lime": 36.99,
-        "liquorama": 39.99,
-        "sherbrooke": 43.73,
-        "sierrasprings": 36.99,
-        "whiskydrop": 45,
-        "wineandbeyond": 34.95,
-        "zyn": 41
-      },
-      "representative": {
-        "name": "Jack Daniel's Old No. 7 Tennessee Whiskey",
-        "price": "$32.99",
-        "priceNum": 32.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "041384",
-        "skuKey": "041384",
-        "url": "https://www.bswliquor.com/products/jack-daniels-old-no-7-whiskey",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$32.99",
-        "priceNum": 32.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/jack-daniels-old-no-7-whiskey"
       }
     },
     {
@@ -10231,6 +10293,64 @@
         "priceNum": 55.7,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/jura-12-year-old"
+      }
+    },
+    {
+      "canonSku": "109529",
+      "storeCount": 10,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "lime",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kwm",
+        "liquorama",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 270,
+        "canadianliquor": 294.99,
+        "clbspirits": 246.31,
+        "craftcellars": 314.99,
+        "kegncork": 299.96,
+        "lime": 284.99,
+        "maltsandgrains": 315.23,
+        "sierrasprings": 253.23,
+        "willowpark": 309.99,
+        "zyn": 320
+      },
+      "representative": {
+        "name": "The Macallan 15 Year Old Double Cask 750ml",
+        "price": "$246.31",
+        "priceNum": 246.31,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "834717",
+        "skuKey": "834717",
+        "url": "https://clbspirits.com/products/the-macallan-15-year-old-double-cask",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$246.31",
+        "priceNum": 246.31,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/the-macallan-15-year-old-double-cask"
       }
     },
     {
@@ -12090,64 +12210,6 @@
       }
     },
     {
-      "canonSku": "734590",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "highlander",
-        "kegncork",
-        "lime",
-        "sherbrooke",
-        "sierrasprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 41.99,
-        "canadianliquor": 45.99,
-        "clbspirits": 42.07,
-        "highlander": 43.99,
-        "kegncork": 47.96,
-        "lime": 43.99,
-        "sherbrooke": 48.82,
-        "sierrasprings": 38.99,
-        "wineandbeyond": 34.95,
-        "zyn": 45.5
-      },
-      "representative": {
-        "name": "BULLEIT BOURBON FRONTIER WHISKEY",
-        "price": "$38.99",
-        "priceNum": 38.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "734590",
-        "skuKey": "734590",
-        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bulleit-bourbon-frontier-whisky-barrel-strength-uncut-58-3-abv/",
-        "categoryLabel": "American Whiskey",
-        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
-      },
-      "cheapest": {
-        "price": "$34.95",
-        "priceNum": 34.95,
-        "storeKey": "wineandbeyond",
-        "url": "https://www.wineandbeyond.ca/products/bulleit-bourbon-750ml"
-      }
-    },
-    {
       "canonSku": "748152",
       "storeCount": 10,
       "stores": [
@@ -13006,63 +13068,6 @@
         "priceNum": 80.81,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/bulleit-barrel-strength-batch-no-8"
-      }
-    },
-    {
-      "canonSku": "109529",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "kegncork",
-        "lime",
-        "maltsandgrains",
-        "sierrasprings",
-        "willowpark",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "liquorama",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 270,
-        "canadianliquor": 294.99,
-        "clbspirits": 246.31,
-        "kegncork": 299.96,
-        "lime": 284.99,
-        "maltsandgrains": 315.23,
-        "sierrasprings": 253.23,
-        "willowpark": 309.99,
-        "zyn": 320
-      },
-      "representative": {
-        "name": "The Macallan 15 Year Old Double Cask 750ml",
-        "price": "$246.31",
-        "priceNum": 246.31,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "834717",
-        "skuKey": "834717",
-        "url": "https://clbspirits.com/products/the-macallan-15-year-old-double-cask",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$246.31",
-        "priceNum": 246.31,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/the-macallan-15-year-old-double-cask"
       }
     },
     {

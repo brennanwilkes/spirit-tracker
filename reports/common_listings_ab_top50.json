@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-07T15:41:11.880Z",
+  "generatedAt": "2026-07-07T17:44:08.241Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18268,
-    "removedRows": 5157,
-    "canonSkus": 5864,
+    "liveRows": 18284,
+    "removedRows": 5146,
+    "canonSkus": 5866,
     "outputCount": 50
   },
   "rows": [
@@ -141,7 +141,7 @@
         "canadianliquor": 60.88,
         "clbspirits": 72.85,
         "coop": 79.99,
-        "craftcellars": 89.99,
+        "craftcellars": 57.99,
         "kegncork": 88.96,
         "kwm": 78.99,
         "lime": 82.99,
@@ -156,22 +156,22 @@
         "zyn": 76
       },
       "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich Scottish Barley Laddie",
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+        "price": "$57.99",
+        "priceNum": 57.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bruichladdich-scottish-barley-laddie-50-abv"
       }
     },
     {
@@ -492,6 +492,69 @@
         "priceNum": 48.4,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/woodford-reserve-bourbon-1"
+      }
+    },
+    {
+      "canonSku": "006968",
+      "storeCount": 15,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "sherbrooke",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "clbspirits",
+        "kegncork",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 41.99,
+        "canadianliquor": 53.99,
+        "colordevino": 59,
+        "coop": 54.99,
+        "craftcellars": 55.99,
+        "highlander": 54.99,
+        "kwm": 56.99,
+        "lime": 47.99,
+        "liquorama": 51.99,
+        "maltsandgrains": 54.7,
+        "sherbrooke": 56.78,
+        "sierrasprings": 51.32,
+        "willowpark": 44.99,
+        "wineandbeyond": 52.99,
+        "zyn": 53.5
+      },
+      "representative": {
+        "name": "Empress 1908 Indigo Gin",
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "793071",
+        "skuKey": "793071",
+        "url": "https://www.bswliquor.com/products/empress-1908-gin-1",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bsw__gin__e3817c55.json"
+      },
+      "cheapest": {
+        "price": "$41.99",
+        "priceNum": 41.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/empress-1908-gin-1"
       }
     },
     {
@@ -1562,68 +1625,6 @@
         "priceNum": 25.99,
         "storeKey": "willowpark",
         "url": "https://www.willowpark.net/products/aglc-bombay-sapphire-316844"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 14,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "highlander",
-        "kwm",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 41.99,
-        "canadianliquor": 53.99,
-        "colordevino": 59,
-        "coop": 54.99,
-        "highlander": 54.99,
-        "kwm": 56.99,
-        "lime": 47.99,
-        "liquorama": 51.99,
-        "maltsandgrains": 54.7,
-        "sherbrooke": 56.78,
-        "sierrasprings": 51.32,
-        "willowpark": 44.99,
-        "wineandbeyond": 52.99,
-        "zyn": 53.5
-      },
-      "representative": {
-        "name": "Empress 1908 Indigo Gin",
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "793071",
-        "skuKey": "793071",
-        "url": "https://www.bswliquor.com/products/empress-1908-gin-1",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bsw__gin__e3817c55.json"
-      },
-      "cheapest": {
-        "price": "$41.99",
-        "priceNum": 41.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/empress-1908-gin-1"
       }
     },
     {
