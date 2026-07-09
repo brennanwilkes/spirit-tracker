@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-09T04:45:22.148Z",
+  "generatedAt": "2026-07-09T09:52:41.648Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 10
+      "cutoffStoreCount": 9
     }
   },
   "storeCount": 13,
@@ -31,9 +31,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6163,
-    "removedRows": 776,
-    "canonSkus": 2377,
+    "liveRows": 6160,
+    "removedRows": 783,
+    "canonSkus": 2376,
     "outputCount": 50
   },
   "rows": [
@@ -459,6 +459,59 @@
         "priceNum": 55.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/637504"
+      }
+    },
+    {
+      "canonSku": "665257",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bcl": 97.99,
+        "everythingwine": 97.99,
+        "gull": 96.99,
+        "highpointbws": 117.29,
+        "legacyliquor": 110.8,
+        "liquorwarehouse": 109.99,
+        "marquis": 107.99,
+        "newdistrict": 106.99,
+        "strath": 119.7,
+        "tudor": 97.99,
+        "vessel": 99.99
+      },
+      "representative": {
+        "name": "Lagavulin – 8 Year Old 750ml",
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "665257",
+        "skuKey": "665257",
+        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$96.99",
+        "priceNum": 96.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
       }
     },
     {
@@ -1291,110 +1344,6 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
-      }
-    },
-    {
-      "canonSku": "656546",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 81.99,
-        "everythingwine": 81.99,
-        "gull": 74.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 109.83,
-        "liquorwarehouse": 100.99,
-        "marquis": 91.99,
-        "strath": 105.66,
-        "tudor": 81.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
-      "canonSku": "665257",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 102.69,
-        "bcl": 97.99,
-        "everythingwine": 97.99,
-        "gull": 96.99,
-        "highpointbws": 117.29,
-        "legacyliquor": 110.8,
-        "liquorwarehouse": 109.99,
-        "marquis": 107.99,
-        "newdistrict": 106.99,
-        "strath": 119.7,
-        "tudor": 97.99
-      },
-      "representative": {
-        "name": "Lagavulin – 8 Year Old 750ml",
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "665257",
-        "skuKey": "665257",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
       }
     },
     {
@@ -2314,6 +2263,57 @@
         "priceNum": 49.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/368597"
+      }
+    },
+    {
+      "canonSku": "656546",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 81.99,
+        "everythingwine": 81.99,
+        "gull": 74.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 109.83,
+        "liquorwarehouse": 100.99,
+        "marquis": 91.99,
+        "strath": 105.66,
+        "tudor": 81.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$74.99",
+        "priceNum": 74.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     },
     {
