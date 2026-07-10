@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-10T17:34:07.069Z",
+  "generatedAt": "2026-07-10T19:19:49.635Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,9 +31,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6171,
-    "removedRows": 778,
-    "canonSkus": 2380,
+    "liveRows": 6183,
+    "removedRows": 774,
+    "canonSkus": 2387,
     "outputCount": 50
   },
   "rows": [
@@ -88,6 +88,59 @@
         "priceNum": 27.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
+      }
+    },
+    {
+      "canonSku": "001487",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 27.99,
+        "highpointbws": 32.79,
+        "legacyliquor": 31.99,
+        "liquorwarehouse": 30.99,
+        "marquis": 30.99,
+        "newdistrict": 32.49,
+        "strath": 31.31,
+        "tudor": 27.99,
+        "vessel": 31.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "Crown Royal 750ml",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
       }
     },
     {
@@ -194,59 +247,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1099"
-      }
-    },
-    {
-      "canonSku": "001487",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 28.99,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 27.99,
-        "highpointbws": 32.79,
-        "legacyliquor": 31.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 30.99,
-        "newdistrict": 32.49,
-        "tudor": 27.99,
-        "vessel": 31.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "Crown Royal 750ml",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
       }
     },
     {
@@ -406,59 +406,6 @@
         "priceNum": 48.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
-      }
-    },
-    {
-      "canonSku": "637504",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 55.99,
-        "everythingwine": 55.99,
-        "gull": 59.5,
-        "highpointbws": 61.99,
-        "legacyliquor": 57.99,
-        "liquorwarehouse": 57.49,
-        "marquis": 57.99,
-        "newdistrict": 59.79,
-        "strath": 59.04,
-        "tudor": 55.99,
-        "vessel": 56.99
-      },
-      "representative": {
-        "name": "HENDRICK'S GIN",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "637504",
-        "skuKey": "637504",
-        "url": "https://www.bcliquorstores.com/product/637504",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/637504"
       }
     },
     {
@@ -1347,6 +1294,58 @@
       }
     },
     {
+      "canonSku": "637504",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 55.99,
+        "everythingwine": 55.99,
+        "highpointbws": 61.99,
+        "legacyliquor": 57.99,
+        "liquorwarehouse": 57.49,
+        "marquis": 57.99,
+        "newdistrict": 59.79,
+        "strath": 59.04,
+        "tudor": 55.99,
+        "vessel": 56.99
+      },
+      "representative": {
+        "name": "HENDRICK'S GIN",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "637504",
+        "skuKey": "637504",
+        "url": "https://www.bcliquorstores.com/product/637504",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/637504"
+      }
+    },
+    {
       "canonSku": "776724",
       "storeCount": 11,
       "stores": [
@@ -2011,57 +2010,6 @@
       }
     },
     {
-      "canonSku": "201770",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "newdistrict",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 80.89,
-        "bcl": 84.99,
-        "everythingwine": 84.99,
-        "gull": 79.65,
-        "highpointbws": 85.99,
-        "legacyliquor": 89.58,
-        "marquis": 86.99,
-        "strath": 82.53,
-        "tudor": 84.99,
-        "vintage": 89.48
-      },
-      "representative": {
-        "name": "Midleton – Green Spot 750ml",
-        "price": "$79.65",
-        "priceNum": 79.65,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "201770",
-        "skuKey": "201770",
-        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$79.65",
-        "priceNum": 79.65,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/"
-      }
-    },
-    {
       "canonSku": "204507",
       "storeCount": 10,
       "stores": [
@@ -2614,6 +2562,56 @@
         "priceNum": 86.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "201770",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 80.89,
+        "bcl": 84.99,
+        "everythingwine": 84.99,
+        "gull": 79.65,
+        "highpointbws": 85.99,
+        "legacyliquor": 89.58,
+        "marquis": 86.99,
+        "strath": 82.53,
+        "tudor": 84.99
+      },
+      "representative": {
+        "name": "Midleton – Green Spot 750ml",
+        "price": "$79.65",
+        "priceNum": 79.65,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "201770",
+        "skuKey": "201770",
+        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$79.65",
+        "priceNum": 79.65,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/"
       }
     }
   ]
