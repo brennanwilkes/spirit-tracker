@@ -1,0 +1,292 @@
+name: VPN diagnostic (WireGuard / ProtonVPN)
+
+# Manually-triggered, read-only investigation of WHY the ProtonVPN WireGuard tunnel
+# fails / hangs on the GitHub runner (see CLAUDE.md §"Datacenter-IP Blocking").
+#
+# Design principle: NOTHING may hang the job. The known failure is `wg-quick up wg0`
+# freezing at its `nft -f` (nftables firewall) step, which previously froze the whole
+# cron job. So every command that could block is wrapped in `timeout`, the job has a
+# hard `timeout-minutes`, and we deliberately try TWO bring-up paths:
+#   1. a MANUAL bring-up that never touches nft/iptables (isolates "does the tunnel
+#      itself work?" from "does wg-quick's firewall setup hang?"), and
+#   2. `wg-quick up` under `set -x` + a timeout so we capture the EXACT command it
+#      dies on if it still hangs.
+# Each step keeps going on failure (`continue-on-error`) so we always collect the
+# full picture in one run rather than stopping at the first problem.
+#
+# Secrets are never printed: the WG config is dumped with PrivateKey/PresharedKey
+# redacted.
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_url:
+        description: "Extra URL to fetch through the tunnel (a problem store page)."
+        type: string
+        required: false
+        default: "https://www.libertywinemerchants.com/product-category/whisky/"
+      bringup:
+        description: "Which bring-up path(s) to attempt."
+        type: choice
+        required: false
+        default: both
+        options: [both, manual-only, wg-quick-only]
+
+permissions:
+  contents: read
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12   # hard ceiling — the whole point is to never hang forever
+    env:
+      WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
+      TEST_URL: ${{ inputs.test_url }}
+      BRINGUP: ${{ inputs.bringup }}
+    steps:
+      # ---------------------------------------------------------------------------
+      - name: 1. Runner environment
+        continue-on-error: true
+        run: |
+          echo "== uname =="
+          uname -a
+          echo
+          echo "== OS release =="
+          cat /etc/os-release 2>/dev/null | head -5 || true
+          echo
+          echo "== CPU / mem =="
+          nproc; free -h
+          echo
+          echo "== date (UTC) =="
+          date -u +%FT%TZ
+
+      # ---------------------------------------------------------------------------
+      - name: 2. Kernel modules & WireGuard/nftables availability
+        continue-on-error: true
+        run: |
+          echo "== is the wireguard kernel module present/loadable? =="
+          # WireGuard is in-tree since kernel 5.6; the runner should have it. If it's
+          # missing, wg-quick silently falls back to slow userspace (wireguard-go) or fails.
+          modinfo wireguard 2>&1 | head -12 || echo "modinfo wireguard: NOT FOUND"
+          echo
+          echo "trying: sudo modprobe wireguard"
+          sudo timeout 15 modprobe wireguard 2>&1 && echo "modprobe OK" || echo "modprobe FAILED (rc=$?)"
+          echo
+          echo "== loaded modules of interest =="
+          lsmod | grep -Ei 'wireguard|wg|nf_tables|nft|nfnetlink|iptable' || echo "(none loaded yet)"
+          echo
+          echo "== nftables / iptables binaries =="
+          command -v nft && nft --version || echo "nft: not installed yet"
+          command -v iptables && iptables --version || echo "iptables: not installed"
+          command -v resolvconf && echo "resolvconf: present" || echo "resolvconf: ABSENT (wg-quick DNS= will warn/skip)"
+
+      # ---------------------------------------------------------------------------
+      - name: 3. Baseline egress (BEFORE any tunnel)
+        continue-on-error: true
+        run: |
+          echo "== egress IP (no tunnel) =="
+          curl -fsS --max-time 8 https://api.ipify.org || echo "(ipify unreachable)"
+          echo
+          echo "== geo / ASN of that IP =="
+          curl -fsS --max-time 8 https://ipinfo.io/json || echo "(ipinfo unreachable)"
+          echo
+          echo "== default route / interfaces BEFORE =="
+          ip route show
+          echo "---"
+          ip -brief addr
+
+      # ---------------------------------------------------------------------------
+      - name: 4. Validate the WireGuard config (redacted)
+        continue-on-error: true
+        run: |
+          if [[ -z "$WG_CONF" ]]; then
+            echo "::error::PROTONVPN_WG_CONF secret is EMPTY/unset. Nothing to test."
+            echo "Set it at Settings → Secrets → Actions, from account.proton.me/u/0/vpn/WireGuard."
+            exit 0
+          fi
+          printf '%s\n' "$WG_CONF" > /tmp/wg0.conf
+          echo "== config line/byte count =="
+          wc -l -c /tmp/wg0.conf
+          echo
+          echo "== structure check =="
+          grep -q '^\[Interface\]' /tmp/wg0.conf && echo "  [Interface] present" || echo "  ::warning:: [Interface] MISSING"
+          grep -q '^\[Peer\]'      /tmp/wg0.conf && echo "  [Peer] present"      || echo "  ::warning:: [Peer] MISSING"
+          echo
+          echo "== keys present? (values redacted) =="
+          for k in PrivateKey PublicKey PresharedKey Address DNS Endpoint AllowedIPs MTU Table PersistentKeepalive PostUp PostDown; do
+            if grep -qi "^${k}\s*=" /tmp/wg0.conf; then
+              # Show non-secret values verbatim; redact key material.
+              case "$k" in
+                PrivateKey|PublicKey|PresharedKey)
+                  echo "  ${k} = <present, redacted>";;
+                *)
+                  val="$(grep -i "^${k}\s*=" /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//')"
+                  echo "  ${k} = ${val}";;
+              esac
+            else
+              echo "  ${k} = (absent)"
+            fi
+          done
+          echo
+          echo "NOTE: 'Table = off' would make wg-quick skip route+firewall setup (avoids the nft hang)."
+          echo "      A 'PostUp'/'PostDown' with an nft killswitch is the usual cause of the freeze."
+
+      # ---------------------------------------------------------------------------
+      - name: 5. Install WireGuard userspace tools
+        continue-on-error: true
+        run: |
+          echo "== apt-get install wireguard =="
+          sudo timeout 120 apt-get update -qq 2>&1 | tail -3 || echo "apt update rc=$?"
+          sudo timeout 120 apt-get install -y -qq wireguard wireguard-tools 2>&1 | tail -5 || echo "apt install rc=$?"
+          echo
+          wg --version 2>&1 || echo "wg: not available"
+          which wg-quick && echo "wg-quick present" || echo "wg-quick MISSING"
+
+      # ---------------------------------------------------------------------------
+      # Path 1: MANUAL bring-up. Deliberately AVOIDS nft/iptables and wg-quick's
+      # route scripting so we learn whether the *tunnel* handshakes at all,
+      # independent of the firewall step that hangs.
+      - name: 6. MANUAL tunnel bring-up (no nft, no wg-quick)
+        if: ${{ inputs.bringup != 'wg-quick-only' }}
+        continue-on-error: true
+        run: |
+          set -x
+          [[ -f /tmp/wg0.conf ]] || { echo "no config; skipping"; exit 0; }
+
+          # Strip wg-quick-only directives (Address/DNS/Table/PostUp/…); `wg setconf`
+          # only understands the crypto/peer fields. We assign the address by hand.
+          awk '
+            /^\[/ {sect=$0}
+            /^(Address|DNS|MTU|Table|PreUp|PostUp|PreDown|PostDown|SaveConfig)\s*=/ {next}
+            {print}
+          ' /tmp/wg0.conf > /tmp/wg0.setconf.conf
+
+          ADDR="$(grep -i '^Address' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d, -f1)"
+          echo "Address to assign: ${ADDR:-<none found>}"
+
+          sudo timeout 15 ip link add dev wgdiag type wireguard 2>&1 || echo "ip link add rc=$?"
+          sudo timeout 15 wg setconf wgdiag /tmp/wg0.setconf.conf 2>&1 || echo "wg setconf rc=$?"
+          [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wgdiag 2>&1 || echo "(no addr / rc=$?)"
+          sudo timeout 15 ip link set up dev wgdiag 2>&1 || echo "ip link up rc=$?"
+
+          echo "== waiting up to 15s for a handshake =="
+          for i in $(seq 1 15); do
+            hs="$(sudo wg show wgdiag latest-handshakes 2>/dev/null | awk '{print $2}')"
+            if [[ -n "$hs" && "$hs" != "0" ]]; then echo "handshake at t=${i}s (epoch $hs)"; break; fi
+            sleep 1
+          done
+          echo
+          echo "== wg show wgdiag (transfer bytes reveal if data flows) =="
+          sudo wg show wgdiag 2>&1 || true
+
+      - name: 7. Test connectivity over MANUAL tunnel
+        if: ${{ inputs.bringup != 'wg-quick-only' }}
+        continue-on-error: true
+        run: |
+          # Route just the VPN peer's traffic path enough to test: easiest is to add a
+          # host route for a couple of test targets via the wg iface. We instead do a
+          # simple whole-egress check by pinging through and curling with a short timeout.
+          echo "== egress IP via curl (may still use default route unless routes added) =="
+          echo "peer handshake + tx/rx above is the real signal that the tunnel is alive."
+          echo
+          echo "== can we reach the WG endpoint UDP port at all? =="
+          EP="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//')"
+          echo "Endpoint: ${EP:-<none>}"
+          host="${EP%%:*}"; port="${EP##*:}"
+          if [[ -n "$host" && -n "$port" ]]; then
+            timeout 8 nc -u -z -v "$host" "$port" 2>&1 || echo "nc udp probe rc=$? (UDP is connectionless; inconclusive alone)"
+          fi
+          echo
+          echo "== teardown manual iface =="
+          sudo ip link del wgdiag 2>&1 || echo "(already gone)"
+
+      # ---------------------------------------------------------------------------
+      # Path 2: the REAL wg-quick path that hangs. Run under set -x and a hard
+      # timeout so if it freezes we see the LAST command printed before the hang
+      # (expected: an `nft -f` invocation). continue-on-error + timeout guarantee
+      # the job proceeds to teardown/diagnostics no matter what.
+      - name: 8. wg-quick bring-up (the path that hangs) — traced, timeout-guarded
+        if: ${{ inputs.bringup != 'manual-only' }}
+        continue-on-error: true
+        run: |
+          [[ -f /tmp/wg0.conf ]] || { echo "no config; skipping"; exit 0; }
+          sudo cp /tmp/wg0.conf /etc/wireguard/wg0.conf
+          sudo chmod 600 /etc/wireguard/wg0.conf
+          echo "== running: WG_QUICK under bash -x, 90s timeout =="
+          echo "   watch for the LAST '+ ...' line before it stalls — that is the hanging command."
+          echo "   (hypothesis: an 'nft -f /dev/fd/NN' firewall-killswitch install)"
+          echo "-------------------------------------------------------------------"
+          # bash -x traces every command wg-quick runs; timeout kills it if it hangs.
+          sudo timeout --signal=KILL 90 bash -x "$(command -v wg-quick)" up wg0 2>&1 || \
+            echo ">>> wg-quick exited/killed rc=$? (rc=137 => KILLED by timeout = IT HUNG HERE)"
+
+      - name: 9. Post-wg-quick state (routes / DNS / handshake / egress)
+        if: ${{ inputs.bringup != 'manual-only' }}
+        continue-on-error: true
+        run: |
+          echo "== wg show =="
+          sudo timeout 10 wg show 2>&1 || echo "(no wg iface up)"
+          echo
+          echo "== ip route (did wg-quick install a full-tunnel default?) =="
+          timeout 10 ip route show 2>&1 || true
+          echo
+          echo "== ip rule (wg-quick uses policy routing / fwmark) =="
+          timeout 10 ip rule show 2>&1 || true
+          echo
+          echo "== resolv.conf (DNS the tunnel set) =="
+          cat /etc/resolv.conf 2>&1 || true
+          echo
+          echo "== nftables ruleset (the killswitch, if it installed) =="
+          sudo timeout 10 nft list ruleset 2>&1 | head -60 || echo "(nft unavailable / empty)"
+          echo
+          echo "== egress IP THROUGH tunnel (the money question) =="
+          curl -fsS --max-time 10 https://api.ipify.org 2>&1 || echo "(unreachable through tunnel — routing broken)"
+          echo
+          echo "== ASN/geo through tunnel =="
+          curl -fsS --max-time 10 https://ipinfo.io/json 2>&1 || echo "(unreachable)"
+
+      - name: 10. Fetch a problem store through the tunnel
+        if: ${{ inputs.bringup != 'manual-only' }}
+        continue-on-error: true
+        run: |
+          [[ -z "$TEST_URL" ]] && { echo "no TEST_URL"; exit 0; }
+          echo "== curl $TEST_URL through tunnel =="
+          code="$(curl -sS --max-time 25 -o /tmp/body.html -w '%{http_code}' \
+            -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36' \
+            "$TEST_URL" 2>&1 || echo "ERR")"
+          echo "HTTP: $code  ($(wc -c </tmp/body.html 2>/dev/null || echo 0) bytes)"
+          if grep -qiE 'just a moment|challenge-platform|cf-mitigated|enable javascript' /tmp/body.html 2>/dev/null; then
+            echo "VERDICT: CHALLENGED by Cloudflare (this egress IP is still flagged)"
+          elif [[ "$code" == 2* ]]; then
+            echo "VERDICT: OK — tunnel egress is clean for this store"
+          else
+            echo "VERDICT: OTHER/unreachable"
+          fi
+
+      # ---------------------------------------------------------------------------
+      - name: 11. Teardown (best-effort, never fails the job)
+        if: always()
+        continue-on-error: true
+        run: |
+          sudo timeout 30 wg-quick down wg0 2>&1 || echo "(wg-quick down: nothing to do / rc=$?)"
+          sudo ip link del wgdiag 2>&1 || true
+          sudo ip link del wg0 2>&1 || true
+          echo "teardown done"
+
+      - name: 12. Summary
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "Read the log top-to-bottom. Key questions this run answers:"
+          echo "  • Step 2: is the wireguard kernel module present? is nft installed?"
+          echo "  • Step 4: does the config carry a PostUp/nft killswitch or 'Table = off'?"
+          echo "  • Step 6/7: does the tunnel HANDSHAKE at all (manual path, no nft)?"
+          echo "      handshake + nonzero tx/rx = crypto/peer/endpoint are fine; the"
+          echo "      problem is purely wg-quick's firewall/route step."
+          echo "  • Step 8: the LAST traced '+ ' line before rc=137 is the exact hang point."
+          echo "  • Step 9/10: with the tunnel up, is egress IP changed and is the store clean?"
+          echo
+          echo "Likely fixes to try next (per CLAUDE.md §Datacenter-IP Blocking):"
+          echo "  - add 'Table = off' to [Interface] and set routes manually, OR"
+          echo "  - strip the nft PostUp killswitch from PROTONVPN_WG_CONF, OR"
+          echo "  - use the manual bring-up (step 6 path) in cron instead of wg-quick."
