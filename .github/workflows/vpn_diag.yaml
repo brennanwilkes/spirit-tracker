@@ -248,19 +248,45 @@ jobs:
       - name: 10. Fetch a problem store through the tunnel
         if: ${{ inputs.bringup != 'manual-only' }}
         continue-on-error: true
+        env:
+          # The WooCommerce Store API endpoint the liberty adapter actually hits (cat 1075 = whisky).
+          # This is the DEFINITIVE test: a JSON products array = the scraper would succeed. The HTML
+          # category page is a weaker signal (a real CF-served page embeds the challenge-platform
+          # beacon + <noscript>"enable javascript", so a substring match FALSE-POSITIVES on it).
+          API_URL: "https://www.libertywinemerchants.com/wp-json/wc/store/v1/products?per_page=5&category=1075&stock_status=instock"
+          UA: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
         run: |
-          [[ -z "$TEST_URL" ]] && { echo "no TEST_URL"; exit 0; }
-          echo "== curl $TEST_URL through tunnel =="
-          code="$(curl -sS --max-time 25 -o /tmp/body.html -w '%{http_code}' \
-            -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36' \
-            "$TEST_URL" 2>&1 || echo "ERR")"
-          echo "HTTP: $code  ($(wc -c </tmp/body.html 2>/dev/null || echo 0) bytes)"
-          if grep -qiE 'just a moment|challenge-platform|cf-mitigated|enable javascript' /tmp/body.html 2>/dev/null; then
-            echo "VERDICT: CHALLENGED by Cloudflare (this egress IP is still flagged)"
-          elif [[ "$code" == 2* ]]; then
-            echo "VERDICT: OK — tunnel egress is clean for this store"
+          # A CF challenge is a SMALL interstitial (~15-30 KB) usually served with 403/503; a real
+          # page is large with 200. So verdict = (code AND size AND content), not a bare grep.
+          classify() {
+            local label="$1" url="$2" out code body bytes verdict title
+            out="$(curl -sS --max-time 25 -w $'\n__CODE__%{http_code}' -H "user-agent: $UA" "$url" 2>&1 || echo $'\n__CODE__ERR')"
+            code="${out##*__CODE__}"; body="${out%$'\n'__CODE__*}"
+            bytes="$(printf '%s' "$body" | wc -c | tr -d ' ')"
+            title="$(printf '%s' "$body" | grep -oiE '<title>[^<]*' | head -1 | sed 's/<title>//i')"
+            if printf '%s' "$body" | grep -qiE 'just a moment|challenge-platform|cf-mitigated|attention required' && [[ "$bytes" -lt 60000 ]]; then
+              verdict="CHALLENGED (small CF interstitial)"
+            elif [[ "$code" == 403 || "$code" == 503 || "$code" == 429 ]]; then
+              verdict="BLOCKED (HTTP $code)"
+            elif [[ "$code" == 2* ]]; then
+              verdict="OK — real content"
+            else
+              verdict="OTHER/unreachable"
+            fi
+            printf '  %-14s HTTP %-4s %8s B  %s\n' "$label" "$code" "$bytes" "$verdict"
+            [[ -n "$title" ]] && echo "       title: $title"
+          }
+          echo "== through tunnel: category HTML page =="
+          [[ -n "$TEST_URL" ]] && classify "HTML page" "$TEST_URL"
+          echo "== through tunnel: WooCommerce Store API (the endpoint the scraper uses) =="
+          out="$(curl -sS --max-time 25 -w $'\n__CODE__%{http_code}' -H "user-agent: $UA" "$API_URL" 2>&1 || echo $'\n__CODE__ERR')"
+          code="${out##*__CODE__}"; body="${out%$'\n'__CODE__*}"
+          echo "  API HTTP $code, first 200 chars of body:"
+          printf '  %s\n' "$(printf '%s' "$body" | head -c 200)"
+          if printf '%s' "$body" | head -c 2 | grep -q '\['; then
+            echo "  VERDICT: OK — API returned a JSON array; the scraper WOULD succeed through this tunnel."
           else
-            echo "VERDICT: OTHER/unreachable"
+            echo "  VERDICT: API did not return JSON — inspect body above (challenge or error)."
           fi
 
       # ---------------------------------------------------------------------------
