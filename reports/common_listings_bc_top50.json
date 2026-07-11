@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T16:41:11.960Z",
+  "generatedAt": "2026-07-11T19:21:07.372Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 10
+      "cutoffStoreCount": 9
     }
   },
   "storeCount": 13,
@@ -31,9 +31,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6170,
-    "removedRows": 790,
-    "canonSkus": 2386,
+    "liveRows": 6168,
+    "removedRows": 793,
+    "canonSkus": 2383,
     "outputCount": 50
   },
   "rows": [
@@ -2061,57 +2061,6 @@
       }
     },
     {
-      "canonSku": "204507",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 76.49,
-        "bcl": 80.99,
-        "everythingwine": 80.99,
-        "gull": 84.99,
-        "highpointbws": 85.79,
-        "legacyliquor": 83.49,
-        "liquorwarehouse": 82.99,
-        "marquis": 82.99,
-        "tudor": 80.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "HIGHLAND PARK 12YO",
-        "price": "$76.49",
-        "priceNum": 76.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "204560",
-        "skuKey": "204560",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$76.49",
-        "priceNum": 76.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo"
-      }
-    },
-    {
       "canonSku": "243824",
       "storeCount": 10,
       "stores": [
@@ -2613,6 +2562,56 @@
         "priceNum": 86.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
+      }
+    },
+    {
+      "canonSku": "204507",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 76.49,
+        "bcl": 80.99,
+        "everythingwine": 80.99,
+        "gull": 84.99,
+        "legacyliquor": 83.49,
+        "liquorwarehouse": 82.99,
+        "marquis": 82.99,
+        "tudor": 80.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "HIGHLAND PARK 12YO",
+        "price": "$76.49",
+        "priceNum": 76.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "204560",
+        "skuKey": "204560",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$76.49",
+        "priceNum": 76.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo"
       }
     }
   ]
