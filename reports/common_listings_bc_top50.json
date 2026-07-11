@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T04:03:32.189Z",
+  "generatedAt": "2026-07-11T07:40:10.732Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,8 +31,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6183,
-    "removedRows": 774,
+    "liveRows": 6170,
+    "removedRows": 790,
     "canonSkus": 2387,
     "outputCount": 50
   },
@@ -2010,6 +2010,57 @@
       }
     },
     {
+      "canonSku": "199455",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 34.89,
+        "bcl": 32.99,
+        "everythingwine": 32.99,
+        "gull": 34.95,
+        "highpointbws": 34.99,
+        "legacyliquor": 38.1,
+        "liquorwarehouse": 34.49,
+        "newdistrict": 35.29,
+        "tudor": 32.99,
+        "vessel": 33.99
+      },
+      "representative": {
+        "name": "THE KRAKEN - BLACK SPICED",
+        "price": "$32.99",
+        "priceNum": 32.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "199455",
+        "skuKey": "199455",
+        "url": "https://www.bcliquorstores.com/product/199455",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$32.99",
+        "priceNum": 32.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/199455"
+      }
+    },
+    {
       "canonSku": "204507",
       "storeCount": 10,
       "stores": [
@@ -2562,56 +2613,6 @@
         "priceNum": 86.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
-      }
-    },
-    {
-      "canonSku": "201770",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "newdistrict",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 80.89,
-        "bcl": 84.99,
-        "everythingwine": 84.99,
-        "gull": 79.65,
-        "highpointbws": 85.99,
-        "legacyliquor": 89.58,
-        "marquis": 86.99,
-        "strath": 82.53,
-        "tudor": 84.99
-      },
-      "representative": {
-        "name": "Midleton – Green Spot 750ml",
-        "price": "$79.65",
-        "priceNum": 79.65,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "201770",
-        "skuKey": "201770",
-        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$79.65",
-        "priceNum": 79.65,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/green-spot-irish-750m/"
       }
     }
   ]
