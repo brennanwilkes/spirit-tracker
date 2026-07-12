@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-12T16:40:42.104Z",
+  "generatedAt": "2026-07-12T18:53:20.525Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,65 +31,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6153,
-    "removedRows": 808,
+    "liveRows": 6152,
+    "removedRows": 809,
     "canonSkus": 2383,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 29.5,
-        "highpointbws": 31.29,
-        "legacyliquor": 31.81,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 29.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire - London Dry Gin",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 13,
@@ -247,6 +194,59 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1099"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "highpointbws": 31.29,
+        "legacyliquor": 31.81,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 29.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire - London Dry Gin",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/vessel__gin__679fac36.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
       }
     },
     {

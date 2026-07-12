@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-12T16:40:42.690Z",
+  "generatedAt": "2026-07-12T18:53:21.174Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -31,65 +31,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6153,
-    "removedRows": 808,
+    "liveRows": 6152,
+    "removedRows": 809,
     "canonSkus": 2383,
     "outputCount": 1000
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 29.5,
-        "highpointbws": 31.29,
-        "legacyliquor": 31.81,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 29.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire - London Dry Gin",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 13,
@@ -247,6 +194,59 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1099"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "gull"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "highpointbws": 31.29,
+        "legacyliquor": 31.81,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 29.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire - London Dry Gin",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/vessel__gin__679fac36.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
       }
     },
     {
@@ -4297,7 +4297,7 @@
         "legacyliquor": 29.99,
         "liquorwarehouse": 28.49,
         "tudor": 28.99,
-        "vessel": 28.99
+        "vessel": 29.99
       },
       "representative": {
         "name": "FORTY CREEK BARREL SELECT 750ML",
@@ -11573,7 +11573,7 @@
         "gull": 39.1,
         "liquorwarehouse": 40.99,
         "tudor": 40.99,
-        "vessel": 39.99
+        "vessel": 42.99
       },
       "representative": {
         "name": "Proper No. Twelve – Irish Whiskey 750ml",
@@ -13970,7 +13970,7 @@
         "highpointbws": 82.79,
         "legacyliquor": 85.99,
         "newdistrict": 78.29,
-        "vessel": 84.99
+        "vessel": 79.99
       },
       "representative": {
         "name": "Okanagan Spirits BRBN (BC Bourbon-style) 750 mL",
@@ -23214,7 +23214,7 @@
         "bcl": 44.99,
         "gull": 46.75,
         "tudor": 44.99,
-        "vessel": 44.99
+        "vessel": 45.99
       },
       "representative": {
         "name": "WHYTE AND MACKAY - SPECIAL",
@@ -26049,7 +26049,7 @@
         "bcl": 11.99,
         "highpointbws": 12.29,
         "liquorwarehouse": 12.99,
-        "vessel": 11.99
+        "vessel": 12.99
       },
       "representative": {
         "name": "CROWN ROYAL",
@@ -35723,25 +35723,25 @@
       ],
       "storePrices": {
         "gull": 31.4,
-        "vessel": 29.99
+        "vessel": 32.99
       },
       "representative": {
-        "name": "Catto's - Rare Old Blended Scotch",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "Cattos Rare Old Scottish 750ml",
+        "price": "$31.40",
+        "priceNum": 31.4,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
         "skuRaw": "006403",
         "skuKey": "006403",
-        "url": "https://vesselliquor.com/products/cattos-rare-old-blended-scotch-750-ml",
+        "url": "https://gullliquorstore.com/product/catto-rare-old-scottish-750ml/",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/cattos-rare-old-blended-scotch-750-ml"
+        "price": "$31.40",
+        "priceNum": 31.4,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/catto-rare-old-scottish-750ml/"
       }
     },
     {
