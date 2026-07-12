@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-12T04:36:04.954Z",
+  "generatedAt": "2026-07-12T08:36:31.069Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,8 +31,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6168,
-    "removedRows": 793,
+    "liveRows": 6153,
+    "removedRows": 808,
     "canonSkus": 2383,
     "outputCount": 50
   },
@@ -250,59 +250,6 @@
       }
     },
     {
-      "canonSku": "002691",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis"
-      ],
-      "storePrices": {
-        "arc": 28.59,
-        "bcl": 27.49,
-        "everythingwine": 27.49,
-        "gull": 28.95,
-        "highpointbws": 32.29,
-        "legacyliquor": 30.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 31.79,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.49",
-        "priceNum": 27.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
-      }
-    },
-    {
       "canonSku": "005207",
       "storeCount": 12,
       "stores": [
@@ -514,58 +461,6 @@
       }
     },
     {
-      "canonSku": "001222",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 24.09,
-        "bcl": 23.49,
-        "everythingwine": 23.49,
-        "gull": 25,
-        "highpointbws": 25.99,
-        "legacyliquor": 24.99,
-        "liquorwarehouse": 24.99,
-        "newdistrict": 25.29,
-        "tudor": 21.99,
-        "vessel": 22.49,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND (PLASTIC)",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "211662",
-        "skuKey": "211662",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
-      }
-    },
-    {
       "canonSku": "001610",
       "storeCount": 11,
       "stores": [
@@ -615,6 +510,58 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 28.59,
+        "bcl": 27.49,
+        "everythingwine": 27.49,
+        "gull": 28.95,
+        "highpointbws": 32.29,
+        "legacyliquor": 30.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 31.79,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.49",
+        "priceNum": 27.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1551,6 +1498,57 @@
       }
     },
     {
+      "canonSku": "001222",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "marquis",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 24.09,
+        "bcl": 23.49,
+        "everythingwine": 23.49,
+        "gull": 25,
+        "highpointbws": 25.99,
+        "liquorwarehouse": 24.99,
+        "newdistrict": 25.29,
+        "tudor": 21.99,
+        "vessel": 22.49,
+        "vintage": 25.13
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND (PLASTIC)",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "211662",
+        "skuKey": "211662",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
+      }
+    },
+    {
       "canonSku": "002063",
       "storeCount": 10,
       "stores": [
@@ -2061,6 +2059,57 @@
       }
     },
     {
+      "canonSku": "204507",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 76.49,
+        "bcl": 80.99,
+        "everythingwine": 80.99,
+        "gull": 84.99,
+        "highpointbws": 85.79,
+        "legacyliquor": 83.49,
+        "liquorwarehouse": 82.99,
+        "marquis": 82.99,
+        "tudor": 80.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "HIGHLAND PARK 12YO",
+        "price": "$76.49",
+        "priceNum": 76.49,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "204560",
+        "skuKey": "204560",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$76.49",
+        "priceNum": 76.49,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo"
+      }
+    },
+    {
       "canonSku": "243824",
       "storeCount": 10,
       "stores": [
@@ -2562,56 +2611,6 @@
         "priceNum": 86.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
-      }
-    },
-    {
-      "canonSku": "204507",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 76.49,
-        "bcl": 80.99,
-        "everythingwine": 80.99,
-        "gull": 84.99,
-        "legacyliquor": 83.49,
-        "liquorwarehouse": 82.99,
-        "marquis": 82.99,
-        "tudor": 80.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "HIGHLAND PARK 12YO",
-        "price": "$76.49",
-        "priceNum": 76.49,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "204560",
-        "skuKey": "204560",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$76.49",
-        "priceNum": 76.49,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587290-highland-park-12yo"
       }
     }
   ]
