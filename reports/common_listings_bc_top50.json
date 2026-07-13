@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T04:31:01.639Z",
+  "generatedAt": "2026-07-13T09:22:44.383Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -31,8 +31,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6152,
-    "removedRows": 809,
+    "liveRows": 6148,
+    "removedRows": 813,
     "canonSkus": 2383,
     "outputCount": 50
   },
@@ -458,6 +458,58 @@
         "priceNum": 26.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/beefeater-london-dry-gin-750-ml"
+      }
+    },
+    {
+      "canonSku": "001222",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 24.09,
+        "bcl": 23.49,
+        "everythingwine": 23.49,
+        "gull": 25,
+        "highpointbws": 25.99,
+        "legacyliquor": 24.99,
+        "liquorwarehouse": 24.99,
+        "newdistrict": 25.29,
+        "tudor": 21.99,
+        "vessel": 22.49,
+        "vintage": 25.13
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND (PLASTIC)",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "211662",
+        "skuKey": "211662",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
       }
     },
     {
@@ -1495,57 +1547,6 @@
         "priceNum": 22.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1206"
-      }
-    },
-    {
-      "canonSku": "001222",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "marquis",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 24.09,
-        "bcl": 23.49,
-        "everythingwine": 23.49,
-        "gull": 25,
-        "highpointbws": 25.99,
-        "liquorwarehouse": 24.99,
-        "newdistrict": 25.29,
-        "tudor": 21.99,
-        "vessel": 22.49,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND (PLASTIC)",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "211662",
-        "skuKey": "211662",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
       }
     },
     {
