@@ -249,33 +249,20 @@ jobs:
           [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wg0 2>&1
           sudo timeout 15 ip link set up dev wg0 2>&1
 
-          # Wait for handshake (up to 15s). Print each check so we see progress.
-          echo "::group::Waiting for handshake"
-          HANDSHAKE_OK=false
-          START_TS=$(date +%s)
-          for i in $(seq 1 15); do
-            hs_raw="$(timeout 3 sudo wg show wg0 latest-handshakes 2>&1)"
-            hs="$(echo "$hs_raw" | awk '{print $2}')"
-            NOW_TS=$(date +%s)
-            ELAPSED=$(( NOW_TS - START_TS ))
-            echo "[${ELAPSED}s] check #${i} raw='${hs_raw}' hs='${hs}'"
-            if [[ -n "$hs" && "$hs" != "0" ]]; then
-              echo "  HANDSHAKE OK at ${ELAPSED}s"
-              HANDSHAKE_OK=true
-              break
-            fi
-            sleep 1
-          done
-          echo "::endgroup::"
+          # Wait for handshake — sleep first, then check once. The polling loop was
+          # hanging (wg show blocks on some runner configs). Single check avoids that.
+          echo "Waiting 10s for handshake..."
+          sleep 10
+          hs="$(timeout 5 sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
+          echo "Handshake result: '${hs:-empty}'"
 
-          if [[ "$HANDSHAKE_OK" != "true" ]]; then
-            echo "::group::wg show (post-failure diagnostics)"
+          if [[ -z "$hs" || "$hs" == "0" ]]; then
             sudo wg show wg0 2>&1 || true
-            echo "::endgroup::"
-            append_diag "vpn: off (no handshake within 15s, endpoint $EP_HOST:$EP_PORT)"
+            append_diag "vpn: off (no handshake after 10s, endpoint $EP_HOST:$EP_PORT)"
             sudo ip link del wg0 2>/dev/null || true
             exit 0
           fi
+          echo "HANDSHAKE OK"
 
           # --- Add routes (what wg-quick would have done) ---
           # Policy routing via fwmark so only tunnel-routed traffic goes through wg0.
