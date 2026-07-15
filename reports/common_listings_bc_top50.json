@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-15T17:03:40.003Z",
+  "generatedAt": "2026-07-15T19:18:56.353Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 9
+      "cutoffStoreCount": 10
     }
   },
   "storeCount": 13,
@@ -31,12 +31,65 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6151,
-    "removedRows": 817,
-    "canonSkus": 2383,
+    "liveRows": 6169,
+    "removedRows": 801,
+    "canonSkus": 2381,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 29.5,
+        "highpointbws": 31.29,
+        "legacyliquor": 31.81,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 29.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire - London Dry Gin",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/vessel__gin__679fac36.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
+      }
+    },
     {
       "canonSku": "001487",
       "storeCount": 13,
@@ -197,59 +250,6 @@
       }
     },
     {
-      "canonSku": "001232",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "gull"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "highpointbws": 31.29,
-        "legacyliquor": 31.81,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 29.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire - London Dry Gin",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
-      }
-    },
-    {
       "canonSku": "002691",
       "storeCount": 12,
       "stores": [
@@ -406,6 +406,59 @@
         "priceNum": 48.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
+      "canonSku": "637504",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.99,
+        "bcl": 55.99,
+        "everythingwine": 55.99,
+        "gull": 59.5,
+        "highpointbws": 61.99,
+        "legacyliquor": 57.99,
+        "liquorwarehouse": 57.49,
+        "marquis": 57.99,
+        "newdistrict": 59.79,
+        "strath": 59.04,
+        "tudor": 55.99,
+        "vessel": 56.99
+      },
+      "representative": {
+        "name": "HENDRICK'S GIN",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "637504",
+        "skuKey": "637504",
+        "url": "https://www.bcliquorstores.com/product/637504",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/637504"
       }
     },
     {
@@ -692,7 +745,7 @@
         "arc": 57.69,
         "bcl": 55.99,
         "everythingwine": 55.99,
-        "gull": 54.35,
+        "gull": 58.7,
         "highpointbws": 61.29,
         "legacyliquor": 57.89,
         "liquorwarehouse": 56.99,
@@ -744,7 +797,7 @@
         "arc": 47.89,
         "bcl": 50.99,
         "everythingwine": 50.99,
-        "gull": 48.25,
+        "gull": 53.95,
         "highpointbws": 50.49,
         "legacyliquor": 58.99,
         "marquis": 52.99,
@@ -1137,58 +1190,6 @@
       }
     },
     {
-      "canonSku": "637504",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.99,
-        "bcl": 55.99,
-        "everythingwine": 55.99,
-        "highpointbws": 61.99,
-        "legacyliquor": 57.99,
-        "liquorwarehouse": 57.49,
-        "marquis": 57.99,
-        "newdistrict": 59.79,
-        "strath": 59.04,
-        "tudor": 55.99,
-        "vessel": 56.99
-      },
-      "representative": {
-        "name": "HENDRICK'S GIN",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "637504",
-        "skuKey": "637504",
-        "url": "https://www.bcliquorstores.com/product/637504",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/637504"
-      }
-    },
-    {
       "canonSku": "656546",
       "storeCount": 11,
       "stores": [
@@ -1470,7 +1471,7 @@
         "arc": 26.69,
         "bcl": 22.97,
         "everythingwine": 23.99,
-        "gull": 27.4,
+        "gull": 27.05,
         "highpointbws": 27.99,
         "legacyliquor": 26.99,
         "liquorwarehouse": 25.99,
@@ -2263,6 +2264,57 @@
       }
     },
     {
+      "canonSku": "368597",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 51.39,
+        "bcl": 49.99,
+        "everythingwine": 49.99,
+        "gull": 52.05,
+        "highpointbws": 59.99,
+        "legacyliquor": 58.99,
+        "marquis": 56.99,
+        "newdistrict": 58.99,
+        "tudor": 54.99,
+        "vessel": 49.99
+      },
+      "representative": {
+        "name": "BRUICHLADDICH - THE BOTANIST ISLAY DRY",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "368597",
+        "skuKey": "368597",
+        "url": "https://www.bcliquorstores.com/product/368597",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/368597"
+      }
+    },
+    {
       "canonSku": "002478",
       "storeCount": 9,
       "stores": [
@@ -2560,56 +2612,6 @@
         "priceNum": 86.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
-      }
-    },
-    {
-      "canonSku": "368597",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liquorwarehouse",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 51.39,
-        "bcl": 49.99,
-        "everythingwine": 49.99,
-        "gull": 52.05,
-        "legacyliquor": 58.99,
-        "marquis": 56.99,
-        "newdistrict": 58.99,
-        "tudor": 54.99,
-        "vessel": 49.99
-      },
-      "representative": {
-        "name": "BRUICHLADDICH - THE BOTANIST ISLAY DRY",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "368597",
-        "skuKey": "368597",
-        "url": "https://www.bcliquorstores.com/product/368597",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/368597"
       }
     }
   ]
