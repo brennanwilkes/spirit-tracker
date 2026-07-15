@@ -169,149 +169,142 @@ jobs:
       # the two things that intermittently hang on GH runners: apt-get (wg-quick install)
       # and resolvconf (wg-quick DNS setup). The manual path was proven reliable in the
       # VPN diagnostic workflow (vpn_diag.yaml step 6).
-      - name: Connect ProtonVPN WireGuard tunnel
-        id: wg
-        continue-on-error: true
-        shell: bash
-        env:
-          WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
-          TEST_URL: "https://www.libertywinemerchants.com/wp-json/wc/store/v1/products?per_page=3&category=1075&stock_status=instock"
-        run: |
-          set +e
-
-          VPN_DIAG="$(mktemp)"
-          echo "vpn_diag_file=$VPN_DIAG" >> "$GITHUB_OUTPUT"
-
-          append_diag() { echo "$1" | tee -a "$VPN_DIAG"; }
-
-          if [[ -z "$WG_CONF" ]]; then
-            echo "::warning::PROTONVPN_WG_CONF secret not set; skipping VPN"
-            append_diag "vpn: off (secret not set)"
-            exit 0
-          fi
-
-          if ! command -v wg >/dev/null 2>&1; then
-            echo "::group::Install wireguard"
-            # apt on GH runners is intermittently slow/flaky. DEBIAN_FRONTEND prevents
-            # interactive prompts (tzdata etc) from hanging; timeout + clean bail on failure.
-            export DEBIAN_FRONTEND=noninteractive
-            sudo timeout 120 apt-get update -qq 2>&1 | tail -1
-            sudo timeout 120 apt-get install -y -qq wireguard wireguard-tools 2>&1 | tail -3
-            install_rc=$?
-            echo "::endgroup::"
-            if [[ $install_rc -ne 0 ]] || ! command -v wg >/dev/null 2>&1; then
-              append_diag "vpn: off (wireguard install failed, rc=$install_rc)"
-              exit 0
-            fi
-            append_diag "vpn: wireguard installed (rc=0)"
-          fi
-
-          set -uo pipefail
-          append_diag "vpn: starting (manual bring-up)"
-
-          # Write config and extract the tunnel address.
-          echo "$WG_CONF" > /tmp/wg0.conf
-
-          # Strip wg-quick-only directives (Address/DNS/Table/PostUp/…); `wg setconf`
-          # only understands the crypto/peer fields.
-          awk '
-            /^\[/ {sect=$0}
-            /^(Address|DNS|MTU|Table|PreUp|PostUp|PreDown|PostDown|SaveConfig)\s*=/ {next}
-            {print}
-          ' /tmp/wg0.conf > /tmp/wg0.setconf.conf
-
-          ADDR="$(grep -i '^Address' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d, -f1)"
-
-          # --- Bring up tunnel manually ---
-          EP_HOST="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f1)"
-          EP_PORT="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f2)"
-          echo "Endpoint: $EP_HOST:$EP_PORT"
-
-          # Pre-flight: can we even reach the WireGuard endpoint over UDP?
-          echo "::group::Endpoint reachability"
-          if timeout 8 nc -u -z -v "$EP_HOST" "$EP_PORT" 2>&1; then
-            echo "UDP $EP_HOST:$EP_PORT reachable"
-          else
-            echo "UDP $EP_HOST:$EP_PORT UNREACHABLE"
-            append_diag "vpn: off (UDP $EP_HOST:$EP_PORT unreachable)"
-            exit 0
-          fi
-          echo "::endgroup::"
-
-          sudo timeout 15 ip link add dev wg0 type wireguard 2>&1
-          sudo timeout 15 wg setconf wg0 /tmp/wg0.setconf.conf 2>&1
-          rc=$?
-          if [[ $rc -ne 0 ]]; then
-            append_diag "vpn: off (wg setconf failed, rc=$rc)"
-            sudo ip link del wg0 2>/dev/null || true
-            exit 0
-          fi
-          [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wg0 2>&1
-          sudo timeout 15 ip link set up dev wg0 2>&1
-
-          # Wait for handshake — sleep first, then check once. The polling loop was
-          # hanging (wg show blocks on some runner configs). Single check avoids that.
-          echo "Waiting 10s for handshake..."
-          sleep 10
-          hs="$(timeout 5 sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
-          echo "Handshake result: '${hs:-empty}'"
-
-          if [[ -z "$hs" || "$hs" == "0" ]]; then
-            sudo wg show wg0 2>&1 || true
-            append_diag "vpn: off (no handshake after 10s, endpoint $EP_HOST:$EP_PORT)"
-            sudo ip link del wg0 2>/dev/null || true
-            exit 0
-          fi
-          echo "HANDSHAKE OK"
-
-          # --- Add routes (what wg-quick would have done) ---
-          # Policy routing via fwmark so only tunnel-routed traffic goes through wg0.
-          sudo wg set wg0 fwmark 51820
-          sudo ip -4 rule add not fwmark 51820 table 51820
-          sudo ip -4 rule add table main suppress_prefixlength 0
-          sudo ip -4 route add 0.0.0.0/0 dev wg0 table 51820
-
-          # Set DNS manually (no resolvconf).
-          echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
-          echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
-
-          # --- Egress IP check ---
-          echo "::group::VPN diagnostic"
-          EGRESS_IP="$(timeout 12 curl -fsS --max-time 8 https://api.ipify.org 2>/dev/null || echo "")"
-          echo "Egress IP: ${EGRESS_IP:-UNREACHABLE}"
-
-          if [[ -z "$EGRESS_IP" ]]; then
-            append_diag "vpn: off (egress IP unreachable through tunnel)"
-            sudo ip link del wg0 2>/dev/null || true
-            exit 0
-          fi
-
-          # --- Store API check ---
-          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
-          API_OUT="$(timeout 20 curl -sS --max-time 15 -w '\n__CODE__%{http_code}' -H "user-agent: $UA" "$TEST_URL" 2>/dev/null || echo $'\n__CODE__ERR')"
-          API_CODE="${API_OUT##*$'\n'__CODE__}"
-          API_BODY="${API_OUT%$'\n'__CODE__*}"
-          API_BYTES="$(printf '%s' "$API_BODY" | wc -c | tr -d ' ')"
-
-          if printf '%s' "$API_BODY" | head -c 2 | grep -q '\['; then
-            append_diag "vpn: ok (egress $EGRESS_IP, store API HTTP $API_CODE ${API_BYTES}B JSON)"
-            echo "vpn_ok=true" >> "$GITHUB_OUTPUT"
-            echo "vpn_egress_ip=$EGRESS_IP" >> "$GITHUB_OUTPUT"
-          elif printf '%s' "$API_BODY" | grep -qiE 'just a moment|challenge-platform|cf-mitigated|attention required'; then
-            append_diag "vpn: off (egress $EGRESS_IP, store CF-challenged, HTTP $API_CODE ${API_BYTES}B)"
-            sudo ip link del wg0 2>/dev/null || true
-          else
-            append_diag "vpn: off (egress $EGRESS_IP, store API not JSON, HTTP $API_CODE ${API_BYTES}B)"
-            sudo ip link del wg0 2>/dev/null || true
-          fi
-          echo "::endgroup::"
-
-          # --- Final summary (always visible in step output) ---
-          VPN_RESULT="$(tail -1 "$VPN_DIAG")"
-          echo
-          echo "========================================"
-          echo "  VPN: ${VPN_RESULT#vpn: }"
-          echo "========================================"
+      #
+      # CURRENT STATUS: DISABLED (2026-07-16)
+      # WireGuard handshake never completes on the cron runner — UDP endpoint is reachable
+      # (nc -u succeeds) but wg show latest-handshakes stays 0. Likely Azure platform-level
+      # filtering of WireGuard protocol packets above the VM iptables level (Hyper-V virtual
+      # switch inspects packet structure). See docs/vpn-setup.md for full research and
+      # alternative approaches (Tailscale, residential proxy, Cloudflare IP whitelisting).
+      # To re-enable: remove the comment-out markers below and ensure PROTONVPN_WG_CONF
+      # secret is set.
+      # - name: Connect ProtonVPN WireGuard tunnel
+      #   id: wg
+      #   continue-on-error: true
+      #   shell: bash
+      #   env:
+      #     WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
+      #     TEST_URL: "https://www.libertywinemerchants.com/wp-json/wc/store/v1/products?per_page=3&category=1075&stock_status=instock"
+      #   run: |
+      #     set +e
+      #
+      #     VPN_DIAG="$(mktemp)"
+      #     echo "vpn_diag_file=$VPN_DIAG" >> "$GITHUB_OUTPUT"
+      #
+      #     append_diag() { echo "$1" | tee -a "$VPN_DIAG"; }
+      #
+      #     if [[ -z "$WG_CONF" ]]; then
+      #       echo "::warning::PROTONVPN_WG_CONF secret not set; skipping VPN"
+      #       append_diag "vpn: off (secret not set)"
+      #       exit 0
+      #     fi
+      #
+      #     if ! command -v wg >/dev/null 2>&1; then
+      #       echo "::group::Install wireguard"
+      #       export DEBIAN_FRONTEND=noninteractive
+      #       sudo timeout 120 apt-get update -qq 2>&1 | tail -1
+      #       sudo timeout 120 apt-get install -y -qq wireguard wireguard-tools 2>&1 | tail -3
+      #       install_rc=$?
+      #       echo "::endgroup::"
+      #       if [[ $install_rc -ne 0 ]] || ! command -v wg >/dev/null 2>&1; then
+      #         append_diag "vpn: off (wireguard install failed, rc=$install_rc)"
+      #         exit 0
+      #       fi
+      #       append_diag "vpn: wireguard installed (rc=0)"
+      #     fi
+      #
+      #     set -uo pipefail
+      #     append_diag "vpn: starting (manual bring-up)"
+      #
+      #     echo "$WG_CONF" > /tmp/wg0.conf
+      #
+      #     awk '
+      #       /^\[/ {sect=$0}
+      #       /^(Address|DNS|MTU|Table|PreUp|PostUp|PreDown|PostDown|SaveConfig)\s*=/ {next}
+      #       {print}
+      #     ' /tmp/wg0.conf > /tmp/wg0.setconf.conf
+      #
+      #     ADDR="$(grep -i '^Address' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d, -f1)"
+      #
+      #     EP_HOST="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f1)"
+      #     EP_PORT="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f2)"
+      #     echo "Endpoint: $EP_HOST:$EP_PORT"
+      #
+      #     echo "::group::Endpoint reachability"
+      #     if timeout 8 nc -u -z -v "$EP_HOST" "$EP_PORT" 2>&1; then
+      #       echo "UDP $EP_HOST:$EP_PORT reachable"
+      #     else
+      #       echo "UDP $EP_HOST:$EP_PORT UNREACHABLE"
+      #       append_diag "vpn: off (UDP $EP_HOST:$EP_PORT unreachable)"
+      #       exit 0
+      #     fi
+      #     echo "::endgroup::"
+      #
+      #     sudo timeout 15 ip link add dev wg0 type wireguard 2>&1
+      #     sudo timeout 15 wg setconf wg0 /tmp/wg0.setconf.conf 2>&1
+      #     rc=$?
+      #     if [[ $rc -ne 0 ]]; then
+      #       append_diag "vpn: off (wg setconf failed, rc=$rc)"
+      #       sudo ip link del wg0 2>/dev/null || true
+      #       exit 0
+      #     fi
+      #     [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wg0 2>&1
+      #     sudo timeout 15 ip link set up dev wg0 2>&1
+      #
+      #     echo "Checking handshake..."
+      #     hs="$(timeout 5 sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
+      #     echo "Handshake result: '${hs:-empty}'"
+      #
+      #     if [[ -z "$hs" || "$hs" == "0" ]]; then
+      #       sudo wg show wg0 2>&1 || true
+      #       append_diag "vpn: off (no handshake, endpoint $EP_HOST:$EP_PORT)"
+      #       sudo ip link del wg0 2>/dev/null || true
+      #       exit 0
+      #     fi
+      #     echo "HANDSHAKE OK"
+      #
+      #     sudo wg set wg0 fwmark 51820
+      #     sudo ip -4 rule add not fwmark 51820 table 51820
+      #     sudo ip -4 rule add table main suppress_prefixlength 0
+      #     sudo ip -4 route add 0.0.0.0/0 dev wg0 table 51820
+      #
+      #     echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
+      #     echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
+      #
+      #     echo "::group::VPN diagnostic"
+      #     EGRESS_IP="$(timeout 12 curl -fsS --max-time 8 https://api.ipify.org 2>/dev/null || echo "")"
+      #     echo "Egress IP: ${EGRESS_IP:-UNREACHABLE}"
+      #
+      #     if [[ -z "$EGRESS_IP" ]]; then
+      #       append_diag "vpn: off (egress IP unreachable through tunnel)"
+      #       sudo ip link del wg0 2>/dev/null || true
+      #       exit 0
+      #     fi
+      #
+      #     UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+      #     API_OUT="$(timeout 20 curl -sS --max-time 15 -w '\n__CODE__%{http_code}' -H "user-agent: $UA" "$TEST_URL" 2>/dev/null || echo $'\n__CODE__ERR')"
+      #     API_CODE="${API_OUT##*$'\n'__CODE__}"
+      #     API_BODY="${API_OUT%$'\n'__CODE__*}"
+      #     API_BYTES="$(printf '%s' "$API_BODY" | wc -c | tr -d ' ')"
+      #
+      #     if printf '%s' "$API_BODY" | head -c 2 | grep -q '\['; then
+      #       append_diag "vpn: ok (egress $EGRESS_IP, store API HTTP $API_CODE ${API_BYTES}B JSON)"
+      #       echo "vpn_ok=true" >> "$GITHUB_OUTPUT"
+      #       echo "vpn_egress_ip=$EGRESS_IP" >> "$GITHUB_OUTPUT"
+      #     elif printf '%s' "$API_BODY" | grep -qiE 'just a moment|challenge-platform|cf-mitigated|attention required'; then
+      #       append_diag "vpn: off (egress $EGRESS_IP, store CF-challenged, HTTP $API_CODE ${API_BYTES}B)"
+      #       sudo ip link del wg0 2>/dev/null || true
+      #     else
+      #       append_diag "vpn: off (egress $EGRESS_IP, store API not JSON, HTTP $API_CODE ${API_BYTES}B)"
+      #       sudo ip link del wg0 2>/dev/null || true
+      #     fi
+      #     echo "::endgroup::"
+      #
+      #     VPN_RESULT="$(tail -1 "$VPN_DIAG")"
+      #     echo
+      #     echo "========================================"
+      #     echo "  VPN: ${VPN_RESULT#vpn: }"
+      #     echo "========================================"
 
       - name: Run your existing cron script (writes + pushes to data)
         id: daily
