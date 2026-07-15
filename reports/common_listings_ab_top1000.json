@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-15T08:35:54.280Z",
+  "generatedAt": "2026-07-15T11:22:13.786Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18217,
-    "removedRows": 5421,
-    "canonSkus": 5862,
+    "liveRows": 18229,
+    "removedRows": 5407,
+    "canonSkus": 5864,
     "outputCount": 1000
   },
   "rows": [
@@ -23669,6 +23669,62 @@
       }
     },
     {
+      "canonSku": "383362",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "kegncork",
+        "liquorama",
+        "maltsandgrains",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "lime",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "zyn"
+      ],
+      "storePrices": {
+        "bsw": 54.99,
+        "clbspirits": 54.36,
+        "kegncork": 61.96,
+        "liquorama": 57.99,
+        "maltsandgrains": 64.78,
+        "sierrasprings": 60.99,
+        "willowpark": 58.49,
+        "wineandbeyond": 64.99
+      },
+      "representative": {
+        "name": "Hendricks Grand Cabaret 750ml",
+        "price": "$54.36",
+        "priceNum": 54.36,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "898182",
+        "skuKey": "898182",
+        "url": "https://clbspirits.com/products/hendricks-grand-cabaret",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/clbspirits__gin__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$54.36",
+        "priceNum": 54.36,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/hendricks-grand-cabaret"
+      }
+    },
+    {
       "canonSku": "386830",
       "storeCount": 8,
       "stores": [
@@ -27743,6 +27799,61 @@
         "priceNum": 52.1,
         "storeKey": "sherbrooke",
         "url": "https://sherbrookeliquor.com/shop/spirits/whisky/canadian/j-p-wisers-deluxe-1-75-l/"
+      }
+    },
+    {
+      "canonSku": "034637",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "lime",
+        "liquorama",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 56.99,
+        "clbspirits": 58.19,
+        "lime": 61.99,
+        "liquorama": 59.99,
+        "sierrasprings": 53.09,
+        "wineandbeyond": 53.99,
+        "zyn": 63
+      },
+      "representative": {
+        "name": "Canadian Club Premium 1.75L 40%",
+        "price": "$53.09",
+        "priceNum": 53.09,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "034637",
+        "skuKey": "034637",
+        "url": "https://sierraspringsliquor.ca/shop/canadian-whiskey/canadian-club-premium-1-75l-40/",
+        "categoryLabel": "Canadian Whiskey",
+        "dbFile": "data/db/sierrasprings__canadian-whiskey__7abbcffc.json"
+      },
+      "cheapest": {
+        "price": "$53.09",
+        "priceNum": 53.09,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/canadian-whiskey/canadian-club-premium-1-75l-40/"
       }
     },
     {
@@ -32861,61 +32972,6 @@
       }
     },
     {
-      "canonSku": "383362",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "kegncork",
-        "liquorama",
-        "maltsandgrains",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "lime",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "zyn"
-      ],
-      "storePrices": {
-        "bsw": 54.99,
-        "clbspirits": 54.36,
-        "kegncork": 61.96,
-        "liquorama": 57.99,
-        "maltsandgrains": 64.78,
-        "willowpark": 58.49,
-        "wineandbeyond": 64.99
-      },
-      "representative": {
-        "name": "Hendricks Grand Cabaret 750ml",
-        "price": "$54.36",
-        "priceNum": 54.36,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "898182",
-        "skuKey": "898182",
-        "url": "https://clbspirits.com/products/hendricks-grand-cabaret",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/clbspirits__gin__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$54.36",
-        "priceNum": 54.36,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/hendricks-grand-cabaret"
-      }
-    },
-    {
       "canonSku": "385328",
       "storeCount": 7,
       "stores": [
@@ -37256,6 +37312,60 @@
       }
     },
     {
+      "canonSku": "001800",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "lime",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 44.99,
+        "clbspirits": 42.9,
+        "lime": 48.99,
+        "sierrasprings": 44.99,
+        "wineandbeyond": 43.99,
+        "zyn": 50.5
+      },
+      "representative": {
+        "name": "Wisers De Luxe Whisky 1.14L",
+        "price": "$42.90",
+        "priceNum": 42.9,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "745074",
+        "skuKey": "745074",
+        "url": "https://clbspirits.com/products/wisers-deluxe-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$42.90",
+        "priceNum": 42.9,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/wisers-deluxe-whisky"
+      }
+    },
+    {
       "canonSku": "002063",
       "storeCount": 6,
       "stores": [
@@ -38225,60 +38335,6 @@
         "priceNum": 120.38,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/lismore-18-year-old-1"
-      }
-    },
-    {
-      "canonSku": "034637",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "lime",
-        "liquorama",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 56.99,
-        "clbspirits": 58.19,
-        "lime": 61.99,
-        "liquorama": 59.99,
-        "wineandbeyond": 53.99,
-        "zyn": 63
-      },
-      "representative": {
-        "name": "Canadian Club Whisky 1.75L",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "034637",
-        "skuKey": "034637",
-        "url": "https://www.bswliquor.com/products/canadian-club-whisky-3",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "wineandbeyond",
-        "url": "https://www.wineandbeyond.ca/products/canadian-club-canadian-whisky-1-75l"
       }
     },
     {
@@ -45248,6 +45304,60 @@
       }
     },
     {
+      "canonSku": "815687",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "lime",
+        "maltsandgrains",
+        "sherbrooke",
+        "sierrasprings",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "liquorama",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 44.99,
+        "lime": 43,
+        "maltsandgrains": 37.67,
+        "sherbrooke": 36.67,
+        "sierrasprings": 32.28,
+        "zyn": 41.5
+      },
+      "representative": {
+        "name": "AMRUT TWO INDIES RUM",
+        "price": "$32.28",
+        "priceNum": 32.28,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "815687",
+        "skuKey": "815687",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/amrut-two-indies-52-8-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$32.28",
+        "priceNum": 32.28,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/amrut-two-indies-52-8-abv/"
+      }
+    },
+    {
       "canonSku": "822538",
       "storeCount": 6,
       "stores": [
@@ -46646,59 +46756,6 @@
         "priceNum": 31.95,
         "storeKey": "wineandbeyond",
         "url": "https://www.wineandbeyond.ca/products/alberta-premium-canadian-whisky-1-14l"
-      }
-    },
-    {
-      "canonSku": "001800",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "lime",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 44.99,
-        "clbspirits": 42.9,
-        "lime": 48.99,
-        "wineandbeyond": 43.99,
-        "zyn": 50.5
-      },
-      "representative": {
-        "name": "Wisers De Luxe Whisky 1.14L",
-        "price": "$42.90",
-        "priceNum": 42.9,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "745074",
-        "skuKey": "745074",
-        "url": "https://clbspirits.com/products/wisers-deluxe-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$42.90",
-        "priceNum": 42.9,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/wisers-deluxe-whisky"
       }
     },
     {
@@ -51416,59 +51473,6 @@
         "priceNum": 52.28,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/blended/berry-bros-rudd-sherry-cask-blended-malt-44-2-abv/"
-      }
-    },
-    {
-      "canonSku": "815687",
-      "storeCount": 5,
-      "stores": [
-        "bsw",
-        "lime",
-        "maltsandgrains",
-        "sherbrooke",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "liquorama",
-        "rmwsb",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 44.99,
-        "lime": 43,
-        "maltsandgrains": 37.67,
-        "sherbrooke": 36.67,
-        "zyn": 41.5
-      },
-      "representative": {
-        "name": "Amrut Two Indies Rum 700 mL",
-        "price": "$36.67",
-        "priceNum": 36.67,
-        "storeKey": "sherbrooke",
-        "storeLabel": "Sherbrooke Liquor",
-        "skuRaw": "815687",
-        "skuKey": "815687",
-        "url": "https://sherbrookeliquor.com/shop/spirits/rum/amrut-two-indies-rum-700-ml/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/sherbrooke__rum__68378105.json"
-      },
-      "cheapest": {
-        "price": "$36.67",
-        "priceNum": 36.67,
-        "storeKey": "sherbrooke",
-        "url": "https://sherbrookeliquor.com/shop/spirits/rum/amrut-two-indies-rum-700-ml/"
       }
     },
     {
