@@ -275,6 +275,14 @@ MSG_FILE="$(mktemp)"
   echo
   echo "runner: ip=${RUNNER_IP} run_id=${GITHUB_RUN_ID:-local} os=${RUNNER_OS:-?} name=${RUNNER_NAME:-?}"
   echo
+  # VPN status: "ok (egress 76.73.x.x)" when connected, "off" when skipped/failed,
+  # omitted entirely when not set (local runs).
+  if [[ "${VPN_OK:-}" == "true" ]]; then
+    echo "vpn: ok (egress ${VPN_EGRESS_IP:-unknown})"
+  elif [[ -n "${VPN_OK:-}" ]]; then
+    echo "vpn: off"
+  fi
+  echo
   if [[ -n "$REPORT_FILE" && -f "$REPORT_FILE" ]]; then
     cat "$REPORT_FILE"
   else
