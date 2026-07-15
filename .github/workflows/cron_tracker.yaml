@@ -252,12 +252,15 @@ jobs:
           # Wait for handshake (up to 15s). Print each check so we see progress.
           echo "::group::Waiting for handshake"
           HANDSHAKE_OK=false
+          START_TS=$(date +%s)
           for i in $(seq 1 15); do
             hs_raw="$(timeout 3 sudo wg show wg0 latest-handshakes 2>&1)"
             hs="$(echo "$hs_raw" | awk '{print $2}')"
-            echo "  t=${i}s raw='${hs_raw}' hs='${hs}'"
+            NOW_TS=$(date +%s)
+            ELAPSED=$(( NOW_TS - START_TS ))
+            echo "[${ELAPSED}s] check #${i} raw='${hs_raw}' hs='${hs}'"
             if [[ -n "$hs" && "$hs" != "0" ]]; then
-              echo "  HANDSHAKE OK at t=${i}s"
+              echo "  HANDSHAKE OK at ${ELAPSED}s"
               HANDSHAKE_OK=true
               break
             fi
