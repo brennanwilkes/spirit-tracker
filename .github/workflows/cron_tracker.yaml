@@ -253,8 +253,9 @@ jobs:
           echo "::group::Waiting for handshake"
           HANDSHAKE_OK=false
           for i in $(seq 1 15); do
-            hs="$(sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
-            echo "  t=${i}s handshake=${hs:-empty}"
+            hs_raw="$(timeout 3 sudo wg show wg0 latest-handshakes 2>&1)"
+            hs="$(echo "$hs_raw" | awk '{print $2}')"
+            echo "  t=${i}s raw='${hs_raw}' hs='${hs}'"
             if [[ -n "$hs" && "$hs" != "0" ]]; then
               echo "  HANDSHAKE OK at t=${i}s"
               HANDSHAKE_OK=true
