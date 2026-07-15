@@ -184,9 +184,23 @@ jobs:
 
           set -uo pipefail
 
-          echo "::group::Install WireGuard"
-          sudo apt-get update -qq 2>&1 | tail -1
-          sudo apt-get install -y -qq wireguard 2>&1 | tail -2
+          echo "::group::WireGuard tools check"
+          # ubuntu-latest already ships wireguard-tools (wg, wg-quick) — the diagnostic
+          # run verified this. Skip apt-get entirely to avoid hangs on flaky mirrors.
+          # Install only as a fallback if somehow missing.
+          if ! command -v wg-quick >/dev/null 2>&1; then
+            echo "wg-quick not found; installing wireguard-tools"
+            sudo timeout 60 apt-get update -qq 2>&1 | tail -1
+            sudo timeout 60 apt-get install -y -qq wireguard-tools 2>&1 | tail -2
+            rc=$?
+            if [[ $rc -ne 0 ]] || ! command -v wg-quick >/dev/null 2>&1; then
+              echo "::error::WireGuard tools install failed (rc=$rc); running without VPN"
+              echo "vpn_ok=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            echo "wg-quick already present: $(command -v wg-quick)"
+          fi
           echo "::endgroup::"
 
           echo "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
