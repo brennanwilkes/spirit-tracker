@@ -275,12 +275,17 @@ MSG_FILE="$(mktemp)"
   echo
   echo "runner: ip=${RUNNER_IP} run_id=${GITHUB_RUN_ID:-local} os=${RUNNER_OS:-?} name=${RUNNER_NAME:-?}"
   echo
-  # VPN status: "ok (egress 76.73.x.x)" when connected, "off" when skipped/failed,
-  # omitted entirely when not set (local runs).
-  if [[ "${VPN_OK:-}" == "true" ]]; then
-    echo "vpn: ok (egress ${VPN_EGRESS_IP:-unknown})"
+  # VPN diagnostics: multi-line content from the tunnel step's temp file.
+  # Each line is a self-contained status like "vpn: ok (egress X, store ...)".
+  if [[ -n "${VPN_DIAG_FILE:-}" && -f "$VPN_DIAG_FILE" ]]; then
+    cat "$VPN_DIAG_FILE"
   elif [[ -n "${VPN_OK:-}" ]]; then
-    echo "vpn: off"
+    # Fallback for older env-var style (local runs, etc.)
+    if [[ "$VPN_OK" == "true" ]]; then
+      echo "vpn: ok (egress ${VPN_EGRESS_IP:-unknown})"
+    else
+      echo "vpn: off"
+    fi
   fi
   echo
   if [[ -n "$REPORT_FILE" && -f "$REPORT_FILE" ]]; then

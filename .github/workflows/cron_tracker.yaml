@@ -162,8 +162,8 @@ jobs:
       # coop, colordevino, maltsandgrains) stop getting blocked by the runner's Azure
       # datacenter IP. Best-effort: if WireGuard isn't available, the config is missing,
       # or the tunnel fails the diagnostic check (egress IP unchanged / store still
-      # challenged), the tunnel is torn down and the run proceeds without it (normal
-      # store failures apply). VPN status is reported in the commit message body.
+      # challenged), the tunnel is torn down and the run proceeds without it. Detailed
+      # VPN diagnostics are written to a temp file and included in the commit message.
       - name: Connect ProtonVPN WireGuard tunnel
         id: wg
         continue-on-error: true
@@ -176,77 +176,83 @@ jobs:
           # The step still reports as failed (captured by steps.wg.outcome below).
           set +e
 
+          VPN_DIAG="$(mktemp)"
+          echo "vpn_diag_file=$VPN_DIAG" >> "$GITHUB_OUTPUT"
+
+          append_diag() { echo "$1" >> "$VPN_DIAG"; }
+
           if [[ -z "$WG_CONF" ]]; then
-            echo "WARN: PROTONVPN_WG_CONF secret not set; skipping VPN tunnel" >&2
-            echo "vpn_ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::PROTONVPN_WG_CONF secret not set; skipping VPN"
+            append_diag "vpn: off (secret not set)"
             exit 0
           fi
 
           set -uo pipefail
+          append_diag "vpn: starting"
 
-          echo "::group::WireGuard tools check"
-          # ubuntu-latest already ships wireguard-tools (wg, wg-quick) — the diagnostic
-          # run verified this. Skip apt-get entirely to avoid hangs on flaky mirrors.
-          # Install only as a fallback if somehow missing.
+          # --- Tools check ---
           if ! command -v wg-quick >/dev/null 2>&1; then
-            echo "wg-quick not found; installing wireguard-tools"
+            echo "::group::Install wireguard-tools"
             sudo timeout 60 apt-get update -qq 2>&1 | tail -1
             sudo timeout 60 apt-get install -y -qq wireguard-tools 2>&1 | tail -2
-            rc=$?
-            if [[ $rc -ne 0 ]] || ! command -v wg-quick >/dev/null 2>&1; then
-              echo "::error::WireGuard tools install failed (rc=$rc); running without VPN"
-              echo "vpn_ok=false" >> "$GITHUB_OUTPUT"
+            install_rc=$?
+            echo "::endgroup::"
+            if [[ $install_rc -ne 0 ]] || ! command -v wg-quick >/dev/null 2>&1; then
+              append_diag "vpn: off (wg-quick install failed, rc=$install_rc)"
               exit 0
             fi
-          else
-            echo "wg-quick already present: $(command -v wg-quick)"
           fi
-          echo "::endgroup::"
 
-          echo "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          # --- Bring up tunnel ---
+          # Strip DNS from config so wg-quick doesn't call resolvconf (intermittently
+          # deadlocks on GH runners). We set nameservers manually after.
+          echo "$WG_CONF" | grep -vi '^DNS' | sudo tee /etc/wireguard/wg0.conf > /dev/null
 
           echo "::group::wg-quick up wg0"
-          sudo timeout 30 wg-quick up wg0
+          sudo timeout 30 wg-quick up wg0 2>&1
           rc=$?
           echo "::endgroup::"
 
-          if [[ $rc -ne 0 ]]; then
-            echo "::error::wg-quick up failed (rc=$rc); running without VPN"
-            echo "vpn_ok=false" >> "$GITHUB_OUTPUT"
+          if [[ $rc -eq 124 ]]; then
+            append_diag "vpn: off (wg-quick timed out after 30s)"
+            exit 0
+          elif [[ $rc -ne 0 ]]; then
+            append_diag "vpn: off (wg-quick failed, rc=$rc)"
             exit 0
           fi
 
-          # ProtonVPN's DNS (10.2.0.1) was unreliable on GH runners; fall back to public.
+          # Set DNS manually (skipped by wg-quick since we stripped it).
           echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
           echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
 
-          # --- Diagnostic: prove the tunnel actually works before trusting it ---
-          # All commands are wrapped in `timeout` (process-level) as a belt-and-suspenders
-          # backstop on top of curl's --max-time (socket-level). A stall in DNS resolution
-          # or a wg-quick down hanging on nft would otherwise block until the 12-min job
-          # timeout kills the entire run.
+          # --- Egress IP check ---
           echo "::group::VPN diagnostic"
           EGRESS_IP="$(timeout 12 curl -fsS --max-time 8 https://api.ipify.org 2>/dev/null || echo "")"
-          echo "Egress IP through tunnel: ${EGRESS_IP:-UNREACHABLE}"
+          echo "Egress IP: ${EGRESS_IP:-UNREACHABLE}"
 
           if [[ -z "$EGRESS_IP" ]]; then
-            echo "::error::VPN diagnostic failed: egress IP unreachable through tunnel"
+            append_diag "vpn: off (egress IP unreachable through tunnel)"
             timeout 15 sudo wg-quick down wg0 2>/dev/null || true
-            echo "vpn_ok=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Fetch the WooCommerce Store API through the tunnel — if this returns JSON,
-          # the scraper would succeed. A Cloudflare challenge returns HTML with a 200.
-          API_BODY="$(timeout 20 curl -sS --max-time 15 -H "user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36" "$TEST_URL" 2>/dev/null || echo "")"
+          # --- Store API check ---
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+          API_OUT="$(timeout 20 curl -sS --max-time 15 -w '\n__CODE__%{http_code}' -H "user-agent: $UA" "$TEST_URL" 2>/dev/null || echo $'\n__CODE__ERR')"
+          API_CODE="${API_OUT##*$'\n'__CODE__}"
+          API_BODY="${API_OUT%$'\n'__CODE__*}"
+          API_BYTES="$(printf '%s' "$API_BODY" | wc -c | tr -d ' ')"
+
           if printf '%s' "$API_BODY" | head -c 2 | grep -q '\['; then
-            echo "VPN diagnostic OK: store API returned JSON through tunnel"
+            append_diag "vpn: ok (egress $EGRESS_IP, store API HTTP $API_CODE ${API_BYTES}B JSON)"
             echo "vpn_ok=true" >> "$GITHUB_OUTPUT"
             echo "vpn_egress_ip=$EGRESS_IP" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::VPN diagnostic failed: store API did not return JSON (CF challenge or error)"
+          elif printf '%s' "$API_BODY" | grep -qiE 'just a moment|challenge-platform|cf-mitigated|attention required'; then
+            append_diag "vpn: off (egress $EGRESS_IP, store CF-challenged, HTTP $API_CODE ${API_BYTES}B)"
             timeout 15 sudo wg-quick down wg0 2>/dev/null || true
-            echo "vpn_ok=false" >> "$GITHUB_OUTPUT"
+          else
+            append_diag "vpn: off (egress $EGRESS_IP, store API not JSON, HTTP $API_CODE ${API_BYTES}B)"
+            timeout 15 sudo wg-quick down wg0 2>/dev/null || true
           fi
           echo "::endgroup::"
 
@@ -262,9 +268,8 @@ jobs:
           # Lets run_daily.sh upload the freshly-encoded sku_embeddings.json to the
           # 'embeddings-latest' Release asset (gh CLI). contents:write (above) authorizes it.
           GH_TOKEN: ${{ github.token }}
-          # VPN status from the diagnostic step — run_daily.sh includes it in the commit message.
-          VPN_OK: ${{ steps.wg.outputs.vpn_ok }}
-          VPN_EGRESS_IP: ${{ steps.wg.outputs.vpn_egress_ip }}
+          # VPN diagnostics file from the tunnel step — run_daily.sh includes it in the commit message.
+          VPN_DIAG_FILE: ${{ steps.wg.outputs.vpn_diag_file }}
         run: |
           set -euo pipefail
           bash scripts/run_daily.sh
