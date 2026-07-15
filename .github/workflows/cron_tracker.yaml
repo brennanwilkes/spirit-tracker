@@ -182,7 +182,7 @@ jobs:
           VPN_DIAG="$(mktemp)"
           echo "vpn_diag_file=$VPN_DIAG" >> "$GITHUB_OUTPUT"
 
-          append_diag() { echo "$1" >> "$VPN_DIAG"; }
+          append_diag() { echo "$1" | tee -a "$VPN_DIAG"; }
 
           if [[ -z "$WG_CONF" ]]; then
             echo "::warning::PROTONVPN_WG_CONF secret not set; skipping VPN"
@@ -284,6 +284,13 @@ jobs:
             sudo ip link del wg0 2>/dev/null || true
           fi
           echo "::endgroup::"
+
+          # --- Final summary (always visible in step output) ---
+          VPN_RESULT="$(tail -1 "$VPN_DIAG")"
+          echo
+          echo "========================================"
+          echo "  VPN: ${VPN_RESULT#vpn: }"
+          echo "========================================"
 
       - name: Run your existing cron script (writes + pushes to data)
         id: daily
