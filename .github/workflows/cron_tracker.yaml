@@ -191,8 +191,19 @@ jobs:
           fi
 
           if ! command -v wg >/dev/null 2>&1; then
-            append_diag "vpn: off (wg binary not found)"
-            exit 0
+            echo "::group::Install wireguard"
+            # apt on GH runners is intermittently slow/flaky. DEBIAN_FRONTEND prevents
+            # interactive prompts (tzdata etc) from hanging; timeout + clean bail on failure.
+            export DEBIAN_FRONTEND=noninteractive
+            sudo timeout 120 apt-get update -qq 2>&1 | tail -1
+            sudo timeout 120 apt-get install -y -qq wireguard wireguard-tools 2>&1 | tail -3
+            install_rc=$?
+            echo "::endgroup::"
+            if [[ $install_rc -ne 0 ]] || ! command -v wg >/dev/null 2>&1; then
+              append_diag "vpn: off (wireguard install failed, rc=$install_rc)"
+              exit 0
+            fi
+            append_diag "vpn: wireguard installed (rc=0)"
           fi
 
           set -uo pipefail
