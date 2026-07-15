@@ -223,6 +223,21 @@ jobs:
           ADDR="$(grep -i '^Address' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d, -f1)"
 
           # --- Bring up tunnel manually ---
+          EP_HOST="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f1)"
+          EP_PORT="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f2)"
+          echo "Endpoint: $EP_HOST:$EP_PORT"
+
+          # Pre-flight: can we even reach the WireGuard endpoint over UDP?
+          echo "::group::Endpoint reachability"
+          if timeout 8 nc -u -z -v "$EP_HOST" "$EP_PORT" 2>&1; then
+            echo "UDP $EP_HOST:$EP_PORT reachable"
+          else
+            echo "UDP $EP_HOST:$EP_PORT UNREACHABLE"
+            append_diag "vpn: off (UDP $EP_HOST:$EP_PORT unreachable)"
+            exit 0
+          fi
+          echo "::endgroup::"
+
           sudo timeout 15 ip link add dev wg0 type wireguard 2>&1
           sudo timeout 15 wg setconf wg0 /tmp/wg0.setconf.conf 2>&1
           rc=$?
@@ -234,13 +249,14 @@ jobs:
           [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wg0 2>&1
           sudo timeout 15 ip link set up dev wg0 2>&1
 
-          # Wait for handshake (up to 15s).
+          # Wait for handshake (up to 15s). Print each check so we see progress.
           echo "::group::Waiting for handshake"
           HANDSHAKE_OK=false
           for i in $(seq 1 15); do
             hs="$(sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
+            echo "  t=${i}s handshake=${hs:-empty}"
             if [[ -n "$hs" && "$hs" != "0" ]]; then
-              echo "handshake at t=${i}s"
+              echo "  HANDSHAKE OK at t=${i}s"
               HANDSHAKE_OK=true
               break
             fi
@@ -249,7 +265,10 @@ jobs:
           echo "::endgroup::"
 
           if [[ "$HANDSHAKE_OK" != "true" ]]; then
-            append_diag "vpn: off (no handshake within 15s)"
+            echo "::group::wg show (post-failure diagnostics)"
+            sudo wg show wg0 2>&1 || true
+            echo "::endgroup::"
+            append_diag "vpn: off (no handshake within 15s, endpoint $EP_HOST:$EP_PORT)"
             sudo ip link del wg0 2>/dev/null || true
             exit 0
           fi
