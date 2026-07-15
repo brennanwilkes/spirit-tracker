@@ -164,6 +164,11 @@ jobs:
       # or the tunnel fails the diagnostic check (egress IP unchanged / store still
       # challenged), the tunnel is torn down and the run proceeds without it. Detailed
       # VPN diagnostics are written to a temp file and included in the commit message.
+      #
+      # Uses a MANUAL bring-up (wg setconf + ip/route/nft) instead of wg-quick to avoid
+      # the two things that intermittently hang on GH runners: apt-get (wg-quick install)
+      # and resolvconf (wg-quick DNS setup). The manual path was proven reliable in the
+      # VPN diagnostic workflow (vpn_diag.yaml step 6).
       - name: Connect ProtonVPN WireGuard tunnel
         id: wg
         continue-on-error: true
@@ -172,8 +177,6 @@ jobs:
           WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
           TEST_URL: "https://www.libertywinemerchants.com/wp-json/wc/store/v1/products?per_page=3&category=1075&stock_status=instock"
         run: |
-          # Disable errexit so we can handle failures gracefully and tear down on error.
-          # The step still reports as failed (captured by steps.wg.outcome below).
           set +e
 
           VPN_DIAG="$(mktemp)"
@@ -187,41 +190,67 @@ jobs:
             exit 0
           fi
 
-          set -uo pipefail
-          append_diag "vpn: starting"
-
-          # --- Tools check ---
-          if ! command -v wg-quick >/dev/null 2>&1; then
-            echo "::group::Install wireguard-tools"
-            sudo timeout 60 apt-get update -qq 2>&1 | tail -1
-            sudo timeout 60 apt-get install -y -qq wireguard-tools 2>&1 | tail -2
-            install_rc=$?
-            echo "::endgroup::"
-            if [[ $install_rc -ne 0 ]] || ! command -v wg-quick >/dev/null 2>&1; then
-              append_diag "vpn: off (wg-quick install failed, rc=$install_rc)"
-              exit 0
-            fi
+          if ! command -v wg >/dev/null 2>&1; then
+            append_diag "vpn: off (wg binary not found)"
+            exit 0
           fi
 
-          # --- Bring up tunnel ---
-          # Strip DNS from config so wg-quick doesn't call resolvconf (intermittently
-          # deadlocks on GH runners). We set nameservers manually after.
-          echo "$WG_CONF" | grep -vi '^DNS' | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          set -uo pipefail
+          append_diag "vpn: starting (manual bring-up)"
 
-          echo "::group::wg-quick up wg0"
-          sudo timeout 30 wg-quick up wg0 2>&1
+          # Write config and extract the tunnel address.
+          echo "$WG_CONF" > /tmp/wg0.conf
+
+          # Strip wg-quick-only directives (Address/DNS/Table/PostUp/…); `wg setconf`
+          # only understands the crypto/peer fields.
+          awk '
+            /^\[/ {sect=$0}
+            /^(Address|DNS|MTU|Table|PreUp|PostUp|PreDown|PostDown|SaveConfig)\s*=/ {next}
+            {print}
+          ' /tmp/wg0.conf > /tmp/wg0.setconf.conf
+
+          ADDR="$(grep -i '^Address' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d, -f1)"
+
+          # --- Bring up tunnel manually ---
+          sudo timeout 15 ip link add dev wg0 type wireguard 2>&1
+          sudo timeout 15 wg setconf wg0 /tmp/wg0.setconf.conf 2>&1
           rc=$?
+          if [[ $rc -ne 0 ]]; then
+            append_diag "vpn: off (wg setconf failed, rc=$rc)"
+            sudo ip link del wg0 2>/dev/null || true
+            exit 0
+          fi
+          [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wg0 2>&1
+          sudo timeout 15 ip link set up dev wg0 2>&1
+
+          # Wait for handshake (up to 15s).
+          echo "::group::Waiting for handshake"
+          HANDSHAKE_OK=false
+          for i in $(seq 1 15); do
+            hs="$(sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
+            if [[ -n "$hs" && "$hs" != "0" ]]; then
+              echo "handshake at t=${i}s"
+              HANDSHAKE_OK=true
+              break
+            fi
+            sleep 1
+          done
           echo "::endgroup::"
 
-          if [[ $rc -eq 124 ]]; then
-            append_diag "vpn: off (wg-quick timed out after 30s)"
-            exit 0
-          elif [[ $rc -ne 0 ]]; then
-            append_diag "vpn: off (wg-quick failed, rc=$rc)"
+          if [[ "$HANDSHAKE_OK" != "true" ]]; then
+            append_diag "vpn: off (no handshake within 15s)"
+            sudo ip link del wg0 2>/dev/null || true
             exit 0
           fi
 
-          # Set DNS manually (skipped by wg-quick since we stripped it).
+          # --- Add routes (what wg-quick would have done) ---
+          # Policy routing via fwmark so only tunnel-routed traffic goes through wg0.
+          sudo wg set wg0 fwmark 51820
+          sudo ip -4 rule add not fwmark 51820 table 51820
+          sudo ip -4 rule add table main suppress_prefixlength 0
+          sudo ip -4 route add 0.0.0.0/0 dev wg0 table 51820
+
+          # Set DNS manually (no resolvconf).
           echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
           echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
 
@@ -232,7 +261,7 @@ jobs:
 
           if [[ -z "$EGRESS_IP" ]]; then
             append_diag "vpn: off (egress IP unreachable through tunnel)"
-            timeout 15 sudo wg-quick down wg0 2>/dev/null || true
+            sudo ip link del wg0 2>/dev/null || true
             exit 0
           fi
 
@@ -249,10 +278,10 @@ jobs:
             echo "vpn_egress_ip=$EGRESS_IP" >> "$GITHUB_OUTPUT"
           elif printf '%s' "$API_BODY" | grep -qiE 'just a moment|challenge-platform|cf-mitigated|attention required'; then
             append_diag "vpn: off (egress $EGRESS_IP, store CF-challenged, HTTP $API_CODE ${API_BYTES}B)"
-            timeout 15 sudo wg-quick down wg0 2>/dev/null || true
+            sudo ip link del wg0 2>/dev/null || true
           else
             append_diag "vpn: off (egress $EGRESS_IP, store API not JSON, HTTP $API_CODE ${API_BYTES}B)"
-            timeout 15 sudo wg-quick down wg0 2>/dev/null || true
+            sudo ip link del wg0 2>/dev/null || true
           fi
           echo "::endgroup::"
 
