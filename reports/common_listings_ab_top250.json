@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-16T14:43:52.318Z",
+  "generatedAt": "2026-07-16T16:58:56.924Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18433,
-    "removedRows": 5228,
-    "canonSkus": 5919,
+    "liveRows": 18436,
+    "removedRows": 5229,
+    "canonSkus": 5918,
     "outputCount": 250
   },
   "rows": [
@@ -463,7 +463,7 @@
         "canadianliquor": 41.88,
         "clbspirits": 41.11,
         "coop": 34.99,
-        "craftcellars": 48.99,
+        "craftcellars": 37.99,
         "kegncork": 47.96,
         "kwm": 49.99,
         "lime": 44.99,
@@ -5183,7 +5183,7 @@
         "canadianliquor": 56.99,
         "clbspirits": 44.44,
         "coop": 56.99,
-        "craftcellars": 59.99,
+        "craftcellars": 42.99,
         "kegncork": 58.96,
         "lime": 49.99,
         "sherbrooke": 59.82,
@@ -5193,22 +5193,22 @@
         "zyn": 56
       },
       "representative": {
-        "name": "Knob Creek 9 Year Old Kentucky Straight Bourbon",
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Knob Creek 9 Year Old Small Batch Bourbon",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "326009",
         "skuKey": "326009",
-        "url": "https://www.bswliquor.com/products/knob-creek-bourbon",
+        "url": "https://craftcellars.ca/products/knob-creek-9yr-old-small-batch-bourbon",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/knob-creek-bourbon"
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/knob-creek-9yr-old-small-batch-bourbon"
       }
     },
     {
@@ -8240,6 +8240,65 @@
         "priceNum": 44.76,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/engine-gin-organic"
+      }
+    },
+    {
+      "canonSku": "335901",
+      "storeCount": 11,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "highlander",
+        "kwm",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 165,
+        "clbspirits": 164.18,
+        "coop": 189.99,
+        "craftcellars": 186.99,
+        "kegncork": 186.96,
+        "lime": 169.99,
+        "liquorama": 164.99,
+        "maltsandgrains": 199.9,
+        "willowpark": 169.99,
+        "wineandbeyond": 172.99,
+        "zyn": 177
+      },
+      "representative": {
+        "name": "The Glenlivet 18 Year Old 750ml",
+        "price": "$164.18",
+        "priceNum": 164.18,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "827217",
+        "skuKey": "827217",
+        "url": "https://clbspirits.com/products/glenlivet-18-year-old-batch-reserve",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$164.18",
+        "priceNum": 164.18,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/glenlivet-18-year-old-batch-reserve"
       }
     },
     {
@@ -11400,64 +11459,6 @@
         "priceNum": 64.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/tomatin-12-year-old"
-      }
-    },
-    {
-      "canonSku": "335901",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "coop",
-        "kegncork",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 165,
-        "clbspirits": 164.18,
-        "coop": 189.99,
-        "kegncork": 186.96,
-        "lime": 169.99,
-        "liquorama": 164.99,
-        "maltsandgrains": 199.9,
-        "willowpark": 169.99,
-        "wineandbeyond": 172.99,
-        "zyn": 177
-      },
-      "representative": {
-        "name": "The Glenlivet 18 Year Old 750ml",
-        "price": "$164.18",
-        "priceNum": 164.18,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "827217",
-        "skuKey": "827217",
-        "url": "https://clbspirits.com/products/glenlivet-18-year-old-batch-reserve",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$164.18",
-        "priceNum": 164.18,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/glenlivet-18-year-old-batch-reserve"
       }
     },
     {
