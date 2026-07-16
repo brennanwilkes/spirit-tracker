@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-16T16:58:55.227Z",
+  "generatedAt": "2026-07-16T19:33:53.560Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6353,
-    "removedRows": 809,
-    "canonSkus": 2510,
+    "liveRows": 6356,
+    "removedRows": 808,
+    "canonSkus": 2511,
     "outputCount": 50
   },
   "rows": [
@@ -2001,58 +2001,6 @@
       }
     },
     {
-      "canonSku": "177808",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.49,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 32.3,
-        "legacyliquor": 30.99,
-        "liquorwarehouse": 29.49,
-        "newdistrict": 32.49,
-        "strath": 32.96,
-        "tudor": 29.99,
-        "vessel": 31.99
-      },
-      "representative": {
-        "name": "APPLETON ESTATE 750ML",
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "liquorwarehouse",
-        "storeLabel": "Liquor Warehouse",
-        "skuRaw": "177808",
-        "skuKey": "177808",
-        "url": "https://liquorwarehouse.ca/products/177808",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/liquorwarehouse__rum__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "liquorwarehouse",
-        "url": "https://liquorwarehouse.ca/products/177808"
-      }
-    },
-    {
       "canonSku": "185921",
       "storeCount": 10,
       "stores": [
@@ -2566,6 +2514,57 @@
         "priceNum": 29.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/52050"
+      }
+    },
+    {
+      "canonSku": "177808",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.49,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 32.3,
+        "legacyliquor": 30.99,
+        "newdistrict": 32.49,
+        "strath": 32.96,
+        "tudor": 29.99,
+        "vessel": 31.99
+      },
+      "representative": {
+        "name": "APPLETON ESTATE - SIGNATURE BLEND",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "177808",
+        "skuKey": "177808",
+        "url": "https://www.bcliquorstores.com/product/177808",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/177808"
       }
     },
     {

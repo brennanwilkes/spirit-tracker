@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-16T16:58:55.852Z",
+  "generatedAt": "2026-07-16T19:33:54.130Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6353,
-    "removedRows": 809,
-    "canonSkus": 2510,
+    "liveRows": 6356,
+    "removedRows": 808,
+    "canonSkus": 2511,
     "outputCount": 1000
   },
   "rows": [
@@ -2054,58 +2054,6 @@
       }
     },
     {
-      "canonSku": "177808",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.49,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 32.3,
-        "legacyliquor": 30.99,
-        "liquorwarehouse": 29.49,
-        "newdistrict": 32.49,
-        "strath": 32.96,
-        "tudor": 29.99,
-        "vessel": 31.99
-      },
-      "representative": {
-        "name": "APPLETON ESTATE 750ML",
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "liquorwarehouse",
-        "storeLabel": "Liquor Warehouse",
-        "skuRaw": "177808",
-        "skuKey": "177808",
-        "url": "https://liquorwarehouse.ca/products/177808",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/liquorwarehouse__rum__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "liquorwarehouse",
-        "url": "https://liquorwarehouse.ca/products/177808"
-      }
-    },
-    {
       "canonSku": "185921",
       "storeCount": 10,
       "stores": [
@@ -3803,6 +3751,57 @@
       }
     },
     {
+      "canonSku": "177808",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.49,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 32.3,
+        "legacyliquor": 30.99,
+        "newdistrict": 32.49,
+        "strath": 32.96,
+        "tudor": 29.99,
+        "vessel": 31.99
+      },
+      "representative": {
+        "name": "APPLETON ESTATE - SIGNATURE BLEND",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "177808",
+        "skuKey": "177808",
+        "url": "https://www.bcliquorstores.com/product/177808",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/177808"
+      }
+    },
+    {
       "canonSku": "186109",
       "storeCount": 9,
       "stores": [
@@ -4186,7 +4185,7 @@
         "highpointbws": 44.99,
         "legacyliquor": 41.8,
         "liberty": 51.99,
-        "marquis": 44.99,
+        "marquis": 49.99,
         "strath": 43.39,
         "tudor": 42.99,
         "vintage": 38.17
@@ -4971,6 +4970,56 @@
         "priceNum": 33.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380?variant=1305"
+      }
+    },
+    {
+      "canonSku": "001800",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 39.59,
+        "bcl": 38.99,
+        "gull": 38.75,
+        "legacyliquor": 42.99,
+        "liquorwarehouse": 41.99,
+        "newdistrict": 42.79,
+        "tudor": 40.99,
+        "vessel": 37.49
+      },
+      "representative": {
+        "name": "JP Wiser's - Deluxe Whisky",
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "001800",
+        "skuKey": "001800",
+        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$37.49",
+        "priceNum": 37.49,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
       }
     },
     {
@@ -7815,55 +7864,6 @@
         "priceNum": 41.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4586589-tanqueray-1-14l"
-      }
-    },
-    {
-      "canonSku": "001800",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 39.59,
-        "bcl": 38.99,
-        "gull": 38.75,
-        "liquorwarehouse": 41.99,
-        "newdistrict": 42.79,
-        "tudor": 40.99,
-        "vessel": 37.49
-      },
-      "representative": {
-        "name": "JP Wiser's - Deluxe Whisky",
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "001800",
-        "skuKey": "001800",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$37.49",
-        "priceNum": 37.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
       }
     },
     {
@@ -34406,6 +34406,51 @@
       }
     },
     {
+      "canonSku": "413716",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 10.69,
+        "legacyliquor": 10.99,
+        "tudor": 10.99
+      },
+      "representative": {
+        "name": "JP WISERS DELUXE",
+        "price": "$10.69",
+        "priceNum": 10.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "413716",
+        "skuKey": "413716",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069283-jp-wisers-deluxe",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$10.69",
+        "priceNum": 10.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069283-jp-wisers-deluxe"
+      }
+    },
+    {
       "canonSku": "415169",
       "storeCount": 3,
       "stores": [
@@ -45185,50 +45230,6 @@
         "priceNum": 121.35,
         "storeKey": "strath",
         "url": "https://www.strathliquor.com/product/dalwhinnie-distillers-edition-2022-release/"
-      }
-    },
-    {
-      "canonSku": "413716",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "tudor"
-      ],
-      "missingStores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 10.69,
-        "tudor": 10.99
-      },
-      "representative": {
-        "name": "JP WISERS DELUXE",
-        "price": "$10.69",
-        "priceNum": 10.69,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "413716",
-        "skuKey": "413716",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069283-jp-wisers-deluxe",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$10.69",
-        "priceNum": 10.69,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069283-jp-wisers-deluxe"
       }
     },
     {
