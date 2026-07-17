@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T16:58:08.197Z",
+  "generatedAt": "2026-07-17T19:04:27.365Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6355,
-    "removedRows": 809,
+    "liveRows": 6363,
+    "removedRows": 802,
     "canonSkus": 2511,
     "outputCount": 50
   },
@@ -313,6 +313,60 @@
       }
     },
     {
+      "canonSku": "001610",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 31.69,
+        "bcl": 30.99,
+        "everythingwine": 30.99,
+        "gull": 33,
+        "highpointbws": 32.99,
+        "legacyliquor": 32.54,
+        "liberty": 38.99,
+        "liquorwarehouse": 31.49,
+        "newdistrict": 32.99,
+        "strath": 31.31,
+        "tudor": 30.99,
+        "vessel": 31.99
+      },
+      "representative": {
+        "name": "BALLANTINE'S - FINEST",
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://www.bcliquorstores.com/product/1610",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$30.99",
+        "priceNum": 30.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1610"
+      }
+    },
+    {
       "canonSku": "005207",
       "storeCount": 12,
       "stores": [
@@ -364,60 +418,6 @@
         "priceNum": 47.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/600163"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis"
-      ],
-      "storePrices": {
-        "arc": 49.99,
-        "bcl": 54.99,
-        "everythingwine": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -743,56 +743,56 @@
       }
     },
     {
-      "canonSku": "001610",
+      "canonSku": "006968",
       "storeCount": 11,
       "stores": [
-        "arc",
         "bcl",
         "everythingwine",
         "gull",
         "highpointbws",
-        "liberty",
+        "legacyliquor",
         "liquorwarehouse",
         "newdistrict",
         "strath",
         "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "marquis",
+        "vessel",
         "vintage"
       ],
+      "missingStores": [
+        "arc",
+        "liberty",
+        "marquis"
+      ],
       "storePrices": {
-        "arc": 31.69,
-        "bcl": 30.99,
-        "everythingwine": 30.99,
-        "gull": 33,
-        "highpointbws": 32.99,
-        "liberty": 38.99,
-        "liquorwarehouse": 31.49,
-        "newdistrict": 32.99,
-        "strath": 31.31,
-        "tudor": 30.99,
-        "vessel": 31.99
+        "bcl": 54.99,
+        "everythingwine": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "vintage": 60.78
       },
       "representative": {
-        "name": "BALLANTINE'S - FINEST",
-        "price": "$30.99",
-        "priceNum": 30.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://www.bcliquorstores.com/product/1610",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
       },
       "cheapest": {
-        "price": "$30.99",
-        "priceNum": 30.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1610"
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -952,6 +952,59 @@
         "priceNum": 53.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/victoria-distillers-empress-1908-cucumber-lemon-gin"
+      }
+    },
+    {
+      "canonSku": "114799",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 66.39,
+        "bcl": 75.99,
+        "everythingwine": 75.99,
+        "gull": 67.05,
+        "highpointbws": 84.49,
+        "legacyliquor": 80.09,
+        "marquis": 78.99,
+        "newdistrict": 81.29,
+        "strath": 77.57,
+        "tudor": 75.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "GLENMORANGIE 12YO THE ORIGINAL",
+        "price": "$66.39",
+        "priceNum": 66.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "309562",
+        "skuKey": "309562",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$66.39",
+        "priceNum": 66.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original"
       }
     },
     {
@@ -1847,58 +1900,6 @@
       }
     },
     {
-      "canonSku": "114799",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 66.39,
-        "bcl": 75.99,
-        "everythingwine": 75.99,
-        "gull": 67.05,
-        "highpointbws": 84.49,
-        "marquis": 78.99,
-        "newdistrict": 81.29,
-        "strath": 77.57,
-        "tudor": 75.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "GLENMORANGIE 12YO THE ORIGINAL",
-        "price": "$66.39",
-        "priceNum": 66.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "309562",
-        "skuKey": "309562",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$66.39",
-        "priceNum": 66.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original"
-      }
-    },
-    {
       "canonSku": "125930",
       "storeCount": 10,
       "stores": [
@@ -2185,7 +2186,7 @@
         "everythingwine": 80.99,
         "gull": 84.99,
         "highpointbws": 85.79,
-        "legacyliquor": 83.49,
+        "legacyliquor": 84.58,
         "liquorwarehouse": 82.99,
         "marquis": 82.99,
         "tudor": 80.99,
