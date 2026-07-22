@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-22T04:07:27.081Z",
+  "generatedAt": "2026-07-22T12:27:06.677Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6335,
-    "removedRows": 841,
-    "canonSkus": 2496,
+    "liveRows": 6354,
+    "removedRows": 845,
+    "canonSkus": 2517,
     "outputCount": 1000
   },
   "rows": [
@@ -420,6 +420,60 @@
       }
     },
     {
+      "canonSku": "006968",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 54.99,
+        "everythingwine": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
       "canonSku": "249680",
       "storeCount": 12,
       "stores": [
@@ -739,59 +793,6 @@
         "priceNum": 21.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 11,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "marquis"
-      ],
-      "storePrices": {
-        "bcl": 54.99,
-        "everythingwine": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -3092,57 +3093,6 @@
       }
     },
     {
-      "canonSku": "003517",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "everythingwine": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "liquorwarehouse": 12.49,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
       "canonSku": "003558",
       "storeCount": 9,
       "stores": [
@@ -4972,6 +4922,56 @@
         "priceNum": 37.49,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "everythingwine": 11.99,
+        "gull": 13.05,
+        "liquorwarehouse": 12.49,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -16187,53 +16187,6 @@
       }
     },
     {
-      "canonSku": "118566",
-      "storeCount": 5,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 120.29,
-        "bcl": 129.99,
-        "gull": 132.99,
-        "tudor": 129.99,
-        "vessel": 124.99
-      },
-      "representative": {
-        "name": "GLENMORANGIE 16YO THE NECTAR",
-        "price": "$120.29",
-        "priceNum": 120.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "269608",
-        "skuKey": "269608",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4752590-glenmorangie-16yo-the-nectar",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$120.29",
-        "priceNum": 120.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4752590-glenmorangie-16yo-the-nectar"
-      }
-    },
-    {
       "canonSku": "119950",
       "storeCount": 5,
       "stores": [
@@ -21923,6 +21876,52 @@
       }
     },
     {
+      "canonSku": "118566",
+      "storeCount": 4,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 120.29,
+        "bcl": 129.99,
+        "gull": 132.99,
+        "vessel": 124.99
+      },
+      "representative": {
+        "name": "GLENMORANGIE 16YO THE NECTAR",
+        "price": "$120.29",
+        "priceNum": 120.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "269608",
+        "skuKey": "269608",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752590-glenmorangie-16yo-the-nectar",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$120.29",
+        "priceNum": 120.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4752590-glenmorangie-16yo-the-nectar"
+      }
+    },
+    {
       "canonSku": "119597",
       "storeCount": 4,
       "stores": [
@@ -27520,51 +27519,6 @@
       }
     },
     {
-      "canonSku": "054841",
-      "storeCount": 3,
-      "stores": [
-        "bcl",
-        "gull",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 53.99,
-        "gull": 56.65,
-        "tudor": 53.99
-      },
-      "representative": {
-        "name": "LAMB'S - NAVY",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "054841",
-        "skuKey": "054841",
-        "url": "https://www.bcliquorstores.com/product/54841",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/54841"
-      }
-    },
-    {
       "canonSku": "056440",
       "storeCount": 3,
       "stores": [
@@ -31075,6 +31029,51 @@
       }
     },
     {
+      "canonSku": "194726",
+      "storeCount": 3,
+      "stores": [
+        "everythingwine",
+        "newdistrict",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "everythingwine": 28.98,
+        "newdistrict": 25.79,
+        "tudor": 24.99
+      },
+      "representative": {
+        "name": "Tofino Lavender Mint 375ML",
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "194726",
+        "skuKey": "194726",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tofino-lavender-mint-ml-350?variant=194726",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/tudor__gin__26c75caf.json"
+      },
+      "cheapest": {
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tofino-lavender-mint-ml-350?variant=194726"
+      }
+    },
+    {
       "canonSku": "200507",
       "storeCount": 3,
       "stores": [
@@ -32647,51 +32646,6 @@
         "priceNum": 59.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/angostura-1919-8-year-old-rum"
-      }
-    },
-    {
-      "canonSku": "314781",
-      "storeCount": 3,
-      "stores": [
-        "everythingwine",
-        "highpointbws",
-        "liquorwarehouse"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "everythingwine": 103.98,
-        "highpointbws": 102.99,
-        "liquorwarehouse": 97.99
-      },
-      "representative": {
-        "name": "BAKERS BOURBON 750ML",
-        "price": "$97.99",
-        "priceNum": 97.99,
-        "storeKey": "liquorwarehouse",
-        "storeLabel": "Liquor Warehouse",
-        "skuRaw": "314781",
-        "skuKey": "314781",
-        "url": "https://liquorwarehouse.ca/products/bakers-bourbon",
-        "categoryLabel": "Whiskey/Scotch",
-        "dbFile": "data/db/liquorwarehouse__whiskey-scotch__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$97.99",
-        "priceNum": 97.99,
-        "storeKey": "liquorwarehouse",
-        "url": "https://liquorwarehouse.ca/products/bakers-bourbon"
       }
     },
     {
@@ -37710,6 +37664,50 @@
       }
     },
     {
+      "canonSku": "054841",
+      "storeCount": 2,
+      "stores": [
+        "bcl",
+        "gull"
+      ],
+      "missingStores": [
+        "arc",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 53.99,
+        "gull": 56.65
+      },
+      "representative": {
+        "name": "LAMB'S - NAVY",
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "054841",
+        "skuKey": "054841",
+        "url": "https://www.bcliquorstores.com/product/54841",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/54841"
+      }
+    },
+    {
       "canonSku": "055155",
       "storeCount": 2,
       "stores": [
@@ -42638,50 +42636,6 @@
       }
     },
     {
-      "canonSku": "194726",
-      "storeCount": 2,
-      "stores": [
-        "newdistrict",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "newdistrict": 25.79,
-        "tudor": 24.99
-      },
-      "representative": {
-        "name": "Tofino Lavender Mint 375ML",
-        "price": "$24.99",
-        "priceNum": 24.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "194726",
-        "skuKey": "194726",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tofino-lavender-mint-ml-350?variant=194726",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
-      },
-      "cheapest": {
-        "price": "$24.99",
-        "priceNum": 24.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tofino-lavender-mint-ml-350?variant=194726"
-      }
-    },
-    {
       "canonSku": "195099",
       "storeCount": 2,
       "stores": [
@@ -44527,6 +44481,50 @@
         "priceNum": 129.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/glenallachie-10y-cas-ml-420"
+      }
+    },
+    {
+      "canonSku": "314781",
+      "storeCount": 2,
+      "stores": [
+        "everythingwine",
+        "highpointbws"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "everythingwine": 103.98,
+        "highpointbws": 102.99
+      },
+      "representative": {
+        "name": "BAKERS 7YR BOURBON",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "highpointbws",
+        "storeLabel": "High Point BWS",
+        "skuRaw": "314781",
+        "skuKey": "314781",
+        "url": "https://shop.highpointbws.com/products/2703726-bakers-7yr-bourbon",
+        "categoryLabel": "Whiskey",
+        "dbFile": "data/db/highpointbws__whiskey__91b4573f.json"
+      },
+      "cheapest": {
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "highpointbws",
+        "url": "https://shop.highpointbws.com/products/2703726-bakers-7yr-bourbon"
       }
     },
     {

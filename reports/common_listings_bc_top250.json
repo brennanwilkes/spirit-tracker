@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-22T04:07:26.754Z",
+  "generatedAt": "2026-07-22T12:27:06.350Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6335,
-    "removedRows": 841,
-    "canonSkus": 2496,
+    "liveRows": 6354,
+    "removedRows": 845,
+    "canonSkus": 2517,
     "outputCount": 250
   },
   "rows": [
@@ -420,6 +420,60 @@
       }
     },
     {
+      "canonSku": "006968",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 54.99,
+        "everythingwine": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
       "canonSku": "249680",
       "storeCount": 12,
       "stores": [
@@ -739,59 +793,6 @@
         "priceNum": 21.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 11,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "marquis"
-      ],
-      "storePrices": {
-        "bcl": 54.99,
-        "everythingwine": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -3092,57 +3093,6 @@
       }
     },
     {
-      "canonSku": "003517",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "everythingwine": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.23,
-        "liquorwarehouse": 12.49,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
       "canonSku": "003558",
       "storeCount": 9,
       "stores": [
@@ -4972,6 +4922,56 @@
         "priceNum": 37.49,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/jp-wisers-deluxe-whisky-1140-ml"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "everythingwine": 11.99,
+        "gull": 13.05,
+        "liquorwarehouse": 12.49,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
