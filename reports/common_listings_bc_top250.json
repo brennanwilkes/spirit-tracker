@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T04:05:58.121Z",
+  "generatedAt": "2026-07-23T08:18:30.612Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6364,
-    "removedRows": 836,
-    "canonSkus": 2515,
+    "liveRows": 6356,
+    "removedRows": 844,
+    "canonSkus": 2513,
     "outputCount": 250
   },
   "rows": [
@@ -9195,6 +9195,55 @@
       }
     },
     {
+      "canonSku": "210760",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 109.99,
+        "everythingwine": 109.99,
+        "gull": 108.99,
+        "legacyliquor": 116.77,
+        "liquorwarehouse": 114.99,
+        "strath": 107.31,
+        "tudor": 119.99
+      },
+      "representative": {
+        "name": "GlenAllachie - 12 Years Old",
+        "price": "$107.31",
+        "priceNum": 107.31,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
+        "skuRaw": "210760",
+        "skuKey": "210760",
+        "url": "https://www.strathliquor.com/product/glenallachie-12-years-old/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
+      },
+      "cheapest": {
+        "price": "$107.31",
+        "priceNum": 107.31,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/glenallachie-12-years-old/"
+      }
+    },
+    {
       "canonSku": "252312",
       "storeCount": 7,
       "stores": [
@@ -12082,53 +12131,6 @@
         "priceNum": 144.97,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/66338"
-      }
-    },
-    {
-      "canonSku": "086213",
-      "storeCount": 5,
-      "stores": [
-        "everythingwine",
-        "gull",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "everythingwine": 119.98,
-        "gull": 109.99,
-        "strath": 109.79,
-        "tudor": 119.99,
-        "vessel": 104.99
-      },
-      "representative": {
-        "name": "Tobermory - 12 Year Old Single Malt Scotch",
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "086213",
-        "skuKey": "086213",
-        "url": "https://vesselliquor.com/products/tobermory-12-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$104.99",
-        "priceNum": 104.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/tobermory-12-year-old-single-malt-scotch"
       }
     },
     {
