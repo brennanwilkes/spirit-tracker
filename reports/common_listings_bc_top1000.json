@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-24T19:51:52.363Z",
+  "generatedAt": "2026-07-24T22:49:02.312Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -34,7 +34,7 @@
   "totals": {
     "liveRows": 6362,
     "removedRows": 846,
-    "canonSkus": 2524,
+    "canonSkus": 2521,
     "outputCount": 1000
   },
   "rows": [
@@ -259,6 +259,61 @@
       }
     },
     {
+      "canonSku": "006968",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 54.99,
+        "everythingwine": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "marquis": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 52.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
       "canonSku": "001099",
       "storeCount": 12,
       "stores": [
@@ -418,60 +473,6 @@
         "priceNum": 47.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/600163"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis"
-      ],
-      "storePrices": {
-        "arc": 49.99,
-        "bcl": 54.99,
-        "everythingwine": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 52.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -741,6 +742,59 @@
         "priceNum": 26.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/beefeater-london-dry-gin-750-ml"
+      }
+    },
+    {
+      "canonSku": "000893",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 26.99,
+        "bcl": 28.49,
+        "everythingwine": 28.49,
+        "gull": 30.25,
+        "highpointbws": 31.79,
+        "legacyliquor": 28.99,
+        "liquorwarehouse": 27.49,
+        "marquis": 30.99,
+        "newdistrict": 30.29,
+        "tudor": 26.49,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "J. P. WISER'S DELUXE 750ML",
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "000893",
+        "skuKey": "000893",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-deluxe-ml-380?variant=893",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-deluxe-ml-380?variant=893"
       }
     },
     {
@@ -1430,58 +1484,6 @@
         "priceNum": 59.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
-      }
-    },
-    {
-      "canonSku": "000893",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 26.99,
-        "bcl": 28.49,
-        "everythingwine": 28.49,
-        "gull": 30.25,
-        "highpointbws": 31.79,
-        "legacyliquor": 28.99,
-        "liquorwarehouse": 27.49,
-        "newdistrict": 30.29,
-        "tudor": 26.49,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "J. P. WISER'S DELUXE 750ML",
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "000893",
-        "skuKey": "000893",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-deluxe-ml-380?variant=893",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-deluxe-ml-380?variant=893"
       }
     },
     {
@@ -13395,6 +13397,54 @@
       }
     },
     {
+      "canonSku": "420147",
+      "storeCount": 6,
+      "stores": [
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "gull",
+        "liberty",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "everythingwine": 78.98,
+        "highpointbws": 79.29,
+        "legacyliquor": 81.99,
+        "liquorwarehouse": 79.99,
+        "marquis": 89.99,
+        "tudor": 79.99
+      },
+      "representative": {
+        "name": "The Wiseman Kentucky Straight Bourbon 750 mL",
+        "price": "$78.98",
+        "priceNum": 78.98,
+        "storeKey": "everythingwine",
+        "storeLabel": "Everything Wine",
+        "skuRaw": "420147",
+        "skuKey": "420147",
+        "url": "https://www.everythingwine.ca/the-wiseman-kentucky-straight-bourbon-750-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/everythingwine__whisky__2241c6e6.json"
+      },
+      "cheapest": {
+        "price": "$78.98",
+        "priceNum": 78.98,
+        "storeKey": "everythingwine",
+        "url": "https://www.everythingwine.ca/the-wiseman-kentucky-straight-bourbon-750-ml"
+      }
+    },
+    {
       "canonSku": "431724",
       "storeCount": 6,
       "stores": [
@@ -18020,53 +18070,6 @@
         "priceNum": 239.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/black-tot-master-ble-ml-360"
-      }
-    },
-    {
-      "canonSku": "420147",
-      "storeCount": 5,
-      "stores": [
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "gull",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "everythingwine": 78.98,
-        "highpointbws": 79.29,
-        "legacyliquor": 81.99,
-        "liquorwarehouse": 79.99,
-        "tudor": 79.99
-      },
-      "representative": {
-        "name": "The Wiseman Kentucky Straight Bourbon 750 mL",
-        "price": "$78.98",
-        "priceNum": 78.98,
-        "storeKey": "everythingwine",
-        "storeLabel": "Everything Wine",
-        "skuRaw": "420147",
-        "skuKey": "420147",
-        "url": "https://www.everythingwine.ca/the-wiseman-kentucky-straight-bourbon-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/everythingwine__whisky__2241c6e6.json"
-      },
-      "cheapest": {
-        "price": "$78.98",
-        "priceNum": 78.98,
-        "storeKey": "everythingwine",
-        "url": "https://www.everythingwine.ca/the-wiseman-kentucky-straight-bourbon-750-ml"
       }
     },
     {
