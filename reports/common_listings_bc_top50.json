@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-29T17:08:19.954Z",
+  "generatedAt": "2026-07-29T18:54:16.530Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 9
+      "cutoffStoreCount": 10
     }
   },
   "storeCount": 14,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6351,
-    "removedRows": 870,
-    "canonSkus": 2519,
+    "liveRows": 6364,
+    "removedRows": 860,
+    "canonSkus": 2520,
     "outputCount": 50
   },
   "rows": [
@@ -170,9 +170,9 @@
         "liberty"
       ],
       "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
+        "arc": 28.79,
+        "bcl": 24.99,
+        "everythingwine": 24.99,
         "gull": 29.5,
         "highpointbws": 31.29,
         "legacyliquor": 31.81,
@@ -185,22 +185,22 @@
         "vintage": 33.83
       },
       "representative": {
-        "name": "Bombay Sapphire - London Dry Gin",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "BOMBAY SAPPHIRE - LONDON DRY",
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "316844",
         "skuKey": "316844",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
+        "url": "https://www.bcliquorstores.com/product/316844",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
       },
       "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
+        "price": "$24.99",
+        "priceNum": 24.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/316844"
       }
     },
     {
@@ -256,6 +256,61 @@
         "priceNum": 27.49,
         "storeKey": "everythingwine",
         "url": "https://www.everythingwine.ca/tanqueray-special-dry-gin-750-ml"
+      }
+    },
+    {
+      "canonSku": "006968",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty"
+      ],
+      "storePrices": {
+        "arc": 49.99,
+        "bcl": 50.99,
+        "everythingwine": 54.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "marquis": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 55.99,
+        "vessel": 51.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -393,7 +448,7 @@
         "arc": 31.59,
         "bcl": 32.99,
         "everythingwine": 30.99,
-        "gull": 32.45,
+        "gull": 35.2,
         "highpointbws": 36.99,
         "legacyliquor": 34.99,
         "liquorwarehouse": 34.99,
@@ -531,60 +586,6 @@
       }
     },
     {
-      "canonSku": "006968",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liberty"
-      ],
-      "storePrices": {
-        "arc": 49.99,
-        "bcl": 50.99,
-        "everythingwine": 54.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "liquorwarehouse": 56.99,
-        "marquis": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 51.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
-      }
-    },
-    {
       "canonSku": "656546",
       "storeCount": 12,
       "stores": [
@@ -663,7 +664,7 @@
         "arc": 102.69,
         "bcl": 105.99,
         "everythingwine": 97.99,
-        "gull": 96.99,
+        "gull": 109.99,
         "highpointbws": 117.29,
         "legacyliquor": 110.8,
         "liquorwarehouse": 109.99,
@@ -674,22 +675,22 @@
         "vessel": 99.99
       },
       "representative": {
-        "name": "Lagavulin – 8 Year Old 750ml",
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
+        "name": "Lagavulin 8Yr Old Scotch Whisky 750 mL",
+        "price": "$97.99",
+        "priceNum": 97.99,
+        "storeKey": "everythingwine",
+        "storeLabel": "Everything Wine",
         "skuRaw": "665257",
         "skuKey": "665257",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/",
+        "url": "https://www.everythingwine.ca/lagavulin-8yr-old-scotch-whisky-750-ml",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "dbFile": "data/db/everythingwine__whisky__2241c6e6.json"
       },
       "cheapest": {
-        "price": "$96.99",
-        "priceNum": 96.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/lagavulin-8-y-o-750m/"
+        "price": "$97.99",
+        "priceNum": 97.99,
+        "storeKey": "everythingwine",
+        "url": "https://www.everythingwine.ca/lagavulin-8yr-old-scotch-whisky-750-ml"
       }
     },
     {
@@ -902,6 +903,59 @@
         "priceNum": 75.49,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590771-ardbeg-wee-beastie-5yo"
+      }
+    },
+    {
+      "canonSku": "102439",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 57.69,
+        "bcl": 54.99,
+        "everythingwine": 55.99,
+        "gull": 58.7,
+        "highpointbws": 61.29,
+        "legacyliquor": 57.89,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 58.49,
+        "strath": 58.17,
+        "tudor": 55.99,
+        "vessel": 53.99
+      },
+      "representative": {
+        "name": "Victoria Distillers - Empress 1908 Cucumber Lemon Gin",
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "322076",
+        "skuKey": "322076",
+        "url": "https://vesselliquor.com/products/victoria-distillers-empress-1908-cucumber-lemon-gin",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/vessel__gin__679fac36.json"
+      },
+      "cheapest": {
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/victoria-distillers-empress-1908-cucumber-lemon-gin"
       }
     },
     {
@@ -1693,58 +1747,6 @@
       }
     },
     {
-      "canonSku": "102439",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 57.69,
-        "bcl": 54.99,
-        "everythingwine": 55.99,
-        "gull": 58.7,
-        "highpointbws": 61.29,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 58.49,
-        "strath": 58.17,
-        "tudor": 55.99,
-        "vessel": 53.99
-      },
-      "representative": {
-        "name": "Victoria Distillers - Empress 1908 Cucumber Lemon Gin",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "322076",
-        "skuKey": "322076",
-        "url": "https://vesselliquor.com/products/victoria-distillers-empress-1908-cucumber-lemon-gin",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/victoria-distillers-empress-1908-cucumber-lemon-gin"
-      }
-    },
-    {
       "canonSku": "108649",
       "storeCount": 10,
       "stores": [
@@ -2029,7 +2031,7 @@
         "arc": 34.89,
         "bcl": 32.99,
         "everythingwine": 32.99,
-        "gull": 34.95,
+        "gull": 35.3,
         "highpointbws": 34.99,
         "legacyliquor": 38.1,
         "liquorwarehouse": 34.49,
@@ -2470,6 +2472,57 @@
       }
     },
     {
+      "canonSku": "052050",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 30.09,
+        "bcl": 29.49,
+        "everythingwine": 29.49,
+        "gull": 31.25,
+        "highpointbws": 31.29,
+        "legacyliquor": 30.99,
+        "strath": 29.66,
+        "tudor": 29.49,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "052050",
+        "skuKey": "052050",
+        "url": "https://www.bcliquorstores.com/product/52050",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/52050"
+      }
+    },
+    {
       "canonSku": "074548",
       "storeCount": 9,
       "stores": [
@@ -2620,56 +2673,6 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
-      }
-    },
-    {
-      "canonSku": "052050",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 30.09,
-        "bcl": 29.49,
-        "everythingwine": 29.49,
-        "highpointbws": 31.29,
-        "legacyliquor": 30.99,
-        "strath": 29.66,
-        "tudor": 29.49,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "052050",
-        "skuKey": "052050",
-        "url": "https://www.bcliquorstores.com/product/52050",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/52050"
       }
     }
   ]
