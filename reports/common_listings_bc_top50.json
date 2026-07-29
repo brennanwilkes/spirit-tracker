@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-29T04:02:52.665Z",
+  "generatedAt": "2026-07-29T08:56:03.140Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 10
+      "cutoffStoreCount": 9
     }
   },
   "storeCount": 14,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6356,
-    "removedRows": 862,
-    "canonSkus": 2521,
+    "liveRows": 6351,
+    "removedRows": 870,
+    "canonSkus": 2519,
     "outputCount": 50
   },
   "rows": [
@@ -338,7 +338,7 @@
         "arc": 45.59,
         "bcl": 49.99,
         "everythingwine": 43.99,
-        "gull": 51.85,
+        "gull": 45,
         "highpointbws": 51.79,
         "liberty": 62.99,
         "liquorwarehouse": 49.99,
@@ -1693,58 +1693,6 @@
       }
     },
     {
-      "canonSku": "074548",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liberty",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 60.99,
-        "bcl": 74.99,
-        "everythingwine": 74.99,
-        "gull": 59.99,
-        "legacyliquor": 77.99,
-        "liberty": 98.99,
-        "newdistrict": 74.79,
-        "strath": 71.79,
-        "tudor": 74.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "Benromach – 10 Years Old 750ml",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "074548",
-        "skuKey": "074548",
-        "url": "https://gullliquorstore.com/product/benromach-10-year-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/benromach-10-year-750m/"
-      }
-    },
-    {
       "canonSku": "102439",
       "storeCount": 10,
       "stores": [
@@ -2522,54 +2470,54 @@
       }
     },
     {
-      "canonSku": "052050",
+      "canonSku": "074548",
       "storeCount": 9,
       "stores": [
         "arc",
         "bcl",
         "everythingwine",
-        "gull",
-        "highpointbws",
         "legacyliquor",
+        "liberty",
+        "newdistrict",
         "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
-        "liberty",
+        "gull",
+        "highpointbws",
         "liquorwarehouse",
         "marquis",
-        "newdistrict",
         "vintage"
       ],
       "storePrices": {
-        "arc": 30.09,
-        "bcl": 29.49,
-        "everythingwine": 29.49,
-        "gull": 31.25,
-        "highpointbws": 31.29,
-        "legacyliquor": 30.99,
-        "strath": 29.66,
-        "tudor": 29.49,
-        "vessel": 29.99
+        "arc": 60.99,
+        "bcl": 74.99,
+        "everythingwine": 74.99,
+        "legacyliquor": 77.99,
+        "liberty": 98.99,
+        "newdistrict": 74.79,
+        "strath": 71.79,
+        "tudor": 74.99,
+        "vessel": 74.99
       },
       "representative": {
-        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "052050",
-        "skuKey": "052050",
-        "url": "https://www.bcliquorstores.com/product/52050",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "name": "BENROMACH 10YO",
+        "price": "$60.99",
+        "priceNum": 60.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "074548",
+        "skuKey": "074548",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
       },
       "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/52050"
+        "price": "$60.99",
+        "priceNum": 60.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
       }
     },
     {
@@ -2672,6 +2620,56 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
+      "canonSku": "052050",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 30.09,
+        "bcl": 29.49,
+        "everythingwine": 29.49,
+        "highpointbws": 31.29,
+        "legacyliquor": 30.99,
+        "strath": 29.66,
+        "tudor": 29.49,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "052050",
+        "skuKey": "052050",
+        "url": "https://www.bcliquorstores.com/product/52050",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/52050"
       }
     }
   ]
