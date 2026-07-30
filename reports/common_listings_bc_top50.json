@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-30T06:20:15.048Z",
+  "generatedAt": "2026-07-30T08:46:19.553Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 10
+      "cutoffStoreCount": 9
     }
   },
   "storeCount": 14,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6364,
-    "removedRows": 860,
+    "liveRows": 6360,
+    "removedRows": 866,
     "canonSkus": 2520,
     "outputCount": 50
   },
@@ -610,7 +610,7 @@
         "arc": 82.99,
         "bcl": 89.99,
         "everythingwine": 81.99,
-        "gull": 74.99,
+        "gull": 69.99,
         "highpointbws": 111.99,
         "legacyliquor": 109.83,
         "liberty": 134.99,
@@ -622,8 +622,8 @@
       },
       "representative": {
         "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$74.99",
-        "priceNum": 74.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "gull",
         "storeLabel": "Gull Liquor",
         "skuRaw": "656546",
@@ -633,8 +633,8 @@
         "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$74.99",
-        "priceNum": 74.99,
+        "price": "$69.99",
+        "priceNum": 69.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
@@ -1432,58 +1432,6 @@
         "priceNum": 25.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/570"
-      }
-    },
-    {
-      "canonSku": "001040",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 27.29,
-        "bcl": 26.49,
-        "everythingwine": 27.49,
-        "gull": 28.6,
-        "highpointbws": 28.99,
-        "legacyliquor": 27.99,
-        "newdistrict": 28.49,
-        "strath": 28.17,
-        "tudor": 27.49,
-        "vessel": 26.99
-      },
-      "representative": {
-        "name": "GORDONS - LONDON DRY",
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001040",
-        "skuKey": "001040",
-        "url": "https://www.bcliquorstores.com/product/1040",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$26.49",
-        "priceNum": 26.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1040"
       }
     },
     {
@@ -2316,6 +2264,57 @@
         "priceNum": 49.99,
         "storeKey": "everythingwine",
         "url": "https://www.everythingwine.ca/bruichladdich-the-botanist-islay-dry-gin-750ml"
+      }
+    },
+    {
+      "canonSku": "001040",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 27.29,
+        "bcl": 26.49,
+        "everythingwine": 27.49,
+        "gull": 28.6,
+        "highpointbws": 28.99,
+        "legacyliquor": 27.99,
+        "newdistrict": 28.49,
+        "strath": 28.17,
+        "tudor": 27.49
+      },
+      "representative": {
+        "name": "GORDONS - LONDON DRY",
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001040",
+        "skuKey": "001040",
+        "url": "https://www.bcliquorstores.com/product/1040",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1040"
       }
     },
     {
