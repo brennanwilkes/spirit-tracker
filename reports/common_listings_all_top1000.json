@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-30T11:39:00.148Z",
+  "generatedAt": "2026-07-30T15:03:24.727Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -52,9 +52,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 24083,
-    "removedRows": 7084,
-    "canonSkus": 6710,
+    "liveRows": 24092,
+    "removedRows": 7082,
+    "canonSkus": 6711,
     "outputCount": 1000
   },
   "rows": [
@@ -4381,6 +4381,88 @@
       }
     },
     {
+      "canonSku": "325993",
+      "storeCount": 20,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "gull",
+        "highpointbws",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "whiskydrop",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highlander",
+        "liberty",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "strath",
+        "vinearts",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "canadianliquor": 109.99,
+        "clbspirits": 95.99,
+        "colordevino": 116.45,
+        "coop": 109.99,
+        "craftcellars": 111.99,
+        "gull": 149.99,
+        "highpointbws": 164.29,
+        "kegncork": 110.96,
+        "kwm": 110.99,
+        "legacyliquor": 171.99,
+        "lime": 99.99,
+        "liquorama": 99.99,
+        "sherbrooke": 112.52,
+        "sierrasprings": 81.99,
+        "tudor": 149.99,
+        "vessel": 159.99,
+        "whiskydrop": 116,
+        "wineandbeyond": 97.99,
+        "zyn": 113
+      },
+      "representative": {
+        "name": "BOOKER’S SMALL BATCH BOURBON 750ML 63.05%",
+        "price": "$81.99",
+        "priceNum": 81.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "325993",
+        "skuKey": "325993",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/",
+        "categoryLabel": "American Whiskey",
+        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
+      },
+      "cheapest": {
+        "price": "$81.99",
+        "priceNum": 81.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/"
+      }
+    },
+    {
       "canonSku": "329797",
       "storeCount": 20,
       "stores": [
@@ -5921,87 +6003,6 @@
         "priceNum": 264.95,
         "storeKey": "wineandbeyond",
         "url": "https://www.wineandbeyond.ca/products/johnnie-walker-blue-750ml"
-      }
-    },
-    {
-      "canonSku": "325993",
-      "storeCount": 19,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "gull",
-        "highpointbws",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "tudor",
-        "vessel",
-        "whiskydrop",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highlander",
-        "liberty",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sierrasprings",
-        "strath",
-        "vinearts",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 99.99,
-        "canadianliquor": 109.99,
-        "clbspirits": 95.99,
-        "colordevino": 116.45,
-        "coop": 109.99,
-        "craftcellars": 111.99,
-        "gull": 149.99,
-        "highpointbws": 164.29,
-        "kegncork": 110.96,
-        "kwm": 110.99,
-        "legacyliquor": 171.99,
-        "lime": 99.99,
-        "liquorama": 99.99,
-        "sherbrooke": 112.52,
-        "tudor": 149.99,
-        "vessel": 159.99,
-        "whiskydrop": 116,
-        "wineandbeyond": 97.99,
-        "zyn": 113
-      },
-      "representative": {
-        "name": "Bookers Bourbon Small Batch 750ml",
-        "price": "$95.99",
-        "priceNum": 95.99,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "325993",
-        "skuKey": "325993",
-        "url": "https://clbspirits.com/products/bookers-small-batch-bourbon",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$95.99",
-        "priceNum": 95.99,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/bookers-small-batch-bourbon"
       }
     },
     {
@@ -39399,6 +39400,78 @@
       }
     },
     {
+      "canonSku": "356926",
+      "storeCount": 10,
+      "stores": [
+        "bcl",
+        "bsw",
+        "clbspirits",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "liquorwarehouse",
+        "strath",
+        "tudor",
+        "zyn"
+      ],
+      "missingStores": [
+        "arc",
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "everythingwine",
+        "gull",
+        "highlander",
+        "highpointbws",
+        "kegncork",
+        "legacyliquor",
+        "liberty",
+        "liquorama",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "vessel",
+        "vinearts",
+        "vintage",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bcl": 3250,
+        "bsw": 3500,
+        "clbspirits": 3644.53,
+        "craftcellars": 4139.99,
+        "kwm": 4149.99,
+        "lime": 3450,
+        "liquorwarehouse": 3799.99,
+        "strath": 3661.96,
+        "tudor": 3700,
+        "zyn": 3906
+      },
+      "representative": {
+        "name": "BOWMORE - TIMELESS 29 YEAR OLD",
+        "price": "$3250.00",
+        "priceNum": 3250,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "356926",
+        "skuKey": "356926",
+        "url": "https://www.bcliquorstores.com/product/356926",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$3250.00",
+        "priceNum": 3250,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/356926"
+      }
+    },
+    {
       "canonSku": "370136",
       "storeCount": 10,
       "stores": [
@@ -47104,77 +47177,6 @@
         "priceNum": 72,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/turntable-bittersweet-symphony-whisky"
-      }
-    },
-    {
-      "canonSku": "356926",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "bsw",
-        "clbspirits",
-        "kwm",
-        "lime",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "zyn"
-      ],
-      "missingStores": [
-        "arc",
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "everythingwine",
-        "gull",
-        "highlander",
-        "highpointbws",
-        "kegncork",
-        "legacyliquor",
-        "liberty",
-        "liquorama",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vessel",
-        "vinearts",
-        "vintage",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bcl": 3250,
-        "bsw": 3500,
-        "clbspirits": 3644.53,
-        "kwm": 4149.99,
-        "lime": 3450,
-        "liquorwarehouse": 3799.99,
-        "strath": 3661.96,
-        "tudor": 3700,
-        "zyn": 3906
-      },
-      "representative": {
-        "name": "BOWMORE - TIMELESS 29 YEAR OLD",
-        "price": "$3250.00",
-        "priceNum": 3250,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "356926",
-        "skuKey": "356926",
-        "url": "https://www.bcliquorstores.com/product/356926",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$3250.00",
-        "priceNum": 3250,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/356926"
       }
     },
     {
@@ -68728,6 +68730,75 @@
       }
     },
     {
+      "canonSku": "840031",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "willowpark",
+        "zyn"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "everythingwine",
+        "gull",
+        "highlander",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorama",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vinearts",
+        "vintage",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 1275,
+        "craftcellars": 1499.99,
+        "kegncork": 1499.96,
+        "kwm": 1499.99,
+        "lime": 1399.99,
+        "willowpark": 1499.99,
+        "zyn": 1422
+      },
+      "representative": {
+        "name": "Ardbeg 25 Year Old",
+        "price": "$1,275.00",
+        "priceNum": 1275,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "840031",
+        "skuKey": "840031",
+        "url": "https://www.bswliquor.com/products/ardbeg-25-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+      },
+      "cheapest": {
+        "price": "$1,275.00",
+        "priceNum": 1275,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/ardbeg-25-year-old"
+      }
+    },
+    {
       "canonSku": "855655",
       "storeCount": 7,
       "stores": [
@@ -72946,74 +73017,6 @@
         "priceNum": 689,
         "storeKey": "lime",
         "url": "https://limeliquor.ca/products/balblair-25-year-old-single-malt-scotch-whisky-750ml"
-      }
-    },
-    {
-      "canonSku": "840031",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "kegncork",
-        "kwm",
-        "lime",
-        "willowpark",
-        "zyn"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "everythingwine",
-        "gull",
-        "highlander",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorama",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vinearts",
-        "vintage",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 1275,
-        "kegncork": 1499.96,
-        "kwm": 1499.99,
-        "lime": 1399.99,
-        "willowpark": 1499.99,
-        "zyn": 1422
-      },
-      "representative": {
-        "name": "Ardbeg 25 Year Old",
-        "price": "$1,275.00",
-        "priceNum": 1275,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "840031",
-        "skuKey": "840031",
-        "url": "https://www.bswliquor.com/products/ardbeg-25-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$1,275.00",
-        "priceNum": 1275,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/ardbeg-25-year-old"
       }
     },
     {
