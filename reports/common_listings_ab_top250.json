@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T17:20:02.317Z",
+  "generatedAt": "2026-07-31T19:44:57.969Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -39,8 +39,8 @@
   ],
   "totals": {
     "liveRows": 17733,
-    "removedRows": 6235,
-    "canonSkus": 5773,
+    "removedRows": 6236,
+    "canonSkus": 5774,
     "outputCount": 250
   },
   "rows": [
@@ -1910,67 +1910,6 @@
       }
     },
     {
-      "canonSku": "128044",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "highlander",
-        "maltsandgrains",
-        "rmwsb",
-        "sierrasprings"
-      ],
-      "storePrices": {
-        "bsw": 49.99,
-        "clbspirits": 48.35,
-        "craftcellars": 61.99,
-        "kegncork": 61.96,
-        "kwm": 63.99,
-        "lime": 57.99,
-        "liquorama": 55.99,
-        "sherbrooke": 62.37,
-        "vinearts": 61.49,
-        "whiskydrop": 86,
-        "willowpark": 62.49,
-        "wineandbeyond": 60.99,
-        "zyn": 58.5
-      },
-      "representative": {
-        "name": "Teeling Small Batch Irish Whiskey 750ml",
-        "price": "$48.35",
-        "priceNum": 48.35,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "812365",
-        "skuKey": "812365",
-        "url": "https://clbspirits.com/products/teeling-small-batch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$48.35",
-        "priceNum": 48.35,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/teeling-small-batch"
-      }
-    },
-    {
       "canonSku": "199455",
       "storeCount": 13,
       "stores": [
@@ -3425,6 +3364,66 @@
         "priceNum": 26.99,
         "storeKey": "zyn",
         "url": "https://zyn.ca/products/rupert"
+      }
+    },
+    {
+      "canonSku": "128044",
+      "storeCount": 12,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "vinearts",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "highlander",
+        "maltsandgrains",
+        "rmwsb",
+        "sierrasprings",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 49.99,
+        "clbspirits": 48.35,
+        "craftcellars": 61.99,
+        "kegncork": 61.96,
+        "kwm": 63.99,
+        "lime": 57.99,
+        "liquorama": 55.99,
+        "sherbrooke": 62.37,
+        "vinearts": 61.49,
+        "willowpark": 62.49,
+        "wineandbeyond": 60.99,
+        "zyn": 58.5
+      },
+      "representative": {
+        "name": "Teeling Small Batch Irish Whiskey 750ml",
+        "price": "$48.35",
+        "priceNum": 48.35,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "812365",
+        "skuKey": "812365",
+        "url": "https://clbspirits.com/products/teeling-small-batch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$48.35",
+        "priceNum": 48.35,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/teeling-small-batch"
       }
     },
     {
@@ -9467,10 +9466,10 @@
       "storeCount": 10,
       "stores": [
         "bsw",
+        "canadianliquor",
         "clbspirits",
         "craftcellars",
         "kegncork",
-        "kwm",
         "lime",
         "whiskydrop",
         "willowpark",
@@ -9478,10 +9477,10 @@
         "zyn"
       ],
       "missingStores": [
-        "canadianliquor",
         "colordevino",
         "coop",
         "highlander",
+        "kwm",
         "liquorama",
         "maltsandgrains",
         "rmwsb",
@@ -9491,10 +9490,10 @@
       ],
       "storePrices": {
         "bsw": 115,
+        "canadianliquor": 143.99,
         "clbspirits": 131.02,
         "craftcellars": 149.99,
         "kegncork": 154.96,
-        "kwm": 114.74,
         "lime": 138.99,
         "whiskydrop": 157,
         "willowpark": 134.99,
@@ -9502,22 +9501,22 @@
         "zyn": 142
       },
       "representative": {
-        "name": "Tamdhu 15 Year",
-        "price": "$114.74",
-        "priceNum": 114.74,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
+        "name": "Tamdhu 15 Year Old",
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "845148",
         "skuKey": "845148",
-        "url": "https://kensingtonwinemarket.com/product/845148/tamdhu-15-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
+        "url": "https://www.bswliquor.com/products/tamdhu-15-year-old",
+        "categoryLabel": "Scotch Whisky",
+        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$114.74",
-        "priceNum": 114.74,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/845148/tamdhu-15-year"
+        "price": "$115.00",
+        "priceNum": 115,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/tamdhu-15-year-old"
       }
     },
     {
@@ -11667,64 +11666,6 @@
       }
     },
     {
-      "canonSku": "777458",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "lime",
-        "sierrasprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 99.99,
-        "canadianliquor": 114.99,
-        "clbspirits": 102.4,
-        "highlander": 74.99,
-        "kegncork": 115.96,
-        "kwm": 77.99,
-        "lime": 108.99,
-        "sierrasprings": 73.99,
-        "wineandbeyond": 114.99,
-        "zyn": 110
-      },
-      "representative": {
-        "name": "TALISKER PORT RUIGHE 45.80% | 750ML",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "777458",
-        "skuKey": "777458",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-port-ruighe-45-8-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-port-ruighe-45-8-abv/"
-      }
-    },
-    {
       "canonSku": "817192",
       "storeCount": 10,
       "stores": [
@@ -13775,6 +13716,63 @@
         "priceNum": 82,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/nikka-coffey-malt"
+      }
+    },
+    {
+      "canonSku": "777458",
+      "storeCount": 9,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "kegncork",
+        "kwm",
+        "lime",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "canadianliquor": 114.99,
+        "clbspirits": 102.4,
+        "kegncork": 115.96,
+        "kwm": 77.99,
+        "lime": 108.99,
+        "sierrasprings": 73.99,
+        "wineandbeyond": 114.99,
+        "zyn": 110
+      },
+      "representative": {
+        "name": "TALISKER PORT RUIGHE 45.80% | 750ML",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "777458",
+        "skuKey": "777458",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-port-ruighe-45-8-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-port-ruighe-45-8-abv/"
       }
     },
     {
