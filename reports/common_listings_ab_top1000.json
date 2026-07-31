@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T04:16:04.149Z",
+  "generatedAt": "2026-07-31T09:06:09.142Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 17743,
-    "removedRows": 6215,
-    "canonSkus": 5777,
+    "liveRows": 17739,
+    "removedRows": 6229,
+    "canonSkus": 5778,
     "outputCount": 1000
   },
   "rows": [
@@ -781,7 +781,7 @@
         "sherbrooke": 174.26,
         "sierrasprings": 165,
         "willowpark": 144.99,
-        "wineandbeyond": 168.99,
+        "wineandbeyond": 145.95,
         "zyn": 164
       },
       "representative": {
@@ -2182,7 +2182,7 @@
       ],
       "storePrices": {
         "bsw": 56.99,
-        "canadianliquor": 62.99,
+        "canadianliquor": 51.88,
         "clbspirits": 56.89,
         "coop": 62.99,
         "craftcellars": 64.99,
@@ -2197,21 +2197,21 @@
       },
       "representative": {
         "name": "El Dorado 15 Yr",
-        "price": "$56.57",
-        "priceNum": 56.57,
-        "storeKey": "vinearts",
-        "storeLabel": "Vine Arts",
+        "price": "$51.88",
+        "priceNum": 51.88,
+        "storeKey": "canadianliquor",
+        "storeLabel": "Canadian Liquor Store",
         "skuRaw": "411124",
         "skuKey": "411124",
-        "url": "https://vinearts.ca/products/el-dorado-15-yr",
+        "url": "https://www.canadianliquorstore.ca/products/el-dorado-15-yr",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/vinearts__rum__d5d4cd07.json"
+        "dbFile": "data/db/canadianliquor__rum__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$56.57",
-        "priceNum": 56.57,
-        "storeKey": "vinearts",
-        "url": "https://vinearts.ca/products/el-dorado-15-yr"
+        "price": "$51.88",
+        "priceNum": 51.88,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/el-dorado-15-yr"
       }
     },
     {
@@ -2730,8 +2730,8 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 89.99,
-        "canadianliquor": 80.88,
+        "bsw": 79.99,
+        "canadianliquor": 103.99,
         "clbspirits": 90.4,
         "coop": 104.99,
         "craftcellars": 77.99,
@@ -2791,8 +2791,8 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 61.99,
-        "canadianliquor": 62.88,
+        "bsw": 74.99,
+        "canadianliquor": 82.99,
         "clbspirits": 72.4,
         "colordevino": 94.3,
         "coop": 81.99,
@@ -3305,6 +3305,66 @@
         "priceNum": 122.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islay/bowmore-15-year-old-sherry-oak-43-abv/"
+      }
+    },
+    {
+      "canonSku": "125930",
+      "storeCount": 12,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "sherbrooke",
+        "sierrasprings",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kegncork",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "canadianliquor": 126.99,
+        "clbspirits": 99.24,
+        "craftcellars": 131.99,
+        "kwm": 134.99,
+        "lime": 119.99,
+        "sherbrooke": 133.61,
+        "sierrasprings": 109.99,
+        "whiskydrop": 139,
+        "willowpark": 124.49,
+        "wineandbeyond": 133.99,
+        "zyn": 125
+      },
+      "representative": {
+        "name": "Glenfarclas 105 Cask Strength 700ml",
+        "price": "$99.24",
+        "priceNum": 99.24,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "131896",
+        "skuKey": "131896",
+        "url": "https://clbspirits.com/products/glenfarclas-cask-strength-105-proof",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$99.24",
+        "priceNum": 99.24,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/glenfarclas-cask-strength-105-proof"
       }
     },
     {
@@ -3935,8 +3995,8 @@
         "whiskydrop"
       ],
       "storePrices": {
-        "bsw": 89.99,
-        "canadianliquor": 92.88,
+        "bsw": 105,
+        "canadianliquor": 116.99,
         "clbspirits": 102.4,
         "craftcellars": 122.99,
         "kegncork": 122.96,
@@ -4568,66 +4628,6 @@
       }
     },
     {
-      "canonSku": "585836",
-      "storeCount": 12,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "highlander",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 72.99,
-        "canadianliquor": 74.99,
-        "clbspirits": 65.2,
-        "craftcellars": 73.99,
-        "kegncork": 72.96,
-        "lime": 68.99,
-        "liquorama": 67.99,
-        "sherbrooke": 75,
-        "sierrasprings": 64.66,
-        "willowpark": 70.49,
-        "wineandbeyond": 70.99,
-        "zyn": 71
-      },
-      "representative": {
-        "name": "FLOR DE CANA CENTENARIO GOLD 18",
-        "price": "$64.66",
-        "priceNum": 64.66,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "585836",
-        "skuKey": "585836",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$64.66",
-        "priceNum": 64.66,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/"
-      }
-    },
-    {
       "canonSku": "756510",
       "storeCount": 12,
       "stores": [
@@ -4836,7 +4836,7 @@
       ],
       "storePrices": {
         "bsw": 51.99,
-        "canadianliquor": 57.99,
+        "canadianliquor": 46.88,
         "clbspirits": 49.6,
         "coop": 59.99,
         "kwm": 58.99,
@@ -4849,22 +4849,22 @@
         "zyn": 56
       },
       "representative": {
-        "name": "THE SINGLETON OF/DE DUFFTOWN 12 YEAR OLD 40% | 750ML",
-        "price": "$47.51",
-        "priceNum": 47.51,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
+        "name": "THE SINGLETON OF/DE DUFFTOWN 12 YEAR OLD",
+        "price": "$46.88",
+        "priceNum": 46.88,
+        "storeKey": "canadianliquor",
+        "storeLabel": "Canadian Liquor Store",
         "skuRaw": "769355",
         "skuKey": "769355",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/the-singleton-of-de-dufftown-12-year-old/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+        "url": "https://www.canadianliquorstore.ca/products/the-singleton-of-de-dufftown-12-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$47.51",
-        "priceNum": 47.51,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/the-singleton-of-de-dufftown-12-year-old/"
+        "price": "$46.88",
+        "priceNum": 46.88,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/the-singleton-of-de-dufftown-12-year-old"
       }
     },
     {
@@ -6113,65 +6113,6 @@
       }
     },
     {
-      "canonSku": "125930",
-      "storeCount": 11,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "kwm",
-        "lime",
-        "sierrasprings",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "highlander",
-        "kegncork",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "canadianliquor": 126.99,
-        "clbspirits": 99.24,
-        "craftcellars": 131.99,
-        "kwm": 134.99,
-        "lime": 119.99,
-        "sierrasprings": 109.99,
-        "whiskydrop": 139,
-        "willowpark": 124.49,
-        "wineandbeyond": 133.99,
-        "zyn": 125
-      },
-      "representative": {
-        "name": "Glenfarclas 105 Cask Strength 700ml",
-        "price": "$99.24",
-        "priceNum": 99.24,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "131896",
-        "skuKey": "131896",
-        "url": "https://clbspirits.com/products/glenfarclas-cask-strength-105-proof",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$99.24",
-        "priceNum": 99.24,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/glenfarclas-cask-strength-105-proof"
-      }
-    },
-    {
       "canonSku": "130925",
       "storeCount": 11,
       "stores": [
@@ -6435,8 +6376,8 @@
         "whiskydrop"
       ],
       "storePrices": {
-        "bsw": 170,
-        "canadianliquor": 150.88,
+        "bsw": 145,
+        "canadianliquor": 189.99,
         "clbspirits": 131.45,
         "craftcellars": 165.99,
         "kwm": 194.99,
@@ -7320,7 +7261,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 81.99,
+        "bsw": 64.99,
         "canadianliquor": 84.99,
         "clbspirits": 66.16,
         "craftcellars": 78.99,
@@ -7333,22 +7274,22 @@
         "zyn": 82
       },
       "representative": {
-        "name": "Rabbit Hole Cavehill 47.5 ABV 750ml",
-        "price": "$66.16",
-        "priceNum": 66.16,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
+        "name": "Rabbit Hole Cavehill Kentucky Straight Bourbon",
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "861501",
         "skuKey": "861501",
-        "url": "https://clbspirits.com/products/rabbit-hole-cavehill",
+        "url": "https://www.bswliquor.com/products/rabbit-hole-cavehill",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$66.16",
-        "priceNum": 66.16,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/rabbit-hole-cavehill"
+        "price": "$64.99",
+        "priceNum": 64.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/rabbit-hole-cavehill"
       }
     },
     {
@@ -7616,7 +7557,7 @@
       ],
       "storePrices": {
         "bsw": 71.99,
-        "canadianliquor": 65.88,
+        "canadianliquor": 79.99,
         "clbspirits": 73.34,
         "coop": 84.99,
         "craftcellars": 83.99,
@@ -8001,6 +7942,65 @@
       }
     },
     {
+      "canonSku": "585836",
+      "storeCount": 11,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "lime",
+        "liquorama",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 72.99,
+        "canadianliquor": 74.99,
+        "clbspirits": 65.2,
+        "craftcellars": 73.99,
+        "kegncork": 72.96,
+        "lime": 68.99,
+        "liquorama": 67.99,
+        "sierrasprings": 64.66,
+        "willowpark": 70.49,
+        "wineandbeyond": 70.99,
+        "zyn": 71
+      },
+      "representative": {
+        "name": "FLOR DE CANA CENTENARIO GOLD 18",
+        "price": "$64.66",
+        "priceNum": 64.66,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "585836",
+        "skuKey": "585836",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$64.66",
+        "priceNum": 64.66,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/flor-de-cana-centenario-gold-18-yr-old-40-abv/"
+      }
+    },
+    {
       "canonSku": "601229",
       "storeCount": 11,
       "stores": [
@@ -8087,8 +8087,8 @@
         "whiskydrop"
       ],
       "storePrices": {
-        "bsw": 74.99,
-        "canadianliquor": 78.88,
+        "bsw": 84.99,
+        "canadianliquor": 99.99,
         "clbspirits": 86.8,
         "coop": 99.99,
         "craftcellars": 74.99,
@@ -8323,7 +8323,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 38.99,
+        "bsw": 42.99,
         "canadianliquor": 45.99,
         "clbspirits": 42.07,
         "craftcellars": 36.99,
@@ -8383,7 +8383,7 @@
       ],
       "storePrices": {
         "bsw": 44.99,
-        "canadianliquor": 45.88,
+        "canadianliquor": 62.99,
         "clbspirits": 43.85,
         "coop": 59.99,
         "craftcellars": 42.99,
@@ -8501,7 +8501,7 @@
       ],
       "storePrices": {
         "bsw": 33.99,
-        "canadianliquor": 36.99,
+        "canadianliquor": 31.88,
         "colordevino": 40.8,
         "coop": 38.99,
         "craftcellars": 29.99,
@@ -9928,6 +9928,64 @@
       }
     },
     {
+      "canonSku": "152645",
+      "storeCount": 10,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "willowpark",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 79.99,
+        "canadianliquor": 87.99,
+        "clbspirits": 72.4,
+        "coop": 89.99,
+        "craftcellars": 90.99,
+        "lime": 82.99,
+        "liquorama": 79.99,
+        "sherbrooke": 91.41,
+        "willowpark": 85.49,
+        "zyn": 86
+      },
+      "representative": {
+        "name": "Zacapa 23 Year Old Solera Rum 750ml",
+        "price": "$72.40",
+        "priceNum": 72.4,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "738103",
+        "skuKey": "738103",
+        "url": "https://clbspirits.com/products/zacapa-23-year-old",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$72.40",
+        "priceNum": 72.4,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/zacapa-23-year-old"
+      }
+    },
+    {
       "canonSku": "155697",
       "storeCount": 10,
       "stores": [
@@ -10478,7 +10536,7 @@
       ],
       "storePrices": {
         "bsw": 89,
-        "canadianliquor": 102.99,
+        "canadianliquor": 84.88,
         "clbspirits": 90.19,
         "colordevino": 107.24,
         "coop": 100.99,
@@ -10489,22 +10547,22 @@
         "zyn": 97
       },
       "representative": {
-        "name": "Cragganmore 12 Year Old Single Malt Whisky",
-        "price": "$89.00",
-        "priceNum": 89,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Cragganmore 12 Year Old",
+        "price": "$84.88",
+        "priceNum": 84.88,
+        "storeKey": "canadianliquor",
+        "storeLabel": "Canadian Liquor Store",
         "skuRaw": "859239",
         "skuKey": "859239",
-        "url": "https://www.bswliquor.com/products/cragganmore-12-year-old-2",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://www.canadianliquorstore.ca/products/cragganmore-12-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$89.00",
-        "priceNum": 89,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/cragganmore-12-year-old-2"
+        "price": "$84.88",
+        "priceNum": 84.88,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/cragganmore-12-year-old"
       }
     },
     {
@@ -10594,7 +10652,7 @@
       ],
       "storePrices": {
         "bsw": 135,
-        "canadianliquor": 116.88,
+        "canadianliquor": 153.99,
         "clbspirits": 134.3,
         "craftcellars": 152.99,
         "kegncork": 152.96,
@@ -10605,22 +10663,22 @@
         "zyn": 145
       },
       "representative": {
-        "name": "Talisker Distillers Edition",
-        "price": "$116.88",
-        "priceNum": 116.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "TALISKER DISTILLERS EDITION 45.80% | 750ML",
+        "price": "$119.99",
+        "priceNum": 119.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
         "skuRaw": "878514",
         "skuKey": "878514",
-        "url": "https://www.canadianliquorstore.ca/products/talisker-distillers-edition",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-single-malt-distillers-edition-45-8-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
       },
       "cheapest": {
-        "price": "$116.88",
-        "priceNum": 116.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/talisker-distillers-edition"
+        "price": "$119.99",
+        "priceNum": 119.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/islands/talisker-single-malt-distillers-edition-45-8-abv/"
       }
     },
     {
@@ -10767,7 +10825,7 @@
         "wineandbeyond"
       ],
       "storePrices": {
-        "bsw": 105,
+        "bsw": 110,
         "canadianliquor": 125.99,
         "clbspirits": 108.64,
         "colordevino": 129.65,
@@ -11088,6 +11146,64 @@
       }
     },
     {
+      "canonSku": "612655",
+      "storeCount": 10,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "sherbrooke",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "highlander",
+        "kegncork",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 84.99,
+        "clbspirits": 72.16,
+        "coop": 94.99,
+        "craftcellars": 95.99,
+        "kwm": 98.99,
+        "lime": 84.99,
+        "sherbrooke": 96.8,
+        "sierrasprings": 95.13,
+        "wineandbeyond": 90.99,
+        "zyn": 91
+      },
+      "representative": {
+        "name": "High West Campfire Whiskey 750ml",
+        "price": "$72.16",
+        "priceNum": 72.16,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "752086",
+        "skuKey": "752086",
+        "url": "https://clbspirits.com/products/high-west-campfire",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$72.16",
+        "priceNum": 72.16,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/high-west-campfire"
+      }
+    },
+    {
       "canonSku": "636845",
       "storeCount": 10,
       "stores": [
@@ -11201,6 +11317,64 @@
         "priceNum": 59.22,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/glen-garioch-12-year"
+      }
+    },
+    {
+      "canonSku": "710296",
+      "storeCount": 10,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "kegncork",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 62.99,
+        "canadianliquor": 68.99,
+        "clbspirits": 50.93,
+        "kegncork": 68.96,
+        "lime": 66.99,
+        "liquorama": 64.99,
+        "sherbrooke": 72.52,
+        "willowpark": 67.99,
+        "wineandbeyond": 60.99,
+        "zyn": 68
+      },
+      "representative": {
+        "name": "Zaya Gran Reserva Rum 750ml",
+        "price": "$50.93",
+        "priceNum": 50.93,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "710296",
+        "skuKey": "710296",
+        "url": "https://clbspirits.com/products/zaya-gran-reserva-16-year-old",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$50.93",
+        "priceNum": 50.93,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/zaya-gran-reserva-16-year-old"
       }
     },
     {
@@ -11406,7 +11580,7 @@
       ],
       "storePrices": {
         "bsw": 99.99,
-        "canadianliquor": 109.99,
+        "canadianliquor": 90.88,
         "clbspirits": 99.98,
         "craftcellars": 113.99,
         "kegncork": 111.96,
@@ -11417,22 +11591,22 @@
         "zyn": 108
       },
       "representative": {
-        "name": "El Dorado 21 Year Old Rum 750ml",
-        "price": "$99.98",
-        "priceNum": 99.98,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
+        "name": "El Dorado 21 Yr. Rum",
+        "price": "$90.88",
+        "priceNum": 90.88,
+        "storeKey": "canadianliquor",
+        "storeLabel": "Canadian Liquor Store",
         "skuRaw": "730868",
         "skuKey": "730868",
-        "url": "https://clbspirits.com/products/el-dorado-21-year-old",
+        "url": "https://www.canadianliquorstore.ca/products/el-dorado-21-yr-rum",
         "categoryLabel": "Rum",
-        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
+        "dbFile": "data/db/canadianliquor__rum__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$99.98",
-        "priceNum": 99.98,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/el-dorado-21-year-old"
+        "price": "$90.88",
+        "priceNum": 90.88,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/el-dorado-21-yr-rum"
       }
     },
     {
@@ -11958,64 +12132,6 @@
       }
     },
     {
-      "canonSku": "764426",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "sherbrooke",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "highlander",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 83.99,
-        "canadianliquor": 94.99,
-        "clbspirits": 82,
-        "craftcellars": 99.99,
-        "kegncork": 91.96,
-        "kwm": 94.99,
-        "lime": 84.99,
-        "sherbrooke": 94.34,
-        "wineandbeyond": 90.99,
-        "zyn": 98
-      },
-      "representative": {
-        "name": "Nikka Coffey Malt Japanese Whisky 45 ABV 700ml",
-        "price": "$82.00",
-        "priceNum": 82,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "764426",
-        "skuKey": "764426",
-        "url": "https://clbspirits.com/products/nikka-coffey-malt",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$82.00",
-        "priceNum": 82,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/nikka-coffey-malt"
-      }
-    },
-    {
       "canonSku": "765628",
       "storeCount": 10,
       "stores": [
@@ -12102,7 +12218,7 @@
       ],
       "storePrices": {
         "bsw": 77.99,
-        "canadianliquor": 68.88,
+        "canadianliquor": 85.99,
         "clbspirits": 69.6,
         "coop": 89.99,
         "kegncork": 88.96,
@@ -12276,7 +12392,7 @@
       ],
       "storePrices": {
         "bsw": 99.99,
-        "canadianliquor": 78.88,
+        "canadianliquor": 114.99,
         "clbspirits": 102.4,
         "highlander": 74.99,
         "kegncork": 115.96,
@@ -12506,7 +12622,7 @@
       ],
       "storePrices": {
         "bsw": 32.99,
-        "canadianliquor": 35.99,
+        "canadianliquor": 29.88,
         "lime": 31.99,
         "liquorama": 33.99,
         "rmwsb": 31,
@@ -12516,22 +12632,22 @@
         "zyn": 36
       },
       "representative": {
-        "name": "Johnnie Walker Red Label Blended Scotch Whisky (40% ABV) 750 ML",
-        "price": "$31.00",
-        "priceNum": 31,
-        "storeKey": "rmwsb",
-        "storeLabel": "Rocky Mountain Wine Spirits Beer",
+        "name": "Johnnie Walker Red Label 750mL",
+        "price": "$29.88",
+        "priceNum": 29.88,
+        "storeKey": "canadianliquor",
+        "storeLabel": "Canadian Liquor Store",
         "skuRaw": "001099",
         "skuKey": "001099",
-        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/johnnie-walker-red-label/",
-        "categoryLabel": "Whiskey",
-        "dbFile": "data/db/rmwsb__whiskey__6edf884b.json"
+        "url": "https://www.canadianliquorstore.ca/products/johnnie-walker-red-label-750ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$31.00",
-        "priceNum": 31,
-        "storeKey": "rmwsb",
-        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/johnnie-walker-red-label/"
+        "price": "$29.88",
+        "priceNum": 29.88,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/johnnie-walker-red-label-750ml"
       }
     },
     {
@@ -13189,7 +13305,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 49.99,
+        "bsw": 31.99,
         "clbspirits": 49.26,
         "coop": 54.99,
         "craftcellars": 56.99,
@@ -13200,22 +13316,22 @@
         "zyn": 53
       },
       "representative": {
-        "name": "Traveller Whiskey 750ml",
-        "price": "$49.26",
-        "priceNum": 49.26,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
+        "name": "Traveller Whiskey",
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
         "skuRaw": "102811",
         "skuKey": "102811",
-        "url": "https://clbspirits.com/products/traveller-whiskey",
+        "url": "https://www.bswliquor.com/products/traveller-whiskey",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
       },
       "cheapest": {
-        "price": "$49.26",
-        "priceNum": 49.26,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/traveller-whiskey"
+        "price": "$31.99",
+        "priceNum": 31.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/traveller-whiskey"
       }
     },
     {
@@ -13475,7 +13591,7 @@
       ],
       "storePrices": {
         "bsw": 99.99,
-        "canadianliquor": 52.88,
+        "canadianliquor": 95.99,
         "clbspirits": 80.2,
         "kegncork": 99.96,
         "lime": 94.99,
@@ -13485,22 +13601,22 @@
         "zyn": 96
       },
       "representative": {
-        "name": "Smokehead Rum Rebel Single Malt Scotch Whisky",
-        "price": "$52.88",
-        "priceNum": 52.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
-        "skuRaw": "882443",
-        "skuKey": "882443",
-        "url": "https://www.canadianliquorstore.ca/products/smokehead-rum-rebel-single-malt-scotch-whisky",
+        "name": "Smokehead Rum Cask Rebel 46 ABV 700ml",
+        "price": "$80.20",
+        "priceNum": 80.2,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "845153",
+        "skuKey": "845153",
+        "url": "https://clbspirits.com/products/smokehead-rum-rebel",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$52.88",
-        "priceNum": 52.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/smokehead-rum-rebel-single-malt-scotch-whisky"
+        "price": "$80.20",
+        "priceNum": 80.2,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/smokehead-rum-rebel"
       }
     },
     {
@@ -14216,7 +14332,7 @@
       ],
       "storePrices": {
         "bsw": 180,
-        "canadianliquor": 180.88,
+        "canadianliquor": 253.99,
         "coop": 259.99,
         "craftcellars": 252.99,
         "kwm": 180.59,
@@ -14698,63 +14814,6 @@
         "priceNum": 125,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenallachie-15-year-old-1"
-      }
-    },
-    {
-      "canonSku": "152645",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "lime",
-        "liquorama",
-        "willowpark",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 79.99,
-        "canadianliquor": 87.99,
-        "clbspirits": 72.4,
-        "coop": 89.99,
-        "craftcellars": 90.99,
-        "lime": 82.99,
-        "liquorama": 79.99,
-        "willowpark": 85.49,
-        "zyn": 86
-      },
-      "representative": {
-        "name": "Zacapa 23 Year Old Solera Rum 750ml",
-        "price": "$72.40",
-        "priceNum": 72.4,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "738103",
-        "skuKey": "738103",
-        "url": "https://clbspirits.com/products/zacapa-23-year-old",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$72.40",
-        "priceNum": 72.4,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/zacapa-23-year-old"
       }
     },
     {
@@ -16981,63 +17040,6 @@
       }
     },
     {
-      "canonSku": "500512",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "craftcellars",
-        "highlander",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 25.99,
-        "craftcellars": 34.99,
-        "highlander": 32.99,
-        "lime": 32.99,
-        "liquorama": 29.99,
-        "sherbrooke": 34.69,
-        "sierrasprings": 23.99,
-        "willowpark": 33.99,
-        "zyn": 33.6
-      },
-      "representative": {
-        "name": "CAPTAIN MORGAN SPICED",
-        "price": "$23.99",
-        "priceNum": 23.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "500512",
-        "skuKey": "500512",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/captain-morgan-spiced-40-abv-3/",
-        "categoryLabel": "Spirits",
-        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
-      },
-      "cheapest": {
-        "price": "$23.99",
-        "priceNum": 23.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/captain-morgan-spiced-40-abv-3/"
-      }
-    },
-    {
       "canonSku": "531752",
       "storeCount": 9,
       "stores": [
@@ -17066,7 +17068,7 @@
       ],
       "storePrices": {
         "bsw": 69.99,
-        "canadianliquor": 81.99,
+        "canadianliquor": 63.88,
         "clbspirits": 55.6,
         "lime": 74.99,
         "liquorama": 74.99,
@@ -17323,63 +17325,6 @@
       }
     },
     {
-      "canonSku": "612655",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "lime",
-        "sierrasprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "highlander",
-        "kegncork",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 84.99,
-        "clbspirits": 72.16,
-        "coop": 94.99,
-        "craftcellars": 95.99,
-        "kwm": 98.99,
-        "lime": 84.99,
-        "sierrasprings": 95.13,
-        "wineandbeyond": 90.99,
-        "zyn": 91
-      },
-      "representative": {
-        "name": "High West Campfire Whiskey 750ml",
-        "price": "$72.16",
-        "priceNum": 72.16,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "752086",
-        "skuKey": "752086",
-        "url": "https://clbspirits.com/products/high-west-campfire",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$72.16",
-        "priceNum": 72.16,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/high-west-campfire"
-      }
-    },
-    {
       "canonSku": "627174",
       "storeCount": 9,
       "stores": [
@@ -17608,63 +17553,6 @@
       }
     },
     {
-      "canonSku": "710296",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "kegncork",
-        "lime",
-        "liquorama",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "canadianliquor": 68.99,
-        "clbspirits": 50.93,
-        "kegncork": 68.96,
-        "lime": 66.99,
-        "liquorama": 64.99,
-        "willowpark": 67.99,
-        "wineandbeyond": 60.99,
-        "zyn": 68
-      },
-      "representative": {
-        "name": "Zaya Gran Reserva Rum 750ml",
-        "price": "$50.93",
-        "priceNum": 50.93,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "710296",
-        "skuKey": "710296",
-        "url": "https://clbspirits.com/products/zaya-gran-reserva-16-year-old",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$50.93",
-        "priceNum": 50.93,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/zaya-gran-reserva-16-year-old"
-      }
-    },
-    {
       "canonSku": "730008",
       "storeCount": 9,
       "stores": [
@@ -17776,6 +17664,63 @@
         "priceNum": 44.5,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/irish-whiskey/jameson-irish-whiskey-1-14l-40/"
+      }
+    },
+    {
+      "canonSku": "764426",
+      "storeCount": 9,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 83.99,
+        "canadianliquor": 94.99,
+        "clbspirits": 82,
+        "craftcellars": 99.99,
+        "kegncork": 91.96,
+        "kwm": 94.99,
+        "lime": 84.99,
+        "wineandbeyond": 90.99,
+        "zyn": 98
+      },
+      "representative": {
+        "name": "Nikka Coffey Malt Japanese Whisky 45 ABV 700ml",
+        "price": "$82.00",
+        "priceNum": 82,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "764426",
+        "skuKey": "764426",
+        "url": "https://clbspirits.com/products/nikka-coffey-malt",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$82.00",
+        "priceNum": 82,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/nikka-coffey-malt"
       }
     },
     {
@@ -18376,7 +18321,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 42.99,
+        "bsw": 37.99,
         "canadianliquor": 44.99,
         "clbspirits": 40.39,
         "craftcellars": 35.99,
@@ -19273,8 +19218,8 @@
         "zyn"
       ],
       "storePrices": {
-        "bsw": 675,
-        "canadianliquor": 602.88,
+        "bsw": 575,
+        "canadianliquor": 776.99,
         "clbspirits": 686.89,
         "coop": 799.99,
         "craftcellars": 569.99,
@@ -20729,7 +20674,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 105,
+        "bsw": 94.99,
         "craftcellars": 122.99,
         "kegncork": 121.96,
         "kwm": 112.99,
@@ -20740,8 +20685,8 @@
       },
       "representative": {
         "name": "The Glenlivet Fusion Cask - Rum & Bourbon",
-        "price": "$105.00",
-        "priceNum": 105,
+        "price": "$94.99",
+        "priceNum": 94.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "123234",
@@ -20751,8 +20696,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$105.00",
-        "priceNum": 105,
+        "price": "$94.99",
+        "priceNum": 94.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/the-glenlivet-fusion-cask"
       }
@@ -21315,6 +21260,62 @@
         "priceNum": 50.34,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/evan-williams-vintage-single-barrel"
+      }
+    },
+    {
+      "canonSku": "182931",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "lime",
+        "liquorama",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 73.99,
+        "canadianliquor": 72.88,
+        "clbspirits": 75.4,
+        "lime": 76.99,
+        "liquorama": 76.99,
+        "sierrasprings": 71.99,
+        "wineandbeyond": 70.99,
+        "zyn": 82
+      },
+      "representative": {
+        "name": "JACK DANIELS OLD NO. 7 TENNESSEE WHISKY",
+        "price": "$71.99",
+        "priceNum": 71.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "182931",
+        "skuKey": "182931",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/tennessee-whiskey/jack-daniels-old-no-7-tennessee-whisky-40-abv/",
+        "categoryLabel": "American Whiskey",
+        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
+      },
+      "cheapest": {
+        "price": "$70.99",
+        "priceNum": 70.99,
+        "storeKey": "wineandbeyond",
+        "url": "https://www.wineandbeyond.ca/products/jack-daniels-tennessee-whiskey-1-75l"
       }
     },
     {
@@ -24006,6 +24007,62 @@
       }
     },
     {
+      "canonSku": "500512",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "craftcellars",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "sierrasprings",
+        "willowpark",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 25.99,
+        "craftcellars": 34.99,
+        "lime": 32.99,
+        "liquorama": 29.99,
+        "sherbrooke": 34.69,
+        "sierrasprings": 23.99,
+        "willowpark": 33.99,
+        "zyn": 33.6
+      },
+      "representative": {
+        "name": "CAPTAIN MORGAN SPICED",
+        "price": "$23.99",
+        "priceNum": 23.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "500512",
+        "skuKey": "500512",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/captain-morgan-spiced-40-abv-3/",
+        "categoryLabel": "Spirits",
+        "dbFile": "data/db/sierrasprings__spirits__73860fca.json"
+      },
+      "cheapest": {
+        "price": "$23.99",
+        "priceNum": 23.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/spirits/rum/captain-morgan-spiced-40-abv-3/"
+      }
+    },
+    {
       "canonSku": "509596",
       "storeCount": 8,
       "stores": [
@@ -24089,7 +24146,7 @@
         "zyn"
       ],
       "storePrices": {
-        "bsw": 99.99,
+        "bsw": 79.99,
         "canadianliquor": 102.99,
         "clbspirits": 82.36,
         "coop": 99.99,
@@ -25377,7 +25434,7 @@
         "whiskydrop"
       ],
       "storePrices": {
-        "bsw": 71.99,
+        "bsw": 64.99,
         "canadianliquor": 83.99,
         "coop": 84.99,
         "lime": 71.99,
@@ -25388,8 +25445,8 @@
       },
       "representative": {
         "name": "Johnnie Walker Double Black",
-        "price": "$71.99",
-        "priceNum": 71.99,
+        "price": "$64.99",
+        "priceNum": 64.99,
         "storeKey": "bsw",
         "storeLabel": "BSW",
         "skuRaw": "883192",
@@ -25399,8 +25456,8 @@
         "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
       },
       "cheapest": {
-        "price": "$71.99",
-        "priceNum": 71.99,
+        "price": "$64.99",
+        "priceNum": 64.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/johnnie-walker-double-black-2"
       }
@@ -27124,61 +27181,6 @@
       }
     },
     {
-      "canonSku": "088672",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "kegncork",
-        "kwm",
-        "vinearts",
-        "whiskydrop",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 260,
-        "clbspirits": 226.66,
-        "kegncork": 255.96,
-        "kwm": 259.99,
-        "vinearts": 245.54,
-        "whiskydrop": 270,
-        "zyn": 262
-      },
-      "representative": {
-        "name": "Benromach 21 Year Old 43 ABV 700ml",
-        "price": "$226.66",
-        "priceNum": 226.66,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "841233",
-        "skuKey": "841233",
-        "url": "https://clbspirits.com/products/benromach-21-year-old",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$226.66",
-        "priceNum": 226.66,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/benromach-21-year-old"
-      }
-    },
-    {
       "canonSku": "092401",
       "storeCount": 7,
       "stores": [
@@ -28637,7 +28639,7 @@
       ],
       "storePrices": {
         "bsw": 117,
-        "canadianliquor": 82.88,
+        "canadianliquor": 114.99,
         "clbspirits": 104.93,
         "coop": 124.99,
         "lime": 109.99,
@@ -28645,22 +28647,22 @@
         "wineandbeyond": 120.99
       },
       "representative": {
-        "name": "Smokehead Sherry Bomb Single Malt Scotch Whisky",
-        "price": "$82.88",
-        "priceNum": 82.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "Smokehead Sherry Bomb 48 ABV 700ml",
+        "price": "$104.93",
+        "priceNum": 104.93,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
         "skuRaw": "845152",
         "skuKey": "845152",
-        "url": "https://www.canadianliquorstore.ca/products/smokehead-sherry-bomb-single-malt-scotch-whisky",
+        "url": "https://clbspirits.com/products/smokehead-sherry-bomb",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$82.88",
-        "priceNum": 82.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/smokehead-sherry-bomb-single-malt-scotch-whisky"
+        "price": "$104.93",
+        "priceNum": 104.93,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/smokehead-sherry-bomb"
       }
     },
     {
@@ -28771,61 +28773,6 @@
         "priceNum": 155.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/roseisle-12-year-old-special-release-2024-55-6-abv"
-      }
-    },
-    {
-      "canonSku": "112302",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "craftcellars",
-        "highlander",
-        "liquorama",
-        "whiskydrop",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "kegncork",
-        "kwm",
-        "lime",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 175,
-        "canadianliquor": 261.99,
-        "craftcellars": 272.99,
-        "highlander": 296.99,
-        "liquorama": 229.99,
-        "whiskydrop": 265,
-        "zyn": 258
-      },
-      "representative": {
-        "name": "Angel's Envy Cask Strength Bourbon 2026",
-        "price": "$175.00",
-        "priceNum": 175,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "145542",
-        "skuKey": "145542",
-        "url": "https://www.bswliquor.com/products/angels-envy-cask-strength-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$175.00",
-        "priceNum": 175,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/angels-envy-cask-strength-1"
       }
     },
     {
@@ -29627,7 +29574,7 @@
       ],
       "storePrices": {
         "bsw": 260,
-        "canadianliquor": 184.88,
+        "canadianliquor": 264.99,
         "kwm": 267.99,
         "lime": 248,
         "sherbrooke": 266.12,
@@ -29635,22 +29582,22 @@
         "zyn": 267
       },
       "representative": {
-        "name": "Talisker 14 Y.O. - 2025 Special Release 750ml",
-        "price": "$184.88",
-        "priceNum": 184.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "Talisker 14 Year Old Single Malt Scotch Whisky 2025 Special Release",
+        "price": "$248.00",
+        "priceNum": 248,
+        "storeKey": "lime",
+        "storeLabel": "Lime Liquor",
         "skuRaw": "131340",
         "skuKey": "131340",
-        "url": "https://www.canadianliquorstore.ca/products/talisker-14yo-2025-special-release",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "url": "https://limeliquor.ca/products/talisker-14-year-old-single-malt-scotch-whisky-2025-special-release",
+        "categoryLabel": "Whiskey",
+        "dbFile": "data/db/lime__whiskey__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$184.88",
-        "priceNum": 184.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/talisker-14yo-2025-special-release"
+        "price": "$248.00",
+        "priceNum": 248,
+        "storeKey": "lime",
+        "url": "https://limeliquor.ca/products/talisker-14-year-old-single-malt-scotch-whisky-2025-special-release"
       }
     },
     {
@@ -30561,7 +30508,7 @@
         "wineandbeyond"
       ],
       "storePrices": {
-        "bsw": 230,
+        "bsw": 350,
         "craftcellars": 227.99,
         "kegncork": 229.96,
         "lime": 219.99,
@@ -30641,61 +30588,6 @@
         "priceNum": 84.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/glenfiddich-fire-cane-1"
-      }
-    },
-    {
-      "canonSku": "182931",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "lime",
-        "liquorama",
-        "sierrasprings",
-        "wineandbeyond"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop",
-        "willowpark",
-        "zyn"
-      ],
-      "storePrices": {
-        "bsw": 73.99,
-        "canadianliquor": 72.88,
-        "clbspirits": 75.4,
-        "lime": 76.99,
-        "liquorama": 76.99,
-        "sierrasprings": 71.99,
-        "wineandbeyond": 70.99
-      },
-      "representative": {
-        "name": "JACK DANIELS OLD NO. 7 TENNESSEE WHISKY",
-        "price": "$71.99",
-        "priceNum": 71.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "182931",
-        "skuKey": "182931",
-        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/tennessee-whiskey/jack-daniels-old-no-7-tennessee-whisky-40-abv/",
-        "categoryLabel": "American Whiskey",
-        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
-      },
-      "cheapest": {
-        "price": "$70.99",
-        "priceNum": 70.99,
-        "storeKey": "wineandbeyond",
-        "url": "https://www.wineandbeyond.ca/products/jack-daniels-tennessee-whiskey-1-75l"
       }
     },
     {
@@ -31112,7 +31004,7 @@
       ],
       "storePrices": {
         "bsw": 180,
-        "canadianliquor": 148.88,
+        "canadianliquor": 182.99,
         "clbspirits": 160.4,
         "coop": 189.99,
         "lime": 164.99,
@@ -31120,22 +31012,22 @@
         "zyn": 172
       },
       "representative": {
-        "name": "Talisker Single Malt Scotch Whisky - 2023 Special Release 750ml",
-        "price": "$148.88",
-        "priceNum": 148.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "Talisker 2023 Special Release 59.7 ABV 750ml",
+        "price": "$160.40",
+        "priceNum": 160.4,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
         "skuRaw": "893557",
         "skuKey": "893557",
-        "url": "https://www.canadianliquorstore.ca/products/talisker-single-malt-scotch-whisky-2023-special-release",
+        "url": "https://clbspirits.com/products/talisker-sr23-59-7-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$148.88",
-        "priceNum": 148.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/talisker-single-malt-scotch-whisky-2023-special-release"
+        "price": "$160.40",
+        "priceNum": 160.4,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/talisker-sr23-59-7-abv"
       }
     },
     {
@@ -32381,7 +32273,7 @@
         "clbspirits": 90.4,
         "craftcellars": 107.99,
         "lime": 120,
-        "sherbrooke": 109.36,
+        "sherbrooke": 123.19,
         "zyn": 115
       },
       "representative": {
@@ -34329,6 +34221,61 @@
       }
     },
     {
+      "canonSku": "829591",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "lime",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "highlander",
+        "kwm",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 81.99,
+        "canadianliquor": 87.99,
+        "clbspirits": 80.8,
+        "craftcellars": 92.99,
+        "kegncork": 94.96,
+        "lime": 84.99,
+        "zyn": 88
+      },
+      "representative": {
+        "name": "Arran Sherry Cask The Bodega 55.8 ABV 700ml",
+        "price": "$80.80",
+        "priceNum": 80.8,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "829591",
+        "skuKey": "829591",
+        "url": "https://clbspirits.com/products/arran-sherry-cask-the-bodega-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$80.80",
+        "priceNum": 80.8,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/arran-sherry-cask-the-bodega-1"
+      }
+    },
+    {
       "canonSku": "831357",
       "storeCount": 7,
       "stores": [
@@ -34356,8 +34303,8 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 52.99,
-        "canadianliquor": 51.88,
+        "bsw": 58.99,
+        "canadianliquor": 65.99,
         "clbspirits": 53.21,
         "lime": 62.99,
         "liquorama": 59.99,
@@ -34365,22 +34312,22 @@
         "zyn": 65
       },
       "representative": {
-        "name": "MAKERS MARK 1.14L",
-        "price": "$51.88",
-        "priceNum": 51.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "Makers Mark Bourbon 1.14L",
+        "price": "$53.21",
+        "priceNum": 53.21,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
         "skuRaw": "831357",
         "skuKey": "831357",
-        "url": "https://www.canadianliquorstore.ca/products/makers-mark-1-14l",
+        "url": "https://clbspirits.com/products/makers-mark-bourbon-6",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$51.88",
-        "priceNum": 51.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/makers-mark-1-14l"
+        "price": "$53.21",
+        "priceNum": 53.21,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/makers-mark-bourbon-6"
       }
     },
     {
@@ -37298,7 +37245,7 @@
         "willowpark"
       ],
       "storePrices": {
-        "bsw": 160,
+        "bsw": 175,
         "craftcellars": 159.99,
         "lime": 165,
         "liquorama": 189.99,
@@ -37808,6 +37755,60 @@
         "priceNum": 52.99,
         "storeKey": "liquorama",
         "url": "https://liquorama.ca/product/87015/lamb-s-white"
+      }
+    },
+    {
+      "canonSku": "088672",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "kegncork",
+        "kwm",
+        "vinearts",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 260,
+        "clbspirits": 226.66,
+        "kegncork": 255.96,
+        "kwm": 259.99,
+        "vinearts": 245.54,
+        "zyn": 262
+      },
+      "representative": {
+        "name": "Benromach 21 Year Old 43 ABV 700ml",
+        "price": "$226.66",
+        "priceNum": 226.66,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "841233",
+        "skuKey": "841233",
+        "url": "https://clbspirits.com/products/benromach-21-year-old",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$226.66",
+        "priceNum": 226.66,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/benromach-21-year-old"
       }
     },
     {
@@ -39428,6 +39429,60 @@
         "priceNum": 145,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/highland-park-cask-strength-n0-5"
+      }
+    },
+    {
+      "canonSku": "112302",
+      "storeCount": 6,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "craftcellars",
+        "highlander",
+        "liquorama",
+        "zyn"
+      ],
+      "missingStores": [
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "kegncork",
+        "kwm",
+        "lime",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 175,
+        "canadianliquor": 261.99,
+        "craftcellars": 272.99,
+        "highlander": 296.99,
+        "liquorama": 229.99,
+        "zyn": 258
+      },
+      "representative": {
+        "name": "Angel's Envy Cask Strength Bourbon 2026",
+        "price": "$175.00",
+        "priceNum": 175,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "145542",
+        "skuKey": "145542",
+        "url": "https://www.bswliquor.com/products/angels-envy-cask-strength-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$175.00",
+        "priceNum": 175,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/angels-envy-cask-strength-1"
       }
     },
     {
@@ -44234,60 +44289,6 @@
         "priceNum": 163.7,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/balblair-18-year-old-1"
-      }
-    },
-    {
-      "canonSku": "829591",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "craftcellars",
-        "lime",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "coop",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 81.99,
-        "canadianliquor": 87.99,
-        "clbspirits": 80.8,
-        "craftcellars": 92.99,
-        "lime": 84.99,
-        "zyn": 88
-      },
-      "representative": {
-        "name": "Arran Sherry Cask The Bodega 55.8 ABV 700ml",
-        "price": "$80.80",
-        "priceNum": 80.8,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "829591",
-        "skuKey": "829591",
-        "url": "https://clbspirits.com/products/arran-sherry-cask-the-bodega-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$80.80",
-        "priceNum": 80.8,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/arran-sherry-cask-the-bodega-1"
       }
     },
     {
@@ -51285,28 +51286,28 @@
       ],
       "storePrices": {
         "bsw": 102,
-        "canadianliquor": 70.88,
+        "canadianliquor": 99.99,
         "clbspirits": 91.25,
         "coop": 109.99,
         "lime": 94.99
       },
       "representative": {
-        "name": "Smokehead Tequila Cask Terminado Single Malt Scotch Whisky",
-        "price": "$70.88",
-        "priceNum": 70.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "Smokehead Tequila Cask Terminado 43 ABV 700ml",
+        "price": "$91.25",
+        "priceNum": 91.25,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
         "skuRaw": "880581",
         "skuKey": "880581",
-        "url": "https://www.canadianliquorstore.ca/products/smokehead-tequila-cask-terminado-single-malt-scotch-whisky",
+        "url": "https://clbspirits.com/products/smokehead-tequila-terminado-islay-single",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$70.88",
-        "priceNum": 70.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/smokehead-tequila-cask-terminado-single-malt-scotch-whisky"
+        "price": "$91.25",
+        "priceNum": 91.25,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/smokehead-tequila-terminado-islay-single"
       }
     },
     {
