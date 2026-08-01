@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T04:11:44.179Z",
+  "generatedAt": "2026-08-01T08:41:22.713Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_ab_top50.json",
-      "cutoffStoreCount": 12
+      "cutoffStoreCount": 13
     }
   },
   "storeCount": 20,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 17726,
-    "removedRows": 6247,
-    "canonSkus": 5773,
+    "liveRows": 17716,
+    "removedRows": 6262,
+    "canonSkus": 5772,
     "outputCount": 50
   },
   "rows": [
@@ -330,7 +330,7 @@
       ],
       "storePrices": {
         "bsw": 41.99,
-        "canadianliquor": 39.98,
+        "canadianliquor": 41.88,
         "clbspirits": 40.99,
         "colordevino": 48.9,
         "coop": 41.99,
@@ -552,69 +552,6 @@
         "priceNum": 73.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/world-whisky/england/highland-park-12-yr-old-750ml-43-2/"
-      }
-    },
-    {
-      "canonSku": "325993",
-      "storeCount": 15,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "sierrasprings",
-        "whiskydrop",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "highlander",
-        "maltsandgrains",
-        "rmwsb",
-        "vinearts",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 99.99,
-        "canadianliquor": 109.99,
-        "clbspirits": 95.99,
-        "colordevino": 116.45,
-        "coop": 109.99,
-        "craftcellars": 111.99,
-        "kegncork": 110.96,
-        "kwm": 110.99,
-        "lime": 99.99,
-        "liquorama": 99.99,
-        "sherbrooke": 112.52,
-        "sierrasprings": 85.99,
-        "whiskydrop": 116,
-        "wineandbeyond": 97.99,
-        "zyn": 113
-      },
-      "representative": {
-        "name": "BOOKER’S SMALL BATCH BOURBON 750ML 63.05%",
-        "price": "$85.99",
-        "priceNum": 85.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "325993",
-        "skuKey": "325993",
-        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/",
-        "categoryLabel": "American Whiskey",
-        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
-      },
-      "cheapest": {
-        "price": "$85.99",
-        "priceNum": 85.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/"
       }
     },
     {
@@ -987,6 +924,68 @@
         "priceNum": 114.95,
         "storeKey": "wineandbeyond",
         "url": "https://www.wineandbeyond.ca/products/oban-14yr-750ml"
+      }
+    },
+    {
+      "canonSku": "325993",
+      "storeCount": 14,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "highlander",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 99.99,
+        "canadianliquor": 109.99,
+        "clbspirits": 95.99,
+        "colordevino": 116.45,
+        "coop": 109.99,
+        "craftcellars": 111.99,
+        "kegncork": 110.96,
+        "kwm": 110.99,
+        "lime": 99.99,
+        "liquorama": 99.99,
+        "sherbrooke": 112.52,
+        "sierrasprings": 85.99,
+        "wineandbeyond": 97.99,
+        "zyn": 113
+      },
+      "representative": {
+        "name": "BOOKER’S SMALL BATCH BOURBON 750ML 63.05%",
+        "price": "$85.99",
+        "priceNum": 85.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "325993",
+        "skuKey": "325993",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/",
+        "categoryLabel": "American Whiskey",
+        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
+      },
+      "cheapest": {
+        "price": "$85.99",
+        "priceNum": 85.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/"
       }
     },
     {

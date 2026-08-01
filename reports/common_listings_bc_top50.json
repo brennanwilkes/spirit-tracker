@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T04:11:43.263Z",
+  "generatedAt": "2026-08-01T08:41:21.583Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,67 +32,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6359,
-    "removedRows": 874,
-    "canonSkus": 2520,
+    "liveRows": 6346,
+    "removedRows": 887,
+    "canonSkus": 2518,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "001487",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 27.99,
-        "everythingwine": 27.99,
-        "gull": 27.99,
-        "highpointbws": 32.79,
-        "legacyliquor": 31.99,
-        "liberty": 38.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 30.99,
-        "newdistrict": 32.49,
-        "strath": 31.31,
-        "tudor": 27.99,
-        "vessel": 28.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "CROWN ROYAL",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bcliquorstores.com/product/1487",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/1487"
-      }
-    },
     {
       "canonSku": "010157",
       "storeCount": 14,
@@ -114,7 +59,7 @@
       ],
       "missingStores": [],
       "storePrices": {
-        "arc": 38.99,
+        "arc": 37.99,
         "bcl": 37.99,
         "everythingwine": 37.99,
         "gull": 41.35,
@@ -130,22 +75,22 @@
         "vintage": 42.52
       },
       "representative": {
-        "name": "JAMESON - IRISH",
+        "name": "JAMESON WHISKEY 750ML",
         "price": "$37.99",
         "priceNum": 37.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "010157",
         "skuKey": "010157",
-        "url": "https://www.bcliquorstores.com/product/10157",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586031-jameson-whiskey-750ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
       },
       "cheapest": {
         "price": "$37.99",
         "priceNum": 37.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/10157"
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4586031-jameson-whiskey-750ml"
       }
     },
     {
@@ -201,6 +146,61 @@
         "priceNum": 24.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/316844"
+      }
+    },
+    {
+      "canonSku": "001487",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 27.99,
+        "everythingwine": 27.99,
+        "gull": 27.99,
+        "highpointbws": 32.79,
+        "liberty": 38.99,
+        "liquorwarehouse": 30.99,
+        "marquis": 30.99,
+        "newdistrict": 32.49,
+        "strath": 31.31,
+        "tudor": 27.99,
+        "vessel": 28.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "CROWN ROYAL",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://www.bcliquorstores.com/product/1487",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1487"
       }
     },
     {
@@ -1171,7 +1171,7 @@
       }
     },
     {
-      "canonSku": "207126",
+      "canonSku": "249680",
       "storeCount": 11,
       "stores": [
         "arc",
@@ -1180,47 +1180,47 @@
         "gull",
         "highpointbws",
         "legacyliquor",
-        "marquis",
-        "strath",
+        "liberty",
+        "liquorwarehouse",
         "tudor",
         "vessel",
         "vintage"
       ],
       "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict"
+        "marquis",
+        "newdistrict",
+        "strath"
       ],
       "storePrices": {
-        "arc": 158.99,
-        "bcl": 169.99,
-        "everythingwine": 169.99,
-        "gull": 169.99,
-        "highpointbws": 175.99,
-        "legacyliquor": 173.47,
-        "marquis": 172.99,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39
+        "arc": 111.69,
+        "bcl": 120.99,
+        "everythingwine": 120.99,
+        "gull": 125.99,
+        "highpointbws": 121.79,
+        "legacyliquor": 132.99,
+        "liberty": 137.99,
+        "liquorwarehouse": 122.99,
+        "tudor": 110.99,
+        "vessel": 114.99,
+        "vintage": 133.83
       },
       "representative": {
-        "name": "LAGAVULIN 16YO",
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+        "name": "TALISKER - 10 YEAR OLD",
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
       },
       "cheapest": {
-        "price": "$158.99",
-        "priceNum": 158.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587316-lagavulin-16yo"
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420"
       }
     },
     {
@@ -1643,58 +1643,6 @@
       }
     },
     {
-      "canonSku": "034672",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "liquorwarehouse",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.89,
-        "everythingwine": 124.89,
-        "gull": 120.89,
-        "highpointbws": 142.79,
-        "legacyliquor": 137.17,
-        "marquis": 131.99,
-        "newdistrict": 138.79,
-        "strath": 130.44,
-        "tudor": 129.99,
-        "vessel": 124.99
-      },
-      "representative": {
-        "name": "Macallan – Double Cask 12 Year Old 750ml",
-        "price": "$120.89",
-        "priceNum": 120.89,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "034672",
-        "skuKey": "034672",
-        "url": "https://gullliquorstore.com/product/macallan-12-double-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$120.89",
-        "priceNum": 120.89,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/macallan-12-double-750m/"
-      }
-    },
-    {
       "canonSku": "073999",
       "storeCount": 10,
       "stores": [
@@ -2111,6 +2059,58 @@
       }
     },
     {
+      "canonSku": "207126",
+      "storeCount": 10,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "bcl": 169.99,
+        "everythingwine": 169.99,
+        "gull": 169.99,
+        "highpointbws": 175.99,
+        "legacyliquor": 173.47,
+        "marquis": 172.99,
+        "strath": 165.13,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "Lagavulin - 16 Year Old Single Malt Scotch",
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "243824",
       "storeCount": 10,
       "stores": [
@@ -2160,58 +2160,6 @@
         "priceNum": 144.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/oban-14-yr-old-ml-420"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 111.69,
-        "bcl": 120.99,
-        "everythingwine": 120.99,
-        "gull": 125.99,
-        "highpointbws": 121.79,
-        "legacyliquor": 132.99,
-        "liberty": 137.99,
-        "liquorwarehouse": 122.99,
-        "tudor": 110.99,
-        "vintage": 133.83
-      },
-      "representative": {
-        "name": "TALISKER - 10 YEAR OLD",
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420"
       }
     },
     {
@@ -2470,6 +2418,57 @@
         "priceNum": 33.49,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588629-gibsons-rare-12y-750ml"
+      }
+    },
+    {
+      "canonSku": "034672",
+      "storeCount": 9,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "liberty",
+        "liquorwarehouse",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.89,
+        "everythingwine": 124.89,
+        "highpointbws": 142.79,
+        "legacyliquor": 137.17,
+        "marquis": 131.99,
+        "newdistrict": 138.79,
+        "strath": 130.44,
+        "tudor": 129.99,
+        "vessel": 124.99
+      },
+      "representative": {
+        "name": "MACALLAN - DOUBLE CASK 12 YEAR OLD",
+        "price": "$124.89",
+        "priceNum": 124.89,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "034672",
+        "skuKey": "034672",
+        "url": "https://www.bcliquorstores.com/product/34672",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$124.89",
+        "priceNum": 124.89,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/34672"
       }
     },
     {
