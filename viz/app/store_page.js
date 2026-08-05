@@ -1,6 +1,7 @@
 import { esc, renderThumbHtml } from "./dom.js";
 import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { filterToggleHtml, installFilterCollapse } from "./components/filter_collapse.js";
 import { decorateRarity } from "./rarity_decorate.js";
 import {
 	tokenizeQuery,
@@ -54,6 +55,9 @@ export async function renderStore($app, storeLabelRaw) {
           </button>
         </div>
 
+        ${filterToggleHtml()}
+
+        <div class="storeFilters">
         <div class="storeFilterRow">
           <label class="storeControl" id="sortWrap">
             <span class="storeControlLabel">Sort</span>
@@ -87,6 +91,7 @@ export async function renderStore($app, storeLabelRaw) {
           <span class="storeControlLabel">Max price</span>
           <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
           <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
+        </div>
         </div>
 
         <div class="small" id="status" style="margin-top:12px;"></div>
@@ -984,7 +989,37 @@ export async function renderStore($app, storeLabelRaw) {
 			onChange: () => {
 				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
 				applyFilter();
+				filterCollapse.refresh();
 			},
 		});
 	}
+
+	// The Sort control is swapped for Difference on the Price tab, so the summary
+	// reports whichever one is actually driving the list.
+	const filterCollapse = installFilterCollapse({
+		$toggle: document.querySelector(".filterToggle"),
+		$panel: document.querySelector(".storeFilters"),
+		pageKey: "store",
+		summarize: () => {
+			const parts = [];
+
+			const priceTab = $cmpModeWrap && $cmpModeWrap.style.display !== "none";
+			if (priceTab) {
+				parts.push(`Diff: ${$cmpMode.options[$cmpMode.selectedIndex]?.text?.trim() || ""}`);
+			} else if ($sort.value !== "priceDesc") {
+				parts.push($sort.options[$sort.selectedIndex]?.text?.trim() || "");
+			}
+
+			if (selectedTypeSet.size) parts.push($spiritLabel?.textContent?.trim() || "");
+			if (pageMax !== null && selectedMaxPrice < pageMax) {
+				parts.push(`≤ ${$maxPriceLabel?.textContent?.trim() || ""}`);
+			}
+
+			return parts.filter(Boolean).join(" · ");
+		},
+	});
+
+	$sort.addEventListener("change", () => filterCollapse.refresh());
+	$cmpMode.addEventListener("change", () => filterCollapse.refresh());
+	$maxPrice.addEventListener("change", () => filterCollapse.refresh());
 }

@@ -7,6 +7,15 @@
   min-width: 0;
 }
 
+/* .headerRow1 is a wrapping space-between flex row, so an unstyled .headerRight
+   shrinks to its content and the filter grid inside stops short of the right
+   edge. (style.css only stretches .headerRight when it also carries
+   .headerButtons, which the stats header doesn't.) Claim the full row on
+   mobile only — on desktop the filters share row 1 with the title. */
+@media (max-width: 640px) {
+  .statsHeaderRight { width: 100%; }
+}
+
 /* Filter row: 2x2 grid on mobile, inline flex on desktop */
 .statsFilters {
   display: grid;
@@ -53,19 +62,12 @@
   }
 
   /* Lock to the viewport so the dashboard fits exactly (no slight scroll);
-     the flex chart shrinks to absorb any rounding. */
+     the flex chart shrinks to absorb any rounding. --nav-space is 0 where the
+     tab bar is hidden and its real footprint where it isn't. */
   .containerFull {
     height: 100vh;
-    height: 100dvh;
+    height: calc(100dvh - var(--nav-space));
     overflow: hidden;
-  }
-}
-
-/* Touch devices ≥641px (iPads): leave room for the bottom tab bar inside the
-   locked dashboard. Condition mirrors style.css §14. */
-@media (min-width: 641px) and (pointer: coarse), (min-width: 641px) and (max-width: 1023px) {
-  .containerFull {
-    height: calc(100dvh - 64px - env(safe-area-inset-bottom));
   }
 }
 
@@ -88,7 +90,7 @@
 /* Stats page: make chart fill remaining viewport height */
 .containerFull {
   min-height: 100vh;
-  min-height: 100svh;
+  min-height: calc(100svh - var(--nav-space));
   display: flex;
   flex-direction: column;
 }

@@ -803,7 +803,7 @@ export async function renderStats($app) {
             </div>
           </div>
 
-          <div class="headerRight">
+          <div class="headerRight statsHeaderRight">
             <div class="statsFilters">
               <select id="statsGroup" class="selectSmall statsFilterField" aria-label="Store group">
                 <option value="all">All Stores</option>
