@@ -162,15 +162,11 @@ export async function renderShortlist($app, accountUuidRaw) {
 						</div>
 					</div>
 
-					<div id="priceWrap" style="align-items:center; gap:10px; width:100%;">
-						<div class="small" style="white-space:nowrap; opacity:.75;">Max price</div>
-
-						<input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000"
-							style="height:18px; accent-color:#9aa3b2; opacity:.85;" />
-
-						<div class="badge mono" id="maxPriceLabel"
-							style="width:120px; text-align:right; white-space:nowrap; opacity:.9;">$120</div>
-						</div>
+					<div class="priceRow" id="priceWrap">
+						<div class="priceRowLabel">Max price</div>
+						<input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="priceSlider" />
+						<div class="badge mono priceValue" id="maxPriceLabel">$120</div>
+					</div>
 					</div>
 
 					<div style="display:flex; gap:10px; align-items:center; width:100%;">

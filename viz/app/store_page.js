@@ -87,10 +87,10 @@ export async function renderStore($app, storeLabelRaw) {
           </div>
         </div>
 
-        <div class="storePriceRow" id="storePriceWrap">
+        <div class="priceRow storePriceRow" id="storePriceWrap">
           <span class="storeControlLabel">Max price</span>
-          <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="storePriceSlider" />
-          <span class="badge mono storePriceLabel" id="maxPriceLabel"></span>
+          <input id="maxPrice" type="range" min="0" max="1000" step="1" value="1000" class="priceSlider" />
+          <span class="badge mono priceValue" id="maxPriceLabel"></span>
         </div>
         </div>
 

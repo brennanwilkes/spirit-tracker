@@ -848,8 +848,8 @@ export async function renderStats($app) {
                 <button id="statsClear" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
               </div>
 
-              <div id="statsPriceWrap" style="display:flex; align-items:center; gap:10px; width:100%;">
-                <div class="small" style="white-space:nowrap; opacity:.75;">Price</div>
+              <div class="priceRow" id="statsPriceWrap">
+                <div class="priceRowLabel">Price</div>
 
                 <div class="rangeDual" aria-label="Price range">
                   <div class="rangeTrack"></div>
@@ -858,7 +858,9 @@ export async function renderStats($app) {
                   <input id="statsMaxPrice" type="range" min="0" max="1000" step="1" value="1000" />
                 </div>
 
-                <div class="badge mono" id="statsPriceLabel" style="width: 160px; text-align:right; white-space:nowrap; opacity:.9; flex: 0 0 auto;"></div>
+                <!-- Wider floor than the shared default: this one shows a RANGE
+                     ("$15 – $550"), not a single value. -->
+                <div class="badge mono priceValue" id="statsPriceLabel" style="min-width:120px;"></div>
               </div>
             </div>
           </div>

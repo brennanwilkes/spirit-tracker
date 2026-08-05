@@ -1,16 +1,8 @@
 /* ── Shortlist page ────────────────────────────────────────────────────── */
 
-/* Price range wrap: grid layout (label / slider / value) so the label never
-   wraps. Lives here because the shortlist is the only #priceWrap consumer; the
-   store page uses its own #storePriceWrap so it isn't affected by this rule. */
-#priceWrap {
-  display: grid;
-  grid-template-columns: max-content 1fr 120px;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-#priceWrap #maxPrice { width: 100%; min-width: 0; }
+/* Price range row now uses the shared .priceRow set (style.css §17). The old
+   bespoke grid + inline styles here had drifted to a different thumb colour and
+   height than the store page's copy. */
 
 /* On shortlist, the star lives inside the title flex row, so it must NOT be absolutely positioned */
 .shortlistPage .itemHasStar .favStarBtn {
