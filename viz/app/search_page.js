@@ -40,7 +40,7 @@ export function renderSearch($app) {
           </div>
 
           <div class="headerRight headerButtons">
-			<a class="btn btnIcon" href="#/stats" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+			<a class="tabDup btn btnIcon" href="#/stats" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
 				<i class="fa-solid fa-chart-line" aria-hidden="true"></i>
 				<span class="srOnly">Statistics</span>
 			</a>
@@ -48,11 +48,11 @@ export function renderSearch($app) {
 				<i class="fa-solid fa-link" aria-hidden="true"></i>
 				<span class="srOnly">Link SKUs</span>
 			</a>
-			<a id="storesBtn" class="btn btnIcon" href="#/stores" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Stores">
+			<a id="storesBtn" class="tabDup btn btnIcon" href="#/stores" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Stores">
 				<i class="fa-solid fa-store" aria-hidden="true"></i>
 				<span class="srOnly">Stores</span>
 			</a>
-			<a class="btn btnIcon" href="#/shortlists" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Public shortlists">
+			<a class="tabDup btn btnIcon" href="#/shortlists" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Public shortlists">
 				<i class="fa-solid fa-people-group" aria-hidden="true"></i>
 				<span class="srOnly">Public Shortlists</span>
 			</a>
@@ -61,12 +61,12 @@ export function renderSearch($app) {
 				authed
 					? `
 
-		<a id="shortlistBtn" class="btn btnWide" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
-		<a class="btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
+		<a id="shortlistBtn" class="tabDup btn btnWide" href="${shortlistHref}" style="text-decoration:none;">My Shortlist</a>
+		<a class="tabDup btn btnIcon" href="#/settings" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Settings">
 		<i class="fa-solid fa-gear" aria-hidden="true"></i>
 		<span class="srOnly">Settings</span>
 	  </a>
-	  <a id="logoutBtn" class="btn btnIcon" type="button"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+	  <a id="logoutBtn" class="btn btnIcon" type="button" aria-label="Log out"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></a>
 	`
 					: `
 	  <a class="btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
@@ -82,7 +82,7 @@ export function renderSearch($app) {
         <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
           <!-- Row 1: search -->
           <div style="display:flex; gap:10px; align-items:center; width:100%;">
-            <input id="q" class="input" placeholder="e.g. bowmore sherry, 303821, sierrasprings..." autocomplete="off" style="flex: 1 1 auto;" />
+            <input id="q" class="input" type="search" placeholder="e.g. bowmore sherry, 303821" autocomplete="off" style="flex: 1 1 auto;" />
             <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
           </div>
 
@@ -639,7 +639,7 @@ export function renderSearch($app) {
 		}
 	}
 
-	function startPager(list, renderItemHtml, { headerHtml = "", emptyHtml = `<div class="small">No matches.</div>` } = {}) {
+	function startPager(list, renderItemHtml, { headerHtml = "", emptyHtml = `<div class="small" style="padding: 18px 4px;">No matches. Try fewer words, or widen the store and availability filters.</div>` } = {}) {
 		clearPager();
 
 		if (!list.length) {

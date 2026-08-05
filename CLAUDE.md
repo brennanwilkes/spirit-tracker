@@ -179,38 +179,21 @@ implementations enforce this; keep the window in sync across all of them:
   - Note: this `FLAP_WINDOW_MS` (3 days, per-leg) is independent of the suppressors' 48h
     single-round-trip window — different rule, different purpose; they do not need to match.
 
-## Datacenter-IP Blocking — SOLVED (2026-07-06)
+## Datacenter-IP Blocking — OPEN (2026-07-06, WireGuard disabled 2026-07-16)
 
-The GitHub-runner's Azure datacenter IP was getting challenged by Cloudflare at several
-stores (liberty, highlander, coop, colordevino, maltsandgrains). **Fix: WireGuard tunnel
-to ProtonVPN in the CI workflow** (`.github/workflows/cron_tracker.yaml`). The runner
-connects to ProtonVPN via WireGuard before the tracker runs — all `fetch()` calls exit
-from a clean residential-class IP. The tunnel is per-run (ephemeral runner), requires
-no code changes to the scraper, and best-effort: if the secret or kernel module is
-missing, or the tunnel fails the diagnostic check (egress IP unreachable / store API
-still challenged), the tunnel is torn down and the run continues without VPN.
+The GitHub-runner's Azure datacenter IP gets challenged by Cloudflare at several
+stores (liberty, highlander, coop, colordevino, maltsandgrains).
 
-- **Diagnostic guard**: after `wg-quick up`, the workflow curls `api.ipify.org` through
-  the tunnel to verify the egress IP changed, then curls the Liberty WooCommerce Store
-  API to confirm Cloudflare isn't challenging the tunnel IP. If either check fails, the
-  tunnel is torn down immediately and the run proceeds without VPN (normal store failures
-  apply). This prevents a half-broken tunnel from silently degrading the scrape.
-- **Commit message reporting**: the commit body includes a `vpn: ok (egress X.X.X.X)` or
-  `vpn: off` line so VPN health is visible in `git log`. VPN status and egress IP are
-  passed from the workflow to `run_daily.sh` via `VPN_OK` / `VPN_EGRESS_IP` env vars.
-- **Secret**: `PROTONVPN_WG_CONF` — full WireGuard config (the `[Interface]` + `[Peer]`
-  block) downloaded from ProtonVPN's WireGuard key page. Generate at
-  `account.proton.me/u/0/vpn/WireGuard` — use a fresh key (the movie-server uses a
-  different key already).
-- **One-time to do**: generate new WireGuard config, copy its contents verbatim into
-  the GitHub repo secret `PROTONVPN_WG_CONF`.
-- **Diagnostic**: `scripts/diag_liberty.sh` — run from any host; prints egress IP +
-  curl/Node probes classified OK vs CHALLENGED. Use it to verify the fix.
-- **What we tried that didn't work**: a Cloudflare Worker proxy (2026-06-07, CF→CF
-  relay still got challenged) and proxychains4/SOCKS5 (ProtonVPN does not offer SOCKS5).
-- **Existing retry logic**: the one-shot failed-store retry on a fresh runner still
-  fires up WireGuard on the new runner (the tunnel step runs every time), so retries
-  also get a clean IP.
+**WireGuard attempt (DISABLED):** ProtonVPN WireGuard tunnel in `cron_tracker.yaml`.
+UDP endpoint reachable but handshake never completes on cron runner — likely Azure
+platform-level filtering of WireGuard protocol packets (Hyper-V virtual switch).
+Diagnostic workflow (`vpn_diag.yaml`) worked on a different runner. Full config
+commented out in `cron_tracker.yaml`. See `docs/vpn-setup.md` for research and
+alternatives (Tailscale, residential proxy, Cloudflare whitelisting).
+
+**Current status:** Stores are scraped without VPN. CF-blocked stores fail with 403s
+on every run. The one-shot retry logic still fires but without a VPN it just retries
+the same blocked IP. Workaround: run locally (different IP) or use a residential proxy.
 
 ## Tech Stack
 

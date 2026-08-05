@@ -4,13 +4,14 @@
 
 .authWrap {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 18px;
   padding-top: 26px;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  font-size: 15px;
+  font-size: var(--text-lg);
 }
 
 .authWrap button,
@@ -22,13 +23,13 @@
   width: 100%;
   max-width: 520px;
   padding: 18px;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
 }
 
 .brandMark {
   width: 44px;
   height: 44px;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   border: 1px solid rgba(125, 211, 252, 0.35);
   background:
     radial-gradient(60% 60% at 30% 30%, rgba(125,211,252,0.22), rgba(0,0,0,0)),
@@ -37,7 +38,7 @@
 }
 
 .authTitle {
-  font-size: 18px;
+  font-size: var(--text-xl);
   font-weight: 800;
   margin: 0;
 }
@@ -45,13 +46,13 @@
 .authSub {
   margin-top: 6px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--text-sm);
 }
 
 .primaryBtn {
   width: 100%;
   padding: 14px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-weight: 800;
   letter-spacing: 0.2px;
   border-color: rgba(125, 211, 252, 0.28);
@@ -61,7 +62,7 @@
 .secondaryBtn {
   width: 100%;
   padding: 14px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-weight: 800;
   letter-spacing: 0.2px;
 }
@@ -73,7 +74,7 @@
   justify-content: center;
   gap: 10px;
   padding: 12px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-weight: 700;
   letter-spacing: 0.2px;
 }
@@ -84,7 +85,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.03);
 }
@@ -116,9 +117,16 @@
   color: var(--muted);
   text-decoration: underline;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--text-sm);
 }
 .miniLink:hover { color: #E7EDF3; }
+
+/* Touch devices: grow the tiny text links to a real tap target (negative
+   margin keeps the visual layout unchanged). The wrapper is already at
+   --text-lg (16px, the iOS no-zoom floor) at every width, so no bump here. */
+@media (pointer: coarse) {
+  .miniLink { font-size: var(--text-md); padding: 10px 4px; margin: -10px -4px; }
+}
 
 @media (prefers-color-scheme: light) {
   .oauthIcon { background: rgba(0,0,0,0.06); }

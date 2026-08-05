@@ -30,6 +30,7 @@ import { renderSettings } from "./settings_page.js";
 import { renderPublicShortlists } from "./public_shortlists_page.js";
 import { renderStores } from "./stores_page.js";
 import { applyStoredColorScheme, applyColorScheme } from "./theme.js";
+import { renderBottomNav } from "./components/bottom_nav.js";
 
 // Apply stored theme immediately to prevent FOUC
 applyStoredColorScheme();
@@ -64,6 +65,8 @@ function route() {
 	// always clean up chart when navigating
 	destroyChart();
 	destroyStatsChart();
+
+	renderBottomNav();
 
 	const parsed = parseHashRoute(window.location.hash || "#/");
 

@@ -8,6 +8,9 @@
   gap: 12px;
   align-items: start;
 }
+/* Grid items default to min-width:auto, letting long nowrap store names push
+   the rows past the card edge (clipped "Open →" pills). */
+.storesGrid > div { min-width: 0; }
 
 @media (min-width: 641px) {
   .storesGrid { grid-template-columns: 1fr 1fr; }
@@ -28,7 +31,7 @@
   gap: 12px;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: #0f1318;
   cursor: pointer;
 }
@@ -42,18 +45,21 @@
   min-width: 0;
 }
 
+/* Logos need a light plate to stay legible, but pure white glares on the
+   dark page — use a soft off-white with a hint of the page's slate. */
 .storesPage .logoBox {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: #ffffff;
+  background: #e9edf2;
   overflow: hidden;
   flex: 0 0 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  padding: 3px;
 }
 
 .storesPage .logoBox img {
@@ -71,7 +77,7 @@
 
 .storesPage .name {
   font-weight: 800;
-  font-size: 14px;
+  font-size: var(--text-base);
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -83,9 +89,9 @@
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.02);
   color: var(--text);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   pointer-events: none;
   user-select: none;
 }
@@ -93,16 +99,19 @@
 @media (prefers-color-scheme: light) {
   .storesPage .row { background: var(--lt-surface); }
   .storesPage .row:hover { border-color: var(--lt-hover); }
+  .storesPage .logoBox { background: #ffffff; }
   .storesPage .logoPlaceholder { background: rgba(0,0,0,0.06); }
   .storesPage .openPill { background: var(--lt-hover-bg); }
 }
 
 html[data-theme="light"] .storesPage .row { background: var(--lt-surface); }
 html[data-theme="light"] .storesPage .row:hover { border-color: var(--lt-hover); }
+html[data-theme="light"] .storesPage .logoBox { background: #ffffff; }
 html[data-theme="light"] .storesPage .logoPlaceholder { background: var(--lt-hover-bg); }
 html[data-theme="light"] .storesPage .openPill { background: var(--lt-hover-bg); }
 
 html[data-theme="dark"] .storesPage .row { background: #0f1318; }
 html[data-theme="dark"] .storesPage .row:hover { border-color: #2f3a46; }
+html[data-theme="dark"] .storesPage .logoBox { background: #e9edf2; }
 html[data-theme="dark"] .storesPage .logoPlaceholder { background: rgba(255,255,255,0.03); }
 html[data-theme="dark"] .storesPage .openPill { background: rgba(255,255,255,0.02); }

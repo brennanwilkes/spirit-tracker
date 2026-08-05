@@ -2,7 +2,7 @@
 
 .reviewTitle {
 	margin: 14px 0 4px;
-	font-size: 1.25rem;
+	font-size: var(--text-2xl);
 }
 .reviewSummary {
 	color: var(--muted);
@@ -15,11 +15,11 @@
 .reviewNotice {
 	background: var(--panel);
 	border: 1px solid var(--border);
-	border-radius: 8px;
+	border-radius: var(--radius-md);
 	padding: 8px 12px;
 	color: var(--muted);
 	margin-bottom: 12px;
-	font-size: 0.85rem;
+	font-size: var(--text-md);
 }
 
 .reviewList {
@@ -31,7 +31,7 @@
 .reviewRow {
 	background: var(--panel);
 	border: 1px solid var(--border);
-	border-radius: 10px;
+	border-radius: var(--radius-md);
 	padding: 12px;
 }
 .pendingRow {
@@ -56,7 +56,7 @@
 }
 .rvLinkGlyph {
 	align-self: center;
-	font-size: 1.1rem;
+	font-size: var(--text-xl);
 	opacity: 0.7;
 }
 
@@ -79,7 +79,7 @@
 	width: 48px;
 	height: 48px;
 	object-fit: contain;
-	border-radius: 6px;
+	border-radius: var(--radius-sm);
 	background: #fff;
 }
 .rvBody {
@@ -97,7 +97,7 @@
 	flex-wrap: wrap;
 	margin-top: 4px;
 	color: var(--muted);
-	font-size: 0.85rem;
+	font-size: var(--text-md);
 }
 
 .rvSide {

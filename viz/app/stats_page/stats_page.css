@@ -56,7 +56,16 @@
      the flex chart shrinks to absorb any rounding. */
   .containerFull {
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
+  }
+}
+
+/* Touch devices ≥641px (iPads): leave room for the bottom tab bar inside the
+   locked dashboard. Condition mirrors style.css §14. */
+@media (min-width: 641px) and (pointer: coarse), (min-width: 641px) and (max-width: 1023px) {
+  .containerFull {
+    height: calc(100dvh - 64px - env(safe-area-inset-bottom));
   }
 }
 
@@ -79,6 +88,7 @@
 /* Stats page: make chart fill remaining viewport height */
 .containerFull {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
 }
@@ -121,7 +131,7 @@
   top: 50%;
   transform: translateY(-50%);
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .rangeDual .rangeTrack {
@@ -150,11 +160,38 @@
 }
 
 .rangeDual input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
-.rangeDual input[type="range"]::-webkit-slider-thumb { pointer-events: all; }
+.rangeDual input[type="range"]::-webkit-slider-thumb {
+  pointer-events: all;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
 
 .rangeDual input[type="range"]::-moz-range-track { background: transparent; }
 .rangeDual input[type="range"]::-moz-range-progress { background: transparent; }
-.rangeDual input[type="range"]::-moz-range-thumb { pointer-events: all; }
+.rangeDual input[type="range"]::-moz-range-thumb {
+  pointer-events: all;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .rangeDual,
+  .rangeDual input[type="range"] { height: 26px; }
+  .rangeDual input[type="range"]::-webkit-slider-thumb { width: 24px; height: 24px; }
+  .rangeDual input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; }
+}
 
 @media (prefers-color-scheme: light) {
   .rangeDual .rangeFill { background: #3d7fa8; }

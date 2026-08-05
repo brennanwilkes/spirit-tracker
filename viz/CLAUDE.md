@@ -314,6 +314,70 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   commits. If a scrape commits your uncommitted review edits before you hand-commit, the watermark
   won't reflect that session (commit by hand to set the line).
 
+## Mobile / Touch Design System (2026-07 overhaul)
+
+80% of usage is phones, iPads are first-class. Key invariants:
+
+- **Bottom tab bar** (`app/components/bottom_nav.js`, styles `style.css` §12) — Search / Stores /
+  Stats / Shortlist / Settings. Rendered by `main.js::route()` as a `<nav id="bottomNav">` sibling
+  of `#app` (survives page re-renders; active tab + auth-dependent shortlist target refresh per
+  route). **Visibility is CSS-only** via the condition `@media (max-width: 1023px), (pointer: coarse)`
+  (`style.css` §14) — iPads ALWAYS report `pointer: coarse` (even with trackpad), so all iPads +
+  phones + narrow windows get it; desktop-with-mouse ≥1024px keeps the top-header buttons.
+  - The same condition also: hides header buttons marked **`.tabDup`** (any header button that
+    duplicates a tab must carry this class), adds `body { padding-bottom }` clearance, and is
+    **mirrored** in `settings_page.css` (save bar floats above the nav) and `stats_page.css` /
+    `item_page.css` (viewport-locked layouts subtract the nav height). Keep all copies in sync.
+- **Touch feedback**: `style.css` §13 defines `:active` pressed states (scale/brightness),
+  `-webkit-tap-highlight-color: transparent`, `touch-action: manipulation`, `:focus-visible` rings,
+  and `prefers-reduced-motion` support. **§13/§14 must stay at the END of style.css** — after the
+  theme blocks — so they win the cascade.
+- **`@media (pointer: coarse)` sizing**: 44px buttons/icon-buttons, taller selects/options, and
+  **16px font on form controls** (anything under 16px makes iOS Safari zoom the page on focus —
+  never set control fonts below 16px in a coarse-pointer context). Per-page CSS files carry their
+  own small coarse blocks for page-owned classes (settings `.stSelect`, auth `.miniLink`, item
+  `.hideListingBtn`, stats `.rangeDual`) because per-page files load after style.css and would
+  otherwise override it.
+- **Safe areas**: `index.html` viewport has `viewport-fit=cover` (REQUIRED or every
+  `env(safe-area-inset-*)` resolves to 0). Used by `.container` (left/right), `.bottomNav` and
+  `.saveArea` (bottom).
+- **Viewport units**: prefer `svh` (stable) for min-heights, `dvh` for locked app-shell heights;
+  always leave a plain `vh` fallback line above.
+- **`--nav-bg` token**: like all tokens it must be declared in ALL FOUR places — base `:root`,
+  `prefers-color-scheme: light` `:root`, `:root[data-theme="light"]`, `:root[data-theme="dark"]`.
+- **Do NOT use `content-visibility: auto` on `.item`** — Firefox paints the cards as empty
+  bordered shells (verified 2026-07, note in style.css).
+- Item cards: `.itemName` clamps to 2 lines on ≤640px (title attr carries the full name);
+  `.metaRow` wraps instead of clipping badges.
+- Headless verification trick: `firefox --headless --screenshot out.png --window-size=390,1400 <url>`
+  fires at the load event, before async data renders. Wrap the app in an iframe plus an `<img>`
+  pointed at a slow endpoint to delay the outer load event (see session scratch `.shots/wrap.html`
+  pattern; `.shots/` is disposable and untracked).
+
+## Design Tokens — radius + type scale (2026-08)
+
+`style.css` §1 defines two numeric scales. **Never write a raw `px` value for `border-radius`
+or `font-size` again** — if a design needs a size, it uses a token or the scale gains a step.
+
+- **Radius**: `--radius-xs` 4 / `--radius-sm` 6 / `--radius-md` 10 / `--radius-lg` 12 /
+  `--radius-xl` 14 / `--radius-pill` 999px. `md` is the default surface (cards, items, buttons,
+  inputs, panels). Literal `50%` survives where a true circle is meant (toggle knobs, chart dots) —
+  that's a shape, not a scale value.
+- **Type**: `--text-2xs` 10 / `--text-xs` 11 / `--text-sm` 12 / `--text-md` 13 / `--text-base` 14 /
+  `--text-lg` 16 / `--text-xl` 18 / `--text-2xl` 19.
+  **`--text-lg` is the iOS no-zoom floor** — any form control in a `pointer: coarse` context must be
+  at least this, or Safari zooms the page on focus.
+- **These are theme-independent, so they are declared ONCE in the base `:root`** — do NOT copy them
+  into the light/dark blocks. The "declare a token in all four places" rule (see the `--nav-bg` note
+  above) applies to COLOR tokens only, which is why radius/type sit in their own commented block.
+- Migration folded away the one-offs: `2/3px → xs`, `7px → sm`, `8px → md`, `12.5px → sm`,
+  `10.5px → 2xs`, `15px → lg` (16px), and `link_review_page.css`'s `rem` values onto the px scale.
+  The 15→16 fold made the `.settingsWrap` / `.authWrap` `pointer: coarse` bumps redundant; both were
+  deleted rather than left as no-op duplicates.
+- Audit for drift with:
+  `grep -rnE 'border-radius:[ \t]*[0-9]|font-size:[ \t]*[0-9]' style.css app/*/*.css`
+  — a clean run returns only the `50%` circles.
+
 ## Patterns & Conventions
 
 - **Escaping**: always use `esc()` from `dom.js` for any user-visible string inserted into innerHTML — never skip this
@@ -325,6 +389,7 @@ commit, or read-only Pages where git isn't reachable) → show everything.
 - **Charts**: chart creation is in `item_page/item_chart.js` and `stats_page/stats_chart.js` — follow existing patterns
 - **Mobile-first CSS**: base styles target mobile; use `@media (min-width: 641px)` for desktop enhancements only. Never use `@media (max-width: 640px)` for primary layout.
 - **Per-page CSS**: page-specific rules live in `app/<page>/page.css`, loaded statically via `index.html`; never inject CSS via JS
+- **Sizing**: `border-radius` and `font-size` always come from the token scales — see §"Design Tokens" above. A raw `px` value for either is a bug (the only exception is `border-radius: 50%` for true circles)
 
 ## Item Card Layout
 
