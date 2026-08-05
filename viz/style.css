@@ -1775,6 +1775,25 @@ summary:focus-visible,
     opacity: 0.75;
   }
 
+  /* Once stacked, every control must claim the whole row. Two base rules fight
+     this and each needs an explicit answer: `.storeSetTrigger` carries
+     `max-width: 60vw` (its inline/desktop sizing) and `.spiritFilterTrigger` is
+     a fixed 120px <button>, which shrink-wraps rather than stretching. Pages
+     used to override these one at a time, so whichever page was forgotten —
+     the shortlist — rendered half-width controls. */
+  .searchControl.searchControl :is(.storeSet, .spiritFilter),
+  .storeControl.storeControl :is(.storeSet, .spiritFilter),
+  .shortlistPage .slFilterCell.slFilterCell :is(.storeSet, .spiritFilter),
+  .searchControl.searchControl :is(.storeSetTrigger, .spiritFilterTrigger, .selectSmall),
+  .storeControl.storeControl :is(.storeSetTrigger, .spiritFilterTrigger, .selectSmall),
+  .shortlistPage .slFilterCell.slFilterCell :is(.storeSetTrigger, .spiritFilterTrigger, .selectSmall) {
+    width: 100%;
+    max-width: none;
+    /* These carry row-direction flex values (`flex: 1 1 0`) that mean HEIGHT in
+       a stacked column and would collapse the control. */
+    flex: 0 0 auto;
+  }
+
   /* One control per row, matching the search page. The 2-up grid was there to
      save vertical space, but the whole block now starts collapsed (§16), so the
      saving bought nothing and cost a ragged 1-2-1 layout plus half-width inputs
@@ -1878,4 +1897,45 @@ html[data-theme="dark"] .filterToggleChevron { background: rgba(255, 255, 255, 0
 @media (max-width: 640px) {
   .filterToggle { display: flex; }
   .filtersCollapsed { display: none !important; }
+}
+
+/* ── 17. Price filter row ───────────────────────────────────────────────── */
+
+/* One definition for every "label — slider — value" row. The store, shortlist
+   and stats pages each grew their own copy, which drifted: the shortlist was
+   still on the pre-accent `#9aa3b2` thumb at 18px tall with the whole thing
+   inline-styled, while the store page had moved to var(--accent) at 22px.
+   Page-specific files may set the label width, nothing else. */
+.priceRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.priceRowLabel {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  opacity: 0.75;
+  font-size: var(--text-md);
+}
+
+.priceSlider {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  height: 22px;
+  accent-color: var(--accent);
+}
+
+/* Sized to content so the value sits flush after the slider, with a floor so it
+   doesn't jitter as the digits change width while dragging. */
+.priceValue {
+  flex: 0 0 auto;
+  min-width: 84px;
+  text-align: right;
+  white-space: nowrap;
+  opacity: 0.9;
 }

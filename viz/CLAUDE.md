@@ -397,6 +397,23 @@ since `--nav-space` already includes it.
     is the control actually driving the list there.
 - Filter labels are `--text-md` at every width (they carry `.small`, which is smaller and reads too
   faint for a control label).
+- **Stacked controls must be forced to full width.** Two base rules fight it and both are answered
+  once in §15: `.storeSetTrigger` carries `max-width: 60vw` (its inline/desktop sizing) and
+  `.spiritFilterTrigger` is a fixed-`120px` `<button>` that shrink-wraps. Pages used to override
+  these individually, so the one that was forgotten (shortlist) rendered half-width controls. The
+  same rule resets `flex: 1 1 0` values that mean HEIGHT once the row becomes a column.
+
+## Price filter row (`style.css` §17)
+
+`.priceRow` / `.priceRowLabel` / `.priceSlider` / `.priceValue` is the single definition of the
+"label — slider — value" row, used by the store, shortlist and stats pages. It exists because all
+three grew private copies that drifted: the shortlist was still inline-styled with the pre-accent
+`#9aa3b2` thumb at 18px while the store page had moved to `var(--accent)` at 22px.
+
+**Page CSS may set the label width and nothing else.** The stats page is the one legitimate
+variation — it overrides `min-width` on `.priceValue` because it renders a *range* (`$15 – $550`)
+rather than a single value, and its `.rangeDual` two-thumb control keeps its own track styling
+(sharing only `--accent` for the thumbs).
 
 ## Charts — outliers and sparse series
 
