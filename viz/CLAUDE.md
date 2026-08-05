@@ -324,10 +324,13 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   route). **Visibility is CSS-only** via the condition `@media (max-width: 1023px), (pointer: coarse)`
   (`style.css` §14) — iPads ALWAYS report `pointer: coarse` (even with trackpad), so all iPads +
   phones + narrow windows get it; desktop-with-mouse ≥1024px keeps the top-header buttons.
-  - The same condition also: hides header buttons marked **`.tabDup`** (any header button that
-    duplicates a tab must carry this class), adds `body { padding-bottom }` clearance, and is
-    **mirrored** in `settings_page.css` (save bar floats above the nav) and `stats_page.css` /
-    `item_page.css` (viewport-locked layouts subtract the nav height). Keep all copies in sync.
+  - The same condition also hides header buttons marked **`.tabDup`** and adds `body
+    { padding-bottom }` clearance. `.tabDup` means "reachable from a tab, so redundant in the
+    header" — that now includes **Log out**, which lives under Settings (`#settingsLogout`), since
+    hiding it left it stranded alone in an otherwise empty header row.
+  - Everything else that has to react to the nav does so via **`--nav-space`** (see below), NOT by
+    repeating this media query. It used to be mirrored in three per-page files, which is exactly how
+    the viewport-filling pages ended up scrolling by 64px.
 - **Touch feedback**: `style.css` §13 defines `:active` pressed states (scale/brightness),
   `-webkit-tap-highlight-color: transparent`, `touch-action: manipulation`, `:focus-visible` rings,
   and `prefers-reduced-motion` support. **§13/§14 must stay at the END of style.css** — after the
@@ -353,6 +356,62 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   fires at the load event, before async data renders. Wrap the app in an iframe plus an `<img>`
   pointed at a slow endpoint to delay the outer load event (see session scratch `.shots/wrap.html`
   pattern; `.shots/` is disposable and untracked).
+
+## `--nav-space` — the bottom tab bar's viewport footprint
+
+`style.css` §1 declares `--nav-h: 64px` and `--nav-space: 0px`; §14 raises `--nav-space` to
+`calc(var(--nav-h) + env(safe-area-inset-bottom))` under the tab-bar condition. **Any rule that
+fills the viewport must subtract it** — `min-height: calc(100dvh - var(--nav-space))`. Skipping it
+makes the page scroll by exactly the nav height, because §14 also adds that much `padding-bottom`
+to `body` (this was a real bug on the item, stats and auth pages).
+
+This replaced three hand-mirrored copies of the `@media (max-width: 1023px), (pointer: coarse)`
+query in `item_page.css` / `stats_page.css` / `settings_page.css`. **§14 is now the only place that
+condition is written** — react to the nav through the token, don't re-state the query. The one
+exception is `settings_page.css`'s `.saveArea`, which changes its padding (not just its offset) and
+so still needs the query; it uses `bottom: var(--nav-space)` and drops its own safe-area inset,
+since `--nav-space` already includes it.
+
+## Filter rows and the Filters collapse
+
+- **Stacked labels (≤640px).** `style.css` §15 turns the search / store / shortlist filter rows into
+  label-above-control on phones, in ONE shared block. **The selectors are deliberately doubled**
+  (`.searchControl.searchControl`) — per-page CSS loads *after* `style.css`, so an equal-specificity
+  rule here loses to `.searchControl { flex-direction: row }` in `search_page.css`. The store page's
+  price row is excluded on purpose (slider + value read as one control).
+- **Filters collapse** — `app/components/filter_collapse.js` + `style.css` §16.
+  `filterToggleHtml()` before the panel, `installFilterCollapse({$toggle, $panel, pageKey,
+  summarize})` after render. Form-factor contract, and it is the point of the component:
+  **phone → collapsed by default; tablet and desktop → always expanded, toggle `display: none`.**
+  - It is NOT a `<details>`: a closed `<details>` hides content at the UA level in a way author CSS
+    can't reliably reverse, which would make "always open on desktop" depend on JS. Here the desktop
+    state is pure CSS, so a JS failure leaves filters *visible* rather than unreachable.
+  - `summarize()` returns the compact active-filter text shown on the collapsed button. **Pass one** —
+    a collapsed filter block with no indication of what's applied is why the result count looks
+    wrong. Call `.refresh()` from every control's `onChange`.
+  - Open/closed persists per page under `viz:filtersOpen:<pageKey>`.
+  - Wired on all three: `#/` (search), `#/store/<id>` (its panel wrapper `.storeFilters` groups the
+    filter row + price row), `#/shortlist/<uuid>` (`.slFilters`, which must re-supply the `gap` the
+    grid and price row used to get from the card's flex column).
+  - The store page's summary reports **Difference** instead of **Sort** on the Price tab, since that
+    is the control actually driving the list there.
+- Filter labels are `--text-md` at every width (they carry `.small`, which is smaller and reads too
+  faint for a control label).
+
+## Charts — outliers and sparse series
+
+- **High-outlier clamping** is shared: `item_page/item_chart.js::computeHighOutlierCap` returns
+  `{cap, outliers}`, and BOTH the item page and `stats_page/stats_chart.js` clamp outlier datasets
+  into a reserved band above `cap`, dash them, and stash the true values on `ds._rawData` for the
+  tooltip (`↑ above chart`). Without it a single far-above series stretches the axis and squashes
+  everything else into a thin band. On the stats chart the dash must be set via
+  `segment.borderDash` — a per-segment callback overrides any top-level `borderDash`.
+- **Sparse series** (`SPARSE_SERIES_MAX_DAYS = 2` in `item_page.js`): a store whose listing spans
+  ≤2 days draws a near-zero-length line, and since dots are reserved for the winning variant it
+  could render as nothing at all. Such datasets are flagged `_sparse` and always get a point —
+  deliberately beating `suppressDots`.
+- `computeSuggestedY`'s `padRatio` is the chart's vertical breathing room. Mobile passes `0.05`
+  (it was `0.01`, which put extreme series flush against the frame and read as clipped).
 
 ## Design Tokens — radius + type scale (2026-08)
 

@@ -1,7 +1,7 @@
 // viz/app/settings_page.js
 import { esc } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
-import { AuthError, getAuthStatus, getMyDetails, putDetails, getMyStores, putMyStores } from "./cloud.js";
+import { AuthError, getAuthStatus, getMyDetails, putDetails, getMyStores, putMyStores, logoutAndReload } from "./cloud.js";
 import { applyColorScheme } from "./theme.js";
 import { SPIRIT_TYPE_LIST } from "./spirit_types.js";
 import { storesByRegion } from "./stores.js";
@@ -133,6 +133,16 @@ export async function renderSettings($app) {
 
 					<hr class="hrClean" />
 
+					<div>
+						<div class="settingsSectionTitle">Account</div>
+						<button id="settingsLogout" class="btn logoutRow" type="button">
+							<i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+							Log out
+						</button>
+					</div>
+
+					<hr class="hrClean" />
+
 					<div class="saveArea">
 						<div class="small saveStatus" id="status"></div>
 						<button id="save" class="btn saveBtn" type="button">Save</button>
@@ -147,6 +157,11 @@ export async function renderSettings($app) {
 		if (e.ctrlKey || e.metaKey || e.shiftKey) return;
 		e.preventDefault();
 		goBack();
+	});
+
+	document.getElementById("settingsLogout").addEventListener("click", (e) => {
+		e.preventDefault();
+		logoutAndReload();
 	});
 
 	const $switch = document.getElementById("publicSwitch");

@@ -16,6 +16,15 @@
   /* Bottom tab bar surface (translucent; pairs with backdrop blur) */
   --nav-bg: rgba(11, 13, 16, 0.86);
 
+  /* Vertical footprint the bottom tab bar steals from the viewport.
+   * 0 by default (desktop-with-mouse, where the nav is hidden); §14 raises it
+   * to the real height wherever the nav is shown. ANY rule that fills the
+   * viewport must subtract it — `min-height: calc(100dvh - var(--nav-space))`
+   * — or the page scrolls by exactly the nav height. Keep it in px units so
+   * it stays calc()-safe. */
+  --nav-h: 64px;
+  --nav-space: 0px;
+
   /* Radius scale. Unlike the color tokens below, these are theme-independent —
    * they are declared HERE ONLY, not repeated in the light/dark blocks.
    * Six steps by surface size; `50%` stays literal where a true circle is
@@ -1721,10 +1730,120 @@ summary:focus-visible,
 
 /* ── 14. Tab-bar condition (phones, small windows, all touch devices) ───── */
 
-/* Keep in sync with the same condition in settings_page.css / stats_page.css.
+/* This block is the ONLY place the tab-bar condition is written. Everything
+   that has to react to the nav does so through --nav-space, so per-page CSS
+   never repeats the media query (it used to be mirrored in three files, which
+   is how the viewport-filling pages ended up scrolling by exactly 64px).
    .tabDup marks header buttons that duplicate a bottom-nav tab. */
 @media (max-width: 1023px), (pointer: coarse) {
+  :root { --nav-space: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
   .bottomNav { display: flex; }
   .tabDup { display: none !important; }
-  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  body { padding-bottom: var(--nav-space); }
+}
+
+/* ── 15. Filter rows on mobile ──────────────────────────────────────────── */
+
+/* The search / store / shortlist pages each own their filter-row classes, but
+   they get ONE shared mobile treatment here rather than three copies: the label
+   moves ABOVE its control. The old inline label reserved a fixed 64–70px of an
+   already-narrow row, which both squeezed long option text into an ellipsis
+   ("Weighted Score") and left the label itself cramped at 12px.
+   The store page's price row is deliberately excluded — its more specific
+   `.storePriceRow .storeControlLabel` rule keeps the slider inline with its
+   value, where a stacked label would read oddly. */
+/* NOTE the doubled class names below. Per-page CSS is loaded AFTER style.css,
+   so a single-class rule here loses to the identical-specificity `.searchControl
+   { flex-direction: row }` in search_page.css. Doubling the class buys one
+   specificity point and lets this stay a single shared block instead of three
+   copies that would drift. */
+@media (max-width: 640px) {
+  .searchControl.searchControl,
+  .storeControl.storeControl,
+  .shortlistPage .slFilterCell.slFilterCell {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .searchControlLabel.searchControlLabel,
+  .storeControlLabel.storeControlLabel,
+  .shortlistPage .slFilterLabel.slFilterLabel {
+    flex: 0 0 auto;
+    font-size: var(--text-md);
+    text-align: left;
+    opacity: 0.75;
+  }
+
+  /* An odd control count in the 2-up grid left the final cell stranded in a
+     half-width row ("1 then 2 then 1"). Let it claim the full row instead. */
+  .shortlistPage .slFilterCell.slFilterCell:last-child { grid-column: 1 / -1; }
+
+  /* The price row keeps its inline label (slider + value read as one control),
+     so re-pin it after the stacking rule above. */
+  .storePriceRow .storeControlLabel.storeControlLabel {
+    flex: 0 0 64px;
+    text-align: right;
+  }
+
+}
+
+/* ── 16. Filter collapse toggle ─────────────────────────────────────────── */
+
+/* Hidden by default: tablets and desktops always show their filters, so the
+   button is phone-only (turned on in §15). Keeping the default "hidden" means a
+   failure to run the JS leaves filters visible rather than unreachable. */
+.filterToggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #0f1318;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+.filterToggle:hover { border-color: #2f3a46; color: var(--text); }
+.filterToggle.isOpen { color: var(--text); }
+
+.filterToggleSummary {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.filterToggleChevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: var(--text-xs);
+  transition: transform 0.15s ease;
+}
+.filterToggle.isOpen .filterToggleChevron { transform: rotate(180deg); }
+/* With a summary present the chevron is no longer the flex tail, so the
+   auto-margin above stops doing the work — the summary's flex-grow does it. */
+.filterToggle.isOpen .filterToggleSummary { flex: 0 0 auto; }
+
+html[data-theme="light"] .filterToggle { background: var(--lt-control); }
+@media (prefers-color-scheme: light) {
+  .filterToggle { background: var(--lt-control); }
+}
+html[data-theme="dark"] .filterToggle { background: #0f1318; }
+
+/* Phone only — the form-factor contract in components/filter_collapse.js.
+   MUST come after the base rules above: a media query adds no specificity, so
+   source order is the only thing that lets this beat `display: none`. */
+@media (max-width: 640px) {
+  .filterToggle { display: flex; }
+  .filtersCollapsed { display: none !important; }
 }

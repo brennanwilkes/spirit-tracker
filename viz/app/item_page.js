@@ -28,6 +28,10 @@ import {
 
 let CHART = null;
 
+// A store series spanning this many days or fewer is rendered as a dot rather
+// than a line — at that length a line is a few pixels wide and reads as nothing.
+const SPARSE_SERIES_MAX_DAYS = 2;
+
 export function destroyChart() {
 	if (CHART) {
 		CHART.destroy();
@@ -1007,10 +1011,25 @@ export async function renderItem($app, skuInput) {
 				}
 			}
 
+			// A listing that only ever existed for a day or two — brand new, or it
+			// sold out almost immediately — draws as a near-zero-length line. With
+			// dots reserved for the winning variant it can render as nothing at all,
+			// so the store looks absent from its own chart. Mark it and always dot it.
+			// labels[] is one entry per DAY, so an index delta is a day delta.
+			let firstIdx = -1;
+			let lastIdx = -1;
+			for (let i = 0; i < data.length; i++) {
+				if (!Number.isFinite(data[i])) continue;
+				if (firstIdx < 0) firstIdx = i;
+				lastIdx = i;
+			}
+			const isSparse = firstIdx >= 0 && lastIdx - firstIdx <= SPARSE_SERIES_MAX_DAYS;
+
 			datasets.push({
 				label: st.label, // IMPORTANT: no SKU in label
 				variantKey: s.variantKey,
 				data,
+				_sparse: isSparse,
 				_flapSet: flapSet.size ? flapSet : null,
 				spanGaps: false,
 				tension: 0.15,
@@ -1026,20 +1045,24 @@ export async function renderItem($app, skuInput) {
 						flapSet.has(ctx.p0DataIndex) || flapSet.has(ctx.p1DataIndex) ? [5, 4] : undefined,
 				},
 				pointRadius: (ctx) => {
-					if (suppressDots) return 0;
 					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					if (ctx.dataset._flapSet?.has(ctx.dataIndex)) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
+					// Too short to read as a line — the dot IS the series. Beats
+					// suppressDots: hiding it would render the store invisible.
+					if (ctx.dataset._sparse) return 4;
+					if (suppressDots) return 0;
 					const d = labels[ctx.dataIndex];
 					return ctx.dataset.variantKey === winKeyFor(ctx.dataset.label, d) ? 3 : 0;
 				},
 				pointHoverRadius: (ctx) => {
-					if (suppressDots) return 0;
 					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					if (ctx.dataset._flapSet?.has(ctx.dataIndex)) return 0;
 					const v = ctx.parsed?.y;
 					if (!Number.isFinite(v)) return 0;
+					if (ctx.dataset._sparse) return 6;
+					if (suppressDots) return 0;
 					const d = labels[ctx.dataIndex];
 					return ctx.dataset.variantKey === winKeyFor(ctx.dataset.label, d) ? 5 : 0;
 				},
@@ -1087,7 +1110,9 @@ export async function renderItem($app, skuInput) {
 	const outlierStores = outlierInfo ? outlierInfo.outliers : null;
 
 	const isMobile = window.innerWidth <= 640;
-	const ySug = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
+	// Mobile trades some headroom for plot area, but not all of it — at 0.01 the
+	// extreme series sat flush against the frame and read as clipped.
+	const ySug = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.05 : undefined);
 
 	// Rather than let outlier lines clip away (the data point vanishes), clamp them
 	// into a reserved band at the top so they "sit at the top". The true price is
