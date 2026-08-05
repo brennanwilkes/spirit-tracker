@@ -9,7 +9,7 @@
   gap: 12px;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: #0f1318;
   cursor: pointer;
 }
@@ -18,7 +18,7 @@
 
 .shortlistsPage .name {
   font-weight: 800;
-  font-size: 14px;
+  font-size: var(--text-base);
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -30,9 +30,9 @@
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.02);
   color: var(--text);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   pointer-events: none;
   user-select: none;
 }

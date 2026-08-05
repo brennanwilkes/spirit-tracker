@@ -20,7 +20,7 @@
   width: 100%;
   margin-top: 14px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--panel);
 }
@@ -46,13 +46,16 @@
 .storeTab:hover { color: var(--text); }
 
 .storeTabName {
-  font-size: 12.5px;
+  font-size: var(--text-sm);
   font-weight: 600;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .storeTabCount {
-  font-size: 11px;
+  font-size: var(--text-xs);
   opacity: 0.55;
   font-variant-numeric: tabular-nums;
 }
@@ -86,7 +89,7 @@
 }
 .storeControlLabel {
   flex: 0 0 64px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   opacity: 0.7;
   white-space: nowrap;
   text-align: right;
@@ -111,9 +114,8 @@
   width: auto;
   min-width: 0;
   margin: 0;
-  height: 18px;
-  accent-color: #9aa3b2;
-  opacity: 0.85;
+  height: 22px;
+  accent-color: var(--accent);
 }
 /* Size to content so the value sits flush after the slider (no right-align gap) */
 .storePriceLabel {

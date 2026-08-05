@@ -51,8 +51,8 @@ export function itemCardHtml(
 
 	const storeEl = storeLabel
 		? storeUrl
-			? `<a class="itemStore" href="${esc(storeUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
-			: `<span class="itemStore">${esc(storeLabel)}</span>`
+			? `<a class="itemStore" title="${esc(storeLabel)}" href="${esc(storeUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
+			: `<span class="itemStore" title="${esc(storeLabel)}">${esc(storeLabel)}</span>`
 		: "";
 
 	const priceEl = priceStr ? `<span class="price">${esc(priceStr)}</span>` : "";
@@ -63,7 +63,7 @@ export function itemCardHtml(
 	return `
 <div class="item${showFavStar ? " itemHasStar" : ""}${tierClass}" data-sku="${esc(sku)}">
   <div class="itemTitle">
-    <div class="itemName">${esc(name)}</div>
+    <div class="itemName" title="${esc(name)}">${esc(name)}</div>
     ${skuBadge}
     ${star}
   </div>

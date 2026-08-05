@@ -2,7 +2,7 @@
 
 .settingsWrap {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  font-size: 15px;
+  font-size: var(--text-lg);
   /* room for the fixed Save bar at every width */
   padding-bottom: 130px;
 }
@@ -12,16 +12,16 @@
 .settingsWrap select,
 .settingsWrap textarea { font: inherit; }
 
-.settingsCard { padding: 16px; border-radius: 14px; }
+.settingsCard { padding: 16px; border-radius: var(--radius-xl); }
 
 .settingsTitle {
-  font-size: 19px;
+  font-size: var(--text-2xl);
   font-weight: 900;
   letter-spacing: 0.2px;
 }
 
 .settingsSectionTitle {
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 900;
   letter-spacing: 0.2px;
   margin: 0 0 10px;
@@ -45,7 +45,7 @@
   .switchRow { grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr); }
 }
 
-.fieldTitle { color: var(--muted); font-size: 12px; margin: 0 0 6px; }
+.fieldTitle { color: var(--muted); font-size: var(--text-sm); margin: 0 0 6px; }
 
 .nameBlock .input { height: 50px; }
 .switchWrap { display: flex; flex-direction: column; padding-top: 2px; }
@@ -57,7 +57,7 @@
   gap: 12px;
   padding: 0 12px;
   height: 50px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: #0f1318;
   user-select: none;
@@ -75,7 +75,7 @@
   height: 100%;
 }
 .switchStatus {
-  font-size: 14px;
+  font-size: var(--text-base);
   line-height: 1.2;
   color: var(--text);
   opacity: 0.92;
@@ -94,7 +94,7 @@
 .switchPill {
   width: 46px;
   height: 28px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(125, 211, 252, 0.22);
   background: rgba(125, 211, 252, 0.10);
   box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.07) inset;
@@ -104,7 +104,7 @@
 .switchKnob {
   width: 22px;
   height: 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(154, 166, 178, 0.95);
   position: absolute;
   top: 50%;
@@ -130,16 +130,16 @@
 
 .switch.mini {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 0 10px;
 }
-.switch.mini .switchStatus { font-size: 13px; font-weight: 850; }
+.switch.mini .switchStatus { font-size: var(--text-md); font-weight: 850; }
 .switch.mini .switchPill { width: 42px; height: 26px; }
 .switch.mini .switchKnob { width: 20px; height: 20px; }
 .switch.mini.isOn .switchKnob { left: 19px; }
 
 .subtleNote {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: 6px;
   line-height: 1.25;
@@ -168,7 +168,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--text-base);
   padding: 6px 12px;
   line-height: 1.2;
 }
@@ -190,9 +190,10 @@
   max-width: 980px;
   padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
   background: rgba(18, 22, 27, 0.92);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   z-index: 1000;
 }
 .saveStatus {
@@ -206,7 +207,7 @@
 .saveBtn {
   width: 100%;
   padding: 14px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-weight: 900;
   letter-spacing: 0.2px;
   border-color: rgba(125, 211, 252, 0.28);
@@ -215,7 +216,7 @@
 
 .stRuleCard {
   padding: 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: #0f1318;
   border: 1px solid rgba(125, 211, 252, 0.18);
   box-shadow:
@@ -268,7 +269,7 @@
   border: 1px solid var(--border);
   background: #0f1318;
   color: var(--text);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -277,7 +278,7 @@
   background-position: right 10px center;
   background-size: 12px 12px;
   padding: 6px 28px 6px 10px;
-  font-size: 13px;
+  font-size: var(--text-md);
   line-height: 1;
   outline: none;
 }
@@ -379,3 +380,19 @@ html[data-theme="dark"] .saveArea { background: rgba(18,22,27,0.92); }
 /* Email-rule store filter uses the shared selector inline */
 .stRuleRow .storeSet { flex: 1 1 auto; min-width: 0; }
 .stRuleRow .storeSetTrigger { width: 100%; max-width: none; }
+
+/* Bottom tab bar shown: the save bar floats just above it (condition mirrors
+   style.css §14; the body padding from that block provides the extra
+   clearance below .settingsWrap's own 130px). */
+@media (max-width: 1023px), (pointer: coarse) {
+  .saveArea {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    padding: 12px;
+  }
+}
+
+/* Lift the select off --text-md so iOS Safari doesn't zoom on focus. The
+   wrapper is already at --text-lg (16px) at every width. */
+@media (pointer: coarse) {
+  .stSelect { font-size: var(--text-lg); min-height: 44px; }
+}
