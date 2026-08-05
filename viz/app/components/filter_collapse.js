@@ -28,9 +28,12 @@ const KEY_PREFIX = "viz:filtersOpen:";
 export function filterToggleHtml(label = "Filters") {
 	return `
 <button class="filterToggle" type="button" aria-expanded="false">
+  <i class="fa-solid fa-sliders filterToggleIcon" aria-hidden="true"></i>
   <span class="filterToggleLabel">${esc(label)}</span>
   <span class="filterToggleSummary"></span>
-  <span class="filterToggleChevron" aria-hidden="true">▾</span>
+  <span class="filterToggleChevron" aria-hidden="true">
+    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+  </span>
 </button>`;
 }
 
