@@ -1775,9 +1775,11 @@ summary:focus-visible,
     opacity: 0.75;
   }
 
-  /* An odd control count in the 2-up grid left the final cell stranded in a
-     half-width row ("1 then 2 then 1"). Let it claim the full row instead. */
-  .shortlistPage .slFilterCell.slFilterCell:last-child { grid-column: 1 / -1; }
+  /* One control per row, matching the search page. The 2-up grid was there to
+     save vertical space, but the whole block now starts collapsed (§16), so the
+     saving bought nothing and cost a ragged 1-2-1 layout plus half-width inputs
+     that truncated their own option text. */
+  .shortlistPage .slFilterGrid.slFilterGrid { grid-template-columns: 1fr; }
 
   /* The price row keeps its inline label (slider + value read as one control),
      so re-pin it after the stacking rule above. */
@@ -1796,22 +1798,30 @@ summary:focus-visible,
 .filterToggle {
   display: none;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
+  /* The toggle sits directly under whatever the page put above it (tabs, a
+     search row), which on some pages supplies no spacing of its own. */
+  margin-top: 10px;
   padding: 10px 12px;
-  min-height: 44px;
+  min-height: 46px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: #0f1318;
-  color: var(--muted);
+  color: var(--text);
   font: inherit;
   font-size: var(--text-md);
   font-weight: 600;
   cursor: pointer;
   text-align: left;
 }
-.filterToggle:hover { border-color: #2f3a46; color: var(--text); }
-.filterToggle.isOpen { color: var(--text); }
+.filterToggle:hover { border-color: #2f3a46; }
+
+.filterToggleIcon {
+  flex: 0 0 auto;
+  font-size: var(--text-base);
+  color: var(--muted);
+}
 
 .filterToggleSummary {
   flex: 1 1 auto;
@@ -1823,22 +1833,44 @@ summary:focus-visible,
   opacity: 0.75;
 }
 
+/* A bordered disc, not a bare glyph — the tiny ▾ didn't read as a control at
+   all. Sized as its own tap target so the affordance matches the behaviour. */
 .filterToggleChevron {
   flex: 0 0 auto;
   margin-left: auto;
-  font-size: var(--text-xs);
-  transition: transform 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: var(--text-sm);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.filterToggle:hover .filterToggleChevron {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: #2f3a46;
 }
 .filterToggle.isOpen .filterToggleChevron { transform: rotate(180deg); }
 /* With a summary present the chevron is no longer the flex tail, so the
    auto-margin above stops doing the work — the summary's flex-grow does it. */
 .filterToggle.isOpen .filterToggleSummary { flex: 0 0 auto; }
 
+/* The chevron disc's white tint is invisible on a light surface, so it flips to
+   a dark tint alongside the button background. */
 html[data-theme="light"] .filterToggle { background: var(--lt-control); }
+html[data-theme="light"] .filterToggleChevron { background: rgba(0, 0, 0, 0.05); }
+html[data-theme="light"] .filterToggle:hover .filterToggleChevron { background: rgba(0, 0, 0, 0.10); }
 @media (prefers-color-scheme: light) {
   .filterToggle { background: var(--lt-control); }
+  .filterToggleChevron { background: rgba(0, 0, 0, 0.05); }
+  .filterToggle:hover .filterToggleChevron { background: rgba(0, 0, 0, 0.10); }
 }
 html[data-theme="dark"] .filterToggle { background: #0f1318; }
+html[data-theme="dark"] .filterToggleChevron { background: rgba(255, 255, 255, 0.04); }
 
 /* Phone only — the form-factor contract in components/filter_collapse.js.
    MUST come after the base rules above: a media query adds no specificity, so
