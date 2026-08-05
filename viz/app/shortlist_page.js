@@ -29,6 +29,7 @@ import {
 } from "./cloud.js";
 import { computeScore } from "./shortlist_page/shortlist_scoring.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { filterToggleHtml, installFilterCollapse } from "./components/filter_collapse.js";
 import { storeSetSelectorHtml, installStoreSetSelector } from "./components/store_set_selector.js";
 import { parseStoreSet, serializeStoreSet, resolveStoreSet, storeSetLabel } from "./store_set.js";
 import { decorateRarity } from "./rarity_decorate.js";
@@ -124,6 +125,8 @@ export async function renderShortlist($app, accountUuidRaw) {
 
 			<div class="card">
 				<div style="display:flex; flex-direction:column; gap:10px;">
+					${filterToggleHtml()}
+					<div class="slFilters">
 					<div class="slFilterGrid">
 						<div class="slFilterCell slStoreCell">
 							<span class="small slFilterLabel">Store</span>
@@ -168,6 +171,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 						<div class="badge mono" id="maxPriceLabel"
 							style="width:120px; text-align:right; white-space:nowrap; opacity:.9;">$120</div>
 						</div>
+					</div>
 
 					<div style="display:flex; gap:10px; align-items:center; width:100%;">
 						<input id="q" class="input" placeholder="Search shortlist..." autocomplete="off" style="flex: 1 1 auto;" />
@@ -421,6 +425,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 					try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
 					computeSelectedNorms();
 					applyFilter();
+					filterCollapse.refresh();
 				},
 			});
 		}
@@ -1434,6 +1439,34 @@ export async function renderShortlist($app, accountUuidRaw) {
 	$sort.addEventListener("change", applyFilter);
 	$avail.addEventListener("change", applyFilter);
 
+	// Weighted Score is the shortlist's default sort, so it isn't worth reporting.
+	const filterCollapse = installFilterCollapse({
+		$toggle: document.querySelector(".filterToggle"),
+		$panel: document.querySelector(".slFilters"),
+		pageKey: "shortlist",
+		summarize: () => {
+			const parts = [];
+
+			if (storeSetSpec.kind !== "all") parts.push(storeSetLabel(storeSetSpec, { myStores: myStoresRef }));
+			if ($sort.value !== "weightedDesc") {
+				parts.push($sort.options[$sort.selectedIndex]?.text?.trim() || "");
+			}
+			if ($avail.value !== "all") {
+				parts.push($avail.options[$avail.selectedIndex]?.text?.trim() || "");
+			}
+			if (selectedTypeSet.size) parts.push($slSpiritLabel?.textContent?.trim() || "");
+			if (pageMax !== null && selectedMaxPrice < pageMax) {
+				parts.push(`≤ ${$maxPriceLabel?.textContent?.trim() || ""}`);
+			}
+
+			return parts.filter(Boolean).join(" · ");
+		},
+	});
+
+	$sort.addEventListener("change", () => filterCollapse.refresh());
+	$avail.addEventListener("change", () => filterCollapse.refresh());
+	$maxPrice.addEventListener("change", () => filterCollapse.refresh());
+
 	$clear.addEventListener("click", () => {
 		let changed = false;
 
@@ -1498,6 +1531,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 			onChange: () => {
 				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
 				applyFilter();
+				filterCollapse.refresh();
 			},
 		});
 	}

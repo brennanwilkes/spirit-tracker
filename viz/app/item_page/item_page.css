@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: calc(100dvh - var(--nav-space));
 }
 
 .detailCard {
@@ -394,17 +394,10 @@
   /* status/debug sits below both columns */
   .detailStatus { margin-top: 12px; }
 
+  /* Locked app-shell height. --nav-space is 0 on desktop-with-mouse and the
+     real tab-bar footprint on touch/narrow, so this one rule covers both. */
   .detailContainer {
-    height: 100dvh;
-  }
-}
-
-/* Touch devices ≥641px (iPads): the bottom tab bar eats viewport height, so
-   shrink the locked detail layout instead of hiding the chart behind it.
-   Condition mirrors style.css §14. */
-@media (min-width: 641px) and (pointer: coarse), (min-width: 641px) and (max-width: 1023px) {
-  .detailContainer {
-    height: calc(100dvh - 64px - env(safe-area-inset-bottom));
+    height: calc(100dvh - var(--nav-space));
     min-height: 0;
   }
 }

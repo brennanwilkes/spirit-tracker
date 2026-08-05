@@ -9,6 +9,7 @@
 
 import { buildStoreColorMap, storeColor, lighten } from "../storeColors.js";
 import { storeById } from "../stores.js";
+import { computeHighOutlierCap, medianFinite } from "../item_page/item_chart.js";
 
 let _chart = null;
 
@@ -165,6 +166,37 @@ export async function drawOrUpdateChart(series, yBounds) {
 		};
 	});
 
+	// One store trending far above the pack stretches the y-axis and squashes all
+	// the real movement into a thin band at the bottom. Same problem and same fix
+	// as the item page: cap the axis at the highest "normal" value, then clamp the
+	// outliers into a reserved band at the top and dash them, keeping the true
+	// values on _rawData so the tooltip can still report them.
+	const outlierInfo = marketOnly
+		? null
+		: computeHighOutlierCap(
+				storeDatasets.map((ds) => ({
+					label: ds.label,
+					rep: medianFinite(ds.data),
+					values: ds.data,
+				})),
+			);
+
+	if (outlierInfo && yBounds && Number.isFinite(yBounds.max) && outlierInfo.cap < yBounds.max) {
+		const lo = Number.isFinite(yBounds.min) ? yBounds.min : 0;
+		const range = Math.max(1, outlierInfo.cap - lo);
+		const clampY = outlierInfo.cap + range * 0.12;
+		yBounds = { min: yBounds.min, max: outlierInfo.cap + range * 0.18 };
+
+		for (const ds of storeDatasets) {
+			if (!outlierInfo.outliers.has(String(ds.label))) continue;
+			ds._rawData = ds.data.slice();
+			ds.data = ds.data.map((v) => (Number.isFinite(v) && v > clampY ? clampY : v));
+			// The per-segment dash callback overrides any top-level borderDash, so
+			// the override has to happen at the segment level too.
+			ds.segment = { ...ds.segment, borderDash: () => [5, 4] };
+		}
+	}
+
 	const datasets = [...storeDatasets];
 
 	datasets.push({
@@ -223,11 +255,18 @@ export async function drawOrUpdateChart(series, yBounds) {
 	const yTitle = isDollars ? "Avg Δ$ vs per-SKU baseline" : "Avg % vs per-SKU baseline";
 
 	const tooltipLabel = (ctx2) => {
-		const v = ctx2.parsed?.y;
+		// A clamped outlier's plotted y is the reserved band, not its real value —
+		// report the real one and flag that the line is out of scale.
+		const raw = ctx2.dataset._rawData?.[ctx2.dataIndex];
+		const plotted = ctx2.parsed?.y;
+		const v = Number.isFinite(raw) ? raw : plotted;
 		if (!Number.isFinite(v)) return `${ctx2.dataset.label}: (no data)`;
+		// Only the points actually pushed into the band get the marker — an outlier
+		// series still has stretches that sit on-scale.
+		const suffix = Number.isFinite(raw) && Number.isFinite(plotted) && raw > plotted ? "  ↑ above chart" : "";
 		return isDollars
-			? `${ctx2.dataset.label}: ${formatSignedDollars(v)}`
-			: `${ctx2.dataset.label}: ${v.toFixed(2)}%`;
+			? `${ctx2.dataset.label}: ${formatSignedDollars(v)}${suffix}`
+			: `${ctx2.dataset.label}: ${v.toFixed(2)}%${suffix}`;
 	};
 
 	const yTickCallback = (v) => {

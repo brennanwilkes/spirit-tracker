@@ -21,6 +21,15 @@
   transform: none;
 }
 
+/* Collapse wrapper (components/filter_collapse.js). It became the single flex
+   child in place of the grid + price row, so it has to re-supply the gap those
+   two used to get from the card's own flex column. */
+.shortlistPage .slFilters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* Filter grid: 2x2 on mobile (Store / Sort / Availability / Type), one row of 4 on desktop */
 .shortlistPage .slFilterGrid {
   display: grid;
@@ -64,6 +73,9 @@
   opacity: .8;
   flex: 0 0 auto;
   white-space: nowrap;
+  /* Overrides the .small (12px) it also carries — filter labels read too faint
+     at that size, on every form factor. */
+  font-size: var(--text-md);
 }
 
 /* Mobile: panel spans the full row (anchored to .slStoreCell), not just the trigger */

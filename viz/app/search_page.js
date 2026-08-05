@@ -17,6 +17,7 @@ import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js
 import { getAuthStatus, logoutAndReload, getMyStores } from "./cloud.js";
 import { saveCurrentRoute, openOrNavigateTo } from "./nav.js";
 import { spiritFilterHtml, installSpiritFilter } from "./components/spirit_filter.js";
+import { filterToggleHtml, installFilterCollapse } from "./components/filter_collapse.js";
 import { decorateRarity } from "./rarity_decorate.js";
 import { effectiveRarity } from "./rarity.js";
 import { createInfiniteScroll } from "./components/infinite_scroll.js";
@@ -66,7 +67,7 @@ export function renderSearch($app) {
 		<i class="fa-solid fa-gear" aria-hidden="true"></i>
 		<span class="srOnly">Settings</span>
 	  </a>
-	  <a id="logoutBtn" class="btn btnIcon" type="button" aria-label="Log out"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></a>
+	  <a id="logoutBtn" class="tabDup btn btnIcon" type="button" aria-label="Log out"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></a>
 	`
 					: `
 	  <a class="btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
@@ -85,6 +86,8 @@ export function renderSearch($app) {
             <input id="q" class="input" type="search" placeholder="e.g. bowmore sherry, 303821" autocomplete="off" style="flex: 1 1 auto;" />
             <button id="clearSearch" class="btn btnSm" type="button" style="flex: 0 0 auto;">Clear</button>
           </div>
+
+          ${filterToggleHtml()}
 
           <div class="searchControls">
             <div class="searchControl">
@@ -1227,6 +1230,7 @@ export function renderSearch($app) {
 						resolvedStoreNorms = computeResolvedStoreNorms();
 						try { localStorage.setItem(LS_STORESET, serializeStoreSet(next)); } catch {}
 						renderCurrent();
+						filterCollapse.refresh();
 					},
 				});
 			}
@@ -1282,8 +1286,37 @@ export function renderSearch($app) {
 			onChange: () => {
 				try { localStorage.setItem(LS_TYPE, JSON.stringify([...selectedTypeSet])); } catch {}
 				renderCurrent();
+				filterCollapse.refresh();
 			},
 		});
 	}
+
+	// Collapsed filters must still say what they're filtering by, or the user
+	// can't tell why the result count looks wrong. Read the controls' own visible
+	// text and list only what differs from the default.
+	const filterCollapse = installFilterCollapse({
+		$toggle: $app.querySelector(".filterToggle"),
+		$panel: $app.querySelector(".searchControls"),
+		pageKey: "search",
+		summarize: () => {
+			const parts = [];
+
+			const storeLabel = $app.querySelector(".storeSetTrigger .storeSetLabel")?.textContent?.trim();
+			if (storeLabel && storeLabel !== "All stores") parts.push(storeLabel);
+
+			if ($sort && $sort.value !== "newest") {
+				parts.push($sort.options[$sort.selectedIndex]?.text?.trim() || "");
+			}
+			if ($avail && $avail.value !== "all") {
+				parts.push($avail.options[$avail.selectedIndex]?.text?.trim() || "");
+			}
+			if (selectedTypeSet.size) parts.push($spiritLabel?.textContent?.trim() || "");
+
+			return parts.filter(Boolean).join(" · ");
+		},
+	});
+
+	if ($sort) $sort.addEventListener("change", () => filterCollapse.refresh());
+	if ($avail) $avail.addEventListener("change", () => filterCollapse.refresh());
 
 }
