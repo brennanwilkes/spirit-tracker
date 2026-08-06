@@ -1689,6 +1689,27 @@ summary:focus-visible,
   outline-offset: 2px;
 }
 
+/* Wrapper-delegated focus rings. Two controls hide a real <input> inside a much
+   larger styled surface: .pillInput (the score pill — a 64px number field inside
+   a pill) and .switch (its checkbox is position:absolute; opacity:0). Ringing the
+   input there lands on something tiny or on nothing at all, so suppress it and
+   ring the surface the user actually sees.
+   The html[data-theme] copy exists only to outrank the themed
+   `.pillInput:focus-within` outline-color overrides in the theme blocks above —
+   without it an explicit light/dark theme repaints this ring off-accent. */
+.pillNumber:focus-visible,
+.switch input:focus-visible {
+  outline: none;
+}
+
+.pillInput:focus-visible,
+.pillInput:has(:focus-visible),
+html[data-theme] .pillInput:has(:focus-visible),
+.switch:has(:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
