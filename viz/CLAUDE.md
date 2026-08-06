@@ -415,6 +415,35 @@ variation — it overrides `min-width` on `.priceValue` because it renders a *ra
 rather than a single value, and its `.rangeDual` two-thumb control keeps its own track styling
 (sharing only `--accent` for the thumbs).
 
+## Wrapper-delegated focus rings
+
+The global keyboard-focus ring (`a/button/select/input/summary/.item:focus-visible` →
+`2px solid var(--accent)`) assumes the focused element *is* the visible control. Two controls
+break that assumption because the real `<input>` is buried inside a much larger styled surface:
+
+| Surface | The real input |
+|---------|----------------|
+| `.pillInput` (score pill, item + shortlist) | `.pillNumber` — a 64px number field inside the pill |
+| `.switch` (settings + stats toggles) | a checkbox at `position: absolute; opacity: 0` |
+
+Ringing the input drew a box around something tiny, or around nothing at all. So the ring is
+suppressed on the input and redrawn on the wrapper via `:has(:focus-visible)` (plus
+`.pillInput:focus-visible` for the wrapper's own `tabindex="0"`).
+
+**The `html[data-theme] .pillInput:has(:focus-visible)` duplicate is load-bearing.** The theme
+blocks carry `html[data-theme="light"|"dark"] .pillInput:focus-within { outline-color: … }` at
+specificity 0,3,1, which outranks a bare `.pillInput:has(…)` at 0,2,0 and repaints the ring off-accent
+whenever an explicit theme is set. Selector lists carry per-selector specificity, so listing the
+`html[data-theme]` form alongside the plain one covers both auto and explicit theme modes.
+
+**Verifying focus states headlessly is not possible directly** — `el.focus()` in headless Firefox
+doesn't even match `:focus` (the window is never active), so `:focus-visible` can't be observed.
+Test the *cascade* instead: `sed` a copy of `style.css` swapping `:focus-visible`→`.FV` and
+`:focus-within`→`.FW`, then put those classes on the markup. Both pseudo-classes have the same
+specificity as a single class, so the rewrite exercises the identical cascade.
+
+Any future control that hides its input inside a bigger surface needs the same two-rule treatment.
+
 ## Charts — outliers and sparse series
 
 - **High-outlier clamping** is shared: `item_page/item_chart.js::computeHighOutlierCap` returns
