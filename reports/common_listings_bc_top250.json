@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-07T05:29:28.682Z",
+  "generatedAt": "2026-08-07T07:38:47.092Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6324,
-    "removedRows": 920,
-    "canonSkus": 2513,
+    "liveRows": 6334,
+    "removedRows": 916,
+    "canonSkus": 2512,
     "outputCount": 250
   },
   "rows": [
@@ -149,6 +149,61 @@
       }
     },
     {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 29.5,
+        "highpointbws": 32.79,
+        "legacyliquor": 31.81,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 29.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire - London Dry Gin",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/vessel__gin__679fac36.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
+      }
+    },
+    {
       "canonSku": "002691",
       "storeCount": 13,
       "stores": [
@@ -201,6 +256,61 @@
         "priceNum": 27.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
+      }
+    },
+    {
+      "canonSku": "006968",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty"
+      ],
+      "storePrices": {
+        "arc": 51.79,
+        "bcl": 50.99,
+        "everythingwine": 50.99,
+        "gull": 48.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 57.84,
+        "liquorwarehouse": 56.99,
+        "marquis": 56.99,
+        "newdistrict": 58.79,
+        "strath": 57.3,
+        "tudor": 50.99,
+        "vessel": 51.99,
+        "vintage": 60.78
+      },
+      "representative": {
+        "name": "Empress – 1908 Indigo Gin 750ml",
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "006968",
+        "skuKey": "006968",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$48.99",
+        "priceNum": 48.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -368,60 +478,6 @@
       }
     },
     {
-      "canonSku": "001232",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis"
-      ],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 29.5,
-        "highpointbws": 32.79,
-        "legacyliquor": 31.81,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 29.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire - London Dry Gin",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bombay-sapphire-london-dry-gin-750-ml"
-      }
-    },
-    {
       "canonSku": "001610",
       "storeCount": 12,
       "stores": [
@@ -527,60 +583,6 @@
         "priceNum": 49.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4797116-tanqueray-ten"
-      }
-    },
-    {
-      "canonSku": "006968",
-      "storeCount": 12,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty"
-      ],
-      "storePrices": {
-        "bcl": 50.99,
-        "everythingwine": 50.99,
-        "gull": 48.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 57.84,
-        "liquorwarehouse": 56.99,
-        "marquis": 56.99,
-        "newdistrict": 58.79,
-        "strath": 57.3,
-        "tudor": 55.99,
-        "vessel": 51.99,
-        "vintage": 60.78
-      },
-      "representative": {
-        "name": "Empress – 1908 Indigo Gin 750ml",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "006968",
-        "skuKey": "006968",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
       }
     },
     {
@@ -745,6 +747,59 @@
       }
     },
     {
+      "canonSku": "001222",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 24.09,
+        "bcl": 23.49,
+        "everythingwine": 23.49,
+        "gull": 25,
+        "highpointbws": 25.99,
+        "legacyliquor": 24.99,
+        "liquorwarehouse": 24.99,
+        "newdistrict": 25.29,
+        "tudor": 21.99,
+        "vessel": 22.49,
+        "vintage": 25.13
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND (PLASTIC)",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "211662",
+        "skuKey": "211662",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
+      }
+    },
+    {
       "canonSku": "007880",
       "storeCount": 11,
       "stores": [
@@ -775,7 +830,7 @@
         "liquorwarehouse": 65.99,
         "marquis": 66.99,
         "newdistrict": 69.49,
-        "tudor": 64.99,
+        "tudor": 61.99,
         "vessel": 62.99
       },
       "representative": {
@@ -901,6 +956,59 @@
         "priceNum": 53.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/victoria-distillers-empress-1908-cucumber-lemon-gin"
+      }
+    },
+    {
+      "canonSku": "114799",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 66.39,
+        "bcl": 75.99,
+        "everythingwine": 75.99,
+        "gull": 67.05,
+        "highpointbws": 84.49,
+        "legacyliquor": 80.09,
+        "marquis": 78.99,
+        "newdistrict": 81.29,
+        "strath": 77.57,
+        "tudor": 75.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "GLENMORANGIE 12YO THE ORIGINAL",
+        "price": "$66.39",
+        "priceNum": 66.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "309562",
+        "skuKey": "309562",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$66.39",
+        "priceNum": 66.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original"
       }
     },
     {
@@ -1060,59 +1168,6 @@
         "priceNum": 28.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/222554"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "newdistrict",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 111.69,
-        "bcl": 120.99,
-        "everythingwine": 120.99,
-        "gull": 125.99,
-        "highpointbws": 121.79,
-        "legacyliquor": 132.99,
-        "liberty": 137.99,
-        "liquorwarehouse": 122.99,
-        "tudor": 110.99,
-        "vessel": 114.99,
-        "vintage": 133.83
-      },
-      "representative": {
-        "name": "TALISKER - 10 YEAR OLD",
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420"
       }
     },
     {
@@ -1484,58 +1539,6 @@
       }
     },
     {
-      "canonSku": "001222",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "marquis",
-        "strath"
-      ],
-      "storePrices": {
-        "bcl": 23.49,
-        "everythingwine": 23.49,
-        "gull": 25,
-        "highpointbws": 25.99,
-        "legacyliquor": 24.99,
-        "liquorwarehouse": 24.99,
-        "newdistrict": 25.29,
-        "tudor": 21.99,
-        "vessel": 22.49,
-        "vintage": 25.13
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND (PLASTIC)",
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "211662",
-        "skuKey": "211662",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$21.99",
-        "priceNum": 21.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
-      }
-    },
-    {
       "canonSku": "002063",
       "storeCount": 10,
       "stores": [
@@ -1877,7 +1880,7 @@
         "legacyliquor": 185.08,
         "liquorwarehouse": 164.99,
         "strath": 188.27,
-        "tudor": 166.99,
+        "tudor": 159.99,
         "vessel": 154.99
       },
       "representative": {
@@ -1897,58 +1900,6 @@
         "priceNum": 150.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4590759-aberlour-abunadh"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 66.39,
-        "bcl": 75.99,
-        "everythingwine": 75.99,
-        "gull": 67.05,
-        "highpointbws": 84.49,
-        "legacyliquor": 80.09,
-        "marquis": 78.99,
-        "newdistrict": 81.29,
-        "strath": 77.57,
-        "tudor": 75.99
-      },
-      "representative": {
-        "name": "GLENMORANGIE 12YO THE ORIGINAL",
-        "price": "$66.39",
-        "priceNum": 66.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "309562",
-        "skuKey": "309562",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$66.39",
-        "priceNum": 66.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original"
       }
     },
     {
@@ -2241,7 +2192,7 @@
         "legacyliquor": 84.58,
         "liquorwarehouse": 82.99,
         "marquis": 82.99,
-        "tudor": 80.99,
+        "tudor": 76.49,
         "vessel": 74.99
       },
       "representative": {
@@ -2420,6 +2371,58 @@
       }
     },
     {
+      "canonSku": "249680",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 111.69,
+        "bcl": 120.99,
+        "everythingwine": 120.99,
+        "gull": 125.99,
+        "highpointbws": 121.79,
+        "legacyliquor": 132.99,
+        "liberty": 137.99,
+        "liquorwarehouse": 122.99,
+        "tudor": 110.99,
+        "vintage": 133.83
+      },
+      "representative": {
+        "name": "TALISKER - 10 YEAR OLD",
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420"
+      }
+    },
+    {
       "canonSku": "250013",
       "storeCount": 10,
       "stores": [
@@ -2524,55 +2527,55 @@
       }
     },
     {
-      "canonSku": "424245",
+      "canonSku": "358390",
       "storeCount": 10,
       "stores": [
         "arc",
         "bcl",
         "everythingwine",
-        "gull",
         "highpointbws",
         "legacyliquor",
-        "liquorwarehouse",
+        "marquis",
         "newdistrict",
+        "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
+        "gull",
         "liberty",
-        "marquis",
-        "strath",
+        "liquorwarehouse",
         "vintage"
       ],
       "storePrices": {
-        "arc": 35.39,
-        "bcl": 39.99,
-        "everythingwine": 39.99,
-        "gull": 36.1,
-        "highpointbws": 44.99,
-        "legacyliquor": 43.99,
-        "liquorwarehouse": 41.99,
-        "newdistrict": 44.49,
-        "tudor": 39.99,
-        "vessel": 39.99
+        "arc": 135.99,
+        "bcl": 134.99,
+        "everythingwine": 134.99,
+        "highpointbws": 169.99,
+        "legacyliquor": 184.99,
+        "marquis": 137.99,
+        "newdistrict": 169.99,
+        "strath": 136.22,
+        "tudor": 161.99,
+        "vessel": 129.99
       },
       "representative": {
-        "name": "CITADELLE JARDIN DETE",
-        "price": "$35.39",
-        "priceNum": 35.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "424245",
-        "skuKey": "424245",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589456-citadelle-jardin-dete",
-        "categoryLabel": "Spirits - Gin",
-        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+        "name": "Suntory - Hibiki Japanese Harmony Whisky",
+        "price": "$129.99",
+        "priceNum": 129.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "358390",
+        "skuKey": "358390",
+        "url": "https://vesselliquor.com/products/suntory-hibiki-japanese-harmony-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$35.39",
-        "priceNum": 35.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589456-citadelle-jardin-dete"
+        "price": "$129.99",
+        "priceNum": 129.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/suntory-hibiki-japanese-harmony-whisky"
       }
     },
     {
@@ -2709,26 +2712,26 @@
         "legacyliquor": 29.99,
         "liberty": 35.99,
         "liquorwarehouse": 28.49,
-        "tudor": 28.99,
+        "tudor": 26.49,
         "vessel": 27.99
       },
       "representative": {
-        "name": "Forty Creek – Barrel Select 750ml",
-        "price": "$27.10",
-        "priceNum": 27.1,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
+        "name": "Forty Creek Barrel Select Whisky 750ML",
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
         "skuRaw": "550715",
         "skuKey": "550715",
-        "url": "https://gullliquorstore.com/product/forty-creek-whisky-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/forty-creek-ml-380?variant=550715",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
       },
       "cheapest": {
-        "price": "$27.10",
-        "priceNum": 27.1,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/forty-creek-whisky-750m/"
+        "price": "$26.49",
+        "priceNum": 26.49,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/forty-creek-ml-380?variant=550715"
       }
     },
     {
@@ -2781,6 +2784,57 @@
         "priceNum": 99.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4967211-ardbeg-10-yo"
+      }
+    },
+    {
+      "canonSku": "000125",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 36.49,
+        "bcl": 35.99,
+        "everythingwine": 35.99,
+        "gull": 37.45,
+        "legacyliquor": 37.99,
+        "liquorwarehouse": 36.99,
+        "newdistrict": 37.29,
+        "tudor": 35.99,
+        "vessel": 33.99
+      },
+      "representative": {
+        "name": "Canadian Club - Whisky",
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "000125",
+        "skuKey": "000125",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-1140-ml",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$33.99",
+        "priceNum": 33.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-1140-ml"
       }
     },
     {
@@ -2958,7 +3012,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 12.99,
+        "arc": 14.09,
         "bcl": 13.99,
         "everythingwine": 13.99,
         "gull": 15.35,
@@ -2970,21 +3024,21 @@
       },
       "representative": {
         "name": "BACARDI GOLD 375ML",
-        "price": "$12.99",
-        "priceNum": 12.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "price": "$13.49",
+        "priceNum": 13.49,
+        "storeKey": "liquorwarehouse",
+        "storeLabel": "Liquor Warehouse",
         "skuRaw": "002808",
         "skuKey": "002808",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587945-bacardi-gold-375ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+        "url": "https://liquorwarehouse.ca/products/2808",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/liquorwarehouse__rum__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$12.99",
-        "priceNum": 12.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587945-bacardi-gold-375ml"
+        "price": "$13.49",
+        "priceNum": 13.49,
+        "storeKey": "liquorwarehouse",
+        "url": "https://liquorwarehouse.ca/products/2808"
       }
     },
     {
@@ -3345,57 +3399,6 @@
       }
     },
     {
-      "canonSku": "045898",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 56.39,
-        "bcl": 54.99,
-        "gull": 51.99,
-        "highpointbws": 57.99,
-        "legacyliquor": 59.91,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 57.99,
-        "tudor": 54.99,
-        "vessel": 55.99
-      },
-      "representative": {
-        "name": "Bacardi – Superior White 1.75l",
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "045898",
-        "skuKey": "045898",
-        "url": "https://gullliquorstore.com/product/bacardi-white-1-75l/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$51.99",
-        "priceNum": 51.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bacardi-white-1-75l/"
-      }
-    },
-    {
       "canonSku": "052050",
       "storeCount": 9,
       "stores": [
@@ -3549,6 +3552,57 @@
       }
     },
     {
+      "canonSku": "103778",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 55.99,
+        "everythingwine": 67.98,
+        "gull": 64.35,
+        "highpointbws": 66.79,
+        "liquorwarehouse": 65.99,
+        "strath": 66.87,
+        "tudor": 66.99,
+        "vessel": 59.99,
+        "vintage": 66
+      },
+      "representative": {
+        "name": "PLANTERAY CUT & DRY COCONUT RUM",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "284359",
+        "skuKey": "284359",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4750121-planteray-cut-dry-coconut-rum"
+      }
+    },
+    {
       "canonSku": "112400",
       "storeCount": 9,
       "stores": [
@@ -3628,7 +3682,7 @@
         "legacyliquor": 93.04,
         "liquorwarehouse": 92.99,
         "strath": 88.31,
-        "tudor": 88.99,
+        "tudor": 80.99,
         "vessel": 79.99
       },
       "representative": {
@@ -3934,7 +3988,7 @@
         "legacyliquor": 45.76,
         "liquorwarehouse": 43.99,
         "newdistrict": 46.49,
-        "tudor": 43.99,
+        "tudor": 41.99,
         "vessel": 42.99
       },
       "representative": {
@@ -4087,7 +4141,7 @@
         "highpointbws": 74.79,
         "legacyliquor": 75.99,
         "liquorwarehouse": 75.99,
-        "tudor": 69.99,
+        "tudor": 62.99,
         "vessel": 64.99
       },
       "representative": {
@@ -4107,57 +4161,6 @@
         "priceNum": 62.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588350-bowmore-12yo"
-      }
-    },
-    {
-      "canonSku": "358390",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 135.99,
-        "bcl": 134.99,
-        "everythingwine": 134.99,
-        "highpointbws": 169.99,
-        "legacyliquor": 184.99,
-        "newdistrict": 169.99,
-        "strath": 136.22,
-        "tudor": 161.99,
-        "vessel": 129.99
-      },
-      "representative": {
-        "name": "Suntory - Hibiki Japanese Harmony Whisky",
-        "price": "$129.99",
-        "priceNum": 129.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "358390",
-        "skuKey": "358390",
-        "url": "https://vesselliquor.com/products/suntory-hibiki-japanese-harmony-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$129.99",
-        "priceNum": 129.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/suntory-hibiki-japanese-harmony-whisky"
       }
     },
     {
@@ -4365,6 +4368,57 @@
       }
     },
     {
+      "canonSku": "424245",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 35.39,
+        "bcl": 39.99,
+        "everythingwine": 39.99,
+        "gull": 36.1,
+        "highpointbws": 44.99,
+        "liquorwarehouse": 41.99,
+        "newdistrict": 44.49,
+        "tudor": 36.99,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "CITADELLE JARDIN DETE",
+        "price": "$35.39",
+        "priceNum": 35.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "424245",
+        "skuKey": "424245",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4589456-citadelle-jardin-dete",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$35.39",
+        "priceNum": 35.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4589456-citadelle-jardin-dete"
+      }
+    },
+    {
       "canonSku": "492520",
       "storeCount": 9,
       "stores": [
@@ -4437,7 +4491,7 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 18.19,
+        "arc": 19.19,
         "bcl": 18.99,
         "everythingwine": 18.99,
         "gull": 20.9,
@@ -4448,22 +4502,22 @@
         "vessel": 19.99
       },
       "representative": {
-        "name": "CAPTAIN MORGAN SPICED 375ML*",
-        "price": "$18.19",
-        "priceNum": 18.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "name": "CAPTAIN MORGAN - SPICED",
+        "price": "$18.99",
+        "priceNum": 18.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "500504",
         "skuKey": "500504",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590364-captain-morgan-spiced-375ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+        "url": "https://www.bcliquorstores.com/product/500504",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$18.19",
-        "priceNum": 18.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4590364-captain-morgan-spiced-375ml"
+        "price": "$18.99",
+        "priceNum": 18.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/500504"
       }
     },
     {
@@ -4773,8 +4827,8 @@
       }
     },
     {
-      "canonSku": "000125",
-      "storeCount": 8,
+      "canonSku": "741502",
+      "storeCount": 9,
       "stores": [
         "arc",
         "bcl",
@@ -4783,43 +4837,95 @@
         "legacyliquor",
         "liquorwarehouse",
         "newdistrict",
-        "tudor"
+        "tudor",
+        "vessel"
       ],
       "missingStores": [
         "highpointbws",
         "liberty",
         "marquis",
         "strath",
-        "vessel",
         "vintage"
       ],
       "storePrices": {
-        "arc": 36.49,
-        "bcl": 35.99,
-        "everythingwine": 35.99,
-        "gull": 37.45,
-        "legacyliquor": 37.99,
-        "liquorwarehouse": 36.99,
-        "newdistrict": 37.29,
-        "tudor": 35.99
+        "arc": 57.29,
+        "bcl": 55.99,
+        "everythingwine": 55.99,
+        "gull": 58.3,
+        "legacyliquor": 58.32,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 59.29,
+        "tudor": 55.99,
+        "vessel": 56.99
       },
       "representative": {
-        "name": "CANADIAN CLUB - PREMIUM",
-        "price": "$35.99",
-        "priceNum": 35.99,
+        "name": "JAMESON - IRISH",
+        "price": "$55.99",
+        "priceNum": 55.99,
         "storeKey": "bcl",
         "storeLabel": "BCL",
-        "skuRaw": "000125",
-        "skuKey": "000125",
-        "url": "https://www.bcliquorstores.com/product/125",
+        "skuRaw": "928374",
+        "skuKey": "928374",
+        "url": "https://www.bcliquorstores.com/product/928374",
         "categoryLabel": "Whisky / Whiskey",
         "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$35.99",
-        "priceNum": 35.99,
+        "price": "$55.99",
+        "priceNum": 55.99,
         "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/125"
+        "url": "https://www.bcliquorstores.com/product/928374"
+      }
+    },
+    {
+      "canonSku": "760609",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 29.49,
+        "everythingwine": 29.49,
+        "gull": 33.35,
+        "highpointbws": 33.79,
+        "legacyliquor": 32.99,
+        "liquorwarehouse": 31.99,
+        "tudor": 31.49,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "TANQUERAY - RANGPUR",
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "785170",
+        "skuKey": "785170",
+        "url": "https://www.bcliquorstores.com/product/785170",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$29.49",
+        "priceNum": 29.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/785170"
       }
     },
     {
@@ -5400,7 +5506,7 @@
         "gull": 79.99,
         "highpointbws": 80.49,
         "legacyliquor": 79.99,
-        "tudor": 75.99,
+        "tudor": 71.99,
         "vessel": 69.99
       },
       "representative": {
@@ -5520,6 +5626,56 @@
         "priceNum": 15.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/32425"
+      }
+    },
+    {
+      "canonSku": "045898",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 56.39,
+        "bcl": 54.99,
+        "gull": 51.99,
+        "highpointbws": 57.99,
+        "liquorwarehouse": 56.99,
+        "newdistrict": 57.99,
+        "tudor": 54.99,
+        "vessel": 55.99
+      },
+      "representative": {
+        "name": "Bacardi – Superior White 1.75l",
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "045898",
+        "skuKey": "045898",
+        "url": "https://gullliquorstore.com/product/bacardi-white-1-75l/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$51.99",
+        "priceNum": 51.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bacardi-white-1-75l/"
       }
     },
     {
@@ -5823,56 +5979,6 @@
       }
     },
     {
-      "canonSku": "103778",
-      "storeCount": 8,
-      "stores": [
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "everythingwine": 67.98,
-        "gull": 64.35,
-        "highpointbws": 66.79,
-        "liquorwarehouse": 65.99,
-        "strath": 66.87,
-        "tudor": 66.99,
-        "vessel": 59.99,
-        "vintage": 66
-      },
-      "representative": {
-        "name": "Planteray - Cut & Dry Coconut Rum",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "284359",
-        "skuKey": "284359",
-        "url": "https://vesselliquor.com/products/planteray-cut-dry-coconut-rum",
-        "categoryLabel": "Rum / Cane Spirit",
-        "dbFile": "data/db/vessel__rum-cane-spirit__f0a980b4.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/planteray-cut-dry-coconut-rum"
-      }
-    },
-    {
       "canonSku": "105447",
       "storeCount": 8,
       "stores": [
@@ -5920,6 +6026,56 @@
         "priceNum": 69.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/isle-of-jura-12-year-old-750ml/"
+      }
+    },
+    {
+      "canonSku": "113606",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 44.39,
+        "bcl": 44.99,
+        "everythingwine": 44.99,
+        "gull": 46.2,
+        "highpointbws": 51.99,
+        "legacyliquor": 50.34,
+        "strath": 47.83,
+        "vessel": 45.99
+      },
+      "representative": {
+        "name": "ALBERTA PREMIUM BATCH 10 LEGACY RESERV",
+        "price": "$44.39",
+        "priceNum": 44.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "304715",
+        "skuKey": "304715",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$44.39",
+        "priceNum": 44.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv"
       }
     },
     {
@@ -6450,7 +6606,7 @@
         "gull": 113.99,
         "highpointbws": 122.79,
         "legacyliquor": 121.01,
-        "tudor": 119.99,
+        "tudor": 109.99,
         "vessel": 109.99
       },
       "representative": {
@@ -6823,6 +6979,56 @@
       }
     },
     {
+      "canonSku": "438580",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 89.99,
+        "everythingwine": 89.99,
+        "highpointbws": 96.99,
+        "legacyliquor": 93.59,
+        "newdistrict": 96.99,
+        "strath": 90.79,
+        "tudor": 89.99,
+        "vessel": 89.99
+      },
+      "representative": {
+        "name": "NIKKA - COFFEY GRAIN WHISKY",
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "438580",
+        "skuKey": "438580",
+        "url": "https://www.bcliquorstores.com/product/438580",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$89.99",
+        "priceNum": 89.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/438580"
+      }
+    },
+    {
       "canonSku": "543173",
       "storeCount": 8,
       "stores": [
@@ -7123,56 +7329,6 @@
       }
     },
     {
-      "canonSku": "741502",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 57.29,
-        "bcl": 55.99,
-        "everythingwine": 55.99,
-        "legacyliquor": 58.32,
-        "liquorwarehouse": 56.99,
-        "newdistrict": 59.29,
-        "tudor": 55.99,
-        "vessel": 56.99
-      },
-      "representative": {
-        "name": "JAMESON - IRISH",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "928374",
-        "skuKey": "928374",
-        "url": "https://www.bcliquorstores.com/product/928374",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/928374"
-      }
-    },
-    {
       "canonSku": "752142",
       "storeCount": 8,
       "stores": [
@@ -7250,7 +7406,7 @@
         "gull": 86.99,
         "highpointbws": 94.49,
         "marquis": 91.99,
-        "tudor": 88.99,
+        "tudor": 84.99,
         "vessel": 84.99
       },
       "representative": {
@@ -7270,56 +7426,6 @@
         "priceNum": 84.49,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4592037-aberlour-12yo-dbl-cask"
-      }
-    },
-    {
-      "canonSku": "760609",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "tudor"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 29.49,
-        "everythingwine": 29.49,
-        "gull": 33.35,
-        "highpointbws": 33.79,
-        "legacyliquor": 32.99,
-        "liquorwarehouse": 31.99,
-        "tudor": 31.49
-      },
-      "representative": {
-        "name": "TANQUERAY - RANGPUR",
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "785170",
-        "skuKey": "785170",
-        "url": "https://www.bcliquorstores.com/product/785170",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/785170"
       }
     },
     {
@@ -7938,7 +8044,7 @@
         "everythingwine": 66.99,
         "gull": 73.8,
         "legacyliquor": 73.28,
-        "tudor": 70.99,
+        "tudor": 66.99,
         "vessel": 65.99
       },
       "representative": {
@@ -8301,55 +8407,6 @@
         "priceNum": 34.49,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5024500-saint-james-agricole-blanc-rum"
-      }
-    },
-    {
-      "canonSku": "113606",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "strath"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 44.39,
-        "bcl": 44.99,
-        "everythingwine": 44.99,
-        "gull": 46.2,
-        "highpointbws": 51.99,
-        "legacyliquor": 50.34,
-        "strath": 47.83
-      },
-      "representative": {
-        "name": "ALBERTA PREMIUM BATCH 10 LEGACY RESERV",
-        "price": "$44.39",
-        "priceNum": 44.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "304715",
-        "skuKey": "304715",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$44.39",
-        "priceNum": 44.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv"
       }
     },
     {
@@ -9114,7 +9171,7 @@
         "gull": 52.5,
         "highpointbws": 70.99,
         "legacyliquor": 74.95,
-        "tudor": 61.99,
+        "tudor": 56.99,
         "vessel": 57.99
       },
       "representative": {
@@ -9333,6 +9390,55 @@
       }
     },
     {
+      "canonSku": "412715",
+      "storeCount": 7,
+      "stores": [
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "vessel"
+      ],
+      "storePrices": {
+        "everythingwine": 57.98,
+        "gull": 54.45,
+        "highpointbws": 54.99,
+        "legacyliquor": 59.99,
+        "marquis": 63.99,
+        "tudor": 56.99,
+        "vintage": 56.44
+      },
+      "representative": {
+        "name": "Copperpenny Distilling – No. 005 Social Project Gin 750ml",
+        "price": "$54.45",
+        "priceNum": 54.45,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "412715",
+        "skuKey": "412715",
+        "url": "https://gullliquorstore.com/product/copperpenny-gin-005-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$54.45",
+        "priceNum": 54.45,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/copperpenny-gin-005-750m/"
+      }
+    },
+    {
       "canonSku": "437795",
       "storeCount": 7,
       "stores": [
@@ -9379,55 +9485,6 @@
         "priceNum": 73.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/glendronach-09-10-yr-700m/"
-      }
-    },
-    {
-      "canonSku": "438580",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 89.99,
-        "everythingwine": 89.99,
-        "highpointbws": 96.99,
-        "legacyliquor": 93.59,
-        "strath": 90.79,
-        "tudor": 89.99,
-        "vessel": 89.99
-      },
-      "representative": {
-        "name": "NIKKA - COFFEY GRAIN WHISKY",
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "438580",
-        "skuKey": "438580",
-        "url": "https://www.bcliquorstores.com/product/438580",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$89.99",
-        "priceNum": 89.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/438580"
       }
     },
     {
@@ -10598,54 +10655,6 @@
       }
     },
     {
-      "canonSku": "096548",
-      "storeCount": 6,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 56.99,
-        "everythingwine": 56.99,
-        "highpointbws": 59.99,
-        "legacyliquor": 58.99,
-        "tudor": 59.99,
-        "vessel": 57.99
-      },
-      "representative": {
-        "name": "LOT 40 - DARK OAK CANADIAN WHISKY",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "096548",
-        "skuKey": "096548",
-        "url": "https://www.bcliquorstores.com/product/96548",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/96548"
-      }
-    },
-    {
       "canonSku": "109570",
       "storeCount": 6,
       "stores": [
@@ -11702,54 +11711,6 @@
       }
     },
     {
-      "canonSku": "412715",
-      "storeCount": 6,
-      "stores": [
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "marquis",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "everythingwine": 57.98,
-        "gull": 54.45,
-        "highpointbws": 54.99,
-        "marquis": 63.99,
-        "tudor": 56.99,
-        "vintage": 56.44
-      },
-      "representative": {
-        "name": "Copperpenny Distilling – No. 005 Social Project Gin 750ml",
-        "price": "$54.45",
-        "priceNum": 54.45,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "412715",
-        "skuKey": "412715",
-        "url": "https://gullliquorstore.com/product/copperpenny-gin-005-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$54.45",
-        "priceNum": 54.45,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/copperpenny-gin-005-750m/"
-      }
-    },
-    {
       "canonSku": "413410",
       "storeCount": 6,
       "stores": [
@@ -12173,6 +12134,53 @@
         "priceNum": 77.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5003250-black-tot-finest-caribbean-rum"
+      }
+    },
+    {
+      "canonSku": "096548",
+      "storeCount": 5,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 56.99,
+        "everythingwine": 56.99,
+        "highpointbws": 59.99,
+        "legacyliquor": 58.99,
+        "tudor": 59.99
+      },
+      "representative": {
+        "name": "LOT 40 - DARK OAK CANADIAN WHISKY",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "096548",
+        "skuKey": "096548",
+        "url": "https://www.bcliquorstores.com/product/96548",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/96548"
       }
     },
     {
