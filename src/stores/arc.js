@@ -144,7 +144,7 @@ async function scanCategoryArcApi(ctx, prevDb, report) {
 	}
 
 	if (aborted) {
-		avoidMassRemoval(prevDb, discovered, ctx, `api pages=${donePages} sub=${subCategory}`);
+		avoidMassRemoval(prevDb, discovered, ctx, `api pages=${donePages} sub=${subCategory}`, report);
 	}
 
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);

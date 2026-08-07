@@ -16,6 +16,7 @@ const SS_SHIPPABLE_STAGGER_MS = 150;
 
 // Tracker internals (store-only override; no global changes)
 const { finalizeCategoryScan } = require("../tracker/finalize");
+const { avoidMassRemoval } = require("../tracker/merge");
 
 function allowSierraUrlRumWhisky(item) {
 	const u = item && item.url ? String(item.url) : "";
@@ -40,6 +41,35 @@ function allowSierraOtherWhiskyRescue(item) {
 	if (/\b(vodka|gin|tequila|mezcal|pisco|ouzo|soju|beer|lager|ale|ipa|stout|porter|pilsner|cider|seltzer|cooler|radler|wine|cabernet|sauvignon|pinot|merlot|chardonnay|prosecco|rose|rosato|moscato|shiraz|grenache|malbec|rioja|chianti|amarone|cava|champagne|vermouth|liqueur|schnapps|bitters|syrup|mix(?:er|ology)?|cocktail|margarita|mojito|martini|caesar|lemonade|tea|mule|paloma|smash|4pk|6pk|8pk|12pk|15pk|18pk|24pk|30pk|36pk|355ml|330ml|341ml|458ml|473ml|500ml|710ml|king\s*can|tall\s*can)\b/.test(s)) return false;
 
 	return false;
+}
+
+/*
+ * Sierra files a batch of NZ/BC wine under world-whisky (Kim Crawford, Oyster Bay,
+ * Whitehaven, Matua, Bask …) and keeps adding to it. This DENIES grape varietals
+ * rather than allow-listing whisky brands the way allowSierraOtherWhiskyRescue does:
+ * world whisky routinely carries no recognizable brand token, so an allow-list drops
+ * real bottles (TOKI, Pokeno Totara Cask, Millstone Trios Three Grain).
+ *
+ * A varietal only disqualifies an item when the name carries NO whisky marker, so
+ * cask finishes survive — "Kavalan Moscatel", "Millstone Oak Moscatel", "Basil Hayden
+ * Red Wine Cask Finish". Note the store misspells Viognier as "VOIGNIER".
+ */
+const SIERRA_WINE_VARIETAL =
+	/\b(pinot|grigio|sauvignon|sauv\s*blanc|sav\s*blanc|cabernet|merlot|chardonnay|shiraz|syrah|malbec|zinfandel|tempranillo|riesling|prosecco|champagne|chianti|rioja|v[io]{1,2}gnier|moscato|sangiovese|nebbiolo|grenache|pinotage)\b/i;
+
+const SIERRA_WHISKY_MARKER =
+	/\b(whisk(?:e)?y|scotch|bourbon|rye|single\s*malt|malt|cask|\d{1,2}\s*(?:yo|yr|year))\b/i;
+
+function allowSierraWorldWhiskyNotWine(item) {
+	const u = item && item.url ? String(item.url) : "";
+	if (!/^https?:\/\/sierraspringsliquor\.ca\//i.test(u)) return false;
+
+	// NAME only, never the URL: every product in this category has "world-whisky" in
+	// its path, which would satisfy the whisky marker for wine and pass everything.
+	const name = item && item.name ? String(item.name) : "";
+	if (SIERRA_WINE_VARIETAL.test(name) && !SIERRA_WHISKY_MARKER.test(name)) return false;
+
+	return true;
 }
 
 
@@ -164,15 +194,34 @@ function parseProductsSierra(body, ctx) {
 
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Sierra Springs: per-product shipping availability check
+ * Sierra Springs: per-product shipping availability check — DISABLED 2026-08-07
  *
  * Uses classic WooCommerce update_order_review AJAX to determine whether
  * a product has non-local-pickup shipping options for an AB address.
- * Runs after the WC Store API scan; non-shippable items are dropped from
- * discovered so they are marked removed in the DB.
+ * Historically this was a useful *phantom stock* signal: items listed as
+ * in-stock but with no shipping option turned out to be items the store did
+ * not actually have (confirmed with them by email).
+ *
+ * WHY IT'S OFF: the store appears to have turned off delivery entirely.
+ * A survey of 73 in-stock products on 2026-08-07 — spread across all seven
+ * tracked categories, $15 to $2300, including known-rare listings — returned
+ * `local_pickup:1` ("In Store pickup") as the ONLY shipping method for 73/73.
+ * The check therefore no longer discriminates; it just drops the whole
+ * catalog. It did exactly that on the 14:05 UTC run: 1049 listings removed.
+ * (Verified independently of the stale wfacp_id below — all four
+ * wfacp_id/override combinations return the identical pickup-only result.)
+ *
+ * The code is kept intact so this can be re-checked later: flip
+ * SS_SHIPPABLE_CHECK_ENABLED back to true and watch the "Shippable checks"
+ * log line. If non-pickup methods reappear, the filter is meaningful again.
  * ───────────────────────────────────────────────────────────────────────── */
 
-const SS_WFACP_ID = "141983"; // WooFunnels checkout page ID — static for this store
+const SS_SHIPPABLE_CHECK_ENABLED = false;
+
+// WooFunnels checkout page ID. Drifts when they rebuild the checkout page
+// (141983 → 144512 as of 2026-08); re-read it from the `wfacp_id` value in
+// /checkouts/checkout/ if the check is ever re-enabled.
+const SS_WFACP_ID = "144512";
 
 function ssCookieJar() {
 	const jar = new Map();
@@ -395,7 +444,7 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 	// unavailable). Otherwise check if shippable; if not, drop from discovered so
 	// it gets marked removed by finalizeCategoryScan.
 	// Each check uses a fresh WC session — no shared cart state to manage.
-	{
+	if (SS_SHIPPABLE_CHECK_ENABLED) {
 		const base = `https://${ctx.store.host}`;
 		const dbg = (msg) => logger.dbg(msg);
 
@@ -483,6 +532,8 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 		}
 	}
 
+	avoidMassRemoval(prevDb, discovered, ctx, `storeapi pages=${Math.max(0, page)} cat=${ctx.cat.key}`, report);
+
 	const { merged, metaChangedItems } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: Math.max(0, page) });
 	logger.ok(`${ctx.catPrefixOut} | DB saved: ${logger.dim(ctx.dbFile)} (${merged.size} items)`);
 	report.totals.metaChangedCount += metaChangedItems.length;
@@ -540,6 +591,7 @@ function createStore(defaultUa) {
 				startUrl: "https://sierraspringsliquor.ca/product-category/world-whisky/",
 				discoveryStartPage: 1,
 				perPage: 100,
+				allowUrl: allowSierraWorldWhiskyNotWine,
 			},
 			{
 				key: "spirits",

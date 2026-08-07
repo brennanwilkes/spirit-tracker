@@ -27,6 +27,7 @@ function createReport() {
 		restoredItems: [],
 		skuUpgrades: [], // { fromSku, toSku, url, ts, dbFile } per in-place SKU upgrade detected this run
 		failedCategories: [], // { store, label } per category whose scan threw (run_all.js catch)
+		massRemovalGuards: [], // { store, label, key, discovered, previous, reason } per avoidMassRemoval trip
 	};
 }
 
@@ -109,6 +110,15 @@ function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout &&
 	if (failed.length) {
 		ln(paint(`FAILED CATEGORIES (${failed.length})`, C.bold + C.red));
 		for (const f of failed) ln(paint(`  ✗ ${f.store} | ${f.label}`, C.red));
+		ln("");
+	}
+
+	const guarded = Array.isArray(report.massRemovalGuards) ? report.massRemovalGuards : [];
+	if (guarded.length) {
+		ln(paint(`MASS-REMOVAL GUARD TRIPPED (${guarded.length})`, C.bold + C.red));
+		for (const g of guarded) {
+			ln(paint(`  ⚠ ${g.store} | ${g.label} — scan found ${g.discovered}/${g.previous}; DB preserved (${g.reason})`, C.red));
+		}
 		ln("");
 	}
 

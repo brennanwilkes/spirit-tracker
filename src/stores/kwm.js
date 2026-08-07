@@ -454,7 +454,7 @@ async function scanCategoryKWM(ctx, prevDb, report) {
 
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
-	avoidMassRemoval(prevDb, discovered, ctx, "kwm partial scan");
+	avoidMassRemoval(prevDb, discovered, ctx, "kwm partial scan", report);
 
 	const { merged } = finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: scanPages });
 	ctx.logger.ok(`${ctx.catPrefixOut} | DB saved: ${ctx.logger.dim(ctx.dbFile)} (${merged.size} items)`);

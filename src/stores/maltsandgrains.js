@@ -1,112 +1,84 @@
 "use strict";
 
-const { decodeHtml, stripTags, cleanText, extractHtmlAttr, extractFirstImgUrl } = require("../utils/html");
-const { normalizeCspc } = require("../utils/sku");
-const { extractPriceFromTmbBlock } = require("../utils/woocommerce");
+const { createShopifyCollectionAdapter } = require("../platforms/shopify_collection");
 
-function allowMaltsExcludeGinTequilaMezcal(item) {
-	if (item && item.inStock === false) return false;
+/*
+ * Malts & Grains replatformed WooCommerce → Shopify (malts-grains.myshopify.com) in
+ * early Aug 2026. The old /shop/page/N/ and /product-category/gin/ URLs now 404, which
+ * is why the WooCommerce parser returned 0 products from ~Aug 5 onward.
+ *
+ * The category startUrls below are kept VERBATIM even though nothing fetches them —
+ * the DB filename hash is derived from startUrl, so changing them would strand the
+ * existing DB files and lose the tracked history. Same trick sierrasprings.js uses.
+ *
+ * Buckets come from Shopify's product_type. Do NOT match on the title: "Glen Elgin",
+ * "Virgin Oak" and "Gin[ger]" all contain "gin".
+ */
 
-	const cats = Array.isArray(item?.cats) ? item.cats : [];
-	const has = (re) => cats.some((c) => re.test(String(c || "")));
+const UNKNOWN_PRODUCT_TYPES = new Set();
 
-	if (has(/\bgin\b/i)) return false;
-	if (has(/\btequila\b/i) || has(/\bmezcal\b/i)) return false;
+function classifyMaltsProduct(p) {
+	const type = String(p?.product_type || "")
+		.trim()
+		.toLowerCase();
 
-	return true;
-}
-
-function parseProductsMaltsAndGrains(html, ctx) {
-	const s = String(html || "");
-	const items = [];
-
-	const re = /<li\b[^>]*class=["'][^"']*\bproduct\b[^"']*["'][^>]*>[\s\S]*?<\/li>/gi;
-	const blocks = [...s.matchAll(re)].map((m) => m[0] || "");
-	ctx.logger?.dbg?.(`parseProductsMaltsAndGrains: li.product blocks=${blocks.length} bytes=${s.length}`);
-
-	const base = `https://${(ctx && ctx.store && ctx.store.host) || "maltsandgrains.store"}/`;
-
-	for (const block of blocks) {
-		const classAttr = extractHtmlAttr(block, "class");
-
-		const isOut =
-			/\boutofstock\b/i.test(classAttr) ||
-			/ast-shop-product-out-of-stock/i.test(block) ||
-			/>\s*out of stock\s*</i.test(block);
-		if (isOut) continue;
-
-		const cats = [];
-		for (const m of String(classAttr || "").matchAll(/\bproduct_cat-([a-z0-9_-]+)\b/gi)) {
-			const v = String(m[1] || "")
-				.trim()
-				.toLowerCase();
-			if (v) cats.push(v);
-		}
-
-		let href =
-			block.match(
-				/<a\b[^>]*href=["']([^"']+)["'][^>]*class=["'][^"']*\b(woocommerce-LoopProduct-link|woocommerce-loop-product__link|ast-loop-product__link)\b/i,
-			)?.[1] ||
-			block.match(
-				/<a\b[^>]*class=["'][^"']*\b(woocommerce-LoopProduct-link|woocommerce-loop-product__link|ast-loop-product__link)\b[^"']*["'][^>]*href=["']([^"']+)["']/i,
-			)?.[2] ||
-			block.match(/<a\b[^>]*href=["']([^"']*\/product\/[^"']+)["']/i)?.[1];
-
-		if (!href) continue;
-
-		let url = "";
-		try {
-			url = new URL(decodeHtml(href), base).toString();
-		} catch {
-			continue;
-		}
-		if (!/^https?:\/\//i.test(url)) continue;
-
-		const mTitle = block.match(
-			/<h2\b[^>]*class=["'][^"']*\bwoocommerce-loop-product__title\b[^"']*["'][^>]*>([\s\S]*?)<\/h2>/i,
-		);
-		const name = mTitle && mTitle[1] ? cleanText(decodeHtml(stripTags(mTitle[1]))) : "";
-		if (!name) continue;
-
-		const price = extractPriceFromTmbBlock(block);
-
-		const sku = normalizeCspc(
-			block.match(/\bdata-product_sku=["']([^"']+)["']/i)?.[1] ||
-				block.match(/\bSKU[:\s]*([0-9]{6})\b/i)?.[1] ||
-				"",
-		);
-
-		const img = extractFirstImgUrl(block, base);
-
-		items.push({ name, price, url, sku, img, cats, inStock: true });
+	if (!type) {
+		UNKNOWN_PRODUCT_TYPES.add("(empty product_type)");
+		return "other";
 	}
+	if (/\bgin\b/.test(type)) return "gin";
+	if (/wine|\bred\b|\bwhite\b|ros[eé]|sparkling|champagne|tequila|mezcal|vodka|liqueur|beer|cider|seltzer|sake/.test(type))
+		return "other";
 
-	const uniq = new Map();
-	for (const it of items) uniq.set(it.url, it);
-	return [...uniq.values()];
+	// Everything else counts as a tracked spirit. This store is a whisky specialist and
+	// names its types loosely ("Irish & Japanese", "American Whsk/Brbn"), so an allowlist
+	// silently drops whole categories — including by default and denying the handful of
+	// known non-spirits is the safer failure mode. Unrecognized types are still logged.
+	if (!/whisk|whsk|brbn|bourbon|\brye\b|scotch|\bmalt\b|\brum\b|cane|irish|japan|grain|blend/.test(type)) {
+		UNKNOWN_PRODUCT_TYPES.add(type);
+	}
+	return "spirits";
 }
 
 function createStore(defaultUa) {
+	const scan = createShopifyCollectionAdapter({
+		useGlobalProductsJson: true,
+		classify: classifyMaltsProduct,
+		skuFallback: "none",
+	});
+
 	return {
 		key: "maltsandgrains",
 		region: "AB",
 		name: "Malts & Grains",
 		host: "maltsandgrains.store",
 		ua: defaultUa,
-		parseProducts: parseProductsMaltsAndGrains,
+
+		async scanCategory(ctx, prevDb, report) {
+			await scan(ctx, prevDb, report);
+
+			// Surface catalog drift: a product_type we don't recognize is silently dropped,
+			// so a newly-added whisky category would otherwise vanish without a trace.
+			if (UNKNOWN_PRODUCT_TYPES.size) {
+				ctx.logger.warn(
+					`${ctx.catPrefixOut} | Unclassified Shopify product_type(s): ${[...UNKNOWN_PRODUCT_TYPES].join(", ")}`,
+				);
+				UNKNOWN_PRODUCT_TYPES.clear();
+			}
+		},
+
 		categories: [
 			{
 				key: "all-minus-gin-tequila-mezcal",
 				label: "All Spirits",
+				kind: "spirits",
 				startUrl: "https://maltsandgrains.store/shop/page/1/",
-				discoveryStartPage: 15,
-				allowUrl: allowMaltsExcludeGinTequilaMezcal,
 			},
 			{
 				key: "gin",
 				label: "Gin",
+				kind: "gin",
 				startUrl: "https://maltsandgrains.store/product-category/gin/page/1/",
-				discoveryStartPage: 2,
 			},
 		],
 	};

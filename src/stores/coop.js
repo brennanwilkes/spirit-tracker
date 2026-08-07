@@ -166,7 +166,7 @@ async function scanCategoryCoop(ctx, prevDb, report) {
 		}
 	}
 
-	avoidMassRemoval(prevDb, discovered, ctx, "coop graphql");
+	avoidMassRemoval(prevDb, discovered, ctx, "coop graphql", report);
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products: ${discovered.size}`);
 	finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: batches.length });
 }

@@ -258,11 +258,22 @@ if [[ -f "$TRACKER_LOG" ]]; then
   FAILED_LINE="$(grep -aoE '\[\[FAILED-CATEGORIES\]\].*' "$TRACKER_LOG" | tail -n1 | sed -E 's/^\[\[FAILED-CATEGORIES\]\] ?//')"
 fi
 
+# Mass-removal guard trips: a category whose scan came back so short that the DB
+# was preserved instead of mass-removing. Data is intact, but the scraper is
+# broken — surface it on the commit first line so `git log` shows it over time.
+GUARDED_LINE=""
+if [[ -f "$TRACKER_LOG" ]]; then
+  GUARDED_LINE="$(grep -aoE '\[\[GUARDED-CATEGORIES\]\].*' "$TRACKER_LOG" | tail -n1 | sed -E 's/^\[\[GUARDED-CATEGORIES\]\] ?//')"
+fi
+
+FIRST_LINE="run: ${ts}"
 if [[ -n "$FAILED_LINE" ]]; then
   n="$(awk -F'; ' '{print NF}' <<<"$FAILED_LINE")"
-  FIRST_LINE="run: ${ts} | FAILED(${n}): ${FAILED_LINE}"
-else
-  FIRST_LINE="run: ${ts}"
+  FIRST_LINE="${FIRST_LINE} | FAILED(${n}): ${FAILED_LINE}"
+fi
+if [[ -n "$GUARDED_LINE" ]]; then
+  g="$(awk -F'; ' '{print NF}' <<<"$GUARDED_LINE")"
+  FIRST_LINE="${FIRST_LINE} | GUARDED(${g}): ${GUARDED_LINE}"
 fi
 
 # Runner egress IP + identity, so store blocks can be correlated to the IP over

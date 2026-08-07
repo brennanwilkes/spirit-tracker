@@ -220,12 +220,24 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
  * If discovered < 60% of previous item count, restore old active items to avoid
  * a partial scrape (network glitch, site change) wiping out good historical data.
  * Returns true if protection was triggered.
+ *
+ * A scan that discovers ZERO items counts as the most severe case, not an exemption
+ * — a live store never legitimately empties an entire category. The old early-return
+ * on discSize === 0 is what let Sierra Springs wipe 1049 listings on 2026-08-07 when
+ * its shippability filter started dropping every product.
  */
-function avoidMassRemoval(prevDb, discovered, ctx, reason) {
-	const prevSize = prevDb?.byUrl?.size || 0;
+function avoidMassRemoval(prevDb, discovered, ctx, reason, report) {
+	// Count only ACTIVE previous items: byUrl also holds every long-removed record
+	// ever seen, so using its raw size compares a live listing count against a
+	// historical total and trips the guard on healthy categories (e.g. Sierra
+	// Springs "Other" is 8 live listings out of 471 accumulated records).
+	let prevSize = 0;
+	for (const it of prevDb?.byUrl?.values() || []) {
+		if (it && !it.removed) prevSize++;
+	}
 	const discSize = discovered?.size || 0;
 
-	if (prevSize <= 0 || discSize <= 0) return false;
+	if (prevSize <= 0) return false;
 
 	const ratio = discSize / Math.max(1, prevSize);
 	if (ratio >= 0.6) return false;
@@ -233,6 +245,20 @@ function avoidMassRemoval(prevDb, discovered, ctx, reason) {
 	ctx.logger.warn?.(
 		`${ctx.catPrefixOut} | Partial scan (${discSize}/${prevSize}); preserving DB to avoid mass removals (${reason}).`,
 	);
+
+	// Record it on the report too: a silent guard trip means a store's scraper is
+	// quietly broken while the DB looks healthy. Surfaces in the report body, the
+	// [[GUARDED-CATEGORIES]] sentinel and the data-branch commit first line.
+	if (report && Array.isArray(report.massRemovalGuards)) {
+		report.massRemovalGuards.push({
+			store: ctx.store.name,
+			label: ctx.cat.label,
+			key: ctx.store.key,
+			discovered: discSize,
+			previous: prevSize,
+			reason,
+		});
+	}
 
 	for (const [u, it] of prevDb.byUrl.entries()) {
 		if (!it || it.removed) continue;
