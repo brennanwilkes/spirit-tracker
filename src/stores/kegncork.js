@@ -8,6 +8,14 @@ function makePageUrlKegNCork(baseUrl, pageNum) {
 	return makePageUrlQueryParam(baseUrl, "page", pageNum);
 }
 
+// Keg N Cork sells in-store tasting/event tickets out of its whisky category. They are
+// not bottles, so they are dropped at parse time. Signals: a scheduled clock time
+// ("- JUNE 26 @7 PM", "- 1-4PM"), an "IN PERSON" attendance mode, the word EVENT, or
+// SMWS monthly OUTTURN (both the in-person tickets and the paired tasting kit).
+// Generic multi-bottle sample packs (RAASAY OAK SPECIES TASTING PACK, DRINKS BY THE DRAM
+// TASTING SET) are real products and deliberately not matched.
+const EVENT_LISTING_RE = /\bOUTTURN\b|\bIN PERSON\b|\bEVENT\b|\b\d{1,2}(?::\d{2})?\s*[AP]M\b/i;
+
 function parseProductsKegNCork(html, ctx) {
 	const s = String(html || "");
 	const items = [];
@@ -27,6 +35,10 @@ function parseProductsKegNCork(html, ctx) {
 		const url = decodeHtml(mTitle[1]).trim();
 		const name = cleanText(decodeHtml(mTitle[2]));
 		if (!url || !/^https?:\/\//i.test(url) || !name) continue;
+		if (EVENT_LISTING_RE.test(name)) {
+			ctx.logger?.dbg?.(`parseProductsKegNCork: skip event listing "${name}"`);
+			continue;
+		}
 
 		let price = "";
 		const mPrice = block.match(/data-product-price-without-tax[^>]*>\s*([^<]+)\s*</i);

@@ -90,6 +90,23 @@ for two reasons:
   placeholder SKUs) reads `is_salable` and drops a product only if it's explicitly `0`
   (defense-in-depth; none seen on listings).
 
+## Keg N Cork event tickets (`src/stores/kegncork.js`)
+
+Keg N Cork sells **in-store tasting/event tickets out of its whisky category** (SMWS monthly
+outturns, one-off tastings, member events). They are not bottles, and hand-hiding each new
+month's batch via `data/sku_hidden.json` was endless, so `parseProductsKegNCork` drops them at
+parse time via `EVENT_LISTING_RE`. Signals: a clock time (`@7 PM`, `1-4PM`), `IN PERSON`,
+`EVENT`, or `OUTTURN` (which covers both the in-person tickets and the paired monthly tasting
+kit). Generic multi-bottle sample packs (`RAASAY OAK SPECIES TASTING PACK`, `DRINKS BY THE DRAM
+TASTING SET`, `SHINOBU TASTING PACK`) are real products and intentionally NOT matched — verified
+against all 1054 Keg N Cork names ever recorded: 44 matched, all genuine events, zero false
+positives. The already-recorded tickets stay in the DB (they just go `removed`) and remain hidden
+by their existing `sku_hidden.json` entries.
+
+KWM has the same problem — 11 `PE `-prefixed listings (e.g. `PE SMWS August Virtual Outturn
+Tasting`) — deliberately left unfiltered for now (some `PE ` items, like the advent-calendar
+sets, are real products).
+
 ## Category Scan Flow (`src/tracker/`)
 
 1. `run_all.js` — schedules all stores/categories with host-level serialization (never run two categories from the same host concurrently) inside a concurrency pool.
