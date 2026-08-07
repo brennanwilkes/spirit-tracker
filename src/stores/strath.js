@@ -375,7 +375,7 @@ async function scanCategoryStrath(ctx, prevDb, report) {
 		if (arr.length < perPage) break;
 	}
 
-	avoidMassRemoval(prevDb, discovered, ctx, `storeapi pages=${donePages} slug=${wantedSlug || "none"}`);
+	avoidMassRemoval(prevDb, discovered, ctx, `storeapi pages=${donePages} slug=${wantedSlug || "none"}`, report);
 
 	ctx.logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 

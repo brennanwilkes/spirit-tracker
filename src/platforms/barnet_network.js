@@ -136,7 +136,7 @@ function createBarnetAdapter(opts) {
 		);
 
 		if (raw.aborted) {
-			avoidMassRemoval(prevDb, discovered, ctx, `api pages=${raw.pages} sub=${sub || "(client)"}`);
+			avoidMassRemoval(prevDb, discovered, ctx, `api pages=${raw.pages} sub=${sub || "(client)"}`, report);
 		}
 
 		const { merged, metaChangedItems } = finalizeCategoryScan(ctx, prevDb, discovered, report, {

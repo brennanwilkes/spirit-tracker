@@ -223,7 +223,7 @@ function scanCategoryEverythingWine(ctx, prevDb, report) {
 
 		await repairSkus(ctx, discovered, prevDb);
 
-		avoidMassRemoval(prevDb, discovered, ctx, `everythingwine pages=${donePages}`);
+		avoidMassRemoval(prevDb, discovered, ctx, `everythingwine pages=${donePages}`, report);
 
 		logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: pages.length });

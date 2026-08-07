@@ -134,7 +134,7 @@ function scanCategoryElbow(categoryUrls) {
 			await fetchCategoryUrl(ctx, categoryUrl, discovered, prevDb);
 		}
 		ctx.logger.ok(`${ctx.catPrefixOut} | elbow urls=${categoryUrls.length} kept=${discovered.size}`);
-		avoidMassRemoval(prevDb, discovered, ctx, "elbow partial scan");
+		avoidMassRemoval(prevDb, discovered, ctx, "elbow partial scan", report);
 		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 0 });
 	};
 }

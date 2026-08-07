@@ -184,6 +184,14 @@ async function main() {
 	console.log(`[[FAILED-CATEGORIES]] ${failedList}`);
 	console.log(`[[FAILED-STORES]] ${failedStoreKeys}`);
 
+	// GUARDED-CATEGORIES → categories where the mass-removal guard preserved the DB.
+	// Not a failure (the data is intact and the run continues), but it means a
+	// scraper is quietly broken, so it gets the same commit-message visibility as
+	// failures rather than living only in the runner's stdout.
+	const guarded = report.massRemovalGuards || [];
+	const guardedList = guarded.map((g) => `${g.store} | ${g.label} (${g.discovered}/${g.previous})`).join("; ");
+	console.log(`[[GUARDED-CATEGORIES]] ${guardedList}`);
+
 	if (!meaningful) {
 		logger.ok("No meaningful changes; skipping report write.");
 		process.exitCode = 3; // special "no-op" code
