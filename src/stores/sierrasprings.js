@@ -440,9 +440,8 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 	logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}`);
 
 	// ── Shipping availability check ────────────────────────────────────────────
-	// For each discovered item: if it's already removed in prevDb, skip (already
-	// unavailable). Otherwise check if shippable; if not, drop from discovered so
-	// it gets marked removed by finalizeCategoryScan.
+	// Check every discovered item; if it isn't shippable, drop it from discovered
+	// so it gets marked removed by finalizeCategoryScan.
 	// Each check uses a fresh WC session — no shared cart state to manage.
 	if (SS_SHIPPABLE_CHECK_ENABLED) {
 		const base = `https://${ctx.store.host}`;
@@ -452,13 +451,17 @@ async function scanCategoryWooStoreApi(ctx, prevDb, report) {
 		if (!nonce) {
 			logger.warn(`${ctx.catPrefixOut} | Could not fetch nonce; shippable checks skipped`);
 		} else {
-			// Build worklist of items that need checking (have a real product id and
-			// aren't already known to be removed in prevDb).
+			// Build worklist: every discovered item with a real product id.
+			//
+			// Do NOT skip items that are `removed` in prevDb. That optimization made the
+			// filter's output depend on the previous run's DB state, which oscillates:
+			// a run that drops everything leaves every record removed, so the NEXT run
+			// checks almost nothing, keeps everything and restores the whole catalog —
+			// and the run after that checks everything and drops it again. Observed
+			// 2026-08-07: 14:05 removed 1049 listings, 16:31 restored 1076 having made
+			// only 8 checks in total. Correctness over saved requests.
 			const tasks = [];
 			for (const [url, it] of discovered.entries()) {
-				const prev = prevDb.byUrl.get(url);
-				if (prev?.removed) continue;
-
 				const productId = it._wooProductId
 					?? (/^id:(\d+)$/.test(String(it.sku || "")) ? Number(it.sku.slice(3)) : null);
 				if (!productId) continue; // synthetic u: SKU — skip
