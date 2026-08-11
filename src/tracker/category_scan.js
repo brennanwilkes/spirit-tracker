@@ -237,13 +237,24 @@ async function discoverTotalPagesFast(ctx, baseUrl, guess, step) {
 		const looksTruncated = extracted <= 2 && items1 >= 40; // Shopify default page size ≈ 48
 
 		if (!looksTruncated) {
-			ctx.logger.ok(`${ctx.catPrefixOut} | Total pages (from pagination): ${extracted}`);
-			return extracted;
-		}
+			// A windowed pagination nav (BigCommerce Stencil) renders only a sliding range of
+			// page links and never a last-page link, so its highest href is a FLOOR, not the
+			// total. Woo's nav ends in "… 29 30" and is exact. Probing one page past the
+			// extracted count is what tells the two apart.
+			const beyond = await probePage(ctx, baseUrl, extracted + 1, state);
+			if (!beyond.ok) {
+				ctx.logger.ok(`${ctx.catPrefixOut} | Total pages (from pagination): ${extracted}`);
+				return extracted;
+			}
 
-		ctx.logger.warn(
-			`${ctx.catPrefixOut} | Pagination says ${extracted} but page looks full; falling back to probe`,
-		);
+			ctx.logger.warn(
+				`${ctx.catPrefixOut} | Pagination says ${extracted} but page ${extracted + 1} still has products; falling back to probe`,
+			);
+		} else {
+			ctx.logger.warn(
+				`${ctx.catPrefixOut} | Pagination says ${extracted} but page looks full; falling back to probe`,
+			);
+		}
 	}
 
 	// Fallback to probing if pagination parse fails
