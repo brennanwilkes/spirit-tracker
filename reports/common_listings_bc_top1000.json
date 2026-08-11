@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-11T16:35:59.516Z",
+  "generatedAt": "2026-08-11T19:19:00.523Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6330,
-    "removedRows": 939,
-    "canonSkus": 2506,
+    "liveRows": 6332,
+    "removedRows": 937,
+    "canonSkus": 2507,
     "outputCount": 1000
   },
   "rows": [
@@ -3575,7 +3575,7 @@
         "arc": 76.19,
         "bcl": 80.99,
         "everythingwine": 80.99,
-        "gull": 77.7,
+        "gull": 77.99,
         "legacyliquor": 93.04,
         "liquorwarehouse": 92.99,
         "strath": 88.31,
@@ -4697,7 +4697,7 @@
         "arc": 62.49,
         "bcl": 69.99,
         "everythingwine": 69.99,
-        "gull": 64.75,
+        "gull": 72.99,
         "highpointbws": 71.49,
         "legacyliquor": 72.73,
         "liquorwarehouse": 68.99,
@@ -7427,56 +7427,6 @@
       }
     },
     {
-      "canonSku": "816747",
-      "storeCount": 8,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "gull",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "strath"
-      ],
-      "storePrices": {
-        "bcl": 46.99,
-        "everythingwine": 46.99,
-        "highpointbws": 52.99,
-        "liquorwarehouse": 49.99,
-        "newdistrict": 52.99,
-        "tudor": 49.99,
-        "vessel": 47.49,
-        "vintage": 53.83
-      },
-      "representative": {
-        "name": "SHERINGHAM DISTILLERY - BEACON GIN",
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "826172",
-        "skuKey": "826172",
-        "url": "https://www.bcliquorstores.com/product/826172",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$46.99",
-        "priceNum": 46.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/826172"
-      }
-    },
-    {
       "canonSku": "000042",
       "storeCount": 7,
       "stores": [
@@ -8040,28 +7990,28 @@
         "arc": 29.39,
         "bcl": 30.99,
         "everythingwine": 30.99,
-        "gull": 27.8,
+        "gull": 33.2,
         "highpointbws": 29.79,
         "tudor": 30.99,
         "vessel": 32.99
       },
       "representative": {
-        "name": "Young – Old Sam Demerara 750ml",
-        "price": "$27.80",
-        "priceNum": 27.8,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
+        "name": "OLD SAM DEMERARA RUM",
+        "price": "$29.39",
+        "priceNum": 29.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "050336",
         "skuKey": "050336",
-        "url": "https://gullliquorstore.com/product/young-old-sam-demerara-750ml/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/5183084-old-sam-demerara-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
       },
       "cheapest": {
-        "price": "$27.80",
-        "priceNum": 27.8,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/young-old-sam-demerara-750ml/"
+        "price": "$29.39",
+        "priceNum": 29.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5183084-old-sam-demerara-rum"
       }
     },
     {
@@ -10512,6 +10462,55 @@
         "priceNum": 26.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591499-sheringham-seaside-gin-375ml"
+      }
+    },
+    {
+      "canonSku": "816747",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "gull",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "vessel"
+      ],
+      "storePrices": {
+        "bcl": 46.99,
+        "everythingwine": 46.99,
+        "highpointbws": 52.99,
+        "liquorwarehouse": 49.99,
+        "newdistrict": 52.99,
+        "tudor": 49.99,
+        "vintage": 53.83
+      },
+      "representative": {
+        "name": "SHERINGHAM DISTILLERY - BEACON GIN",
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "826172",
+        "skuKey": "826172",
+        "url": "https://www.bcliquorstores.com/product/826172",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$46.99",
+        "priceNum": 46.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/826172"
       }
     },
     {
@@ -27425,6 +27424,51 @@
       }
     },
     {
+      "canonSku": "063046",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "everythingwine",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 49.39,
+        "everythingwine": 52.98,
+        "vessel": 49.99
+      },
+      "representative": {
+        "name": "SHERINGHAM LEMON GIN LIQ 750",
+        "price": "$49.39",
+        "priceNum": 49.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "063046",
+        "skuKey": "063046",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591009-sheringham-lemon-gin-liq-750",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$49.39",
+        "priceNum": 49.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591009-sheringham-lemon-gin-liq-750"
+      }
+    },
+    {
       "canonSku": "070222",
       "storeCount": 3,
       "stores": [
@@ -37699,50 +37743,6 @@
         "priceNum": 23.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/proper-twelve-ml-380"
-      }
-    },
-    {
-      "canonSku": "063046",
-      "storeCount": 2,
-      "stores": [
-        "arc",
-        "everythingwine"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 49.39,
-        "everythingwine": 52.98
-      },
-      "representative": {
-        "name": "SHERINGHAM LEMON GIN LIQ 750",
-        "price": "$49.39",
-        "priceNum": 49.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "063046",
-        "skuKey": "063046",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591009-sheringham-lemon-gin-liq-750",
-        "categoryLabel": "Spirits - Gin",
-        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
-      },
-      "cheapest": {
-        "price": "$49.39",
-        "priceNum": 49.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591009-sheringham-lemon-gin-liq-750"
       }
     },
     {
