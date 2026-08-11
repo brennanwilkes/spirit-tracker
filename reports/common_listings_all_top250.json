@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-11T07:18:49.501Z",
+  "generatedAt": "2026-08-11T10:34:10.112Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -54,7 +54,7 @@
   "totals": {
     "liveRows": 24492,
     "removedRows": 7395,
-    "canonSkus": 6764,
+    "canonSkus": 6762,
     "outputCount": 250
   },
   "rows": [
@@ -5102,7 +5102,7 @@
         "liquorwarehouse": 24.99,
         "newdistrict": 25.29,
         "sherbrooke": 30.06,
-        "sierrasprings": 24.99,
+        "sierrasprings": 28.99,
         "tudor": 21.99,
         "vessel": 22.49,
         "vintage": 25.13,
@@ -7634,6 +7634,86 @@
         "priceNum": 109.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/speyside/benromach-15-yr/"
+      }
+    },
+    {
+      "canonSku": "059077",
+      "storeCount": 18,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "everythingwine",
+        "gull",
+        "kegncork",
+        "legacyliquor",
+        "lime",
+        "liquorama",
+        "sierrasprings",
+        "tudor",
+        "vessel",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "craftcellars",
+        "highlander",
+        "highpointbws",
+        "kwm",
+        "liberty",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "strath",
+        "vinearts",
+        "vintage",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "arc": 65.99,
+        "bcl": 66.99,
+        "bsw": 57.99,
+        "canadianliquor": 63.99,
+        "clbspirits": 57.91,
+        "coop": 69.99,
+        "everythingwine": 66.99,
+        "gull": 73.8,
+        "kegncork": 65.96,
+        "legacyliquor": 73.28,
+        "lime": 63.99,
+        "liquorama": 59.99,
+        "sierrasprings": 67.51,
+        "tudor": 66.99,
+        "vessel": 65.99,
+        "willowpark": 70.99,
+        "wineandbeyond": 60.99,
+        "zyn": 63
+      },
+      "representative": {
+        "name": "The Glenlivet Founders Reserve 750ml",
+        "price": "$57.91",
+        "priceNum": 57.91,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "769635",
+        "skuKey": "769635",
+        "url": "https://clbspirits.com/products/glenlivet-founders-reserve-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$57.91",
+        "priceNum": 57.91,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/glenlivet-founders-reserve-1"
       }
     },
     {
@@ -11832,84 +11912,6 @@
         "priceNum": 67.79,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/isle-of-harris-gin"
-      }
-    },
-    {
-      "canonSku": "059077",
-      "storeCount": 16,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "lime",
-        "sierrasprings",
-        "tudor",
-        "vessel",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "craftcellars",
-        "highlander",
-        "highpointbws",
-        "kegncork",
-        "kwm",
-        "liberty",
-        "liquorama",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "strath",
-        "vinearts",
-        "vintage",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "arc": 65.99,
-        "bcl": 66.99,
-        "bsw": 59.99,
-        "canadianliquor": 66.99,
-        "clbspirits": 61.12,
-        "coop": 69.99,
-        "everythingwine": 66.99,
-        "gull": 73.8,
-        "legacyliquor": 73.28,
-        "lime": 63.99,
-        "sierrasprings": 67.51,
-        "tudor": 66.99,
-        "vessel": 65.99,
-        "willowpark": 70.99,
-        "wineandbeyond": 63.99,
-        "zyn": 66
-      },
-      "representative": {
-        "name": "The Glenlivet Caribbean Reserve",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "838655",
-        "skuKey": "838655",
-        "url": "https://www.bswliquor.com/products/glenlivet-caribbean-reserve-1",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/glenlivet-caribbean-reserve-1"
       }
     },
     {
