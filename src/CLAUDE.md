@@ -107,6 +107,38 @@ KWM has the same problem — 11 `PE `-prefixed listings (e.g. `PE SMWS August Vi
 Tasting`) — deliberately left unfiltered for now (some `PE ` items, like the advent-calendar
 sets, are real products).
 
+## Windowed pagination navs under-count total pages (2026-08-11)
+
+`extractTotalPagesFromPaginationHtml` takes the **highest page number appearing in any href**
+on page 1. That is exact for WooCommerce, whose nav always ends in the last page
+(`1 2 3 4 … 29 30` — verified on Gull: extracts 30, correct). It is a **floor, not a total**,
+for navs that render a *sliding window* with only a "next" arrow and no last-page link.
+
+**BigCommerce Stencil (Keg N Cork) is such a nav.** Its whisky category has 7 pages, but page 1
+links only `1…6`, so extraction returned 6 and `discoverTotalPagesFast` trusted it — the
+`looksTruncated` guard only distrusts `extracted <= 2`. Pages 1–6 = exactly 594 products, which
+is exactly what the DB held; **page 7's 40 products were never scraped and sat permanently
+`removed: true`, i.e. OUT OF STOCK in the UI.** Worse, they *flip-flopped*: an item near the
+600-item boundary crosses it whenever a product is added or removed higher in the sort, so it
+alternated removed/restored run to run (e.g. `FIRST EDITIONS AUCHENTOSHAN KNC CASK`, page-7
+position 2, while the store page showed it in stock the whole time).
+
+**Fix:** when extraction looks trustworthy, `discoverTotalPagesFast` now **probes page
+`extracted + 1`**. MISS → the count is exact, return it (Woo's fast path is preserved; costs one
+extra fetch, ~0.3 s). Products found → the nav is windowed, so the extracted count is discarded
+and the normal probe + `binaryFindLastOk` path runs (correctly resolves Keg N Cork to 7 / 634
+products). This is generic — any future windowed-nav store self-heals rather than silently
+under-scanning.
+
+**Diagnosing this class of bug:** compare a category's DB `live` count against a hand-scrape of
+every page. An exact match to `pageSize × N` is the tell. Note `avoidMassRemoval` does NOT catch
+it — losing one page of many stays well above the 60% floor.
+
+**Not this bug** (checked at the same time, both are genuine stock signals, leave them alone):
+Vessel's category URLs carry `filter.v.availability=1`, so items legitimately drop out of the
+listing when Shopify marks them unavailable (its 5 pages parse to 194 = its exact live count);
+ARC uses a custom API scan where `barnetItemToTracked` returns null once `on_hand` hits 0.
+
 ## Category Scan Flow (`src/tracker/`)
 
 1. `run_all.js` — schedules all stores/categories with host-level serialization (never run two categories from the same host concurrently) inside a concurrency pool.
