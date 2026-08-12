@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T14:10:31.099Z",
+  "generatedAt": "2026-08-12T16:44:05.458Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -39,7 +39,7 @@
   ],
   "totals": {
     "liveRows": 18208,
-    "removedRows": 6454,
+    "removedRows": 6455,
     "canonSkus": 5845,
     "outputCount": 1000
   },
@@ -16654,7 +16654,7 @@
         "bsw": 64.99,
         "canadianliquor": 64.88,
         "coop": 79.99,
-        "craftcellars": 81.99,
+        "craftcellars": 60.99,
         "lime": 77.99,
         "liquorama": 79.99,
         "whiskydrop": 82,
@@ -16662,22 +16662,22 @@
         "zyn": 75
       },
       "representative": {
-        "name": "OLD FORESTER 1910",
-        "price": "$64.88",
-        "priceNum": 64.88,
-        "storeKey": "canadianliquor",
-        "storeLabel": "Canadian Liquor Store",
+        "name": "Old Forester 1910 Old Fine Whiskey",
+        "price": "$60.99",
+        "priceNum": 60.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "878240",
         "skuKey": "878240",
-        "url": "https://www.canadianliquorstore.ca/products/old-forester-1911",
+        "url": "https://craftcellars.ca/products/old-forester-1910-old-fine-whiskey-46-5-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$64.88",
-        "priceNum": 64.88,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/old-forester-1911"
+        "price": "$60.99",
+        "priceNum": 60.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/old-forester-1910-old-fine-whiskey-46-5-abv"
       }
     },
     {
@@ -20867,6 +20867,62 @@
         "priceNum": 25.5,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/spirits/rum/bacardi-spiced-rum-40-abv-3/"
+      }
+    },
+    {
+      "canonSku": "107935",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "craftcellars",
+        "lime",
+        "liquorama",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "clbspirits": 126.16,
+        "craftcellars": 119.99,
+        "lime": 122,
+        "liquorama": 124.99,
+        "sierrasprings": 113.99,
+        "wineandbeyond": 120.95,
+        "zyn": 134
+      },
+      "representative": {
+        "name": "THE GLENLIVET 12 YEAR OLD 40% 1.75L",
+        "price": "$113.99",
+        "priceNum": 113.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "839776",
+        "skuKey": "839776",
+        "url": "https://sierraspringsliquor.ca/shop/world-whisky/england/the-glenlivet-12-year-old-40-1-75l/",
+        "categoryLabel": "American Whiskey",
+        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
+      },
+      "cheapest": {
+        "price": "$113.99",
+        "priceNum": 113.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/world-whisky/england/the-glenlivet-12-year-old-40-1-75l/"
       }
     },
     {
@@ -29673,61 +29729,6 @@
         "priceNum": 93.41,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/torabhaig-cnoc-na-moine"
-      }
-    },
-    {
-      "canonSku": "107935",
-      "storeCount": 7,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "lime",
-        "liquorama",
-        "sierrasprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "clbspirits": 126.16,
-        "lime": 122,
-        "liquorama": 124.99,
-        "sierrasprings": 113.99,
-        "wineandbeyond": 120.95,
-        "zyn": 134
-      },
-      "representative": {
-        "name": "THE GLENLIVET 12 YEAR OLD 40% 1.75L",
-        "price": "$113.99",
-        "priceNum": 113.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "839776",
-        "skuKey": "839776",
-        "url": "https://sierraspringsliquor.ca/shop/world-whisky/england/the-glenlivet-12-year-old-40-1-75l/",
-        "categoryLabel": "American Whiskey",
-        "dbFile": "data/db/sierrasprings__american-whiskey__caef1b48.json"
-      },
-      "cheapest": {
-        "price": "$113.99",
-        "priceNum": 113.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/world-whisky/england/the-glenlivet-12-year-old-40-1-75l/"
       }
     },
     {
@@ -53262,28 +53263,28 @@
       ],
       "storePrices": {
         "bsw": 110,
-        "craftcellars": 111.99,
+        "craftcellars": 56.99,
         "kwm": 113.99,
         "lime": 102.99,
         "whiskydrop": 85
       },
       "representative": {
         "name": "Scallywag Alberta Edition",
-        "price": "$85.00",
-        "priceNum": 85,
-        "storeKey": "whiskydrop",
-        "storeLabel": "Whisky Drop",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "899249",
         "skuKey": "899249",
-        "url": "https://www.whiskydrop.ca/products/scallywag-alberta-edition",
+        "url": "https://craftcellars.ca/products/scallywag-alberta-edition",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/whiskydrop__whisky__d5d4cd07.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$85.00",
-        "priceNum": 85,
-        "storeKey": "whiskydrop",
-        "url": "https://www.whiskydrop.ca/products/scallywag-alberta-edition"
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/scallywag-alberta-edition"
       }
     },
     {
