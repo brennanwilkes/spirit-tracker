@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T05:23:52.438Z",
+  "generatedAt": "2026-08-13T07:48:15.024Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18236,
-    "removedRows": 6444,
-    "canonSkus": 5845,
+    "liveRows": 18336,
+    "removedRows": 6452,
+    "canonSkus": 5875,
     "outputCount": 50
   },
   "rows": [
@@ -241,6 +241,71 @@
       }
     },
     {
+      "canonSku": "605063",
+      "storeCount": 17,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "whiskydrop",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "highlander",
+        "vinearts",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 41.99,
+        "canadianliquor": 41.88,
+        "clbspirits": 40.99,
+        "colordevino": 48.9,
+        "coop": 41.99,
+        "craftcellars": 46.99,
+        "kegncork": 46.96,
+        "kwm": 44.99,
+        "lime": 42.99,
+        "liquorama": 39.99,
+        "maltsandgrains": 44.28,
+        "rmwsb": 36.99,
+        "sherbrooke": 47.05,
+        "sierrasprings": 40.99,
+        "whiskydrop": 49,
+        "wineandbeyond": 43.99,
+        "zyn": 37.99
+      },
+      "representative": {
+        "name": "Buffalo Trace Kentucky Straight Bourbon Whiskey (45% ABV) 750 ML",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "rmwsb",
+        "storeLabel": "Rocky Mountain Wine Spirits Beer",
+        "skuRaw": "714233",
+        "skuKey": "714233",
+        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/buffalo-trace-bourbon/",
+        "categoryLabel": "Whiskey",
+        "dbFile": "data/db/rmwsb__whiskey__6edf884b.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "rmwsb",
+        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/buffalo-trace-bourbon/"
+      }
+    },
+    {
       "canonSku": "057706",
       "storeCount": 16,
       "stores": [
@@ -366,134 +431,6 @@
         "priceNum": 66.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/angels-envy-bourbon/"
-      }
-    },
-    {
-      "canonSku": "330803",
-      "storeCount": 16,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "kegncork",
-        "maltsandgrains",
-        "rmwsb",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 62.99,
-        "canadianliquor": 69.99,
-        "clbspirits": 55.12,
-        "colordevino": 76.7,
-        "coop": 68.99,
-        "craftcellars": 53.99,
-        "highlander": 67.99,
-        "kwm": 64.99,
-        "lime": 66.99,
-        "liquorama": 64.99,
-        "sherbrooke": 70.3,
-        "sierrasprings": 58.99,
-        "vinearts": 64.91,
-        "willowpark": 57.99,
-        "wineandbeyond": 61.99,
-        "zyn": 69
-      },
-      "representative": {
-        "name": "Bowmore 12 Year Old",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "726251",
-        "skuKey": "726251",
-        "url": "https://craftcellars.ca/products/bowmore-12-year-old-40-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/bowmore-12-year-old-40-abv"
-      }
-    },
-    {
-      "canonSku": "605063",
-      "storeCount": 16,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "liquorama",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "whiskydrop",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "highlander",
-        "maltsandgrains",
-        "vinearts",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 41.99,
-        "canadianliquor": 41.88,
-        "clbspirits": 40.99,
-        "colordevino": 48.9,
-        "coop": 41.99,
-        "craftcellars": 46.99,
-        "kegncork": 46.96,
-        "kwm": 44.99,
-        "lime": 42.99,
-        "liquorama": 39.99,
-        "rmwsb": 36.99,
-        "sherbrooke": 47.05,
-        "sierrasprings": 40.99,
-        "whiskydrop": 49,
-        "wineandbeyond": 43.99,
-        "zyn": 37.99
-      },
-      "representative": {
-        "name": "Buffalo Trace Kentucky Straight Bourbon Whiskey (45% ABV) 750 ML",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "rmwsb",
-        "storeLabel": "Rocky Mountain Wine Spirits Beer",
-        "skuRaw": "714233",
-        "skuKey": "714233",
-        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/buffalo-trace-bourbon/",
-        "categoryLabel": "Whiskey",
-        "dbFile": "data/db/rmwsb__whiskey__6edf884b.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "rmwsb",
-        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/buffalo-trace-bourbon/"
       }
     },
     {
@@ -809,6 +746,69 @@
         "priceNum": 85.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/american-whiskey/bourbon/bookers-small-batch-bourbon-750ml-63-05/"
+      }
+    },
+    {
+      "canonSku": "330803",
+      "storeCount": 15,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "kegncork",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 62.99,
+        "canadianliquor": 69.99,
+        "clbspirits": 55.12,
+        "colordevino": 76.7,
+        "coop": 68.99,
+        "craftcellars": 53.99,
+        "highlander": 67.99,
+        "kwm": 64.99,
+        "lime": 66.99,
+        "liquorama": 64.99,
+        "sherbrooke": 70.3,
+        "sierrasprings": 58.99,
+        "willowpark": 57.99,
+        "wineandbeyond": 61.99,
+        "zyn": 69
+      },
+      "representative": {
+        "name": "Bowmore 12 Year Old",
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
+        "skuRaw": "726251",
+        "skuKey": "726251",
+        "url": "https://craftcellars.ca/products/bowmore-12-year-old-40-abv",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
+      },
+      "cheapest": {
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bowmore-12-year-old-40-abv"
       }
     },
     {
