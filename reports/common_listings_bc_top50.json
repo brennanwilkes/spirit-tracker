@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T16:32:25.430Z",
+  "generatedAt": "2026-08-14T19:15:50.910Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6410,
-    "removedRows": 935,
-    "canonSkus": 2524,
+    "liveRows": 6420,
+    "removedRows": 927,
+    "canonSkus": 2526,
     "outputCount": 50
   },
   "rows": [
@@ -666,7 +666,7 @@
         "everythingwine": 89.99,
         "gull": 69.99,
         "highpointbws": 111.99,
-        "legacyliquor": 109.83,
+        "legacyliquor": 93.68,
         "liberty": 134.99,
         "liquorwarehouse": 100.99,
         "marquis": 91.99,
@@ -2426,6 +2426,58 @@
       }
     },
     {
+      "canonSku": "546366",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 68.89,
+        "bcl": 67.99,
+        "everythingwine": 67.99,
+        "gull": 71.65,
+        "highpointbws": 74.99,
+        "legacyliquor": 74.99,
+        "marquis": 69.99,
+        "newdistrict": 71.79,
+        "tudor": 67.99,
+        "vessel": 69.99
+      },
+      "representative": {
+        "name": "NIKKA - FROM THE BARREL",
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "546366",
+        "skuKey": "546366",
+        "url": "https://www.bcliquorstores.com/product/546366",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
       "canonSku": "002478",
       "storeCount": 9,
       "stores": [
@@ -2627,57 +2679,6 @@
         "priceNum": 29.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/52050"
-      }
-    },
-    {
-      "canonSku": "546366",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "tudor"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 68.89,
-        "bcl": 67.99,
-        "everythingwine": 67.99,
-        "gull": 71.65,
-        "highpointbws": 74.99,
-        "legacyliquor": 74.99,
-        "marquis": 69.99,
-        "newdistrict": 71.79,
-        "tudor": 67.99
-      },
-      "representative": {
-        "name": "NIKKA - FROM THE BARREL",
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "546366",
-        "skuKey": "546366",
-        "url": "https://www.bcliquorstores.com/product/546366",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$67.99",
-        "priceNum": 67.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/546366"
       }
     }
   ]
