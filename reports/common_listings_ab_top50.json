@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-16T04:22:05.535Z",
+  "generatedAt": "2026-08-16T06:45:54.703Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -38,9 +38,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18293,
-    "removedRows": 6550,
-    "canonSkus": 5858,
+    "liveRows": 18302,
+    "removedRows": 6556,
+    "canonSkus": 5857,
     "outputCount": 50
   },
   "rows": [
@@ -396,7 +396,7 @@
       ],
       "storePrices": {
         "bsw": 54.99,
-        "canadianliquor": 74.99,
+        "canadianliquor": 54.88,
         "clbspirits": 72.85,
         "coop": 79.99,
         "craftcellars": 57.99,
@@ -413,22 +413,86 @@
         "zyn": 76
       },
       "representative": {
-        "name": "Bruichladdich The Classic Laddie Scottish Barley",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Bruichladdich Classic Laddie 750ml",
+        "price": "$54.88",
+        "priceNum": 54.88,
+        "storeKey": "canadianliquor",
+        "storeLabel": "Canadian Liquor Store",
         "skuRaw": "761474",
         "skuKey": "761474",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://www.canadianliquorstore.ca/products/bruichladdich-classic-laddie",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/canadianliquor__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/bruichladdich-classic-laddie"
+        "price": "$54.88",
+        "priceNum": 54.88,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/bruichladdich-classic-laddie"
+      }
+    },
+    {
+      "canonSku": "387316",
+      "storeCount": 16,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "craftcellars",
+        "highlander",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "sherbrooke",
+        "sierrasprings",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "coop",
+        "kegncork",
+        "rmwsb",
+        "vinearts"
+      ],
+      "storePrices": {
+        "bsw": 89.99,
+        "canadianliquor": 97.99,
+        "clbspirits": 89.52,
+        "colordevino": 106.8,
+        "craftcellars": 101.99,
+        "highlander": 79.99,
+        "kwm": 77.24,
+        "lime": 93.99,
+        "liquorama": 94.99,
+        "maltsandgrains": 104.87,
+        "sherbrooke": 103,
+        "sierrasprings": 76.99,
+        "whiskydrop": 106.5,
+        "willowpark": 96.99,
+        "wineandbeyond": 83.95,
+        "zyn": 97
+      },
+      "representative": {
+        "name": "BALVENIE DOUBLEWOOD 12 YR. OLD 40% | 750ML",
+        "price": "$76.99",
+        "priceNum": 76.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "387316",
+        "skuKey": "387316",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/balvenie-doublewood-12-years-40-abv/",
+        "categoryLabel": "Scotch Whisky / Single Malt",
+        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
+      },
+      "cheapest": {
+        "price": "$76.99",
+        "priceNum": 76.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/balvenie-doublewood-12-years-40-abv/"
       }
     },
     {
@@ -873,69 +937,6 @@
       }
     },
     {
-      "canonSku": "387316",
-      "storeCount": 15,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "craftcellars",
-        "highlander",
-        "kwm",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "coop",
-        "kegncork",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 89.99,
-        "canadianliquor": 97.99,
-        "clbspirits": 89.52,
-        "colordevino": 106.8,
-        "craftcellars": 101.99,
-        "highlander": 79.99,
-        "kwm": 77.24,
-        "lime": 93.99,
-        "liquorama": 94.99,
-        "maltsandgrains": 104.87,
-        "sherbrooke": 103,
-        "sierrasprings": 76.99,
-        "willowpark": 96.99,
-        "wineandbeyond": 83.95,
-        "zyn": 97
-      },
-      "representative": {
-        "name": "BALVENIE DOUBLEWOOD 12 YR. OLD 40% | 750ML",
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "387316",
-        "skuKey": "387316",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/balvenie-doublewood-12-years-40-abv/",
-        "categoryLabel": "Scotch Whisky / Single Malt",
-        "dbFile": "data/db/sierrasprings__scotch-whisky-single-malt__58b19452.json"
-      },
-      "cheapest": {
-        "price": "$76.99",
-        "priceNum": 76.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/balvenie-doublewood-12-years-40-abv/"
-      }
-    },
-    {
       "canonSku": "410910",
       "storeCount": 15,
       "stores": [
@@ -1059,69 +1060,6 @@
         "priceNum": 69.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/old-forester-whiskey-row-1920"
-      }
-    },
-    {
-      "canonSku": "560474",
-      "storeCount": 15,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "sierrasprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "maltsandgrains",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 86.99,
-        "canadianliquor": 94.99,
-        "clbspirits": 74.9,
-        "coop": 99.99,
-        "craftcellars": 79.99,
-        "highlander": 99.99,
-        "kegncork": 99.96,
-        "kwm": 69.99,
-        "lime": 90,
-        "liquorama": 91.99,
-        "sherbrooke": 101.1,
-        "sierrasprings": 80.99,
-        "willowpark": 94.99,
-        "wineandbeyond": 89.99,
-        "zyn": 95
-      },
-      "representative": {
-        "name": "Ardbeg 10 Year",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "kwm",
-        "storeLabel": "Kensington Wine Market",
-        "skuRaw": "560474",
-        "skuKey": "560474",
-        "url": "https://kensingtonwinemarket.com/product/560474/ardbeg-10-year",
-        "categoryLabel": "Scotch",
-        "dbFile": "data/db/kwm__scotch__2b16b533.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "kwm",
-        "url": "https://kensingtonwinemarket.com/product/560474/ardbeg-10-year"
       }
     },
     {
@@ -1556,6 +1494,68 @@
         "priceNum": 55.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/world-whisky/japanese/nikka-from-the-barrel-51-4-alc-vol/"
+      }
+    },
+    {
+      "canonSku": "560474",
+      "storeCount": 14,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "lime",
+        "liquorama",
+        "sherbrooke",
+        "sierrasprings",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "kwm",
+        "maltsandgrains",
+        "rmwsb",
+        "vinearts",
+        "whiskydrop"
+      ],
+      "storePrices": {
+        "bsw": 86.99,
+        "canadianliquor": 94.99,
+        "clbspirits": 74.9,
+        "coop": 99.99,
+        "craftcellars": 79.99,
+        "highlander": 99.99,
+        "kegncork": 99.96,
+        "lime": 90,
+        "liquorama": 91.99,
+        "sherbrooke": 101.1,
+        "sierrasprings": 80.99,
+        "willowpark": 94.99,
+        "wineandbeyond": 89.99,
+        "zyn": 95
+      },
+      "representative": {
+        "name": "Ardbeg 10 Year Old 750ml",
+        "price": "$74.90",
+        "priceNum": 74.9,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "560474",
+        "skuKey": "560474",
+        "url": "https://clbspirits.com/products/ardbeg-10-year-old-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$74.90",
+        "priceNum": 74.9,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/ardbeg-10-year-old-1"
       }
     },
     {
