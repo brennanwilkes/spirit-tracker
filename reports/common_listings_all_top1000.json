@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-21T18:56:04.918Z",
+  "generatedAt": "2026-08-21T22:00:44.050Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -52,9 +52,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 24663,
-    "removedRows": 7667,
-    "canonSkus": 6803,
+    "liveRows": 24658,
+    "removedRows": 7673,
+    "canonSkus": 6800,
     "outputCount": 1000
   },
   "rows": [
@@ -1690,7 +1690,7 @@
         "maltsandgrains": 96.23,
         "marquis": 94.99,
         "newdistrict": 97.99,
-        "sierrasprings": 85,
+        "sierrasprings": 75.99,
         "strath": 93.27,
         "tudor": 92.99,
         "vessel": 89.99,
@@ -5361,7 +5361,7 @@
         "maltsandgrains": 29.03,
         "newdistrict": 25.29,
         "sherbrooke": 30.06,
-        "sierrasprings": 24.99,
+        "sierrasprings": 28.99,
         "tudor": 21.99,
         "vessel": 22.49,
         "vintage": 25.13,
@@ -19822,82 +19822,6 @@
       }
     },
     {
-      "canonSku": "110475",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "legacyliquor",
-        "lime",
-        "liquorwarehouse",
-        "tudor",
-        "whiskydrop",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "bcl",
-        "colordevino",
-        "everythingwine",
-        "gull",
-        "highlander",
-        "highpointbws",
-        "kwm",
-        "liberty",
-        "liquorama",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "vessel",
-        "vinearts",
-        "vintage",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 96.99,
-        "bsw": 99.99,
-        "canadianliquor": 95.99,
-        "clbspirits": 80.2,
-        "coop": 94.99,
-        "craftcellars": 49.99,
-        "kegncork": 99.96,
-        "legacyliquor": 138.99,
-        "lime": 94.99,
-        "liquorwarehouse": 114.99,
-        "tudor": 119.99,
-        "whiskydrop": 85,
-        "wineandbeyond": 90.99,
-        "zyn": 96
-      },
-      "representative": {
-        "name": "Smokehead Rum Rebel Islay Single Malt",
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "882443",
-        "skuKey": "882443",
-        "url": "https://craftcellars.ca/products/smokehead-rum-rebel-islay-single-malt-46-abv",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
-      },
-      "cheapest": {
-        "price": "$49.99",
-        "priceNum": 49.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/smokehead-rum-rebel-islay-single-malt-46-abv"
-      }
-    },
-    {
       "canonSku": "113606",
       "storeCount": 14,
       "stores": [
@@ -23378,6 +23302,81 @@
       }
     },
     {
+      "canonSku": "110475",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "kegncork",
+        "legacyliquor",
+        "lime",
+        "liquorwarehouse",
+        "tudor",
+        "whiskydrop",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "bcl",
+        "colordevino",
+        "craftcellars",
+        "everythingwine",
+        "gull",
+        "highlander",
+        "highpointbws",
+        "kwm",
+        "liberty",
+        "liquorama",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "vessel",
+        "vinearts",
+        "vintage",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 96.99,
+        "bsw": 99.99,
+        "canadianliquor": 95.99,
+        "clbspirits": 80.2,
+        "coop": 94.99,
+        "kegncork": 99.96,
+        "legacyliquor": 138.99,
+        "lime": 94.99,
+        "liquorwarehouse": 114.99,
+        "tudor": 119.99,
+        "whiskydrop": 85,
+        "wineandbeyond": 90.99,
+        "zyn": 96
+      },
+      "representative": {
+        "name": "Smokehead Rum Cask Rebel 46 ABV 700ml",
+        "price": "$80.20",
+        "priceNum": 80.2,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "845153",
+        "skuKey": "845153",
+        "url": "https://clbspirits.com/products/smokehead-rum-rebel",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$80.20",
+        "priceNum": 80.2,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/smokehead-rum-rebel"
+      }
+    },
+    {
       "canonSku": "110703",
       "storeCount": 13,
       "stores": [
@@ -23825,81 +23824,6 @@
         "priceNum": 84.58,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/edradour-10-year-old-1"
-      }
-    },
-    {
-      "canonSku": "133663",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "everythingwine",
-        "highpointbws",
-        "kwm",
-        "liberty",
-        "lime",
-        "liquorwarehouse",
-        "willowpark",
-        "wineandbeyond"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "craftcellars",
-        "gull",
-        "highlander",
-        "kegncork",
-        "legacyliquor",
-        "liquorama",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "strath",
-        "tudor",
-        "vessel",
-        "vinearts",
-        "vintage",
-        "whiskydrop",
-        "zyn"
-      ],
-      "storePrices": {
-        "bsw": 102,
-        "canadianliquor": 79.77,
-        "clbspirits": 91.25,
-        "colordevino": 101,
-        "coop": 104.99,
-        "everythingwine": 123.98,
-        "highpointbws": 106.29,
-        "kwm": 104.99,
-        "liberty": 137.99,
-        "lime": 94.99,
-        "liquorwarehouse": 118.99,
-        "willowpark": 98.49,
-        "wineandbeyond": 97.99
-      },
-      "representative": {
-        "name": "Lismore 15 Year Old 700ml",
-        "price": "$91.25",
-        "priceNum": 91.25,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "789146",
-        "skuKey": "789146",
-        "url": "https://clbspirits.com/products/lismore-15-year-old-1",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$79.77",
-        "priceNum": 79.77,
-        "storeKey": "canadianliquor",
-        "url": "https://www.canadianliquorstore.ca/products/lismore-15-year-old-single-malt-scotch-whisky-without-tube"
       }
     },
     {
@@ -28675,6 +28599,80 @@
         "priceNum": 34.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/459245"
+      }
+    },
+    {
+      "canonSku": "133663",
+      "storeCount": 12,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "coop",
+        "everythingwine",
+        "highpointbws",
+        "kwm",
+        "liberty",
+        "lime",
+        "liquorwarehouse",
+        "willowpark",
+        "wineandbeyond"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "colordevino",
+        "craftcellars",
+        "gull",
+        "highlander",
+        "kegncork",
+        "legacyliquor",
+        "liquorama",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "vinearts",
+        "vintage",
+        "whiskydrop",
+        "zyn"
+      ],
+      "storePrices": {
+        "bsw": 102,
+        "canadianliquor": 79.77,
+        "clbspirits": 91.25,
+        "coop": 104.99,
+        "everythingwine": 123.98,
+        "highpointbws": 106.29,
+        "kwm": 104.99,
+        "liberty": 137.99,
+        "lime": 94.99,
+        "liquorwarehouse": 118.99,
+        "willowpark": 98.49,
+        "wineandbeyond": 97.99
+      },
+      "representative": {
+        "name": "Lismore 15 Year Old 700ml",
+        "price": "$91.25",
+        "priceNum": 91.25,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "789146",
+        "skuKey": "789146",
+        "url": "https://clbspirits.com/products/lismore-15-year-old-1",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$79.77",
+        "priceNum": 79.77,
+        "storeKey": "canadianliquor",
+        "url": "https://www.canadianliquorstore.ca/products/lismore-15-year-old-single-malt-scotch-whisky-without-tube"
       }
     },
     {
@@ -34850,79 +34848,6 @@
       }
     },
     {
-      "canonSku": "253334",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bsw",
-        "clbspirits",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liberty",
-        "lime",
-        "sierrasprings",
-        "vinearts",
-        "vintage"
-      ],
-      "missingStores": [
-        "bcl",
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "highlander",
-        "highpointbws",
-        "kegncork",
-        "kwm",
-        "liquorama",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "marquis",
-        "newdistrict",
-        "rmwsb",
-        "sherbrooke",
-        "strath",
-        "tudor",
-        "vessel",
-        "whiskydrop",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "storePrices": {
-        "arc": 103.09,
-        "bsw": 79.99,
-        "clbspirits": 66.4,
-        "everythingwine": 108.98,
-        "gull": 96.05,
-        "legacyliquor": 104.63,
-        "liberty": 129.99,
-        "lime": 75.99,
-        "sierrasprings": 70.37,
-        "vinearts": 75.49,
-        "vintage": 105.57
-      },
-      "representative": {
-        "name": "Worthy Park Single Estate Reserve 750ml",
-        "price": "$66.40",
-        "priceNum": 66.4,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "884863",
-        "skuKey": "884863",
-        "url": "https://clbspirits.com/products/worthy-park-single-estate-reserve",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$66.40",
-        "priceNum": 66.4,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/worthy-park-single-estate-reserve"
-      }
-    },
-    {
       "canonSku": "308083",
       "storeCount": 11,
       "stores": [
@@ -40713,6 +40638,78 @@
         "priceNum": 96.71,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/poli-segretario-di-sato-pure-malt-whisk"
+      }
+    },
+    {
+      "canonSku": "253334",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bsw",
+        "clbspirits",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liberty",
+        "lime",
+        "vinearts",
+        "vintage"
+      ],
+      "missingStores": [
+        "bcl",
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "highpointbws",
+        "kegncork",
+        "kwm",
+        "liquorama",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "marquis",
+        "newdistrict",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "strath",
+        "tudor",
+        "vessel",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "storePrices": {
+        "arc": 103.09,
+        "bsw": 79.99,
+        "clbspirits": 66.4,
+        "everythingwine": 108.98,
+        "gull": 96.05,
+        "legacyliquor": 104.63,
+        "liberty": 129.99,
+        "lime": 75.99,
+        "vinearts": 75.49,
+        "vintage": 105.57
+      },
+      "representative": {
+        "name": "Worthy Park Single Estate Reserve 750ml",
+        "price": "$66.40",
+        "priceNum": 66.4,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "884863",
+        "skuKey": "884863",
+        "url": "https://clbspirits.com/products/worthy-park-single-estate-reserve",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/clbspirits__rum__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$66.40",
+        "priceNum": 66.4,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/worthy-park-single-estate-reserve"
       }
     },
     {
