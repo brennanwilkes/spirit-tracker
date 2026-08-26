@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-26T04:24:50.267Z",
+  "generatedAt": "2026-08-26T06:49:55.909Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_bc_top50.json",
-      "cutoffStoreCount": 10
+      "cutoffStoreCount": 9
     }
   },
   "storeCount": 14,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6389,
-    "removedRows": 998,
+    "liveRows": 6379,
+    "removedRows": 1009,
     "canonSkus": 2505,
     "outputCount": 50
   },
@@ -2111,58 +2111,6 @@
       }
     },
     {
-      "canonSku": "263304",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 29.99,
-        "bcl": 31.99,
-        "everythingwine": 31.99,
-        "gull": 33.8,
-        "highpointbws": 33.99,
-        "legacyliquor": 32.99,
-        "liquorwarehouse": 32.99,
-        "strath": 32.96,
-        "tudor": 32.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "JP WISERS 10YO",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "263304",
-        "skuKey": "263304",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587820-jp-wisers-10yo",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587820-jp-wisers-10yo"
-      }
-    },
-    {
       "canonSku": "281451",
       "storeCount": 10,
       "stores": [
@@ -2673,6 +2621,57 @@
         "priceNum": 32.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/199455"
+      }
+    },
+    {
+      "canonSku": "263304",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 29.99,
+        "bcl": 31.99,
+        "everythingwine": 31.99,
+        "gull": 33.8,
+        "highpointbws": 33.99,
+        "liquorwarehouse": 32.99,
+        "strath": 32.96,
+        "tudor": 32.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "JP WISERS 10YO",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "263304",
+        "skuKey": "263304",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587820-jp-wisers-10yo",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587820-jp-wisers-10yo"
       }
     }
   ]
