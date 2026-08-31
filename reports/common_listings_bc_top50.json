@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-31T17:15:41.833Z",
+  "generatedAt": "2026-08-31T22:48:48.632Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6369,
-    "removedRows": 1031,
-    "canonSkus": 2501,
+    "liveRows": 6375,
+    "removedRows": 1028,
+    "canonSkus": 2499,
     "outputCount": 50
   },
   "rows": [
@@ -62,7 +62,7 @@
         "arc": 37.99,
         "bcl": 39.99,
         "everythingwine": 37.99,
-        "gull": 38.6,
+        "gull": 36.99,
         "highpointbws": 41.49,
         "legacyliquor": 41.99,
         "liberty": 46.99,
@@ -75,22 +75,22 @@
         "vintage": 42.52
       },
       "representative": {
-        "name": "JAMESON WHISKEY 750ML",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
+        "name": "Jameson – Irish 750ml",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
         "skuRaw": "010157",
         "skuKey": "010157",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586031-jameson-whiskey-750ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+        "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
       },
       "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586031-jameson-whiskey-750ml"
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/"
       }
     },
     {
@@ -201,6 +201,61 @@
         "priceNum": 27.99,
         "storeKey": "everythingwine",
         "url": "https://www.everythingwine.ca/crown-royal-whisky-750-ml"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 28.59,
+        "bcl": 29.99,
+        "everythingwine": 29.49,
+        "gull": 31.7,
+        "highpointbws": 32.29,
+        "legacyliquor": 30.99,
+        "liberty": 37.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 31.79,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 31.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "Tanqueray London Dry Gin 750ML",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/tudor__gin__26c75caf.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
       }
     },
     {
@@ -474,60 +529,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 28.59,
-        "bcl": 29.99,
-        "everythingwine": 29.49,
-        "gull": 31.7,
-        "highpointbws": 32.29,
-        "legacyliquor": 30.99,
-        "liberty": 37.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 31.79,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "Tanqueray London Dry Gin 750ML",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
       }
     },
     {
