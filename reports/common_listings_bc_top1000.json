@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T18:51:54.731Z",
+  "generatedAt": "2026-09-01T20:55:40.868Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -33,8 +33,8 @@
   ],
   "totals": {
     "liveRows": 6638,
-    "removedRows": 1028,
-    "canonSkus": 2608,
+    "removedRows": 1029,
+    "canonSkus": 2611,
     "outputCount": 1000
   },
   "rows": [
@@ -178,7 +178,7 @@
         "legacyliquor": 31.99,
         "liberty": 38.99,
         "liquorwarehouse": 30.99,
-        "marquis": 30.99,
+        "marquis": 31.99,
         "newdistrict": 32.49,
         "strath": 31.31,
         "tudor": 27.99,
@@ -1152,7 +1152,7 @@
         "highpointbws": 69.99,
         "legacyliquor": 67.99,
         "liquorwarehouse": 65.99,
-        "marquis": 66.99,
+        "marquis": 67.99,
         "newdistrict": 69.49,
         "tudor": 61.99,
         "vessel": 63.99
@@ -5903,56 +5903,6 @@
       }
     },
     {
-      "canonSku": "054213",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 56.59,
-        "bcl": 54.99,
-        "gull": 57.3,
-        "highpointbws": 58.29,
-        "legacyliquor": 57.31,
-        "liquorwarehouse": 55.49,
-        "tudor": 50.99,
-        "vessel": 52.49
-      },
-      "representative": {
-        "name": "Alberta Premium Rye Whisky 1.75L",
-        "price": "$50.99",
-        "priceNum": 50.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "054213",
-        "skuKey": "054213",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380?variant=54213",
-        "categoryLabel": "Whiskey / Scotch",
-        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
-      },
-      "cheapest": {
-        "price": "$50.99",
-        "priceNum": 50.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380?variant=54213"
-      }
-    },
-    {
       "canonSku": "061374",
       "storeCount": 8,
       "stores": [
@@ -6081,25 +6031,25 @@
         "legacyliquor": 41.99,
         "liquorwarehouse": 41.99,
         "tudor": 39.99,
-        "vessel": 39.99
+        "vessel": 37.99
       },
       "representative": {
-        "name": "TULLAMORE DEW",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
+        "name": "Tullamore DEW - Irish Whiskey",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
         "skuRaw": "071746",
         "skuKey": "071746",
-        "url": "https://www.bcliquorstores.com/product/71746",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
+        "url": "https://vesselliquor.com/products/tullamore-dew-irish-whiskey",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/71746"
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/tullamore-dew-irish-whiskey"
       }
     },
     {
@@ -7903,6 +7853,56 @@
       }
     },
     {
+      "canonSku": "956953",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "newdistrict",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 73.29,
+        "everythingwine": 73.98,
+        "gull": 78.25,
+        "highpointbws": 82.79,
+        "legacyliquor": 85.99,
+        "liberty": 94.99,
+        "newdistrict": 78.29,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "OK SPIRITS BRBN",
+        "price": "$73.29",
+        "priceNum": 73.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "956953",
+        "skuKey": "956953",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-ok-spirits-brbn",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$73.29",
+        "priceNum": 73.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-ok-spirits-brbn"
+      }
+    },
+    {
       "canonSku": "000042",
       "storeCount": 7,
       "stores": [
@@ -8586,6 +8586,55 @@
         "priceNum": 39.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/35238"
+      }
+    },
+    {
+      "canonSku": "054213",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "gull",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 56.59,
+        "bcl": 54.99,
+        "highpointbws": 58.29,
+        "legacyliquor": 57.31,
+        "liquorwarehouse": 55.49,
+        "tudor": 50.99,
+        "vessel": 52.49
+      },
+      "representative": {
+        "name": "Alberta Premium Rye Whisky 1.75L",
+        "price": "$50.99",
+        "priceNum": 50.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "054213",
+        "skuKey": "054213",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380?variant=54213",
+        "categoryLabel": "Whiskey / Scotch",
+        "dbFile": "data/db/tudor__whiskey-scotch__3d94e21e.json"
+      },
+      "cheapest": {
+        "price": "$50.99",
+        "priceNum": 50.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/alberta-premium-l-380?variant=54213"
       }
     },
     {
@@ -9860,55 +9909,6 @@
         "priceNum": 163.79,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4587787-redbreast-15yo"
-      }
-    },
-    {
-      "canonSku": "313227",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "strath"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 78.99,
-        "bcl": 94.99,
-        "everythingwine": 94.99,
-        "gull": 97.99,
-        "highpointbws": 97.99,
-        "liberty": 124.99,
-        "strath": 78.4
-      },
-      "representative": {
-        "name": "Macaloney's Island Distillery - Cath-Na-Aven",
-        "price": "$78.40",
-        "priceNum": 78.4,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "313227",
-        "skuKey": "313227",
-        "url": "https://www.strathliquor.com/product/macaloneys-island-distillery-cath-na-aven/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$78.40",
-        "priceNum": 78.4,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/macaloneys-island-distillery-cath-na-aven/"
       }
     },
     {
@@ -13587,6 +13587,54 @@
       }
     },
     {
+      "canonSku": "313227",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "strath"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 94.99,
+        "everythingwine": 94.99,
+        "gull": 97.99,
+        "highpointbws": 97.99,
+        "liberty": 124.99,
+        "strath": 78.4
+      },
+      "representative": {
+        "name": "Macaloney's Island Distillery - Cath-Na-Aven",
+        "price": "$78.40",
+        "priceNum": 78.4,
+        "storeKey": "strath",
+        "storeLabel": "Strath Liquor",
+        "skuRaw": "313227",
+        "skuKey": "313227",
+        "url": "https://www.strathliquor.com/product/macaloneys-island-distillery-cath-na-aven/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
+      },
+      "cheapest": {
+        "price": "$78.40",
+        "priceNum": 78.4,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/macaloneys-island-distillery-cath-na-aven/"
+      }
+    },
+    {
       "canonSku": "325993",
       "storeCount": 6,
       "stores": [
@@ -15459,54 +15507,6 @@
       }
     },
     {
-      "canonSku": "956953",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "everythingwine",
-        "highpointbws",
-        "liberty",
-        "newdistrict",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 73.29,
-        "everythingwine": 73.98,
-        "highpointbws": 82.79,
-        "liberty": 94.99,
-        "newdistrict": 78.29,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "OK SPIRITS BRBN",
-        "price": "$73.29",
-        "priceNum": 73.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "956953",
-        "skuKey": "956953",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-ok-spirits-brbn",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$73.29",
-        "priceNum": 73.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-ok-spirits-brbn"
-      }
-    },
-    {
       "canonSku": "000935",
       "storeCount": 5,
       "stores": [
@@ -16961,53 +16961,6 @@
         "priceNum": 285,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/423296"
-      }
-    },
-    {
-      "canonSku": "105946",
-      "storeCount": 5,
-      "stores": [
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "everythingwine": 62.98,
-        "gull": 59.4,
-        "highpointbws": 59.99,
-        "legacyliquor": 64.99,
-        "tudor": 59.99
-      },
-      "representative": {
-        "name": "Drumshanbo – Gunpowder Irish Gin Sardinian Citrus 700ml",
-        "price": "$59.40",
-        "priceNum": 59.4,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "250095",
-        "skuKey": "250095",
-        "url": "https://gullliquorstore.com/product/drumshanbo-gun-gin-700m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$59.40",
-        "priceNum": 59.4,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/drumshanbo-gun-gin-700m/"
       }
     },
     {
@@ -22060,6 +22013,52 @@
         "priceNum": 16.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/bacardi-spiced-rum-ml-360?variant=105794"
+      }
+    },
+    {
+      "canonSku": "105946",
+      "storeCount": 4,
+      "stores": [
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "everythingwine": 62.98,
+        "gull": 59.4,
+        "highpointbws": 59.99,
+        "tudor": 59.99
+      },
+      "representative": {
+        "name": "Drumshanbo – Gunpowder Irish Gin Sardinian Citrus 700ml",
+        "price": "$59.40",
+        "priceNum": 59.4,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "250095",
+        "skuKey": "250095",
+        "url": "https://gullliquorstore.com/product/drumshanbo-gun-gin-700m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$59.40",
+        "priceNum": 59.4,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/drumshanbo-gun-gin-700m/"
       }
     },
     {
@@ -33025,51 +33024,6 @@
         "priceNum": 149.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/glen-scotia-2462-2-700m/"
-      }
-    },
-    {
-      "canonSku": "282046",
-      "storeCount": 3,
-      "stores": [
-        "arc",
-        "bcl",
-        "tudor"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 78.99,
-        "bcl": 79.99,
-        "tudor": 79.99
-      },
-      "representative": {
-        "name": "HAVANA CLUB SELECCION DE MAESTROS",
-        "price": "$78.99",
-        "priceNum": 78.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "282046",
-        "skuKey": "282046",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4703510-havana-club-seleccion-de-maestros",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$78.99",
-        "priceNum": 78.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4703510-havana-club-seleccion-de-maestros"
       }
     },
     {
@@ -44660,6 +44614,50 @@
       }
     },
     {
+      "canonSku": "282046",
+      "storeCount": 2,
+      "stores": [
+        "arc",
+        "tudor"
+      ],
+      "missingStores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 78.99,
+        "tudor": 79.99
+      },
+      "representative": {
+        "name": "HAVANA CLUB SELECCION DE MAESTROS",
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "282046",
+        "skuKey": "282046",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4703510-havana-club-seleccion-de-maestros",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$78.99",
+        "priceNum": 78.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4703510-havana-club-seleccion-de-maestros"
+      }
+    },
+    {
       "canonSku": "282277",
       "storeCount": 2,
       "stores": [
@@ -45429,13 +45427,13 @@
         "vintage"
       ],
       "storePrices": {
-        "arc": 482.99,
+        "arc": 417.99,
         "tudor": 519.99
       },
       "representative": {
         "name": "AMRUT LITTLE GREEDY ANGEL 8YO",
-        "price": "$482.99",
-        "priceNum": 482.99,
+        "price": "$417.99",
+        "priceNum": 417.99,
         "storeKey": "arc",
         "storeLabel": "ARC Liquor",
         "skuRaw": "374986",
@@ -45445,8 +45443,8 @@
         "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
       },
       "cheapest": {
-        "price": "$482.99",
-        "priceNum": 482.99,
+        "price": "$417.99",
+        "priceNum": 417.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588799-amrut-little-greedy-angel-8yo"
       }
