@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T18:35:35.091Z",
+  "generatedAt": "2026-09-04T20:38:57.566Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6643,
-    "removedRows": 1099,
-    "canonSkus": 2610,
+    "liveRows": 6650,
+    "removedRows": 1100,
+    "canonSkus": 2608,
     "outputCount": 250
   },
   "rows": [
@@ -1859,6 +1859,58 @@
       }
     },
     {
+      "canonSku": "074548",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liberty",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 60.99,
+        "bcl": 74.99,
+        "everythingwine": 74.99,
+        "gull": 73.99,
+        "legacyliquor": 77.99,
+        "liberty": 98.99,
+        "newdistrict": 74.79,
+        "strath": 71.79,
+        "tudor": 74.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "BENROMACH 10YO",
+        "price": "$60.99",
+        "priceNum": 60.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "074548",
+        "skuKey": "074548",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$60.99",
+        "priceNum": 60.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4614856-benromach-10yo"
+      }
+    },
+    {
       "canonSku": "108649",
       "storeCount": 10,
       "stores": [
@@ -2012,6 +2064,58 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "185921",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 66.39,
+        "bcl": 62.99,
+        "everythingwine": 62.99,
+        "gull": 71.4,
+        "highpointbws": 70.99,
+        "legacyliquor": 70.43,
+        "liquorwarehouse": 68.49,
+        "strath": 70.78,
+        "tudor": 66.99,
+        "vessel": 64.99
+      },
+      "representative": {
+        "name": "BUMBU - X0 RUM",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "185921",
+        "skuKey": "185921",
+        "url": "https://www.bcliquorstores.com/product/185921",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/185921"
       }
     },
     {
@@ -3921,57 +4025,6 @@
       }
     },
     {
-      "canonSku": "074548",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liberty",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 74.99,
-        "everythingwine": 74.99,
-        "gull": 73.99,
-        "legacyliquor": 77.99,
-        "liberty": 98.99,
-        "newdistrict": 74.79,
-        "strath": 71.79,
-        "tudor": 74.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "Benromach – 10 Years Old 750ml",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "074548",
-        "skuKey": "074548",
-        "url": "https://gullliquorstore.com/product/benromach-10-year-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$71.79",
-        "priceNum": 71.79,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/benromach-aged-10-years/"
-      }
-    },
-    {
       "canonSku": "103778",
       "storeCount": 9,
       "stores": [
@@ -4479,57 +4532,6 @@
         "priceNum": 28.49,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/177808"
-      }
-    },
-    {
-      "canonSku": "185921",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 62.99,
-        "everythingwine": 62.99,
-        "gull": 71.4,
-        "highpointbws": 70.99,
-        "legacyliquor": 70.43,
-        "liquorwarehouse": 68.49,
-        "strath": 70.78,
-        "tudor": 66.99,
-        "vessel": 64.99
-      },
-      "representative": {
-        "name": "BUMBU - X0 RUM",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "185921",
-        "skuKey": "185921",
-        "url": "https://www.bcliquorstores.com/product/185921",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/185921"
       }
     },
     {
@@ -9227,55 +9229,6 @@
       }
     },
     {
-      "canonSku": "113606",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 44.39,
-        "bcl": 39.99,
-        "gull": 46.2,
-        "highpointbws": 51.99,
-        "legacyliquor": 50.34,
-        "strath": 47.83,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "ALBERTA PREMIUM - BATCH 10 LEGACY RESERVE",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "304715",
-        "skuKey": "304715",
-        "url": "https://www.bcliquorstores.com/product/304715",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/304715"
-      }
-    },
-    {
       "canonSku": "115491",
       "storeCount": 7,
       "stores": [
@@ -10380,7 +10333,7 @@
         "highpointbws": 69.99,
         "legacyliquor": 66.19,
         "strath": 63.53,
-        "tudor": 62.99,
+        "tudor": 59.99,
         "vessel": 59.99
       },
       "representative": {
@@ -11203,7 +11156,7 @@
         "gull": 57.8,
         "legacyliquor": 66.39,
         "strath": 61.87,
-        "tudor": 64.99
+        "tudor": 60.99
       },
       "representative": {
         "name": "Tamnavulin – Double Cask Speyside Single Malt Scotch Whisky 750ml",
@@ -11318,6 +11271,54 @@
         "priceNum": 24.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/112433"
+      }
+    },
+    {
+      "canonSku": "113606",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "highpointbws",
+        "legacyliquor",
+        "strath",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "gull",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 44.39,
+        "bcl": 39.99,
+        "highpointbws": 51.99,
+        "legacyliquor": 50.34,
+        "strath": 47.83,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "ALBERTA PREMIUM - BATCH 10 LEGACY RESERVE",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "304715",
+        "skuKey": "304715",
+        "url": "https://www.bcliquorstores.com/product/304715",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/304715"
       }
     },
     {
