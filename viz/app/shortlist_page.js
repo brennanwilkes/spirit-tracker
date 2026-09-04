@@ -1439,7 +1439,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const filterCollapse = installFilterCollapse({
 		$toggle: document.querySelector(".filterToggle"),
 		$panel: document.querySelector(".slFilters"),
-		pageKey: "shortlist",
 		summarize: () => {
 			const parts = [];
 

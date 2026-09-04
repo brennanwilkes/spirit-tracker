@@ -380,6 +380,20 @@ for (const s of STORES) {
 	s.cities = CITY_BY_STORE[s.id] || [];
 }
 
+// ── Favourite stores ────────────────────────────────────────────────────────
+// The shops actually worth checking (good selection / fair pricing), as opposed
+// to the ones tracked only for coverage. Purely a presentation signal — nothing
+// about scraping, scoring or alerts reads this.
+export const FAVOURITE_STORE_IDS = new Set([
+	"strath",
+	"vessel",
+	"kwm",
+	"gull",
+	"legacyliquor",
+	"kegncork",
+	"maltsandgrains",
+]);
+
 // ── Lookup helpers ──────────────────────────────────────────────────────────
 
 const _byId = new Map(STORES.map((s) => [s.id, s]));

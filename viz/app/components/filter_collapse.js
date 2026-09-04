@@ -14,12 +14,12 @@
 // state is pure CSS — if the script never runs, filters are visible everywhere,
 // which is the safe failure.
 //
-// Collapsed state is per-page and remembered, so someone who opens filters and
-// keeps browsing doesn't have to reopen them on every render.
+// Collapsed state is deliberately NOT persisted: every page load and every
+// route change starts collapsed. A filter panel left open from an earlier visit
+// pushes the results off a phone screen before you have asked for it, so the
+// open state lives only as long as the render that opened it.
 
 import { esc } from "../dom.js";
-
-const KEY_PREFIX = "viz:filtersOpen:";
 
 /**
  * Markup for the toggle. Render immediately before the filter container.
@@ -41,20 +41,15 @@ export function filterToggleHtml(label = "Filters") {
  * @param {object}   opts
  * @param {Element}  opts.$toggle     the .filterToggle button
  * @param {Element}  opts.$panel      the filter container to show/hide
- * @param {string}   opts.pageKey     storage key suffix, e.g. "search"
  * @param {Function} [opts.summarize] () => string — compact active-filter text
  *                   shown on the button while collapsed. Without it the button
  *                   reads just "Filters", which hides what is currently applied,
  *                   so pass one wherever the state isn't obvious from results.
  */
-export function installFilterCollapse({ $toggle, $panel, pageKey, summarize }) {
+export function installFilterCollapse({ $toggle, $panel, summarize }) {
 	if (!$toggle || !$panel) return { refresh() {} };
 
-	const storeKey = KEY_PREFIX + pageKey;
 	let open = false;
-	try {
-		open = localStorage.getItem(storeKey) === "1";
-	} catch {}
 
 	const $summary = $toggle.querySelector(".filterToggleSummary");
 
@@ -73,9 +68,6 @@ export function installFilterCollapse({ $toggle, $panel, pageKey, summarize }) {
 
 	$toggle.addEventListener("click", () => {
 		open = !open;
-		try {
-			localStorage.setItem(storeKey, open ? "1" : "0");
-		} catch {}
 		apply();
 	});
 

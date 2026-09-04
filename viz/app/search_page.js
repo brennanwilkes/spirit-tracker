@@ -1297,7 +1297,6 @@ export function renderSearch($app) {
 	const filterCollapse = installFilterCollapse({
 		$toggle: $app.querySelector(".filterToggle"),
 		$panel: $app.querySelector(".searchControls"),
-		pageKey: "search",
 		summarize: () => {
 			const parts = [];
 
