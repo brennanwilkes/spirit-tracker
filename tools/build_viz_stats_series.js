@@ -31,6 +31,12 @@ const { execFileSync } = require("child_process");
 const MANIFEST = path.join("viz", "data", "common_listings_commits.json");
 const OUT_DIR = path.join("viz", "data", "stats");
 
+// Bundle schema version. Bundles are restored from a GitHub Release (they are not committed), so
+// a bundle written by an older build can outlive a format change and get resumed onto. Bump this
+// whenever the on-disk shape changes; a mismatch forces a full rebuild instead of splicing new
+// days onto incompatible data.
+const FMT = 1;
+
 function gitShow(sha, relPath) {
 	return execFileSync("git", ["show", `${sha}:${relPath}`], {
 		encoding: "utf8",
@@ -78,6 +84,7 @@ function loadExisting(outFile, shas) {
 	} catch {
 		return null;
 	}
+	if (prev.fmt !== FMT) return null; // written by a different bundle format — rebuild
 	const prevShas = Array.isArray(prev.shas) ? prev.shas : [];
 	if (!prevShas.length) return null;
 
@@ -112,7 +119,8 @@ function buildOne(rel, commits, { force }) {
 		return { rel, skipped: true, days: shas.length };
 	}
 
-	const out = existing || { rel, dates: [], shas: [], stores: [], meta: {}, present: {}, rep: {}, cheap: {}, sp: {} };
+	const out = existing || { fmt: FMT, rel, dates: [], shas: [], stores: [], meta: {}, present: {}, rep: {}, cheap: {}, sp: {} };
+	out.fmt = FMT;
 	out.rel = rel;
 	out.dates = dates;
 	out.shas = shas;

@@ -154,8 +154,12 @@ change: Rum 102/102, Scotch 227/227, Whiskey 160/160, Gin 83/83, `Removed=0` in 
 re-sweep triggered. See root `CLAUDE.md` §"Three fake-flip-flop ROOT CAUSES fixed".
 
 **`highpointbws`, `newdistrict` and `vintage` are also Barnet stores and still default to
-`price_desc`** (via `barnet_network.js`); they were not audited and likely carry the same latent
-straddle. Check with: sweep every page, compare unique row ids against `paginator.items_count`.
+`price_desc`** (via `barnet_network.js`). **Audited 2026-09-04: all clean** — every one of their 10
+categories returned `unique === paginator.items_count` with zero duplicate rows under `price_desc`
+(highpointbws 240/59/70, newdistrict 74/25/49, vintage 14/25/51/16). Left on `price_desc`
+deliberately; only ARC has the catalog size + price-tie density to straddle a page boundary.
+Re-check the same way if one of them starts flip-flopping: sweep every page, compare unique row
+ids against `paginator.items_count`, and look for `duplicateRows === shortfall`.
 
 ## Category Scan Flow (`src/tracker/`)
 
