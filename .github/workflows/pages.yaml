@@ -59,6 +59,31 @@ jobs:
           EOF
           fi
 
+      # The #/stats series bundles are GitHub Release assets, not committed (they'd add ~106 MB/mo
+      # of data-branch growth). Pull them into the site artifact so the SPA fetches them
+      # SAME-ORIGIN from ./data/stats/.
+      #
+      # This staging step is REQUIRED, not an optimisation: fetching a Release asset from the
+      # browser does not work. github.com/…/releases/download/… 302s to
+      # release-assets.githubusercontent.com (Azure Blob), whose response carries NO
+      # access-control-allow-origin, so the cross-origin fetch is blocked and stats_page.js
+      # silently falls back to its slow per-commit path (~214 requests, 20-30s). Verified with
+      # `curl -D -` sending an Origin header: no ACAO on the final response.
+      - name: "Stage stats series bundles into site artifact"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p viz/data/stats
+          if gh release download stats-series-latest \
+               --repo "$GITHUB_REPOSITORY" \
+               --dir viz/data/stats --pattern '*.json' --clobber; then
+            echo "staged $(ls -1 viz/data/stats | wc -l) stats bundle(s)"
+          else
+            echo "WARN: no stats bundles on the release tag; #/stats falls back to the slow per-commit path" >&2
+          fi
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:

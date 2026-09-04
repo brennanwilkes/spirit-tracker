@@ -381,10 +381,18 @@ const RAW_SERIES_CACHE = new Map(); // key: `${group}:${size}` -> { latestSha, l
 // even after an aggressive repack (thousands of scattered change-point insertions delta badly),
 // which is ~106 MB/month on a repo already growing ~180 MB/month. So they ship as GitHub Release
 // assets on a fixed tag, overwritten each scrape — the same trade already made for
-// sku_embeddings.json (see CLAUDE.md "LFS removal"). The local path is tried first so a server
-// rooted at the data worktree (scripts/serve_viz.sh) picks up the freshly built bundles; plain
-// `node viz/serve.js` serves the main checkout and will 404, falling through to the Release CDN
-// exactly as prod does. Same pre-existing split as sku_embeddings.json.
+// sku_embeddings.json (see CLAUDE.md "LFS removal").
+//
+// `./data/stats/<name>` is the path that actually serves prod: `.github/workflows/pages.yaml`
+// downloads the Release assets into the site artifact at deploy time, so they are same-origin.
+// It also covers a server rooted at the data worktree (scripts/serve_viz.sh).
+//
+// The STATS_RELEASE_BASE fetch below is only a best-effort secondary and CANNOT work in a
+// browser: the Release download 302s to release-assets.githubusercontent.com, which sends no
+// access-control-allow-origin, so the cross-origin fetch is blocked. It is kept because it costs
+// one failed request, works for non-browser consumers, and would start working if GitHub ever
+// sends CORS. When BOTH miss, loadRawSeriesFromCommits still renders the page, just slowly — so a
+// broken staging step degrades instead of breaking.
 const STATS_RELEASE_BASE =
 	"https://github.com/brennanwilkes/spirit-tracker/releases/download/stats-series-latest";
 
