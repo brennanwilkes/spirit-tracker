@@ -268,7 +268,15 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 		url,
 		tag,
 		ua,
-		{ mode = "text", method = "GET", headers = {}, body = null, cookies = true, retries = maxRetries } = {},
+		{
+			mode = "text",
+			method = "GET",
+			headers = {},
+			body = null,
+			cookies = true,
+			retries = maxRetries,
+			allowShortBody = false,
+		} = {},
 	) {
 		for (let attempt = 0; attempt <= retries; attempt++) {
 			const reqId = ++reqSeq;
@@ -386,7 +394,13 @@ function createHttpClient({ maxRetries, timeoutMs, defaultUa, logger }) {
 				}
 
 				const text = await res.text();
-				if (!text || text.length < 200) {
+				// The <200-byte floor catches truncated/blocked HTML, but a caller pulling JSON
+				// through the text path can legitimately receive a tiny body: the WC Store API
+				// answers an empty category with exactly "[]" (4 bytes, HTTP 200). Treating that
+				// as an error burned 6 retries and reported the category as FAILED — which is how
+				// RMWSB's discontinued rum/gin looked like a broken scraper for weeks. Opt-in, so
+				// every HTML-scraping caller keeps the guard.
+				if (!allowShortBody && (!text || text.length < 200)) {
 					throw new RetryableError(`Short HTML bytes=${text.length}`);
 				}
 
