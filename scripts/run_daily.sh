@@ -148,6 +148,21 @@ fi
 "$NODE_BIN" tools/build_viz_rarity.js
 
 # --- #/stats series bundles ---
+# Restore the PREVIOUS bundles from the Release first. They are Release assets, not committed, so
+# a fresh CI worktree has none — and without a prior copy the incremental resume can never engage
+# and every run full-rebuilds all 9 bundles from git history (~44s, and growing with history:
+# build_viz_commits.js keeps up to MAX_DAYS_PER_FILE=600 days). With them restored the build only
+# replays the days appended since the last run. Best-effort: a miss (first run, deleted release)
+# just means a full rebuild, which is exactly the old behaviour.
+if command -v gh >/dev/null 2>&1; then
+  mkdir -p "$WORKTREE_DIR/viz/data/stats"
+  if gh release download stats-series-latest --dir "$WORKTREE_DIR/viz/data/stats" \
+       --pattern '*.json' --clobber 2>/dev/null; then
+    echo "INFO: restored previous stats bundles for incremental build" >&2
+  else
+    echo "INFO: no previous stats bundles to restore (first run / release missing); full rebuild" >&2
+  fi
+fi
 # Collapses the whole common-listings history into one change-point bundle per (group, size), so
 # the stats page makes ONE request instead of re-fetching the report at all ~214 commits (~103 MB
 # of JSON parsed for top250, ~374 MB for top1000 — the entire reason that page took tens of
