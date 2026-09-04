@@ -139,6 +139,24 @@ Vessel's category URLs carry `filter.v.availability=1`, so items legitimately dr
 listing when Shopify marks them unavailable (its 5 pages parse to 194 = its exact live count);
 ARC uses a custom API scan where `barnetItemToTracked` returns null once `on_hand` hits 0.
 
+**ARC amendment (2026-09-04).** The above is still true — ARC's `on_hand` IS a genuine stock signal
+— but ARC had a SECOND, independent pagination defect on top of it. Its Barnet API pages via
+LIMIT/OFFSET and re-runs its ORDER BY per request, so rows TIED on the sort key swap between
+requests: one is served on two adjacent pages while its partner is served on none. Under the old
+`sortBy: "price_desc"` this cost exactly one row per affected category, every run, alternating
+between the two tied items — a fake sellout + restock each time. Diagnostic signature: the pair
+never both dropped, and `rowsFetched === paginator.items_count` while `duplicateRows === shortfall`.
+
+Fixed by switching the ARC categories to `sortBy: "name_asc"` (tie-free in this catalog), plus a
+completeness check that re-sweeps with a DIFFERENT sort if `rawIds.size < items_count`. Note the
+skip is DETERMINISTIC, so re-sweeping the same sort order is useless. Verified live after the
+change: Rum 102/102, Scotch 227/227, Whiskey 160/160, Gin 83/83, `Removed=0` in all four and no
+re-sweep triggered. See root `CLAUDE.md` §"Three fake-flip-flop ROOT CAUSES fixed".
+
+**`highpointbws`, `newdistrict` and `vintage` are also Barnet stores and still default to
+`price_desc`** (via `barnet_network.js`); they were not audited and likely carry the same latent
+straddle. Check with: sweep every page, compare unique row ids against `paginator.items_count`.
+
 ## Category Scan Flow (`src/tracker/`)
 
 1. `run_all.js` — schedules all stores/categories with host-level serialization (never run two categories from the same host concurrently) inside a concurrency pool.
@@ -150,6 +168,23 @@ ARC uses a custom API scan where `barnetItemToTracked` returns null once `on_han
 ## Mass-Removal Protection
 
 If a scan returns fewer than 60% of the previous item count, removed items are restored from the old DB. This prevents a partial scrape (network glitch, site change) from wiping out good historical data.
+
+`merge.js::avoidMassRemoval` compares against ACTIVE (non-`removed`) previous items — `byUrl` also
+holds every long-removed record ever seen, so using its raw size trips the guard on healthy
+categories. It is opt-in per store (8 stores call it) and only fires below the 0.6 ratio, so it does
+NOT catch losing one page of many (see §"Windowed pagination navs") or losing a single boundary row
+(see the ARC amendment above).
+
+**It also does not protect against the orphan-DB detector**, which bypasses the scan entirely and
+rewrites a DB file directly — that was a separate store-wide data bug, fixed 2026-09-04 by routing
+both the scanner and `orphan_dbs.js` through the single shared `db.js::dbFileForCategory()`. Any new
+code that needs a category's DB path MUST use that helper; deriving it independently is exactly how
+the two drifted. See root `CLAUDE.md` §"Three fake-flip-flop ROOT CAUSES fixed".
+
+**`merge.js` skuKey rematch is for URL MIGRATIONS only.** It hard-`delete`s the old record, so it
+must not fire when both URLs are live in the same scan — that means two distinct products colliding
+on one normalized SKU, and deleting either makes the pair annihilate each other run after run. The
+`!discovered.has(hit.url)` guard enforces this.
 
 ## HTTP Client (`src/core/http.js`)
 

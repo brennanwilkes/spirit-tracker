@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { dbPathFor, listDbFiles } = require("./db");
+const { dbFileForCategory, listDbFiles } = require("./db");
 
 // Detect DB files on disk that belong to a store but no longer correspond to any
 // category in that store's current config. This happens when a store's category
@@ -27,10 +27,7 @@ function storeKeyFromDbFile(file) {
 function expectedDbFilesForStore(store, dbDir) {
 	const out = new Set();
 	for (const cat of store.categories || []) {
-		const key = `${store.key}__${cat.key}`;
-		const baseUrl = cat.startUrl || cat.url || "";
-		if (!baseUrl) continue;
-		out.add(path.resolve(dbPathFor(key, baseUrl, dbDir)));
+		out.add(path.resolve(dbFileForCategory(store.key, cat, dbDir)));
 	}
 	return out;
 }

@@ -7,7 +7,7 @@ const { kbStr, secStr, pageStr, pctStr } = require("../utils/format");
 const { normalizeBaseUrl, makePageUrlForCtx } = require("../utils/url");
 const { parallelMapStaggered } = require("../utils/async");
 
-const { ensureDir, dbPathFor, readDb, writeJsonAtomic, buildDbObject } = require("./db");
+const { ensureDir, dbFileForCategory, readDb, writeJsonAtomic, buildDbObject } = require("./db");
 const { mergeDiscoveredIntoDb } = require("./merge");
 const { addCategoryResultToReport } = require("./report");
 
@@ -54,7 +54,7 @@ function makeCatPrefixers(stores, logger) {
 
 function buildCategoryContext(store, cat, catPrefixOutFn, config) {
 	const baseUrl = normalizeBaseUrl(cat.startUrl);
-	const dbFile = dbPathFor(`${store.key}__${cat.key}`, baseUrl, config.dbDir);
+	const dbFile = dbFileForCategory(store.key, cat, config.dbDir);
 	return {
 		store,
 		cat,

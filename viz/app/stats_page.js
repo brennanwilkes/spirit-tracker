@@ -377,7 +377,138 @@ async function loadCommitsFallback({ owner, repo, branch, relPath }) {
 
 const RAW_SERIES_CACHE = new Map(); // key: `${group}:${size}` -> { latestSha, labels, stores, commits, reportsByIdx }
 
+// The series bundles are NOT committed to the data branch. Measured: they add ~455 KB per run
+// even after an aggressive repack (thousands of scattered change-point insertions delta badly),
+// which is ~106 MB/month on a repo already growing ~180 MB/month. So they ship as GitHub Release
+// assets on a fixed tag, overwritten each scrape — the same trade already made for
+// sku_embeddings.json (see CLAUDE.md "LFS removal"). The local path is tried first so a server
+// rooted at the data worktree (scripts/serve_viz.sh) picks up the freshly built bundles; plain
+// `node viz/serve.js` serves the main checkout and will 404, falling through to the Release CDN
+// exactly as prod does. Same pre-existing split as sku_embeddings.json.
+const STATS_RELEASE_BASE =
+	"https://github.com/brennanwilkes/spirit-tracker/releases/download/stats-series-latest";
+
+function statsBundleName(group, size) {
+	return `common_listings_${group}_top${size}.json`;
+}
+
+// Rebuild the per-day report shape from the change-point bundle written by
+// tools/build_viz_stats_series.js. The bundle stores a value only on the days it CHANGES
+// (null = the row/store price is absent that day), so one cursor per series walks forward
+// with the day loop instead of materialising a value per sku per store per day.
+//
+// The output is deliberately shaped exactly like the per-commit reports this page used to
+// download, so every consumer below (baselines, floors, computeDailyStoreSeriesFromReport,
+// computePriceBoundsFromReport) is untouched.
+function expandStatsBundle(bundle) {
+	const dates = Array.isArray(bundle?.dates) ? bundle.dates.map(String) : [];
+	const shas = Array.isArray(bundle?.shas) ? bundle.shas.map(String) : [];
+	const stores = Array.isArray(bundle?.stores) ? bundle.stores.map(String) : [];
+	const n = dates.length;
+
+	const cursors = Object.keys(bundle?.meta || {}).map((sku) => {
+		const sp = (bundle.sp && bundle.sp[sku]) || {};
+		const spKeys = Object.keys(sp);
+		return {
+			sku,
+			meta: bundle.meta[sku] || {},
+			present: (bundle.present && bundle.present[sku]) || [],
+			rep: (bundle.rep && bundle.rep[sku]) || [],
+			cheap: (bundle.cheap && bundle.cheap[sku]) || [],
+			sp,
+			spKeys,
+			pi: 0,
+			ri: 0,
+			ci: 0,
+			spi: spKeys.map(() => 0),
+			pv: null,
+			rv: null,
+			cv: null,
+			spv: spKeys.map(() => null),
+		};
+	});
+
+	const reportsByIdx = new Array(n);
+	for (let d = 0; d < n; d++) {
+		const rows = [];
+		for (const c of cursors) {
+			while (c.pi < c.present.length && c.present[c.pi][0] === d) c.pv = c.present[c.pi++][1];
+			while (c.ri < c.rep.length && c.rep[c.ri][0] === d) c.rv = c.rep[c.ri++][1];
+			while (c.ci < c.cheap.length && c.cheap[c.ci][0] === d) c.cv = c.cheap[c.ci++][1];
+			for (let k = 0; k < c.spKeys.length; k++) {
+				const arr = c.sp[c.spKeys[k]];
+				let i = c.spi[k];
+				while (i < arr.length && arr[i][0] === d) c.spv[k] = arr[i++][1];
+				c.spi[k] = i;
+			}
+
+			if (c.pv !== 1) continue;
+
+			const storePrices = {};
+			for (let k = 0; k < c.spKeys.length; k++) {
+				const v = c.spv[k];
+				if (Number.isFinite(v)) storePrices[c.spKeys[k]] = v;
+			}
+			const m = c.meta;
+			rows.push({
+				canonSku: c.sku,
+				storePrices,
+				representative: {
+					name: m.n || "",
+					skuRaw: m.r || "",
+					skuKey: m.k || "",
+					categoryLabel: m.c || "",
+					storeLabel: m.sl || "",
+					storeKey: m.sk || "",
+					priceNum: Number.isFinite(c.rv) ? c.rv : null,
+				},
+				cheapest: { priceNum: Number.isFinite(c.cv) ? c.cv : null },
+			});
+		}
+		reportsByIdx[d] = { stores, rows };
+	}
+
+	return {
+		latestSha: shas.length ? shas[shas.length - 1] : "",
+		labels: dates,
+		stores,
+		commits: shas.map((sha, i) => ({ sha, date: dates[i] || "" })),
+		reportsByIdx,
+	};
+}
+
 async function loadRawSeries({ group, size, onStatus }) {
+	const cacheKey = `${group}:${size}`;
+
+	// Serve an already-expanded series straight from the session cache. This has to happen
+	// BEFORE the fetch: fetchJson sends `cache: "no-store"`, so consulting the cache afterwards
+	// still re-downloaded the whole bundle (up to ~1.7 MB for all_top1000) on every group/size
+	// toggle. Bundles are rebuilt a few times a day, so a session-lifetime cache is the right
+	// granularity — a reload picks up a newer one.
+	const cachedBundle = RAW_SERIES_CACHE.get(cacheKey);
+	if (cachedBundle) return cachedBundle;
+
+	// Fast path: one prebuilt bundle instead of one request per commit. Falls through to the
+	// per-commit walk when the bundle is missing (older data branch, or a checkout that has not
+	// run build_viz_stats_series.js yet).
+	try {
+		if (typeof onStatus === "function") onStatus("Loading series…");
+		const name = statsBundleName(group, size);
+		let bundle = await fetchJson(`./data/stats/${name}`).catch(() => null);
+		if (!bundle) bundle = await fetchJson(`${STATS_RELEASE_BASE}/${name}`);
+		if (Array.isArray(bundle?.dates) && bundle.dates.length) {
+			const expanded = expandStatsBundle(bundle);
+			RAW_SERIES_CACHE.set(cacheKey, expanded);
+			return expanded;
+		}
+	} catch {
+		// fall through to the per-commit path
+	}
+
+	return await loadRawSeriesFromCommits({ group, size, onStatus });
+}
+
+async function loadRawSeriesFromCommits({ group, size, onStatus }) {
 	const rel = relReportPath(group, size);
 	const gh = inferGithubOwnerRepo();
 	const owner = gh.owner;

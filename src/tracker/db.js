@@ -6,6 +6,7 @@ const crypto = require("crypto");
 
 const { normalizeSkuKey } = require("../utils/sku");
 const { priceToNumber } = require("../utils/price");
+const { normalizeBaseUrl } = require("../utils/url");
 
 function ensureDir(dir) {
 	fs.mkdirSync(dir, { recursive: true });
@@ -16,6 +17,19 @@ function dbPathFor(key, baseUrl, dbDir) {
 	const hash = crypto.createHash("sha1").update(String(baseUrl)).digest("hex").slice(0, 8);
 	const safeKey = String(key).replace(/[^a-zA-Z0-9_-]+/g, "-");
 	return path.join(dbDir, `${safeKey}__${hash}.json`);
+}
+
+// THE single derivation of a category's DB path. Both the scanner (via
+// buildCategoryContext) and the orphan detector must go through this — they used to
+// derive it independently and silently disagreed: the scanner hashed
+// normalizeBaseUrl(cat.startUrl) while the orphan detector hashed the RAW cat.startUrl.
+// normalizeBaseUrl inserts a "/" before a query string ("/products?x" -> "/products/?x")
+// and returns undefined when startUrl is absent, so 88 of 117 categories hashed to a file
+// the orphan detector never recognized as expected. Any category that FAILED a run (and so
+// was missing from the scanned-file set) then had its whole DB flipped to removed:true,
+// showing up as a store-wide fake sellout that "restocked" on the next successful run.
+function dbFileForCategory(storeKey, cat, dbDir) {
+	return dbPathFor(`${storeKey}__${cat.key}`, normalizeBaseUrl(cat.startUrl), dbDir);
 }
 
 function readDb(file) {
@@ -145,6 +159,7 @@ function buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap } = {}) {
 module.exports = {
 	ensureDir,
 	dbPathFor,
+	dbFileForCategory,
 	readDb,
 	writeJsonAtomic,
 	buildDbObject,

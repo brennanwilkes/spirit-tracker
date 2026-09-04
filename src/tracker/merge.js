@@ -88,14 +88,26 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 			const nowSkuKey = normalizeSkuForDb(nowRaw.sku, url);
 			if (nowSkuKey && !/^u:/i.test(nowSkuKey)) {
 				const hit = prevBySkuKey.get(nowSkuKey);
-				if (hit && hit.url && hit.url !== url) {
+				// A skuKey match means "this product moved to a new URL" — but ONLY if the old
+				// URL is gone. When both URLs are live in the SAME scan they are two distinct
+				// products that merely collide on a normalized SKU (e.g. BSW sells
+				// pendleton-directors-reserve as sku 795231 and
+				// pendleton-directors-reserve-whisky-2018 as 795231-2, which normalizes to the
+				// same key). Treating that as a migration made the pair annihilate each other:
+				// whichever was scanned second hard-deleted the other, so the DB kept one record
+				// whose price alternated every single run ($230 <-> $350) forever.
+				if (hit && hit.url && hit.url !== url && !discovered.has(hit.url)) {
 					prev = hit.item;
 					prevUrlForThisItem = hit.url;
 
 					// Mark ALL prior URLs for this skuKey as matched, so we don't later "remove" them.
+					// Skip any that are live in this scan — those are separate products, and
+					// marking them matched would suppress their own (correct) processing.
 					const allOld = prevUrlsBySkuKey.get(nowSkuKey);
 					if (allOld) {
-						for (const u of allOld) matchedPrevUrls.add(u);
+						for (const u of allOld) {
+							if (!discovered.has(u)) matchedPrevUrls.add(u);
+						}
 					} else {
 						matchedPrevUrls.add(hit.url);
 					}
@@ -104,7 +116,7 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 					// We'll re-add the chosen record at the new URL below.
 					if (allOld) {
 						for (const u of allOld) {
-							if (u !== url && merged.has(u)) merged.delete(u);
+							if (u !== url && !discovered.has(u) && merged.has(u)) merged.delete(u);
 						}
 					} else {
 						if (merged.has(hit.url)) merged.delete(hit.url);

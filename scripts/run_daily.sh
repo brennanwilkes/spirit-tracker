@@ -147,6 +147,19 @@ else
 fi
 "$NODE_BIN" tools/build_viz_rarity.js
 
+# --- #/stats series bundles ---
+# Collapses the whole common-listings history into one change-point bundle per (group, size), so
+# the stats page makes ONE request instead of re-fetching the report at all ~214 commits (~103 MB
+# of JSON parsed for top250, ~374 MB for top1000 — the entire reason that page took tens of
+# seconds). Needs the commits manifest, so it must run after build_viz_commits.js. Incremental:
+# only commits appended since the last build are re-read. Best-effort — the page falls back to the
+# per-commit walk if the bundles are missing, so a failure here must never abort the scrape.
+set +e
+"$NODE_BIN" tools/build_viz_stats_series.js
+stats_rc=$?
+set -e
+[[ $stats_rc -ne 0 ]] && echo "WARN: stats series build failed (rc=$stats_rc); #/stats will use the slow per-commit path" >&2
+
 # --- Re-encode SKU embeddings with the FIXED fine-tuned encoder (linker page) ---
 # Cheap per-scrape vector refresh so newly-scraped SKUs get embeddings WITHOUT retraining weights
 # (the encoder + GBT stay hand-trained — see tools/linker_ml/CLAUDE.md). encode.py is deterministic,
@@ -192,6 +205,23 @@ else
   echo "INFO: skipping embeddings Release upload (no gh CLI or no embeddings file)" >&2
 fi
 
+# The #/stats bundles are NOT committed either. Measured: ~455 KB of pack growth per run even
+# after an aggressive repack (thousands of scattered change-point insertions delta badly) —
+# ~106 MB/month on top of the data branch's existing ~180 MB/month. Same fix as the embeddings:
+# a fixed Release tag, overwritten each scrape. The worktree copies stay for local dev and are
+# excluded from the commit below. Best-effort; never aborts the scrape.
+if command -v gh >/dev/null 2>&1 && compgen -G "$WORKTREE_DIR/viz/data/stats/*.json" >/dev/null; then
+  set +e
+  gh release create stats-series-latest --title "Latest #/stats series bundles" \
+    --notes "Auto-uploaded by run_daily.sh each scrape. Overwritten in place; only 'latest' is kept." 2>/dev/null
+  gh release upload stats-series-latest "$WORKTREE_DIR"/viz/data/stats/*.json --clobber 2>/dev/null
+  st_rc=$?
+  set -e
+  [[ $st_rc -ne 0 ]] && echo "WARN: stats series Release upload failed (rc=$st_rc); #/stats will use the previous asset" >&2
+else
+  echo "INFO: skipping stats series Release upload (no gh CLI or no bundles)" >&2
+fi
+
 # --- Auto-link classification (learned classifier) ---
 # With fresh embeddings now in the worktree, score unlinked SKUs with the live GBT blend and
 # append high-confidence (≥99%-precision bar) cross-store matches to data/sku_links.json as
@@ -223,9 +253,14 @@ set -e
 # (--ignore-unmatch is a no-op once it's untracked). The ':(exclude)' pathspec below then keeps
 # the (still-on-disk, for local consumers) worktree copy from being re-staged.
 git rm --cached --quiet --ignore-unmatch viz/data/sku_embeddings.json 2>/dev/null || true
+# Same treatment for the #/stats series bundles (Release assets, see the upload step above).
+# The data branch's .gitignore deliberately does NOT ignore viz/data (that's what it stores), so
+# the ':(exclude)' pathspec below is the actual guard; this line makes it self-healing if a
+# bundle ever did get committed. Idempotent.
+git rm -r --cached --quiet --ignore-unmatch viz/data/stats 2>/dev/null || true
 
 # Stage only data/report/viz outputs (embeddings excluded — see above)
-git add -A data/db reports viz/data ':(exclude)viz/data/sku_embeddings.json'
+git add -A data/db reports viz/data ':(exclude)viz/data/sku_embeddings.json' ':(exclude)viz/data/stats'
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
 # May not exist on first run; -- pathspec avoids erroring out in that case.
 git add -A -- data/sku_links_auto.json 2>/dev/null || true
