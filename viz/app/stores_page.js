@@ -1,10 +1,23 @@
 // viz/app/stores_page.js
 import { esc } from "./dom.js";
-import { storesByRegion } from "./stores.js";
+import { storesByRegion, FAVOURITE_STORE_IDS } from "./stores.js";
 import { goBack, peekBack, openOrNavigateTo } from "./nav.js";
 
-const BC_STORES = storesByRegion("bc");
-const AB_STORES = storesByRegion("ab");
+// Favourites first, then everything else, alphabetical within each block. The
+// raw STORES order is insertion order (neither alphabetical nor meaningful), so
+// a name was only findable by scanning the whole column.
+function orderStores(region) {
+	return storesByRegion(region)
+		.slice()
+		.sort((a, b) => {
+			const favA = FAVOURITE_STORE_IDS.has(a.id) ? 0 : 1;
+			const favB = FAVOURITE_STORE_IDS.has(b.id) ? 0 : 1;
+			return favA - favB || a.label.localeCompare(b.label);
+		});
+}
+
+const BC_STORES = orderStores("bc");
+const AB_STORES = orderStores("ab");
 
 /* CSS is in app/stores_page/stores_page.css, loaded via index.html */
 
@@ -31,7 +44,7 @@ function renderStoreRow(store) {
 		: `<div class="logoPlaceholder"></div>`;
 
 	return `
-		<div class="row" role="button" tabindex="0" data-label="${esc(store.label)}">
+		<div class="row${FAVOURITE_STORE_IDS.has(store.id) ? " favStore" : ""}" role="button" tabindex="0" data-label="${esc(store.label)}">
 		  <div class="rowLeft">
 		    <div class="logoBox">
 		      ${logoHtml}

@@ -999,7 +999,6 @@ export async function renderStore($app, storeLabelRaw) {
 	const filterCollapse = installFilterCollapse({
 		$toggle: document.querySelector(".filterToggle"),
 		$panel: document.querySelector(".storeFilters"),
-		pageKey: "store",
 		summarize: () => {
 			const parts = [];
 

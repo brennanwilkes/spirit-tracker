@@ -38,6 +38,17 @@
 
 .storesPage .row:hover { border-color: #2f3a46; }
 
+/* Favourite stores (stores.js::FAVOURITE_STORE_IDS) — sorted to the top of their
+   column and marked with an amber rim + soft glow. Deliberately no glyph: the
+   glow reads at a glance and the row keeps its full width for the name.
+   Declared AFTER :hover (equal specificity) so the rim survives hovering. */
+.storesPage .row.favStore {
+  border-color: rgba(240, 180, 41, 0.5);
+  box-shadow: 0 0 0 1px rgba(240, 180, 41, 0.18), 0 0 14px -4px rgba(240, 180, 41, 0.45);
+}
+
+.storesPage .row.favStore:hover { border-color: rgba(240, 180, 41, 0.85); }
+
 .storesPage .rowLeft {
   display: flex;
   align-items: center;
@@ -99,6 +110,12 @@
 @media (prefers-color-scheme: light) {
   .storesPage .row { background: var(--lt-surface); }
   .storesPage .row:hover { border-color: var(--lt-hover); }
+  /* Pale amber disappears on a white surface — go a shade deeper and drop the glow's spread. */
+  .storesPage .row.favStore {
+    border-color: rgba(176, 122, 12, 0.55);
+    box-shadow: 0 0 0 1px rgba(176, 122, 12, 0.16), 0 0 12px -5px rgba(176, 122, 12, 0.5);
+  }
+  .storesPage .row.favStore:hover { border-color: rgba(176, 122, 12, 0.9); }
   .storesPage .logoBox { background: #ffffff; }
   .storesPage .logoPlaceholder { background: rgba(0,0,0,0.06); }
   .storesPage .openPill { background: var(--lt-hover-bg); }
@@ -106,12 +123,22 @@
 
 html[data-theme="light"] .storesPage .row { background: var(--lt-surface); }
 html[data-theme="light"] .storesPage .row:hover { border-color: var(--lt-hover); }
+html[data-theme="light"] .storesPage .row.favStore {
+  border-color: rgba(176, 122, 12, 0.55);
+  box-shadow: 0 0 0 1px rgba(176, 122, 12, 0.16), 0 0 12px -5px rgba(176, 122, 12, 0.5);
+}
+html[data-theme="light"] .storesPage .row.favStore:hover { border-color: rgba(176, 122, 12, 0.9); }
 html[data-theme="light"] .storesPage .logoBox { background: #ffffff; }
 html[data-theme="light"] .storesPage .logoPlaceholder { background: var(--lt-hover-bg); }
 html[data-theme="light"] .storesPage .openPill { background: var(--lt-hover-bg); }
 
 html[data-theme="dark"] .storesPage .row { background: #0f1318; }
 html[data-theme="dark"] .storesPage .row:hover { border-color: #2f3a46; }
+html[data-theme="dark"] .storesPage .row.favStore {
+  border-color: rgba(240, 180, 41, 0.5);
+  box-shadow: 0 0 0 1px rgba(240, 180, 41, 0.18), 0 0 14px -4px rgba(240, 180, 41, 0.45);
+}
+html[data-theme="dark"] .storesPage .row.favStore:hover { border-color: rgba(240, 180, 41, 0.85); }
 html[data-theme="dark"] .storesPage .logoBox { background: #e9edf2; }
 html[data-theme="dark"] .storesPage .logoPlaceholder { background: rgba(255,255,255,0.03); }
 html[data-theme="dark"] .storesPage .openPill { background: rgba(255,255,255,0.02); }
