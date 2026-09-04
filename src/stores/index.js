@@ -31,6 +31,7 @@ const { createStore: createSherbrooke } = require("./sherbrooke");
 const { createStore: createColorDeVino } = require("./colordevino");
 const { createStore: createHighPointBws } = require("./highpointbws");
 const { createStore: createNewDistrict } = require("./newdistrict");
+const { createStore: createSilverSprings } = require("./silversprings");
 const { createStore: createLiquorama } = require("./liquorama");
 const { createStore: createMarquis } = require("./marquis");
 const { createStore: createEverythingWine } = require("./everythingwine");
@@ -85,6 +86,7 @@ function createStores({ defaultUa } = {}) {
 		createColorDeVino(defaultUa),
 		createHighPointBws(defaultUa),
 		createNewDistrict(defaultUa),
+		createSilverSprings(defaultUa),
 		createLiquorama(defaultUa),
 		createMarquis(defaultUa),
 	];

@@ -123,6 +123,19 @@ export const STORES = [
 		aliases: ["newdistrict"],
 	},
 	{
+		id: "silversprings",
+		label: "Silver Springs Liquor",
+		region: "ab",
+		// Pale lime green, per the store's own SS badge. The yellow-green band is crowded —
+		// Highlander is #B5CF6B and Lime Liquor #7FBF3F, both also AB — so this is the most
+		// distant pale lime available (RGB distance 42.9), brighter and more saturated than
+		// Highlander's muted olive.
+		color: "#A3E048",
+		logo: "./img/stores/silversprings.png",
+		url: "https://silverspringsls.com/",
+		aliases: ["silversprings", "silverspringsls", "silver springs liquor store"],
+	},
+	{
 		id: "marquis",
 		label: "Marquis Wine Cellars",
 		region: "bc",
@@ -138,8 +151,11 @@ export const STORES = [
 		region: "ab",
 		color: "#D62728",
 		logo: "./img/stores/elbowliquor.png",
-		url: "https://elbowliquor.ca",
-		aliases: ["elbow"],
+		// Rebranded to vinox.ca in 2026 (elbowliquor.ca 301s to it). Store id/label kept — same
+		// business, and vinox's own page title is still "Shop | Elbow Liquor". Only its
+		// `per case of 1` listings are tracked; see src/stores/elbowliquor.js.
+		url: "https://vinox.ca/shop/spirits/whisky",
+		aliases: ["elbow", "vinox"],
 	},
 	{
 		id: "bsw",
@@ -355,6 +371,7 @@ const CITY_BY_STORE = {
 	vintage: ["victoria"],
 	// AB
 	elbowliquor: ["calgary"],
+	silversprings: ["calgary"],
 	bsw: ["calgary"],
 	coop: ["calgary"],
 	craftcellars: ["calgary"],

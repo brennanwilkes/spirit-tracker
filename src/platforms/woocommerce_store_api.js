@@ -10,6 +10,29 @@ const {
 	extractPriceFromTmbBlock,
 } = require("../utils/woocommerce");
 const { finalizeCategoryScan } = require("../tracker/finalize");
+const { avoidMassRemoval } = require("../tracker/merge");
+
+// Above this many previously-live listings, an empty/!much-smaller API response is treated as
+// suspect and the DB is preserved (avoidMassRemoval). At or below it, the shrink is allowed
+// through so a genuinely discontinued category retires honestly instead of showing stale stock
+// forever. RMWSB is the motivating case: it dropped rum (8 live) and gin (8 live) entirely and
+// the API now answers "[]" for both, so those really are out of stock — whereas Liberty's ~399
+// whiskies going "[]" would be a glitch worth refusing.
+const MASS_REMOVAL_GUARD_MIN_PREV = 25;
+
+function countPrevActive(prevDb) {
+	let n = 0;
+	for (const it of prevDb?.byUrl?.values() || []) {
+		if (it && !it.removed) n++;
+	}
+	return n;
+}
+
+// Apply the mass-removal guard only for categories big enough for a wipe to be implausible.
+function guardLargeCategoryOnly(prevDb, discovered, ctx, reason, report) {
+	if (countPrevActive(prevDb) < MASS_REMOVAL_GUARD_MIN_PREV) return false;
+	return avoidMassRemoval(prevDb, discovered, ctx, reason, report);
+}
 
 class WooStoreApiUnavailable extends Error {
 	constructor(status, url) {
@@ -125,6 +148,11 @@ function createWooStoreApiAdapter(opts) {
 			const label = `${ctx.store.key}:storeapi:${ctx.cat.key}:p${page}`;
 			const { text, status } = await ctx.http.fetchTextWithRetry(u.toString(), label, ctx.store.ua, {
 				headers: { Accept: "application/json", Referer: ctx.cat.startUrl || categoryUrl || "" },
+				// "[]" (4 bytes) is this API's honest answer for an empty/absent category; without
+				// this it trips the generic short-body guard and the category reports as FAILED.
+				// Safe because avoidMassRemoval below stops an unexpectedly-empty page from wiping
+				// a populated DB.
+				allowShortBody: true,
 			});
 
 			if (status === 401 || status === 403 || status === 404) {
@@ -202,6 +230,7 @@ function createWooStoreApiAdapter(opts) {
 			if (categorySlug) {
 				({ discovered, pagesFetched } = await fetchAllPagesViaApi(ctx, categorySlug));
 				ctx.logger.ok(`${ctx.catPrefixOut} | woo mode=store-api pages=${pagesFetched} kept=${discovered.size}`);
+				guardLargeCategoryOnly(prevDb, discovered, ctx, `woo store-api cat=${categorySlug}`, report);
 				finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: pagesFetched });
 				return;
 			}
@@ -255,6 +284,11 @@ function createWooStoreApiAdapter(opts) {
 		ctx.logger.ok(
 			`${ctx.catPrefixOut} | woo mode=${mode} pages=${pagesFetched} kept=${discovered.size}${ogFetched ? ` ogPages=${ogFetched}` : ""}`,
 		);
+
+		// Now that an empty API response is accepted rather than retried into a failure, a
+		// WAF/outage that answers "[]" for a populated category could otherwise mark the whole
+		// category out of stock. This is the same guard the hand-written store scanners use.
+		guardLargeCategoryOnly(prevDb, discovered, ctx, `woo mode=${mode} pages=${pagesFetched}`, report);
 
 		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: pagesFetched });
 	};

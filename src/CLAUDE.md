@@ -24,7 +24,7 @@ Each store is a file in `src/stores/` that exports a plain object with:
 }
 ```
 
-`src/stores/index.js` exports `createStores()` which instantiates all 34 adapters.
+`src/stores/index.js` exports `createStores()` which instantiates all 36 adapters.
 
 ## Tudor House multi-size variants (`src/stores/tudor.js`)
 
@@ -161,6 +161,43 @@ deliberately; only ARC has the catalog size + price-tie density to straddle a pa
 Re-check the same way if one of them starts flip-flopping: sweep every page, compare unique row
 ids against `paginator.items_count`, and look for `duplicateRows === shortfall`.
 
+## Elbow Liquor → vinox.ca, and why only `per case of 1` (2026-09-04)
+
+Elbow Liquor rebranded to **vinox.ca**; `elbowliquor.ca/products/spirits/*` 301s to
+`https://vinox.ca/shop` and none of the old ASP.NET markup survived, so all three categories had
+been failing every run (249 category failures in 35 days). The store id/label stay
+`elbowliquor` / "Elbow Liquor" — same business, and vinox's own `<title>` is still
+"Shop | Elbow Liquor".
+
+**vinox is a case-sale wholesaler.** Every listing has a "Sold by case" badge and TWO prices: a
+per-unit price and a case total. `data-product-price` holds the **case** price — never use it; the
+per-unit figure is the bold `.text-primary` value. Measured across all 1468 spirits listings, case
+sizes were 1,2,3,4,5,6,8,9,10,12,18,20,24,44,48,60,96,120 (1090 of them case-of-6).
+
+The adapter tracks **only `per case of 1`**, because:
+- A case-of-6 unit price is not payable for one bottle, so publishing it would hand Elbow bogus
+  "cheapest"/best-price badges, fire false price-drop alerts and skew the market-median stats.
+- ~94% of the catalogue duplicates products other stores already carry (measured by name match
+  after HTML-entity decoding), so filtering loses almost nothing.
+- The case-of-1 rows are exactly the rare/collectible bottles, and 100% of them are EXCLUSIVE to
+  this store (verified against every other store's SKUs).
+
+Measured first run: whisky 1074 listings → 30 kept, rum 244 → 1, gin 212 → 0; **31 items,
+31/31 real 6-digit CSPCs, 31/31 exclusive** (Private Collection Milton 1949 $47,602, Glen Grant
+Platinum Jubilee 1952 $18,370, Macallan M 2022, Mortlach 1969, Macallan Sherry Oak 30 …).
+A few are 3 L format bottles (Bacardi, Canadian Club, Wiser's, Jack Daniel's) — legitimately
+single-bottle, just large format.
+
+SKUs are not in the listing (only a 4-digit internal `data-product-id`), so new items get a
+budgeted detail fetch that reads the CSPC out of the product page's JSON-LD (`"sku": "125973"`).
+The tracked set is tiny, so one run hydrates everything. Note the local
+`needsCspcHydration` deliberately treats an `id:` seed as still needing hydration —
+`utils/sku.js::needsSkuDetail` does NOT (it only flags empty/`u:`).
+
+If vinox moves an item to single-bottle sale it starts being tracked automatically; if it moves to
+a multipack it retires. Re-check the mix with: count `per case of (\d+)` across
+`/shop/spirits/{whisky,rum,gin}?Page=N`.
+
 ## Category Scan Flow (`src/tracker/`)
 
 1. `run_all.js` — schedules all stores/categories with host-level serialization (never run two categories from the same host concurrently) inside a concurrency pool.
@@ -168,6 +205,32 @@ ids against `paginator.items_count`, and look for `duplicateRows === shortfall`.
 3. `db.js` — atomic JSON I/O: writes to `.tmp` file then `rename()`. DB filename: `{store}__{category}__{urlhash8}.json`.
 4. `merge.js` — diffs old vs new item lists. Detects: new / updated / removed / restored / meta-changed.
 5. `report.js` — renders the final human-readable summary.
+
+## "Short HTML" vs a legitimately EMPTY API response (2026-09-04)
+
+`src/core/http.js` rejects any body under 200 bytes as `RetryableError: Short HTML` — a good guard
+for truncated/blocked HTML. But the WooCommerce Store API answers an empty or absent category with
+exactly `[]` (4 bytes, HTTP 200), and the Woo adapter pulls JSON through the **text** path, so an
+empty category burned 6 retries and reported as FAILED. That is why RMWSB's discontinued rum/gin
+looked like a broken scraper for weeks (~140 category failures in 35 days) when the API was simply
+telling the truth. It affected every Woo store, not just RMWSB.
+
+Fixed with an **opt-in** `allowShortBody` option, passed only by
+`woocommerce_store_api.js::fetchAllPagesViaApi`; every HTML-scraping caller keeps the guard.
+
+Because an empty response is now accepted rather than retried, the adapter also needs protection
+against a WAF/outage answering `[]` for a populated category — that would mark everything OOS.
+`guardLargeCategoryOnly` applies `avoidMassRemoval` **only when the category had
+≥ `MASS_REMOVAL_GUARD_MIN_PREV` (25) live listings**. Above the floor an unexplained wipe is
+refused (Liberty's ~399 whiskies suddenly returning `[]` is a glitch); at or below it the shrink is
+allowed through so a genuinely discontinued category retires honestly instead of showing stale
+stock forever. RMWSB rum/gin (8 live each) therefore correctly went to `active=0`, and since
+`avoidMassRemoval` no-ops at zero prev-active, a future restock is still picked up automatically.
+
+**Diagnostic tip:** when a store "fails every run", run it locally first
+(`DATA_DIR=/tmp/x node bin/tracker.js --stores <key>`). A residential IP rules out the
+datacenter-IP theory in one step, and the real error text is usually decisive — here it was
+`Short HTML bytes=4`, and `curl`ing the endpoint showed the 4 bytes were `[]`.
 
 ## Mass-Removal Protection
 
@@ -248,7 +311,7 @@ All optional. CLI flags take precedence over env vars.
 
 ## Stores Reference
 
-34 adapters (extracted from `createStores()`; categories reflect current config —
+36 adapters (extracted from `createStores()`; categories reflect current config —
 note **Gin** is now scraped across all stores, not just whisky/rum). Region: BC =
 British Columbia, AB = Alberta. Many AB stores run on **Shopify**, which is why
 they often share raw SKUs across stores (the implicit "free" SKU links).
@@ -262,7 +325,7 @@ they often share raw SKUs across stores (the implicit "free" SKU links).
 | `clbspirits` | CLB Spirits | AB | Shopify HTML | Whisky, Rum, Gin |
 | `colordevino` | Color de Vino | AB | WooCommerce | Whisky/Whiskey, Whisky SC SM, Rum, Gin |
 | `coop` | Co-op World of Whisky | AB | Custom session API (POST /api/v2/products/category) | Canadian Whisky, Bourbon, Scottish Single Malts, American Whiskey, Rum, Gin |
-| `elbowliquor` | Elbow Liquor | AB | ASP.NET HTML grid (`?pageNumber=N`); in-stock cards' `addToCartBtn` carries `data-sku`/`data-name`/`data-price` | Whisky, Rum, Gin |
+| `elbowliquor` | Elbow Liquor | AB | **vinox.ca** Bootstrap grid (`?Page=N`, 24/page) + budgeted detail fetch for the CSPC. Tracks ONLY `per case of 1` listings — see §"Elbow Liquor → vinox.ca" | Whisky, Rum, Gin |
 | `craftcellars` | Craft Cellars | AB | Shopify `/products.json` + HTML fallback | Whisky, Rum, Gin |
 | `everythingwine` | Everything Wine | BC | Magento HTML (custom scanCategory) | Whisky, Rum, Gin |
 | `gull` | Gull Liquor | BC | WooCommerce HTML (12 s throttle) | Whisky, Rum, Gin |
@@ -278,7 +341,8 @@ they often share raw SKUs across stores (the implicit "free" SKU links).
 | `maltsandgrains` | Malts & Grains | AB | WooCommerce HTML | All Spirits, Gin |
 | `marquis` | Marquis Wine Cellars | BC | Shopify GraphQL | Whisky, Rum, Gin |
 | `newdistrict` | New District | BC | Barnet network API | Whiskey, Rum, Gin |
-| `rmwsb` | Rocky Mountain Wine Spirits Beer | AB | WooCommerce | Whiskey, Rum, Gin |
+| `rmwsb` | Rocky Mountain Wine Spirits Beer | AB | WooCommerce Store API, addressed by category **slug** (whiskey/rum/gin). Catalogue gutted in 2026 — whisky+tequila only; rum/gin return `[]` until they relaunch | Whiskey, Rum, Gin |
+| `silversprings` | Silver Springs Liquor | AB | Barnet network API (shopId `574-242`), `sortBy: name_asc` | Scotch / US / Canadian / Irish / World / Japanese whisky, Rum, Gin |
 | `sherbrooke` | Sherbrooke Liquor | AB | WooCommerce | Whisky, Rum, Gin |
 | `sierrasprings` | Sierra Springs | AB | WooCommerce Store API + HTML TMB blocks | Scotch/Single Malt, Canadian, Irish, American, World Whisky, Spirits, Gin |
 | `strath` | Strath Liquor | BC | Divi Ajax Filter + WooCommerce Store API | Whisky, Spirits - Rum, Gin |

@@ -1,6 +1,6 @@
 # Spirit Tracker
 
-Automated price tracker for Canadian spirits (whisky, rum, gin) across 33 liquor retailers. Scrapes stores on a schedule, stores price history as JSON, and serves a browser-based visualization dashboard.
+Automated price tracker for Canadian spirits (whisky, rum, gin) across 36 liquor retailers. Scrapes stores on a schedule, stores price history as JSON, and serves a browser-based visualization dashboard.
 
 ## Git Workflow (Critical)
 
