@@ -25,8 +25,8 @@ plain git), so nothing of value lived only in LFS. Decision, by file (measured o
 real history — git delta-compresses these beautifully because consecutive versions are ~99%
 identical; ~37–290 KB added per commit, not the whole file):
 
-- `index.json`, `recent.json`, `db_commits.json`, `skus/**` → **plain git**. Sustainable
-  (~15–25 MB/mo total, squashable since the `data` branch is regenerable).
+- `index.json`, `recent.json`, `db_commits.json`, `skus/**` → **plain git**. (The original
+  "~15–25 MB/mo total" estimate here was measured wrong — see §"Data-branch growth" below.)
 - `sku_embeddings.json` (~40 MB, rewritten ~3×/day, poor delta, retrain spikes) → **GitHub Release
   asset** on the fixed tag `embeddings-latest`, overwritten by `run_daily.sh` each scrape via
   `gh release upload --clobber`. Zero git/LFS growth, unmetered CDN download. Mirrors the encoder-
@@ -50,6 +50,37 @@ How it self-heals (no hand-commit to `data`; the next cron run does it):
 Bonus fix: this also un-breaks Pages deploys (they'd been failing on the LFS-budget 403 since the
 budget ran out → prod was frozen on a stale deploy, e.g. `gbt_model.json` 404'd). With `lfs: false`
 they succeed again.
+
+## Data-branch growth — measured 2026-09-04 (~180 MB/month)
+
+The LFS-removal note above estimated ~15–25 MB/mo. Actual, measured by summing deduped
+`objectsize:disk` over the commits in each 30-day window: **~197 MB, ~162 MB, ~195 MB** for the last
+three months. Total `data`-branch pack: **757 MB**. GitHub emails about repos over 1 GB and hard-caps
+at 5 GB, so the soft threshold is ~1.5 months out at this rate.
+
+Attribution over the last 30 days (deduped blobs per path):
+
+| Path | 30d growth | Notes |
+|------|-----------|-------|
+| `viz/data/index.json` | 84.9 MB | 15 MB file rewritten wholesale 8×/day; **history is dead weight** |
+| `reports/common_listings_*.json` | 45.1 MB | history IS load-bearing — `#/stats` reads it at historical shas |
+| `data/db` | 36.0 MB | the actual source of truth; legitimate |
+| `viz/data/skus` | 11.8 MB | incremental, well-behaved |
+| `viz/data/recent.json` | 6.5 MB | fine |
+| `reports/*.txt` | 4.3 MB | per-run scrape reports |
+| `viz/data/db_commits.json` | 2.9 MB | fine |
+
+**The `data` branch is NOT squashable.** `data/db/*.json` holds only CURRENT state (`name`, `price`,
+`sku`, `url`, `img`, `removed`) — there is no history inside the files. The entire price history IS
+the git commit history of `data/db/**` (that is what `build_viz_sku_cache.js --full-reindex` walks).
+Squashing it would destroy the dataset. Likewise `reports/common_listings_*` history is read at
+specific shas by the `#/stats` fallback path.
+
+The one large artifact whose history is genuinely disposable is **`index.json`** (84.9 MB/mo, ~47%
+of growth): it is only ever fetched at HEAD (`viz/app/state.js` → `./data/index.json`), never at a
+sha. Moving it to a Release asset (as done for `sku_embeddings.json` and the `#/stats` bundles) is
+the highest-leverage remaining fix. Locally, `.git/lfs` also holds ~2.5 GB of orphaned objects
+(nothing is LFS-tracked any more) — reclaimable with `git lfs prune`.
 
 ## SKU Identity & Canonical Mapping
 
@@ -179,6 +210,127 @@ implementations enforce this; keep the window in sync across all of them:
   - Note: this `FLAP_WINDOW_MS` (3 days, per-leg) is independent of the suppressors' 48h
     single-round-trip window — different rule, different purpose; they do not need to match.
 
+## Three fake-flip-flop ROOT CAUSES fixed (2026-09-04)
+
+An audit of 35 days of `data` history found that most observed "flip-flops" were not market
+behaviour at all. Three distinct scraper defects, all fixed; each was verified against production
+data before and after. **Diagnostic method worth reusing:** walk `git log` on `data/db/*.json` and
+compute the ACTIVE (non-`removed`) count per commit — a drop that recovers is the signature. Then
+identity-test it (did the SAME urls come back?), then confirm against the live store.
+
+1. **Orphan-DB detector flipped whole categories to `removed:true`.** `orphan_dbs.js` derived a
+   category's expected DB filename from the RAW `cat.startUrl`, while `category_scan.js` derived
+   the actual filename from `normalizeBaseUrl(cat.startUrl)`. `normalizeBaseUrl` inserts a `/`
+   before a query string (`/products?x` → `/products/?x`) and returns `undefined` for a missing
+   `startUrl` (hashing to the shared `d5d4cd07`), so **88 of 117 categories were never in the
+   "expected" set** and were spared only by the `scannedDbFiles` belt-and-suspenders. Since
+   `report.categories.push()` only runs after a SUCCESSFUL scan, any category that FAILED — in a
+   store where at least one sibling succeeded — had its entire DB flipped to removed: a store-wide
+   fake sellout that "restocked" on the next run. Confirmed: Co-op 2026-09-03 (4 categories, 416
+   items, restored 8 min later by the retry) and Vessel 2026-09-03 (202 items).
+   **Fix:** one shared `db.js::dbFileForCategory()` used by BOTH sites, so they can never drift.
+   Verified: all 117 scan paths byte-identical to before (no store starts writing a new file), and
+   117/117 expected paths now resolve (was 29/117). The 11 genuine orphans still detected are all
+   already 100% removed, so nothing new is flipped.
+   - A store whose categories ALL fail is absent from `ranStoreKeys` and was never affected —
+     which is why Elbow Liquor (fails every run) never showed this, but Co-op did.
+
+2. **SKU-collision annihilation in `merge.js`.** The skuKey-rematch branch exists to follow a
+   product that MOVED url, and on a match it does `merged.delete(oldUrl)` — a HARD delete. When
+   two genuinely DIFFERENT products are concurrently live under one normalized SKU, they
+   annihilated each other every run, so the DB kept one record whose price alternated forever.
+   Four such pairs found (≈614 fabricated price-change events, which also fired email alerts and
+   `recent.json`): BSW `795231` (pendleton-directors-reserve $230 vs …-whisky-2018 $350, sku
+   `795231-2` normalizes to the same key), BSW `798880` ($15,000 single vs $19,400 bundle, 235
+   events), BSW `845142` (glengoyne-30-year-old-1 vs -3), Sierra Springs `001222`
+   (j-p-wisers-special-blend-750ml $28.99 vs …-750ml-40 $24.99).
+   **Fix:** only treat a skuKey match as a migration when the old url is NOT also in `discovered`
+   this run (`!discovered.has(hit.url)`). Both URLs live ⇒ distinct products ⇒ keep both.
+   - **Does NOT break Tudor's `?variant=` re-SKU flow** — `tudor.js` MUTATES `it.url` in place, so
+     the bare url is never in `discovered` and the guard cannot fire. Verified by unit test.
+   - Known trade-offs: those SKUs now show TWO same-store rows (accurate — they are different
+     products), and the first run after shipping emits a one-time `new_item` burst for the
+     resurrected twins. A genuine slug migration where the store serves both urls for one run now
+     yields `new_item` + `removed` instead of a silent move; history survives (the per-SKU cache is
+     sku-keyed), only the events feed is noisier. Unavoidable at scan time.
+
+3. **ARC page-boundary skip (upstream pagination bug).** The Barnet API pages via LIMIT/OFFSET and
+   re-runs its ORDER BY per request, so rows TIED on the sort key swap between requests: one is
+   served on both neighbouring pages while its partner is served on NEITHER and silently skipped.
+   Measured: `rowsFetched === paginator.items_count` and `duplicateRows === shortfall` in every
+   category — the API always hands over exactly `items_count` rows, just with one repeated in place
+   of another. Under the old `sortBy: "price_desc"` Rum served 101/102 and Whiskey 159/160; the
+   Rum victims were 478594 and 265031, both $87.99, straddling the page-1/page-2 boundary, exactly
+   one vanishing per run (they never both dropped — the mutual exclusion is the tell).
+   **Fix:** ARC categories now use `sortBy: "name_asc"`, which is tie-free in this catalog and
+   returns 160/160, 227/227, 102/102, 83/83. A completeness check (`rawIds.size < items_count`,
+   counting RAW pre-stock-filter row ids) re-sweeps with a DIFFERENT sort as a self-healing net for
+   a future tie — re-sweeping the SAME order is useless because the skip is deterministic (5/5
+   identical sweeps repeated row 410603 and dropped the same partner).
+   - **Deliberately NO "preserve unseen listings" fallback.** A genuine sellout also lowers
+     `items_count`, so a leftover gap cannot be distinguished from one; preserving would pin a real
+     sellout live forever. (An earlier attempt did preserve, on the mistaken belief that 287777
+     STILLHEAD PX CASK RYE was genuinely OOS because it never appeared under `price_desc` and its
+     product page matched an out-of-stock regex — a false positive. It was the straddle victim;
+     `name_asc` returns it and it stays live. Don't reintroduce the fallback on that evidence.)
+   - Other Barnet stores (`highpointbws`, `newdistrict`, `vintage`) still default to `price_desc`
+     via `barnet_network.js` and were NOT audited — likely carry the same latent straddle.
+
+**NOT bugs (verified against the live stores — leave alone):** Liberty's mass drops are REAL
+(its Woo API sets `stockStatusFilter: "instock"` AND hides out-of-stock products from the catalog
+entirely, so disappearance is the only OOS signal; of 203 items dropped 2026-09-02, the 39 that
+never returned are absent from the live catalog and the 164 that returned are all live now).
+Liquorama's toggles are a genuine `current_stock` signal (two back-to-back sweeps were identical,
+245/245). Malts & Grains' apparent flapping was onboarding (0 → 538 over 2026-08-07→13).
+
+## `#/stats` series bundles (2026-09-04)
+
+`#/stats` used to rebuild history in the browser by fetching
+`reports/common_listings_<group>_top<size>.json` at EVERY commit in the manifest — **214 requests**
+and ~103 MB of JSON parsed for top250 (~374 MB for top1000). That was the whole reason the page took
+tens of seconds to open. (It uses `raw.githubusercontent.com`, not the GitHub API, so it was never
+rate-limited — the cost is round-trips + parsing.)
+
+`tools/build_viz_stats_series.js` collapses each (group, size) history into ONE change-point bundle
+in `viz/data/stats/`. `viz/app/stats_page.js::expandStatsBundle()` rebuilds the exact per-day report
+shape the rest of the page already consumes, so every downstream consumer (baselines, floors,
+`computeDailyStoreSeriesFromReport`, `computePriceBoundsFromReport`) is untouched. The old
+per-commit walk survives as `loadRawSeriesFromCommits` and is the fallback when no bundle is found.
+
+- **Encoding:** every series is `[[dayIndex, value], …]`, recorded only when the value CHANGES,
+  where `null` means "absent that day". **Absence must stay explicit** — the per-day aggregates
+  count only rows/stores actually present, so forward-filling a dropped listing would inflate
+  coverage and skew the market median. Row emission is gated on `present === 1`, which is why the
+  unreadable-commit `catch` only needs to null `present`.
+- **NOT committed to the data branch.** Measured 455 KB of pack growth per run even after
+  `git repack --depth=50 --window=250` (thousands of scattered insertions delta badly) ≈ **106 MB/mo**
+  on top of the branch's existing ~180 MB/mo. So they ship as **GitHub Release assets** on the fixed
+  tag `stats-series-latest`, overwritten each scrape — the same trade already made for
+  `sku_embeddings.json`. The page tries `./data/stats/<name>` first, then the Release CDN.
+- **The `:(exclude)viz/data/stats` pathspec in `run_daily.sh`'s `git add` is load-bearing.** The
+  data branch keeps its OWN `.gitignore` that deliberately does not ignore `viz/data/` (that's what
+  it stores), so a main-branch ignore rule would not protect it.
+- **Only the 9 group/size combos the page can request are built** (`<all|bc|ab>_top<50|250|1000>`);
+  the `cohort_*` reports carry no rows and are never fetched.
+- **Incremental resume keys off the longest common sha PREFIX, not an exact match.**
+  `build_viz_commits.js` keeps the newest commit per DATE, so the tail entry's sha is rewritten by
+  every run within the same UTC day — an exact-prefix test full-rebuilt on ~7 of 8 runs. The resume
+  truncates change points at `dayIdx >= p` and replays from there; because `pushChange` compares the
+  last recorded VALUE, truncation alone restores correct state (no cursor bookkeeping). Verified
+  byte-identical to `--force` on a real tail-rewrite pair, `generatedAt` aside. `MAX_DAYS_PER_FILE`
+  (600) means the manifest eventually slides; that shifts day indices, so no prefix matches and a
+  full rebuild happens — which is REQUIRED for correctness, not a regression.
+- Measured: all_top250 562 KB (124 KB gz), all_top1000 1.67 MB (326 KB gz), 5.35 MB for all 9. Full
+  build ~44 s; a no-op re-run is ~0.15 s. Release assets are not gzip-encoded, so prod downloads the
+  raw size. Expanding all_top1000 allocates ~203k row objects (~96 MB heap) — still less than the
+  old path, which held 214 fully parsed reports.
+- **Fidelity is verified, not assumed:** expanding the real 214-commit bundle and diffing every day
+  against `git show <sha>:reports/…` gives 0 mismatches across 50,750 row-days (row presence,
+  `representative.priceNum`, `cheapest.priceNum`, every per-store price). The only intentional
+  divergence is `meta` identity/search fields, which store the NEWEST observed values so a later
+  rename stays searchable across all history. 11 commits from March 2026 are unreadable LFS
+  pointers — exactly the days the old browser path also failed on.
+
 ## Datacenter-IP Blocking — OPEN (2026-07-06, WireGuard disabled 2026-07-16)
 
 The GitHub-runner's Azure datacenter IP gets challenged by Cloudflare at several
@@ -297,6 +449,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `dedupe_skulinks.js` | Deduplicate SKU link entries |
 | `stviz_apply_issue_edits.js` | Apply issue-based SKU edits (used by GH Actions) |
 | `backfill_db_created_at.js` | One-time: stamp `createdAt` on every `data/db/*.json` from its first git commit. Run from `.worktrees/data/`. Idempotent. |
+| `build_viz_stats_series.js` | Change-point bundles for `#/stats` → `viz/data/stats/*.json`. Needs the commits manifest, so run AFTER `build_viz_commits.js`, from `.worktrees/data/`. Incremental; `--force` rebuilds. NOT committed — uploaded as a Release asset. See §"#/stats series bundles" |
 
 ## Linker Evaluation & Training Harness (`tools/linker_eval/`)
 
