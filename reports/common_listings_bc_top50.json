@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-10T05:19:24.205Z",
+  "generatedAt": "2026-09-10T10:48:43.069Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6637,
-    "removedRows": 1133,
-    "canonSkus": 2604,
+    "liveRows": 6629,
+    "removedRows": 1145,
+    "canonSkus": 2596,
     "outputCount": 50
   },
   "rows": [
@@ -1439,6 +1439,59 @@
       }
     },
     {
+      "canonSku": "424245",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 35.39,
+        "bcl": 35.99,
+        "everythingwine": 35.99,
+        "gull": 36.1,
+        "highpointbws": 44.99,
+        "legacyliquor": 45.3,
+        "liberty": 45.99,
+        "liquorwarehouse": 41.99,
+        "newdistrict": 44.49,
+        "tudor": 35.99,
+        "vessel": 36.99
+      },
+      "representative": {
+        "name": "CITADELLE JARDIN DETE",
+        "price": "$35.39",
+        "priceNum": 35.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "424245",
+        "skuKey": "424245",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4589456-citadelle-jardin-dete",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$35.39",
+        "priceNum": 35.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4589456-citadelle-jardin-dete"
+      }
+    },
+    {
       "canonSku": "521992",
       "storeCount": 11,
       "stores": [
@@ -2634,57 +2687,6 @@
         "priceNum": 39.8,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/havana-club-7yr-750m/"
-      }
-    },
-    {
-      "canonSku": "052050",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 30.09,
-        "bcl": 29.49,
-        "everythingwine": 29.49,
-        "gull": 31.25,
-        "highpointbws": 31.29,
-        "legacyliquor": 30.99,
-        "strath": 29.66,
-        "tudor": 29.49,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "MATTHEW GLOAG - THE FAMOUS GROUSE",
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "052050",
-        "skuKey": "052050",
-        "url": "https://www.bcliquorstores.com/product/52050",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$29.49",
-        "priceNum": 29.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/52050"
       }
     }
   ]
