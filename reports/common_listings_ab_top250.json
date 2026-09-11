@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-11T18:46:48.183Z",
+  "generatedAt": "2026-09-11T20:47:07.224Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -40,9 +40,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18508,
-    "removedRows": 7268,
-    "canonSkus": 5890,
+    "liveRows": 18504,
+    "removedRows": 7274,
+    "canonSkus": 5891,
     "outputCount": 250
   },
   "rows": [
@@ -2875,7 +2875,7 @@
         "canadianliquor": 78.99,
         "clbspirits": 60.35,
         "craftcellars": 81.99,
-        "highlander": 83.99,
+        "highlander": 55.99,
         "kegncork": 81.96,
         "kwm": 75.99,
         "lime": 74.99,
@@ -2887,22 +2887,22 @@
         "zyn": 65
       },
       "representative": {
-        "name": "Aberfeldy 12 Year Old",
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
+        "name": "Aberfeldy 12yr 750ml",
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "highlander",
+        "storeLabel": "Highlander Wine & Spirits",
         "skuRaw": "840932",
         "skuKey": "840932",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old",
-        "categoryLabel": "Scotch Whisky",
-        "dbFile": "data/db/bsw__scotch-whisky__d9506bee.json"
+        "url": "https://highlanderwine.com/product/aberfeldy-12yr-old-highlands-single-malt-750ml/",
+        "categoryLabel": "Whiskey",
+        "dbFile": "data/db/highlander__whiskey__a84f92bb.json"
       },
       "cheapest": {
-        "price": "$57.99",
-        "priceNum": 57.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/aberfeldy-12-year-old"
+        "price": "$55.99",
+        "priceNum": 55.99,
+        "storeKey": "highlander",
+        "url": "https://highlanderwine.com/product/aberfeldy-12yr-old-highlands-single-malt-750ml/"
       }
     },
     {
@@ -11553,6 +11553,67 @@
       }
     },
     {
+      "canonSku": "781487",
+      "storeCount": 11,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "craftcellars",
+        "kegncork",
+        "lime",
+        "sierrasprings",
+        "silversprings",
+        "whiskydrop",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "colordevino",
+        "coop",
+        "elbowliquor",
+        "highlander",
+        "kwm",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "vinearts",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "canadianliquor": 117.99,
+        "clbspirits": 48.31,
+        "craftcellars": 116.99,
+        "kegncork": 117.96,
+        "lime": 114.99,
+        "sierrasprings": 142.75,
+        "silversprings": 119.85,
+        "whiskydrop": 129,
+        "wineandbeyond": 142.99,
+        "zyn": 116
+      },
+      "representative": {
+        "name": "Garrison Brothers Small Batch Bourbon 375ml",
+        "price": "$48.31",
+        "priceNum": 48.31,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "839008",
+        "skuKey": "839008",
+        "url": "https://clbspirits.com/products/garrison-brothers-small-batch-bourbon",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$48.31",
+        "priceNum": 48.31,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/garrison-brothers-small-batch-bourbon"
+      }
+    },
+    {
       "canonSku": "860244",
       "storeCount": 11,
       "stores": [
@@ -13895,66 +13956,6 @@
       }
     },
     {
-      "canonSku": "712323",
-      "storeCount": 10,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "willowpark",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "elbowliquor",
-        "highlander",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "silversprings",
-        "vinearts",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "bsw": 76.99,
-        "canadianliquor": 82.99,
-        "clbspirits": 76.01,
-        "coop": 89.99,
-        "craftcellars": 87.99,
-        "kegncork": 87.96,
-        "kwm": 87.99,
-        "lime": 79.99,
-        "willowpark": 88.99,
-        "zyn": 84
-      },
-      "representative": {
-        "name": "Arran Sauternes Cask Finish 50 ABV 700ml",
-        "price": "$76.01",
-        "priceNum": 76.01,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "724819",
-        "skuKey": "724819",
-        "url": "https://clbspirits.com/products/arran-sauternes-cask",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$76.01",
-        "priceNum": 76.01,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/arran-sauternes-cask"
-      }
-    },
-    {
       "canonSku": "730868",
       "storeCount": 10,
       "stores": [
@@ -14551,65 +14552,6 @@
         "priceNum": 22.99,
         "storeKey": "bsw",
         "url": "https://www.bswliquor.com/products/captain-morgan-white-rum-3"
-      }
-    },
-    {
-      "canonSku": "001453",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "lime",
-        "liquorama",
-        "sherbrooke",
-        "silversprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "elbowliquor",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "maltsandgrains",
-        "rmwsb",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 43.99,
-        "canadianliquor": 47.99,
-        "lime": 45.99,
-        "liquorama": 44.99,
-        "sherbrooke": 49.23,
-        "silversprings": 47.33,
-        "willowpark": 44.49,
-        "wineandbeyond": 40.99,
-        "zyn": 47.5
-      },
-      "representative": {
-        "name": "Tanqueray London Dry Gin 1.14L",
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "743421",
-        "skuKey": "743421",
-        "url": "https://www.bswliquor.com/products/tanqueray-london-dry-gin-3",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bsw__gin__e3817c55.json"
-      },
-      "cheapest": {
-        "price": "$40.99",
-        "priceNum": 40.99,
-        "storeKey": "wineandbeyond",
-        "url": "https://www.wineandbeyond.ca/products/tanqueray-london-dry-gin-1-14l"
       }
     },
     {
@@ -15377,6 +15319,65 @@
         "priceNum": 72.16,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/high-west-campfire"
+      }
+    },
+    {
+      "canonSku": "712323",
+      "storeCount": 9,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "willowpark",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "elbowliquor",
+        "highlander",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "silversprings",
+        "vinearts",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "bsw": 76.99,
+        "clbspirits": 76.01,
+        "coop": 89.99,
+        "craftcellars": 87.99,
+        "kegncork": 87.96,
+        "kwm": 87.99,
+        "lime": 79.99,
+        "willowpark": 88.99,
+        "zyn": 84
+      },
+      "representative": {
+        "name": "Arran Sauternes Cask Finish 50 ABV 700ml",
+        "price": "$76.01",
+        "priceNum": 76.01,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "724819",
+        "skuKey": "724819",
+        "url": "https://clbspirits.com/products/arran-sauternes-cask",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$76.01",
+        "priceNum": 76.01,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/arran-sauternes-cask"
       }
     },
     {
