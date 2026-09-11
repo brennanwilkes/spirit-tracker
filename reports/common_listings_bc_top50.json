@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-11T05:17:55.665Z",
+  "generatedAt": "2026-09-11T10:46:11.917Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -33,8 +33,8 @@
   ],
   "totals": {
     "liveRows": 6633,
-    "removedRows": 1145,
-    "canonSkus": 2598,
+    "removedRows": 1150,
+    "canonSkus": 2595,
     "outputCount": 50
   },
   "rows": [
@@ -803,6 +803,59 @@
       }
     },
     {
+      "canonSku": "000570",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 28.99,
+        "bcl": 27.99,
+        "everythingwine": 27.99,
+        "gull": 27.05,
+        "highpointbws": 29.99,
+        "legacyliquor": 29.39,
+        "liquorwarehouse": 28.99,
+        "newdistrict": 29.79,
+        "strath": 30.35,
+        "tudor": 27.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "Beefeater – London Dry 750ml",
+        "price": "$27.05",
+        "priceNum": 27.05,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "000570",
+        "skuKey": "000570",
+        "url": "https://gullliquorstore.com/product/beefeater-london-dry-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$27.05",
+        "priceNum": 27.05,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/beefeater-london-dry-750m/"
+      }
+    },
+    {
       "canonSku": "000893",
       "storeCount": 11,
       "stores": [
@@ -1171,59 +1224,6 @@
         "priceNum": 66.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12yo-the-original"
-      }
-    },
-    {
-      "canonSku": "135210",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 77.19,
-        "bcl": 73.99,
-        "everythingwine": 73.99,
-        "gull": 73.99,
-        "highpointbws": 90.49,
-        "legacyliquor": 88.13,
-        "liquorwarehouse": 89.99,
-        "marquis": 82.99,
-        "strath": 79.22,
-        "tudor": 73.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "LAPHROAIG - 10 YEAR OLD",
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://www.bcliquorstores.com/product/135210",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$73.99",
-        "priceNum": 73.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/135210"
       }
     },
     {
@@ -1704,58 +1704,6 @@
       }
     },
     {
-      "canonSku": "000570",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 27.99,
-        "everythingwine": 27.99,
-        "gull": 27.05,
-        "highpointbws": 29.99,
-        "legacyliquor": 29.39,
-        "liquorwarehouse": 28.99,
-        "newdistrict": 29.79,
-        "strath": 30.35,
-        "tudor": 27.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "Beefeater – London Dry 750ml",
-        "price": "$27.05",
-        "priceNum": 27.05,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "000570",
-        "skuKey": "000570",
-        "url": "https://gullliquorstore.com/product/beefeater-london-dry-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$27.05",
-        "priceNum": 27.05,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/beefeater-london-dry-750m/"
-      }
-    },
-    {
       "canonSku": "001040",
       "storeCount": 10,
       "stores": [
@@ -2169,6 +2117,58 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "135210",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "liberty",
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 77.19,
+        "bcl": 73.99,
+        "everythingwine": 73.99,
+        "gull": 73.99,
+        "highpointbws": 90.49,
+        "legacyliquor": 88.13,
+        "liquorwarehouse": 89.99,
+        "marquis": 82.99,
+        "strath": 79.22,
+        "tudor": 73.99
+      },
+      "representative": {
+        "name": "LAPHROAIG - 10 YEAR OLD",
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "135210",
+        "skuKey": "135210",
+        "url": "https://www.bcliquorstores.com/product/135210",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$73.99",
+        "priceNum": 73.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/135210"
       }
     },
     {
