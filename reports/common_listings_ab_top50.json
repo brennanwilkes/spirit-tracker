@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T05:23:43.783Z",
+  "generatedAt": "2026-09-15T11:15:32.033Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -40,9 +40,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18335,
-    "removedRows": 7469,
-    "canonSkus": 5795,
+    "liveRows": 18399,
+    "removedRows": 7450,
+    "canonSkus": 5835,
     "outputCount": 50
   },
   "rows": [
@@ -291,7 +291,7 @@
         "lime": 44.99,
         "liquorama": 43.99,
         "maltsandgrains": 39.9,
-        "rmwsb": 45.99,
+        "rmwsb": 37.99,
         "sherbrooke": 49.08,
         "sierrasprings": 35.99,
         "silversprings": 49.38,
@@ -453,6 +453,73 @@
       }
     },
     {
+      "canonSku": "605063",
+      "storeCount": 17,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "kegncork",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "silversprings",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "missingStores": [
+        "elbowliquor",
+        "highlander",
+        "vinearts",
+        "willowpark",
+        "zyn"
+      ],
+      "storePrices": {
+        "bsw": 41.99,
+        "canadianliquor": 41.88,
+        "clbspirits": 40.99,
+        "colordevino": 50.1,
+        "coop": 44.99,
+        "craftcellars": 46.99,
+        "kegncork": 46.96,
+        "kwm": 44.99,
+        "lime": 41.99,
+        "liquorama": 39.99,
+        "maltsandgrains": 49.73,
+        "rmwsb": 39.49,
+        "sherbrooke": 47.05,
+        "sierrasprings": 40.99,
+        "silversprings": 46.52,
+        "whiskydrop": 49,
+        "wineandbeyond": 43.99
+      },
+      "representative": {
+        "name": "Buffalo Trace Kentucky Straight Bourbon Whiskey (45% ABV) 750 ML",
+        "price": "$39.49",
+        "priceNum": 39.49,
+        "storeKey": "rmwsb",
+        "storeLabel": "Rocky Mountain Wine Spirits Beer",
+        "skuRaw": "714233",
+        "skuKey": "714233",
+        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/buffalo-trace-kentucky-straight-bourbon-whiskey-45-abv-750-ml/",
+        "categoryLabel": "Whiskey",
+        "dbFile": "data/db/rmwsb__whiskey__6edf884b.json"
+      },
+      "cheapest": {
+        "price": "$39.49",
+        "priceNum": 39.49,
+        "storeKey": "rmwsb",
+        "url": "https://rockymountainwinespiritsbeer.com/shop/liquor-spirits/whiskey/buffalo-trace-kentucky-straight-bourbon-whiskey-45-abv-750-ml/"
+      }
+    },
+    {
       "canonSku": "732883",
       "storeCount": 17,
       "stores": [
@@ -563,7 +630,7 @@
         "sierrasprings": 165,
         "silversprings": 139.85,
         "willowpark": 144.99,
-        "wineandbeyond": 145.95,
+        "wineandbeyond": 168.99,
         "zyn": 164
       },
       "representative": {
@@ -715,72 +782,6 @@
         "priceNum": 69.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/michter-s-us-1-single-barrel-straight-rye"
-      }
-    },
-    {
-      "canonSku": "605063",
-      "storeCount": 16,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "kwm",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "silversprings",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "missingStores": [
-        "elbowliquor",
-        "highlander",
-        "rmwsb",
-        "vinearts",
-        "willowpark",
-        "zyn"
-      ],
-      "storePrices": {
-        "bsw": 41.99,
-        "canadianliquor": 41.88,
-        "clbspirits": 40.99,
-        "colordevino": 50.1,
-        "coop": 44.99,
-        "craftcellars": 46.99,
-        "kegncork": 46.96,
-        "kwm": 44.99,
-        "lime": 41.99,
-        "liquorama": 39.99,
-        "maltsandgrains": 49.73,
-        "sherbrooke": 47.05,
-        "sierrasprings": 40.99,
-        "silversprings": 46.52,
-        "whiskydrop": 49,
-        "wineandbeyond": 43.99
-      },
-      "representative": {
-        "name": "BUFFALO TRACE",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "liquorama",
-        "storeLabel": "Liquorama",
-        "skuRaw": "714233",
-        "skuKey": "714233",
-        "url": "https://liquorama.ca/product/714233/buffalo-trace-750ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/liquorama__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "liquorama",
-        "url": "https://liquorama.ca/product/714233/buffalo-trace-750ml"
       }
     },
     {
@@ -1726,7 +1727,7 @@
         "bsw": 135,
         "canadianliquor": 147.99,
         "clbspirits": 132.53,
-        "coop": 154.99,
+        "coop": 159.99,
         "craftcellars": 123.99,
         "kegncork": 154.96,
         "kwm": 154.99,
