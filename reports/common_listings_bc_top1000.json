@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T19:14:06.845Z",
+  "generatedAt": "2026-09-15T21:12:29.446Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6619,
-    "removedRows": 1178,
+    "liveRows": 6617,
+    "removedRows": 1180,
     "canonSkus": 2591,
     "outputCount": 1000
   },
@@ -23805,52 +23805,6 @@
       }
     },
     {
-      "canonSku": "150226",
-      "storeCount": 4,
-      "stores": [
-        "arc",
-        "everythingwine",
-        "legacyliquor",
-        "strath"
-      ],
-      "missingStores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 170.19,
-        "everythingwine": 182.98,
-        "legacyliquor": 190.3,
-        "strath": 173.4
-      },
-      "representative": {
-        "name": "LAPHROAIG 15YO",
-        "price": "$170.19",
-        "priceNum": 170.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "732964",
-        "skuKey": "732964",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5269741-laphroaig-15yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$170.19",
-        "priceNum": 170.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5269741-laphroaig-15yo"
-      }
-    },
-    {
       "canonSku": "154961",
       "storeCount": 4,
       "stores": [
@@ -25826,6 +25780,52 @@
         "priceNum": 239.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/black-tot-master-ble-ml-360"
+      }
+    },
+    {
+      "canonSku": "408512",
+      "storeCount": 4,
+      "stores": [
+        "legacyliquor",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 87.19,
+        "newdistrict": 82.29,
+        "tudor": 84.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Isle of Jura - Caribbean Rum Cask Single Malt Scotch",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "408512",
+        "skuKey": "408512",
+        "url": "https://vesselliquor.com/products/isle-of-jura-rum-cask-05013967017849",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/isle-of-jura-rum-cask-05013967017849"
       }
     },
     {
@@ -31356,6 +31356,51 @@
         "priceNum": 149.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/gm-sos-caol-ila-700m/"
+      }
+    },
+    {
+      "canonSku": "150226",
+      "storeCount": 3,
+      "stores": [
+        "arc",
+        "everythingwine",
+        "strath"
+      ],
+      "missingStores": [
+        "bcl",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 170.19,
+        "everythingwine": 182.98,
+        "strath": 173.4
+      },
+      "representative": {
+        "name": "LAPHROAIG 15YO",
+        "price": "$170.19",
+        "priceNum": 170.19,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "732964",
+        "skuKey": "732964",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5269741-laphroaig-15yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$170.19",
+        "priceNum": 170.19,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5269741-laphroaig-15yo"
       }
     },
     {
@@ -45013,50 +45058,6 @@
         "priceNum": 46.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4762322-mount-gay-navy-strength"
-      }
-    },
-    {
-      "canonSku": "353444",
-      "storeCount": 2,
-      "stores": [
-        "liberty",
-        "marquis"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "liberty": 84.99,
-        "marquis": 94.99
-      },
-      "representative": {
-        "name": "Blade and Bow Kentucky Straight Bourbon Whiskey",
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "liberty",
-        "storeLabel": "Liberty Wine Merchants",
-        "skuRaw": "353444",
-        "skuKey": "353444",
-        "url": "https://www.libertywinemerchants.com/product/353444/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/liberty__whisky__4216f1a8.json"
-      },
-      "cheapest": {
-        "price": "$84.99",
-        "priceNum": 84.99,
-        "storeKey": "liberty",
-        "url": "https://www.libertywinemerchants.com/product/353444/"
       }
     },
     {
