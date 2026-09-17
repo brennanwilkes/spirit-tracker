@@ -76,11 +76,55 @@ the git commit history of `data/db/**` (that is what `build_viz_sku_cache.js --f
 Squashing it would destroy the dataset. Likewise `reports/common_listings_*` history is read at
 specific shas by the `#/stats` fallback path.
 
-The one large artifact whose history is genuinely disposable is **`index.json`** (84.9 MB/mo, ~47%
-of growth): it is only ever fetched at HEAD (`viz/app/state.js` → `./data/index.json`), never at a
-sha. Moving it to a Release asset (as done for `sku_embeddings.json` and the `#/stats` bundles) is
-the highest-leverage remaining fix. Locally, `.git/lfs` also holds ~2.5 GB of orphaned objects
-(nothing is LFS-tracked any more) — reclaimable with `git lfs prune`.
+The one large artifact whose history was genuinely disposable — **`index.json`** (84.9 MB/mo, ~47%
+of growth): only ever fetched at HEAD (`viz/app/state.js` → `./data/index.json`), never at a sha —
+**was moved to a Release asset on 2026-09-17** (tag `index-latest`; same pattern as
+`sku_embeddings.json` and the `#/stats` bundles): `run_daily.sh` uploads it before the push,
+`pages.yaml` stages it into the Pages artifact at deploy (zero frontend change). Its ~277 MB of
+history stays in the branch until the optional filter-repo rewrite. Locally, `.git/lfs` also holds
+~2.5 GB of orphaned objects (nothing is LFS-tracked any more) — reclaimable with `git lfs prune`.
+
+### Re-measurement + forecast — 2026-09-17
+
+GitHub-reported repo `size` (API): **653.7 MB**. Local deduped pack: `data`-branch-only 733.8 MiB,
+all-reachable 737.5 MiB — GitHub's counter tracks packed/delta bytes, NOT content (deduped content
+is 28.5 GB). The ~84 MiB local-vs-GitHub gap is local pack redundancy (29 packs), not a trend.
+
+Growth has **accelerated** (deduped `objectsize:disk` over `git rev-list --objects <tip> --not
+<base>`, 15-day windows): Feb–Apr ~6–17 MiB/14d → May 36 → Jun–Aug 61–108 → Aug–Sep 61–101.
+Current steady rate ≈ **150–180 MiB/mo** (why: catalog grew, so index.json/skus write more bytes
+per rewrite.)
+
+**Forecast (at current rate): first limit = the 1 GB repo-size mark ≈ early December 2026**
+(±3 weeks: mid-Nov at 180 MiB/mo, mid-Dec at 150). Hard 5 GB push cap ≈ 2028–29, sooner if the
+ratchet continues. All other free-tier limits are NOT in play because the repo is public: Actions
+minutes/storage (free) — the ~5,800 min/mo of runs (estimate: ~6.4 runs/day from the
+report file count) would blow the 2,000-min **private**-repo bucket in ~10 days, so keeping the
+repo public is load-bearing for CI; LFS (no longer used, free for public);
+release assets (132 MB, free for public); Pages bandwidth (non-factor).
+
+All-time deduped-disk attribution (what pruning would reclaim):
+
+| Path | MiB | Verdict |
+|------|-----|---------|
+| `viz/data/index.json` | 276.6 | HEAD-only, regenerable — disposable |
+| `reports/common_listings_*.json` | 226.3 | needed only as stats-bundle rebuild input; runtime path is the Release asset |
+| `data/db/**` | 129.0 | THE source of truth — keep |
+| `viz/data/skus/*` | 40.0 | HEAD-only, regenerable (`--full-reindex`) — disposable |
+| `viz/data/rarity.json` | 23.5 | HEAD-only, regenerable |
+| `viz/data/recent.json` | 21.1 | HEAD-only, regenerable |
+| `viz/data/db_commits.json` | 6.8 | tooling-only, small |
+| `reports/*.txt` | 4.6 | observability, small |
+| `data/sku_links*` + code | ~8.6 | keep |
+
+No base64-image waste: `img` fields are URLs. The 133 `stviz/issue-*` remote branches hold only
+0.3 MiB unique — cosmetic only. Bottom line: ~110 of every ~180 MB/mo was derived, HEAD-only
+copy-of-the-DB (index/recent/rarity/skus/db_commits) whose history is dead weight, and ~550 MB of
+such history already sits in the branch. `index.json` (the largest, ~85 MiB/mo) is now a Release
+asset. Mitigation options are logged in `docs/` design notes — the two levers are (1) extend the
+Release-asset pattern to the remaining HEAD-only files (recent/rarity/skus, stops up to ~25 MiB/mo
+more) and (2) a one-time `git filter-repo` history rewrite to drop them retroactively (claws back
+~500 MiB in one move; must preserve `data/db/**`).
 
 ## SKU Identity & Canonical Mapping
 
@@ -334,7 +378,18 @@ per-commit walk survives as `loadRawSeriesFromCommits` and is the fallback when 
 ## Datacenter-IP Blocking — OPEN (2026-07-06, WireGuard disabled 2026-07-16)
 
 The GitHub-runner's Azure datacenter IP gets challenged by Cloudflare at several
-stores (liberty, highlander, coop, colordevino, maltsandgrains).
+stores (liberty, highlander, coop, colordevino, maltsandgrains, **elbowliquor/vinox**).
+
+**elbowliquor (vinox.ca) is currently CI-blocked outright** (added 2026-09-04): all three
+categories return `HTTP 403` with a Cloudflare interstitial (body starts
+`<!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie"` — that markup is the tell).
+The adapter itself is fine: from a residential IP it scrapes cleanly (31 single-bottle listings,
+31/31 real CSPCs). So its 3 failures/run are the datacenter-IP issue, NOT a broken scraper — check
+that before "fixing" the adapter. Because every one of its categories fails, the store never enters
+`ranStoreKeys`, so the orphan detector leaves its DB files alone and nothing is corrupted; the run
+just records the failures honestly. Run it locally to refresh that store's data.
+Note the block is an IP lottery, not deterministic — colordevino, on the same list, succeeded in
+the same run.
 
 **WireGuard attempt (DISABLED):** ProtonVPN WireGuard tunnel in `cron_tracker.yaml`.
 UDP endpoint reachable but handshake never completes on cron runner — likely Azure
