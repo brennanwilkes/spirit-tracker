@@ -32,6 +32,32 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v4
 
+      # viz/data/index.json is a GitHub Release asset (tag index-latest), NOT committed — it was
+      # the largest single source of data-branch growth (~85 MiB/mo; HEAD-only, regenerable). Pull
+      # it into the site artifact so the SPA keeps fetching ./data/index.json SAME-ORIGIN (zero
+      # frontend change). Same cross-origin-CORS constraint as the stats bundles below: a browser
+      # cannot fetch a Release asset (the download 302s to release-assets.githubusercontent.com,
+      # which sends no access-control-allow-origin), so deploy-time staging is REQUIRED.
+      #
+      # Unlike the stats step this FAILS LOUDLY instead of warning: every page calls loadIndex(),
+      # so a site without index.json is a broken site. Failing the deploy keeps the last good
+      # deployment live (deploy-pages only swaps on success).
+      - name: Stage index.json into site artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p viz/data
+          if gh release download index-latest \
+               --repo "$GITHUB_REPOSITORY" \
+               --dir viz/data --pattern 'index.json' --clobber; then
+            echo "staged index.json ($(wc -c < viz/data/index.json) bytes)"
+          else
+            echo "ERROR: index-latest asset not found or download failed; aborting deploy (last good deployment stays live)" >&2
+            exit 1
+          fi
+
       # Make sku_links.json + sku_links_auto.json available to the static site
       # without committing second copies. Both are pulled by viz/app/api.js.
       - name: Stage sku_links*.json into site artifact

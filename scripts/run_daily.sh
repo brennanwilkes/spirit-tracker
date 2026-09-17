@@ -237,6 +237,27 @@ else
   echo "INFO: skipping stats series Release upload (no gh CLI or no bundles)" >&2
 fi
 
+# viz/data/index.json is NOT committed either — it is the largest single source of data-branch
+# growth (~85 MiB/mo): a ~15 MB file rewritten wholesale every scrape whose history is dead
+# weight (the SPA fetches it ONLY at HEAD via state.js). Same fix as embeddings/stats: a fixed
+# Release tag, overwritten each scrape. The worktree copy stays for local consumers and is
+# excluded from the commit below; pages.yaml stages it into the Pages artifact at deploy so prod
+# still serves it SAME-ORIGIN from ./data/index.json (zero frontend change). MUST upload BEFORE
+# the push — the Pages deploy fires on the push and downloads from this tag. Best-effort; never
+# aborts the scrape (a stale asset serves the last good catalog if this fails).
+if command -v gh >/dev/null 2>&1 && [[ -s "$WORKTREE_DIR/viz/data/index.json" ]]; then
+  set +e
+  gh release upload index-latest "$WORKTREE_DIR/viz/data/index.json" --clobber 2>/dev/null \
+    || gh release create index-latest "$WORKTREE_DIR/viz/data/index.json" \
+         --title "Latest catalog index" \
+         --notes "Auto-uploaded by run_daily.sh each scrape. Overwritten in place; only 'latest' is kept." 2>/dev/null
+  idx_rc=$?
+  set -e
+  [[ $idx_rc -ne 0 ]] && echo "WARN: index Release upload failed (rc=$idx_rc); next Pages deploy will use the previous asset" >&2
+else
+  echo "INFO: skipping index Release upload (no gh CLI or no index.json)" >&2
+fi
+
 # --- Auto-link classification (learned classifier) ---
 # With fresh embeddings now in the worktree, score unlinked SKUs with the live GBT blend and
 # append high-confidence (≥99%-precision bar) cross-store matches to data/sku_links.json as
@@ -273,9 +294,15 @@ git rm --cached --quiet --ignore-unmatch viz/data/sku_embeddings.json 2>/dev/nul
 # the ':(exclude)' pathspec below is the actual guard; this line makes it self-healing if a
 # bundle ever did get committed. Idempotent.
 git rm -r --cached --quiet --ignore-unmatch viz/data/stats 2>/dev/null || true
+# Same treatment for viz/data/index.json (Release asset on index-latest, see the upload step
+# above — the largest single source of data-branch growth at ~85 MiB/mo). Idempotent.
+git rm --cached --quiet --ignore-unmatch viz/data/index.json 2>/dev/null || true
 
-# Stage only data/report/viz outputs (embeddings excluded — see above)
-git add -A data/db reports viz/data ':(exclude)viz/data/sku_embeddings.json' ':(exclude)viz/data/stats'
+# Stage only data/report/viz outputs (embeddings/stats/index excluded — see above)
+git add -A data/db reports viz/data \
+  ':(exclude)viz/data/sku_embeddings.json' \
+  ':(exclude)viz/data/stats' \
+  ':(exclude)viz/data/index.json'
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
 # May not exist on first run; -- pathspec avoids erroring out in that case.
 git add -A -- data/sku_links_auto.json 2>/dev/null || true
