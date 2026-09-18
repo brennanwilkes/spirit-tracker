@@ -313,6 +313,8 @@ jobs:
           MAIN_BRANCH: main
           DATA_BRANCH: data
           STORES: ${{ steps.plan.outputs.stores }}
+          # big vs small — drives common_listings report commit gating (big only) in run_daily.sh.
+          MODE: ${{ steps.plan.outputs.mode }}
           # Point encode.py at the Release-asset checkpoint restored above (absolute path).
           LINKER_MODEL_DIR: ${{ github.workspace }}/tools/linker_ml/model_ft
           # Lets run_daily.sh upload the freshly-encoded sku_embeddings.json to the

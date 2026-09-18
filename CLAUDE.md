@@ -25,8 +25,9 @@ plain git), so nothing of value lived only in LFS. Decision, by file (measured o
 real history — git delta-compresses these beautifully because consecutive versions are ~99%
 identical; ~37–290 KB added per commit, not the whole file):
 
-- `index.json`, `recent.json`, `db_commits.json`, `skus/**` → **plain git**. (The original
-  "~15–25 MB/mo total" estimate here was measured wrong — see §"Data-branch growth" below.)
+- `index.json`, `db_commits.json` → **plain git at the time** (the original "~15–25 MB/mo total"
+  estimate here was measured wrong — see §"Data-branch growth" below). `recent.json` + `skus/**` were
+  since migrated OFF the data branch to Release assets (2026-09-17, see §"Data-branch growth").
 - `sku_embeddings.json` (~40 MB, rewritten ~3×/day, poor delta, retrain spikes) → **GitHub Release
   asset** on the fixed tag `embeddings-latest`, overwritten by `run_daily.sh` each scrape via
   `gh release upload --clobber`. Zero git/LFS growth, unmetered CDN download. Mirrors the encoder-
@@ -45,6 +46,8 @@ How it self-heals (no hand-commit to `data`; the next cron run does it):
    lingering pointer in `viz/data/skus` (`grep git-lfs.github.com`) and runs a one-time
    `build_viz_sku_cache.js --full-reindex` (rebuilds every SKU from `data/db/**` git history) so
    unchanged SKUs don't persist as pointer text. Reverts to incremental once no pointers remain.
+   (This pointer check was REPLACED 2026-09-17: skus/** is now a Release-asset tarball, restored
+   before every build — see §"Data-branch growth".)
 4. All workflow checkouts are now `lfs: false`. Net metered LFS traffic: **zero**.
 
 Bonus fix: this also un-breaks Pages deploys (they'd been failing on the LFS-budget 403 since the
@@ -95,9 +98,12 @@ Growth has **accelerated** (deduped `objectsize:disk` over `git rev-list --objec
 Current steady rate ≈ **150–180 MiB/mo** (why: catalog grew, so index.json/skus write more bytes
 per rewrite.)
 
-**Forecast (at current rate): first limit = the 1 GB repo-size mark ≈ early December 2026**
-(±3 weeks: mid-Nov at 180 MiB/mo, mid-Dec at 150). Hard 5 GB push cap ≈ 2028–29, sooner if the
-ratchet continues. All other free-tier limits are NOT in play because the repo is public: Actions
+**Forecast (post index.json-migration, measured 2026-09-17): first limit = the 1 GB repo-size
+mark ≈ mid-January 2027** (range early-Jan to mid-Feb: remaining rate ≈ 85–110 MiB/mo after
+dropping index.json's ~85 MiB/mo, headroom 370 MiB). Previous pre-migration forecast was early
+Dec; this buys ~6 weeks. Re-measure from `gh api .../.size` at each check-in. **The
+recent/skus/common_listings levers (§"Data-branch growth") cut another ~25 MiB/mo once verified
+→ mid-to-late Jan holding. Hard 5 GB push cap ≈ 2028–29, sooner if the ratchet continues.** All other free-tier limits are NOT in play because the repo is public: Actions
 minutes/storage (free) — the ~5,800 min/mo of runs (estimate: ~6.4 runs/day from the
 report file count) would blow the 2,000-min **private**-repo bucket in ~10 days, so keeping the
 repo public is load-bearing for CI; LFS (no longer used, free for public);
@@ -120,11 +126,30 @@ All-time deduped-disk attribution (what pruning would reclaim):
 No base64-image waste: `img` fields are URLs. The 133 `stviz/issue-*` remote branches hold only
 0.3 MiB unique — cosmetic only. Bottom line: ~110 of every ~180 MB/mo was derived, HEAD-only
 copy-of-the-DB (index/recent/rarity/skus/db_commits) whose history is dead weight, and ~550 MB of
-such history already sits in the branch. `index.json` (the largest, ~85 MiB/mo) is now a Release
-asset. Mitigation options are logged in `docs/` design notes — the two levers are (1) extend the
-Release-asset pattern to the remaining HEAD-only files (recent/rarity/skus, stops up to ~25 MiB/mo
-more) and (2) a one-time `git filter-repo` history rewrite to drop them retroactively (claws back
-~500 MiB in one move; must preserve `data/db/**`).
+such history already sits in the branch. `index.json` (largest, ~85 MiB/mo), `recent.json`
+(~6.5 MiB/mo) and `viz/data/skus/**` (~11.8 MiB/mo) are now Release assets; `common_listings`
+reports are committed only on big runs. Mitigation options are logged in `docs/` design notes the
+remaining lever is a one-time `git filter-repo` history rewrite to drop them retroactively (claws
+back ~500 MiB in one move; must preserve `data/db/**`).
+
+**index.json→Release rollout check-in (2026-09-17, revisit in ~1 week):**
+- `gh release view index-latest` → asset `index.json` present, size ≈15–16 MB; grows with the catalog.
+- `git ls-tree origin/data viz/data/index.json` → empty (never re-tracked by a merge/edit).
+- `gh api repos/brennanwilkes/spirit-tracker --jq '.size/1024'` → compare to 653.71 baseline; delta
+  should be a fraction of the old ~85 MiB/mo rate.
+- Site `…/data/index.json` serves HTTP 200, byte-identical to the Release asset.
+- Each `run:` commit on `data` must contain the `index-latest` upload BEFORE the push (deploy needs
+  it); a `WARN: index Release upload failed` in run output means the next deploy will fail loudly.
+
+**recent/skus/common_listings rollout (2026-09-17, in code — verify the first big cron run):**
+Follow `docs/recent-skus-release-and-common-listings-gating.md`. Key checks: no `WARN: … Release
+upload failed` in run output; `gh release view recent-latest`/`skus-latest` have fresh assets
+(recent.json ≈ a few MB; skus.tar.gz ≈ 1.8 MB); deploy serves `…/data/recent.json` 200 and item
+pages still draw charts (skus extracted at deploy); email pack still suppresses flip-flops (it now
+restores `skus-latest` into `viz/data/skus/` before building); small-run commits contain NO
+`reports/common_listings_*.json` (big-run commits still do); `git ls-tree origin/data viz/data`
+shows neither `recent.json` nor `skus/`. The `recent-latest`/`skus-latest` uploads MUST happen
+before the push in the same run, or the deploy + email pack use stale assets.
 
 ## SKU Identity & Canonical Mapping
 
@@ -475,11 +500,64 @@ visible at a glance in `git log` over time:
   fails (no data at all) writes no commit, so it leaves no record. Partial failures
   (the common case) do commit and are recorded.
 
+## New-listings audit (`scripts/audit_new_listings.js`)
+
+**Strategic direction (2026-09-17):** the human link pages are being retired (long term). Link
+quality control becomes two pillars: (A) the auto-classify pipeline (below) and (B) **periodic
+AI-agent audits** driven by this script — the agent links missed same-products and unlinks bad
+links by editing `data/sku_links.json` (no UI). `#/link-rapid` / `#/link-review` are scheduled for
+removal once the audit loop is the trusted path.
+
+The audit is the **collapsing layer**: it reads the big worktree sources (per-SKU caches,
+`data/db/**`, both link files, hidden, rarity) and emits a compact, machine-readable report so an
+agent only ever looks at decision-relevant rows. Read-only over the worktree; outputs to `audit/`
+(git-ignored). Uses the LIVE ranker end-to-end (never forks scoring) — the same
+`buildEnv` + `recommendSimilar` + GBT blend path as auto-classify, so every number equals
+production.
+
+- **Listing unit** = `(dbFile, normalizedSku)` (matches the per-SKU cache + classifier). Each has
+  a stable `id` (`<dbFile>|<sku>`) for agent references/diffs. Default window = since the first
+  `source:"auto-classify"` commit (2026-06-12T18:47:49Z).
+- **Two funnel filters via `--only`:** `want-links` = never auto-linked yet a live candidate
+  `prob >= bar` today ("link the missed ones"); `need-unlinks` = an auto-classify pair whose live
+  re-scored prob fell below bar ("unlink the bad ones"). Score-driven modes score the whole
+  universe first (only structural modes score just the windowed page). `--offset/--limit` page the
+  output; `--format jsonl` gives a `_meta` line (meta+summary+window+clusters) then one listing per
+  line.
+- **`scores.candidates[]`** = the ranker's top pairs (retrieve-then-rerank), each with the
+  decomposed 40-column `features` object (`logDet`, overlap, hard-rule vetoes, the 13 `grp*`
+  group features, `embedCos`). **`aboveBar` true ⇒ auto-linking would fire today.**
+- **`scores.verified[]`** = the listing's EXISTING explicit links (auto-classify pending/confirmed
+  AND manual/merge) re-scored directly, immune to candidate-rank truncation — the "is this link
+  still good" surface. `absentFromCatalog` marks partners that left the live catalog.
+- **Pin gotcha (critical):** `storedConfidence >= 1e8` means a **deterministic floor-pin** (shared
+  SMWS cask code; `suggestions.js` keeps raw scores ≥1e8 out of the blend re-rank), NOT a
+  calibrated probability. A pinned pair can show live `prob` just under 0.95 with `embedCos:
+  null` + `aiDelta: 0` (both sides lack embedding vectors → GBT conservative missing-branch) and
+  must NOT be flagged for unlinking. Verified entries carry `pinned: true`; `need-unlinks`
+  excludes pins. GBT recall@99% is ~14.5%→~69% from embeddings, so `prob` without vectors is
+  deliberately under-confident.
+- **Embeddings requirement:** accurate reproduction needs `viz/data/sku_embeddings.json` in the
+  worktree (CI writes it each run from the Release asset; a stale local worktree lacks it →
+  embedCos=0 placeholder). Fetch via `curl -sL -o .worktrees/data/viz/data/sku_embeddings.json
+  https://github.com/brennanwilkes/spirit-tracker/releases/download/embeddings-latest/sku_embeddings.json`
+  (~43 MB, untracked — matches what CI keeps).
+- **CJS↔ESM bridge:** the audit script stays CJS and dynamically `import()`s the linker `.mjs`
+  modules. `featurize.mjs` resolves `WORKTREE` from `process.env.DATA_WORKTREE` at module load —
+  must be set to the resolved `--root` BEFORE importing.
+- Measured: full default window (4,287 listings) = ~37 s, 4,259 scored, 4,350 verified pairs.
+  Baseline result: 186 auto-linked (4.3%), 3,515 with links (82%), 772 orphans, 0 need-unlinks
+  (all below-bar auto-links are SMWS pins), 33 want-links (verified same products, e.g. everythingwine
+  Glenfarclas Family Cask 2000, Casey Jones Wheated Bourbon, Bumbu Craft Rum ↔ Bumbu Original at
+  0.97 prob vs 0.0012 without embeddings). Emit `--only want-links --format jsonl` for the
+  agent's daily link-miss feed.
+
 ## Scripts (`scripts/`)
 
 | Script | Purpose |
 |--------|---------|
 | `run_daily.sh` | Full orchestration: scrape → build viz → commit → push |
+| `audit_new_listings.js` | **Agent-facing audit generator** — every listing first seen in a range, with live sameness scores per candidate AND per existing link, canonical clusters, and decision funnels. See §"New-listings audit" below |
 | `cron_setup.sh` | Install local cron jobs (idempotent) |
 | `bootstrap_clone.sh` | Initial clone setup |
 | `repo_setup.sh` | Configure repo settings |
@@ -494,7 +572,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `build_viz_index.js` | Generate `viz/data/index.json` |
 | `build_viz_commits.js` | Build commit history manifest |
 | `build_viz_recent.js` | Build `viz/data/recent.json` |
-| `build_viz_sku_cache.js` | Generate `viz/data/skus/{sku}.json` per-SKU price event files (LFS). Incremental by default; `--full-reindex` walks full git history. Run from `.worktrees/data/` |
+| `build_viz_sku_cache.js` | Generate `viz/data/skus/{sku}.json` per-SKU price event files. Incremental by default; `--full-reindex` walks full git history. Run from `.worktrees/data/`. Output ships as the `skus-latest` Release tarball, not committed |
 | `build_common_listings.js` | Top-N product lists by region (all/bc/ab) and size (50/250/1000) |
 | `build_email_event_pack.js` | Package email event bundles |
 | `auto_link_classify.mjs` | Auto-link SKUs with the live GBT blend; append `status:"pending"` links to `data/sku_links.json` (≥99%-precision bar). `--since N` bounds anchors by recency, `--top K`, `--dry-run`. See §"Auto-Link Classification + Review" |

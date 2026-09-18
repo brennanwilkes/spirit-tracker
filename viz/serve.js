@@ -32,6 +32,7 @@ function safePath(urlPath) {
 const LINKS_FILE = path.join(projectRoot, "data", "sku_links.json");
 const LINKS_AUTO_FILE = path.join(projectRoot, "data", "sku_links_auto.json");
 const HIDDEN_FILE = path.join(projectRoot, "data", "sku_hidden.json");
+const { readLinks, writeLinks } = require("../src/utils/sku_links_file");
 
 function readAutoMeta() {
 	try {
@@ -44,58 +45,13 @@ function readAutoMeta() {
 }
 
 function readMeta() {
-	try {
-		const raw = fs.readFileSync(LINKS_FILE, "utf8");
-		const obj = JSON.parse(raw);
-
-		const links = obj && Array.isArray(obj.links) ? obj.links : [];
-		const ignores = obj && Array.isArray(obj.ignores) ? obj.ignores : [];
-
-		return { links, ignores };
-	} catch {}
-	return { links: [], ignores: [] };
+	return readLinks(projectRoot);
 }
 
-// Union-find dedup: keep only links that actually merge two distinct components.
-// Also dedupes ignores by unordered pair.
-function dedupeLinks(links, ignores) {
-	const parent = new Map();
-	function find(x) {
-		if (!parent.has(x)) parent.set(x, x);
-		if (parent.get(x) !== x) parent.set(x, find(parent.get(x)));
-		return parent.get(x);
-	}
-	const kept = [];
-	for (const link of links) {
-		const ra = find(link.fromSku), rb = find(link.toSku);
-		if (ra !== rb) {
-			parent.set(ra, rb);
-			// Preserve the WHOLE link object (not just fromSku/toSku) so auto-classify metadata
-			// — status:"pending", confidence, source, ts — survives any local write. The review
-			// page (#/link-review) keys off `status`, so stripping it here would silently mark
-			// every pending link confirmed on the next unrelated edit.
-			kept.push(link);
-		}
-	}
-
-	const seenIgnores = new Set();
-	const keptIgnores = [];
-	for (const ig of ignores) {
-		const key = [ig.skuA, ig.skuB].sort().join("\0");
-		if (!seenIgnores.has(key)) {
-			seenIgnores.add(key);
-			keptIgnores.push(ig);
-		}
-	}
-
-	return { links: kept, ignores: keptIgnores };
-}
-
+// Union-find dedup + single-line serialization live in the shared module (src/utils/sku_links_file.js)
+// so viz/serve.js and tools/apply_audit_proposal.js can never drift.
 function writeMeta(obj) {
-	const deduped = dedupeLinks(obj.links, obj.ignores);
-	fs.mkdirSync(path.dirname(LINKS_FILE), { recursive: true });
-	fs.writeFileSync(LINKS_FILE, JSON.stringify({ links: deduped.links, ignores: deduped.ignores }) + "\n", "utf8");
-	return deduped;
+	return writeLinks(projectRoot, obj);
 }
 
 function readHidden() {

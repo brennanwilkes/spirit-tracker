@@ -53,4 +53,17 @@ if [[ ! -f "viz/data/recent.json" ]]; then
   "$NODE_BIN" tools/build_viz_recent.js
 fi
 
+# viz/data/skus/** is a Release asset (tag skus-latest), not committed, so a fresh worktree has
+# no per-SKU history → item pages render without charts. Best-effort restore, same as run_daily.
+if ! [[ -d "viz/data/skus" ]] && command -v gh >/dev/null 2>&1; then
+  if gh release download skus-latest \
+       --pattern 'skus.tar.gz' --output /tmp/spirit-tracker-skus.tar.gz --clobber 2>/dev/null \
+     && tar xzf /tmp/spirit-tracker-skus.tar.gz -C "$WORKTREE_DIR/viz/data" 2>/dev/null; then
+    echo "restored skus cache from skus-latest Release" >&2
+  else
+    echo "WARN: could not restore skus cache from skus-latest; item charts will be missing until a run_daily.sh" >&2
+  fi
+  rm -f /tmp/spirit-tracker-skus.tar.gz
+fi
+
 exec "$NODE_BIN" viz/serve.js
