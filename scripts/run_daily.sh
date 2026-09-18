@@ -306,14 +306,17 @@ fi
 if command -v gh >/dev/null 2>&1 && [[ -d "$WORKTREE_DIR/viz/data/skus" ]] \
   && compgen -G "$WORKTREE_DIR/viz/data/skus/*.json" >/dev/null; then
   set +e
-  SKUS_TAR="$(mktemp --suffix=.tar.gz)"
-  tar czf "$SKUS_TAR" -C "$WORKTREE_DIR/viz/data" skus
-  gh release upload skus-latest "$SKUS_TAR" --clobber 2>/dev/null \
-    || gh release create skus-latest "$SKUS_TAR" \
+  # gh release upload names each asset after the FILE's basename (the `#label` suffix only sets a
+  # display label, not the asset name) — so the tarball file must literally be `skus.tar.gz`, or
+  # every consumer's `--pattern 'skus.tar.gz'` misses it.
+  SKUS_TAR_DIR="$(mktemp -d)"
+  tar czf "$SKUS_TAR_DIR/skus.tar.gz" -C "$WORKTREE_DIR/viz/data" skus
+  gh release upload skus-latest "$SKUS_TAR_DIR/skus.tar.gz" --clobber 2>/dev/null \
+    || gh release create skus-latest "$SKUS_TAR_DIR/skus.tar.gz" \
          --title "Latest per-SKU price history cache" \
          --notes "Auto-uploaded by run_daily.sh each scrape. Overwritten in place; only 'latest' is kept." 2>/dev/null
   sku_rc=$?
-  rm -f "$SKUS_TAR"
+  rm -rf "$SKUS_TAR_DIR"
   set -e
   [[ $sku_rc -ne 0 ]] && echo "WARN: skus Release upload failed (rc=$sku_rc); next Pages deploy + email pack will use the previous asset" >&2
 else

@@ -515,15 +515,50 @@ agent only ever looks at decision-relevant rows. Read-only over the worktree; ou
 `buildEnv` + `recommendSimilar` + GBT blend path as auto-classify, so every number equals
 production.
 
+**The agent's operating manual is `docs/audit-runbook.md`** (pipeline, CLI surface, decision
+protocol, proposal schema, coverage contract). Read it before running an audit. The tool is
+**two-stage plus apply**: stage 1 generates a rich "all the data" file; stage 1.5 projects
+token-cheap views/deep-dives from it (NO re-scoring); stage 2 is the agent's decision pass →
+proposal file; stage 3 applies it write-only.
+
 - **Listing unit** = `(dbFile, normalizedSku)` (matches the per-SKU cache + classifier). Each has
   a stable `id` (`<dbFile>|<sku>`) for agent references/diffs. Default window = since the first
   `source:"auto-classify"` commit (2026-06-12T18:47:49Z).
 - **Two funnel filters via `--only`:** `want-links` = never auto-linked yet a live candidate
   `prob >= bar` today ("link the missed ones"); `need-unlinks` = an auto-classify pair whose live
-  re-scored prob fell below bar ("unlink the bad ones"). Score-driven modes score the whole
-  universe first (only structural modes score just the windowed page). `--offset/--limit` page the
-  output; `--format jsonl` gives a `_meta` line (meta+summary+window+clusters) then one listing per
-  line.
+  re-scored prob fell below bar ("unlink the bad ones"); `near-misses` = pairs scored BELOW bar that
+  still share real overlap evidence (see `suspicious`/`missHints`). Score-driven modes score the
+  whole universe first (only structural modes score just the windowed page). `--offset/--limit` page
+  the output; `--format jsonl` gives a `_meta` line (meta+summary+window) then one listing per line.
+- **Stage 1.5 — views + deep-dives (`--from <rich>`), no re-scoring.** The rich file is JSON
+  (`{…,listings:[…]}`) or jsonl (`_meta` line + one listing per line). `--from <rich>` re-filters
+  funnels/pages instantly and `--compact` projects each listing to identity + `triage` + `why` +
+  only the decision-relevant pairs (median ~528 B vs ~16.9 KB rich — a 50-row page ≈ 31 KB). The row
+  carries `canon` (canonical group rep: two rows sharing it are ALREADY one entity, so proposing a
+  link between them is redundant). View `_meta` is ~6.6 KB (clusters are deliberately stripped; they
+  were 99.5% of a ~973 KB meta line) and includes a `legend` decoding `t/flag/hints/price/canon`.
+  `--compact` in the GENERATOR is refused (exit 2) — it is a view concern. Deep-dive a single
+  decision with `--from <rich> --id "<dbFile>|<sku>"` / `--sku <normSku>` / `--cluster <canonicalSku>`
+  (full rich rows / cluster members + `missingFromWindow`), or `--pair "<skuA>|<skuB>"` for ONE pair's
+  live score + 40-col features (either order); all require `--from`. `--cluster --compact` returns
+  members as sku/name/store/price only (full rows are unusable single-line JSON); `_meta.window`
+  carries `remaining`/`nextOffset` for mechanical paging. View `_meta.legend` documents
+  `pairs[].t/flag/hints`, `price`, `canon`, and synthetic-sku prefixes. Unknown flags hard-error
+  (exit 2) and `--help` prints usage — a stray flag used to be swallowed as a value and silently
+  trigger a full regen+overwrite; always pass an explicit `--out`. NOTE: already-linked candidates
+  never appear in the pool (`recommendSimilar` filters same-group), so `canon` only helps when two
+  listings both appear as anchors.
+- **Stage 3 — `tools/apply_audit_proposal.js` (write-only).** `--proposal <file>` validates + applies
+  the agent's ops to `data/sku_links.json`; dry-run by default, `--apply` writes, NEVER commits. It
+  shares `src/utils/sku_links_file.js` (read/write + union-find `dedupeLinks`) with `viz/serve.js`,
+  so both write byte-identical single-line files. New links are `{fromSku,toSku,status:"pending",
+  confidence?,source:"agent-audit",ts}`. Contradictory ops on a pair (link vs unlink/ignore, ignore
+  vs remove-ignore) fail closed. A `link` already in one union-find component is `skipped` with a
+  note distinguishing `already linked in source` from `redundant — an earlier op in this proposal
+  already links them` (a proposal's own transitive chain is normal, not an error). NOTE: the
+  committed file is appended by `auto_link_classify` WITHOUT dedupe, so it holds
+  transitively-redundant links that a `writeLinks` prunes — the tool reports this separately as
+  `redundantLinksInSource` (first apply shows ~-24 links that are not explicit unlinks).
 - **`scores.candidates[]`** = the ranker's top pairs (retrieve-then-rerank), each with the
   decomposed 40-column `features` object (`logDet`, overlap, hard-rule vetoes, the 13 `grp*`
   group features, `embedCos`). **`aboveBar` true ⇒ auto-linking would fire today.**
@@ -538,26 +573,30 @@ production.
   excludes pins. GBT recall@99% is ~14.5%→~69% from embeddings, so `prob` without vectors is
   deliberately under-confident.
 - **Embeddings requirement:** accurate reproduction needs `viz/data/sku_embeddings.json` in the
-  worktree (CI writes it each run from the Release asset; a stale local worktree lacks it →
-  embedCos=0 placeholder). Fetch via `curl -sL -o .worktrees/data/viz/data/sku_embeddings.json
+  worktree (CI writes it each run from the Release asset; a stale local worktree lacks it → every
+  candidate starves to a null `embedCos`). Fetch via `curl -sL -o .worktrees/data/viz/data/sku_embeddings.json
   https://github.com/brennanwilkes/spirit-tracker/releases/download/embeddings-latest/sku_embeddings.json`
-  (~43 MB, untracked — matches what CI keeps).
+  (~43 MB, untracked — matches what CI keeps). `embedCos` null is PER-CANDIDATE, not global: the
+  embeddings are keyed by the aggregate sku, so a store's alias listings (e.g. liberty `123851` vs
+  canonical `id:8289426`) miss and show `hints:["no-embedding"]`. Check `_meta.eval.embeddings` to
+  confirm the file loaded at all.
 - **CJS↔ESM bridge:** the audit script stays CJS and dynamically `import()`s the linker `.mjs`
   modules. `featurize.mjs` resolves `WORKTREE` from `process.env.DATA_WORKTREE` at module load —
   must be set to the resolved `--root` BEFORE importing.
-- Measured: full default window (4,287 listings) = ~37 s, 4,259 scored, 4,350 verified pairs.
-  Baseline result: 186 auto-linked (4.3%), 3,515 with links (82%), 772 orphans, 0 need-unlinks
-  (all below-bar auto-links are SMWS pins), 33 want-links (verified same products, e.g. everythingwine
-  Glenfarclas Family Cask 2000, Casey Jones Wheated Bourbon, Bumbu Craft Rum ↔ Bumbu Original at
-  0.97 prob vs 0.0012 without embeddings). Emit `--only want-links --format jsonl` for the
-  agent's daily link-miss feed.
+- Measured: full default window (4,287 listings) = ~34 s, 4,259 scored, 19,798 candidates, 4,350
+  verified pairs, 869 near-miss listings, 335 title-twins scanned. Baseline: 186 auto-linked (4.3%),
+  3,515 with links (82%), 772 orphans, 0 need-unlinks (all below-bar auto-links are SMWS pins), 33
+  want-links (verified same products, e.g. everythingwine Glenfarclas Family Cask 2000, Casey Jones
+  Wheated Bourbon, Bumbu Craft Rum ↔ Bumbu Original at 0.97 prob vs 0.0012 without embeddings).
+  `--from` view load on the full 86 MB jsonl is ~0.5 s. Emit `--only want-links --format jsonl` for
+  the daily link-miss feed; `--only near-misses --compact` for the highest-value audit surface.
 
 ## Scripts (`scripts/`)
 
 | Script | Purpose |
 |--------|---------|
 | `run_daily.sh` | Full orchestration: scrape → build viz → commit → push |
-| `audit_new_listings.js` | **Agent-facing audit generator** — every listing first seen in a range, with live sameness scores per candidate AND per existing link, canonical clusters, and decision funnels. See §"New-listings audit" below |
+| `audit_new_listings.js` | **Agent-facing audit generator + view/deep-dive tool** — every listing first seen in a range, with live sameness scores per candidate AND per existing link, canonical clusters, and decision funnels. Stage 1 emits the rich file; `--from <rich>` derives token-cheap views (`--compact`) and deep-dives (`--id/--sku/--cluster/--pair`) with no re-scoring. Runbook: `docs/audit-runbook.md`. See §"New-listings audit" below |
 | `cron_setup.sh` | Install local cron jobs (idempotent) |
 | `bootstrap_clone.sh` | Initial clone setup |
 | `repo_setup.sh` | Configure repo settings |
@@ -575,6 +614,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `build_viz_sku_cache.js` | Generate `viz/data/skus/{sku}.json` per-SKU price event files. Incremental by default; `--full-reindex` walks full git history. Run from `.worktrees/data/`. Output ships as the `skus-latest` Release tarball, not committed |
 | `build_common_listings.js` | Top-N product lists by region (all/bc/ab) and size (50/250/1000) |
 | `build_email_event_pack.js` | Package email event bundles |
+| `apply_audit_proposal.js` | **Hand-run, write-only** — apply an audit agent's proposal (link/unlink/ignore ops) to `data/sku_links.json`. Dry-run by default, `--apply` writes, NEVER commits. Shares `src/utils/sku_links_file.js` (dedupe + single-line serialization) with `viz/serve.js`. See §"New-listings audit" |
 | `auto_link_classify.mjs` | Auto-link SKUs with the live GBT blend; append `status:"pending"` links to `data/sku_links.json` (≥99%-precision bar). `--since N` bounds anchors by recency, `--top K`, `--dry-run`. See §"Auto-Link Classification + Review" |
 | `diff_report.js` | Compare two report files |
 | `discover_bad_skus.js` | Find synthetic (`u:`) SKUs that need repair |
