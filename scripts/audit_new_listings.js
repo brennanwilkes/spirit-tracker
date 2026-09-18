@@ -202,16 +202,66 @@ const DEFAULT_SINCE = "2026-06-12T18:47:49Z";
 // arg parsing
 // ---------------------------------------------------------------------------
 
+// Value-taking flags. Every flag MUST be listed here (or in BOOLEAN_FLAGS) — an unknown flag is a
+// hard error, because the old naive parse silently swallowed it as a key and could then default
+// `--out`, triggering an unintended FULL regeneration (e.g. a stray `--help`).
+const VALUE_FLAGS = new Set([
+	"--since", "--until", "--root", "--format", "--only", "--offset", "--limit", "--top",
+	"--out", "--from", "--id", "--sku", "--cluster", "--pair",
+]);
+const BOOLEAN_FLAGS = new Set(["--with-scores", "--no-scores", "--compact", "--help", "-h"]);
+
+const USAGE = `audit_new_listings — agent-facing SKU-link audit generator + view/deep-dive tool
+
+  node scripts/audit_new_listings.js [options]
+
+Stage 1 (generate the rich file):
+  --since <date> --until <date>   first-seen window (default: auto-classify launch .. now)
+  --only <funnel>                 all|orphans|auto-linked|has-links|no-auto-link
+                                  |want-links|need-unlinks|near-misses  (default all)
+  --root <path>                   data worktree (default .worktrees/data)
+  --format json|jsonl             (default json)
+  --out <file>                    default audit/new_listings_<since>_<until>.<ext>
+  --no-scores | --with-scores     scoring on by default
+  --top <n>                       candidates kept per listing (default 5)
+
+Stage 1.5 (derive views/deep-dives from a rich file — NO re-scoring):
+  --from <rich> [--only <funnel>] [--offset N] [--limit N] [--compact] [--format jsonl] [--out <f>]
+  --from <rich> --id "<dbFile>|<sku>"     full rich row for one listing
+  --from <rich> --sku <normalizedSku>     all listings with that sku
+  --from <rich> --cluster <canonicalSku>  cluster members + missingFromWindow
+  --from <rich> --pair "<a>|<b>"          the pair's live score + 40-col features (either order)
+
+See docs/audit-runbook.md for the decision protocol and proposal schema.
+
+WARNING: running with no --from and no --out regenerates the full rich file and OVERWRITES the
+default audit path. Always pass an explicit --out (or --from) when you did not mean to regenerate.`;
+
+function printUsageAndExit(code) {
+	(code === 0 ? console.log : console.error)(USAGE);
+	process.exit(code);
+}
+
 function parseArgs(argv) {
 	const args = new Map();
 	const flags = new Set();
 	for (let i = 0; i < argv.length; i++) {
 		const a = argv[i];
-		if (a === "--with-scores" || a === "--no-scores" || a === "--compact") {
+		if (a === "--help" || a === "-h") printUsageAndExit(0);
+		if (BOOLEAN_FLAGS.has(a)) {
 			flags.add(a);
 			continue;
 		}
-		args.set(a, argv[++i]);
+		if (VALUE_FLAGS.has(a)) {
+			if (i + 1 >= argv.length) {
+				console.error(`audit_new_listings: ${a} expects a value`);
+				process.exit(2);
+			}
+			args.set(a, argv[++i]);
+			continue;
+		}
+		console.error(`audit_new_listings: unknown argument "${a}" (use --help for usage)`);
+		process.exit(2);
 	}
 	return { args, flags };
 }
@@ -323,6 +373,14 @@ function fmtNum(x) {
 	return String(Number(x).toFixed(4).replace(/0+$/, "").replace(/\.$/, ""));
 }
 
+// `data/db/**` stores a display price string ("$1,799.99"); normalize to a number for the anchor
+// side of a compact row so it matches the candidate side's numeric `price`.
+function priceToNum(s) {
+	if (typeof s === "number") return isFinite(s) ? s : undefined;
+	const n = parseFloat(String(s == null ? "" : s).replace(/[^0-9.]/g, ""));
+	return Number.isFinite(n) ? n : undefined;
+}
+
 // ---- compact decision projection (stage-2 page view) ----
 // Stage 1 emits the RICH file; the decision pass reads a slimmed projection of it so a
 // page of listings fits cheaply in context. Keeps only decision-relevant fields: identity,
@@ -365,8 +423,9 @@ function projectCompactListing(l) {
 		store: l.storeId,
 		category: l.category || undefined,
 		sku: l.sku,
+		canon: l.canonicalSku || undefined,
 		name: cur.name || l.detectedName || "",
-		price: cur.priceNum != null ? cur.priceNum : undefined,
+		price: priceToNum(cur.price),
 		removed: cur.removed != null ? !!cur.removed : undefined,
 		firstSeen: l.firstSeen,
 		links: (l.links || []).length,
@@ -387,7 +446,7 @@ function projectCompactListing(l) {
 // Deep-dive lookups (the agent's "give me more data on this sku" tool): --id <listingId>,
 // --sku <normalizedSku>, --cluster <canonicalSku> pull the FULL rich rows for exactly the
 // sku/cluster a decision is about — everything the compact packet trimmed.
-async function runFromView({ fromFile, only, offset, limit, format, compact, outFile, id, sku, cluster }) {
+async function runFromView({ fromFile, only, offset, limit, format, compact, outFile, id, sku, cluster, pair }) {
 	if (!fs.existsSync(fromFile)) {
 		console.error(`audit_new_listings: --from file not found: ${fromFile}`);
 		process.exit(2);
@@ -415,14 +474,54 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 		}
 	}
 
-	// ---- deep-dive lookups (--id / --sku / --cluster) ----
-	if (id || sku || cluster) {
+	// ---- deep-dive lookups (--id / --sku / --cluster / --pair) ----
+	if (id || sku || cluster || pair) {
 		let outPayload;
 		if (id) {
 			const row = listings.find((l) => l.id === id);
 			outPayload = row || { error: `no listing with id=${id} in ${fromFile}` };
 		} else if (sku) {
 			outPayload = listings.filter((l) => l.sku === sku);
+		} else if (pair) {
+			const parts = String(pair).split(/[|,\s]+/).filter(Boolean);
+			if (parts.length !== 2) {
+				outPayload = { error: `--pair expects "<a>|<b>", got "${pair}"` };
+			} else {
+				const [A, B] = parts;
+				const matches = [];
+				for (const l of listings) {
+					const s = l.scores;
+					if (!s) continue;
+					for (const [bucket, kind] of [["candidates", "candidate"], ["verified", "verified"], ["twins", "twin"]]) {
+						for (const c of s[bucket] || []) {
+							const set = new Set([l.sku, c.sku]);
+							if (!(set.has(A) && set.has(B))) continue;
+							matches.push({
+								listingId: l.id,
+								anchorSku: l.sku,
+								anchorName: (l.current && l.current.name) || l.detectedName || "",
+								bucket: kind,
+								partnerSku: c.sku,
+								partnerName: c.name || c.partnerName || "",
+								prob: c.prob != null ? c.prob : null,
+								det: c.detScore != null ? c.detScore : null,
+								aboveBar: !!c.aboveBar,
+								pinned: !!c.pinned,
+								suspicious: !!c.suspicious,
+								absentFromCatalog: !!c.absentFromCatalog,
+								missHints: c.missHints || [],
+								features: c.features || null,
+							});
+						}
+					}
+				}
+				outPayload = {
+					pair: { a: A, b: B },
+					found: matches.length,
+					featureColumns: matches[0] && matches[0].features ? Object.keys(matches[0].features) : [],
+					matches,
+				};
+			}
 		} else {
 			const c = (meta.clusters || []).find((x) => x.id === cluster);
 			if (!c) {
@@ -432,9 +531,17 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 					: `no cluster ${cluster} in ${fromFile}` };
 			} else {
 				const cSkus = new Set((c.members || []).map((m) => m.sku));
+				const members = listings.filter((l) => cSkus.has(l.sku));
+				const projectMember = (l) => ({
+					sku: l.sku,
+					name: (l.current && l.current.name) || l.detectedName || "",
+					store: l.storeId,
+					price: priceToNum(l.current && l.current.price),
+					removed: !!(l.current && l.current.removed) || undefined,
+				});
 				outPayload = {
 					cluster: { id: c.id, size: c.size, memberStoreCount: c.memberStoreCount, hasPendingAutoLink: c.hasPendingAutoLink, hasConfirmedAutoLink: c.hasConfirmedAutoLink, isOrphan: c.isOrphan },
-					members: listings.filter((l) => cSkus.has(l.sku)),
+					members: compact ? members.map(projectMember) : members,
 					missingFromWindow: (c.members || []).filter((m) => m.sku && !listings.some((l) => l.sku === m.sku)).map((m) => m.sku),
 				};
 			}
@@ -447,7 +554,7 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 			fs.mkdirSync(path.dirname(outFile), { recursive: true });
 			fs.writeFileSync(outFile, JSON.stringify(outPayload, null, 0) + "\n", "utf8");
 		}
-		console.log(`audit_deepdive --from ${fromFile} (${id ? "id=" + id : sku ? "sku=" + sku : "cluster=" + cluster}) → ${outFile}`);
+		console.log(`audit_deepdive --from ${fromFile} (${id ? "id=" + id : sku ? "sku=" + sku : pair ? "pair=" + pair : "cluster=" + cluster}) → ${outFile}`);
 		return;
 	}
 
@@ -516,6 +623,8 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 		total: listings.length,
 		totalAfterFilter: n,
 		shown: windowed.length,
+		remaining: Math.max(0, n - (offset + windowed.length)),
+		nextOffset: offset + windowed.length < n ? offset + windowed.length : null,
 		derivedFrom: fromFile,
 		compact: compact || undefined,
 	};
@@ -532,6 +641,15 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 		readme: `DERIVED VIEW (no re-scoring) of ${fromFile}. Cluster lookups are NOT available here — run --cluster against the rich stage-1 file. ${
 			meta.readme || "See the stage-1 rich file's readme."
 		}`,
+		legend: {
+			"pairs[].t": "c=live candidate, v=verified existing link, w=title-twin (identical normalized title, never reached the candidate pool)",
+			"pairs[].flag": "hit=above auto-link bar (auto-classify WOULD fire — not a correctness guarantee), susp=suspicious below-bar miss, pin=deterministic floor-pin (SMWS cask; do NOT unlink), absent=partner left the catalog. NOTE: already-linked candidates are filtered out of the pool upstream (recommendSimilar sameGroup), so they do not appear here",
+			"pairs[].hints": "why a suspicious pair was crushed: no-embedding (this candidate's sku has no vector; per-candidate, not global), sizePen/abvMult/ageRel/conceptMult/edMult are the multiplier(s) responsible",
+			"price": "anchor listing price (numeric); pairs[].price is the candidate's cheapest price",
+			"sku": "'id:'/upc:'/'u:' prefixed skus are synthetic/aggregate labels; a bare number and its 'id:<n>' form can be the SAME entity",
+			"canon": "canonical group rep for this listing — two rows with the SAME canon are ALREADY one entity (transitively linked); proposing a link between them is redundant",
+			"decode": "use --from <rich> --pair \"<a>|<b>\" for one pair's full 40-col features, or --id <listingId> for a full rich row",
+		},
 		summary,
 		// NOTE: clusters are deliberately NOT included in derived views. They are ~1 MB of the meta
 		// line (the whole point of a view is a small, token-cheap page) and no view consumer needs
@@ -1034,12 +1152,13 @@ async function main() {
 	const idArg = args.get("--id");
 	const skuArg = args.get("--sku");
 	const clusterArg = args.get("--cluster");
+	const pairArg = args.get("--pair");
 	if (fromArg) {
-		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, outFile, id: idArg, sku: skuArg, cluster: clusterArg });
+		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, outFile, id: idArg, sku: skuArg, cluster: clusterArg, pair: pairArg });
 		return;
 	}
-	if (idArg || skuArg || clusterArg) {
-		console.error("audit_new_listings: --id/--sku/--cluster are deep-dive lookups over an existing rich file — pass --from <file>.");
+	if (idArg || skuArg || clusterArg || pairArg) {
+		console.error("audit_new_listings: --id/--sku/--cluster/--pair are deep-dive lookups over an existing rich file — pass --from <file>.");
 		process.exit(2);
 	}
 
