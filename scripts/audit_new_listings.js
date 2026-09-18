@@ -1,0 +1,1646 @@
+#!/usr/bin/env node
+"use strict";
+
+// ============================================================================
+// audit_new_listings.js — NEW-LISTINGS AUDIT (auto-link coverage + sameness scores)
+// ============================================================================
+//
+// Re-runnable audit generator. Walks the `data`-branch worktree and emits a file
+// listing every *listing* first seen inside a given date range, decorated with
+// auto-link + link-group metadata AND, per listing, the auto-link ranker's own
+// top candidate pairs with their decomposed "sameness" feature inputs — so an
+// auditor agent can go listing by listing and judge whether its link / no-link
+// status should change.
+//
+// What a "listing" is (this audit's unit): one product row at one store+category,
+// identified by (dbFile, normalized SKU). Matches the per-SKU cache granularity
+// and the auto-link classifier's working unit. Two size variants sharing one SKU
+// collapse into a single listing.
+//
+// Usage:
+//   node scripts/audit_new_listings.js [options]
+//
+// Date range:
+//   --since   First-seen lower bound. Default 2026-06-12T18:47:49Z — the
+//             data-branch commit (23799a0b2d) that shipped the first
+//             `source:"auto-classify"` links. A bare date = start of that UTC day.
+//   --until   First-seen upper bound (exclusive). Default = now. A bare date =
+//             start of the FOLLOWING UTC day.
+//
+// Sources / shape:
+//   --root    The data worktree to read from. Default $REPO_ROOT/.worktrees/data.
+//   --out     Output file. Default audit/new_listings_<since>_<until>.<ext>.
+//
+// Output:
+//   --format  json | jsonl (default json). jsonl = one `_meta` line (everything
+//             except listings, INCLUDING clusters) then one listing per line —
+//             ideal for an agent paging with --offset/--limit.
+//   --offset  Skip the first N listings of the filtered/sorted set (default 0).
+//   --limit   Keep at most N listings (default = all).
+//             offset/limit apply AFTER --only, on firstSeen-ascending order.
+//   --only    all | orphans | auto-linked | has-links | no-auto-link
+//             | want-links | need-unlinks | near-misses
+//             (default all). Summary + clusters are computed on the filtered set, so pages
+//             stay consistent.
+//             - Structural modes (orphans/auto-linked/has-links/no-auto-link) filter
+//               BEFORE scoring (fast; scores cover only the windowed page).
+//             - Score-driven modes REQUIRE scoring, so they score the whole universe, then
+//               keep only the flagged rows. Summary then reports the full funnel counts.
+//               want-links  = never auto-linked yet a live candidate prob >= bar today
+//                             ("link the missed ones").
+//               need-unlinks = auto-classify pair(s) whose live re-scored prob fell below
+//                             bar and are NOT deterministic floor-pins ("unlink the bad
+//                             ones"). Pins (storedConfidence >= 1e8, e.g. shared SMWS cask
+//                             code) are deliberate and excluded.
+//               near-misses = THE audit surface: pairs the linker scores BELOW bar yet
+//                             that share real overlap evidence — an agent's eye instantly
+//                             sees "same product". Crushed true matches (a single hard-rule
+//                             veto, a missing embedding, a blocking-index miss). Every
+//                             candidate/verified/twin carries `suspicious` + `missHints`;
+//                             identical-title pairs that never reached the candidate pool
+//                             are scored as `twins[]`. Rows sort by strongest miss first.
+//
+// Sameness scores (the auto-link ranker's inputs):
+//   Scores are computed with the LIVE ranker end-to-end (tools/linker_ml/
+//   featurize.mjs::buildEnv + recommendSimilar + GBT blend) — never forked —
+//   exactly like tools/auto_link_classify.mjs, so every number below equals what
+//   production auto-linking used/would use for that pair.
+//   --with-scores  (default) compute top candidates + decomposed features.
+//   --no-scores    skip scoring (fast path; no samples/det/features in output).
+//   --top N        candidates kept per listing (default 5).
+//
+// Sources read (all under --root):
+//   viz/data/skus/{sku}.json     per-SKU change-point history — first event of a
+//                                (dbFile, sku) pair IS its first-seen timestamp
+//   data/db/*.json               current record metadata (name/url/price/removed)
+//   data/sku_links.json          curated links + ignores (source:"auto-classify"
+//                                entries are the classifier's output)
+//   data/sku_links_auto.json     merge.js pickBetterSku auto-generated links
+//   data/sku_hidden.json         hidden listings (presentation exclusions)
+//   viz/data/rarity.json         rarity scores, keyed by canonical SKU
+//   viz/data/index.json          (scoring only) the live catalog + vocab +
+//                                size/price penalty closures the ranker scores on
+//   viz/data/gbt_model.json      (scoring only) the shipping GBT classifier
+//   viz/data/sku_embeddings.json (scoring only) SKU vectors; when absent the GBT
+//                                runs in its no-embedding mode (embedCos = 0
+//                                placeholder) — noted in meta.eval.
+//
+// ----------------------------------------------------------------------------
+// OUTPUT SCHEMA — how to read the file
+// ----------------------------------------------------------------------------
+// Top level (json format; jsonl puts everything but listings in the _meta line):
+// {
+//   "generatedAt", "since", "until", "sources", "readme",
+//   "eval":  { "withScores", "engine", "bar", "gbtModel", "embeddings", "topCandidates", "note" },
+//   "window":{ "only", "offset", "limit", "applied", "total", "totalAfterFilter", "shown" },
+//   "summary": { ...aggregates below... },
+//   "clusters": [ ...one per canonical group touched by the audited listings... ],
+//   "listings": [ ...one object per listing (windowed), firstSeen ascending... ]
+// }
+//
+// Every SKU anywhere in this file is the NORMALIZED form (the same key used by
+// `viz/data/skus/<sku>.json`). To drill into any of them on disk:
+//   - full price history : viz/data/skus/<sku>.json        (this file's sku field)
+//   - raw store record   : data/db/<dbFile> → items[] where item.sku == rawSku
+//   - search the whole data branch with: git log -S '"<sku>"' -- data/db/
+//
+// Each listing:
+//   {
+//     "id","sku","dbFile","store","storeId","category","firstSeen",
+//     "id" = "<dbFile>|<sku>" — the stable reference for agent decisions / diffs
+//     "lookup": { cacheSku, cacheFile, dbFile },
+//     "current": { name, url, price, removed, rawSku, img } | null,  // null = pruned
+//     "wasAutoLinked","autoLinks[]","linkCount","implicitStoreCount","hasLinks",
+//     "links[]","canonicalSku","clusterId","inIgnores","rarity","hidden",
+//     "cluster": { id, size, auditedMembers, memberStoreCount, isOrphan },  // compact
+//     "scores": {                    // omitted when --no-scores
+//       "scored": true|false,        // false = sku not in the live catalog (pruned), "reason" set
+//       "reason": "not-in-catalog",
+//       "engines": "gbt",            // scorer used for "prob"
+//       "bar": 0.95,
+//       "candidates": [ ...top --top pairs, strongest first... ],
+//       "verified": [ ...the listing's EXISTING explicit links re-scored directly... ]
+//     }
+//   }
+//
+// Each "verified" entry = one EXISTING explicit pair (the classifier's own decision or a
+// manual/merge link), re-scored via the live ranker WITHOUT candidate-rank truncation —
+// the data for unlinking a bad link (prob fell below bar) or confirming a good one:
+//   {
+//     "fromSku","toSku","kind": "auto-link"|"link", "source", "status", "storedConfidence",
+//     "pinned": true|false,   // storedConfidence >= 1e8 ⇒ deterministic floor-pin (e.g. shared
+//                             // SMWS cask code); NOT a calibrated prob — keep, ignore below-bar live prob
+//     "detScore","score01","prob","aiDelta","aboveBar",
+//     "partnerName","partnerStores",
+//     "features": { ...same 40-column feature object as candidates... }
+//   }
+//   absentFromCatalog=true → the partner has left the live catalog (pair unverifiable now).
+//   features.embedCos == null and aiDelta == 0 → both sides lack an embedding vector; the GBT
+//   used its conservative missing-branch, which explains a live prob sitting just under bar.
+//
+// Each score candidate = ONE cross-SKU pair (this listing's sku vs that sku):
+//   {
+//     "sku","name","stores":[storeLabels],"cheapest":<num>,
+//     "detScore":  <raw scorePairWithVocab>,          // deterministic ranker score
+//     "score01":   <detScore/(detScore+1)>,           // squashed display scale
+//     "prob":      <blend/GBT calibrated probability> // == what auto-link classifies on
+//     "aboveBar":  <prob >= 0.95>,                    // would auto-link today
+//     "aiDelta":   <prob with embedding - prob without>,   // undefined/0 when no embeddings
+//     "features": { logDet, contain, woScore, woShared, topTermShared, tgtCov,
+//                   candExtra, gradedCov, sizePen, pricePen, ageRel, ageOneSided,
+//                   abvMult, abvBoth, edMult, edBoth, smwsShared, conceptMult,
+//                   storeShared, badSku, sharedTok, jacc, minTok, maxTok, lenDiff,
+//                   containGated, grpStoreOverlap, grpStoreCollideCount,
+//                   grpStoreJaccard, grpSameSkuShare, grpSizeConflict, grpSizeJaccard,
+//                   grpAbvDiff, grpAbvBoth, grpYearDiff, grpYearBoth, grpPriceRatio,
+//                   grpCountA, grpCountB, crossEntityConflicts, embedCos }
+//   }
+//
+// Each cluster (canonical group, keyed by canonicalSku, members resolved):
+//   {
+//     "id","size","auditedMembers","memberStoreCount","newMemberCount","isOrphan",
+//     "hasPendingAutoLink","hasConfirmedAutoLink","hasMergeAutoLink","hasManualLink",
+//     "members": [
+//       { "sku","inAudit","firstSeen","storeCount","implicitStoreCount",
+//         "stores": [ { storeId, store, dbFile, category, name, price, url, removed } ] }
+//     ]
+//   }
+//
+// Interpretation cheatsheet:
+//   - wasAutoLinked=true, autoLinks[].status=pending → classifier matched it; review outstanding
+//   - scores.verified[].aboveBar=false on an auto-link pair → its live prob fell below the bar
+//     (accept the classifier's ORIGINAL storedConfidence, but today's data votes to unlink)
+//   - scores.candidates[].aboveBar=true on a never-auto-linked sku → the ranker would fire today
+//     — the --only want-links funnel; a genuine link to add
+//   - want-links / need-unlinks flags on each scored listing are exactly those two funnels
+//   - inIgnores=true                             → a suggestion for it was rejected (hard negative)
+//   - clusters[].isOrphan                        → single-sku, single-store: the review queue's orphan class
+//   - features to eyeball per pair: sharedTok/woScore/containGated (overlap),
+//     sizePen/abvMult/edMult/ageRel (hard-rule conflicts — floors a wrong match),
+//     grpStoreOverlap/grpSizeConflict (canonical-group-level evidence)
+//
+// SUMMARY aggregates (top-level "summary"): total (post --only), per-store
+// breakdown, autoLinked / hasLinks / orphan / pending / confirmed / inIgnores
+// counts, coverage rates, liveNow, prunedFromDb, and when scored: scoredCount.
+//
+// Re-runnable + read-only over the worktree. Output goes to audit/ (git-ignored).
+// ============================================================================
+
+const fs = require("fs");
+const path = require("path");
+const { pathToFileURL } = require("url");
+
+const { normalizeImplicitSkuKey, buildGroupsAndCanonicalMap } = require("../src/utils/sku_canonical");
+
+const SCRIPT_DIR = __dirname;
+const REPO_ROOT = path.dirname(SCRIPT_DIR);
+
+// Default lower bound: the auto-link launch commit on the data branch.
+const DEFAULT_SINCE = "2026-06-12T18:47:49Z";
+
+// ---------------------------------------------------------------------------
+// arg parsing
+// ---------------------------------------------------------------------------
+
+function parseArgs(argv) {
+	const args = new Map();
+	const flags = new Set();
+	for (let i = 0; i < argv.length; i++) {
+		const a = argv[i];
+		if (a === "--with-scores" || a === "--no-scores" || a === "--compact") {
+			flags.add(a);
+			continue;
+		}
+		args.set(a, argv[++i]);
+	}
+	return { args, flags };
+}
+
+// Accepts "YYYY-MM-DD" (start of that UTC day) or any ISO-ish string.
+function parseBound(s, { exclusiveDate }) {
+	const digits = /^\d{4}-\d{2}-\d{2}$/.test(s || "");
+	let ms;
+	if (digits) {
+		const base = Date.parse(s + "T00:00:00Z");
+		ms = exclusiveDate ? base + 24 * 60 * 60 * 1000 : base;
+	} else {
+		ms = Date.parse(s);
+	}
+	if (!Number.isFinite(ms)) {
+		console.error(`audit_new_listings: cannot parse date "${s}"`);
+		process.exit(2);
+	}
+	return { ms, iso: new Date(ms).toISOString() };
+}
+
+function parseNum(s, dflt, flag) {
+	if (s == null || s === "") return dflt;
+	const v = Number(s);
+	if (!Number.isFinite(v) || v < 0) {
+		console.error(`audit_new_listings: ${flag} expects a non-negative number, got "${s}"`);
+		process.exit(2);
+	}
+	return Math.floor(v);
+}
+
+function readJson(file) {
+	try {
+		return JSON.parse(fs.readFileSync(file, "utf8"));
+	} catch (e) {
+		return null;
+	}
+}
+
+const ALLOWED_ONLY = new Set([
+	"all",
+	"orphans", // no link of any kind
+	"auto-linked", // classifier has emitted a pending/confirmed link
+	"has-links", // any explicit or implicit link
+	"no-auto-link", // classifier has never touched it
+	"want-links", // never auto-linked, yet a live candidate prob >= bar today (link the missed ones)
+	"need-unlinks", // auto-classify pair(s) whose live re-scored prob fell below bar (unlink the bad ones)
+	"near-misses", // cratered true matches: shares overlap evidence but prob < bar — what a human/agent
+	// eye instantly sees as "the same product" while the linker scores it low
+]);
+const STRUCTURAL_ONLY = new Set(["all", "orphans", "auto-linked", "has-links", "no-auto-link"]);
+const SCORE_DRIVEN_ONLY = new Set(["want-links", "need-unlinks", "near-misses"]);
+
+// Heuristic triage on a scored pair's decomposed features: does this LOOK like a true
+// match the classifier suppressed? I.e. strong shared-overlap evidence yet prob under the
+// 99%-precision bar — the profile of a "crushed" pair an auditor should eyeball even though
+// auto-linking didn't/didn't-wouldn't fire. Misses that a human would call instantly.
+// Pure function over the feature vector.
+//
+// The classifier's penalties split into two opposite meanings:
+//   - sizePen / abvMult below 1 are BENIGN crushes (a 375 vs 750 mL bottle, an ABV-typed
+//     variant) — such pairs are usually the same product, just under-bar.
+//   - ageRel < 0, conceptMult < 1, edMult < 1 are ACTIVE "these differ" votes (12 vs 16yo,
+//     rye vs bourbon, different single-cask edition). Those pairs are low-scored CORRECTLY;
+//     they are NOT near-misses even when they share a brand's tokens.
+//   - edMult > 1 is a boost, not a penalty.
+// A pair only counts as a crushed miss when overlap is genuinely strong AND its only
+// suppressors are benign (missing embedding vector on one side is the classic one).
+function missAnalysis(det, feats, { pinned, prob, bar }) {
+	const n = (v) => typeof v === "number" && Number.isFinite(v);
+	const sizePen = n(feats.sizePen) && feats.sizePen < 1;
+	const abvMult = n(feats.abvMult) && feats.abvMult < 1;
+	const edPen = n(feats.edMult) && feats.edMult < 1;
+	const ageDiff = n(feats.ageRel) && feats.ageRel < 0;
+	const conceptDiff = n(feats.conceptMult) && feats.conceptMult < 1;
+	const benign = [];
+	if (sizePen) benign.push(`sizePen:${feats.sizePen}`);
+	if (abvMult) benign.push(`abvMult:${feats.abvMult}`);
+	if (edPen) benign.push(`edMult:${feats.edMult}`);
+	const hardDiff = ageDiff || conceptDiff || edPen;
+	const noEmb = feats.embedCos == null && !n(feats.embedCos);
+	const hints = [];
+	if (noEmb) hints.push("no-embedding");
+	for (const h of benign) hints.push(h);
+	if (ageDiff) hints.push(`ageRel:${feats.ageRel}`);
+	if (conceptDiff) hints.push(`conceptMult:${feats.conceptMult}`);
+	const strong =
+		(n(feats.containGated) && feats.containGated >= 0.66) ||
+		(n(feats.woScore) && feats.woScore >= 0.5) ||
+		(n(det) && det >= 2);
+	const benignCrush = noEmb || benign.length > 0;
+	// strong overlap + below bar + no active differ-signal + a benign reason it's under bar.
+	const suspicious = !!(!pinned && prob != null && prob < bar && strong && !hardDiff && benignCrush && benign.length <= 1);
+	return { suspicious, missHints: hints, vetoes: benign };
+}
+
+// Name normalizer for the identical-title backstop: alnum-only lowercase, bottle sizes
+// stripped so "700 mL" / "750ml" variants land in the same bucket.
+function normNameForTwin(name) {
+	return (name || "")
+		.toLowerCase()
+		.replace(/\b\d+(?:\.\d+)?\s?(?:ml|l|cl|oz|liter|litre)\b/gi, "")
+		.replace(/[^a-z0-9]+/g, "")
+		.trim();
+}
+
+function fmtNum(x) {
+	if (x == null || !isFinite(x)) return "-";
+	return String(Number(x).toFixed(4).replace(/0+$/, "").replace(/\.$/, ""));
+}
+
+// ---- compact decision projection (stage-2 page view) ----
+// Stage 1 emits the RICH file; the decision pass reads a slimmed projection of it so a
+// page of listings fits cheaply in context. Keeps only decision-relevant fields: identity,
+// current name/price, triage + evidence, link counts, and the relevant PAIRS (verified
+// links, above-bar candidates, suspicious/twin pairs) with prob/det/hints but NOT the 40
+// decomposed features (expand those from the rich file only when a pair needs diagnosing).
+function projectCompactPairs(l) {
+	const s = l.scores;
+	if (!s || !s.scored) return undefined;
+	const byKey = new Map();
+	const push = (t, c) => {
+		const k = String(c.sku || "");
+		if (!k || byKey.has(k)) return;
+		const flag = c.pinned ? "pin" : c.absentFromCatalog ? "absent" : c.aboveBar ? "hit" : c.suspicious ? "susp" : undefined;
+		const row = {
+			t,
+			sku: k,
+			name: c.name || c.partnerName || "",
+			prob: c.prob != null ? +c.prob.toFixed(4) : null,
+			det: c.detScore != null ? +c.detScore.toFixed(2) : null,
+		};
+		if (c.cheapest != null) row.price = c.cheapest;
+		if (c.missHints && c.missHints.length) row.hints = c.missHints;
+		if (flag) row.flag = flag;
+		byKey.set(k, row);
+	};
+	let cands = (s.candidates || []).filter((c) => c.aboveBar || c.suspicious);
+	if (!cands.length && (s.candidates || []).length) cands = [(s.candidates || [])[0]];
+	for (const c of cands) push("c", c);
+	for (const t of s.twins || []) if (t.suspicious || t.aboveBar) push("w", t);
+	for (const v of s.verified || []) push("v", v);
+	const arr = [...byKey.values()];
+	return arr.length ? arr : undefined;
+}
+
+function projectCompactListing(l) {
+	const cur = l.current || {};
+	const out = {
+		id: l.id,
+		store: l.storeId,
+		category: l.category || undefined,
+		sku: l.sku,
+		name: cur.name || l.detectedName || "",
+		price: cur.priceNum != null ? cur.priceNum : undefined,
+		removed: cur.removed != null ? !!cur.removed : undefined,
+		firstSeen: l.firstSeen,
+		links: (l.links || []).length,
+		auto: l.wasAutoLinked ? 1 : 0,
+		inIgnores: l.inIgnores ? 1 : 0,
+		triage: l.triage,
+	};
+	if (l.noopEvidence) out.why = l.noopEvidence;
+	if (l.nearMiss) out.ok = undefined; // triage suffices
+	const pairs = projectCompactPairs(l);
+	if (pairs) out.pairs = pairs;
+	return out;
+}
+
+// Smart-filter view over an already-generated rich file (stage 1.5). Loads the file produced
+// by this script, re-applies --only / --offset / --limit / --compact / --format and emits the
+// view WITHOUT re-scoring — decisions never recompute the ranker, they read the rich data.
+// Deep-dive lookups (the agent's "give me more data on this sku" tool): --id <listingId>,
+// --sku <normalizedSku>, --cluster <canonicalSku> pull the FULL rich rows for exactly the
+// sku/cluster a decision is about — everything the compact packet trimmed.
+async function runFromView({ fromFile, only, offset, limit, format, compact, outFile, id, sku, cluster }) {
+	if (!fs.existsSync(fromFile)) {
+		console.error(`audit_new_listings: --from file not found: ${fromFile}`);
+		process.exit(2);
+	}
+	const text = fs.readFileSync(fromFile, "utf8").trim();
+	let meta = null;
+	let listings = null;
+	const asObj = (() => { try { return JSON.parse(text); } catch { return null; } })();
+	if (asObj && Array.isArray(asObj.listings)) {
+		meta = asObj;
+		listings = asObj.listings;
+	} else {
+		const lines = text.split("\n");
+		if (!lines.length) { console.error(`audit_new_listings: --from: unrecognized file shape (${fromFile})`); process.exit(2); }
+		const parseLine = (s) => { try { return JSON.parse(s); } catch { return null; } };
+		const first = parseLine(lines[0]);
+		if (first && first._meta) {
+			// jsonl: _meta on line 1, one listing per subsequent line.
+			meta = first._meta;
+			listings = lines.slice(1).map(parseLine).filter(Boolean);
+		} else {
+			// bare jsonl of listings, no meta header.
+			listings = lines.map(parseLine).filter(Boolean);
+			meta = {};
+		}
+	}
+
+	// ---- deep-dive lookups (--id / --sku / --cluster) ----
+	if (id || sku || cluster) {
+		let outPayload;
+		if (id) {
+			const row = listings.find((l) => l.id === id);
+			outPayload = row || { error: `no listing with id=${id} in ${fromFile}` };
+		} else if (sku) {
+			outPayload = listings.filter((l) => l.sku === sku);
+		} else {
+			const c = (meta.clusters || []).find((x) => x.id === cluster);
+			if (!c) {
+				const noIndex = !(meta.clusters || []).length;
+				outPayload = { error: noIndex
+					? `no cluster index in ${fromFile} (derived views omit it) — run --cluster against the rich stage-1 file`
+					: `no cluster ${cluster} in ${fromFile}` };
+			} else {
+				const cSkus = new Set((c.members || []).map((m) => m.sku));
+				outPayload = {
+					cluster: { id: c.id, size: c.size, memberStoreCount: c.memberStoreCount, hasPendingAutoLink: c.hasPendingAutoLink, hasConfirmedAutoLink: c.hasConfirmedAutoLink, isOrphan: c.isOrphan },
+					members: listings.filter((l) => cSkus.has(l.sku)),
+					missingFromWindow: (c.members || []).filter((m) => m.sku && !listings.some((l) => l.sku === m.sku)).map((m) => m.sku),
+				};
+			}
+		}
+		if (format === "jsonl") {
+			const rows = Array.isArray(outPayload) ? outPayload : [outPayload];
+			fs.mkdirSync(path.dirname(outFile), { recursive: true });
+			fs.writeFileSync(outFile, rows.map((r) => JSON.stringify(r)).join("\n") + "\n", "utf8");
+		} else {
+			fs.mkdirSync(path.dirname(outFile), { recursive: true });
+			fs.writeFileSync(outFile, JSON.stringify(outPayload, null, 0) + "\n", "utf8");
+		}
+		console.log(`audit_deepdive --from ${fromFile} (${id ? "id=" + id : sku ? "sku=" + sku : "cluster=" + cluster}) → ${outFile}`);
+		return;
+	}
+
+	const canClassify = (l) => l && (l.scored || (l.scores && l.scores.scored));
+	let filtered = listings;
+	if (only === "orphans") filtered = listings.filter((l) => !l.hasLinks);
+	else if (only === "auto-linked") filtered = listings.filter((l) => l.wasAutoLinked);
+	else if (only === "has-links") filtered = listings.filter((l) => l.hasLinks);
+	else if (only === "no-auto-link") filtered = listings.filter((l) => !l.wasAutoLinked);
+	else if (only === "want-links" || only === "need-unlinks" || only === "near-misses") {
+		const scoredEnough = listings.filter(canClassify);
+		if (!scoredEnough.length) {
+			console.error(`audit_new_listings: --from "${fromFile}" has no scores; score-driven --only ${only} is not derivable. Re-run stage 1 with scoring.`);
+			process.exit(2);
+		}
+		if (only === "want-links") filtered = scoredEnough.filter((l) => l.wantLink);
+		else if (only === "need-unlinks") filtered = scoredEnough.filter((l) => l.needUnlink);
+		else {
+			const listed = scoredEnough.filter((l) => l.nearMiss);
+			function bestSuspectDet(l) {
+				let m = -1;
+				for (const c of l.scores?.candidates || []) if (c.suspicious) m = Math.max(m, c.detScore ?? -1);
+				for (const t of l.scores?.twins || []) if (t.suspicious) m = Math.max(m, t.detScore ?? -1);
+				return m;
+			}
+			listed.sort((a, b) => bestSuspectDet(b) - bestSuspectDet(a));
+			filtered = listed;
+		}
+	}
+	const windowed = (limit === Infinity ? filtered : filtered.slice(offset, offset + limit));
+
+	const byStore = new Map();
+	for (const l of filtered) {
+		if (!byStore.has(l.storeId)) byStore.set(l.storeId, { total: 0, autoLinked: 0, hasLinks: 0 });
+		const s0 = byStore.get(l.storeId);
+		s0.total++;
+		if (l.wasAutoLinked) s0.autoLinked++;
+		if (l.hasLinks) s0.hasLinks++;
+	}
+	const n = filtered.length;
+	const summary = {
+		total: n,
+		autoLinked: filtered.filter((l) => l.wasAutoLinked).length,
+		hasLinks: filtered.filter((l) => l.hasLinks).length,
+		orphans: filtered.filter((l) => !l.hasLinks).length,
+		coverageRate: n ? +(filtered.filter((l) => l.hasLinks).length / n).toFixed(4) : 0,
+		autoLinkCoverageRate: n ? +(filtered.filter((l) => l.wasAutoLinked).length / n).toFixed(4) : 0,
+		byStore: Object.fromEntries([...byStore.entries()].sort()),
+		derivedFrom: fromFile,
+	};
+	if (n) {
+		summary.nearMisses = filtered.filter((l) => l.nearMiss).length;
+		const triageBuckets = {};
+		for (const l of filtered) {
+			const t = l.triage || "noop-verified";
+			triageBuckets[t] = (triageBuckets[t] || 0) + 1;
+		}
+		summary.triage = triageBuckets;
+	}
+
+	const windowInfo = {
+		only,
+		offset,
+		limit: limit === Infinity ? null : limit,
+		applied: offset > 0 || limit !== Infinity,
+		total: listings.length,
+		totalAfterFilter: n,
+		shown: windowed.length,
+		derivedFrom: fromFile,
+		compact: compact || undefined,
+	};
+
+	fs.mkdirSync(path.dirname(outFile), { recursive: true });
+	const outData = {
+		generatedAt: new Date().toISOString(),
+		derivedFrom: fromFile,
+		since: meta.since,
+		until: meta.until,
+		sources: meta.sources,
+		eval: meta.eval,
+		window: windowInfo,
+		readme: `DERIVED VIEW (no re-scoring) of ${fromFile}. Cluster lookups are NOT available here — run --cluster against the rich stage-1 file. ${
+			meta.readme || "See the stage-1 rich file's readme."
+		}`,
+		summary,
+		// NOTE: clusters are deliberately NOT included in derived views. They are ~1 MB of the meta
+		// line (the whole point of a view is a small, token-cheap page) and no view consumer needs
+		// them: --cluster deep-dive runs against the rich file, which carries the full index.
+		listings: compact ? windowed.map(projectCompactListing) : windowed.map((l) => {
+			// triage/noopEvidence already attached by stage 1; keep rows verbatim otherwise.
+			return l;
+		}),
+	};
+	let payload = outData;
+	if (format === "jsonl") {
+		const { listings: ls, ...m2 } = outData;
+		payload = null;
+		fs.writeFileSync(outFile, JSON.stringify({ _meta: m2 }) + "\n" + ls.map((l) => JSON.stringify(l)).join("\n") + "\n", "utf8");
+	} else {
+		fs.writeFileSync(outFile, JSON.stringify(payload) + "\n", "utf8");
+	}
+	const scoredTarget = scoreDrivenOnlySet().has(only) ? n : windowed.length;
+	console.log(`audit_view --from ${fromFile}: ${n} filtered (--only ${only}, shown ${windowed.length}${compact ? ", compact" : ""})`);
+	console.log(`  auto-linked: ${summary.autoLinked}   has-links: ${summary.hasLinks}   orphans: ${summary.orphans}`);
+	if (summary.nearMisses != null) console.log(`  near-miss listings in source file: ${summary.nearMisses}`);
+	if (summary.triage) console.log(`  triage: ${Object.entries(summary.triage).map(([k, v]) => `${k}:${v}`).join("  ")}`);
+	console.log(`  ${format} → ${outFile}`);
+}
+
+function scoreDrivenOnlySet() { return SCORE_DRIVEN_ONLY; }
+function triageFor(l) {
+	const out = { triage: "noop-verified", evidence: "" };
+	const s = l.scores;
+	if (!s || !s.scored) {
+		out.triage = "pruned";
+		out.evidence = "sku not in live catalog (pruned from db) — nothing to link today";
+		return out;
+	}
+	const su = [
+		...(s.candidates || []).filter((c) => c.suspicious),
+		...(s.twins || []).filter((t) => t.suspicious),
+	];
+	if (su.length) {
+		const c = su[0];
+		const label = (s.twins || []).some((t) => t === c) ? "title-twin" : "crushed match";
+		out.triage = "check";
+		out.evidence = `${label} below bar: ${c.sku} "${c.name}" prob=${fmtNum(c.prob)} det=${fmtNum(c.detScore)} hints=[${(c.missHints || []).join(", ")}]`;
+		return out;
+	}
+	const un = (s.verified || []).filter(
+		(v) => v.kind === "auto-link" && v.prob != null && v.prob < (s.bar ?? 0.95) && !v.pinned,
+	);
+	if (un.length) {
+		const v = un[0];
+		out.triage = "review";
+		out.evidence = `existing auto-link re-scores below bar: ${v.toSku} "${v.partnerName || ""}" prob=${fmtNum(v.prob)} → unlink candidate`;
+		return out;
+	}
+	const ab = (s.candidates || []).filter((c) => c.aboveBar);
+	if (ab.length) {
+		const c = ab[0];
+		out.triage = "auto-high";
+		out.evidence = `above-bar candidate ${c.sku} "${c.name}" prob=${fmtNum(c.prob)} det=${fmtNum(c.detScore)}${
+			s.twins && s.twins.length ? ` (+${s.twins.length} title-twin)` : ""
+		}`;
+		return out;
+	}
+	const cands = s.candidates || [];
+	const topC = cands[0];
+	if (l.hasLinks) {
+		out.evidence =
+			`existing link${l.links.length > 1 ? "s" : ""} re-score fine; ` +
+			(topC
+				? `top contender ${topC.sku} det=${fmtNum(topC.detScore)} prob=${fmtNum(topC.prob)} below bar — no action`
+				: "no contenders — no action");
+	} else {
+		out.evidence = "orphan — no link";
+		if (cands.length) {
+			out.evidence += `; ${cands.length} contender${cands.length > 1 ? "s" : ""}, top det=${fmtNum(topC.detScore)} prob=${fmtNum(topC.prob)} — too weak, no action`;
+		} else {
+			out.evidence += "; no candidate shares overlap evidence — nothing comparably named or sold elsewhere";
+		}
+	}
+	return out;
+}
+
+// ---------------------------------------------------------------------------
+// Live-ranker environment (dynamic-imported ESM). Mirrors tools/auto_link_classify.mjs
+// so every emitted score equals production auto-linking. Never forks scoring.
+// ---------------------------------------------------------------------------
+
+async function buildScorer(root, opts = {}) {
+	// featurize.mjs resolves its WORKTREE at module load time from DATA_WORKTREE.
+	process.env.DATA_WORKTREE = root;
+
+	const featurize = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "tools", "linker_ml", "featurize.mjs")).href
+	);
+	const suggestions = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "suggestions.js")).href
+	);
+	const blends = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "blend.js")).href
+	);
+	const groupF = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "group_features.js")).href
+	);
+	const embeddingsMod = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "embeddings.js")).href
+	);
+	const storeCache = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "store_cache.js")).href
+	);
+	const strongT = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "strong_threshold.js")).href
+	);
+	const similarity = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "similarity.js")).href
+	);
+	const weightsMod = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "blend_weights.js")).href
+	);
+	const skuCanonEsm = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "sku_canonical.js")).href
+	);
+
+	const env = featurize.buildEnv();
+	const { allAgg, vocab, sizeFn, priceFn, allLinks } = env;
+
+	// Canonical map over the FULL link set (manual + merge-auto), ESM sibling of
+	// src/utils/sku_canonical.js — same keys, kept in sync by convention.
+	const { canonBySku } = skuCanonEsm.buildGroupsAndCanonicalMap(allLinks);
+	const canonicalSku = (s) => {
+		const k = skuCanonEsm.normalizeImplicitSkuKey(s);
+		return canonBySku.get(k) || k;
+	};
+	const canonicalPairKey = (a, b) => {
+		const x = canonicalSku(a);
+		const y = canonicalSku(b);
+		if (!x || !y) return "";
+		return x < y ? `${x}|${y}` : `${y}|${x}`;
+	};
+	const ignoreEntries = env.ignoreEntries || [];
+	const ignoreSet = new Set();
+	for (const ig of ignoreEntries) {
+		const k = canonicalPairKey(ig?.skuA || ig?.a, ig?.skuB || ig?.b);
+		if (k) ignoreSet.add(k);
+	}
+	const isIgnoredPair = (a, b) => {
+		const k = canonicalPairKey(a, b);
+		return k ? ignoreSet.has(k) : false;
+	};
+	const sameGroup = (a, b) => canonicalSku(a) === canonicalSku(b);
+	const rules = { canonicalSku };
+	const sameStoreFn = storeCache.makeSameStoreCanonFn(rules, storeCache.buildCanonStoreCache(allAgg, rules));
+
+	const EMB_PATH = path.join(root, "viz", "data", "sku_embeddings.json");
+	const GBT_PATH = path.join(root, "viz", "data", "gbt_model.json");
+	let embRaw = null;
+	try {
+		embRaw = featurize.readJson(EMB_PATH);
+	} catch {
+		/* no embeddings → GBT routes embedCos via its 0/NaN branch (same as production here) */
+	}
+	let gbt = null;
+	try {
+		gbt = featurize.readJson(GBT_PATH);
+	} catch {
+		/* no GBT → linear blend fallback */
+	}
+	const blend = {
+		weights: embRaw ? weightsMod.BLEND_WEIGHTS_EMBED : weightsMod.BLEND_WEIGHTS_NOEMBED,
+		weightsNoEmbed: weightsMod.BLEND_WEIGHTS_NOEMBED,
+		embedCosFn: embRaw ? embeddingsMod.makeEmbedCosFn(embRaw) : null,
+		gbt,
+		groupIndex: groupF.buildGroupIndex(allAgg, (s) => String(canonicalSku(s) || s)),
+		embeddings: !!embRaw,
+	};
+	const bar = strongT.autoLinkConfidenceBar(true); // blend active → PREC99_PROB (0.95)
+	const engine = gbt ? "gbt" : weightsMod.BLEND_WEIGHTS_NOEMBED ? "blend-linear" : "det-only";
+
+	const bySkuAgg = new Map(); // raw + normalized sku -> aggregate
+	for (const it of allAgg) {
+		const raw = String(it.sku || "");
+		if (raw) bySkuAgg.set(raw, it);
+		const ns = skuCanonEsm.normalizeImplicitSkuKey(raw);
+		if (ns && !bySkuAgg.has(ns)) bySkuAgg.set(ns, it);
+	}
+
+	// Distinctive-token / SMWS blocking index (same as auto_link_classify).
+	const distIndex = new Map();
+	const smwsBucket = new Map();
+	for (const it of allAgg) {
+		const sku = String(it.sku || "");
+		if (!sku) continue;
+		for (const tok of vocab.distinctiveUnigramsForName(it.name || "") || []) {
+			let s = distIndex.get(tok);
+			if (!s) distIndex.set(tok, (s = new Set()));
+			s.add(sku);
+		}
+		const k = similarity.smwsKeyFromName(it.name || "");
+		if (k) {
+			let s = smwsBucket.get(k);
+			if (!s) smwsBucket.set(k, (s = new Set()));
+			s.add(sku);
+		}
+	}
+	function candidatesForAnchor(anchor) {
+		const aSku = String(anchor.sku || "");
+		const set = new Set();
+		for (const tok of vocab.distinctiveUnigramsForName(anchor.name || "") || []) {
+			const s = distIndex.get(tok);
+			if (s) for (const x of s) set.add(x);
+		}
+		const k = similarity.smwsKeyFromName(anchor.name || "");
+		if (k) {
+			const s = smwsBucket.get(k);
+			if (s) for (const x of s) set.add(x);
+		}
+		set.delete(aSku);
+		const out = [anchor];
+		for (const x of set) {
+			const it = bySkuAgg.get(x);
+			if (it) out.push(it);
+		}
+		return out;
+	}
+
+	// Title-twin bucket: aggregate sku by normalized product title (sizes stripped so
+	// "700 mL" / "750ml" collapse). Built lazily and only when opts.enableTwins.
+	const nameBucket = new Map();
+	let nameBucketReady = false;
+	function ensureNameBucket() {
+		if (nameBucketReady) return;
+		nameBucketReady = true;
+		if (!opts.enableTwins) return;
+		for (const it of allAgg) {
+			const nk = normNameForTwin(it.name || "");
+			if (!nk) continue;
+			let arr = nameBucket.get(nk);
+			if (!arr) nameBucket.set(nk, (arr = []));
+			arr.push(it);
+		}
+	}
+
+	// Score one audit listing against its aggregates. Returns null when the sku is
+	// absent from the live catalog (then scored:false is still emitted by the caller).
+	//
+	// Two score surfaces:
+	//   candidates[] — the ranker's TOP pairs for this sku (retrieve-then-rerank, the same
+	//     as auto_link_classify / #/link-rapid). aboveBar=true ⇒ auto-linking would fire on
+	//     that pair today.
+	//   verified[]  — the EXISTING explicit links touching this listing re-scored directly
+	//     (auto-classify pending/confirmed entries AND manual/merge links), independent of
+	//     candidate-rank truncation. This is the "is this link still good" surface the agent
+	//     uses to unlink bad ones.
+	function scoreListing(listing, top) {
+		const anchor = bySkuAgg.get(listing.sku) || bySkuAgg.get(listing.lookup.cacheSku);
+		if (!anchor) return null;
+		const me = listing.sku;
+		const ctx = suggestions.prepScorePairCtx(anchor, { vocab, sizePenaltyFn: sizeFn, pricePenaltyFn: priceFn });
+		const candAgg = candidatesForAnchor(anchor);
+		const candidates = [];
+		if (candAgg.length > 1) {
+			const recs = suggestions.recommendSimilar(
+				candAgg,
+				anchor,
+				top,
+				"",
+				null,
+				isIgnoredPair,
+				sizeFn,
+				priceFn,
+				sameStoreFn,
+				sameGroup,
+				{ vocab, allowSameStore: true, withScores: true, blend },
+			);
+			for (const r of recs) {
+				if (!r || !r.it) continue;
+				const det = suggestions.scorePairWithVocab(ctx, r.it);
+				const feats = blends.extractBlendFeatures(ctx, r.it, {
+					vocab,
+					sizePenaltyFn: sizeFn,
+					pricePenaltyFn: priceFn,
+					embedCosFn: blend.embedCosFn,
+					detScore: det,
+				});
+				if (blend.groupIndex) {
+					Object.assign(feats, blend.groupIndex.features(String(anchor.sku), String(r.it.sku)));
+				}
+				const prob = typeof r.score === "number" ? r.score : null;
+				const ma = prob != null ? missAnalysis(det, feats, { pinned: false, prob, bar }) : null;
+				candidates.push({
+					sku: String(r.it.sku),
+					name: r.it.name || "",
+					stores: r.it.stores instanceof Set ? [...r.it.stores] : r.it.stores || [],
+					cheapest: r.it.cheapestPriceNum != null ? r.it.cheapestPriceNum : null,
+					detScore: det,
+					score01: blends.toConfidence01(det),
+					prob,
+					aboveBar: prob != null && prob >= bar,
+					aiDelta: r.aiDelta,
+					features: feats,
+					suspicious: ma ? ma.suspicious : false,
+					missHints: ma ? ma.missHints : [],
+				});
+			}
+		}
+
+		// --- verified: re-score each EXISTING explicit pair touching this listing ---
+		const pairMap = new Map();
+		for (const al of listing.autoLinks || []) {
+			const partner = al.toSku === me ? al.fromSku : al.fromSku === me ? al.toSku : null;
+			if (!partner || partner === me) continue;
+			const key = [me, partner].sort().join("|");
+			if (!pairMap.has(key))
+				pairMap.set(key, { kind: "auto-link", source: "auto-classify", status: al.status, confidence: al.confidence, partner });
+		}
+		for (const lk of listing.links || []) {
+			if (lk.kind !== "explicit") continue;
+			const src = lk.entry && lk.entry.source;
+			if (src === "auto-classify") continue; // already covered via autoLinks
+			const partner = lk.sku;
+			const key = [me, partner].sort().join("|");
+			if (!pairMap.has(key))
+				pairMap.set(key, {
+					kind: "link",
+					source: src || "manual",
+					status: "confirmed",
+					confidence: lk.entry && lk.entry.confidence,
+					partner,
+				});
+		}
+		const verified = [];
+		for (const info of pairMap.values()) {
+			const v = { fromSku: me, toSku: info.partner, kind: info.kind, source: info.source, status: info.status, storedConfidence: info.confidence };
+			const agg = bySkuAgg.get(info.partner);
+			if (!agg) {
+				v.absentFromCatalog = true;
+				verified.push(v);
+				continue;
+			}
+			const det = suggestions.scorePairWithVocab(ctx, agg);
+			const sr = suggestions.scorePairBlended(ctx, agg, det, blend, {
+				vocab,
+				sizePenaltyFn: sizeFn,
+				pricePenaltyFn: priceFn,
+			});
+			const feats = blends.extractBlendFeatures(ctx, agg, {
+				vocab,
+				sizePenaltyFn: sizeFn,
+				pricePenaltyFn: priceFn,
+				embedCosFn: blend.embedCosFn,
+				detScore: det,
+			});
+			if (blend.groupIndex) {
+				Object.assign(feats, blend.groupIndex.features(String(anchor.sku), String(agg.sku)));
+			}
+			v.detScore = det;
+			v.score01 = blends.toConfidence01(det);
+			v.prob = sr.score == null ? null : sr.score;
+			v.aiDelta = sr.aiDelta;
+			v.aboveBar = v.prob != null && v.prob >= bar;
+			v.partnerName = agg.name || "";
+			v.partnerStores = agg.stores instanceof Set ? [...agg.stores] : agg.stores || [];
+			v.features = feats;
+			verified.push(v);
+		}
+		verified.sort((a, b) => (b.prob === null ? -1 : a.prob === null ? 1 : b.prob - a.prob));
+
+		// A `pinned` link is a DETERMINISTIC floor-pin (e.g. shared SMWS cask code: suggestions.js
+		// keeps raw scores >= 1e8 out of the blend re-rank, so a pinned storedConfidence is
+		// NOT a calibrated probability). Do not treat a below-bar LIVE prob on a pin as a
+		// "bad link" — the pin is deliberate and stronger than the bar.
+		for (const v of verified) {
+			v.pinned = v.storedConfidence != null && v.storedConfidence >= 1e8;
+			if (v.prob != null && v.detScore != null && v.features) {
+				const ma = missAnalysis(v.detScore, v.features, { pinned: v.pinned, prob: v.prob, bar });
+				v.suspicious = ma.suspicious;
+				v.missHints = ma.missHints;
+			}
+		}
+
+		// --- title-twin backstop (opt-in) ---
+		// Identical normalized product titles that never reached the candidate pool. The
+		// blocking index can fail to surface a true match (a distinctive token dropped from
+		// vocab / not shared), yet two stores selling an identically-named spirit are almost
+		// always the same product. This is the pipeline's blind spot; surface it explicitly
+		// so "'obviously the same' but the linker never even saw it" is discoverable.
+		let twins = [];
+		if (opts.enableTwins) {
+			ensureNameBucket();
+			const nk = normNameForTwin(anchor.name || "");
+			const bucket = nk ? nameBucket.get(nk) || [] : [];
+			const dup = new Set(
+				[...candidates.map((c) => c.sku), ...verified.map((v) => v.toSku)].filter(Boolean),
+			);
+			for (const agg of bucket) {
+				const sku = String(agg.sku || "");
+				if (!sku || sku === me || dup.has(sku)) continue;
+				if (sameGroup(me, sku) || isIgnoredPair(me, sku)) continue;
+				const det = suggestions.scorePairWithVocab(ctx, agg);
+				const sr = suggestions.scorePairBlended(ctx, agg, det, blend, {
+					vocab,
+					sizePenaltyFn: sizeFn,
+					pricePenaltyFn: priceFn,
+				});
+				const feats = blends.extractBlendFeatures(ctx, agg, {
+					vocab,
+					sizePenaltyFn: sizeFn,
+					pricePenaltyFn: priceFn,
+					embedCosFn: blend.embedCosFn,
+					detScore: det,
+				});
+				if (blend.groupIndex) {
+					Object.assign(feats, blend.groupIndex.features(String(anchor.sku), String(agg.sku)));
+				}
+				const prob = sr.score == null ? null : sr.score;
+				const ma = prob != null ? missAnalysis(det, feats, { pinned: false, prob, bar }) : null;
+				twins.push({
+					sku,
+					name: agg.name || "",
+					stores: agg.stores instanceof Set ? [...agg.stores] : agg.stores || [],
+					cheapest: agg.cheapestPriceNum != null ? agg.cheapestPriceNum : null,
+					detScore: det,
+					score01: blends.toConfidence01(det),
+					prob,
+					aboveBar: prob != null && prob >= bar,
+					aiDelta: sr.aiDelta,
+					features: feats,
+					suspicious: ma ? ma.suspicious : false,
+					missHints: ma ? ma.missHints : [],
+				});
+			}
+			twins.sort((a, b) => (b.prob ?? -1) - (a.prob ?? -1));
+			if (twins.length > top) twins = twins.slice(0, top);
+		}
+
+		return { scored: true, engine, bar, candidates, verified, twins };
+	}
+
+	return {
+		engine,
+		bar,
+		gbtLoaded: !!gbt,
+		embLoaded: !!embRaw,
+		twinsEnabled: !!opts.enableTwins,
+		scoreListing,
+	};
+}
+
+// ---------------------------------------------------------------------------
+// main
+// ---------------------------------------------------------------------------
+
+async function main() {
+	const { args, flags } = parseArgs(process.argv.slice(2));
+
+	const since = parseBound(args.get("--since") || DEFAULT_SINCE, { exclusiveDate: false });
+	const untilRaw = args.get("--until");
+	const until = untilRaw
+		? parseBound(untilRaw, { exclusiveDate: true })
+		: { ms: Date.now(), iso: new Date().toISOString() };
+
+	const rootArg = args.get("--root") || path.join(REPO_ROOT, ".worktrees", "data");
+	const root = path.isAbsolute(rootArg) ? rootArg : path.join(REPO_ROOT, rootArg);
+
+	if (!fs.existsSync(path.join(root, "viz", "data", "skus"))) {
+		console.error(`audit_new_listings: expected worktree at ${root} (no viz/data/skus found).`);
+		console.error("  Pass --root <path-to-data-worktree> (default .worktrees/data).");
+		process.exit(2);
+	}
+
+	const format = args.get("--format") || "json";
+	if (format !== "json" && format !== "jsonl") {
+		console.error(`audit_new_listings: --format must be json or jsonl, got "${format}"`);
+		process.exit(2);
+	}
+	const only = args.get("--only") || "all";
+	if (!ALLOWED_ONLY.has(only)) {
+		console.error(`audit_new_listings: --only must be one of ${[...ALLOWED_ONLY].join(", ")}`);
+		process.exit(2);
+	}
+	const offset = parseNum(args.get("--offset"), 0, "--offset");
+	const limit = parseNum(args.get("--limit"), Infinity, "--limit");
+	const withScores = flags.has("--no-scores") ? false : flags.has("--with-scores") ? true : true;
+	const top = parseNum(args.get("--top"), withScores ? 5 : 0, "--top");
+	const compact = flags.has("--compact");
+
+	const ext = format === "jsonl" ? "jsonl" : "json";
+	const fromArg = args.get("--from");
+	const outFile =
+		args.get("--out") ||
+		path.join(REPO_ROOT, "audit", `new_listings_${since.iso.slice(0, 10)}_${until.iso.slice(0, 10)}.${ext}`);
+
+	// Two-stage discipline: the GENERATOR always emits the RICH file; compact projections and
+	// score-driven funnels are derived from it via --from (no re-scoring). --compact in the
+	// generator contradicts that, so refuse it and point at the view path.
+	if (!fromArg && compact) {
+		console.error("audit_new_listings: --compact is a VIEW projection — generate the rich file first, then derive a compact view with: ");
+		console.error(`  node scripts/audit_new_listings.js --from <rich-file> --compact --format jsonl --out <view.jsonl>`);
+		process.exit(2);
+	}
+	const idArg = args.get("--id");
+	const skuArg = args.get("--sku");
+	const clusterArg = args.get("--cluster");
+	if (fromArg) {
+		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, outFile, id: idArg, sku: skuArg, cluster: clusterArg });
+		return;
+	}
+	if (idArg || skuArg || clusterArg) {
+		console.error("audit_new_listings: --id/--sku/--cluster are deep-dive lookups over an existing rich file — pass --from <file>.");
+		process.exit(2);
+	}
+
+	// ---- load link sources (explicit) ----
+	const manualFile = readJson(path.join(root, "data", "sku_links.json")) || { links: [], ignores: [] };
+	const autoFile = readJson(path.join(root, "data", "sku_links_auto.json")) || { links: [] };
+	const manualLinks = Array.isArray(manualFile.links) ? manualFile.links : [];
+	const autoLinks = Array.isArray(autoFile.links) ? autoFile.links : [];
+	const ignores = Array.isArray(manualFile.ignores) ? manualFile.ignores : [];
+
+	// Adjacency: normalized sku -> explicit link entries that touch it.
+	const adjacency = new Map();
+	const allEntries = [];
+	for (const e of manualLinks) allEntries.push({ entry: e, file: "manual" });
+	for (const e of autoLinks) allEntries.push({ entry: e, file: "auto" });
+
+	const seenPairs = new Set();
+	for (const { entry, file } of allEntries) {
+		const a = normalizeImplicitSkuKey(entry.fromSku);
+		const b = normalizeImplicitSkuKey(entry.toSku);
+		if (!a || !b) continue;
+		const pairKey = [a, b].sort().join("|");
+		if (seenPairs.has(pairKey)) continue; // a manual + merge-auto duplicate pair = one link
+		seenPairs.add(pairKey);
+		const kind = file === "manual" ? entry.source || "manual" : "merge-auto";
+		const rec = { entry, file, kind, a, b };
+		if (!adjacency.has(a)) adjacency.set(a, []);
+		adjacency.get(a).push(rec);
+		if (a !== b) {
+			if (!adjacency.has(b)) adjacency.set(b, []);
+			adjacency.get(b).push(rec);
+		}
+	}
+
+	// Canonical map over EXPLICIT links (same semantics as src/utils/sku_map.js).
+	const { canonBySku, groupsByCanon } = buildGroupsAndCanonicalMap([...manualLinks, ...autoLinks]);
+
+	// Auto-classify entries specifically (the classifier's own output).
+	const autoClassifyBySku = new Map();
+	for (const e of manualLinks) {
+		if (e.source !== "auto-classify") continue;
+		const a = normalizeImplicitSkuKey(e.fromSku);
+		const b = normalizeImplicitSkuKey(e.toSku);
+		if (!a || !b) continue;
+		for (const s of new Set([a, b])) {
+			if (!autoClassifyBySku.has(s)) autoClassifyBySku.set(s, []);
+			autoClassifyBySku.get(s).push({
+				fromSku: a,
+				toSku: b,
+				status: e.status || "confirmed",
+				confidence: e.confidence,
+				ts: e.ts,
+			});
+		}
+	}
+
+	// Ignores: normalized sku -> true.
+	const ignoreSkus = new Set();
+	for (const ig of ignores) {
+		const a = normalizeImplicitSkuKey(ig.skuA);
+		const b = normalizeImplicitSkuKey(ig.skuB);
+		if (a) ignoreSkus.add(a);
+		if (b) ignoreSkus.add(b);
+	}
+
+	// ---- current db state ----
+	// currentByDbFile[dbFile] = Map(normSku -> item)
+	// skuIndex[normSku] = [ {dbFile, storeId, store, category, ...item} ] over ALL dbFiles
+	const dbFiles = fs
+		.readdirSync(path.join(root, "data", "db"))
+		.filter((f) => f.endsWith(".json"))
+		.sort();
+	const dbMeta = new Map();
+	const currentByDbFile = new Map();
+	const skuIndex = new Map();
+
+	for (const f of dbFiles) {
+		const data = readJson(path.join(root, "data", "db", f));
+		if (!data) continue;
+		// SKU-cache store keys are full relPaths ("data/db/xxx.json") — key these
+		// maps the SAME way or every lookup below silently misses.
+		const relPath = path.posix.join("data", "db", f);
+		const storeId = f.split("__")[0];
+		const meta = {
+			storeId,
+			store: data.storeLabel || data.store || storeId,
+			category: data.categoryLabel || data.category || "",
+		};
+		dbMeta.set(relPath, meta);
+		const bySku = new Map();
+		for (const item of Array.isArray(data.items) ? data.items : []) {
+			const ns = normalizeImplicitSkuKey(item?.sku);
+			if (!ns) continue;
+			const existing = bySku.get(ns);
+			if (existing) {
+				if (existing.removed && !item.removed) bySku.set(ns, item); // live wins
+			} else {
+				bySku.set(ns, item);
+			}
+			if (!skuIndex.has(ns)) skuIndex.set(ns, []);
+			skuIndex.get(ns).push({ dbFile: relPath, ...meta, rawSku: String(item.sku), ...item });
+		}
+		currentByDbFile.set(relPath, bySku);
+	}
+
+	// ---- hidden set ((storeId, rawSku)) ----
+	const hiddenFile = readJson(path.join(root, "data", "sku_hidden.json"));
+	const hiddenSet = new Set();
+	for (const h of hiddenFile?.hidden || []) {
+		if (h?.storeId && h?.sku != null) hiddenSet.add(`${h.storeId}\u0000${String(h.sku)}`);
+	}
+
+	// ---- rarity (keyed by canonical sku) ----
+	const rarityFile = readJson(path.join(root, "viz", "data", "rarity.json"));
+	const rarity = rarityFile?.byCanon || {};
+
+	// ---- walk the per-SKU cache to find listings first seen in range ----
+	const skuCacheDir = path.join(root, "viz", "data", "skus");
+	const skuCacheFiles = fs.readdirSync(skuCacheDir).filter((f) => f.endsWith(".json"));
+	const listings = [];
+
+	// For cluster member resolution: per-sku cache summary (first-seen + store set).
+	const cacheBySku = new Map();
+
+	let skuFilesLoaded = 0;
+	for (const f of skuCacheFiles) {
+		const data = readJson(path.join(skuCacheDir, f));
+		if (!data) continue;
+		skuFilesLoaded++;
+		const normSku = data.sku || f.replace(/\.json$/, "");
+		const stores = data.stores || {};
+
+		// per-sku cache summary for clusters
+		let minFirstMs = Infinity;
+		const storeSet = new Map(); // dbFile -> {label}
+		for (const [dbFile, info] of Object.entries(stores)) {
+			const events = Array.isArray(info?.events) ? info.events : [];
+			if (!events.length) continue;
+			const fm = Date.parse(events[0].ts);
+			if (Number.isFinite(fm) && fm < minFirstMs) minFirstMs = fm;
+			if (!storeSet.has(dbFile)) storeSet.set(dbFile, { label: info.label });
+		}
+		if (Number.isFinite(minFirstMs)) {
+			cacheBySku.set(normSku, { firstMs: minFirstMs, stores: storeSet });
+		}
+
+		for (const [dbFile, info] of Object.entries(stores)) {
+			const events = Array.isArray(info?.events) ? info.events : [];
+			if (!events.length) continue;
+			const first = events[0];
+			const firstMs = Date.parse(first.ts);
+			if (!Number.isFinite(firstMs)) continue;
+			if (firstMs < since.ms || firstMs >= until.ms) continue;
+
+			const meta = dbMeta.get(dbFile) || { storeId: dbFile.split("__")[0], store: info.label || "", category: "" };
+			const currentMap = currentByDbFile.get(dbFile);
+			const curItem = currentMap ? currentMap.get(normSku) : null;
+
+			// --- explicit links touching this sku ---
+			const explicitOther = new Map(); // other normSku -> {kind, entry}
+			for (const rec of adjacency.get(normSku) || []) {
+				const other = rec.a === normSku ? rec.b : rec.a;
+				if (other === normSku) continue;
+				explicitOther.set(other, {
+					kind: "explicit",
+					entry: {
+						fromSku: rec.a,
+						toSku: rec.b,
+						source: rec.kind,
+						status: rec.entry.status,
+						confidence: rec.entry.confidence,
+						ts: rec.entry.ts,
+					},
+				});
+			}
+
+			// --- implicit same-sku shares = other dbFiles tracked for this sku ---
+			const implicitOther = [];
+			for (const [odf, oinfo] of Object.entries(stores)) {
+				if (odf === dbFile) continue;
+				implicitOther.push({
+					kind: "implicit",
+					storeId: odf.split("__")[0],
+					store: oinfo.label || "",
+				});
+			}
+
+			// --- merge into one "links" list with resolved metadata ---
+			const merged = new Map();
+			for (const [other, v] of explicitOther) {
+				const resolved = (skuIndex.get(other) || []).map((r) => ({
+					dbFile: r.dbFile,
+					storeId: r.storeId,
+					store: r.store,
+					category: r.category,
+					rawSku: r.rawSku,
+					name: r.name,
+					price: r.price,
+					url: r.url,
+					removed: !!r.removed,
+				}));
+				merged.set(other, { sku: other, kind: "explicit", entry: v.entry, resolved });
+			}
+			for (const io of implicitOther) {
+				const key = "implicit:" + io.storeId;
+				const existing = merged.get(key);
+				const resolved = (skuIndex.get(normSku) || [])
+					.filter((r) => r.dbFile !== dbFile)
+					.map((r) => ({
+						dbFile: r.dbFile,
+						storeId: r.storeId,
+						store: r.store,
+						category: r.category,
+						rawSku: r.rawSku,
+						name: r.name,
+						price: r.price,
+						url: r.url,
+						removed: !!r.removed,
+					}));
+				if (existing) {
+					existing.kind = "both";
+					existing.resolved = [...(existing.resolved || []), ...resolved];
+				} else {
+					merged.set(key, { sku: normSku, kind: "implicit", storeId: io.storeId, store: io.store, resolved });
+				}
+			}
+
+			const autoLinks = autoClassifyBySku.get(normSku) || [];
+			const canonicalSku = canonBySku.get(normSku) || normSku;
+			const hidRaw = curItem && meta.storeId ? `${meta.storeId}\u0000${String(curItem.sku)}` : null;
+
+			let current = null;
+			if (curItem) {
+				current = {
+					name: curItem.name,
+					url: curItem.url,
+					price: curItem.price,
+					removed: !!curItem.removed,
+					rawSku: String(curItem.sku),
+					img: curItem.img,
+				};
+			}
+
+			listings.push({
+				id: dbFile + "|" + normSku,
+				sku: normSku,
+				dbFile,
+				store: meta.store,
+				storeId: meta.storeId,
+				category: meta.category,
+				firstSeen: first.ts,
+				lookup: { cacheSku: normSku, cacheFile: `viz/data/skus/${encodeURIComponent(normSku)}.json`, dbFile },
+				current,
+				wasAutoLinked: autoLinks.length > 0,
+				autoLinks,
+				linkCount: explicitOther.size,
+				implicitStoreCount: implicitOther.length,
+				hasLinks: explicitOther.size > 0 || implicitOther.length > 0,
+				links: Array.from(merged.values()),
+				canonicalSku,
+				inIgnores: ignoreSkus.has(normSku),
+				rarity: rarity[canonicalSku] || null,
+				hidden: hidRaw ? hiddenSet.has(hidRaw) : undefined,
+			});
+		}
+	}
+
+	// ---- sort: firstSeen asc, then sku, then dbFile ----
+	listings.sort((x, y) => {
+		const d = Date.parse(x.firstSeen) - Date.parse(y.firstSeen);
+		if (d) return d;
+		if (x.sku !== y.sku) return x.sku < y.sku ? -1 : 1;
+		return x.dbFile < y.dbFile ? -1 : x.dbFile > y.dbFile ? 1 : 0;
+	});
+
+	// ---- --only: structural filters apply immediately; score-driven ones need scores ----
+	// (want-links / need-unlinks partition the scored universe, so filtering happens AFTER
+	// scoring; clusters then describe the FINAL filtered set, keeping pages consistent.)
+	const scoreDrivenOnly = SCORE_DRIVEN_ONLY.has(only);
+	const willScore = withScores || scoreDrivenOnly;
+	if (scoreDrivenOnly && !withScores) {
+		console.log(`  note: --only ${only} needs sameness scores; enabling scoring (ignoring --no-scores).`);
+	}
+	const windowSlice = (arr) =>
+		offset || limit !== Infinity ? arr.slice(offset, limit === Infinity ? undefined : offset + limit) : arr;
+
+	let filtered = listings;
+	if (only === "orphans") filtered = listings.filter((l) => !l.hasLinks);
+	else if (only === "auto-linked") filtered = listings.filter((l) => l.wasAutoLinked);
+	else if (only === "has-links") filtered = listings.filter((l) => l.hasLinks);
+	else if (only === "no-auto-link") filtered = listings.filter((l) => !l.wasAutoLinked);
+
+	// ---- sameness scores (live ranker) ----
+	// Score DRIVEN by the filter: score-driven modes score the whole (unwindowed) structural
+	// universe so classification is exact; structural modes score only the windowed page.
+	let scorer = null;
+	let scoredCount = 0;
+	let candidateCount = 0;
+	let verifiedCount = 0;
+	let wantLinkCount = 0;
+	let needUnlinkCount = 0;
+	let nearMissCount = 0;
+	let twinScanCount = 0;
+	if (willScore) {
+		scorer = await buildScorer(root, { enableTwins: true });
+		const scoreTarget = scoreDrivenOnly ? filtered : windowSlice(filtered);
+		for (const l of scoreTarget) {
+			const res = scorer.scoreListing(l, top);
+			if (res) {
+				l.scores = res;
+				scoredCount++;
+				candidateCount += res.candidates.length;
+				verifiedCount += (res.verified || []).filter((v) => v.prob != null).length;
+				const twins = res.twins || [];
+				twinScanCount += twins.length;
+				l.wantLink = !l.wasAutoLinked && res.candidates.some((c) => c.aboveBar);
+				l.needUnlink = l.wasAutoLinked && (res.verified || []).some(
+					(v) =>
+						v.kind === "auto-link" && v.prob != null && v.prob < scorer.bar && !v.pinned, // pinned = deterministic floor-pin (SMWS cask): keep
+				);
+				l.nearMiss = res.candidates.some((c) => c.suspicious) || twins.some((t) => t.suspicious);
+				if (l.wantLink) wantLinkCount++;
+				if (l.needUnlink) needUnlinkCount++;
+				if (l.nearMiss) nearMissCount++;
+			} else {
+				l.scores = { scored: false, reason: "not-in-catalog", engine: scorer.engine, bar: scorer.bar, candidates: [], verified: [], twins: [] };
+			}
+		}
+	}
+
+	// ---- score-driven --only re-filter (after scoring) ----
+	if (only === "want-links") filtered = filtered.filter((l) => l.wantLink);
+	else if (only === "need-unlinks") filtered = filtered.filter((l) => l.needUnlink);
+	else if (only === "near-misses") {
+		filtered = filtered.filter((l) => l.nearMiss);
+		// Strongest crushed match first: the below-bar pairs whose overlap evidence is
+		// most damning (deteScore desc) float to the top of the funnel.
+		function bestSuspectDet(l) {
+			let m = -1;
+			for (const c of l.scores?.candidates || []) if (c.suspicious) m = Math.max(m, c.detScore ?? -1);
+			for (const t of l.scores?.twins || []) if (t.suspicious) m = Math.max(m, t.detScore ?? -1);
+			return m;
+		}
+		filtered.sort((a, b) => bestSuspectDet(b) - bestSuspectDet(a));
+	}
+
+	// ---- clusters (canonical groups of the filtered universe) ----
+	function memberStores(sku) {
+		const rows = skuIndex.get(sku) || [];
+		const out = rows.map((r) => ({
+			storeId: r.storeId,
+			store: r.store,
+			dbFile: r.dbFile,
+			category: r.category,
+			name: r.name,
+			price: r.price,
+			url: r.url,
+			removed: !!r.removed,
+		}));
+		const seen = new Set(rows.map((r) => r.dbFile));
+		for (const [dbFile, info] of cacheBySku.get(sku)?.stores || new Map()) {
+			if (seen.has(dbFile)) continue;
+			const meta = dbMeta.get(dbFile) || { storeId: dbFile.split("__")[0], store: info.label || "" };
+			out.push({ storeId: meta.storeId, store: meta.store, dbFile, category: meta.category || "" });
+		}
+		return out;
+	}
+
+	const auditedSkuSet = new Set(filtered.map((l) => l.sku));
+	const clusters = [];
+	for (const canon of new Set(filtered.map((l) => l.canonicalSku))) {
+		const members = Array.from(groupsByCanon.get(canon) || [canon]).sort();
+		const memberObjs = members.map((sku) => {
+			const cache = cacheBySku.get(sku);
+			const stores = memberStores(sku);
+			const storeIds = new Set(stores.map((s) => s.storeId));
+			return {
+				sku,
+				inAudit: auditedSkuSet.has(sku),
+				firstSeen: cache ? new Date(cache.firstMs).toISOString() : null,
+				storeCount: storeIds.size,
+				implicitStoreCount: Math.max(0, storeIds.size - 1),
+				stores,
+			};
+		});
+		const memberStoreCount = new Set(memberObjs.flatMap((m) => m.stores.map((s) => s.storeId))).size;
+		let hasPending = false;
+		let hasConfirmed = false;
+		let hasMerge = false;
+		let hasManual = false;
+		for (const m of members) {
+			for (const rec of adjacency.get(m) || []) {
+				if (rec.entry?.source === "auto-classify") {
+					if (rec.entry.status === "pending") hasPending = true;
+					else hasConfirmed = true;
+				} else if (rec.kind === "merge-auto") {
+					hasMerge = true;
+				} else {
+					hasManual = true;
+				}
+			}
+		}
+		clusters.push({
+			id: canon,
+			size: members.length,
+			auditedMembers: memberObjs.filter((m) => m.inAudit).length,
+			memberStoreCount,
+			newMemberCount: memberObjs.filter(
+				(m) => m.firstSeen && Date.parse(m.firstSeen) >= since.ms && Date.parse(m.firstSeen) < until.ms,
+			).length,
+			isOrphan: members.length === 1 && memberStoreCount <= 1,
+			hasPendingAutoLink: hasPending,
+			hasConfirmedAutoLink: hasConfirmed,
+			hasMergeAutoLink: hasMerge,
+			hasManualLink: hasManual,
+			members: memberObjs,
+		});
+	}
+	clusters.sort((x, y) => y.size - x.size || (x.id < y.id ? -1 : 1));
+
+	// Attach compact cluster refs to each listing.
+	const clusterById = new Map(clusters.map((c) => [c.id, c]));
+	for (const l of filtered) {
+		const c = clusterById.get(l.canonicalSku);
+		l.clusterId = l.canonicalSku;
+		l.cluster = c
+			? {
+					id: c.id,
+					size: c.size,
+					auditedMembers: c.auditedMembers,
+					memberStoreCount: c.memberStoreCount,
+					isOrphan: c.isOrphan,
+				}
+			: { id: l.canonicalSku, size: 1, auditedMembers: 1, memberStoreCount: 1, isOrphan: true };
+	}
+
+	// ---- window (offset/limit) ----
+	const windowed = windowSlice(filtered);
+
+	// Every emitted listing carries a triage verdict + the evidence making it defensible,
+	// so an auditor must actively DISAGREE with a row rather than it just being skippable.
+	for (const l of windowed) {
+		const t = triageFor(l);
+		l.triage = t.triage;
+		l.noopEvidence = t.evidence;
+	}
+
+	// ---- summary (over the filtered universe) ----
+	const n = filtered.length;
+	const autoLinked = filtered.filter((l) => l.wasAutoLinked);
+	const anyLinks = filtered.filter((l) => l.hasLinks);
+	const orphans = filtered.filter((l) => !l.hasLinks);
+	const pending = autoLinked.filter((l) => l.autoLinks.some((a) => a.status === "pending"));
+	const confirmed = autoLinked.filter((l) => l.autoLinks.some((a) => a.status === "confirmed"));
+	const inIgnores = filtered.filter((l) => l.inIgnores);
+
+	const byStore = new Map();
+	for (const l of filtered) {
+		if (!byStore.has(l.storeId)) byStore.set(l.storeId, { total: 0, autoLinked: 0, hasLinks: 0 });
+		const s = byStore.get(l.storeId);
+		s.total++;
+		if (l.wasAutoLinked) s.autoLinked++;
+		if (l.hasLinks) s.hasLinks++;
+	}
+
+	const summary = {
+		total: n,
+		autoLinked: autoLinked.length,
+		hasLinks: anyLinks.length,
+		orphans: orphans.length,
+		coverageRate: n ? +(anyLinks.length / n).toFixed(4) : 0,
+		autoLinkCoverageRate: n ? +(autoLinked.length / n).toFixed(4) : 0,
+		pendingReview: pending.length,
+		confirmed: confirmed.length,
+		inIgnores: inIgnores.length,
+		liveNow: filtered.filter((l) => l.current && !l.current.removed).length,
+		prunedFromDb: filtered.filter((l) => !l.current).length,
+		byStore: Object.fromEntries([...byStore.entries()].sort()),
+	};
+	if (willScore) {
+		summary.scoredCount = scoredCount;
+		summary.scoredCandidates = candidateCount;
+		summary.nearMisses = nearMissCount;
+		summary.twinsScanned = twinScanCount;
+		const triageBuckets = {};
+		for (const l of filtered) {
+			const t = triageFor(l);
+			triageBuckets[t.triage] = (triageBuckets[t.triage] || 0) + 1;
+		}
+		summary.triage = triageBuckets;
+		if (scoreDrivenOnly) {
+			summary.wantLinks = wantLinkCount;
+			summary.needUnlinks = needUnlinkCount;
+			summary.verifiedPairs = verifiedCount;
+		}
+	}
+
+	const readme =
+		"NEW-LISTINGS AUDIT — this file is machine-readable input for an auditor agent. " +
+		`Listings: unit=(dbFile, normalizedSku), first-seen in [${since.iso}, ${until.iso}). ` +
+		"Every sku is a normalized key == `viz/data/skus/<sku>.json`; every listing has stable `id` = `<dbFile>|<sku>` for agent references. " +
+		"Per listing: `current` = record in the db today (name/url/price/removed; null = pruned out of the db), " +
+		"`autoLinks[]` = source:auto-classify entries touching it (status pending=awaiting review), " +
+		"`links[]` = explicit/implicit links with per-store `resolved[]`, `cluster` = its canonical-group summary, " +
+		"`scores.verified[]` = each EXISTING explicit link re-scored today (`prob` < bar ⇒ candidate to unlink; keep `storedConfidence` as the classifier's original call), " +
+		"`scores.candidates[]` = the LIVE ranker's top pairs (`prob` = GBT blend probability thresholds at bar; " +
+		"`aboveBar` true ⇒ auto-linking would fire today; `features` are the decomposed sameness inputs — " +
+		"overlap: sharedTok/woScore/containGated/tgtCov/jacc; hard-rule vetoes: sizePen/abvMult/edMult/ageRel/conceptMult; " +
+		"group-level: grp*; embedCos is a 0 placeholder when the embeddings asset is absent — see meta.eval). " +
+		"Two decision funnels: `want-links` (never auto-linked but candidates above bar — link the missed ones) " +
+		"and `need-unlinks` (auto-link pair prob fell below bar — unlink the bad ones); `--only` fetches just those rows. " +
+		"A THIRD funnel, `--only near-misses`, is the auditor's highest-value surface: pairs the LINKER SCORES LOW but " +
+		"that share real overlap evidence — a human/agent eye instantly sees they are the same product (a crushed true " +
+		"match, e.g. one hard-rule veto or a missing embedding). Every candidate/verified/twin carries `suspicious` + " +
+		"`missHints` (which veto/penalty fired, `no-embedding`); `twins[]` are identically-titled products across stores " +
+		"that never even reached the candidate pool (blocking-index blind spot), emitted when running `--only near-misses`. " +
+		"Every listing also carries a `triage` verdict + `noopEvidence`: `check` (crushed/twin — eyeball it), `review` " +
+		"(existing auto-link went below bar — unlink), `auto-high` (a candidate above bar will auto-link — confirm it), " +
+		"`noop-verified` (evidence says nothing to do — dismissal is a claim to verify, not a skipped row), `pruned`. " +
+		"Act on a decision by editing data/sku_links.json (add/confirm a pair, or drop one and add an ignore) and re-running — " +
+		"this audit never modifies the worktree. " +
+		"`clusters` groups skus by canonical rep with member store/name/price. " +
+		"`summary` counts the filtered universe; `window` records the paging applied to `listings`. " +
+		"COVERAGE CONTRACT (for the auditor's SOP): listings are emitted in deterministic order with stable `id`s; with no " +
+		"`--offset/--limit`, `window.total === summary.total === _listings.length` — a review is only complete when every `id` " +
+		"in `listings` has an explicit decision, easy or not. Re-run the same invocation afterwards and diff id lists to prove full coverage.";
+
+	const evalInfo = willScore
+? {
+			withScores: willScore,
+				engine: scorer.engine,
+				bar: scorer.bar,
+				gbtModel: scorer.gbtLoaded,
+				embeddings: scorer.embLoaded,
+				topCandidates: top,
+				note: scorer.embLoaded
+					? "embedCos are real cosine values."
+					: "embeddings asset absent from worktree → embedCos=0 placeholder; GBT runs in its no-embedding mode (identical to tools/auto_link_classify.mjs runtime state).",
+			}
+		: { withScores: false, note: "scoring skipped (--no-scores)." };
+
+	const windowInfo = {
+		only,
+		offset,
+		limit: limit === Infinity ? null : limit,
+		applied: offset > 0 || limit !== Infinity,
+		total: listings.length,
+		totalAfterFilter: n,
+		shown: windowed.length,
+	};
+
+	const sources = {
+		root,
+		skuCacheFiles: skuFilesLoaded,
+		dbFiles: dbFiles.length,
+		linkEntries: { manual: manualLinks.length, mergeAuto: autoLinks.length, ignores: ignores.length },
+	};
+
+	const outData = {
+		generatedAt: new Date().toISOString(),
+		since: since.iso,
+		until: until.iso,
+		sources,
+		eval: evalInfo,
+		window: windowInfo,
+		readme,
+		summary,
+		clusters,
+		listings: windowed,
+	};
+
+	fs.mkdirSync(path.dirname(outFile), { recursive: true });
+	let payload = outData;
+	if (format === "jsonl") {
+		const { listings: ls, ...meta } = outData;
+		payload = null;
+		fs.writeFileSync(
+			outFile,
+			JSON.stringify({ _meta: meta }) + "\n" + ls.map((l) => JSON.stringify(l)).join("\n") + "\n",
+			"utf8",
+		);
+	} else {
+		fs.writeFileSync(outFile, JSON.stringify(payload) + "\n", "utf8");
+	}
+
+	// ---- console summary ----
+	console.log(`audit_new_listings: ${n} listings first seen ${since.iso} .. ${until.iso} (--only ${only}, shown ${windowed.length})`);
+	console.log(`  auto-linked by classifier: ${autoLinked.length} (${((autoLinked.length / Math.max(n, 1)) * 100).toFixed(1)}%)`);
+	console.log(`  have links today:          ${anyLinks.length} (${((anyLinks.length / Math.max(n, 1)) * 100).toFixed(1)}%)`);
+	console.log(`  orphans (no links):        ${orphans.length}`);
+	console.log(`  pending review:            ${pending.length}   confirmed: ${confirmed.length}   in ignores: ${inIgnores.length}`);
+	if (willScore) {
+		console.log(`  scored ${scoredCount}/${scoreDrivenOnly ? filtered.length : windowed.length} ${scoreDrivenOnly ? "universe" : "windowed"} · ${candidateCount} candidates · ${verifiedCount} verified pairs · engine=${scorer.engine} bar=${scorer.bar}`);
+		if (scoreDrivenOnly)
+			console.log(`  want-links: ${wantLinkCount}   need-unlinks: ${needUnlinkCount}   near-misses: ${nearMissCount}${scorer.twinsEnabled ? ` (${twinScanCount} title-twins scanned)` : ""}`);
+		else console.log(`  near-miss listings: ${nearMissCount}${scorer.twinsEnabled ? ` · ${twinScanCount} title-twins scanned` : ""}`);
+	}
+	console.log(`  ${format} → ${outFile}`);
+}
+
+main().catch((err) => {
+	console.error(err);
+	process.exit(1);
+});

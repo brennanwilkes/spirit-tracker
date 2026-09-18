@@ -43,6 +43,28 @@ jobs:
         with:
           node-version: "20"
 
+      # viz/data/skus/** is a GitHub Release asset (tag skus-latest), NOT committed — the pack's
+      # flip-flop suppression reads the per-SKU history cache from viz/data/skus/ on disk
+      # (build_email_event_pack.js loadSkuHistory). A fresh checkout has none, and without it
+      # flip-flop detection silently degrades → more false-positive email events. Restore the
+      # tarball from the Release before building.
+      - name: Restore per-SKU history cache (skus-latest Release)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p viz/data
+          if gh release download skus-latest \
+               --repo "$GITHUB_REPOSITORY" \
+               --pattern 'skus.tar.gz' --output /tmp/skus.tar.gz --clobber; then
+            tar xzf /tmp/skus.tar.gz -C viz/data
+            echo "restored skus cache ($(find viz/data/skus -name '*.json' | wc -l) SKU files)"
+          else
+            echo "ERROR: skus-latest asset not found; flip-flop suppression would be silently disabled (false-positive email risk)" >&2
+            exit 1
+          fi
+
       - name: Build email pack (JSON)
         shell: bash
         env:

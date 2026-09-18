@@ -34,6 +34,13 @@ MAIN_BRANCH="${MAIN_BRANCH:-main}"
 DATA_BRANCH="${DATA_BRANCH:-data}"
 WORKTREE_DIR="${DATA_WORKTREE_DIR:-$REPO_ROOT/.worktrees/data}"
 
+# Run mode: big (full catalog) vs small (subset). Set by cron_tracker.yaml from the plan step.
+# Defaults to big (a local run behaves like a full run). Common-listings reports are committed
+# ONLY on big runs — the stats/manifest consumers are day-granular and every UTC day has a big
+# run, so small-run commits are pure churn (~34 MiB/mo). Key on MODE, NOT on empty STORES: the
+# one-shot retry dispatch passes mode=big with a stores override.
+MODE="${MODE:-big}"
+
 NODE_BIN="${NODE_BIN:-}"
 if [[ -z "$NODE_BIN" ]]; then
   NODE_BIN="$(command -v node || true)"
@@ -133,17 +140,34 @@ done
 "$NODE_BIN" tools/build_viz_index.js
 "$NODE_BIN" tools/build_viz_commits.js
 "$NODE_BIN" tools/build_viz_recent.js
-# index/recent/db_commits are overwritten wholesale, so they self-heal from a skip-smudge
-# (pointer-text) checkout. The per-SKU cache is INCREMENTAL — it only rewrites changed SKUs, so
-# unchanged ones left as LFS pointer text by the skip-smudge checkout would persist as garbage.
-# Detect any lingering pointer and do a one-time full reindex (rebuilds every SKU from data/db/**
-# git history, which is plain git); this also self-heals any future stray pointer. Idempotent:
-# once no pointers remain it reverts to the fast incremental path.
-if [[ -d viz/data/skus ]] && grep -rlq "git-lfs.github.com" viz/data/skus 2>/dev/null; then
-  echo "INFO: LFS pointer(s) found in viz/data/skus; running one-time --full-reindex to materialize real content" >&2
-  "$NODE_BIN" tools/build_viz_sku_cache.js --full-reindex
-else
+# viz/data/skus/** is NOT committed — it ships as a Release asset (tag skus-latest, see the upload
+# step below): ~11.8 MiB/mo of git growth for a HEAD-only artifact the SPA fetches once per item
+# page. BUT the per-SKU cache is INCREMENTAL: build_viz_sku_cache.js diffs each store's current db
+# state against the LAST event in the on-disk cache, so a fresh CI worktree (which no longer
+# receives skus from a checkout) must FIRST restore the previous cache from the Release — otherwise
+# the incremental build sees an empty cache and treats the whole catalog as brand-new, collapsing
+# all history into a single "current state" event. The stats bundles below follow the same
+# restore-before-build pattern.
+#
+# If gh is missing, the Release has no asset yet (first run), or the download fails, restore is
+# skipped and we fall back to --full-reindex (rebuild every SKU from data/db/** git history, which
+# is plain git) — the correct, if slower, path. A local worktree whose skus dir already persists
+# from a prior run skips the download and uses the on-disk cache directly.
+if ! [[ -d viz/data/skus ]] && command -v gh >/dev/null 2>&1; then
+  rm -f /tmp/spirit-tracker-skus.tar.gz
+  if gh release download skus-latest \
+       --pattern 'skus.tar.gz' --output /tmp/spirit-tracker-skus.tar.gz --clobber 2>/dev/null \
+     && tar xzf /tmp/spirit-tracker-skus.tar.gz -C "$WORKTREE_DIR/viz/data" 2>/dev/null; then
+    echo "INFO: restored skus cache from skus-latest Release for incremental build" >&2
+  else
+    echo "WARN: could not restore skus cache from skus-latest Release; running --full-reindex instead" >&2
+  fi
+  rm -f /tmp/spirit-tracker-skus.tar.gz
+fi
+if [[ -d viz/data/skus ]] && compgen -G "viz/data/skus/*.json" >/dev/null; then
   "$NODE_BIN" tools/build_viz_sku_cache.js
+else
+  "$NODE_BIN" tools/build_viz_sku_cache.js --full-reindex
 fi
 "$NODE_BIN" tools/build_viz_rarity.js
 
@@ -258,6 +282,44 @@ else
   echo "INFO: skipping index Release upload (no gh CLI or no index.json)" >&2
 fi
 
+# viz/data/recent.json is NOT committed — HEAD-only (state.js) and wholesale-regenerated every
+# run, so its git history is dead weight (~6.5 MiB/mo). Same Release-asset pattern as index;
+# pages.yaml stages it into the Pages artifact at deploy. Best-effort.
+if command -v gh >/dev/null 2>&1 && [[ -s "$WORKTREE_DIR/viz/data/recent.json" ]]; then
+  set +e
+  gh release upload recent-latest "$WORKTREE_DIR/viz/data/recent.json" --clobber 2>/dev/null \
+    || gh release create recent-latest "$WORKTREE_DIR/viz/data/recent.json" \
+         --title "Latest recent activity feed" \
+         --notes "Auto-uploaded by run_daily.sh each scrape. Overwritten in place; only 'latest' is kept." 2>/dev/null
+  rec_rc=$?
+  set -e
+  [[ $rec_rc -ne 0 ]] && echo "WARN: recent Release upload failed (rc=$rec_rc); next Pages deploy will use the previous asset" >&2
+else
+  echo "INFO: skipping recent Release upload (no gh CLI or no recent.json)" >&2
+fi
+
+# viz/data/skus/** is NOT committed either — see the restore-before-build step above: the per-SKU
+# price-history cache is INCREMENTAL and the SPA fetches it HEAD-only per item page (~11.8 MiB/mo
+# of dead-weight history). Ships as ONE tar.gz on tag skus-latest (14,953 tiny files, measured
+# ~1.8 MB compressed), overwritten each scrape; pages.yaml and the email pack workflows download +
+# extract it. MUST upload BEFORE the push. Best-effort: a stale asset serves the last good cache.
+if command -v gh >/dev/null 2>&1 && [[ -d "$WORKTREE_DIR/viz/data/skus" ]] \
+  && compgen -G "$WORKTREE_DIR/viz/data/skus/*.json" >/dev/null; then
+  set +e
+  SKUS_TAR="$(mktemp --suffix=.tar.gz)"
+  tar czf "$SKUS_TAR" -C "$WORKTREE_DIR/viz/data" skus
+  gh release upload skus-latest "$SKUS_TAR" --clobber 2>/dev/null \
+    || gh release create skus-latest "$SKUS_TAR" \
+         --title "Latest per-SKU price history cache" \
+         --notes "Auto-uploaded by run_daily.sh each scrape. Overwritten in place; only 'latest' is kept." 2>/dev/null
+  sku_rc=$?
+  rm -f "$SKUS_TAR"
+  set -e
+  [[ $sku_rc -ne 0 ]] && echo "WARN: skus Release upload failed (rc=$sku_rc); next Pages deploy + email pack will use the previous asset" >&2
+else
+  echo "INFO: skipping skus Release upload (no gh CLI or no skus cache)" >&2
+fi
+
 # --- Auto-link classification (learned classifier) ---
 # With fresh embeddings now in the worktree, score unlinked SKUs with the live GBT blend and
 # append high-confidence (≥99%-precision bar) cross-store matches to data/sku_links.json as
@@ -297,12 +359,27 @@ git rm -r --cached --quiet --ignore-unmatch viz/data/stats 2>/dev/null || true
 # Same treatment for viz/data/index.json (Release asset on index-latest, see the upload step
 # above — the largest single source of data-branch growth at ~85 MiB/mo). Idempotent.
 git rm --cached --quiet --ignore-unmatch viz/data/index.json 2>/dev/null || true
+# Same treatment for viz/data/recent.json + viz/data/skus/** (Release assets on recent-latest /
+# skus-latest, see the upload steps above). Idempotent.
+git rm --cached --quiet --ignore-unmatch viz/data/recent.json 2>/dev/null || true
+git rm -r --cached --quiet --ignore-unmatch viz/data/skus 2>/dev/null || true
 
-# Stage only data/report/viz outputs (embeddings/stats/index excluded — see above)
-git add -A data/db reports viz/data \
-  ':(exclude)viz/data/sku_embeddings.json' \
-  ':(exclude)viz/data/stats' \
+# Common listings reports are committed ONLY on big runs (see the MODE note at the top). Keep the
+# exclude pathspec conditional so small runs still stage the per-run .txt scrape report (used by
+# the commit body + observability) but not the common_listings_*.json files.
+GIT_ADD_EXCLUDES=(
+  ':(exclude)viz/data/sku_embeddings.json'
+  ':(exclude)viz/data/stats'
   ':(exclude)viz/data/index.json'
+  ':(exclude)viz/data/recent.json'
+  ':(exclude)viz/data/skus'
+)
+if [[ "$MODE" != "big" ]]; then
+  GIT_ADD_EXCLUDES+=(':(exclude)reports/common_listings_*.json')
+fi
+
+# Stage only data/report/viz outputs (embeddings/stats/index/recent/skus excluded — see above)
+git add -A data/db reports viz/data "${GIT_ADD_EXCLUDES[@]}"
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
 # May not exist on first run; -- pathspec avoids erroring out in that case.
 git add -A -- data/sku_links_auto.json 2>/dev/null || true

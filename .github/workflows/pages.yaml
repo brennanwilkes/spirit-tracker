@@ -58,6 +58,48 @@ jobs:
             exit 1
           fi
 
+      # viz/data/recent.json is a GitHub Release asset (tag recent-latest), NOT committed — it's
+      # HEAD-only (state.js) and wholesale-regenerated each run, so its git history is dead weight
+      # (~6.5 MiB/mo). Stage it into the site artifact so the SPA serves ./data/recent.json
+      # SAME-ORIGIN. WARN-level (unlike index): loadRecent() has a catch fallback, so a missing
+      # asset just empties the activity feed rather than breaking the site.
+      - name: Stage recent.json into site artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p viz/data
+          if gh release download recent-latest \
+               --repo "$GITHUB_REPOSITORY" \
+               --dir viz/data --pattern 'recent.json' --clobber; then
+            echo "staged recent.json ($(wc -c < viz/data/recent.json) bytes)"
+          else
+            echo "WARN: recent-latest asset not found; recent activity feed will be empty" >&2
+          fi
+
+      # viz/data/skus/** is a GitHub Release asset (tag skus-latest) stored as ONE tar.gz, NOT
+      # committed — the per-SKU price-history cache is HEAD-only (fetched per item page) and
+      # incremental, so its git history is dead weight (~11.8 MiB/mo). The SPA requests
+      # ./data/skus/<sku>.json SAME-ORIGIN, so this step downloads + extracts the tarball into the
+      # site artifact. WARN-level: item_page.js catches a missing cache file (chart silently
+      # omitted), so a missing asset degrades one page feature, not the whole site.
+      - name: Stage per-SKU history cache into site artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p viz/data
+          if gh release download skus-latest \
+               --repo "$GITHUB_REPOSITORY" \
+               --pattern 'skus.tar.gz' --output /tmp/skus.tar.gz --clobber; then
+            tar xzf /tmp/skus.tar.gz -C viz/data
+            echo "staged skus cache ($(find viz/data/skus -name '*.json' | wc -l) SKU files)"
+          else
+            echo "WARN: skus-latest asset not found; item pages will render without price history charts" >&2
+          fi
+
       # Make sku_links.json + sku_links_auto.json available to the static site
       # without committing second copies. Both are pulled by viz/app/api.js.
       - name: Stage sku_links*.json into site artifact
