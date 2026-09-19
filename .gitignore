@@ -7,3 +7,13 @@ reports/cron.log
 
 # Hand-run audit outputs (scripts/audit_new_listings.js)
 /audit/
+
+# Release-asset artifacts — regenerated each run and uploaded to fixed tags
+# (index-latest / recent-latest / embeddings-latest / skus-latest / stats-series-latest).
+# Never commit: re-tracking these restarts the ~110 MB/mo data-branch growth the
+# Release migration removed. run_daily.sh also guards them with :(exclude) pathspecs.
+viz/data/index.json
+viz/data/recent.json
+viz/data/sku_embeddings.json
+viz/data/skus/
+viz/data/stats/
