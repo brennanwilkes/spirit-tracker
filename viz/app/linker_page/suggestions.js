@@ -496,8 +496,11 @@ export function recommendSimilar(
 	// a guard against a pathologically huge catalog.
 	const MAX_SCAN = 200000; // cap for huge catalogs
 	const FULL_SCAN_UNDER = 200000; // scan everything below this
-	const MAX_CHEAP_KEEP = 320; // keep top candidates from cheap stage
-	const MAX_FINE = 70; // expensive score only on top-N
+	// Overridable so an offline audit can widen the funnel; the SPA passes neither, so
+	// production behaviour is unchanged. These, not the candidate pool, are the binding
+	// constraint on what reaches the GBT blend.
+	const MAX_CHEAP_KEEP = opts && Number.isFinite(opts.maxCheapKeep) ? opts.maxCheapKeep : 320;
+	const MAX_FINE = opts && Number.isFinite(opts.maxFine) ? opts.maxFine : 70;
 	// ----------------------
 
 	// Faster "topK" keeper: only sorts occasionally.

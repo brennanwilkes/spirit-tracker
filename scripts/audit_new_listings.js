@@ -132,7 +132,7 @@
 //                             // SMWS cask code); NOT a calibrated prob — keep, ignore below-bar live prob
 //     "detScore","score01","prob","aiDelta","aboveBar",
 //     "partnerName","partnerStores",
-//     "features": { ...same 40-column feature object as candidates... }
+//     "features": { ...same 41-column feature object as candidates... }
 //   }
 //   absentFromCatalog=true → the partner has left the live catalog (pair unverifiable now).
 //   features.embedCos == null and aiDelta == 0 → both sides lack an embedding vector; the GBT
@@ -188,6 +188,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const readline = require("readline");
 const { pathToFileURL } = require("url");
 
 const { normalizeImplicitSkuKey, buildGroupsAndCanonicalMap } = require("../src/utils/sku_canonical");
@@ -207,9 +208,9 @@ const DEFAULT_SINCE = "2026-06-12T18:47:49Z";
 // `--out`, triggering an unintended FULL regeneration (e.g. a stray `--help`).
 const VALUE_FLAGS = new Set([
 	"--since", "--until", "--root", "--format", "--only", "--offset", "--limit", "--top",
-	"--out", "--from", "--id", "--sku", "--cluster", "--pair",
+	"--out", "--from", "--id", "--sku", "--cluster", "--pair", "--limit-pairs",
 ]);
-const BOOLEAN_FLAGS = new Set(["--with-scores", "--no-scores", "--compact", "--help", "-h"]);
+const BOOLEAN_FLAGS = new Set(["--with-scores", "--no-scores", "--compact", "--ultra-compact", "--help", "-h"]);
 
 const USAGE = `audit_new_listings — agent-facing SKU-link audit generator + view/deep-dive tool
 
@@ -227,10 +228,14 @@ Stage 1 (generate the rich file):
 
 Stage 1.5 (derive views/deep-dives from a rich file — NO re-scoring):
   --from <rich> [--only <funnel>] [--offset N] [--limit N] [--compact] [--format jsonl] [--out <f>]
+  --ultra-compact                 like --compact but drops id/category/firstSeen/removed/auto/
+                                  inIgnores/why (~2.5x smaller); implies --compact
+  --limit-pairs <n>               cap pairs per row, flagged+highest-prob first
+                                  (default 6 with --ultra-compact, uncapped otherwise)
   --from <rich> --id "<dbFile>|<sku>"     full rich row for one listing
   --from <rich> --sku <normalizedSku>     all listings with that sku
   --from <rich> --cluster <canonicalSku>  cluster members + missingFromWindow
-  --from <rich> --pair "<a>|<b>"          the pair's live score + 40-col features (either order)
+  --from <rich> --pair "<a>|<b>"          the pair's live score + 41-col features (either order)
 
 See docs/audit-runbook.md for the decision protocol and proposal schema.
 
@@ -381,13 +386,91 @@ function priceToNum(s) {
 	return Number.isFinite(n) ? n : undefined;
 }
 
+// ---- per-store price-ratio distribution + rarity (evidence, never a verdict) ----
+// A price gap only means something relative to how far THIS store normally sits from the
+// rest of the market. Liberty runs ~1.20x median / 1.35x p90 over the products it shares,
+// so a 2.2x gap there is outside its whole observed range and is real evidence of a
+// different product; at a store that routinely doubles the market it would mean nothing.
+// Built once in stage 1 over every multi-store canonical group and carried in _meta.
+function buildStorePriceStats(indexItems, canonicalSku) {
+	const groups = new Map();
+	for (const it of indexItems) {
+		if (!it || it.removed) continue;
+		const p = priceToNum(it.price);
+		if (!(p > 0)) continue;
+		const g = canonicalSku(it.sku);
+		if (!g) continue;
+		let m = groups.get(g);
+		if (!m) groups.set(g, (m = new Map()));
+		const store = it.storeLabel || it.store;
+		const prev = m.get(store);
+		if (prev == null || p < prev) m.set(store, p);
+	}
+	const ratios = new Map();
+	for (const m of groups.values()) {
+		if (m.size < 2) continue;
+		const entries = [...m.entries()];
+		for (const [store, p] of entries) {
+			const others = entries.filter((e) => e[0] !== store).map((e) => e[1]).sort((a, b) => a - b);
+			const med = others[Math.floor(others.length / 2)];
+			if (!(med > 0)) continue;
+			let a = ratios.get(store);
+			if (!a) ratios.set(store, (a = []));
+			a.push(p / med);
+		}
+	}
+	const byStore = {};
+	for (const [store, arr] of ratios) {
+		arr.sort((a, b) => a - b);
+		const q = (f) => +arr[Math.min(arr.length - 1, Math.floor(f * arr.length))].toFixed(3);
+		byStore[store] = { n: arr.length, p50: q(0.5), p75: q(0.75), p90: q(0.9), p95: q(0.95), p99: q(0.99), max: +arr[arr.length - 1].toFixed(3) };
+	}
+	return byStore;
+}
+
+// Where a pair's price gap falls in the DEARER side's own distribution. ">max" = this store
+// has never been observed this far above the market on any product it demonstrably shares.
+function priceRatioLabel(byStore, store, ratio) {
+	const s = byStore && byStore[store];
+	if (!s || !(ratio > 0)) return undefined;
+	if (ratio > s.max) return ">max";
+	if (ratio > s.p99) return ">p99";
+	if (ratio > s.p95) return ">p95";
+	if (ratio > s.p90) return ">p90";
+	if (ratio > s.p75) return ">p75";
+	if (ratio > s.p50) return ">p50";
+	return "<=p50";
+}
+
+function loadRarityData(root) {
+	try {
+		const j = JSON.parse(fs.readFileSync(path.join(root, "viz", "data", "rarity.json"), "utf8"));
+		const t = j.thresholds || {};
+		return { byCanon: j.byCanon || {}, rareMin: t.rareMin != null ? t.rareMin : 0.6, stapleMax: t.stapleMax != null ? t.stapleMax : 0.1143 };
+	} catch {
+		return null;
+	}
+}
+
+// Only the two tails are emitted; "common" is the 80% middle and not worth the bytes.
+// `rare` is what the policy's bundle rule keys off (a rare+common bundle links to the
+// rare component), so it has to be visible on the row, not looked up separately.
+function rarityTierOf(rar, canon) {
+	if (!rar || !canon) return undefined;
+	const e = rar.byCanon[canon];
+	if (!e || e.r == null) return undefined;
+	if (e.r >= rar.rareMin) return "rare";
+	if (e.r <= rar.stapleMax) return "staple";
+	return undefined;
+}
+
 // ---- compact decision projection (stage-2 page view) ----
 // Stage 1 emits the RICH file; the decision pass reads a slimmed projection of it so a
 // page of listings fits cheaply in context. Keeps only decision-relevant fields: identity,
 // current name/price, triage + evidence, link counts, and the relevant PAIRS (verified
-// links, above-bar candidates, suspicious/twin pairs) with prob/det/hints but NOT the 40
+// links, above-bar candidates, suspicious/twin pairs) with prob/det/hints but NOT the 41
 // decomposed features (expand those from the rich file only when a pair needs diagnosing).
-function projectCompactPairs(l) {
+function projectCompactPairs(l, ctx) {
 	const s = l.scores;
 	if (!s || !s.scored) return undefined;
 	const byKey = new Map();
@@ -403,6 +486,28 @@ function projectCompactPairs(l) {
 			det: c.detScore != null ? +c.detScore.toFixed(2) : null,
 		};
 		if (c.cheapest != null) row.price = c.cheapest;
+		// store + sameStore resolved the four hardest calls of the first trial run (is this
+		// one product double-listed, or two products the store stocks side by side?), so it
+		// belongs on the row rather than in a separate index.json lookup.
+		const cStores = c.stores || c.partnerStores || [];
+		if (cStores.length === 1) row.st = cStores[0];
+		else if (cStores.length > 1) {
+			row.st = cStores.slice(0, 2);
+			row.nst = cStores.length;
+		}
+		if (ctx && ctx.anchorStore && cStores.includes(ctx.anchorStore)) row.same = 1;
+		if (c.rar) row.rar = c.rar;
+		if (ctx && ctx.anchorPrice > 0 && c.cheapest > 0) {
+			const hi = Math.max(ctx.anchorPrice, c.cheapest);
+			const lo = Math.min(ctx.anchorPrice, c.cheapest);
+			const ratio = hi / lo;
+			if (ratio >= 1.05) {
+				row.pr = +ratio.toFixed(2);
+				const dearStore = ctx.anchorPrice >= c.cheapest ? ctx.anchorStore : cStores[0];
+				const lab = priceRatioLabel(ctx.storePriceRatio, dearStore, ratio);
+				if (lab && lab !== "<=p50") row.prPct = lab;
+			}
+		}
 		if (c.missHints && c.missHints.length) row.hints = c.missHints;
 		if (flag) row.flag = flag;
 		byKey.set(k, row);
@@ -412,32 +517,134 @@ function projectCompactPairs(l) {
 	for (const c of cands) push("c", c);
 	for (const t of s.twins || []) if (t.suspicious || t.aboveBar) push("w", t);
 	for (const v of s.verified || []) push("v", v);
-	const arr = [...byKey.values()];
+	let arr = [...byKey.values()];
+	// Cap pairs per row so one heavily-twinned anchor cannot dominate a page. Ordered by
+	// decision value (flagged first, then prob) rather than by the insertion order above.
+	const cap = ctx && ctx.limitPairs;
+	if (cap > 0 && arr.length > cap) {
+		const rank = (r) => (r.flag === "hit" ? 0 : r.flag === "susp" ? 1 : r.t === "v" ? 2 : 3);
+		arr = arr.slice().sort((a, b) => rank(a) - rank(b) || (b.prob ?? -1) - (a.prob ?? -1)).slice(0, cap);
+	}
 	return arr.length ? arr : undefined;
 }
 
-function projectCompactListing(l) {
+function projectCompactListing(l, ctx) {
 	const cur = l.current || {};
-	const out = {
-		id: l.id,
-		store: l.storeId,
-		category: l.category || undefined,
-		sku: l.sku,
-		canon: l.canonicalSku || undefined,
-		name: cur.name || l.detectedName || "",
-		price: priceToNum(cur.price),
-		removed: cur.removed != null ? !!cur.removed : undefined,
-		firstSeen: l.firstSeen,
-		links: (l.links || []).length,
-		auto: l.wasAutoLinked ? 1 : 0,
-		inIgnores: l.inIgnores ? 1 : 0,
-		triage: l.triage,
+	const ultra = !!(ctx && ctx.ultra);
+	const price = priceToNum(cur.price);
+	const pairCtx = {
+		anchorStore: l.store,
+		anchorPrice: price,
+		storePriceRatio: ctx && ctx.storePriceRatio,
+		limitPairs: ctx && ctx.limitPairs,
 	};
-	if (l.noopEvidence) out.why = l.noopEvidence;
-	if (l.nearMiss) out.ok = undefined; // triage suffices
-	const pairs = projectCompactPairs(l);
+	// --ultra-compact drops what is either derivable or rarely load-bearing: `id` restates
+	// dbFile+sku, `category` restates store, and firstSeen/removed/auto/inIgnores were not
+	// consulted on a single decision in the first trial. Deep-dive by --sku when needed.
+	const out = ultra
+		? { sku: l.sku, store: l.storeId, name: cur.name || l.detectedName || "", price, triage: l.triage }
+		: {
+				id: l.id,
+				store: l.storeId,
+				category: l.category || undefined,
+				sku: l.sku,
+				canon: l.canonicalSku || undefined,
+				name: cur.name || l.detectedName || "",
+				price,
+				removed: cur.removed != null ? !!cur.removed : undefined,
+				firstSeen: l.firstSeen,
+				links: (l.links || []).length,
+				auto: l.wasAutoLinked ? 1 : 0,
+				inIgnores: l.inIgnores ? 1 : 0,
+				triage: l.triage,
+			};
+	if (!ultra && l.canonicalSku) out.canon = l.canonicalSku;
+	if (l.rar) out.rar = l.rar;
+	if (l.noopEvidence && !ultra) out.why = l.noopEvidence;
+	const pairs = projectCompactPairs(l, pairCtx);
 	if (pairs) out.pairs = pairs;
 	return out;
+}
+
+// Stage-1/--from jsonl output: write the _meta line then the row array in batches so we
+// never build one giant joined string (Array.join over the whole library overflowed V8's
+// max string length — RangeError "Invalid string length" at ~12 min into a full-history run).
+function writeJsonlBatched(outFile, metaLine, rows) {
+	fs.writeFileSync(outFile, metaLine + "\n", "utf8");
+	const BATCH = 200;
+	for (let i = 0; i < rows.length; i += BATCH) {
+		const chunk = rows.slice(i, i + BATCH).map((l) => JSON.stringify(l)).join("\n");
+		fs.appendFileSync(outFile, chunk + "\n", "utf8");
+	}
+}
+
+// Streaming loader for --from. readFileSync + JSON.parse caps out around V8's max string
+// length (~512 MiB), so a whole-library rich jsonl (~700+ MB) crashed with
+// ERR_STRING_TOO_LONG. jsonl is read line-by-line via readline (never as one string); the
+// single-JSON legacy path still uses readFileSync so old shapes keep working unchanged.
+// Returns { meta, listings } or { unrecognized: "empty" } for an empty/blank file.
+async function loadFromFile(fromFile) {
+	const parseLine = (s) => { try { return JSON.parse(s); } catch { return null; } };
+	if (fs.statSync(fromFile).size === 0) return { unrecognized: "empty" };
+
+	// Peek the first non-blank line to classify the shape without holding the whole file.
+	let firstLine = null;
+	{
+		const rl = readline.createInterface({ crlfDelay: Infinity, input: fs.createReadStream(fromFile) });
+		for await (const line of rl) {
+			if (!line.trim()) continue;
+			firstLine = line;
+			break;
+		}
+	}
+	if (firstLine == null) return { unrecognized: "empty" };
+	const first = parseLine(firstLine);
+
+	// single-JSON: the whole file is one object with a listings[] array (--format json output).
+	// Legacy whole-file readFileSync path preserved; trust the first line if the re-parse fails.
+	if (first && Array.isArray(first.listings)) {
+		try {
+			const asObj = JSON.parse(fs.readFileSync(fromFile, "utf8"));
+			if (asObj && Array.isArray(asObj.listings)) return { meta: asObj, listings: asObj.listings };
+		} catch (e) {
+			if (!(e instanceof SyntaxError)) throw e;
+		}
+		return { meta: first, listings: first.listings };
+	}
+
+	if (first && first._meta) {
+		// jsonl: _meta on line 1, one listing per subsequent line — stream those line-by-line.
+		const listings = [];
+		let isMetaLine = true;
+		const rl = readline.createInterface({ crlfDelay: Infinity, input: fs.createReadStream(fromFile) });
+		for await (const line of rl) {
+			if (!line.trim()) continue;
+			if (isMetaLine) { isMetaLine = false; continue; }
+			const l = parseLine(line);
+			if (l) listings.push(l);
+		}
+		return { meta: first._meta, listings };
+	}
+
+	// Bare jsonl (listings, no _meta header) or a legacy pretty-printed single JSON whose first
+	// line is not a complete value. Whole-file detection first (preserves old behaviour); if the
+	// file is too large for one string, stream it as bare jsonl instead.
+	try {
+		const text = fs.readFileSync(fromFile, "utf8").trim();
+		const asObj = (() => { try { return JSON.parse(text); } catch { return null; } })();
+		if (asObj && Array.isArray(asObj.listings)) return { meta: asObj, listings: asObj.listings };
+		return { meta: {}, listings: text.split("\n").map(parseLine).filter(Boolean) };
+	} catch (e) {
+		if (!(e instanceof RangeError)) throw e;
+		const listings = [];
+		const rl = readline.createInterface({ crlfDelay: Infinity, input: fs.createReadStream(fromFile) });
+		for await (const line of rl) {
+			if (!line.trim()) continue;
+			const l = parseLine(line);
+			if (l) listings.push(l);
+		}
+		return { meta: {}, listings };
+	}
 }
 
 // Smart-filter view over an already-generated rich file (stage 1.5). Loads the file produced
@@ -446,33 +653,25 @@ function projectCompactListing(l) {
 // Deep-dive lookups (the agent's "give me more data on this sku" tool): --id <listingId>,
 // --sku <normalizedSku>, --cluster <canonicalSku> pull the FULL rich rows for exactly the
 // sku/cluster a decision is about — everything the compact packet trimmed.
-async function runFromView({ fromFile, only, offset, limit, format, compact, outFile, id, sku, cluster, pair }) {
+async function runFromView({ fromFile, only, offset, limit, format, compact, ultra, limitPairs, outFile, id, sku, cluster, pair }) {
 	if (!fs.existsSync(fromFile)) {
 		console.error(`audit_new_listings: --from file not found: ${fromFile}`);
 		process.exit(2);
 	}
-	const text = fs.readFileSync(fromFile, "utf8").trim();
-	let meta = null;
-	let listings = null;
-	const asObj = (() => { try { return JSON.parse(text); } catch { return null; } })();
-	if (asObj && Array.isArray(asObj.listings)) {
-		meta = asObj;
-		listings = asObj.listings;
-	} else {
-		const lines = text.split("\n");
-		if (!lines.length) { console.error(`audit_new_listings: --from: unrecognized file shape (${fromFile})`); process.exit(2); }
-		const parseLine = (s) => { try { return JSON.parse(s); } catch { return null; } };
-		const first = parseLine(lines[0]);
-		if (first && first._meta) {
-			// jsonl: _meta on line 1, one listing per subsequent line.
-			meta = first._meta;
-			listings = lines.slice(1).map(parseLine).filter(Boolean);
-		} else {
-			// bare jsonl of listings, no meta header.
-			listings = lines.map(parseLine).filter(Boolean);
-			meta = {};
-		}
+	const loaded = await loadFromFile(fromFile);
+	if (loaded.unrecognized) {
+		console.error(`audit_new_listings: --from: unrecognized file shape (empty) (${fromFile})`);
+		process.exit(2);
 	}
+	const meta = loaded.meta || null;
+	const listings = loaded.listings || [];
+	// Everything the compact projection needs that is not on the row itself. The per-store
+	// price-ratio table rides in the rich _meta, so a view never re-reads index.json.
+	const viewCtx = {
+		ultra,
+		limitPairs: limitPairs != null ? limitPairs : ultra ? 6 : 0,
+		storePriceRatio: (meta && meta.eval && meta.eval.storePriceRatio) || null,
+	};
 
 	// ---- deep-dive lookups (--id / --sku / --cluster / --pair) ----
 	if (id || sku || cluster || pair) {
@@ -648,13 +847,15 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 			"price": "anchor listing price (numeric); pairs[].price is the candidate's cheapest price",
 			"sku": "'id:'/upc:'/'u:' prefixed skus are synthetic/aggregate labels; a bare number and its 'id:<n>' form can be the SAME entity",
 			"canon": "canonical group rep for this listing — two rows with the SAME canon are ALREADY one entity (transitively linked); proposing a link between them is redundant",
-			"decode": "use --from <rich> --pair \"<a>|<b>\" for one pair's full 40-col features, or --id <listingId> for a full rich row",
+			"decode": "use --from <rich> --pair \"<a>|<b>\" for one pair's full 41-col features, or --id <listingId> for a full rich row",
 		},
 		summary,
 		// NOTE: clusters are deliberately NOT included in derived views. They are ~1 MB of the meta
 		// line (the whole point of a view is a small, token-cheap page) and no view consumer needs
 		// them: --cluster deep-dive runs against the rich file, which carries the full index.
-		listings: compact ? windowed.map(projectCompactListing) : windowed.map((l) => {
+		listings: compact
+			? windowed.map((l) => projectCompactListing(l, viewCtx))
+			: windowed.map((l) => {
 			// triage/noopEvidence already attached by stage 1; keep rows verbatim otherwise.
 			return l;
 		}),
@@ -663,7 +864,7 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, out
 	if (format === "jsonl") {
 		const { listings: ls, ...m2 } = outData;
 		payload = null;
-		fs.writeFileSync(outFile, JSON.stringify({ _meta: m2 }) + "\n" + ls.map((l) => JSON.stringify(l)).join("\n") + "\n", "utf8");
+		writeJsonlBatched(outFile, JSON.stringify({ _meta: m2 }), ls);
 	} else {
 		fs.writeFileSync(outFile, JSON.stringify(payload) + "\n", "utf8");
 	}
@@ -737,6 +938,29 @@ function triageFor(l) {
 // so every emitted score equals production auto-linking. Never forks scoring.
 // ---------------------------------------------------------------------------
 
+// Pool budgeting env knobs (Phase 2 union blocker). AUDIT_POOL_BUDGET caps the per-anchor
+// candidate union (default 700); AUDIT_POOL_PER_CHANNEL caps each blocking channel's
+// per-key contribution (default 150). AUDIT_POOL_EMB=1 adds the embedding cosine top-K
+// channel (default off — ~9 ms/anchor). Failure anywhere → OLD two-index blocker.
+function envNum(name, dflt) {
+	const v = Number(process.env[name]);
+	return Number.isFinite(v) && v > 0 ? Math.floor(v) : dflt;
+}
+
+// Pool-size distribution across scored listings: {n, min, max, med}. Empty → null.
+function poolStats(vals) {
+	const data = (vals || []).filter((v) => typeof v === "number" && Number.isFinite(v));
+	if (!data.length) return null;
+	data.sort((a, b) => a - b);
+	const mid = Math.floor(data.length / 2);
+	return {
+		n: data.length,
+		min: data[0],
+		max: data[data.length - 1],
+		med: data.length % 2 ? data[mid] : Math.round((data[mid - 1] + data[mid]) / 2),
+	};
+}
+
 async function buildScorer(root, opts = {}) {
 	// featurize.mjs resolves its WORKTREE at module load time from DATA_WORKTREE.
 	process.env.DATA_WORKTREE = root;
@@ -772,7 +996,17 @@ async function buildScorer(root, opts = {}) {
 		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "sku_canonical.js")).href
 	);
 
-	const env = featurize.buildEnv();
+	let env;
+	try {
+		env = featurize.buildEnv();
+	} catch (e) {
+		if (e && e.code === "ENOENT" && (String(e.path || "").endsWith("index.json") || /index\.json/.test(String(e.path || "")))) {
+			console.error(`audit_new_listings: ERROR: viz/data/index.json not found in ${root} — restore it from the index-latest Release asset (curl -sL -o .worktrees/data/viz/data/index.json https://github.com/brennanwilkes/spirit-tracker/releases/download/index-latest/index.json)`);
+		} else {
+			console.error(`audit_new_listings: failed to build the ranker env from ${root}`);
+		}
+		throw e;
+	}
 	const { allAgg, vocab, sizeFn, priceFn, allLinks } = env;
 
 	// Canonical map over the FULL link set (manual + merge-auto), ESM sibling of
@@ -799,6 +1033,8 @@ async function buildScorer(root, opts = {}) {
 		return k ? ignoreSet.has(k) : false;
 	};
 	const sameGroup = (a, b) => canonicalSku(a) === canonicalSku(b);
+	const rarityData = loadRarityData(root);
+	const storePriceRatio = buildStorePriceStats(env.rows || [], canonicalSku);
 	const rules = { canonicalSku };
 	const sameStoreFn = storeCache.makeSameStoreCanonFn(rules, storeCache.buildCanonStoreCache(allAgg, rules));
 
@@ -853,8 +1089,61 @@ async function buildScorer(root, opts = {}) {
 			s.add(sku);
 		}
 	}
+	// Phase 2 union blocker (tools/audit_search_core.mjs) — candidates come from the
+	// union of dist/topTerm/smws/twin/fuzzy channels, budgeted per-anchor so the default
+	// run stays in the same ~35-75s envelope. Optional embedding channel behind
+	// AUDIT_POOL_EMB=1. Any init failure falls back to the two-index blocker below.
+	const poolBudget = envNum("AUDIT_POOL_BUDGET", 700);
+	const poolPerKey = envNum("AUDIT_POOL_PER_CHANNEL", 150);
+	const poolEmb = process.env.AUDIT_POOL_EMB === "1";
+	const poolEmbK = envNum("AUDIT_POOL_EMB_K", 200);
+	// recommendSimilar's post-pool cuts. Raising these — not the pool budget — is what
+	// widens the funnel; an 8.5x wider pool at the defaults yielded 0 extra above-bar pairs.
+	const maxCheapKeep = envNum("AUDIT_MAX_CHEAP_KEEP", 320);
+	const maxFine = envNum("AUDIT_MAX_FINE", 70);
+	let unionBlock = null;
+	let unionEmb = null;
+	try {
+		const core = await import(pathToFileURL(path.join(SCRIPT_DIR, "..", "tools", "audit_search_core.mjs")).href);
+		unionBlock = core.buildBlockIndex(allAgg, {
+			vocab,
+			similarity: { smwsKeyFromName: similarity.smwsKeyFromName },
+			aliasTable: null, // null = use the mined built-in table, not "no aliases"
+		});
+		if (poolEmb) unionEmb = core.buildEmbeddingIndex(root, allAgg) || null;
+	} catch (e) {
+		console.error(`WARN: union blocker init failed, falling back to dist/SMWS blocker — ${e && e.message}`);
+		unionBlock = null;
+		unionEmb = null;
+	}
+	let lastPoolSize = 0;
 	function candidatesForAnchor(anchor) {
 		const aSku = String(anchor.sku || "");
+		if (unionBlock) {
+			const aCanon = canonicalSku(aSku);
+			const seen = new Set();
+			const arr = [];
+			const emit = (it) => {
+				if (!it) return;
+				const s = String(it.sku || it.normKey || "");
+				if (!s || s === aSku || seen.has(s)) return;
+				if (canonicalSku(s) === aCanon) return;
+				seen.add(s);
+				arr.push(it);
+			};
+			const pool = unionBlock.poolFor(anchor, {
+				channels: { dist: true, topTerm: true, smws: true, twin: true, fuzzy: true },
+				maxPerKey: poolPerKey,
+				limit: poolBudget,
+			});
+			for (const it of pool) emit(it);
+			if (unionEmb) {
+				for (const r of unionEmb.nearest(anchor, poolEmbK)) emit(r.item);
+				if (arr.length > poolBudget) arr.length = poolBudget;
+			}
+			lastPoolSize = arr.length;
+			return [anchor, ...arr];
+		}
 		const set = new Set();
 		for (const tok of vocab.distinctiveUnigramsForName(anchor.name || "") || []) {
 			const s = distIndex.get(tok);
@@ -866,6 +1155,7 @@ async function buildScorer(root, opts = {}) {
 			if (s) for (const x of s) set.add(x);
 		}
 		set.delete(aSku);
+		lastPoolSize = set.size;
 		const out = [anchor];
 		for (const x of set) {
 			const it = bySkuAgg.get(x);
@@ -921,7 +1211,7 @@ async function buildScorer(root, opts = {}) {
 				priceFn,
 				sameStoreFn,
 				sameGroup,
-				{ vocab, allowSameStore: true, withScores: true, blend },
+				{ vocab, allowSameStore: true, withScores: true, blend, maxCheapKeep, maxFine },
 			);
 			for (const r of recs) {
 				if (!r || !r.it) continue;
@@ -941,6 +1231,7 @@ async function buildScorer(root, opts = {}) {
 				candidates.push({
 					sku: String(r.it.sku),
 					name: r.it.name || "",
+					rar: rarityTierOf(rarityData, canonicalSku(String(r.it.sku))),
 					stores: r.it.stores instanceof Set ? [...r.it.stores] : r.it.stores || [],
 					cheapest: r.it.cheapestPriceNum != null ? r.it.cheapestPriceNum : null,
 					detScore: det,
@@ -1011,6 +1302,7 @@ async function buildScorer(root, opts = {}) {
 			v.aboveBar = v.prob != null && v.prob >= bar;
 			v.partnerName = agg.name || "";
 			v.partnerStores = agg.stores instanceof Set ? [...agg.stores] : agg.stores || [];
+			v.rar = rarityTierOf(rarityData, canonicalSku(v.toSku));
 			v.features = feats;
 			verified.push(v);
 		}
@@ -1068,6 +1360,7 @@ async function buildScorer(root, opts = {}) {
 				twins.push({
 					sku,
 					name: agg.name || "",
+					rar: rarityTierOf(rarityData, canonicalSku(sku)),
 					stores: agg.stores instanceof Set ? [...agg.stores] : agg.stores || [],
 					cheapest: agg.cheapestPriceNum != null ? agg.cheapestPriceNum : null,
 					detScore: det,
@@ -1084,7 +1377,7 @@ async function buildScorer(root, opts = {}) {
 			if (twins.length > top) twins = twins.slice(0, top);
 		}
 
-		return { scored: true, engine, bar, candidates, verified, twins };
+		return { scored: true, engine, bar, candidates, verified, twins, poolSize: lastPoolSize, poolUnion: !!unionBlock, poolEmb: !!unionEmb };
 	}
 
 	return {
@@ -1093,7 +1386,20 @@ async function buildScorer(root, opts = {}) {
 		gbtLoaded: !!gbt,
 		embLoaded: !!embRaw,
 		twinsEnabled: !!opts.enableTwins,
+		pool: {
+			union: !!unionBlock,
+			budget: poolBudget,
+			perKey: poolPerKey,
+			maxCheapKeep,
+			maxFine,
+			emb: !!unionEmb,
+			embK: poolEmbK,
+			truncation: unionBlock ? unionBlock.truncation : null,
+		},
 		scoreListing,
+		rarityFor: (sku) => rarityTierOf(rarityData, canonicalSku(sku)),
+		rarityLoaded: !!rarityData,
+		storePriceRatio,
 	};
 }
 
@@ -1133,7 +1439,9 @@ async function main() {
 	const limit = parseNum(args.get("--limit"), Infinity, "--limit");
 	const withScores = flags.has("--no-scores") ? false : flags.has("--with-scores") ? true : true;
 	const top = parseNum(args.get("--top"), withScores ? 5 : 0, "--top");
-	const compact = flags.has("--compact");
+	const ultra = flags.has("--ultra-compact");
+	const compact = flags.has("--compact") || ultra;
+	const limitPairs = args.get("--limit-pairs") != null ? parseNum(args.get("--limit-pairs"), 0, "--limit-pairs") : null;
 
 	const ext = format === "jsonl" ? "jsonl" : "json";
 	const fromArg = args.get("--from");
@@ -1141,11 +1449,19 @@ async function main() {
 		args.get("--out") ||
 		path.join(REPO_ROOT, "audit", `new_listings_${since.iso.slice(0, 10)}_${until.iso.slice(0, 10)}.${ext}`);
 
+	// --from is a view/deep-dive over an EXISTING rich file — it must never silently fall back
+	// to the default rich path (that default is the generator's own output name; writing a
+	// small view there would clobber it and print nothing about the destination).
+	if (fromArg && !args.get("--out")) {
+		console.error("audit_new_listings: deep-dive/view mode (--from) requires --out; refusing to write the default rich path.");
+		process.exit(2);
+	}
+
 	// Two-stage discipline: the GENERATOR always emits the RICH file; compact projections and
 	// score-driven funnels are derived from it via --from (no re-scoring). --compact in the
 	// generator contradicts that, so refuse it and point at the view path.
 	if (!fromArg && compact) {
-		console.error("audit_new_listings: --compact is a VIEW projection — generate the rich file first, then derive a compact view with: ");
+		console.error("audit_new_listings: --compact/--ultra-compact is a VIEW projection — generate the rich file first, then derive a compact view with: ");
 		console.error(`  node scripts/audit_new_listings.js --from <rich-file> --compact --format jsonl --out <view.jsonl>`);
 		process.exit(2);
 	}
@@ -1154,7 +1470,7 @@ async function main() {
 	const clusterArg = args.get("--cluster");
 	const pairArg = args.get("--pair");
 	if (fromArg) {
-		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, outFile, id: idArg, sku: skuArg, cluster: clusterArg, pair: pairArg });
+		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, ultra, limitPairs, outFile, id: idArg, sku: skuArg, cluster: clusterArg, pair: pairArg });
 		return;
 	}
 	if (idArg || skuArg || clusterArg || pairArg) {
@@ -1462,6 +1778,7 @@ async function main() {
 	let needUnlinkCount = 0;
 	let nearMissCount = 0;
 	let twinScanCount = 0;
+	const poolSizes = [];
 	if (willScore) {
 		scorer = await buildScorer(root, { enableTwins: true });
 		const scoreTarget = scoreDrivenOnly ? filtered : windowSlice(filtered);
@@ -1470,6 +1787,7 @@ async function main() {
 			if (res) {
 				l.scores = res;
 				scoredCount++;
+				if (typeof res.poolSize === "number") poolSizes.push(res.poolSize);
 				candidateCount += res.candidates.length;
 				verifiedCount += (res.verified || []).filter((v) => v.prob != null).length;
 				const twins = res.twins || [];
@@ -1604,6 +1922,10 @@ async function main() {
 		const t = triageFor(l);
 		l.triage = t.triage;
 		l.noopEvidence = t.evidence;
+		if (scorer && scorer.rarityFor) {
+			const tier = scorer.rarityFor(l.canonicalSku || l.sku);
+			if (tier) l.rar = tier;
+		}
 	}
 
 	// ---- summary (over the filtered universe) ----
@@ -1694,6 +2016,10 @@ async function main() {
 				gbtModel: scorer.gbtLoaded,
 				embeddings: scorer.embLoaded,
 				topCandidates: top,
+				pool: scorer.pool,
+				poolSizes: poolStats(poolSizes),
+				rarity: scorer.rarityLoaded,
+				storePriceRatio: scorer.storePriceRatio,
 				note: scorer.embLoaded
 					? "embedCos are real cosine values."
 					: "embeddings asset absent from worktree → embedCos=0 placeholder; GBT runs in its no-embedding mode (identical to tools/auto_link_classify.mjs runtime state).",
@@ -1735,11 +2061,7 @@ async function main() {
 	if (format === "jsonl") {
 		const { listings: ls, ...meta } = outData;
 		payload = null;
-		fs.writeFileSync(
-			outFile,
-			JSON.stringify({ _meta: meta }) + "\n" + ls.map((l) => JSON.stringify(l)).join("\n") + "\n",
-			"utf8",
-		);
+		writeJsonlBatched(outFile, JSON.stringify({ _meta: meta }), ls);
 	} else {
 		fs.writeFileSync(outFile, JSON.stringify(payload) + "\n", "utf8");
 	}
@@ -1752,6 +2074,12 @@ async function main() {
 	console.log(`  pending review:            ${pending.length}   confirmed: ${confirmed.length}   in ignores: ${inIgnores.length}`);
 	if (willScore) {
 		console.log(`  scored ${scoredCount}/${scoreDrivenOnly ? filtered.length : windowed.length} ${scoreDrivenOnly ? "universe" : "windowed"} · ${candidateCount} candidates · ${verifiedCount} verified pairs · engine=${scorer.engine} bar=${scorer.bar}`);
+		const ps = poolStats(poolSizes);
+		const poolDesc = scorer.pool.union ? `budget=${scorer.pool.budget} perKey=${scorer.pool.perKey}${scorer.pool.emb ? "+emb:" + scorer.pool.embK : ""}` : "fallback (dist+smws)";
+		if (ps) console.log(`  pool[${poolDesc}] sizes min=${ps.min} med=${ps.med} max=${ps.max} n=${ps.n}`);
+		const tr = scorer.pool.truncation;
+		if (tr && (tr.perKeyHits || tr.limitHits))
+			console.log(`  pool truncation: perKey ${tr.perKeyHits} keys/${tr.perKeyDropped} dropped · budget ${tr.limitHits} anchors/${tr.limitDropped} dropped (raise AUDIT_POOL_BUDGET/AUDIT_POOL_PER_CHANNEL for a full audit)`);
 		if (scoreDrivenOnly)
 			console.log(`  want-links: ${wantLinkCount}   need-unlinks: ${needUnlinkCount}   near-misses: ${nearMissCount}${scorer.twinsEnabled ? ` (${twinScanCount} title-twins scanned)` : ""}`);
 		else console.log(`  near-miss listings: ${nearMissCount}${scorer.twinsEnabled ? ` · ${twinScanCount} title-twins scanned` : ""}`);

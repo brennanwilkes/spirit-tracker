@@ -458,7 +458,7 @@ Exit code `3` = no meaningful changes (normal, not an error).
 GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules (times
 chosen so the **commit** — run end — lands ~on the 3-hour marks in Pacific time):
 - **Big** (all 33 stores): 5:45 and 17:45 UTC daily (~1 h runtime → commits ~00:00 / 12:00 PT)
-- **Small** (sierra_springs, craft_cellars, colordevino, liquorama): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
+- **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
 
 **One-shot failed-store retry.** Store failures are usually a bad random Azure egress
 IP (see §"Datacenter-IP Blocking"), and recover on the next run's different IP. So after
@@ -508,6 +508,17 @@ AI-agent audits** driven by this script — the agent links missed same-products
 links by editing `data/sku_links.json` (no UI). `#/link-rapid` / `#/link-review` are scheduled for
 removal once the audit loop is the trusted path.
 
+**Scale/search plan (2026-09-17):** `docs/audit-search-and-scale-plan.md` — two-tier cover
+(conventional high-recall blocking + AI precision judge; O(N²) LLM review is impossible).
+Measured: the audit's distinctive-token blocker (`candidatesForAnchor`, idf ≥ 4.6) structurally
+drops **1.0% of known positives**, brand-biased (`glenfarclas` idf 4.45, `highland` 4.35 — popular
+brands fall under the cutoff); embedding cosine is ~40× cheaper (9.3 ms/anchor vs 380.9 ms full
+token scan) and higher-recall on weak overlap. M↔M merges are common but the ones conventional
+tools *miss* are rare (genuine merges share easy tokens); the residual token-invisible M↔M set is
+small and mostly precision traps. Errors concentrate in isolated SKUs (23.6% of catalog). Plan
+phases: gold-set harness → search primitive CLI → union blocker (loosened IDF + embedding + fuzzy
+alias) → alias learning from labels → agent loop.
+
 The audit is the **collapsing layer**: it reads the big worktree sources (per-SKU caches,
 `data/db/**`, both link files, hidden, rarity) and emits a compact, machine-readable report so an
 agent only ever looks at decision-relevant rows. Read-only over the worktree; outputs to `audit/`
@@ -519,7 +530,123 @@ production.
 protocol, proposal schema, coverage contract). Read it before running an audit. The tool is
 **two-stage plus apply**: stage 1 generates a rich "all the data" file; stage 1.5 projects
 token-cheap views/deep-dives from it (NO re-scoring); stage 2 is the agent's decision pass →
-proposal file; stage 3 applies it write-only.
+proposal file; stage 3 applies it write-only. **Reviewer handoff / test spec: `docs/audit-search-review.md`.**
+
+**Search pipeline (2026-09-18, corrected + re-measured 2026-09-19):** the generator's
+candidate pool comes from a **union blocking index** (`tools/audit_search_core.mjs`,
+imported by `scripts/audit_new_listings.js`) — channels `dist` (idf≥4.6) + `topTerm` +
+`smws` + `twin` + `fuzzy` (trigram+Levenshtein, alias-expanded), optional `emb` via
+`AUDIT_POOL_EMB=1`; env budgets `AUDIT_POOL_BUDGET=700`/`AUDIT_POOL_PER_CHANNEL=150`
+(the latter is per index KEY, not per channel); old two-index blocker is the fallback on
+init failure, and that fallback now logs a WARN instead of failing silently.
+
+**This is hand-run tooling and deliberately NOT wired into `run_daily.sh` or CI.** Two
+intended uses: a one-time full-library audit, and a periodic (every few months) pass over
+new SKUs paired with a re-embed + retrain. Nothing here writes links automatically.
+
+**Scope of the fix — read this before quoting recall numbers.** The union changes the
+AUDIT REPORT's candidate pool only. `tools/auto_link_classify.mjs` (the CI writer) still
+uses its own uncapped dist+SMWS blocker and does NOT import the core, so no new pairs are
+auto-linked and **no new alerts fire** as a result of this change. The audit's `want-links`
+funnel can therefore surface above-bar pairs the CI writer structurally cannot see — that
+is the point of the audit, but it means the audit no longer mirrors production candidate
+generation. The *score* per pair still matches production exactly (same `buildEnv` +
+`recommendSimilar` + GBT, full-catalog vocab/groupIndex).
+
+Measured (2026-09-19, sampled gold set n=316 records, `tools/audit_search_eval.mjs`):
+
+| K | current | fuzzy | emb | unionMerged | unionAny |
+|---|---------|-------|-----|-------------|----------|
+| 5 | 88.0 | 89.2 | 94.9 | 88.9 | 97.8 |
+| 20 | 96.8 | 98.1 | 99.4 | **98.1** | 100.0 |
+| 100 | 98.7 | 100.0 | 99.7 | **100.0** | 100.0 |
+
+`unionMerged` (one pool, ranked once, cut at K) is the only budget-comparable column and
+is the number to quote. `unionAny` = best rank in ANY of four separately-ranked channels,
+so at K it spends up to 4×K slots — the earlier "100% recall @K=20" headline was this
+column and was not comparable to `current`. Structurally the old blocker misses 60/5,723
+known positives (1.0%) and the union leaves **0 absent from every channel**; that
+structural claim stands. `EVAL_PROD_CAPS=1` re-runs at the shipped 700/150 budgets
+(result: unchanged, so the caps are not currently costing recall).
+
+**Caveat the recall numbers cannot see:** the gold set IS `data/sku_links.json` +
+`sku_links_auto.json`, so 901 of 6,671 edges are the ranker's own auto-link output, and a
+pair the old blocker could never retrieve could never have been shown to a human to become
+a label. Recall here is conditional on "findable with the existing tools". The fuzzy
+channel's alias table is also mined from those same labels with no split.
+
+**Retrieval is fixed; scoring on alias listings is not.** 48% of near-miss pairs carry
+`hints:["no-embedding"]` even with `sku_embeddings.json` loaded — embeddings are keyed by
+the aggregate SKU, so a store's alias listing misses. 42 pairs have byte-identical names
+to their anchor and still score below bar (e.g. Glenfiddich 21 Wedgwood Decanter, both
+$1799.99, prob 0.28). GBT recall@99% is 14.5%→69% *from* embeddings, so `prob` on these is
+known-unreliable — treat a below-bar no-embedding pair as unscored, not as a negative.
+
+First full-run verify (2026-09-19, after the stopword fix below): 4,344 listings, 21,398
+candidates, median pool 225, 64 s; funnels **54 want-links, 0 need-unlinks**, 900
+near-miss, 791 orphans (pre-union baseline: 33 / 0 / 869 / 772). Above-bar pair set is
+byte-identical before and after the stopword fix (41 pairs, 0 lost, 0 gained).
+
+**The pool is NOT the binding constraint — `recommendSimilar`'s post-pool cuts are.**
+Measured: running the generator at `AUDIT_POOL_BUDGET=6000 AUDIT_POOL_PER_CHANNEL=3000`
+(8.5x wider, zero truncation, median pool 378) produced **exactly the same 41 above-bar
+pairs and the same 21,398 candidates** as the 700/150 default. Raising the pool budget buys
+nothing, because `MAX_CHEAP_KEEP = 320` (det-ranked) then `MAX_FINE = 70` gate what reaches
+the GBT blend. Those two are now overridable via `opts.maxCheapKeep`/`opts.maxFine` on
+`recommendSimilar` (defaults unchanged at 320/70 — the SPA passes neither, so production is
+untouched) and via `AUDIT_MAX_CHEAP_KEEP`/`AUDIT_MAX_FINE` on the generator. Generator also
+prints a `pool truncation:` line and records `_meta.eval.pool.truncation` when a cap binds.
+
+**Raising them is measured NOT to help: run the one-time audit at the defaults.** At
+1500/400 with a 6000/3000 pool (182 s vs 64 s) the run gains exactly ONE above-bar pair and
+it is a **false positive** — `Macaloney's An Aba Lightly Peated` ↔ `Macaloney W&B Single
+Barrel`, two different expressions, prob 0.9944. The retrieval layer is saturated; the
+remaining headroom is the no-embedding gap below, not blocking or funnel width.
+
+Search CLI: `tools/audit_search.mjs --sku/--query` (typo-robust; `fuzzy` recovers
+`glenfarklas`; delisted items via git-history walk, cached in `audit/.cache/`).
+Alias miner: `tools/mine_sku_aliases.mjs` → `viz/app/linker_page/sku_aliases.js`
+(blocking-only, never a verdict — verified: nothing in the scorer imports it).
+Judgement-rules file: `data/sku_link_policy.md` on the DATA branch (human-owned; agent
+proposes amendments, never applies). Harness: `tools/audit_search_eval.mjs`.
+
+**Token cost, measured not estimated (2026-09-19, full window):** near-miss funnel 900 rows =
+777 KB `--compact` / **492 KB `--ultra-compact`** ⇒ ~164K tokens at the 3 B/token dense JSON
+actually costs. Orphans 791 rows = 324 KB ultra; want-links 54 rows = 33 KB ultra. But funnel
+bytes are not the run cost: **a real supervised agent run over a 3-week window (1,227 listings)
+burned 250K tokens / 30 tool calls / 21 min** ≈ 200 tokens per listing, so the full
+4,344-listing library is **~900K tokens per pass** and must be split into ~4-5 batches by
+`--offset` or by date window.
+
+**First supervised end-to-end trial (2026-09-19).** A fresh agent given only `docs/audit-runbook.md`
+audited 2026-08-29..09-19 and produced 111 ops (108 link / 3 ignore / 0 unlink). Independently
+verified: **0 ops contradicted an existing human hard negative, 0 were redundant** against the live
+link set, and only 1 was a group merge (both sides >=3 members). One identifiable false positive
+(`153264` <-> `102811` Traveller Whiskey, same store, 1.41x). It also surfaced a **live
+auto-linker false positive**: Aberfeldy 12 `840932` <-> `id:8289118`, prob 0.9904 with
+`embedCos 0.972`, where the Liberty side is 2.24x the group median - outside Liberty's entire
+observed markup range (n=273: p50 1.22, p90 1.60, max 2.41).
+
+**Round-3 hardening from that trial (2026-09-19).** Its false positives all traced to one missing
+input - store identity and price context - so those are now ON the row: `pairs[].st/nst`
+(candidate's stores), `pairs[].same` (the anchor's store carries it too), `pairs[].pr` + `prPct`
+(price ratio placed in the DEARER store's own markup distribution, computed per run over every
+multi-store canonical group into `_meta.eval.storePriceRatio`), and `rar` rarity tiers from
+`viz/data/rarity.json`. Plus `--ultra-compact` + `--limit-pairs`, a proposal `review[]`
+needs-human channel the applier validates and echoes but never acts on, `apply --verbose`, and a
+`decisions.jsonl` coverage artifact. The Aberfeldy pair now reads
+`prob 0.9904 flag:hit pr:2.24 prPct:">p99" rar:rare vs staple sizePen:0.3` - a self-evident reject
+with no external lookup needed.
+
+**`data/sku_link_policy.md` had never been committed** (untracked on the data branch since
+2026-09-18) even though the tooling reads it every run - on any other clone it silently found
+nothing. Rewritten 2026-09-19 with the owner's calls: size separate but 700=750 / 375=350 within
+tolerance, unstated sizes inferred from the store's price ladder; ABV/proof separate when
+materially different; limited/annual editions separate; **bundles are judgement, and a bundle
+containing a rare (allocated) item links to that rare item's group with the price premium
+accepted**, two-common bundles stay unlinked, same-product multipacks stay separate from the
+single bottle; same-store-both-sides demoted from a rule to a guide (stores double-list, reprice,
+and simply mislist).
 
 - **Listing unit** = `(dbFile, normalizedSku)` (matches the per-SKU cache + classifier). Each has
   a stable `id` (`<dbFile>|<sku>`) for agent references/diffs. Default window = since the first
@@ -537,10 +664,13 @@ proposal file; stage 3 applies it write-only.
   carries `canon` (canonical group rep: two rows sharing it are ALREADY one entity, so proposing a
   link between them is redundant). View `_meta` is ~6.6 KB (clusters are deliberately stripped; they
   were 99.5% of a ~973 KB meta line) and includes a `legend` decoding `t/flag/hints/price/canon`.
+  `--ultra-compact` drops `id/category/firstSeen/removed/auto/inIgnores/why` for another ~37%;
+  `--limit-pairs N` caps pairs per row (default 6 under ultra) ordered flagged-first — which
+  BIASES the sample, since flagged pairs are disproportionately the no-embedding ones.
   `--compact` in the GENERATOR is refused (exit 2) — it is a view concern. Deep-dive a single
   decision with `--from <rich> --id "<dbFile>|<sku>"` / `--sku <normSku>` / `--cluster <canonicalSku>`
   (full rich rows / cluster members + `missingFromWindow`), or `--pair "<skuA>|<skuB>"` for ONE pair's
-  live score + 40-col features (either order); all require `--from`. `--cluster --compact` returns
+  live score + 41-col features (either order); all require `--from`. `--cluster --compact` returns
   members as sku/name/store/price only (full rows are unusable single-line JSON); `_meta.window`
   carries `remaining`/`nextOffset` for mechanical paging. View `_meta.legend` documents
   `pairs[].t/flag/hints`, `price`, `canon`, and synthetic-sku prefixes. Unknown flags hard-error
@@ -560,7 +690,7 @@ proposal file; stage 3 applies it write-only.
   transitively-redundant links that a `writeLinks` prunes — the tool reports this separately as
   `redundantLinksInSource` (first apply shows ~-24 links that are not explicit unlinks).
 - **`scores.candidates[]`** = the ranker's top pairs (retrieve-then-rerank), each with the
-  decomposed 40-column `features` object (`logDet`, overlap, hard-rule vetoes, the 13 `grp*`
+  decomposed 41-column `features` object (`logDet`, overlap, hard-rule vetoes, the 13 `grp*`
   group features, `embedCos`). **`aboveBar` true ⇒ auto-linking would fire today.**
 - **`scores.verified[]`** = the listing's EXISTING explicit links (auto-classify pending/confirmed
   AND manual/merge) re-scored directly, immune to candidate-rank truncation — the "is this link
