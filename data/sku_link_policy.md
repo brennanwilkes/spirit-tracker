@@ -33,7 +33,7 @@ its audit report. An agent that quietly rewrites its own rules drifts.
 | Vintage year | separate | Distinct vintage releases are different SKUs: `Glenfarclas 2001` vs `Family Cask 2002`; `Glenfarclas FC 1979` is its own release, not the 12yo |
 | Batch / cask | separate | Batch/cask codes are distinct SKUs: `Tamdhu Batch Strength 007` vs `008`; `SMWS 8.47` ≠ `8.46`. **But a code that MATCHES on both sides is positive evidence they ARE the same bottling** — `GlenDronach 1993 28YO Cask 4193` ↔ `GLENDRONACH 28YO 1993 CASK 4193` links |
 | Limited / annual edition | separate | A named annual or limited release is its own SKU even with no year in the title: `Drumshanbo Gunpowder Year of the Dragon` ≠ plain `Gunpowder`; `Laphroaig Cairdeas 2026` ≠ `Cairdeas 2025` |
-| Store / exclusive cask | judgement | `X 12yr Co-op Exclusive Cask` vs plain `X 12YO` — an exclusive cask is usually a different bottling. Decide on price/size/abv; a store naming convention that marks its own casks (`Old Pulteney Coop 2006`) is real evidence |
+| Store / exclusive cask | **separate** | **A store's own name or abbreviation inside the product title almost always marks that store's exclusive single cask** — `Glenfarclas Coop 15yr`, `Old Pulteney Coop 2006`, `Plantation Rum Coop 2011`. Treat it as a different bottling from the standard expression, even when the price sits inside the normal range for the standard one (confirmed by the owner 2026-09-19: Co-op carries `Glenfarclas Coop 15yr` $119.99 AND `Glenfarclas 15 yr` $129.99 — the $10 gap is not the signal, the name is) |
 | Gift / sampler / tasting set | separate | Multi-bottle sampler and tasting sets are their own SKU, never a single expression |
 | Bundle / multipack | judgement | See "Bundles" below |
 
