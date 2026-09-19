@@ -355,9 +355,9 @@ set -e
 # the (still-on-disk, for local consumers) worktree copy from being re-staged.
 git rm --cached --quiet --ignore-unmatch viz/data/sku_embeddings.json 2>/dev/null || true
 # Same treatment for the #/stats series bundles (Release assets, see the upload step above).
-# The data branch's .gitignore deliberately does NOT ignore viz/data (that's what it stores), so
-# the ':(exclude)' pathspec below is the actual guard; this line makes it self-healing if a
-# bundle ever did get committed. Idempotent.
+# The data branch's .gitignore ignores the Release-only viz/data paths, so the staging command
+# below lists only the small committed viz artifacts instead of adding the whole viz/data dir.
+# This line makes it self-healing if a bundle ever did get committed. Idempotent.
 git rm -r --cached --quiet --ignore-unmatch viz/data/stats 2>/dev/null || true
 # Same treatment for viz/data/index.json (Release asset on index-latest, see the upload step
 # above — the largest single source of data-branch growth at ~85 MiB/mo). Idempotent.
@@ -370,19 +370,20 @@ git rm -r --cached --quiet --ignore-unmatch viz/data/skus 2>/dev/null || true
 # Common listings reports are committed ONLY on big runs (see the MODE note at the top). Keep the
 # exclude pathspec conditional so small runs still stage the per-run .txt scrape report (used by
 # the commit body + observability) but not the common_listings_*.json files.
-GIT_ADD_EXCLUDES=(
-  ':(exclude)viz/data/sku_embeddings.json'
-  ':(exclude)viz/data/stats'
-  ':(exclude)viz/data/index.json'
-  ':(exclude)viz/data/recent.json'
-  ':(exclude)viz/data/skus'
-)
+GIT_ADD_EXCLUDES=()
 if [[ "$MODE" != "big" ]]; then
   GIT_ADD_EXCLUDES+=(':(exclude)reports/common_listings_*.json')
 fi
 
-# Stage only data/report/viz outputs (embeddings/stats/index/recent/skus excluded — see above)
-git add -A data/db reports viz/data "${GIT_ADD_EXCLUDES[@]}"
+# Stage only data/report/viz outputs. Release-only artifacts are intentionally ignored by the
+# data branch's .gitignore, so do not pass the whole viz/data directory to git add.
+git add -A \
+  data/db \
+  reports \
+  viz/data/common_listings_commits.json \
+  viz/data/db_commits.json \
+  viz/data/rarity.json \
+  "${GIT_ADD_EXCLUDES[@]}"
 # Auto-generated SKU links (written by the tracker when pickBetterSku upgrades a record's SKU).
 # May not exist on first run; -- pathspec avoids erroring out in that case.
 git add -A -- data/sku_links_auto.json 2>/dev/null || true
