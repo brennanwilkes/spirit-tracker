@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T20:17:59.656Z",
+  "generatedAt": "2026-09-19T10:04:07.442Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6636,
-    "removedRows": 1188,
-    "canonSkus": 2590,
+    "liveRows": 6628,
+    "removedRows": 1197,
+    "canonSkus": 2591,
     "outputCount": 250
   },
   "rows": [
@@ -149,61 +149,6 @@
       }
     },
     {
-      "canonSku": "010157",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 37.99,
-        "bcl": 39.99,
-        "everythingwine": 39.99,
-        "gull": 36.99,
-        "highpointbws": 41.49,
-        "legacyliquor": 41.99,
-        "liberty": 46.99,
-        "liquorwarehouse": 40.49,
-        "marquis": 41.99,
-        "newdistrict": 41.49,
-        "strath": 39.57,
-        "tudor": 39.99,
-        "vessel": 39.99,
-        "vintage": 42.52
-      },
-      "representative": {
-        "name": "Jameson – Irish 750ml",
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "010157",
-        "skuKey": "010157",
-        "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$36.99",
-        "priceNum": 36.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/"
-      }
-    },
-    {
       "canonSku": "005207",
       "storeCount": 13,
       "stores": [
@@ -311,6 +256,61 @@
         "priceNum": 49.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/empress-1908-gin-750m/"
+      }
+    },
+    {
+      "canonSku": "010157",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 37.99,
+        "bcl": 39.99,
+        "everythingwine": 39.99,
+        "gull": 36.99,
+        "highpointbws": 41.49,
+        "legacyliquor": 41.99,
+        "liberty": 46.99,
+        "liquorwarehouse": 40.49,
+        "newdistrict": 41.49,
+        "strath": 39.57,
+        "tudor": 39.99,
+        "vessel": 39.99,
+        "vintage": 42.52
+      },
+      "representative": {
+        "name": "Jameson – Irish 750ml",
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "010157",
+        "skuKey": "010157",
+        "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$36.99",
+        "priceNum": 36.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/"
       }
     },
     {
@@ -3413,57 +3413,6 @@
       }
     },
     {
-      "canonSku": "003517",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "everythingwine": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.9,
-        "liquorwarehouse": 12.49,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
       "canonSku": "004465",
       "storeCount": 9,
       "stores": [
@@ -4637,57 +4586,6 @@
       }
     },
     {
-      "canonSku": "387316",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.99,
-        "everythingwine": 124.99,
-        "gull": 129.99,
-        "highpointbws": 134.49,
-        "legacyliquor": 127.13,
-        "liquorwarehouse": 114.99,
-        "marquis": 127.99,
-        "tudor": 124.99,
-        "vessel": 119.99
-      },
-      "representative": {
-        "name": "BALVENIE 12 YEAR DOUBLE WOOD 700ML",
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "liquorwarehouse",
-        "storeLabel": "Liquor Warehouse",
-        "skuRaw": "387316",
-        "skuKey": "387316",
-        "url": "https://liquorwarehouse.ca/products/balvenie-12-year-double-wood",
-        "categoryLabel": "Whiskey/Scotch",
-        "dbFile": "data/db/liquorwarehouse__whiskey-scotch__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "liquorwarehouse",
-        "url": "https://liquorwarehouse.ca/products/balvenie-12-year-double-wood"
-      }
-    },
-    {
       "canonSku": "404723",
       "storeCount": 9,
       "stores": [
@@ -5499,53 +5397,53 @@
       }
     },
     {
-      "canonSku": "003822",
+      "canonSku": "003517",
       "storeCount": 8,
       "stores": [
         "bcl",
         "everythingwine",
         "gull",
-        "highpointbws",
         "legacyliquor",
         "liquorwarehouse",
+        "newdistrict",
         "tudor",
         "vessel"
       ],
       "missingStores": [
         "arc",
+        "highpointbws",
         "liberty",
         "marquis",
-        "newdistrict",
         "strath",
         "vintage"
       ],
       "storePrices": {
-        "bcl": 42.99,
-        "everythingwine": 42.99,
-        "gull": 45.15,
-        "highpointbws": 49.29,
-        "legacyliquor": 46.99,
-        "liquorwarehouse": 46.99,
-        "tudor": 44.99,
-        "vessel": 45.99
+        "bcl": 11.99,
+        "everythingwine": 11.99,
+        "gull": 13.05,
+        "legacyliquor": 12.9,
+        "liquorwarehouse": 12.49,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
       },
       "representative": {
-        "name": "LOT NO. 40 - RYE WHISKY",
-        "price": "$42.99",
-        "priceNum": 42.99,
+        "name": "WISER'S - SPECIAL BLEND",
+        "price": "$11.99",
+        "priceNum": 11.99,
         "storeKey": "bcl",
         "storeLabel": "BCL",
-        "skuRaw": "003822",
-        "skuKey": "003822",
-        "url": "https://www.bcliquorstores.com/product/3822",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://www.bcliquorstores.com/product/3517",
         "categoryLabel": "Whisky / Whiskey",
         "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$42.99",
-        "priceNum": 42.99,
+        "price": "$11.99",
+        "priceNum": 11.99,
         "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/3822"
+        "url": "https://www.bcliquorstores.com/product/3517"
       }
     },
     {
@@ -7249,6 +7147,56 @@
       }
     },
     {
+      "canonSku": "387316",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "legacyliquor",
+        "liberty",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.99,
+        "everythingwine": 124.99,
+        "gull": 129.99,
+        "highpointbws": 134.49,
+        "liquorwarehouse": 114.99,
+        "marquis": 127.99,
+        "tudor": 124.99,
+        "vessel": 119.99
+      },
+      "representative": {
+        "name": "BALVENIE 12 YEAR DOUBLE WOOD 700ML",
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "liquorwarehouse",
+        "storeLabel": "Liquor Warehouse",
+        "skuRaw": "387316",
+        "skuKey": "387316",
+        "url": "https://liquorwarehouse.ca/products/balvenie-12-year-double-wood",
+        "categoryLabel": "Whiskey/Scotch",
+        "dbFile": "data/db/liquorwarehouse__whiskey-scotch__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$114.99",
+        "priceNum": 114.99,
+        "storeKey": "liquorwarehouse",
+        "url": "https://liquorwarehouse.ca/products/balvenie-12-year-double-wood"
+      }
+    },
+    {
       "canonSku": "394984",
       "storeCount": 8,
       "stores": [
@@ -8149,56 +8097,6 @@
       }
     },
     {
-      "canonSku": "783842",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 55.59,
-        "bcl": 57.99,
-        "everythingwine": 57.99,
-        "highpointbws": 63.79,
-        "legacyliquor": 59.99,
-        "liberty": 71.99,
-        "tudor": 57.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "MONKEY SHOULDER",
-        "price": "$55.59",
-        "priceNum": 55.59,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "789768",
-        "skuKey": "789768",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$55.59",
-        "priceNum": 55.59,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
-      }
-    },
-    {
       "canonSku": "000042",
       "storeCount": 7,
       "stores": [
@@ -8346,55 +8244,6 @@
       }
     },
     {
-      "canonSku": "000331",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 37.99,
-        "everythingwine": 37.99,
-        "gull": 40.05,
-        "liquorwarehouse": 39.99,
-        "newdistrict": 40.79,
-        "tudor": 37.99,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "BEEFEATER - LONDON DRY",
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "000331",
-        "skuKey": "000331",
-        "url": "https://www.bcliquorstores.com/product/331",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$37.99",
-        "priceNum": 37.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/331"
-      }
-    },
-    {
       "canonSku": "000984",
       "storeCount": 7,
       "stores": [
@@ -8539,6 +8388,55 @@
         "priceNum": 28,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/cutty-sark-750m/"
+      }
+    },
+    {
+      "canonSku": "003822",
+      "storeCount": 7,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 42.99,
+        "everythingwine": 42.99,
+        "gull": 45.15,
+        "highpointbws": 49.29,
+        "legacyliquor": 46.99,
+        "tudor": 44.99,
+        "vessel": 45.99
+      },
+      "representative": {
+        "name": "LOT NO. 40 - RYE WHISKY",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "003822",
+        "skuKey": "003822",
+        "url": "https://www.bcliquorstores.com/product/3822",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/3822"
       }
     },
     {
@@ -10600,6 +10498,55 @@
       }
     },
     {
+      "canonSku": "783842",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "tudor"
+      ],
+      "missingStores": [
+        "gull",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 55.59,
+        "bcl": 57.99,
+        "everythingwine": 57.99,
+        "highpointbws": 63.79,
+        "legacyliquor": 59.99,
+        "liberty": 71.99,
+        "tudor": 57.99
+      },
+      "representative": {
+        "name": "MONKEY SHOULDER",
+        "price": "$55.59",
+        "priceNum": 55.59,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "789768",
+        "skuKey": "789768",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$55.59",
+        "priceNum": 55.59,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
+      }
+    },
+    {
       "canonSku": "816747",
       "storeCount": 7,
       "stores": [
@@ -10646,6 +10593,54 @@
         "priceNum": 49.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/826172"
+      }
+    },
+    {
+      "canonSku": "000331",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "liquorwarehouse",
+        "newdistrict",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 37.99,
+        "everythingwine": 37.99,
+        "gull": 40.05,
+        "liquorwarehouse": 39.99,
+        "newdistrict": 40.79,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "BEEFEATER - LONDON DRY",
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "000331",
+        "skuKey": "000331",
+        "url": "https://www.bcliquorstores.com/product/331",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$37.99",
+        "priceNum": 37.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/331"
       }
     },
     {
