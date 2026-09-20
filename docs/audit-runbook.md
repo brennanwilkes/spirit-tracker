@@ -198,11 +198,14 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
   Each pair is `{t:"c|v|w", sku, name, prob, det, price?, st?, nst?, same?, rar?, pr?, prPct?,
   hints?, pol?, flag?}`. Features are dropped; deep-dive (`--pair`/`--id`) when you need them.
   View `_meta.legend` documents every one of these.
-- `--limit-pairs <n>` caps pairs per row (default 6 under `--ultra-compact`, uncapped otherwise),
-  ordered `hit` → `susp` → verified → rest, then by `prob`. **That ordering biases what you see**:
-  flagged pairs are disproportionately `no-embedding` ones, so a truncated view looks like a much
-  higher no-embedding rate than the funnel actually has. Do not infer population statistics from a
-  capped page.
+- `--limit-pairs <n>` caps pairs per row, ordered `hit` → `susp` → verified → rest, then by
+  `prob`. **There is no default cap** (changed 2026-09-20 — `--ultra-compact` used to imply 6).
+  **That ordering biases what you see**: flagged pairs are disproportionately `no-embedding` ones,
+  so a truncated view looks like a much higher no-embedding rate than the funnel actually has. Do
+  not infer population statistics from a capped page, and **never cap a trust-nothing slice
+  audit** — the cap is the classical ranker choosing which pairs deserve judgement, which is the
+  one thing this review exists not to delegate. It also costs almost nothing to omit: measured on
+  the 1,520-row near-miss funnel, a cap of 6 dropped 8 of 3,196 pairs and saved 0.17% of bytes.
 
 ### Reading the fields (don't guess)
 
@@ -277,6 +280,14 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
   links". On one window the gate hid 180 of 182 below-bar links. Do not read a pre-2026-09-20 run's
   `need-unlinks` count as evidence the link file is clean.
   "Unlink the bad ones."
+
+  **It is a BELOW-BAR funnel by construction, so it cannot satisfy criterion 2 on its own.** A
+  wrong link the model still likes scores above bar and never enters this funnel — the two known
+  false positives, Aberfeldy 12 (`prob 0.9904`) and Blanton's Original ↔ Special Reserve (`0.995`),
+  are both invisible here. `need-unlinks` finds links the scorer has turned against; only a
+  complete slice (`--only all`, reading `vl[]` on every row) finds links the scorer was always
+  wrong about. If the task is "every link in the file is precise and required", funnel-major mode
+  is not sufficient no matter how many rows it returns.
 - `near-misses` — **the highest-value surface**: pairs the linker scores LOW but that share real
   overlap evidence a human/agent eye instantly calls the same product. The compact `pairs[].hints`
   says why it was crushed (`no-embedding`, `sizePen:0.x`, `abvMult:0.x`; `edMult>1` is a boost, and
@@ -447,6 +458,43 @@ stopped (`--offset` reached); silently skipping rows is not.
 
 **6. Report link:ignore:unlink:noop, and bucket ignores by the model's own `prob`.** A raw ignore
 count is not informative — see the ignore policy in Stage 2. Report the band breakdown.
+
+### What even a complete slice CANNOT see (know these before claiming 100%)
+
+The classical layer exists to shrink the search space, not to decide. Two places where it still
+decides, and one inherent limit. None are bugs to work around silently; state them in the report.
+
+**(a) Ignored pairs are hard-suppressed from the pool — OPEN QUESTION, deliberately left as-is
+(owner, 2026-09-20).** `isIgnoredPair` is passed into `recommendSimilar` and filters inside the
+pool builder (`viz/app/linker_page/suggestions.js`), and again in the twin scan. **All ~13,540
+pairs in `ignores[]` are structurally invisible to the agent** — not deprioritised, absent. So a
+WRONG ignore can never be overturned by a later audit: it is write-only.
+
+This matters more each run, because the audit is now a *producer* of ignores (+934 on 2026-09-20),
+and bad ones demonstrably get proposed — 164 of Run 2's 497 were formulaic brand-token collisions
+caught only by hand review before apply. The ratchet is the reason the ignore-emission rule in
+Stage 2 is written as tightly as it is: **an ignore is effectively permanent, so emit it only when
+the pair is genuinely confusable, never to pad a count.**
+
+The fix, if it is ever wanted, is a `--include-ignored` flag keeping them in the pool tagged
+`t:"i"`, off by default so CI and normal funnels are unchanged. Not built — the owner's call is to
+document it and leave it. Do not work around it by proposing `remove-ignore` ops speculatively.
+
+**(b) The pool cuts are lossy, and the headline recall number is conditional — an accepted
+cost/accuracy tradeoff.** `MAX_CHEAP_KEEP=320` then `MAX_FINE=70` gate what reaches the GBT blend,
+and the union blocker gates what reaches those. Measured, this is saturated: an 8.5x wider pool
+(6000/3000) produced byte-identical results, and raising the rerank cuts to 1500/400 gained exactly
+one above-bar pair, which was a false positive. Structural recall is 100% @K=100 on the gold set.
+
+**But the gold set IS `sku_links.json` + `sku_links_auto.json`**, so a pair the old tooling could
+never retrieve could never have been shown to anyone to become a label, and 901 of 6,671 edges are
+the ranker's own output. "100% recall" means **"finds everything the old tools could find"**, not
+"finds everything". A pair sharing no distinctive token, no embedding neighbourhood and no fuzzy
+alias is invisible to every channel. The twin scan (identical titles, never pooled) and the
+exhaustive `audit_search --census` are the partial escapes — use the census when auditing a brand
+or family you have reason to believe is fragmented (that is how Run 2 found two links the ranker
+never surfaced). Spending more on the pool is measured NOT to help; this limit is inherent, is the
+price of not reading all 34,247 rows, and should be stated rather than engineered around.
 
 ## Stage 2 — the decision pass
 
