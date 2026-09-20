@@ -38,6 +38,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { prepScorePairCtx, scorePairWithVocab } from "../viz/app/linker_page/suggestions.js";
+import { accumulateAggregateName } from "./linker_ml/featurize.mjs";
 import { buildVocab } from "../viz/app/linker_page/vocab.js";
 import { buildSizePenaltyForPair } from "../viz/app/linker_page/size.js";
 import { buildPricePenaltyForPair } from "../viz/app/linker_page/price.js";
@@ -73,10 +74,10 @@ for (const r of rows) {
 	if (!sku) continue;
 	let a = bySku.get(sku);
 	if (!a) {
-		a = { sku, name: r.name || "", stores: new Set(), cheapestPriceNum: null };
+		a = { sku, name: "", nameIsLive: false, stores: new Set(), cheapestPriceNum: null };
 		bySku.set(sku, a);
 	}
-	if (!a.name && r.name) a.name = r.name; // first non-empty name (matches catalog.js serving)
+	accumulateAggregateName(a, r);
 	if (r.storeLabel) a.stores.add(r.storeLabel);
 	const p = parseFloat(String(r.price || "").replace(/[^0-9.]/g, ""));
 	if (Number.isFinite(p) && p > 0)

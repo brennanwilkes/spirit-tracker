@@ -212,7 +212,9 @@ PYTHON_BIN="${PYTHON_BIN:-$REPO_ROOT/tools/linker_ml/.venv/bin/python}"
 # out/model_ft (where train_embed.py saved it). encode.py reads LINKER_MODEL_DIR from the env.
 export LINKER_MODEL_DIR="${LINKER_MODEL_DIR:-$REPO_ROOT/tools/linker_ml/out/model_ft}"
 EMB_OUT="$REPO_ROOT/tools/linker_ml/out/embeddings.json"
-if [[ -x "$PYTHON_BIN" && -d "$LINKER_MODEL_DIR" ]]; then
+# Guard on a POPULATED checkpoint dir, not just an existing one: the CI cache can restore an empty
+# tools/linker_ml/model_ft, and a bare -d would send encode.py into a guaranteed crash.
+if [[ -x "$PYTHON_BIN" ]] && [[ -n "$(ls -A "$LINKER_MODEL_DIR" 2>/dev/null)" ]]; then
   set +e
   "$NODE_BIN" "$REPO_ROOT/tools/linker_ml/build_dataset.mjs" \
     && "$PYTHON_BIN" "$REPO_ROOT/tools/linker_ml/encode.py" \
@@ -223,7 +225,11 @@ if [[ -x "$PYTHON_BIN" && -d "$LINKER_MODEL_DIR" ]]; then
     echo "WARN: embedding re-encode failed (rc=$enc_rc); keeping previous sku_embeddings.json" >&2
   fi
 else
-  echo "INFO: skipping embedding re-encode (no venv at $PYTHON_BIN or no checkpoint at $LINKER_MODEL_DIR)" >&2
+  # NOT an INFO. A silent skip here froze the embeddings-latest asset for a month (2026-08-20 →
+  # 2026-09-19) while every cron job still reported success: SKUs first seen after the freeze had
+  # no vector, the GBT's missing-embedding branch scored them near zero, and the auto-linker +
+  # audit went structurally blind on every new listing. Whoever reads a run log must see this.
+  echo "WARN: embedding re-encode SKIPPED (no venv at $PYTHON_BIN or empty checkpoint at $LINKER_MODEL_DIR) — sku_embeddings.json is going stale; new SKUs will not be auto-linked" >&2
 fi
 
 # sku_embeddings.json is NOT committed (a ~40 MB blob rewritten ~3x/day; see CLAUDE.md "LFS
@@ -241,7 +247,28 @@ if command -v gh >/dev/null 2>&1 && [[ -s "$WORKTREE_DIR/viz/data/sku_embeddings
   set -e
   [[ $up_rc -ne 0 ]] && echo "WARN: embeddings Release upload failed (rc=$up_rc); linker page will use the previous asset" >&2
 else
-  echo "INFO: skipping embeddings Release upload (no gh CLI or no embeddings file)" >&2
+  echo "WARN: embeddings Release upload SKIPPED (no gh CLI, or no sku_embeddings.json to upload) — the embeddings-latest asset is now stale" >&2
+fi
+
+# Staleness is otherwise invisible: a frozen asset looks exactly like a healthy one, and the
+# catalog-coverage shortfall it causes (~4.7% after a MONTH of freezing) is indistinguishable from
+# the ~1.8% structural floor of SKUs the embedder legitimately skips. So assert the exact
+# invariant instead: every SKU in the sku_texts.jsonl this run just wrote MUST have a vector in
+# the file we are shipping. Any miss means the file is not this run's output.
+if [[ -s "$WORKTREE_DIR/viz/data/sku_embeddings.json" && -s "$REPO_ROOT/tools/linker_ml/out/sku_texts.jsonl" ]]; then
+  "$NODE_BIN" -e '
+    const fs = require("fs");
+    const [textsPath, embPath] = process.argv.slice(1);
+    const want = fs.readFileSync(textsPath, "utf8").split("\n").filter(Boolean)
+      .map((l) => JSON.parse(l).sku);
+    const vec = JSON.parse(fs.readFileSync(embPath, "utf8"));
+    const missing = want.filter((s) => !vec[s]);
+    if (missing.length) {
+      console.error(`WARN: sku_embeddings.json is STALE — ${missing.length}/${want.length} encoder inputs have no vector (e.g. ${missing.slice(0, 3).join(", ")}). New SKUs will not be auto-linked until the re-encode succeeds.`);
+    } else {
+      console.log(`embeddings fresh: all ${want.length} encoder inputs have vectors`);
+    }
+  ' "$REPO_ROOT/tools/linker_ml/out/sku_texts.jsonl" "$WORKTREE_DIR/viz/data/sku_embeddings.json" || true
 fi
 
 # The #/stats bundles are NOT committed either. Measured: ~455 KB of pack growth per run even

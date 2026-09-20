@@ -70,6 +70,28 @@ All commands run from the repo root unless noted.
   curl -sL -o .worktrees/data/viz/data/sku_embeddings.json \
     https://github.com/brennanwilkes/spirit-tracker/releases/download/embeddings-latest/sku_embeddings.json   # ~43 MB
   ```
+- **Then check it is FRESH, not merely present. This is the single most damaging way an audit run
+  can go wrong.** A stale embeddings file looks completely healthy: the file loads,
+  `_meta.eval.embeddings` is `true`, and the run finishes. But every SKU added since the file was
+  encoded has no vector, the GBT takes its conservative missing-embedding branch, and those pairs
+  score near zero — so an audit whose whole purpose is NEW listings is blind on exactly the
+  listings it was run for. Measured 2026-09-19: the `embeddings-latest` asset had been frozen since
+  2026-08-20 (a CI venv failure, see CLAUDE.md), and the 2026-08-08..08-29 window re-run with fresh
+  vectors went from **48% of near-miss pairs flagged `no-embedding` → 0%**, near-miss listings
+  107 → 68, want-links 6 → 17. Nothing in the report said anything was wrong.
+  ```bash
+  gh release view embeddings-latest --json assets \
+    --jq '.assets[] | "\(.name) updated=\(.updatedAt)"'     # must be within ~a day
+  ```
+  If it is stale, re-encode locally (~15 s on CPU once the venv exists) rather than auditing blind:
+  ```bash
+  node tools/linker_ml/build_dataset.mjs \
+    && LINKER_MODEL_DIR=$PWD/tools/linker_ml/out/model_ft tools/linker_ml/.venv/bin/python tools/linker_ml/encode.py \
+    && cp -f tools/linker_ml/out/embeddings.json .worktrees/data/viz/data/sku_embeddings.json
+  ```
+  Vector count must equal `sku_texts.jsonl`'s line count. A ~300-SKU shortfall against the 14,088
+  catalog aggregates is EXPECTED and correct — those are `sku_hidden.json` listings, which the
+  linker ML excludes from everything by design.
 - `gbt_model.json` + `db_commits.json` ARE committed on the data branch — nothing to fetch.
   `db_commits.json` drives the **delisted-history cache** (`audit/.cache/history_surface.json`,
   keyed to its `generatedAt`). If the worktree is stale, delete the cache so it rebuilds:
@@ -79,7 +101,9 @@ All commands run from the repo root unless noted.
   Do not assume it has hung.
 - Sanity check the env loads: `node tools/audit_search_core.mjs` prints
   `env: <n> aggregates ...` and `surface: <n> items (current=..., delisted=..., fromCache=...)`.
-  `delisted ≈ 1,194` and `embeddings: 13429` are the healthy signatures. The surface cache is
+  `delisted ≈ 1,194` and `embeddings: 13785` are the healthy signatures (the embeddings
+  count tracks the catalog — treat a number well below it as the staleness symptom above, not a
+  constant to match). The surface cache is
   rebuilt only when `db_commits.json`'s `generatedAt` changes.
 
 ## Tool inventory (as of 2026-09-18)
@@ -87,7 +111,7 @@ All commands run from the repo root unless noted.
 | Tool | Purpose / CLI |
 |------|---------------|
 | `scripts/audit_new_listings.js` | Stage-1 rich generator + stage-1.5 views. `--since/--until/--only/--root/--format/--out`; `--from <rich>` views; `--compact`/`--ultra-compact`/`--limit-pairs` only with `--from`; `--id/--sku/--cluster/--pair`. Union-blocker env knobs: `AUDIT_POOL_BUDGET` (700), `AUDIT_POOL_PER_CHANNEL` (150), `AUDIT_POOL_EMB=1` (+ `AUDIT_POOL_EMB_K` 200) |
-| `tools/audit_search.mjs` | **Phase 1 search primitive CLI.** `--sku <key>` or `--query "<text>"` (exactly one); `--top K` (25), `--worktree`, `--category`/`--store` (soft annotations — recorded, never filter), `--no-delisted`, `--json`, `--help/-h`. Exit 0 help / **exit 1 not-found / exit 2 bad-args**. Ranks by live `det` → (query mode) `similarityScore` → `prob` → `cos` → sku; `channels` names the blocking channels that surfaced each hit |
+| `tools/audit_search.mjs` | **Phase 1 search primitive CLI.** `--sku <key>`, `--query "<text>"` or `--grep "<regex>"` (exactly one). **`--grep` is the exhaustive, unranked catalog census** — every listing whose name matches, with per-store urls; ranked search cannot answer "show me all the X", and a hand-rolled grep over `data/db` silently misses listings (measured: 2 found vs 8 real). Exit 1 when nothing matches. `--top K` (25), `--worktree`, `--category`/`--store` (soft annotations — recorded, never filter), `--no-delisted`, `--json`, `--help/-h`. Exit 0 help / **exit 1 not-found / exit 2 bad-args**. Ranks by live `det` → (query mode) `similarityScore` → `prob` → `cos` → sku; `channels` names the blocking channels that surfaced each hit |
 | `tools/audit_search_core.mjs` | Shared core. Exports `loadEnv` (sets `DATA_WORKTREE` before importing `featurize.mjs`, which resolves it at module load), `buildSurface` (current + delisted via git-history walk, **cached at `DEFAULT_CACHE_FILE=audit/.cache/history_surface.json`**), `loadSkuLinkPolicy`, `buildBlockIndex` (dist/topTerm/smws/twin/fuzzy + alias table), `buildEmbeddingIndex`, `normNameForTwin`. Run as a CLI = self-check (env/surface/block stats + optional `--sku` pool dump) |
 | `tools/audit_search_eval.mjs` | **Phase 0 recall harness** over the gold set (all `data/sku_links.json` pairs). Channels `current` (old dist/SMWS), `topTerm`, `fuzzy`, `emb`, `union`; K-table 5/10/20/50/100 + `ms/anchor`. Env knobs: `ANCHOR_LIMIT` (250), `AUDIT_INCLUDE_DELISTED=1` (first run walks the git history ~3 min, then ~19 s warm from the cache). Re-run after any scorer/blocking change |
 | `tools/mine_sku_aliases.mjs` | **Phase 3 alias miner.** Mines token-variant pairs from CONFIRMED links, drops alignments that appear in ignore pairs, keeps only unambiguous ≥2-support tokens → writes `viz/app/linker_page/sku_aliases.js` (~38 rows / 76 keys). Blocking-only. Regenerate after the link set grows |
@@ -147,6 +171,18 @@ can repeat. `features` is the decomposed 41-column object; its multipliers (`siz
 `conceptMult`, `edMult`) are MULTIPLIERS applied to the deterministic score — below 1 is a penalty,
 above 1 a boost.
 
+**Deep-dive return shapes differ — do not guess:** `--id` returns ONE rich row (an object),
+`--sku` returns a BARE ARRAY of rich rows, `--cluster` returns `{members, missingFromWindow}`,
+and `--pair` returns `{found, matches:[…]}`. Rich rows carry `current.url`, which the compact
+views drop; when a URL slug is the evidence you need (it routinely encodes the GTIN/EAN and the
+bottle size) use `--id`, or `audit_search --grep`, which prints every matching listing's url.
+
+**Which sku STRING to write in a proposal.** Both `7433052` and `id:7433052` occur; the loaders
+run `normalizeImplicitSkuKey`, which strips the `id:` prefix, so the two forms resolve to the SAME
+entity and either will work. **Write the form the row shows you** (the anchor's `sku` for an
+anchor, `pairs[].sku` for a candidate) so the file stays greppable against the catalog. `u:` and
+`upc:` prefixes are NOT stripped and must be written exactly.
+
 **Pass an explicit `--out` on every command.** Running stage 1 with no `--out` (or, previously, any
 unrecognized flag) defaults to `audit/new_listings_<since>_<until>.<ext>` and would OVERWRITE the
 default audit file after a ~100 s full regeneration. `--from` now REQUIRES `--out` (exit 2
@@ -160,7 +196,7 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
   auto, inIgnores, triage, why, pairs:[…]}`; `--ultra-compact` keeps only
   `{sku, store, name, price, rar?, triage, pairs:[…]}` and implies `--compact`.
   Each pair is `{t:"c|v|w", sku, name, prob, det, price?, st?, nst?, same?, rar?, pr?, prPct?,
-  hints?, flag?}`. Features are dropped; deep-dive (`--pair`/`--id`) when you need them.
+  hints?, pol?, flag?}`. Features are dropped; deep-dive (`--pair`/`--id`) when you need them.
   View `_meta.legend` documents every one of these.
 - `--limit-pairs <n>` caps pairs per row (default 6 under `--ultra-compact`, uncapped otherwise),
   ordered `hit` → `susp` → verified → rest, then by `prob`. **That ordering biases what you see**:
@@ -172,6 +208,24 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
 
 - `pairs[].t`: `c` live candidate, `v` verified existing link, `w` title-twin (identical normalized
   title that never reached the candidate pool).
+- **`pairs[].pol`: a HARD conflict with `data/sku_link_policy.md` that the scorer does not veto.**
+  Two mechanical rules, both grounded in evidence rather than guesswork:
+  - `size:<a>vs<b>` — both sides state a size and the canonical buckets are disjoint. 700≡750 and
+    350≡375 are already tolerated, so this never fires on those. The anchor side uses THIS
+    listing's own title when it states a size, falling back to the aggregate's name variants — a
+    sku whose variants disagree with each other would otherwise match every size at once.
+  - `store-exclusive:<store>` — that store's own marker appears in exactly ONE of the two titles,
+    and that store actually carries one of the two listings. Per policy this almost always marks
+    that store's exclusive single cask. Matching is whitespace-delimited, so `coop` does not fire
+    on "Cooper's"; the marker list is deliberately narrow and omits words like `legacy`, `liberty`,
+    `vessel` and `gull` that occur in real product names.
+
+  **An above-bar pair carrying `pol` must not be accepted on `prob` alone** — decide it on the
+  evidence or route it to `review[]`. Measured 2026-09-19 over the full window: 259 size conflicts
+  and 4 store-exclusive conflicts, of which **2 were above the auto-link bar** (`Glenfarclas 12
+  Year Old` ↔ `Glenfarclas 12 yr Co-op Exclusive Cask` at 0.9677, and `Decadent Drams Glenlitigious
+  12 Year KWM` ↔ the non-KWM listing at 0.9695). Below bar, `pol` is the cheapest possible
+  dismissal — a `size:50vs700` near-miss needs no deep-dive at all.
 - `pairs[].flag`: `hit` = above the auto-link bar — i.e. **auto-classify WOULD fire; that is NOT a
   correctness guarantee** (a top `hit` can still be a wrong sibling match). `susp` = suspicious
   below-bar miss. `pin` = deterministic floor-pin (do NOT unlink). `absent` = partner left the
@@ -229,6 +283,8 @@ node tools/audit_search.mjs --sku 8289426 --top 10
 node tools/audit_search.mjs --query "glenfarclas 12 co op exclusive" --top 10
 # Machine-readable:
 node tools/audit_search.mjs --sku 8289426 --top 5 --json
+# EXHAUSTIVE unranked census — every listing whose name matches, with urls:
+node tools/audit_search.mjs --grep "eagle rare"
 # Exclude delisted history:
 node tools/audit_search.mjs --sku 8289426 --no-delisted
 ```
@@ -317,7 +373,7 @@ decides the classes the scorer is ambiguous on: format/year wording → link; ab
 (never across a size/ABV/batch gap); packaging/re-list → link; size → separate (700≡750 and
 375≡350 are within tolerance); ABV/proof → separate when materially different; vintage year →
 separate; batch/cask → separate, **but a cask code that MATCHES on both sides is positive evidence
-they ARE the same bottling**; limited/annual edition → separate; store/exclusive cask → judgement;
+they ARE the same bottling**; limited/annual edition → separate; store/exclusive cask → **separate** (a store name or abbreviation in the title marks its own single cask);
 gift/sampler/tasting set → separate; bundle/multipack → judgement, and a bundle containing a rare
 (allocated) item links to that rare item's group with its price premium accepted.
 
@@ -352,18 +408,41 @@ Recommended loop:
    - `review` — existing auto-link re-scores below bar ⇒ `unlink` (default also adds an ignore).
      Never outranks a `pin` flag.
    - `auto-high` — a candidate is above bar; confirm it (`link`) or reject it (`ignore`).
+   - **`pol` on ANY pair overrides `prob`.** It is a hard conflict with the policy file that the
+     scorer does not veto, so an above-bar `pol` pair is a likely auto-linker false positive, not
+     a confirmation. Below bar it is the cheapest dismissal available — take it and move on
+     without a deep-dive.
    - `pruned` — sku left the catalog; no op.
    - **Ignore policy:** only `ignore` pairs that are plausible enough to keep confusing the
      auto-linker (same brand/expression family, sibling editions, size variants). Do NOT ignore
      every obviously-different candidate on the row — that is ignore-spam and adds noise to the
      curated hard-negative set. When in doubt, leave it (no-op).
+   - **A pair that is obviously not the same product may be `ignore`d without a policy row.**
+     The policy file governs *ambiguous* classes; it is not a whitelist of permitted reasons.
+     The "never decide by an unrecorded rule" line in `sku_link_policy.md` is about inventing
+     rules for judgement calls, not about needing written permission to reject two plainly
+     different whiskies. If you find yourself rejecting the same *class* repeatedly, that is
+     when you propose a policy row via `proposal.policy`.
+   - **An above-bar pair you reject gets BOTH the op and a `review[]` entry.** Emit the `ignore`
+     (or `unlink`) so the auto-linker stops firing, AND a `review[]` entry so a human sees that
+     production would currently disagree with you. That is not double-counting; they do
+     different jobs, and the applier reports them separately.
 4. Decide each **undirected pair** once. If the other side appears later, reuse the decision
    (idempotent; the apply tool dedupes and errors on contradictory ops).
 5. **Coverage contract — write it down, do not hold it in your head.** Emit a `decisions.jsonl`
-   alongside the proposal: one `{"sku": "...", "verdict": "link|unlink|ignore|noop|review"}` per
-   row you adjudicated. Diff its sku list against the funnel's to prove coverage mechanically.
-   Tracking coverage in reasoning alone does not survive a 350-row funnel and produces a claim
-   nobody can check — the first trial run could only assert coverage, not demonstrate it.
+   alongside the proposal: one `{"id": "<dbFile>|<sku>", "verdict": "link|unlink|ignore|noop|review"}`
+   per row you adjudicated. **Key it on `id`, not `sku`** — the listing unit is
+   `(dbFile, normalizedSku)` and the same sku routinely appears at several stores, so a
+   sku-keyed artifact cannot be diffed against the funnel. Diff the id list against the funnel's
+   to prove coverage mechanically.
+6. **Discharging the `noop-verified` bucket.** It is the largest triage class and unreadable row
+   by row. You do not have to read it: stage 1 emits `_meta.eval.noopVerified` =
+   `{rows, unexaminedCandidates, flaggedVerifiedOnly}`. **`unexaminedCandidates` is the number
+   that gates coverage** — it counts noop-verified rows carrying an above-bar or suspicious
+   CANDIDATE or TWIN, i.e. a possible missed link nobody looked at. If it is 0, the whole bucket
+   is safely discharged and you say so, citing the number. `flaggedVerifiedOnly` counts rows whose
+   EXISTING link re-scored oddly; those are the `need-unlinks` funnel's business (pins excluded),
+   not a coverage gap.
 
 ### Measured token cost
 
@@ -377,9 +456,16 @@ node scripts/audit_new_listings.js --from <rich> --only near-misses --ultra-comp
 
 | Funnel | rows | `--compact` KB | `--ultra-compact` KB | ultra B/row | ultra tokens @3 B |
 |---|---|---|---|---|---|
-| near-misses | 900 | 777 | **492** | 546 | **164K** |
-| orphans | 791 | 552 | **324** | 409 | 108K |
-| want-links | 54 | 49 | **33** | 606 | 11K |
+| near-misses | 448 | 401 | **269** | 615 | **92K** |
+| orphans | 707 | — | **251** | 362 | 86K |
+| want-links | 117 | — | **57** | 499 | 19K |
+| need-unlinks | 2 | — | 7 | — | 2K |
+
+The near-miss funnel HALVED (900 → 448 rows, 164K → 92K tokens) and want-links more than doubled
+(54 → 117) purely from re-encoding a stale `sku_embeddings.json` — no code change. That is the
+same defect described in Setup, and it is the reason the freshness check there is not optional:
+a stale file silently converts real links into near-misses, inflating both the token bill and the
+agent's workload while hiding the answers.
 
 **Use the 3 B/token column.** `bytes/4` is the English-prose rule of thumb; a compact row is dense
 JSON (measured: 15% digits, 25% structural punctuation) and tokenizes nearer 2.5–3 B/token. These
@@ -387,21 +473,33 @@ are INPUT bytes only: no output, no reasoning, no tool-call overhead, no deep-di
 repo measures tokens with a real tokenizer; if that matters, count them with `messages.count_tokens`
 rather than any divisor.
 
-**What a real run actually costs.** A supervised end-to-end trial on 2026-09-19 over a 3-week
-window (1,227 listings; 13 want-links, 0 need-unlinks, 351 near-misses, 281 orphans) produced 111
-proposed ops and consumed:
+**What a real run actually costs.** Two supervised end-to-end trials on 2026-09-19, both run
+BEFORE the stale-embeddings fix (so both are upper bounds — see the caveat below):
 
-| Measure | Value |
-|---|---|
-| Total tokens | **250K** |
-| Tool calls | 30 |
-| Wall clock | 21 min (of which stage 1 is ~19 s) |
-| Most expensive single step | reading the near-miss funnel (~88% of tool-output bytes) |
+| Trial | Window | Listings | Ops | Peak context | Tool calls | Wall clock |
+|---|---|---|---|---|---|---|
+| 1 | 3 weeks | 1,227 | 111 | **250K** | 30 | 21 min |
+| 2 | 6→3 weeks | 598 | 33 | **195K** | — | — |
 
-That is ~200 tokens per listing in the universe. **Extrapolating to the full library (4,344
-listings) gives roughly 900K tokens for a single pass** — so the one-time full audit must be
-batched by `--offset`, or split across several agent runs by date window, regardless of context
-size. Plan ~4–5 batches of ~1,000 listings.
+**These are PEAK CONTEXT, not cumulative billed tokens.** Cache re-reads mean the billed figure is
+several times higher; peak context is the number that decides how many listings fit in one run.
+
+Fitting the two points gives **peak ≈ 142K + 88 tokens per listing**. Treat the intercept
+sceptically — it is an n=2 fit and the constant is suspiciously large (it is the runbook, the
+policy file, and the `_meta` legend, which are genuinely fixed costs, plus whatever the fit is
+absorbing). At 65% of a context window: a 200K window does not fit at all (the intercept alone
+exceeds the budget); a 1M window holds roughly **5,800 listings**.
+
+**Both trials ran against a month-stale `sku_embeddings.json`, which roughly DOUBLED the near-miss
+funnel** (900 → 448 rows on the full window once re-encoded). The near-miss funnel was ~88% of
+tool-output bytes in trial 1, so the real per-listing slope on a healthy pipeline is plausibly
+closer to ~50 tokens/listing. Nobody has measured that yet — **take a third measurement on the
+first fresh-pipeline run and correct this table.** Until then, plan with the 88 figure and treat
+any headroom as a bonus.
+
+For the full library (4,344 listings) that is ~525K peak on the conservative slope — comfortably
+one pass in a 1M window, but **split it anyway**: two batches of ~2,200 by date window or
+`--offset`, so a bad batch is cheap to redo and each proposal stays reviewable.
 
 - Per-row context budget: rich row ≈ **16.9 KB**; ultra-compact row **≈ 546 B** on the near-miss
   funnel. Fetching the rich file is a one-time ~86 MB on disk and the agent never loads it in.
@@ -410,12 +508,17 @@ size. Plan ~4–5 batches of ~1,000 listings.
   precisely so that most rows no longer need one.
 - `--from` view load is ~0.5 s on the full 86 MB jsonl, so per-page and per-deep-dive calls are cheap.
 - `_meta` in a view is ~6.6 KB (clusters stripped + a `legend`; without stripping it was ~973 KB — 99.5% clusters).
-- **`hints:["no-embedding"]` is per-candidate, not global**, and covers **47.8% of near-miss pairs**
-  (863 of 1,804, measured with the embeddings file loaded). `embedCos` is null whenever the
-  candidate's sku has no vector in `sku_embeddings.json` (embeddings are keyed by the *aggregate*
-  sku, so a store's alias listings — e.g. liberty `123851` vs canonical `id:8289426` — miss). This
-  reproduces the live ranker exactly; the GBT's missing-branch handles it. Treat a below-bar
-  no-embedding pair as **unscored, not negative**. Check `_meta.eval.embeddings === true` to
+- **`hints:["no-embedding"]` should now be RARE — a nonzero rate is a staleness alarm, not a
+  property of the data.** Measured 2026-09-19 on the full default window with a freshly encoded
+  file: **0 of 21,497 candidate pairs**. The earlier "47.8% of near-miss pairs" figure — and the
+  explanation that embeddings are keyed by the aggregate sku so store alias listings miss — was
+  **wrong**: the cause was a `sku_embeddings.json` that had been frozen for a month, nothing
+  structural. If you see this hint at any material rate, stop and re-encode (Setup) before
+  judging a single pair; you are looking at unscored pairs, not weak ones. The only SKUs
+  legitimately without a vector are `sku_hidden.json` listings, which the linker ML excludes from
+  everything by design (~300 of 14,088). When it does appear, `embedCos` is null and the GBT's
+  missing-branch handles it conservatively — treat that pair as **unscored, not negative**. Check
+  `_meta.eval.embeddings === true` to
   confirm the file loaded at all (vs every row being starved).
   - Beware the sampling trap: `--limit-pairs` orders flagged pairs first, and flagged pairs are
     disproportionately the no-embedding ones, so a capped page reads as ~100% no-embedding. The
@@ -571,6 +674,16 @@ The acceptance test for the whole dispatch: **re-run → no-op → gold set gree
   regenerates.
 - Delisted items have NO embedding vectors (emb rank −1) — the token channels must carry them. The
   search primitive includes delisted by default; `--no-delisted` excludes them (delisted ≈ 1,194).
+- **Titles almost never state a bottle size** (0-9% by store, measured). Size decisions therefore
+  rest on inference: a linked sibling, the URL slug, or the store's price ladder — see the policy
+  file's "Inferring an unstated size", which also documents Tudor House's `-ml-`/`-l-` slug
+  marker and its one-slug-many-sizes `?variant=` trap.
+- **A cross-store sku collision can poison the AGGREGATE NAME, and then blocking goes to the wrong
+  neighbourhood entirely.** sku `876891` is ZYN's "Springbank 10 Year Old - 700 ml" and Sierra
+  Springs' "Springbank 10 Year & Glen Scotia 12 Year Combo"; the aggregate took the combo name, so
+  every candidate retrieved for it was Glen Scotia and the obvious ZYN 700/750 twin never entered
+  the pool. If a row's candidates look like a different product family than its name, check the
+  other stores on that sku with `audit_search --grep`.
 - The delisted/history surface is CACHED: after the worktree's `db_commits.json` moves, delete
   `audit/.cache/history_surface.json` so the walk rebuilds — otherwise `audit_search` silently
   serves a stale surface.

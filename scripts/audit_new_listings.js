@@ -208,7 +208,7 @@ const DEFAULT_SINCE = "2026-06-12T18:47:49Z";
 // `--out`, triggering an unintended FULL regeneration (e.g. a stray `--help`).
 const VALUE_FLAGS = new Set([
 	"--since", "--until", "--root", "--format", "--only", "--offset", "--limit", "--top",
-	"--out", "--from", "--id", "--sku", "--cluster", "--pair", "--limit-pairs",
+	"--out", "--from", "--id", "--sku", "--cluster", "--pair", "--limit-pairs", "--min-prob", "--min-det",
 ]);
 const BOOLEAN_FLAGS = new Set(["--with-scores", "--no-scores", "--compact", "--ultra-compact", "--help", "-h"]);
 
@@ -232,6 +232,9 @@ Stage 1.5 (derive views/deep-dives from a rich file — NO re-scoring):
                                   inIgnores/why (~2.5x smaller); implies --compact
   --limit-pairs <n>               cap pairs per row, flagged+highest-prob first
                                   (default 6 with --ultra-compact, uncapped otherwise)
+  --min-prob <p> --min-det <d>    drop pairs below BOTH thresholds (verified links always kept);
+                                  _meta.window.droppedPairs records how many. Use to skip
+                                  mechanically-rejectable rows, e.g. --min-prob 0.05 --min-det 8
   --from <rich> --id "<dbFile>|<sku>"     full rich row for one listing
   --from <rich> --sku <normalizedSku>     all listings with that sku
   --from <rich> --cluster <canonicalSku>  cluster members + missingFromWindow
@@ -455,6 +458,89 @@ function loadRarityData(root) {
 // Only the two tails are emitted; "common" is the 80% middle and not worth the bytes.
 // `rare` is what the policy's bundle rule keys off (a rare+common bundle links to the
 // rare component), so it has to be visible on the row, not looked up separately.
+// Store markers that, inside a product TITLE, mark that store's own exclusive bottling
+// (data/sku_link_policy.md, "Store / exclusive cask"). Deliberately narrow: only strings that
+// cannot plausibly be part of a distillery or expression name. "legacy", "vessel", "gull" and
+// "liberty" are omitted for exactly that reason — they occur in real product names.
+const STORE_MARKERS = new Map([
+	["Co-op World of Whisky", ["coop", "co-op"]],
+	["Kensington Wine Market", ["kensington", "kwm"]],
+	["Keg N Cork", ["keg n cork", "kegncork"]],
+	["Sherbrooke Liquor", ["sherbrooke"]],
+	["Marquis Wine Cellars", ["marquis"]],
+	["Willow Park", ["willow park"]],
+	["Tudor House", ["tudor house"]],
+	["ZYN The Wine Market", ["zyn"]],
+	["Strath Liquor", ["strath"]],
+	["Malts & Grains", ["malts & grains", "malts and grains"]],
+	["Whisky Drop", ["whisky drop"]],
+	["New District", ["new district"]],
+	["Craft Cellars", ["craft cellars"]],
+	["Everything Wine", ["everything wine"]],
+	["Sierra Springs", ["sierra springs"]],
+	["Silver Springs Liquor", ["silver springs"]],
+	["Color de Vino", ["color de vino"]],
+	["Highlander Wine & Spirits", ["highlander"]],
+	["Vine Arts", ["vine arts"]],
+	["Rocky Mountain Wine Spirits Beer", ["rocky mountain"]],
+	["Canadian Liquor Store", ["canadian liquor store"]],
+	["Liquor Warehouse", ["liquor warehouse"]],
+	["Wine and Beyond", ["wine and beyond"]],
+]);
+
+// HARD policy conflicts the scorer does not veto. This is a "stop and look" marker for the
+// agent, never a verdict — an above-bar pair carrying one still needs a human-grade decision,
+// it just must not be waved through on `prob` alone. Only mechanical, unambiguous rules live
+// here; everything judgement-shaped stays in data/sku_link_policy.md where the human owns it.
+//
+// Why it exists: the GBT happily clears the 0.95 bar on pairs the policy calls SEPARATE.
+// Measured 2026-09-19 on the full window — `Knut Hansen Gin 750mL` <-> `Knut Hansen Dry Gin
+// 500ml` at prob 0.9898, and `Decadent Drams Glenlitigious 12 Year KWM` <-> the non-KWM listing
+// at 0.9695. Neither carried any other signal that the row already surfaced.
+function policyConflicts(aNames, bNames, aStore, bStores, parseSizes, canonSize) {
+	const out = [];
+
+	const bucketsOf = (names) => {
+		const set = new Set();
+		for (const n of names) for (const ml of parseSizes(n)) set.add(canonSize(ml));
+		return set;
+	};
+	// An UNSTATED size is the normal case (measured: 0-9% of titles state one), so silence on
+	// either side is never a conflict — only two stated, disjoint sizes are.
+	//
+	// The anchor side prefers THIS listing's own title over the union of the aggregate's name
+	// variants. A sku can carry variants that disagree with each other (`103252` is listed as
+	// both "Knut Hansen Gin 750mL" and "Knut Hansen Dry Gin 500ml"), and unioning them makes
+	// the aggregate match every size at once, silently swallowing the conflict.
+	const aSz = bucketsOf(aNames.slice(0, 1)).size ? bucketsOf(aNames.slice(0, 1)) : bucketsOf(aNames);
+	const bSz = bucketsOf(bNames);
+	if (aSz.size && bSz.size) {
+		let shared = false;
+		for (const x of aSz) if (bSz.has(x)) shared = true;
+		if (!shared) out.push(`size:${[...aSz].join("/")}vs${[...bSz].join("/")}`);
+	}
+
+	// A store marker counts only when that store actually carries one of the two listings —
+	// grounding it in evidence is what keeps "Sierra Springs" the store apart from a product
+	// that merely reads like one.
+	// Whitespace-delimited phrase match, not substring: a bare `includes("coop")` fires on
+	// "John Sleeman & Sons Cooper's Rye". Normalising punctuation to spaces also makes the
+	// marker "co-op" match the title "Co-op Exclusive Cask".
+	const norm = (t) => ` ${String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()} `;
+	const aTxt = aNames.map(norm);
+	const bTxt = bNames.map(norm);
+	const involved = new Set([aStore, ...(bStores || [])].filter(Boolean));
+	for (const store of involved) {
+		const markers = STORE_MARKERS.get(store);
+		if (!markers) continue;
+		const inA = markers.some((m) => aTxt.some((t) => t.includes(norm(m))));
+		const inB = markers.some((m) => bTxt.some((t) => t.includes(norm(m))));
+		if (inA !== inB) out.push(`store-exclusive:${store}`);
+	}
+
+	return out.length ? out : undefined;
+}
+
 function rarityTierOf(rar, canon) {
 	if (!rar || !canon) return undefined;
 	const e = rar.byCanon[canon];
@@ -497,6 +583,9 @@ function projectCompactPairs(l, ctx) {
 		}
 		if (ctx && ctx.anchorStore && cStores.includes(ctx.anchorStore)) row.same = 1;
 		if (c.rar) row.rar = c.rar;
+		// The anchor's own price for this candidate, present only when `same:1`. Without it the
+		// same-store test is unusable from the view: `price` is the cheapest ACROSS stores.
+		if (c.samePrice != null) row.samePrice = c.samePrice;
 		if (ctx && ctx.anchorPrice > 0 && c.cheapest > 0) {
 			const hi = Math.max(ctx.anchorPrice, c.cheapest);
 			const lo = Math.min(ctx.anchorPrice, c.cheapest);
@@ -509,6 +598,7 @@ function projectCompactPairs(l, ctx) {
 			}
 		}
 		if (c.missHints && c.missHints.length) row.hints = c.missHints;
+		if (c.pol && c.pol.length) row.pol = c.pol;
 		if (flag) row.flag = flag;
 		byKey.set(k, row);
 	};
@@ -520,6 +610,15 @@ function projectCompactPairs(l, ctx) {
 	let arr = [...byKey.values()];
 	// Cap pairs per row so one heavily-twinned anchor cannot dominate a page. Ordered by
 	// decision value (flagged first, then prob) rather than by the insertion order above.
+	// Mechanically-rejectable pairs (explicit differing volumes, prob ~0) are pure token cost.
+	// Filtering is opt-in and never silent: _meta.window records what was dropped.
+	const minProb = (ctx && ctx.minProb) || 0;
+	const minDet = (ctx && ctx.minDet) || 0;
+	if (minProb > 0 || minDet > 0) {
+		const before = arr.length;
+		arr = arr.filter((r) => r.t === "v" || (r.prob != null && r.prob >= minProb) || (r.det != null && r.det >= minDet));
+		if (ctx && ctx.counters) ctx.counters.droppedPairs += before - arr.length;
+	}
 	const cap = ctx && ctx.limitPairs;
 	if (cap > 0 && arr.length > cap) {
 		const rank = (r) => (r.flag === "hit" ? 0 : r.flag === "susp" ? 1 : r.t === "v" ? 2 : 3);
@@ -537,12 +636,26 @@ function projectCompactListing(l, ctx) {
 		anchorPrice: price,
 		storePriceRatio: ctx && ctx.storePriceRatio,
 		limitPairs: ctx && ctx.limitPairs,
+		minProb: ctx && ctx.minProb,
+		minDet: ctx && ctx.minDet,
+		counters: ctx && ctx.counters,
 	};
 	// --ultra-compact drops what is either derivable or rarely load-bearing: `id` restates
 	// dbFile+sku, `category` restates store, and firstSeen/removed/auto/inIgnores were not
 	// consulted on a single decision in the first trial. Deep-dive by --sku when needed.
 	const out = ultra
-		? { sku: l.sku, store: l.storeId, name: cur.name || l.detectedName || "", price, triage: l.triage }
+		? {
+				sku: l.sku,
+				store: l.storeId,
+				name: cur.name || l.detectedName || "",
+				price,
+				// canon + grp stay even in ultra: the anchor policy's "smallest canonical group
+				// first" rule and the "same canon => already one entity" check are both
+				// unimplementable without them, and they cost a few bytes.
+				canon: l.canonicalSku || undefined,
+				grp: (l.cluster && l.cluster.size) || undefined,
+				triage: l.triage,
+			}
 		: {
 				id: l.id,
 				store: l.storeId,
@@ -559,6 +672,7 @@ function projectCompactListing(l, ctx) {
 				triage: l.triage,
 			};
 	if (!ultra && l.canonicalSku) out.canon = l.canonicalSku;
+	if (!ultra && l.cluster && l.cluster.size) out.grp = l.cluster.size;
 	if (l.rar) out.rar = l.rar;
 	if (l.noopEvidence && !ultra) out.why = l.noopEvidence;
 	const pairs = projectCompactPairs(l, pairCtx);
@@ -653,7 +767,7 @@ async function loadFromFile(fromFile) {
 // Deep-dive lookups (the agent's "give me more data on this sku" tool): --id <listingId>,
 // --sku <normalizedSku>, --cluster <canonicalSku> pull the FULL rich rows for exactly the
 // sku/cluster a decision is about — everything the compact packet trimmed.
-async function runFromView({ fromFile, only, offset, limit, format, compact, ultra, limitPairs, outFile, id, sku, cluster, pair }) {
+async function runFromView({ fromFile, only, offset, limit, format, compact, ultra, limitPairs, minProb, minDet, outFile, id, sku, cluster, pair }) {
 	if (!fs.existsSync(fromFile)) {
 		console.error(`audit_new_listings: --from file not found: ${fromFile}`);
 		process.exit(2);
@@ -670,7 +784,10 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 	const viewCtx = {
 		ultra,
 		limitPairs: limitPairs != null ? limitPairs : ultra ? 6 : 0,
+		minProb,
+		minDet,
 		storePriceRatio: (meta && meta.eval && meta.eval.storePriceRatio) || null,
+		counters: { droppedPairs: 0 },
 	};
 
 	// ---- deep-dive lookups (--id / --sku / --cluster / --pair) ----
@@ -835,7 +952,9 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 		since: meta.since,
 		until: meta.until,
 		sources: meta.sources,
-		eval: meta.eval,
+		// storePriceRatio is ~3 KB of percentile tables and every pair already carries its own
+		// prPct label, so views ship the rest of eval without it (the rich file keeps it).
+		eval: meta && meta.eval ? (({ storePriceRatio, ...rest }) => rest)(meta.eval) : meta && meta.eval,
 		window: windowInfo,
 		readme: `DERIVED VIEW (no re-scoring) of ${fromFile}. Cluster lookups are NOT available here — run --cluster against the rich stage-1 file. ${
 			meta.readme || "See the stage-1 rich file's readme."
@@ -843,6 +962,7 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 		legend: {
 			"pairs[].t": "c=live candidate, v=verified existing link, w=title-twin (identical normalized title, never reached the candidate pool)",
 			"pairs[].flag": "hit=above auto-link bar (auto-classify WOULD fire — not a correctness guarantee), susp=suspicious below-bar miss, pin=deterministic floor-pin (SMWS cask; do NOT unlink), absent=partner left the catalog. NOTE: already-linked candidates are filtered out of the pool upstream (recommendSimilar sameGroup), so they do not appear here",
+			"pairs[].pol": "HARD conflicts with data/sku_link_policy.md that the scorer does NOT veto — size:<a>vs<b> (both sides state a size and the canonical buckets are disjoint; 700=750 and 350=375 are already tolerated) and store-exclusive:<store> (that store's own marker is in ONE title only, which per policy almost always means its exclusive single cask). A `pol` on an above-bar pair means DO NOT accept it on prob alone; decide it or route it to review[].",
 			"pairs[].hints": "why a suspicious pair was crushed: no-embedding (this candidate's sku has no vector; per-candidate, not global), sizePen/abvMult/ageRel/conceptMult/edMult are the multiplier(s) responsible",
 			"price": "anchor listing price (numeric); pairs[].price is the candidate's cheapest price",
 			"sku": "'id:'/upc:'/'u:' prefixed skus are synthetic/aggregate labels; a bare number and its 'id:<n>' form can be the SAME entity",
@@ -860,6 +980,9 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 			return l;
 		}),
 	};
+	// Must be set BEFORE the write: the `listings` projection above is what populates the
+	// counter, and _meta is serialized from outData.
+	if (viewCtx.counters.droppedPairs) outData.window.droppedPairs = viewCtx.counters.droppedPairs;
 	let payload = outData;
 	if (format === "jsonl") {
 		const { listings: ls, ...m2 } = outData;
@@ -989,6 +1112,9 @@ async function buildScorer(root, opts = {}) {
 	const similarity = await import(
 		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "similarity.js")).href
 	);
+	const sizeMod = await import(
+		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "size.js")).href
+	);
 	const weightsMod = await import(
 		pathToFileURL(path.join(SCRIPT_DIR, "..", "viz", "app", "linker_page", "blend_weights.js")).href
 	);
@@ -1033,7 +1159,52 @@ async function buildScorer(root, opts = {}) {
 		return k ? ignoreSet.has(k) : false;
 	};
 	const sameGroup = (a, b) => canonicalSku(a) === canonicalSku(b);
+	let aggAltNameCount = 0;
 	const rarityData = loadRarityData(root);
+	// `pairs[].price` is the candidate's CHEAPEST across all stores, which is the wrong number
+	// whenever the anchor's own store also carries the candidate — the policy's same-store test
+	// needs both prices AT that store. Index them once.
+	const priceBySkuStore = new Map();
+	for (const it of env.rows || []) {
+		const v = priceToNum(it.price);
+		if (!(v > 0)) continue;
+		const k = String(it.sku || "");
+		let m = priceBySkuStore.get(k);
+		if (!m) priceBySkuStore.set(k, (m = new Map()));
+		const label = it.storeLabel || it.store;
+		const prev = m.get(label);
+		if (prev == null || v < prev) m.set(label, v);
+	}
+	// Attach every per-store name variant to the aggregates so blocking can retrieve on all of
+	// them (see audit_search_core.buildBlockIndex). Retrieval only — scoring still uses agg.name.
+	{
+		const namesBySku = new Map();
+		for (const it of env.rows || []) {
+			const k = String(it.sku || "");
+			const n = String(it.name || "").trim();
+			if (!k || !n) continue;
+			let set = namesBySku.get(k);
+			if (!set) namesBySku.set(k, (set = new Set()));
+			set.add(n);
+		}
+		let withAlts = 0;
+		for (const agg of allAgg) {
+			const set = namesBySku.get(String(agg.sku || ""));
+			if (!set) continue;
+			const alts = [...set].filter((n) => n !== agg.name);
+			if (alts.length) {
+				agg.altNames = alts;
+				withAlts++;
+			}
+		}
+		aggAltNameCount = withAlts;
+	}
+	const sameStorePrice = (sku, storeLabel) => {
+		if (!storeLabel) return undefined;
+		const m = priceBySkuStore.get(String(sku));
+		const v = m && m.get(storeLabel);
+		return v != null ? v : undefined;
+	};
 	const storePriceRatio = buildStorePriceStats(env.rows || [], canonicalSku);
 	const rules = { canonicalSku };
 	const sameStoreFn = storeCache.makeSameStoreCanonFn(rules, storeCache.buildCanonStoreCache(allAgg, rules));
@@ -1196,6 +1367,7 @@ async function buildScorer(root, opts = {}) {
 		const anchor = bySkuAgg.get(listing.sku) || bySkuAgg.get(listing.lookup.cacheSku);
 		if (!anchor) return null;
 		const me = listing.sku;
+		const anchorStoreLabel = listing.store;
 		const ctx = suggestions.prepScorePairCtx(anchor, { vocab, sizePenaltyFn: sizeFn, pricePenaltyFn: priceFn });
 		const candAgg = candidatesForAnchor(anchor);
 		const candidates = [];
@@ -1232,6 +1404,7 @@ async function buildScorer(root, opts = {}) {
 					sku: String(r.it.sku),
 					name: r.it.name || "",
 					rar: rarityTierOf(rarityData, canonicalSku(String(r.it.sku))),
+					samePrice: sameStorePrice(String(r.it.sku), anchorStoreLabel),
 					stores: r.it.stores instanceof Set ? [...r.it.stores] : r.it.stores || [],
 					cheapest: r.it.cheapestPriceNum != null ? r.it.cheapestPriceNum : null,
 					detScore: det,
@@ -1242,6 +1415,14 @@ async function buildScorer(root, opts = {}) {
 					features: feats,
 					suspicious: ma ? ma.suspicious : false,
 					missHints: ma ? ma.missHints : [],
+					pol: policyConflicts(
+						[listing.name, anchor.name, ...(anchor.altNames || [])],
+						[r.it.name, ...(r.it.altNames || [])],
+						anchorStoreLabel,
+						r.it.stores instanceof Set ? [...r.it.stores] : r.it.stores || [],
+						sizeMod.parseSizesMlFromText,
+						sizeMod.canonSizeMl,
+					),
 				});
 			}
 		}
@@ -1303,6 +1484,7 @@ async function buildScorer(root, opts = {}) {
 			v.partnerName = agg.name || "";
 			v.partnerStores = agg.stores instanceof Set ? [...agg.stores] : agg.stores || [];
 			v.rar = rarityTierOf(rarityData, canonicalSku(v.toSku));
+			v.samePrice = sameStorePrice(v.toSku, anchorStoreLabel);
 			v.features = feats;
 			verified.push(v);
 		}
@@ -1361,6 +1543,7 @@ async function buildScorer(root, opts = {}) {
 					sku,
 					name: agg.name || "",
 					rar: rarityTierOf(rarityData, canonicalSku(sku)),
+					samePrice: sameStorePrice(sku, anchorStoreLabel),
 					stores: agg.stores instanceof Set ? [...agg.stores] : agg.stores || [],
 					cheapest: agg.cheapestPriceNum != null ? agg.cheapestPriceNum : null,
 					detScore: det,
@@ -1399,6 +1582,7 @@ async function buildScorer(root, opts = {}) {
 		scoreListing,
 		rarityFor: (sku) => rarityTierOf(rarityData, canonicalSku(sku)),
 		rarityLoaded: !!rarityData,
+		aggAltNameCount,
 		storePriceRatio,
 	};
 }
@@ -1442,6 +1626,12 @@ async function main() {
 	const ultra = flags.has("--ultra-compact");
 	const compact = flags.has("--compact") || ultra;
 	const limitPairs = args.get("--limit-pairs") != null ? parseNum(args.get("--limit-pairs"), 0, "--limit-pairs") : null;
+	const minProb = args.get("--min-prob") != null ? Number(args.get("--min-prob")) : 0;
+	const minDet = args.get("--min-det") != null ? Number(args.get("--min-det")) : 0;
+	if (!Number.isFinite(minProb) || !Number.isFinite(minDet)) {
+		console.error("audit_new_listings: --min-prob/--min-det must be numbers");
+		process.exit(2);
+	}
 
 	const ext = format === "jsonl" ? "jsonl" : "json";
 	const fromArg = args.get("--from");
@@ -1470,7 +1660,7 @@ async function main() {
 	const clusterArg = args.get("--cluster");
 	const pairArg = args.get("--pair");
 	if (fromArg) {
-		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, ultra, limitPairs, outFile, id: idArg, sku: skuArg, cluster: clusterArg, pair: pairArg });
+		await runFromView({ fromFile: fromArg, only, offset, limit, format, compact, ultra, limitPairs, minProb, minDet, outFile, id: idArg, sku: skuArg, cluster: clusterArg, pair: pairArg });
 		return;
 	}
 	if (idArg || skuArg || clusterArg || pairArg) {
@@ -1928,6 +2118,25 @@ async function main() {
 		}
 	}
 
+	// Coverage, provable rather than assertable. A `noop-verified` row is only safely skippable
+	// if it carries NO above-bar and NO suspicious pair; this counts the ones that do, so an
+	// auditor can discharge the whole noop bucket with one number instead of reading it.
+	// Two different questions, so two counters. `unexaminedCandidates` is the one that gates
+	// coverage: a noop-verified row with a flagged CANDIDATE or TWIN hides a possible missed
+	// link. A flagged VERIFIED entry is an existing link that re-scored oddly — already
+	// surfaced by the need-unlinks funnel (pins excluded), and common enough that folding it
+	// in here would swamp the signal.
+	const noopVerified = { rows: 0, unexaminedCandidates: 0, flaggedVerifiedOnly: 0 };
+	for (const l of windowed) {
+		if (l.triage !== "noop-verified") continue;
+		const sc = l.scores;
+		if (!sc || !sc.scored) continue;
+		noopVerified.rows++;
+		const flagged = (arr) => (arr || []).some((x) => x.aboveBar || x.suspicious);
+		if (flagged(sc.candidates) || flagged(sc.twins)) noopVerified.unexaminedCandidates++;
+		else if (flagged(sc.verified)) noopVerified.flaggedVerifiedOnly++;
+	}
+
 	// ---- summary (over the filtered universe) ----
 	const n = filtered.length;
 	const autoLinked = filtered.filter((l) => l.wasAutoLinked);
@@ -2019,6 +2228,8 @@ async function main() {
 				pool: scorer.pool,
 				poolSizes: poolStats(poolSizes),
 				rarity: scorer.rarityLoaded,
+				aggAltNames: scorer.aggAltNameCount,
+				noopVerified,
 				storePriceRatio: scorer.storePriceRatio,
 				note: scorer.embLoaded
 					? "embedCos are real cosine values."
@@ -2079,7 +2290,7 @@ async function main() {
 		if (ps) console.log(`  pool[${poolDesc}] sizes min=${ps.min} med=${ps.med} max=${ps.max} n=${ps.n}`);
 		const tr = scorer.pool.truncation;
 		if (tr && (tr.perKeyHits || tr.limitHits))
-			console.log(`  pool truncation: perKey ${tr.perKeyHits} keys/${tr.perKeyDropped} dropped · budget ${tr.limitHits} anchors/${tr.limitDropped} dropped (raise AUDIT_POOL_BUDGET/AUDIT_POOL_PER_CHANNEL for a full audit)`);
+			console.log(`  pool truncation: perKey ${tr.perKeyHits} keys/${tr.perKeyDropped} dropped · budget ${tr.limitHits} anchors/${tr.limitDropped} dropped (measured NOT to help — see docs/audit-runbook.md, the pool is not the binding constraint)`);
 		if (scoreDrivenOnly)
 			console.log(`  want-links: ${wantLinkCount}   need-unlinks: ${needUnlinkCount}   near-misses: ${nearMissCount}${scorer.twinsEnabled ? ` (${twinScanCount} title-twins scanned)` : ""}`);
 		else console.log(`  near-miss listings: ${nearMissCount}${scorer.twinsEnabled ? ` · ${twinScanCount} title-twins scanned` : ""}`);

@@ -71,6 +71,30 @@ function loadHiddenSet() {
 	return set;
 }
 
+/* ---------------- aggregate display name (shared with tools/linker_eval.mjs) ---------------- */
+
+// Pick the name that represents a whole aggregate SKU, accumulated row by row.
+// Prefer a LIVE (non-removed) listing's name: a store that has DELISTED a product can
+// leave its title — often a bundle/combo — naming the entire aggregate, which poisons
+// every name-derived feature and every blocking channel for that SKU. Measured
+// 2026-09-19: 713 of 14,088 aggregates (5.1%) took their name from a removed listing
+// while a live one existed, e.g. 876891 named "Springbank 10 Year & Glen Scotia 12 Year
+// Combo" by a delisted Sierra Springs row instead of ZYN's live "Springbank 10 Year Old".
+// Among live rows the FIRST non-empty name still wins (unchanged from before).
+//
+// NOTE: this does NOT match viz/app/catalog.js::selectBestDisplayInfo (store tier → has
+// photo → longest name). That divergence predates this change and is a real train/serve
+// skew; it is tracked separately.
+export function accumulateAggregateName(agg, row) {
+	if (!row.name) return;
+	if (!row.removed && !agg.nameIsLive) {
+		agg.name = row.name;
+		agg.nameIsLive = true;
+		return;
+	}
+	if (!agg.name) agg.name = row.name;
+}
+
 export function readJson(p) {
 	return JSON.parse(fs.readFileSync(p, "utf8"));
 }
@@ -100,7 +124,8 @@ export function buildEnv() {
 		if (!a) {
 			a = {
 				sku,
-				name: r.name || "",
+				name: "",
+				nameIsLive: false,
 				stores: new Set(),
 				urlsByStore: new Map(), // storeLabel → product URL (precise per-listing link)
 				cheapestPriceNum: null,
@@ -114,11 +139,7 @@ export function buildEnv() {
 		const p = parsePriceToNumber(r.price);
 		if (Number.isFinite(p) && p > 0)
 			a.cheapestPriceNum = a.cheapestPriceNum == null ? p : Math.min(a.cheapestPriceNum, p);
-		// Keep the FIRST non-empty name — MATCHES viz/app/catalog.js aggregateBySku (the serving
-		// aggregation). The model must be trained on the SAME product name the UI scores against;
-		// keeping the longest here was a train/serve skew (det/name features computed from a
-		// different string live vs in training).
-		if (!a.name && r.name) a.name = r.name;
+		accumulateAggregateName(a, r);
 		if (!a.category && r.category) a.category = r.category;
 	}
 	const allAgg = [...bySku.values()];

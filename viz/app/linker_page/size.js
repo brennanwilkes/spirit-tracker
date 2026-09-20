@@ -48,7 +48,7 @@ const SIZE_BUCKETS = [
 	{ canon: 3000, lo: 2900, hi: 3100 },
 ];
 
-function canonSizeMl(ml) {
+export function canonSizeMl(ml) {
 	for (const b of SIZE_BUCKETS) if (ml >= b.lo && ml <= b.hi) return b.canon;
 	return ml; // unknown size: itself (so two odd-but-equal sizes still match)
 }
