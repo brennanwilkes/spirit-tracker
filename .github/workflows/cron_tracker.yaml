@@ -54,6 +54,13 @@ jobs:
         with:
           python-version: "3.12"
 
+      # The venv's bin/python symlinks the runner image's interpreter, so the EXACT patch version
+      # is part of the cache's validity — a 3.12.x bump in a new image dangles the symlink. Salt
+      # the key with it so the image roll busts the cache instead of poisoning it.
+      - name: Pin venv cache to the exact interpreter
+        shell: bash
+        run: python -VV > tools/linker_ml/.python-build-id
+
       # Cache the whole venv (CPU torch + sentence-transformers + sklearn). Cold ~1-2 min; warm
       # restore ~seconds. Key includes a torch-version salt so bumping it busts the cache.
       - name: Cache linker_ml venv
@@ -61,10 +68,28 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tools/linker_ml/.venv
-          key: linker-venv-${{ runner.os }}-py312-torch2.12-${{ hashFiles('tools/linker_ml/requirements.txt') }}
+          key: linker-venv-${{ runner.os }}-torch2.12-${{ hashFiles('tools/linker_ml/.python-build-id', 'tools/linker_ml/requirements.txt') }}
 
-      - name: Create venv + install deps (on cache miss)
-        if: steps.venv-cache.outputs.cache-hit != 'true'
+      # A restored venv can be DEAD even on a cache hit: venv/bin/python is a symlink into the
+      # runner image's interpreter, so a Python patch-version bump in a new image dangles it and
+      # every later run silently skips the re-encode. That is exactly what happened between
+      # 2026-08-20 and 2026-09-19 — the embeddings-latest Release asset froze for a month while
+      # every job still reported success. Prove the venv actually imports before trusting it.
+      - name: Validate restored venv
+        id: venv-check
+        shell: bash
+        run: |
+          set -uo pipefail
+          if tools/linker_ml/.venv/bin/python -c 'import torch, sentence_transformers' 2>/dev/null; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::cached linker_ml venv is unusable; rebuilding from scratch"
+            rm -rf tools/linker_ml/.venv
+          fi
+
+      - name: Create venv + install deps (on cache miss or dead venv)
+        if: steps.venv-check.outputs.ok != 'true'
         shell: bash
         run: |
           set -euo pipefail

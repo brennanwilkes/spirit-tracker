@@ -42,15 +42,21 @@ const CHANNEL_NAMES = ["dist", "topTerm", "smws", "twin", "fuzzy", "emb"];
 // arg parsing (hardened: unknown flag is a hard error — mirrors audit_new_listings.js)
 // ---------------------------------------------------------------------------
 
-const VALUE_FLAGS = new Set(["--sku", "--query", "--top", "--worktree", "--category", "--store"]);
+const VALUE_FLAGS = new Set(["--sku", "--query", "--top", "--worktree", "--category", "--store", "--grep"]);
 const BOOLEAN_FLAGS = new Set(["--json", "--no-delisted", "--help", "-h"]);
 
 const USAGE = `audit_search — typo-robust SKU search primitive (Phase 1)
 
   node tools/audit_search.mjs --sku <rawOrNormalizedSku> [options]
   node tools/audit_search.mjs --query "<free text>"        [options]
+  node tools/audit_search.mjs --grep "<regex>"             [options]
 
-  exactly one of --sku / --query is required.
+  exactly one of --sku / --query / --grep is required.
+
+  --grep is the EXHAUSTIVE, unranked name search: every listing whose name matches the
+  (case-insensitive) regex, with its url. Use it whenever you need "show me all the X in
+  the catalog" — ranked search cannot answer that, and a hand-rolled grep over data/db
+  silently misses listings.
 
 Options:
   --top <K>            show K results (default 25)
@@ -58,6 +64,7 @@ Options:
   --category <text>    soft annotation — recorded in meta, sets NO filter
   --store <text>       soft annotation — recorded in meta, sets NO filter
   --no-delisted        exclude delisted-history items (they are included by default)
+  --grep <regex>       exhaustive unranked name match; ignores --top
   --json               machine-readable rows: [ {_meta}, {rank,...}, ... ]
   --help, -h           this help (exit 0)
 
@@ -227,19 +234,25 @@ const isQuery = query != null;
 const storeFilter = args.get("--store");
 const categoryFilter = args.get("--category");
 
-if (sku != null && query != null) {
-	console.error('audit_search: give exactly one of --sku or --query (use --help for usage)');
+const grepArg = args.get("--grep");
+const modeCount = [sku, query, grepArg].filter((x) => x != null).length;
+if (modeCount > 1) {
+	console.error("audit_search: give exactly one of --sku / --query / --grep (use --help for usage)");
 	process.exit(2);
 }
-if (sku == null && query == null) {
-	console.error('audit_search: exactly one of --sku or --query is required (use --help for usage)');
+if (modeCount === 0) {
+	console.error("audit_search: exactly one of --sku / --query / --grep is required (use --help for usage)");
 	process.exit(2);
 }
-if (isQuery && !String(query).trim()) {
+if (grepArg != null && !String(grepArg).trim()) {
+	console.error("audit_search: --grep cannot be empty");
+	process.exit(2);
+}
+if (!grepArg && isQuery && !String(query).trim()) {
 	console.error("audit_search: --query cannot be empty");
 	process.exit(2);
 }
-if (!isQuery && !String(sku).trim()) {
+if (!grepArg && !isQuery && !String(sku).trim()) {
 	console.error("audit_search: --sku cannot be empty");
 	process.exit(2);
 }
@@ -249,6 +262,50 @@ const includeDelisted = !flags.has("--no-delisted") && process.env.AUDIT_INCLUDE
 const t0 = Date.now();
 const env = await loadEnv(worktree);
 const surface = await buildSurface({ worktree, env, includeDelisted });
+// --grep short-circuits before any scoring: it is a catalog census, not a ranking.
+if (grepArg) {
+	const rowsBySku = new Map();
+	for (const r of env.rows || []) {
+		const k = String(r.sku || "");
+		if (!rowsBySku.has(k)) rowsBySku.set(k, []);
+		rowsBySku.get(k).push(r);
+	}
+	let re;
+	try {
+		re = new RegExp(grepArg, "i");
+	} catch (e) {
+		console.error(`audit_search: --grep is not a valid regex: ${e.message}`);
+		process.exit(2);
+	}
+	const hits = [];
+	for (const it of surface.items) {
+		if (!re.test(String(it.name || ""))) continue;
+		// urlsByStore is empty on the aggregates, so resolve urls from the raw index rows.
+		// The slug routinely encodes the GTIN/EAN and the bottle size, which is sometimes the
+		// only thing that separates two identically-titled listings at one store.
+		const urls = (rowsBySku.get(String(it.sku || "")) || []).map((r) => [r.storeLabel || r.store, r.url]).filter(([, u]) => u);
+		hits.push({
+			sku: String(it.sku || ""),
+			name: String(it.name || ""),
+			stores: [...(it.stores || [])].map(String).sort(),
+			price: it.cheapestPriceNum == null ? null : it.cheapestPriceNum,
+			delisted: !!it.delisted,
+			urls: urls.map(([store, url]) => ({ store, url })),
+		});
+	}
+	hits.sort((a, b) => a.sku.localeCompare(b.sku));
+	if (flags.has("--json")) {
+		process.stdout.write(JSON.stringify([{ _meta: { mode: "grep", pattern: grepArg, matches: hits.length, surface: surface.stats } }, ...hits], null, 2) + "\n");
+	} else {
+		for (const h of hits) {
+			console.log(`${h.sku}\t${h.delisted ? "DELISTED" : "live"}\t${h.price == null ? "-" : "$" + h.price}\t${h.stores.join(",")}\t${h.name}`);
+			for (const u of h.urls) console.log(`\t  ${u.store}: ${u.url}`);
+		}
+		console.error(`audit_search --grep ${JSON.stringify(grepArg)}: ${hits.length} listing(s) over ${surface.stats.current} current + ${surface.stats.delisted} delisted`);
+	}
+	process.exit(hits.length ? 0 : 1);
+}
+
 const block = buildBlockIndex(surface.items, { vocab: env.vocab, similarity: { smwsKeyFromName } });
 const emb = buildEmbeddingIndex(worktree, surface.items);
 

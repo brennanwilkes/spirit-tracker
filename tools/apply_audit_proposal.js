@@ -62,7 +62,7 @@ const USAGE = `apply_audit_proposal — apply an audit proposal to data/sku_link
   --json             machine-readable report
   --verbose          print every diff line instead of the first 40
 
-A proposal may also carry a "review" array — decisions the agent deliberately did NOT act on
+A proposal may also carry "review" and "dataQuality" arrays — decisions the agent deliberately did NOT act on
 and wants a human to make. It is never applied; it is echoed back so it cannot be lost.
 
 Never commits or pushes — commit data/sku_links.json by hand.`;
@@ -168,7 +168,15 @@ function main() {
 	// have somewhere to put it, or the finding survives only in chat scrollback — which is
 	// how the first trial run nearly lost a live auto-linker false positive.
 	const review = Array.isArray(proposal.review) ? proposal.review : [];
-	const reviewErrors = [];
+	// A bad RECORD is not a link decision. Without its own channel these end up abusing
+	// review[] ("this store's price is wrong"), which buries real link questions.
+	const dataQuality = Array.isArray(proposal.dataQuality) ? proposal.dataQuality : [];
+	const deferredErrors = [];
+	dataQuality.forEach((d, i) => {
+		if (!d || typeof d !== "object") deferredErrors.push(`dataQuality[${i}]: not an object`);
+		else if (!d.sku || !d.issue) deferredErrors.push(`dataQuality[${i}]: needs "sku" and "issue"`);
+	});
+	const reviewErrors = deferredErrors;
 	review.forEach((r, i) => {
 		if (!r || typeof r !== "object") reviewErrors.push(`review[${i}]: not an object`);
 		else if (!r.a || !r.b) reviewErrors.push(`review[${i}]: needs both "a" and "b"`);
@@ -316,6 +324,7 @@ function main() {
 		},
 		redundantLinksInSource,
 		review,
+		dataQuality,
 		counts: {
 			ops: ops.length,
 			applied: results.filter((r) => r.status === "ok").length,
@@ -369,6 +378,10 @@ function main() {
 		if (review.length) {
 			console.log(`  review (${review.length}) — NOT applied, for a human:`);
 			for (const r of review) console.log(`    ${r.a} ↔ ${r.b} — ${r.why}`);
+		}
+		if (dataQuality.length) {
+			console.log(`  dataQuality (${dataQuality.length}) — suspect RECORDS, not link decisions:`);
+			for (const d of dataQuality) console.log(`    ${d.sku}${d.store ? ` @ ${d.store}` : ""} — ${d.issue}`);
 		}
 		if (report.wrote) {
 			console.log(`  WROTE ${report.file} — commit data/sku_links.json by hand (the tool never commits).`);

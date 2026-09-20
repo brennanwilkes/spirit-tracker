@@ -575,17 +575,161 @@ pair the old blocker could never retrieve could never have been shown to a human
 a label. Recall here is conditional on "findable with the existing tools". The fuzzy
 channel's alias table is also mined from those same labels with no split.
 
-**Retrieval is fixed; scoring on alias listings is not.** 48% of near-miss pairs carry
-`hints:["no-embedding"]` even with `sku_embeddings.json` loaded — embeddings are keyed by
-the aggregate SKU, so a store's alias listing misses. 42 pairs have byte-identical names
-to their anchor and still score below bar (e.g. Glenfiddich 21 Wedgwood Decanter, both
-$1799.99, prob 0.28). GBT recall@99% is 14.5%→69% *from* embeddings, so `prob` on these is
-known-unreliable — treat a below-bar no-embedding pair as unscored, not as a negative.
+### The stale-embeddings incident (2026-08-20 → 2026-09-19) — the single most damaging defect found
+
+**The `embeddings-latest` Release asset was frozen for a month while every cron job reported
+success.** Root cause: the CI venv cache restores `tools/linker_ml/.venv`, whose `bin/python` is a
+symlink into the runner image's interpreter; a Python patch bump in a new image dangled it, the
+`-x "$PYTHON_BIN"` guard in `run_daily.sh` went false, and the skip printed a bare `INFO`. The
+upload step then found no file and also printed a bare `INFO`. Nothing failed; nothing was loud.
+
+Blast radius is production, not just the audit: `auto_link_classify.mjs` scores against those
+vectors every scrape, so **every SKU first seen after 2026-08-20 had no vector, took the GBT's
+conservative missing-embedding branch, and was never auto-linked.** The linker page reads the same
+asset. Re-encoding is cheap — 13,785 SKUs in ~12 s on CPU — so the cost was pure silence.
+
+Effect of a fresh encode on the full default window, no code change:
+
+| | stale | fresh |
+|---|---|---|
+| `no-embedding` candidate pairs | 47.8% of near-miss | **0 / 21,497** |
+| near-miss listings | 900 | **448** |
+| want-links | 54 | **117** |
+| need-unlinks | 0 | 2 |
+
+**A previous claim here was wrong and is retracted:** the no-embedding hint was NOT "embeddings are
+keyed by the aggregate SKU so a store's alias listing misses". It was staleness, full stop. With a
+current file the rate is zero. The only SKUs legitimately without a vector are `sku_hidden.json`
+listings, which `featurize.mjs` excludes from the linker ML entirely (~300 of 14,088) — see
+[[feedback_notrain_and_hidden_exclusion]].
+
+Hardening shipped (all three, because any one alone still fails silently):
+1. `cron_tracker.yaml` salts the venv cache key with `python -VV` and adds a **validate-restored-venv**
+   step that rebuilds when `import torch, sentence_transformers` fails. A dead cache now busts
+   instead of poisoning.
+2. `run_daily.sh` guards on a POPULATED checkpoint dir (the workflow comment already claimed this;
+   the code only checked `-d`), and both skip branches are now `WARN`, not `INFO`.
+3. `run_daily.sh` asserts the exact freshness invariant after the upload: **every SKU in the
+   `sku_texts.jsonl` this run just wrote must have a vector in the file being shipped.** Percentage
+   thresholds cannot catch this — a full month of freezing only moved catalog coverage from 1.8% to
+   4.7% missing, well inside any sane tolerance.
+
+**Recovery — DONE 2026-09-20.** The `embeddings-latest` asset was refreshed by hand
+(`gh release upload --clobber`, after asserting all 13,785 encoder inputs had vectors), and the
+one-time backlog sweep was run, because `--since 2` only anchors the last 2 days and would never
+have re-scored the blind month.
+
+`auto_link_classify --top 10 --since 40` found **66 above-bar pairs over 1,498 anchors** — and
+16 of them were false positives, so **the sweep was NOT applied as-is**. It was triaged against
+`data/sku_link_policy.md` and applied as an `agent-audit` proposal
+(`audit/proposal-backlog-sweep-2026-09-20.json`): 46 links accepted (36 net, 10 transitively
+redundant), 17 rejected to curated ignores, 3 to `review[]` and since resolved. Result: links
+5,845 → 5,881, ignores 12,606 → 12,626.
+
+**The lesson for the next sweep: a backlog sweep is not a cron run and must not be applied
+blind.** A normal `--since 2` run anchors a handful of same-day SKUs; a 40-day sweep re-scores a
+month of accumulated orphans at once, which is exactly the population where the near-bar
+false-positive classes concentrate. The 16 rejects were: 6× `Drumshanbo Gunpowder Year of the
+Dragon` vs plain Gunpowder (the literal named example in the limited-edition rule), 3× Shelter
+Point `The Collective` vs `Cask Strength`, 2× Raasay unpeated vs peated single casks, Elijah Craig
+Barrel Proof bourbon vs RYE batch A925, Ardbeg Dark Cove vs its Committee Release, G&M CC
+Bruichladdich vs Bruichladdich Rare Cask, plus the two already-known FPs (Aberfeldy 12 `840932` ↔
+`id:8289118`, Traveller `153264` ↔ `102811`).
+
+### Policy rulings + the cross-store SKU collision class (2026-09-20)
+
+Six owner rulings were added to `data/sku_link_policy.md` (each tagged `owner ruling 2026-09-20`),
+closing the amendments the earlier audit runs had left open:
+
+| class | ruling |
+|---|---|
+| Independent bottler | **separate** — the bottler is part of identity. Adelphi/G&M/Signatory/Càrn Mòr/SCN/OMC ≠ the distillery's official bottling of the same age. Two listings of the SAME IB release still link. Mechanically screenable (IB marker on one side only) |
+| Market / import variant | **link** — `(Uk)`, `Export`, `Travel Retail`, `Duty Free` are packaging. Only a stated ABV/volume difference separates, via the existing rows |
+| Gift / sampler set | **separate even with ONE bottle** — a gift pack is its own purchase unit. Contrast `Vintage Packaging`, which is the same unit and links |
+| Bundle of TWO rare items | link to the **rarer / more allocated** of the two (the old rule only covered one-rare and two-common) |
+| Year-less annual edition | **judge, do not default** — evidence of difference ⇒ separate; nothing suggesting one ⇒ link; no data ⇒ best call, stated in `why` |
+| Title with no expression name | resolve from the **store's own price ladder**. Worked example in the policy file: Kegn'Cork lists `PENDERYN MYTH` $68.96 *and* a bare `PENDERYN WELSH SINGLE MALT` $77.96, so the generic row is not Myth — $77.96 sits on the market-wide Madeira Finish band ($68.81–$82) |
+
+**Cross-store SKU collisions — measured, rare, and NOT agent-fixable.** Two genuinely different
+products can share one numeric SKU because store numbering namespaces overlap. Measured over every
+live listing: **4,445 numeric SKUs appear at ≥2 stores and 4 are real collisions (0.09%)** —
+`148534` (BCL Johnnie Walker GoT $60.99 vs G&M CC Highland Park 2005 ~$290 at three AB stores),
+`111168`, `134037`, `136399`. Restricting to BCL-involving SKUs: 2 of 499, one of which is a
+false alarm of the name-overlap test.
+
+The critical property: **nothing in `sku_links.json` created these merges.** Listings aggregate by
+canonical SKU and an unlinked numeric SKU is its own canonical, so the stores collapse into one
+item for free. There is no link to remove, so no `unlink` op helps and an agent must not propose
+one — report it in the proposal's `dataQuality[]` instead. Fixing them needs a new `(storeId, sku)`
+split/"cuts" file that re-keys the odd listing, parallel to `sku_hidden.json`; **deliberately not
+built** (owner's call 2026-09-20 — 0.09% does not justify touching both canonical-mapping loaders).
+Distinct from the same-STORE collision class in `merge.js`, which is already fixed.
+
+**`apply_audit_proposal.js` `dataQuality[]` validation had never executed** — it pushed onto
+`errors` before that `const` was initialised, so any proposal carrying a `dataQuality` array died
+with a TDZ `ReferenceError`. Fixed (its own `deferredErrors` array, merged into `reviewErrors`).
+The schema is `{sku, store?, issue}`, not `{what, why}`.
+
+### Mechanical policy screen on pair rows (`pairs[].pol`, 2026-09-19)
+
+The GBT clears the 0.95 bar on pairs `data/sku_link_policy.md` calls SEPARATE, and nothing else on
+the row said so. `scripts/audit_new_listings.js::policyConflicts` now emits a `pol` array for the
+two rules that are purely mechanical:
+
+- `size:<a>vs<b>` — both sides state a size and the canonical buckets (shared with the scorer via
+  the newly-exported `viz/app/linker_page/size.js::canonSizeMl`, so 700≡750 / 350≡375 are already
+  tolerated) are disjoint. The anchor side prefers THIS listing's title over the union of the
+  aggregate's variants: `103252` is listed as both "Knut Hansen Gin 750mL" and "Knut Hansen Dry Gin
+  500ml", and unioning makes an aggregate match every size at once.
+- `store-exclusive:<store>` — a store's own marker is in exactly ONE title AND that store carries
+  one of the two listings. Matching is whitespace-delimited after punctuation normalisation
+  (`coop` must not fire on "Cooper's"; `co-op` must match "Co-op Exclusive"), and the marker table
+  deliberately omits `legacy`, `liberty`, `vessel`, `gull` — real product-name words.
+
+Measured over the full window: 259 size + 4 store-exclusive conflicts, **2 of them above the
+auto-link bar** (`Glenfarclas 12 Year Old` ↔ `Glenfarclas 12 yr Co-op Exclusive Cask` 0.9677;
+`Decadent Drams Glenlitigious 12 Year KWM` ↔ the non-KWM listing 0.9695) — both genuine
+auto-linker false positives of the class the owner called out. It is a **marker, never a verdict**:
+it tells the agent not to accept an above-bar pair on `prob` alone, and below bar it is the
+cheapest possible dismissal. Judgement-shaped rules stay in the policy file where the human owns
+them.
+
+### Aggregate names were taken from removed listings (fixed 2026-09-19)
+
+`featurize.mjs` kept the FIRST non-empty name per aggregate in index order, ignoring `removed`, so
+a delisted store's title could name the whole SKU. **713 of 14,088 aggregates (5.1%)** were named
+by a removed listing while a live one existed — e.g. `876891` was "Springbank 10 Year & Glen Scotia
+12 Year Combo" (delisted Sierra Springs) instead of ZYN's live "Springbank 10 Year Old - 700 ml",
+so every name feature and every blocking channel for that SKU pointed at Glen Scotia. Now the first
+LIVE row's name wins; `accumulateAggregateName` is exported and shared with `tools/linker_eval.mjs`,
+which had duplicated the old rule.
+
+Measured before shipping (labeled set, existing `gbt_model.json`, embeddings held constant):
+deterministic AUC+ 0.9157 → 0.9140, recall@99% 24.1% → 24.3%; GBT AUC 0.99732 → 0.99717,
+recall@99% 88.16% → 87.86%, precision at the 0.95 bar 0.9920 → 0.9921. A wash in-sample, as
+expected — the model was TRAINED on the old names, and the labeled set structurally cannot contain
+the pairs the bad names prevented from ever being found.
+
+The blocking half was fixed alongside it: `audit_search_core.mjs` now indexes and queries **every
+per-store name variant** (`namesOf()`, `altNames` populated by the generator for 5,569 aggregates)
+across all five channels, so a poisoned aggregate name can no longer hide a pair from the pool.
+Cost on a 598-listing window: median pool 233 → 336, runtime 9.8 s → 12.6 s.
+
+End-to-end on the motivating pair, `876891 ↔ 711620`: **det 0.0586 → 8.4672, prob 0.0009 → 0.9888**
+(above the 0.95 bar). Both fixes were required — the name fix alone left it at 0.0129 because
+`711620` was one of the vectorless SKUs.
+
+**NOTE — a real train/serve skew remains, and the old comment asserting otherwise was false.**
+`featurize.mjs` picks the first live name; `viz/app/catalog.js::selectBestDisplayInfo` sorts by
+store display tier → has photo → longest name. They have never agreed. Not fixed here (it needs a
+retrain to evaluate), but do not re-add a comment claiming parity.
 
 First full-run verify (2026-09-19, after the stopword fix below): 4,344 listings, 21,398
 candidates, median pool 225, 64 s; funnels **54 want-links, 0 need-unlinks**, 900
 near-miss, 791 orphans (pre-union baseline: 33 / 0 / 869 / 772). Above-bar pair set is
 byte-identical before and after the stopword fix (41 pairs, 0 lost, 0 gained).
+**Superseded by the fresh-embeddings run above** (21,497 candidates, median pool 361, 80 s,
+117 / 2 / 448 / 707) — quote those numbers, not these.
 
 **The pool is NOT the binding constraint — `recommendSimilar`'s post-pool cuts are.**
 Measured: running the generator at `AUDIT_POOL_BUDGET=6000 AUDIT_POOL_PER_CHANNEL=3000`
@@ -601,7 +745,8 @@ prints a `pool truncation:` line and records `_meta.eval.pool.truncation` when a
 1500/400 with a 6000/3000 pool (182 s vs 64 s) the run gains exactly ONE above-bar pair and
 it is a **false positive** — `Macaloney's An Aba Lightly Peated` ↔ `Macaloney W&B Single
 Barrel`, two different expressions, prob 0.9944. The retrieval layer is saturated; the
-remaining headroom is the no-embedding gap below, not blocking or funnel width.
+remaining headroom was the no-embedding gap — which turned out to be a stale embeddings file, now
+fixed (see §"The stale-embeddings incident"), not blocking or funnel width.
 
 Search CLI: `tools/audit_search.mjs --sku/--query` (typo-robust; `fuzzy` recovers
 `glenfarklas`; delisted items via git-history walk, cached in `audit/.cache/`).
@@ -666,7 +811,8 @@ and simply mislist).
   were 99.5% of a ~973 KB meta line) and includes a `legend` decoding `t/flag/hints/price/canon`.
   `--ultra-compact` drops `id/category/firstSeen/removed/auto/inIgnores/why` for another ~37%;
   `--limit-pairs N` caps pairs per row (default 6 under ultra) ordered flagged-first — which
-  BIASES the sample, since flagged pairs are disproportionately the no-embedding ones.
+  BIASES the sample toward above-bar and suspicious pairs; never infer population statistics from
+  a capped page.
   `--compact` in the GENERATOR is refused (exit 2) — it is a view concern. Deep-dive a single
   decision with `--from <rich> --id "<dbFile>|<sku>"` / `--sku <normSku>` / `--cluster <canonicalSku>`
   (full rich rows / cluster members + `missingFromWindow`), or `--pair "<skuA>|<skuB>"` for ONE pair's
@@ -706,10 +852,11 @@ and simply mislist).
   worktree (CI writes it each run from the Release asset; a stale local worktree lacks it → every
   candidate starves to a null `embedCos`). Fetch via `curl -sL -o .worktrees/data/viz/data/sku_embeddings.json
   https://github.com/brennanwilkes/spirit-tracker/releases/download/embeddings-latest/sku_embeddings.json`
-  (~43 MB, untracked — matches what CI keeps). `embedCos` null is PER-CANDIDATE, not global: the
-  embeddings are keyed by the aggregate sku, so a store's alias listings (e.g. liberty `123851` vs
-  canonical `id:8289426`) miss and show `hints:["no-embedding"]`. Check `_meta.eval.embeddings` to
-  confirm the file loaded at all.
+  (~43 MB, untracked — matches what CI keeps). **Present is not the same as fresh: check the
+  asset's `updatedAt` before trusting a run** (`gh release view embeddings-latest --json assets`).
+  `embedCos` null is PER-CANDIDATE and shows as `hints:["no-embedding"]`; on a current file that
+  should be ~zero, and any material rate means the file is stale — re-encode rather than judging
+  those pairs. `_meta.eval.embeddings` only confirms the file LOADED, not that it is current.
 - **CJS↔ESM bridge:** the audit script stays CJS and dynamically `import()`s the linker `.mjs`
   modules. `featurize.mjs` resolves `WORKTREE` from `process.env.DATA_WORKTREE` at module load —
   must be set to the resolved `--root` BEFORE importing.

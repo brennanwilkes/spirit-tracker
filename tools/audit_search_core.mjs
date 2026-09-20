@@ -283,6 +283,20 @@ export function loadSkuLinkPolicy(worktree) {
 	return { exists: true, md, rules };
 }
 
+// The distinct names a sku carries across stores: the aggregate's own plus any `altNames`
+// the caller attached. Deduped, empties dropped.
+function namesOf(it) {
+	const out = [];
+	const seen = new Set();
+	for (const n of [it && it.name, ...((it && it.altNames) || [])]) {
+		const v = String(n || "").trim();
+		if (!v || seen.has(v)) continue;
+		seen.add(v);
+		out.push(v);
+	}
+	return out.length ? out : [""];
+}
+
 export function buildBlockIndex(items, { vocab, similarity, aliasTable = null }) {
 	const table = aliasTable == null ? BUILTIN_ALIAS_TABLE : aliasTable;
 	const indexBySku = new Map();
@@ -306,7 +320,14 @@ export function buildBlockIndex(items, { vocab, similarity, aliasTable = null })
 	};
 
 	for (let i = 0; i < items.length; i++) {
-		const name = items[i].name || "";
+		// EVERY per-store name for this sku is indexed, not only the aggregate's chosen one.
+		// The aggregate keeps the FIRST row's name (featurize.mjs), so when two stores use one
+		// sku for different products the loser's name is invisible to blocking and the pair can
+		// never be retrieved — e.g. sku 876891 is ZYN "Springbank 10 Year Old - 700 ml" and
+		// Sierra Springs "Springbank 10 Year & Glen Scotia 12 Year Combo"; the combo name won,
+		// so every candidate retrieved was Glen Scotia. Indexing is retrieval only: scores are
+		// still computed from the aggregate, so nothing about production scoring changes.
+		for (const name of namesOf(items[i])) {
 		for (const t of vocab.distinctiveUnigramsForName(name) || []) addIdx(distIndex, t, i);
 		const tt = vocab.topTerm(name);
 		if (tt && tt.term) addIdx(topTermIndex, tt.term, i);
@@ -320,6 +341,7 @@ export function buildBlockIndex(items, { vocab, similarity, aliasTable = null })
 				if (!s) trigramTokens.set(tri, (s = new Set()));
 				s.add(t);
 			}
+		}
 		}
 	}
 
@@ -384,7 +406,8 @@ export function buildBlockIndex(items, { vocab, similarity, aliasTable = null })
 		const maxPerKey = Number.isFinite(perKeyOpt) ? perKeyOpt : 4000;
 		const limit = Number.isFinite(opts.limit) ? opts.limit : 4000;
 		const aIdx = indexBySku.get(String(anchor && anchor.sku || ""));
-		const name = (anchor && anchor.name) || "";
+		const anchorNames = namesOf(anchor || {});
+		const name = anchorNames[0] || "";
 		const set = new Set();
 		const collect = (m, k, n) => {
 			if (!m) return;
@@ -407,14 +430,20 @@ export function buildBlockIndex(items, { vocab, similarity, aliasTable = null })
 			}
 		};
 		const cap = Math.max(1, maxPerKey);
-		if (channels.dist) for (const t of vocab.distinctiveUnigramsForName(name) || []) collect(distIndex, t, cap);
+		// Query from EVERY name this sku carries, for the same reason the index holds them all.
+		if (channels.dist)
+			for (const nm of anchorNames) for (const t of vocab.distinctiveUnigramsForName(nm) || []) collect(distIndex, t, cap);
 		if (channels.topTerm) {
+			for (const nm of anchorNames.slice(1)) {
+				const t2 = vocab.topTerm(nm);
+				if (t2 && t2.term) collect(topTermIndex, t2.term, cap);
+			}
 			const tt = vocab.topTerm(name);
 			if (tt && tt.term) collect(topTermIndex, tt.term, cap);
 		}
-		if (channels.smws) collect(smwsBucket, similarity.smwsKeyFromName(name), cap);
-		if (channels.twin) collect(twinBucket, normNameForTwin(name), cap);
-		if (channels.fuzzy) for (const t of fuzzyTokensForName(name)) collect(tokenItems, t, cap);
+		if (channels.smws) for (const nm of anchorNames) collect(smwsBucket, similarity.smwsKeyFromName(nm), cap);
+		if (channels.twin) for (const nm of anchorNames) collect(twinBucket, normNameForTwin(nm), cap);
+		if (channels.fuzzy) for (const nm of anchorNames) for (const t of fuzzyTokensForName(nm)) collect(tokenItems, t, cap);
 		const out = [...set];
 		if (out.length > limit) {
 			truncation.limitHits++;
