@@ -206,6 +206,15 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
 
 ### Reading the fields (don't guess)
 
+- **`vl` — THIS listing's existing links, re-scored live. The PRECISION surface; added 2026-09-20.**
+  `[partnerSku, partnerName, prob, source, flag]`. `source`: `m` manual/legacy, `a` auto-classify,
+  `g` agent-audit. `flag`: `!` re-scores BELOW bar and is NOT pinned — a removal candidate, judge
+  it; `p` deterministic floor-pin (SMWS cask code, **not** a probability — never unlink). **No flag
+  means it scored above bar, which is evidence but NOT proof: a wrong link the model still likes
+  looks exactly like a correct one.** Before this field existed the compact views showed only
+  `links: <count>`, and nothing at all under `--ultra-compact`, so an agent could propose new links
+  but could not meaningfully remove bad ones. If you are auditing a slice for correctness, `vl` is
+  half the job — do not skip rows just because they have no `pairs`.
 - `pairs[].t`: `c` live candidate, `v` verified existing link, `w` title-twin (identical normalized
   title that never reached the candidate pool).
 - **`pairs[].pol`: a HARD conflict with `data/sku_link_policy.md` that the scorer does not veto.**
@@ -261,7 +270,12 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
 ### The funnels (what to prioritize)
 
 - `want-links` — never auto-linked, yet a live candidate `prob ≥ bar` (0.95) today. "Link the missed ones."
-- `need-unlinks` — an existing auto-classify pair whose live re-score fell below bar (pins excluded).
+- `need-unlinks` — **ANY existing link, whatever wrote it**, whose live re-score fell below bar
+  (pins excluded). **Changed 2026-09-20:** this was gated on `wasAutoLinked` + `kind ==
+  "auto-link"`, so it could never see a manual link — and 5,622 of 5,922 link entries (95%) are
+  manual/legacy with no `source`. `need-unlinks: 0` used to mean "no bad AUTO links", not "no bad
+  links". On one window the gate hid 180 of 182 below-bar links. Do not read a pre-2026-09-20 run's
+  `need-unlinks` count as evidence the link file is clean.
   "Unlink the bad ones."
 - `near-misses` — **the highest-value surface**: pairs the linker scores LOW but that share real
   overlap evidence a human/agent eye instantly calls the same product. The compact `pairs[].hints`
@@ -384,6 +398,56 @@ gift/sampler/tasting set → separate; bundle/multipack → judgement, and a bun
   verdict you want. **Never edit the policy file and never decide by an unrecorded rule** — that is
   how the human-owned policy drifts.
 
+## Auditing a COMPLETE SLICE (the trust-nothing mode)
+
+The funnels above **sample**; they do not cover. A funnel pass answers "what stands out", not "is
+this slice correct". When the task is to fully audit every SKU in a window — new links needed,
+existing links removed, ignores recorded — use this mode instead.
+
+**1. Define the slice explicitly, and know the default is not the library.** The generator defaults
+to listings first seen since **2026-06-12T18:47:49Z** (the first auto-classify commit), which is
+**4,344 of 34,247 listing units — 12.7%**. This has caused a real false conclusion: two Springbank
+bundles the owner knew should link (`id:8768911`, `id:8768913`) were first seen 2026-05-27 and were
+therefore invisible to every funnel, which read as "the audit found nothing" rather than "the audit
+never looked". Pass `--since <ISO>` / `--until <ISO>` deliberately, and `--since 1970-01-01` for
+whole history. State the slice in the proposal's `auditRef`.
+
+Delisted listings ARE in scope and are not filtered (660 of 4,344 in one window carry
+`current.removed:true`). Their price history still belongs to the right canonical group.
+
+**2. Build the slice view with `--only all`, not a funnel.**
+
+    node scripts/audit_new_listings.js --from <rich> --only all --ultra-compact \
+         --offset <n> --limit <m> --format jsonl --out audit/slice-<n>.jsonl
+
+`_meta.window` carries `remaining`/`nextOffset` for mechanical paging.
+
+**3. Every row gets BOTH questions, and they use different fields.**
+
+| question | field | verdict |
+|---|---|---|
+| Does it need a link it does not have? | `pairs[]` (candidates/twins) | `link`, or `ignore`, or no-op |
+| Are the links it already has correct? | **`vl[]`** (existing links, re-scored) | `unlink` (+ auto ignore), or confirm |
+
+A row with no `pairs` is NOT automatically a no-op — check `vl` first. A row with neither `pairs`
+nor `vl` is a genuine no-op: an unlinked listing nothing matched. Record it as `noop` anyway; the
+coverage contract is per-row, not per-op.
+
+**4. Judging `vl`.** A `!` flag (below bar, not pinned) is a removal candidate, not a verdict —
+re-score drift also happens when a store retitles or the aggregate name changes. Read the partner
+name. A `p` flag is a deterministic floor-pin: never unlink. **An unflagged link is not proven
+correct** — the known false positives (Aberfeldy 12 at prob 0.9904, Blanton's Original ↔ Special
+Reserve at 0.995) all scored high. Apply the policy file to the two names exactly as you would to a
+candidate pair; the fact that someone already linked them is not evidence.
+
+**5. Coverage contract for a slice audit: every listing in the slice appears in `decisions.jsonl`.**
+Not every funnel row — every row in the slice. Diff your ids against `--only all` for the same
+offset/limit and report `0 missing, 0 extra`. A partial slice is fine if you say exactly where you
+stopped (`--offset` reached); silently skipping rows is not.
+
+**6. Report link:ignore:unlink:noop, and bucket ignores by the model's own `prob`.** A raw ignore
+count is not informative — see the ignore policy in Stage 2. Report the band breakdown.
+
 ## Stage 2 — the decision pass
 
 Goal: **decide on every listing in the chosen universe**, in as few tokens as possible, and emit a
@@ -413,10 +477,38 @@ Recommended loop:
      a confirmation. Below bar it is the cheapest dismissal available — take it and move on
      without a deep-dive.
    - `pruned` — sku left the catalog; no op.
-   - **Ignore policy:** only `ignore` pairs that are plausible enough to keep confusing the
-     auto-linker (same brand/expression family, sibling editions, size variants). Do NOT ignore
-     every obviously-different candidate on the row — that is ignore-spam and adds noise to the
-     curated hard-negative set. When in doubt, leave it (no-op).
+   - **Ignore policy — ignores are a PRIMARY deliverable, not cleanup.** The labeled set is the
+     product of this audit (see CLAUDE.md §"Strategic direction"): `data/sku_links.json` links are
+     the positives and its `ignores` are the curated hard negatives, and the next linker retrain
+     learns from both. A run that emits 108 links and 3 ignores (trial 1, 2026-09-19) has thrown
+     away most of its value — every pair you looked at and rejected was a hard negative you were
+     handed for free and then discarded.
+
+     **The rule: if you adjudicated a pair and decided against it, emit the `ignore`.** Not "if it
+     was close". Not "if the policy has a row for it". You read it, you rejected it, it becomes a
+     label. Anything on a pair row reached you through retrieval AND ranking, so by construction
+     the tooling already found it plausible — that is exactly the population a hard negative is
+     worth having.
+
+     **But retrieval does NOT imply plausibility, and an earlier version of this rule said it did.**
+     The blocker retrieves on shared tokens, and tokens collide by coincidence: the 2026-09-20
+     orphan run emitted `West Cork Original` vs `High West Bourbon` (shared token "west"),
+     `Leiper's Fork Bottled in Bond` vs `Rebecca Creek Bottled in Bond` ("in bond"), and
+     `Inversion Passion Fruit Mai Tai` vs `Ron Caribu Passion Fruit`. Those are DIFFERENT BRANDS
+     that share a generic word. They are correct rejections and worthless labels — nothing would
+     ever have confused them. 105 of those 177 sat at `prob < 0.01`.
+
+     **The test is confusability, not token overlap: would a careful person, or the model, have a
+     real chance of treating these as the same product?** In practice that means the same brand AND
+     the same product family. Emit the ignore when either holds:
+     - the pair scores `prob >= 0.1`, OR
+     - the two names share a genuine BRAND (not a generic word like west / bond / reserve / fruit)
+       and differ on an expression, size, ABV, cask, edition or bottler.
+
+     Below that, a plain no-op is correct and preferred. Do not sweep a row's unread low-ranked
+     tail into ops to inflate the count; an ignore you cannot justify in `why` is worse than no
+     label, and a formulaic `why` generated in bulk is a signal you were padding. "When in doubt"
+     between LINK and IGNORE is `review[]`, never a silent no-op.
    - **A pair that is obviously not the same product may be `ignore`d without a policy row.**
      The policy file governs *ambiguous* classes; it is not a whitelist of permitted reasons.
      The "never decide by an unrecorded rule" line in `sku_link_policy.md` is about inventing
@@ -435,6 +527,12 @@ Recommended loop:
    `(dbFile, normalizedSku)` and the same sku routinely appears at several stores, so a
    sku-keyed artifact cannot be diffed against the funnel. Diff the id list against the funnel's
    to prove coverage mechanically.
+
+   **Report the link:ignore ratio in your summary, and justify it if it is lopsided.** A window
+   where nearly every adjudicated pair was a link means either the window genuinely had little
+   confusable material, or — far more likely — rejections were dropped as no-ops instead of being
+   recorded as hard negatives. The 2026-09-20 backlog sweep is the shape to aim for: 66 pairs
+   adjudicated, 46 links, 17 ignores, 3 escalated, **0 silently dropped**.
 6. **Discharging the `noop-verified` bucket.** It is the largest triage class and unreadable row
    by row. You do not have to read it: stage 1 emits `_meta.eval.noopVerified` =
    `{rows, unexaminedCandidates, flaggedVerifiedOnly}`. **`unexaminedCandidates` is the number

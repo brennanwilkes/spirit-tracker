@@ -502,11 +502,30 @@ visible at a glance in `git log` over time:
 
 ## New-listings audit (`scripts/audit_new_listings.js`)
 
-**Strategic direction (2026-09-17):** the human link pages are being retired (long term). Link
-quality control becomes two pillars: (A) the auto-classify pipeline (below) and (B) **periodic
-AI-agent audits** driven by this script — the agent links missed same-products and unlinks bad
-links by editing `data/sku_links.json` (no UI). `#/link-rapid` / `#/link-review` are scheduled for
-removal once the audit loop is the trusted path.
+**Strategic direction (2026-09-17, sharpened by the owner 2026-09-20):** the human link pages are
+being retired (long term). Link quality control becomes two pillars: (A) the auto-classify pipeline
+(below), which is FREE and runs every scrape, and (B) **periodic AI-agent audits** driven by this
+script, which are EXPENSIVE and run every few months. `#/link-rapid` / `#/link-review` are
+scheduled for removal once the audit loop is the trusted path.
+
+**The two pillars are not peers — B exists to correct AND to improve A.** Three consequences that
+should drive every design decision in this tooling:
+
+1. **The audit's job is the last X weeks/months of CI output**, both halves: the links CI missed
+   and the links CI got wrong. It is a corrector running at a cadence CI cannot afford, not a
+   second opinion on every scrape.
+2. **The planned full-library pass is a label-production run, not a cleanup.** Its purpose is a
+   high-quality labeled set over the WHOLE catalog so the places the auto-linker fails can be
+   characterised and its accuracy raised at the source. That makes the `ignore` ops (curated hard
+   negatives) worth exactly as much as the `link` ops, and makes COVERAGE matter more than speed —
+   the opposite of the trade CI makes.
+3. **Therefore: do not paper over CI's weaknesses inside the audit.** Adding mechanical screens to
+   the audit report to catch what CI gets wrong (an independent-bottler screen was proposed and
+   REJECTED on 2026-09-20) is backwards — it hides the failure the audit exists to measure, and it
+   reimplements judgement the agent already does by reading the two names. `pairs[].pol` survives
+   only because size buckets and store carriage are NOT legible in the names (see that section).
+   Mechanical vetoes, if they are ever wanted, belong in `auto_link_classify.mjs`, which has no
+   agent; that is an open, separate decision.
 
 **Scale/search plan (2026-09-17):** `docs/audit-search-and-scale-plan.md` — two-tier cover
 (conventional high-recall blocking + AI precision judge; O(N²) LLM review is impossible).
@@ -525,6 +544,13 @@ agent only ever looks at decision-relevant rows. Read-only over the worktree; ou
 (git-ignored). Uses the LIVE ranker end-to-end (never forks scoring) — the same
 `buildEnv` + `recommendSimilar` + GBT blend path as auto-classify, so every number equals
 production.
+
+**Full-library plan + session hand-off: `docs/audit-full-library-plan.md`** (2026-09-20) — the
+library's size and shape (34,247 listing units / 8,263 canonical groups), what has been audited so
+far, the measured per-run agent budget, and the batching plan. **Read it before starting any
+large audit**, especially its "THE WINDOW TRAP" section: the generator defaults to listings first
+seen since 2026-06-12, which is only 12.7% of the library, and that default has already produced
+one false "the audit found nothing" conclusion.
 
 **The agent's operating manual is `docs/audit-runbook.md`** (pipeline, CLI surface, decision
 protocol, proposal schema, coverage contract). Read it before running an audit. The tool is
@@ -635,6 +661,23 @@ Point `The Collective` vs `Cask Strength`, 2× Raasay unpeated vs peated single 
 Barrel Proof bourbon vs RYE batch A925, Ardbeg Dark Cove vs its Committee Release, G&M CC
 Bruichladdich vs Bruichladdich Rare Cask, plus the two already-known FPs (Aberfeldy 12 `840932` ↔
 `id:8289118`, Traveller `153264` ↔ `102811`).
+
+### `status:"pending"` and the review watermark are now vestigial (2026-09-20)
+
+Both exist only to serve `#/link-review`, and the link pages are being deleted. The owner's call:
+**no use needs to be preserved.** Either repurpose the field or drop it — "I don't really care."
+
+- `status:"pending"` on an auto-classify link is a marker for a review UI that will not exist.
+  Nothing else reads it (every consumer takes `fromSku`/`toSku` and ignores extra fields), so
+  removing it is safe and saves bytes in a file rewritten every scrape. `apply_audit_proposal.js`
+  currently stamps it on `agent-audit` links too.
+- The git-derived review watermark (`GET /__stviz/review-watermark`, walks `git log` for the last
+  hand-commit of `data/sku_links.json`, skipping `run:` commits) has no consumer once the page is
+  gone.
+
+**Not removed yet** — it touches `auto_link_classify.mjs`, `apply_audit_proposal.js` and
+`viz/serve.js`, and none of it blocks the full-library pass. Do it as part of the link-page
+deletion, not before.
 
 ### Policy rulings + the cross-store SKU collision class (2026-09-20)
 
@@ -764,7 +807,7 @@ burned 250K tokens / 30 tool calls / 21 min** ≈ 200 tokens per listing, so the
 `--offset` or by date window.
 
 **First supervised end-to-end trial (2026-09-19).** A fresh agent given only `docs/audit-runbook.md`
-audited 2026-08-29..09-19 and produced 111 ops (108 link / 3 ignore / 0 unlink). Independently
+audited 2026-08-29..09-19 and produced 111 ops (108 link / 3 ignore / 0 unlink). **That 36:1 link:ignore ratio is now treated as a DEFECT of the run, not a neutral fact** — the runbook was telling the agent to no-op rejections rather than record them, throwing away the hard negatives the retrain needs. Fixed 2026-09-20: rejections are a primary deliverable and every run reports its ratio. Independently
 verified: **0 ops contradicted an existing human hard negative, 0 were redundant** against the live
 link set, and only 1 was a group merge (both sides >=3 members). One identifiable false positive
 (`153264` <-> `102811` Traveller Whiskey, same store, 1.41x). It also surfaced a **live
