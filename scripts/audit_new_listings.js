@@ -673,11 +673,35 @@ function projectCompactListing(l, ctx) {
 			};
 	if (!ultra && l.canonicalSku) out.canon = l.canonicalSku;
 	if (!ultra && l.cluster && l.cluster.size) out.grp = l.cluster.size;
+	const vl = projectVerifiedLinks(l);
+	if (vl) out.vl = vl;
 	if (l.rar) out.rar = l.rar;
 	if (l.noopEvidence && !ultra) out.why = l.noopEvidence;
 	const pairs = projectCompactPairs(l, pairCtx);
 	if (pairs) out.pairs = pairs;
 	return out;
+}
+
+// The PRECISION half of a row. Until 2026-09-20 the compact views exposed only `links: <count>`
+// (and nothing at all under --ultra-compact), so an agent could see what a listing might still
+// need but never whether what it ALREADY has is correct — the audit could add links and could not
+// meaningfully remove them. Every field here is already computed into scores.verified[].
+// Array-of-arrays, not objects: [partnerSku, partnerName, prob, sourceInitial, flags].
+// flags: "!" = below bar and NOT pinned (a removal candidate), "p" = deterministic floor-pin.
+function projectVerifiedLinks(l) {
+	const v = (l.scores && l.scores.verified) || [];
+	if (!v.length) return undefined;
+	const out = [];
+	for (const e of v) {
+		const partner = e.toSku === l.sku ? e.fromSku : e.toSku;
+		const prob = typeof e.prob === "number" ? Number(e.prob.toFixed(4)) : null;
+		let flag = "";
+		if (e.pinned) flag = "p";
+		else if (e.aboveBar === false) flag = "!";
+		const src = e.source === "auto-classify" ? "a" : e.source === "agent-audit" ? "g" : "m";
+		out.push([partner, String(e.partnerName || "").slice(0, 60), prob, src, flag || undefined]);
+	}
+	return out.length ? out : undefined;
 }
 
 // Stage-1/--from jsonl output: write the _meta line then the row array in batches so we
@@ -966,6 +990,7 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 			"pairs[].hints": "why a suspicious pair was crushed: no-embedding (this candidate's sku has no vector; per-candidate, not global), sizePen/abvMult/ageRel/conceptMult/edMult are the multiplier(s) responsible",
 			"price": "anchor listing price (numeric); pairs[].price is the candidate's cheapest price",
 			"sku": "'id:'/upc:'/'u:' prefixed skus are synthetic/aggregate labels; a bare number and its 'id:<n>' form can be the SAME entity",
+			"vl": "THIS listing's EXISTING links, re-scored live — the PRECISION surface. [partnerSku, partnerName, prob, source, flag]; source m=manual/legacy, a=auto-classify, g=agent-audit; flag '!' = re-scores BELOW bar and is NOT pinned (a removal candidate — judge it), 'p' = deterministic floor-pin (SMWS cask code, NOT a probability: never unlink). A link with no flag scored above bar, which is evidence but NOT proof it is correct — a wrong link the model still likes looks exactly like this.",
 			"canon": "canonical group rep for this listing — two rows with the SAME canon are ALREADY one entity (transitively linked); proposing a link between them is redundant",
 			"decode": "use --from <rich> --pair \"<a>|<b>\" for one pair's full 41-col features, or --id <listingId> for a full rich row",
 		},
@@ -1983,9 +2008,14 @@ async function main() {
 				const twins = res.twins || [];
 				twinScanCount += twins.length;
 				l.wantLink = !l.wasAutoLinked && res.candidates.some((c) => c.aboveBar);
-				l.needUnlink = l.wasAutoLinked && (res.verified || []).some(
-					(v) =>
-						v.kind === "auto-link" && v.prob != null && v.prob < scorer.bar && !v.pinned, // pinned = deterministic floor-pin (SMWS cask): keep
+				// Any EXISTING link that no longer scores above bar, whatever wrote it. This was
+				// gated on `wasAutoLinked` + `kind === "auto-link"` until 2026-09-20, which made the
+				// funnel blind to the 95% of the link file that is manual/legacy (5,622 of 5,922
+				// entries carry no `source`) — `need-unlinks: 0` meant "no bad AUTO links", not "no
+				// bad links". Measured on one window the gate hid 180 of 182 below-bar links.
+				// pinned = deterministic floor-pin (SMWS cask code), never a probability: keep.
+				l.needUnlink = (res.verified || []).some(
+					(v) => v.prob != null && v.prob < scorer.bar && !v.pinned,
 				);
 				l.nearMiss = res.candidates.some((c) => c.suspicious) || twins.some((t) => t.suspicious);
 				if (l.wantLink) wantLinkCount++;
