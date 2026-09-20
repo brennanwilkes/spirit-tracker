@@ -230,7 +230,10 @@ Stage 1.5 (derive views/deep-dives from a rich file — NO re-scoring):
   --from <rich> [--only <funnel>] [--offset N] [--limit N] [--compact] [--format jsonl] [--out <f>]
   --ultra-compact                 like --compact but drops id/category/firstSeen/removed/auto/
                                   inIgnores/why (~2.5x smaller); implies --compact
-  --limit-pairs <n>               cap pairs per row, flagged+highest-prob first
+  --limit-pairs <n>               cap pairs per row, flagged+highest-prob first (default: no
+                                  cap). BIASES the page toward above-bar/suspicious pairs — never
+                                  infer population statistics from a capped page, and do not cap
+                                  a trust-nothing slice audit.
                                   (default 6 with --ultra-compact, uncapped otherwise)
   --min-prob <p> --min-det <d>    drop pairs below BOTH thresholds (verified links always kept);
                                   _meta.window.droppedPairs records how many. Use to skip
@@ -807,7 +810,12 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 	// price-ratio table rides in the rich _meta, so a view never re-reads index.json.
 	const viewCtx = {
 		ultra,
-		limitPairs: limitPairs != null ? limitPairs : ultra ? 6 : 0,
+		// No default cap. `--ultra-compact` used to imply 6, which silently truncated the
+		// candidate list flagged-first — the classical ranker deciding which pairs deserve
+		// judgement, in a review whose whole point is that the agent decides. Measured on the
+		// near-miss funnel (1,520 rows) the cap dropped 8 of 3,196 pairs and saved 1.7 KB of
+		// 1,042 KB (0.17%). It bought nothing and biased the sample. Still available explicitly.
+		limitPairs: limitPairs != null ? limitPairs : 0,
 		minProb,
 		minDet,
 		storePriceRatio: (meta && meta.eval && meta.eval.storePriceRatio) || null,

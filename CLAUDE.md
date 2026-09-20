@@ -552,6 +552,35 @@ large audit**, especially its "THE WINDOW TRAP" section: the generator defaults 
 seen since 2026-06-12, which is only 12.7% of the library, and that default has already produced
 one false "the audit found nothing" conclusion.
 
+### Three known limits of the audit, one of them an open question (2026-09-20)
+
+Audited against the owner's stated goal — *classical tools cut the search space, they do not make
+the decisions*. Three places where that is not strictly true; full detail in the runbook's
+"What even a complete slice CANNOT see".
+
+1. **Ignored pairs are hard-suppressed from the candidate pool** (`isIgnoredPair` → `recommendSimilar`,
+   plus the twin scan), so all ~13,540 `ignores[]` entries are invisible to an audit agent and a
+   WRONG ignore can never be overturned. Write-only, and ratcheting: the audit now produces ignores
+   (+934 on 2026-09-20) and bad ones do get proposed (164 of Run 2's 497 were caught by hand).
+   **OPEN — owner's call is to document and leave as-is.** The fix, if ever wanted, is an opt-in
+   `--include-ignored` pooling them as `t:"i"`. Consequence today: the ignore-emission rule must
+   stay tight, because an ignore is effectively permanent.
+2. **`need-unlinks` is a below-bar funnel and cannot satisfy criterion 2** — a wrong link the model
+   still likes (Aberfeldy 12 at 0.9904, Blanton's at 0.995) never enters it. Only a complete slice
+   (`--only all` + reading `vl[]` per row) audits link precision. FIXED in the runbook's wording.
+3. **Pool recall is conditional, an accepted cost/accuracy tradeoff.** 100% @K=100 is measured
+   against a gold set that IS the link file, so it means "finds what the old tools could find".
+   Measured saturated (8.5x pool → identical output; wider rerank cuts → 1 extra pair, a false
+   positive), so this is inherent, not tunable. The twin scan and `audit_search --census` are the
+   partial escapes. State it; do not engineer around it.
+
+A full-history generate is cheap enough to be the default for any large pass: `--since 1970-01-01`
+is **11m54s / 717 MB / 34,247 listings / 38,047 verified pairs**, and `--from` views off it are
+seconds. With the `needUnlink` gate fixed, that file gives criterion 2 its first library-wide
+number: **1,321 existing links (3.5% of verified pairs, across 1,226 listings) re-score below the
+0.95 bar and are not pins** — but 853 of them sit in the 0.80–0.95 band; the **153 under `prob`
+0.30** are where wrong links actually concentrate and are the batch worth running first.
+
 **The agent's operating manual is `docs/audit-runbook.md`** (pipeline, CLI surface, decision
 protocol, proposal schema, coverage contract). Read it before running an audit. The tool is
 **two-stage plus apply**: stage 1 generates a rich "all the data" file; stage 1.5 projects
@@ -853,9 +882,11 @@ and simply mislist).
   link between them is redundant). View `_meta` is ~6.6 KB (clusters are deliberately stripped; they
   were 99.5% of a ~973 KB meta line) and includes a `legend` decoding `t/flag/hints/price/canon`.
   `--ultra-compact` drops `id/category/firstSeen/removed/auto/inIgnores/why` for another ~37%;
-  `--limit-pairs N` caps pairs per row (default 6 under ultra) ordered flagged-first — which
-  BIASES the sample toward above-bar and suspicious pairs; never infer population statistics from
-  a capped page.
+  `--limit-pairs N` caps pairs per row, ordered flagged-first — which BIASES the sample toward
+  above-bar and suspicious pairs; never infer population statistics from a capped page, and never
+  cap a trust-nothing slice audit. **No default cap since 2026-09-20**; `--ultra-compact` used to
+  imply 6, which was the ranker silently choosing which pairs the agent got to judge. Measured
+  cost of removing it: 8 of 3,196 pairs and 0.17% of bytes on the near-miss funnel.
   `--compact` in the GENERATOR is refused (exit 2) — it is a view concern. Deep-dive a single
   decision with `--from <rich> --id "<dbFile>|<sku>"` / `--sku <normSku>` / `--cluster <canonicalSku>`
   (full rich rows / cluster members + `missingFromWindow`), or `--pair "<skuA>|<skuB>"` for ONE pair's
