@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-21T11:27:02.454Z",
+  "generatedAt": "2026-09-21T21:35:07.705Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6608,
-    "removedRows": 1217,
-    "canonSkus": 2551,
+    "liveRows": 6621,
+    "removedRows": 1207,
+    "canonSkus": 2550,
     "outputCount": 50
   },
   "rows": [
@@ -119,7 +119,7 @@
         "everythingwine": 30.49,
         "gull": 27.99,
         "highpointbws": 32.79,
-        "legacyliquor": 31.99,
+        "legacyliquor": 32.3,
         "liberty": 38.99,
         "liquorwarehouse": 30.99,
         "marquis": 31.99,
@@ -230,7 +230,7 @@
         "everythingwine": 50.99,
         "gull": 49.99,
         "highpointbws": 59.99,
-        "legacyliquor": 57.84,
+        "legacyliquor": 57.89,
         "liquorwarehouse": 56.99,
         "marquis": 56.99,
         "newdistrict": 58.79,
@@ -285,7 +285,7 @@
         "everythingwine": 55.99,
         "gull": 59.5,
         "highpointbws": 61.99,
-        "legacyliquor": 57.99,
+        "legacyliquor": 58.7,
         "liberty": 71.99,
         "liquorwarehouse": 57.49,
         "marquis": 57.99,
@@ -395,7 +395,7 @@
         "everythingwine": 33.49,
         "gull": 35.2,
         "highpointbws": 36.99,
-        "legacyliquor": 34.99,
+        "legacyliquor": 36.21,
         "liquorwarehouse": 34.99,
         "marquis": 34.99,
         "newdistrict": 35.79,
@@ -420,6 +420,60 @@
         "priceNum": 31.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4586158-johnnie-walker-red-label-750ml"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 12,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 28.59,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 31.7,
+        "highpointbws": 32.29,
+        "liberty": 37.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 32.29,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 31.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "Tanqueray London Dry Gin 750ML",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/tudor__gin__26c75caf.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
       }
     },
     {
@@ -902,59 +956,6 @@
         "priceNum": 30.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1610"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "marquis",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 28.59,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 31.7,
-        "highpointbws": 32.29,
-        "liberty": 37.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 32.29,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "Tanqueray London Dry Gin 750ML",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/tudor__gin__26c75caf.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/gin/tanqueray-ml-350?variant=2691"
       }
     },
     {
@@ -1644,59 +1645,6 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
-      }
-    },
-    {
-      "canonSku": "656546",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 89.99,
-        "everythingwine": 89.99,
-        "gull": 69.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 93.68,
-        "liquorwarehouse": 100.99,
-        "marquis": 91.99,
-        "strath": 105.66,
-        "tudor": 89.99,
-        "vessel": 84.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     },
     {
@@ -2634,6 +2582,58 @@
         "priceNum": 49.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/368597"
+      }
+    },
+    {
+      "canonSku": "656546",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "liberty",
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 89.99,
+        "everythingwine": 89.99,
+        "gull": 69.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 93.68,
+        "liquorwarehouse": 100.99,
+        "marquis": 91.99,
+        "strath": 105.66,
+        "tudor": 89.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     },
     {
