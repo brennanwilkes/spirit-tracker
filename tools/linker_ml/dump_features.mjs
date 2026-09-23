@@ -16,6 +16,9 @@
 import fs from "fs";
 import path from "path";
 import { buildEnv, featurizePair, OUT_DIR, readJson } from "./featurize.mjs";
+import { normalizeImplicitSkuKey } from "../../viz/app/sku_canonical.js";
+
+const normKey = (s) => normalizeImplicitSkuKey(String(s || "").trim());
 
 const env = buildEnv();
 
@@ -29,16 +32,19 @@ function find(x) {
 	for (const p of st) parent.set(p, x);
 	return x;
 }
+// Full link graph on NORMALIZED keys, regardless of catalog presence — same rule as
+// build_dataset.mjs. The old presence-gated raw-key union fragmented groups (bare `id:` forms,
+// delisted intermediates), which let one product straddle the train/val split.
 for (const l of env.allLinks) {
-	const f = String(l.fromSku || "").trim();
-	const t = String(l.toSku || "").trim();
-	if (f && t && f !== t && env.bySku.has(f) && env.bySku.has(t)) {
+	const f = normKey(l.fromSku);
+	const t = normKey(l.toSku);
+	if (f && t && f !== t) {
 		const ra = find(f);
 		const rb = find(t);
 		if (ra !== rb) parent.set(ra, rb);
 	}
 }
-const canonOf = (s) => find(String(s));
+const canonOf = (s) => find(normKey(s));
 
 // Optional embeddings (sku → vector) for cosine.
 let emb = null;

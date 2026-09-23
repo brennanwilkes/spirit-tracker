@@ -91,6 +91,22 @@ const isIgnoredPair = (a, b) => {
 };
 const sameGroup = (a, b) => canonicalSku(a) === canonicalSku(b);
 
+// A verified cross-store collision sku carries two different products, so a link to it merges the
+// OTHER product into a clean group (Roseisle 12 scores 0.98–0.998 against `id:1049495`, whose
+// Sierra Springs listing is a Laphroaig). Never auto-link one. Missing file: warn, don't throw —
+// this runs under `set +e` in run_daily.sh, same reasoning as build_dataset.mjs's loader.
+const COLLISION_PATH = path.join(WORKTREE, "data/sku_collisions.json");
+const collidedSkus = new Set();
+if (fs.existsSync(COLLISION_PATH)) {
+	for (const c of readJson(COLLISION_PATH).collisions || []) {
+		if (c && c.sku) collidedSkus.add(normalizeImplicitSkuKey(c.sku));
+	}
+} else {
+	console.warn(`WARN: ${COLLISION_PATH} not found — auto-linking without the collision guard.`);
+}
+const touchesCollision = (a, b) => collidedSkus.has(normalizeImplicitSkuKey(a)) || collidedSkus.has(normalizeImplicitSkuKey(b));
+let collisionSkipped = 0;
+
 const rules = { canonicalSku };
 const sameStoreFn = makeSameStoreCanonFn(rules, buildCanonStoreCache(allAgg, rules));
 
@@ -260,12 +276,16 @@ for (const anchor of anchors) {
 			{ vocab, allowSameStore: true, withScores: true, blend },
 		);
 		for (const r of recs) {
-			if (!r || !r.it || typeof r.score !== "number") continue;
+			if (!r || !r.it || r.fallback || typeof r.score !== "number") continue;
 			if (r.score < BAR) continue;
 			const f = String(anchor.sku);
 			const t = String(r.it.sku);
 			if (!f || !t || f === t) continue;
 			if (sameGroup(f, t) || isIgnoredPair(f, t)) continue;
+			if (touchesCollision(f, t)) {
+				collisionSkipped++;
+				continue;
+			}
 			const pk = pairKey(f, t);
 			if (existingPairs.has(pk) || emitted.has(pk)) continue;
 			emitted.add(pk);
@@ -288,7 +308,7 @@ for (const anchor of anchors) {
 }
 
 console.log(
-	`[auto-link] scanned ${anchors.length} anchors (${scoredCandidates} candidate comparisons) · found ${newLinks.length} new pending links (>= ${BAR.toFixed(3)})`,
+	`[auto-link] scanned ${anchors.length} anchors (${scoredCandidates} candidate comparisons) · found ${newLinks.length} new pending links (>= ${BAR.toFixed(3)}) · ${collisionSkipped} above-bar skipped touching ${collidedSkus.size} collided skus`,
 );
 
 /* ---------------- output ---------------- */

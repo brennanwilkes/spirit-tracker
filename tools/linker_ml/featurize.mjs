@@ -37,6 +37,7 @@ import {
 	smwsKeyFromName,
 } from "../../viz/app/linker_page/similarity.js";
 import { conceptConflictMultiplier } from "../../viz/app/linker_page/concepts.js";
+import { normalizeImplicitSkuKey } from "../../viz/app/sku_canonical.js";
 import { buildVocab, DISTINCTIVE_IDF } from "../../viz/app/linker_page/vocab.js";
 import { buildSizePenaltyForPair, parseSizesMlFromText } from "../../viz/app/linker_page/size.js";
 import { buildPricePenaltyForPair } from "../../viz/app/linker_page/price.js";
@@ -170,6 +171,20 @@ export function buildEnv() {
 	// Link adjacency (manual+auto) for canonical-GROUP BFS used by the group-wise
 	// features. Built once; featurizePair cuts the scored pair's direct edge so the
 	// feature is computed on honest PRE-merge groups (no label leakage for positives).
+	// Nodes are CATALOG keys: a link may name an `id:`-sourced listing bare (`1049495`) while bySku
+	// keys it `id:1049495`. Unresolved (delisted) endpoints keep their normalized form so chains
+	// through them still connect — same rule as the live map and build_dataset's union-find.
+	const catalogKeyByNorm = new Map();
+	for (const k of bySku.keys()) {
+		const n = normalizeImplicitSkuKey(k);
+		if (!catalogKeyByNorm.has(n)) catalogKeyByNorm.set(n, k);
+	}
+	const adjKey = (s) => {
+		const raw = String(s || "").trim();
+		if (!raw || bySku.has(raw)) return raw;
+		const n = normalizeImplicitSkuKey(raw);
+		return catalogKeyByNorm.get(n) ?? n;
+	};
 	const linkAdj = new Map();
 	const addAdj = (f, t) => {
 		let s = linkAdj.get(f);
@@ -177,8 +192,8 @@ export function buildEnv() {
 		s.add(t);
 	};
 	for (const l of allLinks) {
-		const f = String(l.fromSku || l.skuA || "").trim();
-		const t = String(l.toSku || l.skuB || "").trim();
+		const f = adjKey(l.fromSku || l.skuA);
+		const t = adjKey(l.toSku || l.skuB);
 		if (f && t && f !== t) {
 			addAdj(f, t);
 			addAdj(t, f);

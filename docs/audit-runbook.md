@@ -92,6 +92,13 @@ All commands run from the repo root unless noted.
   Vector count must equal `sku_texts.jsonl`'s line count. A ~300-SKU shortfall against the 14,088
   catalog aggregates is EXPECTED and correct — those are `sku_hidden.json` listings, which the
   linker ML excludes from everything by design.
+- **`viz/data/skus/**` is a Release asset too** (`skus-latest`, a tarball). Pulling `data` refreshes
+  NONE of these three — on 2026-09-23 the branch was current while index + per-SKU cache were 4 days
+  old, and the previous full-history generate had silently run on them. Refresh all three every time:
+  ```bash
+  curl -sfL https://github.com/brennanwilkes/spirit-tracker/releases/download/skus-latest/skus.tar.gz \
+    | tar xz -C .worktrees/data/viz/data
+  ```
 - `gbt_model.json` + `db_commits.json` ARE committed on the data branch — nothing to fetch.
   `db_commits.json` drives the **delisted-history cache** (`audit/.cache/history_surface.json`,
   keyed to its `generatedAt`). If the worktree is stale, delete the cache so it rebuilds:
@@ -106,7 +113,7 @@ All commands run from the repo root unless noted.
   constant to match). The surface cache is
   rebuilt only when `db_commits.json`'s `generatedAt` changes.
 
-## Tool inventory (as of 2026-09-18)
+## Tool inventory (as of 2026-09-23)
 
 | Tool | Purpose / CLI |
 |------|---------------|
@@ -115,6 +122,11 @@ All commands run from the repo root unless noted.
 | `tools/audit_search_core.mjs` | Shared core. Exports `loadEnv` (sets `DATA_WORKTREE` before importing `featurize.mjs`, which resolves it at module load), `buildSurface` (current + delisted via git-history walk, **cached at `DEFAULT_CACHE_FILE=audit/.cache/history_surface.json`**), `loadSkuLinkPolicy`, `buildBlockIndex` (dist/topTerm/smws/twin/fuzzy + alias table), `buildEmbeddingIndex`, `normNameForTwin`. Run as a CLI = self-check (env/surface/block stats + optional `--sku` pool dump) |
 | `tools/audit_search_eval.mjs` | **Phase 0 recall harness** over the gold set (all `data/sku_links.json` pairs). Channels `current` (old dist/SMWS), `topTerm`, `fuzzy`, `emb`, `union`; K-table 5/10/20/50/100 + `ms/anchor`. Env knobs: `ANCHOR_LIMIT` (250), `AUDIT_INCLUDE_DELISTED=1` (first run walks the git history ~3 min, then ~19 s warm from the cache). Re-run after any scorer/blocking change |
 | `tools/mine_sku_aliases.mjs` | **Phase 3 alias miner.** Mines token-variant pairs from CONFIRMED links, drops alignments that appear in ignore pairs, keeps only unambiguous ≥2-support tokens → writes `viz/app/linker_page/sku_aliases.js` (~38 rows / 76 keys). Blocking-only. Regenerate after the link set grows |
+| `tools/audit_link_band_slice.js` | **Pair-major precision slice** (2026-09-23). `--from <rich> --min <p> --max <p> --out <file>`: every existing non-pinned link whose live prob is in `[min,max)`, deduped to one row per undirected pair, with `rawLink` (the exact stored `fromSku`/`toSku` — use it in unlink ops) and each touched canonical group's members + listings once. ~3 s over the 719 MB rich file. The 0.30–0.95 band was 196 pairs / 246 KB where the row-major funnel counted ~1,160. **Shows only in-band edges — do not use it to decide group splits** (use the group slicer); `rawLink` is `[anchor, partner]`, not necessarily the stored direction/form (the applier normalizes, so unlinks still match) |
+| `tools/validate_proposal_skus.js` | Pre-apply sku guard; `--fix` repairs bare `id:` refs in place. Run on every proposal |
+| `tools/detect_sku_collisions.mjs` | Collision CANDIDATE census from `index.json` (≈80 candidates; ~10% are real). Candidates only — promotion into `data/sku_collisions.json` needs the "would policy separate these?" judgement, on the listings of EVERY store carrying the sku, not just the two it compares |
+| `tools/audit_link_group_slice.js` | **Group-major precision slice — use this for existing-link audits** (2026-09-23). `--from <rich> --min <p> --max <p> --batch-bytes <n> --out-prefix <path>`: every canonical group with ≥ 1 explicit edge whose prob is in the band, shipped WHOLE — members with current `index.json` listings, and EVERY edge from the current `sku_links.json` + `sku_links_auto.json` (with prob, `src`, `pin`, `noTrain`) — batched so no group straddles two files. Splitting a group needs every crossing edge, which a band slice hides |
+| `tools/merge_audit_proposals.js` | Merge concurrent proposals before applying: normalized-pair dedupe, exits 1 on a cross-proposal same-pair conflict, concatenates `review[]`/`dataQuality[]` |
 | `tools/apply_audit_proposal.js` | **Stage 3 applier** (write-only). `--proposal <file>` (dry-run default), `--apply` writes, `--json` machine report, `--verbose` (full diff lists), `--force` (link on an ignored pair), `--root`. Validates and echoes the proposal's `review[]` but never acts on it. Never commits |
 | `data/sku_link_policy.md` | **Phase 3b judgement rules**, human-owned, on the DATA branch. Read every run via `loadSkuLinkPolicy`; agent proposes amendments, never edits the file |
 
@@ -167,7 +179,9 @@ node scripts/audit_new_listings.js --from audit/rich.jsonl --pair "8289426|12385
 and `nextOffset` — advance with `--offset <nextOffset>` until `remaining` is 0 (the coverage
 contract, enforced by the data rather than arithmetic). `--pair` returns `{found:<n>, matches:[{anchorSku, …, prob, det, features}]}` and may return
 `found` > 1: the same pair can appear once per anchor row sharing a sku, so `matches[].anchorSku`
-can repeat. `features` is the decomposed 41-column object; its multipliers (`sizePen`, `abvMult`,
+can repeat. Either sku form works (`id:N` and bare `N` are matched normalized). `found: 0` now
+carries `note: "NOT SCORED …"` — the pair never entered any pool in that rich file, which is absence
+of data, not a zero score. `features` is the decomposed 41-column object; its multipliers (`sizePen`, `abvMult`,
 `conceptMult`, `edMult`) are MULTIPLIERS applied to the deterministic score — below 1 is a penalty,
 above 1 a boost.
 
@@ -210,8 +224,10 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
 ### SKU prefixes: copy them exactly, and validate before applying
 
 Normalized SKUs carry a type prefix — `u:` (synthetic, url-hashed), `upc:`, `id:` — or are bare
-numeric (CSPC). **The prefix is part of the key.** `id:8768911` and `8768911` are not the same
-thing: the first is the catalog key, the second matches nothing.
+numeric (CSPC). **Write ops in the catalog form** (`id:8768911`). The canonical loaders fold `id:N`
+and bare `N` together, so a bare ref is not a dead link in the catalog — but the ML tooling keyed on
+the prefixed form until 2026-09-23 and silently dropped a third of all ignores because of it, so
+keep the file consistent. `u:`/`upc:` prefixes are NOT folded: those are genuinely part of the key.
 
 **The rich file is inconsistent about this and will mislead you.** `pairs[].sku` and `vl[][0]` use
 the correct prefixed form, but the audit's cluster/member structures and the listing-unit `id`
@@ -224,7 +240,11 @@ Rules:
 - **Always run the guard before applying:**
   `node tools/validate_proposal_skus.js --proposal <file>` — it resolves every op's `a`/`b` against
   the real catalog and suggests the prefixed form when it finds one. Exit 1 on any unknown ref.
-  An op with a bad SKU otherwise validates, applies, and silently creates a dead link.
+  **`--fix`** rewrites every ref that has an unambiguous suggestion in place. A ref matching nothing
+  at all (a typo, a `u:` hash from the wrong listing) is a genuine dead link and is never auto-fixed.
+- **Never link to or from a sku in `data/sku_collisions.json`** (21 verified, 2026-09-23). A link to
+  one merges its OTHER product into a clean group. `auto_link_classify.mjs` now enforces this for CI;
+  the applier does not, so it is the agent's job and the reviewer's check.
 
 ### Reading the fields (don't guess)
 
@@ -520,6 +540,28 @@ price of not reading all 34,247 rows, and should be stated rather than engineere
 Goal: **decide on every listing in the chosen universe**, in as few tokens as possible, and emit a
 proposal. Easy rows must still be explicitly decided (see coverage contract).
 
+### Do this first: adjudicate PAIRS, not rows (measured 2.4–4.3x cheaper)
+
+The same pair appears on every store row that carries it, so reading row-major pays for the same
+judgement over and over. **Dedupe the undirected pairs across the whole slice, decide each once,
+then fan the verdict back out over the rows** for the coverage contract.
+
+Measured on real slices: near-miss B 2,691 pair slots → 624 unique (4.3x); below-bar `<0.30` 367 →
+95 (3.9x); want-links 549 → 188 (2.9x); near-miss A 2,763 → 1,144 (2.4x).
+
+This is proven, not projected — on 2026-09-22 two agents ran equal-sized halves of the same funnel:
+
+| | rows | approach | tokens | tool calls | wall |
+|---|---|---|---|---|---|
+| batch A | 768 | row-major | **564K** | 47 | 23 min |
+| batch B | 767 | pair-major (403 unique) | **200K** | 22 | 7 min |
+
+Same coverage (both 100%), comparable quality, **2.8x the cost**. Report BOTH numbers in your
+summary: unique pairs adjudicated, and rows covered.
+
+**Exception: the orphan funnel does not collapse** (3,054 rows → 2,563 unique pairs, 1.1x). Orphans
+are near 1-to-1 by construction, so budget the full size there.
+
 Recommended loop:
 
 1. Choose the universe: for routine audits start with `--only near-misses` (plus
@@ -611,6 +653,12 @@ Recommended loop:
 
 ### Measured token cost
 
+**Current numbers (2026-09-23, current model): see `docs/audit-full-library-plan.md` §"Measured
+agent cost".** Rule of thumb: end-of-run context ≈ 90–100K fixed + ~0.7 tokens/byte of input for
+pair-major slices, ~1.0–1.5 tokens/byte for census-heavy row-major orphan slices. Size orphan batches
+at ~200 KB and pair-major slices at ~250 KB to stay under 50%. The measurements below are from
+2026-09-19 and describe the older row-major views.
+
 **Re-measured 2026-09-19** over the full default window (4,344 listings), after the evidence
 fields and `--ultra-compact` landed. Reproduce with:
 
@@ -690,6 +738,33 @@ one pass in a 1M window, but **split it anyway**: two batches of ~2,200 by date 
     47.8% is the funnel-wide figure.
 
 ## Stage 3 — proposal file + apply (built)
+
+**Applier behaviour as of 2026-09-23:** every pair comparison (ignore lookup, unlink match,
+same-component) is on normalized keys, so `id:N` ≡ bare `N`. **`--apply` refuses** (exit 1) when
+the new link set would put an ignored pair in one canonical group *transitively* — a link A–B can
+merge an ignored C–D it never names. Resolve it by removing the wrong ignore (`remove-ignore`) or
+dropping the link; `--force` overrides.
+
+Also as of 2026-09-23 (bug-hunt fixes):
+- The op-contradiction check is keyed on the normalized pair too. Before, `link(A,id:B)` +
+  `unlink(B,A)` passed, and whichever op came last won.
+- The same-component checks (redundant link, ineffective unlink, grouped ignore) union
+  **`sku_links_auto.json`** edges. An unlink bridged only by an auto edge now reports as ineffective,
+  instead of "ok" plus a contradictory ignore.
+- A `link` touching a sku in `data/sku_collisions.json` is a **validation error** (`--force` does not
+  override it).
+- An unparseable `sku_links.json` throws. Before, `readLinks` returned an empty set and `--apply`
+  wrote back only the proposal.
+- **`unlink-auto`** removes a wrong edge from `sku_links_auto.json`. These edges are in-place sku
+  upgrades recorded by the scraper; Crown Royal 1.75L↔1.14L was one. Like `unlink`, it writes an
+  ignore by default, and `src/tracker/sku_auto_links.js` now skips ignored pairs, so the scraper cannot
+  re-add the edge. A plain `unlink` never touches the auto file.
+
+**When several agents ran concurrently, merge their proposals first** with
+`node tools/merge_audit_proposals.js --out <merged.json> <p1> <p2> …`. It dedupes ops by the
+normalized pair and exits 1 if two proposals give one pair different ops. Each agent's dry-run saw
+only its own ops, so a cross-batch contradiction shows up only after the merge (16 did on
+2026-09-23).
 
 Proposal (written by the agent to a NEW file, e.g. `audit/proposal-<ts>.json`):
 

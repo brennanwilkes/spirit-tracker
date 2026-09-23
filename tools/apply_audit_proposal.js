@@ -16,7 +16,8 @@
 //   --proposal <file>   the agent's proposal (required)
 //   --root <path>       data worktree (default .worktrees/data)
 //   --apply             write data/sku_links.json (default: dry-run)
-//   --force             allow a link op on a currently-ignored pair (drops the ignore)
+//   --force             allow a link op on a currently-ignored pair (drops the ignore), and allow
+//                       --apply when the new links would transitively group an ignored pair
 //   --json              emit a machine-readable report instead of the human table
 //
 // Proposal shape (see docs/audit-runbook.md):
@@ -26,15 +27,24 @@
 
 const fs = require("fs");
 const path = require("path");
-const { readLinks, writeLinks, dedupeLinks, pairKey, matchLink, linksFile } = require("../src/utils/sku_links_file");
+const { readLinks, writeLinks, dedupeLinks, pairKey, linksFile } = require("../src/utils/sku_links_file");
+const { normalizeImplicitSkuKey } = require("../src/utils/sku_canonical");
+
+// The link file names `id:`-sourced listings in both forms (`id:1049495` and bare `1049495`), and
+// every canonical loader folds them together. Compare the same way here, or an ignore/link stored
+// in the other form is invisible: on 2026-09-23 this let 13 links through that contradicted
+// bare-form curated ignores, all reported "ok" by the dry-run.
+const nk = (s) => normalizeImplicitSkuKey(String(s || "").trim());
+const npairKey = (a, b) => pairKey(nk(a), nk(b));
+const matchLink = (link, a, b) => npairKey(link.fromSku, link.toSku) === npairKey(a, b);
 
 const REPO_ROOT = path.resolve(__dirname, "..");
 
-const OPS = new Set(["link", "unlink", "ignore", "remove-ignore"]);
+const OPS = new Set(["link", "unlink", "unlink-auto", "ignore", "remove-ignore"]);
 // pair "polarity": positive ops add a link; negative ops remove/deny one. A pair with both is a
 // contradiction and refuses to apply (fail closed).
 const POSITIVE = new Set(["link"]);
-const NEGATIVE = new Set(["unlink", "ignore", "remove-ignore"]);
+const NEGATIVE = new Set(["unlink", "unlink-auto", "ignore", "remove-ignore"]);
 
 function parseArgs(argv) {
 	const args = new Map();
@@ -58,9 +68,14 @@ const USAGE = `apply_audit_proposal — apply an audit proposal to data/sku_link
   --proposal <file>  proposal JSON (required)
   --root <path>      data worktree (default .worktrees/data)
   --apply            write the file (default: dry-run, prints the diff)
-  --force            allow a link op on an ignored pair (drops the ignore)
+  --force            allow a link op on an ignored pair (drops the ignore); never overrides
+                     the refusal of a link touching a sku in data/sku_collisions.json
   --json             machine-readable report
   --verbose          print every diff line instead of the first 40
+
+Ops: link | unlink | unlink-auto | ignore | remove-ignore. unlink-auto removes a wrong edge from
+sku_links_auto.json (an in-place sku upgrade that joined two different products) and, like unlink,
+writes an ignore unless "ignore": false — the scraper's merge skips ignored pairs, so it cannot return.
 
 A proposal may also carry "review" and "dataQuality" arrays — decisions the agent deliberately did NOT act on
 and wants a human to make. It is never applied; it is echoed back so it cannot be lost.
@@ -80,7 +95,7 @@ function normalizeOp(raw, index) {
 	const out = { index, op, a, b, why: raw.why || raw.reason || "" };
 	if (op === "link") {
 		if (typeof raw.confidence === "number" && Number.isFinite(raw.confidence)) out.confidence = raw.confidence;
-	} else if (op === "unlink") {
+	} else if (op === "unlink" || op === "unlink-auto") {
 		out.ignore = raw.ignore === undefined ? true : !!raw.ignore;
 	} else if (op === "ignore") {
 		if (raw.noTrain) out.noTrain = true;
@@ -110,20 +125,35 @@ function sameComponent(links, a, b) {
 		return r;
 	};
 	for (const l of links) {
-		const ra = find(l.fromSku), rb = find(l.toSku);
+		const ra = find(nk(l.fromSku)), rb = find(nk(l.toSku));
 		if (ra !== rb) parent.set(ra, rb);
 	}
-	return find(a) === find(b);
+	return find(nk(a)) === find(nk(b));
 }
 
 function hasIgnore(ignores, a, b) {
-	const k = pairKey(a, b);
-	return ignores.some((ig) => pairKey(ig.skuA, ig.skuB) === k);
+	const k = npairKey(a, b);
+	return ignores.some((ig) => npairKey(ig.skuA, ig.skuB) === k);
 }
 
 function removeIgnore(ignores, a, b) {
-	const k = pairKey(a, b);
-	return ignores.filter((ig) => pairKey(ig.skuA, ig.skuB) !== k);
+	const k = npairKey(a, b);
+	return ignores.filter((ig) => npairKey(ig.skuA, ig.skuB) !== k);
+}
+
+// Ignored pairs that `links` puts in one component. A link A–B can merge an ignored pair C–D it
+// never names (A~C, B~D already), so the direct hasIgnore check alone cannot see it.
+function groupedIgnores(links, ignores) {
+	const parent = new Map();
+	const find = (x) => {
+		while (parent.has(x) && parent.get(x) !== x) x = parent.get(x);
+		return x;
+	};
+	for (const l of links) {
+		const ra = find(nk(l.fromSku)), rb = find(nk(l.toSku));
+		if (ra !== rb) parent.set(ra, rb);
+	}
+	return new Set(ignores.filter((ig) => find(nk(ig.skuA)) === find(nk(ig.skuB))).map((ig) => npairKey(ig.skuA, ig.skuB)));
 }
 
 function main() {
@@ -194,7 +224,7 @@ function main() {
 	const pairOps = new Map();
 	for (const o of ops) {
 		if (validateOp(o) || !o.a || !o.b) continue;
-		const k = pairKey(o.a, o.b);
+		const k = npairKey(o.a, o.b);
 		if (!pairOps.has(k)) pairOps.set(k, []);
 		pairOps.get(k).push(o);
 	}
@@ -210,6 +240,15 @@ function main() {
 		}
 	}
 
+	// A collided sku carries two different products, so linking it spreads the other product into a
+	// clean group. Same guard as auto_link_classify.mjs; the file is curated, so a missing one throws.
+	const collided = new Set(JSON.parse(fs.readFileSync(path.join(root, "data", "sku_collisions.json"), "utf8")).collisions.map((c) => nk(c.sku)));
+	for (const o of ops) {
+		if (o.op === "link" && (collided.has(nk(o.a)) || collided.has(nk(o.b)))) {
+			errors.push(`op[${o.index}]: link ${o.a}↔${o.b} touches a verified collision sku (data/sku_collisions.json)`);
+		}
+	}
+
 	if (reviewErrors.length) errors.push(...reviewErrors);
 	if (errors.length) {
 		console.error(`apply_audit_proposal: ${errors.length} validation error(s) — nothing written:`);
@@ -219,6 +258,14 @@ function main() {
 
 	// ---- apply to a working copy ------------------------------------------
 	const cur = readLinks(root);
+	// Every canonical loader also unions sku_links_auto.json, so the component checks must see its
+	// edges or an unlink bridged by an auto edge reports as a split. Only `unlink-auto` edits it.
+	const autoFile = path.join(root, "data", "sku_links_auto.json");
+	const autoObj = fs.existsSync(autoFile) ? JSON.parse(fs.readFileSync(autoFile, "utf8")) : { links: [] };
+	if (!Array.isArray(autoObj.links)) throw new Error(`${autoFile}: expected {links:[]}`);
+	const sourceAuto = autoObj.links;
+	let autoLinks = sourceAuto.slice();
+	const withAuto = (ls) => ls.concat(autoLinks);
 	const beforeLinks = cur.links.length;
 	const beforeIgnores = cur.ignores.length;
 	// The committed file is appended by auto_link_classify WITHOUT union-find dedup, so it can hold
@@ -248,9 +295,9 @@ function main() {
 				ignores = removeIgnore(ignores, o.a, o.b);
 				r.note = "dropped existing ignore";
 			}
-			if (sameComponent(links, o.a, o.b)) {
+			if (sameComponent(withAuto(links), o.a, o.b)) {
 				r.status = "skipped";
-				const inSource = sameComponent(sourceLinks, o.a, o.b);
+				const inSource = sameComponent(sourceLinks.concat(sourceAuto), o.a, o.b);
 				const reason = inSource ? "already linked in source" : "redundant — an earlier op in this proposal already links them";
 				r.note = r.note ? `${r.note}; ${reason}` : reason;
 				results.push(r);
@@ -259,15 +306,17 @@ function main() {
 			const entry = { fromSku: o.a, toSku: o.b, status: "pending", source: "agent-audit", ts };
 			if (o.confidence !== undefined) entry.confidence = o.confidence;
 			links.push(entry);
-		} else if (o.op === "unlink") {
-			const matched = links.filter((l) => matchLink(l, o.a, o.b));
+		} else if (o.op === "unlink" || o.op === "unlink-auto") {
+			const pool = o.op === "unlink" ? links : autoLinks;
+			const matched = pool.filter((l) => matchLink(l, o.a, o.b));
 			if (!matched.length) {
 				r.status = "skipped";
-				r.note = "no link entry for this pair";
+				r.note = `no ${o.op === "unlink" ? "sku_links.json" : "sku_links_auto.json"} entry for this pair`;
 				results.push(r);
 				continue;
 			}
-			links = links.filter((l) => !matchLink(l, o.a, o.b));
+			if (o.op === "unlink") links = links.filter((l) => !matchLink(l, o.a, o.b));
+			else autoLinks = autoLinks.filter((l) => !matchLink(l, o.a, o.b));
 			r.note = `removed ${matched.length} link entr${matched.length === 1 ? "y" : "ies"}`;
 			if (o.ignore) {
 				if (hasIgnore(ignores, o.a, o.b)) {
@@ -300,7 +349,7 @@ function main() {
 
 	const ineffectiveKeys = new Set();
 	for (const r of results) {
-		if (r.op === "unlink" && r.status === "ok" && sameComponent(links, r.a, r.b)) {
+		if ((r.op === "unlink" || r.op === "unlink-auto") && r.status === "ok" && sameComponent(withAuto(links), r.a, r.b)) {
 			ineffectiveKeys.add(pairKey(r.a, r.b));
 		}
 	}
@@ -324,11 +373,16 @@ function main() {
 	// "ok". Checked against the FINAL link set, after every op, not mid-loop.
 	const ineffectiveUnlinks = [];
 	for (const r of results) {
-		if (r.op !== "unlink" || r.status !== "ok") continue;
+		if ((r.op !== "unlink" && r.op !== "unlink-auto") || r.status !== "ok") continue;
 		if (!ineffectiveKeys.has(pairKey(r.a, r.b))) continue;
 		r.note = `${r.note ? `${r.note}; ` : ""}STILL LINKED transitively — canonical group NOT split; ignore withheld`;
 		ineffectiveUnlinks.push({ a: r.a, b: r.b });
 	}
+
+	const groupedBefore = groupedIgnores(withAuto(cur.links), cur.ignores);
+	const newlyGroupedIgnores = final.ignores
+		.filter((ig) => !groupedBefore.has(npairKey(ig.skuA, ig.skuB)) && groupedIgnores(withAuto(final.links), [ig]).size)
+		.map((ig) => ({ skuA: ig.skuA, skuB: ig.skuB }));
 
 	// ---- structured diff (pair-keyed) -------------------------------------
 	const linkKeysBefore = new Set(cur.links.map((l) => pairKey(l.fromSku, l.toSku)));
@@ -355,7 +409,9 @@ function main() {
 			skippedReasons: results.filter((r) => r.status === "skipped").map((r) => `op[${r.index}] ${r.op} ${r.a}↔${r.b}: ${r.note}`),
 		},
 		redundantLinksInSource,
+		autoLinksRemoved: sourceAuto.length - autoLinks.length,
 		ineffectiveUnlinks,
+		newlyGroupedIgnores,
 		review,
 		dataQuality,
 		counts: {
@@ -375,8 +431,15 @@ function main() {
 		},
 	};
 
+	if (flags.has("--apply") && newlyGroupedIgnores.length && !flags.has("--force")) {
+		console.error(`apply_audit_proposal: REFUSING --apply — the new link set would put ${newlyGroupedIgnores.length} ignored pair(s) in one canonical group (see dry-run). Resolve them (remove the wrong ignore or drop the link), or pass --force.`);
+		process.exit(1);
+	}
 	if (flags.has("--apply")) {
 		writeLinks(root, { links, ignores });
+		// Same 2-space shape src/tracker/sku_auto_links.js writes; its merge skips ignored pairs, so
+		// the ignore an unlink-auto writes keeps the scraper from re-adding the edge.
+		if (autoLinks.length !== sourceAuto.length) fs.writeFileSync(autoFile, JSON.stringify({ ...autoObj, links: autoLinks }, null, 2) + "\n", "utf8");
 		report.wrote = true;
 	} else {
 		report.wrote = false;
@@ -391,6 +454,7 @@ function main() {
 		console.log(`  file:  ${report.file}`);
 		console.log(`  ops:   ${c.ops} — applied ${c.applied}, skipped ${c.skipped}`);
 		console.log(`  links:   ${c.linksBefore} → ${c.linksAfter}  (+${report.diff.addedLinks.length} / -${report.diff.removedLinks.length})`);
+		if (report.autoLinksRemoved) console.log(`  sku_links_auto.json: -${report.autoLinksRemoved} edge(s) via unlink-auto`);
 		if (report.redundantLinksInSource) {
 			console.log(`           note: ${report.redundantLinksInSource} of the removed links were pre-existing duplicates (auto_link_classify appends undeduped); only explicit unlinks are real.`);
 		}
@@ -400,6 +464,10 @@ function main() {
 			for (const u of report.ineffectiveUnlinks.slice(0, flags.has("--verbose") ? Infinity : 20)) {
 				console.log(`        ${u.a} ↔ ${u.b}`);
 			}
+		}
+		if (report.newlyGroupedIgnores.length) {
+			console.log(`  WARN: ${report.newlyGroupedIgnores.length} ignored pair(s) would end up in ONE canonical group via the new links (transitively — the direct pair check cannot see these). --apply refuses without --force:`);
+			for (const g of report.newlyGroupedIgnores.slice(0, flags.has("--verbose") ? Infinity : 20)) console.log(`        ${g.skuA} ↔ ${g.skuB}`);
 		}
 		const show = (label, arr, fmt) => {
 			if (!arr.length) return;

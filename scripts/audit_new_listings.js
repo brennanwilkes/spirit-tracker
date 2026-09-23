@@ -836,14 +836,18 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 				outPayload = { error: `--pair expects "<a>|<b>", got "${pair}"` };
 			} else {
 				const [A, B] = parts;
+				// Listing `sku` is the normalized form (`8768911`) while partner skus keep the catalog
+				// form (`id:8768911`), so compare normalized or half of all id-sourced pairs miss.
+				const nA = normalizeImplicitSkuKey(A);
+				const nB = normalizeImplicitSkuKey(B);
 				const matches = [];
 				for (const l of listings) {
 					const s = l.scores;
 					if (!s) continue;
 					for (const [bucket, kind] of [["candidates", "candidate"], ["verified", "verified"], ["twins", "twin"]]) {
 						for (const c of s[bucket] || []) {
-							const set = new Set([l.sku, c.sku]);
-							if (!(set.has(A) && set.has(B))) continue;
+							const set = new Set([normalizeImplicitSkuKey(l.sku), normalizeImplicitSkuKey(c.sku)]);
+							if (!(set.has(nA) && set.has(nB))) continue;
 							matches.push({
 								listingId: l.id,
 								anchorSku: l.sku,
@@ -866,6 +870,9 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 				outPayload = {
 					pair: { a: A, b: B },
 					found: matches.length,
+					...(matches.length
+						? {}
+						: { note: "NOT SCORED — this pair never entered any listing's candidate pool, existing links or twin scan in this rich file. found:0 is absence of data, not a zero score." }),
 					featureColumns: matches[0] && matches[0].features ? Object.keys(matches[0].features) : [],
 					matches,
 				};
@@ -1419,7 +1426,7 @@ async function buildScorer(root, opts = {}) {
 				{ vocab, allowSameStore: true, withScores: true, blend, maxCheapKeep, maxFine },
 			);
 			for (const r of recs) {
-				if (!r || !r.it) continue;
+				if (!r || !r.it || r.fallback) continue;
 				const det = suggestions.scorePairWithVocab(ctx, r.it);
 				const feats = blends.extractBlendFeatures(ctx, r.it, {
 					vocab,

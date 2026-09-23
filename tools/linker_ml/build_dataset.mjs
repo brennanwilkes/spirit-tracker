@@ -28,6 +28,22 @@ import { filterSimTokens } from "../../viz/app/linker_page/similarity.js";
 const env = buildEnv();
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
+// Label files name `id:`-sourced listings in either form (`id:1049495` or bare `1049495`) — every
+// canonical loader treats them as one sku via normalizeImplicitSkuKey — but env.bySku is keyed by
+// the prefixed catalog form. A raw bySku.has() silently dropped ~1/3 of curated ignores (4,828 of
+// 14,442 on 2026-09-22) from training. Resolve to the catalog key before any presence check.
+const catalogKeyByNorm = new Map();
+for (const k of env.bySku.keys()) {
+	const n = normKey(k);
+	if (!catalogKeyByNorm.has(n)) catalogKeyByNorm.set(n, k);
+}
+const catalogKey = (s) => {
+	const raw = String(s || "").trim();
+	if (!raw) return null;
+	if (env.bySku.has(raw)) return raw;
+	return catalogKeyByNorm.get(normKey(raw)) ?? null;
+};
+
 /* ---------------- union-find over labeled links → canonical groups ---------------- */
 
 const parent = new Map();
@@ -51,18 +67,18 @@ function union(a, b) {
 const noTrainPairKeys = new Map(); // canonicalKey → {label, a, b}
 for (const l of env.manualLinks) {
 	if (!l.noTrain) continue;
-	const f = String(l.fromSku || "").trim();
-	const t = String(l.toSku || "").trim();
-	if (f && t && f !== t && env.bySku.has(f) && env.bySku.has(t)) {
+	const f = catalogKey(l.fromSku);
+	const t = catalogKey(l.toSku);
+	if (f !== null && t !== null && f !== t) {
 		const k = [f, t].sort().join("|");
 		noTrainPairKeys.set(k, { label: 1, a: f, b: t });
 	}
 }
 for (const ig of env.ignoreEntries) {
 	if (!ig.noTrain) continue;
-	const a = String(ig.skuA || ig.fromSku || "").trim();
-	const b = String(ig.skuB || ig.toSku || "").trim();
-	if (a && b && a !== b && env.bySku.has(a) && env.bySku.has(b)) {
+	const a = catalogKey(ig.skuA || ig.fromSku);
+	const b = catalogKey(ig.skuB || ig.toSku);
+	if (a !== null && b !== null && a !== b) {
 		const k = [a, b].sort().join("|");
 		noTrainPairKeys.set(k, { label: 0, a, b });
 	}
@@ -142,7 +158,9 @@ const collisionSkus = new Set();
 // featurize.mjs's hidden-set loader.
 if (fs.existsSync(COLLISION_PATH)) {
 	for (const c of readJson(COLLISION_PATH).collisions || []) {
-		if (c && c.sku) collisionSkus.add(String(c.sku));
+		// add() compares catalog keys, so a bare-form entry would otherwise filter nothing.
+		const k = catalogKey(c.sku);
+		if (k !== null) collisionSkus.add(k);
 	}
 } else {
 	console.warn(`WARN: ${COLLISION_PATH} not found — training on ALL pairs, including any that touch a cross-store sku collision. Commit data/sku_collisions.json to the data branch.`);
@@ -184,9 +202,9 @@ const posCount = pairs.filter((p) => p.label === 1).length;
 // Negatives — curated ignores (excluding noTrain entries; those are added below).
 for (const ig of env.ignoreEntries) {
 	if (ig.noTrain) continue;
-	const a = String(ig.skuA || ig.fromSku || "").trim();
-	const b = String(ig.skuB || ig.toSku || "").trim();
-	if (!a || !b || !env.bySku.has(a) || !env.bySku.has(b)) continue;
+	const a = catalogKey(ig.skuA || ig.fromSku);
+	const b = catalogKey(ig.skuB || ig.toSku);
+	if (a === null || b === null || a === b) continue;
 	if (canonOf(a) === canonOf(b)) continue;
 	add(a, b, 0, "ignore");
 }
@@ -263,7 +281,9 @@ console.log("sku_texts.jsonl:", nText, "SKUs");
 
 /* ---------------- write groups.json ---------------- */
 
-const groups = [...canonToSkus.values()].filter((g) => g.length >= 2);
+// train_embed.py builds its contrastive positives from these groups, so the collision filter in
+// add() must apply here too or a collided sku is still trained as its group's positive.
+const groups = [...canonToSkus.values()].map((g) => g.filter((s) => !collisionSkus.has(s))).filter((g) => g.length >= 2);
 fs.writeFileSync(path.join(OUT_DIR, "groups.json"), JSON.stringify(groups));
 console.log("groups.json:", groups.length, "groups (≥2 members)");
 

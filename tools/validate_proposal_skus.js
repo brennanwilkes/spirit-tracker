@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // Pre-apply guard: every sku in a proposal must be one the catalog actually keys on.
 // Motivation: the rich file's LISTING `sku` strips the `id:` prefix for id-sourced records
-// (row shows `8768911`) while `data/sku_links.json`, the canonical map and the candidate
-// `pairs[].sku` all use the normalized key (`id:8768911`). An op written from the stripped
-// form validates, applies, and silently creates a link to a SKU that does not exist.
+// (row shows `8768911`) while the catalog and the candidate `pairs[].sku` use `id:8768911`.
+// The canonical loaders fold both forms together, but the ML tooling keyed on the catalog form
+// until 2026-09-23 and silently dropped bare-form labels, so we keep the file in catalog form.
+// A ref matching nothing at all is a genuine typo / dead link.
+// --fix rewrites every ref that has an unambiguous `id:` suggestion in place.
 const fs = require("fs");
 const path = require("path");
 
@@ -11,9 +13,9 @@ const REPO = path.resolve(__dirname, "..");
 const root = process.argv.includes("--root")
 	? process.argv[process.argv.indexOf("--root") + 1]
 	: path.join(REPO, ".worktrees/data");
-const proposalFile = process.argv[process.argv.indexOf("--proposal") + 1];
+const proposalFile = process.argv.includes("--proposal") ? process.argv[process.argv.indexOf("--proposal") + 1] : null;
 if (!proposalFile) {
-	console.error("usage: validate_proposal_skus.js --proposal <file> [--root <worktree>]");
+	console.error("usage: validate_proposal_skus.js --proposal <file> [--root <worktree>] [--fix]");
 	process.exit(2);
 }
 
@@ -50,5 +52,12 @@ console.log(`known catalog skus: ${known.size}`);
 console.log(`ops: ${(proposal.ops || []).length}   unknown sku refs: ${bad.length}`);
 for (const b of bad) {
 	console.log(`  op[${b.index}] ${b.op} ${b.side}="${b.value}"${b.suggestion ? `  → did you mean "${b.suggestion}"?` : "  (no match in catalog)"}`);
+}
+if (process.argv.includes("--fix") && bad.length) {
+	const fixable = bad.filter((b) => b.suggestion !== null);
+	for (const b of fixable) proposal.ops[b.index][b.side] = b.suggestion;
+	if (fixable.length) fs.writeFileSync(proposalFile, JSON.stringify(proposal, null, 2) + "\n");
+	console.log(`--fix: rewrote ${fixable.length} ref(s) in ${proposalFile}; ${bad.length - fixable.length} unfixable`);
+	process.exit(bad.length - fixable.length ? 1 : 0);
 }
 process.exit(bad.length ? 1 : 0);
