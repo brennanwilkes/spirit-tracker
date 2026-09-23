@@ -1,0 +1,16 @@
+{
+  "note": "Cross-store SKU collisions: one normalized SKU carrying two genuinely DIFFERENT products because store numbering namespaces overlap. The listings aggregate into one canonical item for free, with NO entry in sku_links.json, so no unlink can separate them. Listed here ONLY when the two products belong in different canonical groups (a collision that policy would link anyway is benign and is not recorded - e.g. 876891, a Springbank bundle colliding with Springbank 10). Consumed by tools/linker_ml/build_dataset.mjs to keep corrupted pairs out of training/eval. Candidates can be regenerated with tools/detect_sku_collisions.mjs, but entries here are human/agent VERIFIED.",
+  "collisions": [
+    { "sku": "148534", "products": ["BCL: Johnnie Walker Game of Thrones A Song of Fire", "BSW/Malts & Grains: G&M Highland Park 2005 21yo"] },
+    { "sku": "111168", "products": ["7 stores: Bruichladdich Octomore 15.3", "Highlander: L'Eroe Negroni 700ml"] },
+    { "sku": "134037", "products": ["3 stores: Seventh Heaven Dry Gin 750ml", "Whisky Drop: Watt Whisky Sherried Speyside 14"] },
+    { "sku": "136399", "products": ["3 stores: Twin Fin Coconut Lychee Rum", "Legacy/Strath: Bruichladdich Tallant 14yo cask 1125"] },
+    { "sku": "105751", "products": ["BCL: Alberta Premium 20 Year Old", "CLB Spirits: Yukon Single Malt Two Brewers Release 43"] },
+    { "sku": "121105", "products": ["KWM: True Wild Ropers Hold 8yr Straight Rye", "Sherbrooke: True Wild Ropers Hold 20yr Canadian Whisky"] },
+    { "sku": "108763", "products": ["BSW: 2007 Aultmore 57.1% Signatory", "Craft Cellars: Signatory Aultmore 16yo 2009 100 Proof"] },
+    { "sku": "id:1049487", "products": ["Sierra Springs: Bruichladdich Octomore 11.1", "Wine and Beyond: Clynelish 10yr 2023 Special Release"] },
+    { "sku": "id:1049495", "products": ["Sierra Springs: Laphroaig Cairdeas port and wine cask", "Wine and Beyond: Roseisle 12yr Special Release"] },
+    { "sku": "id:1049488", "products": ["Sierra Springs: Jack Daniel Master Distiller Jess Gamble No 4", "Wine and Beyond: Glenkinchie 27yr 2023 Special Release"] },
+    { "sku": "id:1049489", "products": ["Sierra Springs: Jack Daniel Master Distiller Bobo No 5", "Wine and Beyond: Johnnie Walker Blue Label Elusive Umami"] }
+  ]
+}
