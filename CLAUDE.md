@@ -218,6 +218,11 @@ consumers** — that would defeat the design.
   `viz/CLAUDE.md` §"Auto-link review".
 - `run_daily.sh` stages `data/sku_links.json` so the classifier's appends commit (and reach the
   email pack + Pages, which already stage it into `viz/data/`).
+- **`recommendSimilar` can return popularity filler, not matches.** When nothing survives its fine
+  stage it falls back to `stores×2 + hasPrice×1.2 + hasName` (≈4.2) — a number that clears any
+  probability bar. Those rows carry `fallback: true` (2026-09-23); every caller that thresholds
+  `score` (CI, the audit) must skip them. Before the marker, a fully hard-vetoed pool would have been
+  auto-linked. It never happened (all 22 links with confidence > 1 are SMWS pins at 1e9).
 
 ## Hidden Listings
 
@@ -545,12 +550,11 @@ agent only ever looks at decision-relevant rows. Read-only over the worktree; ou
 `buildEnv` + `recommendSimilar` + GBT blend path as auto-classify, so every number equals
 production.
 
-**Full-library plan + session hand-off: `docs/audit-full-library-plan.md`** (2026-09-20) — the
-library's size and shape (34,247 listing units / 8,263 canonical groups), what has been audited so
-far, the measured per-run agent budget, and the batching plan. **Read it before starting any
-large audit**, especially its "THE WINDOW TRAP" section: the generator defaults to listings first
-seen since 2026-06-12, which is only 12.7% of the library, and that default has already produced
-one false "the audit found nothing" conclusion.
+**Full-library plan + session hand-off: `docs/audit-full-library-plan.md`** (compacted 2026-09-23)
+— current state, what is left (the ≥ 0.95 existing-link pass, sized + estimated), the measured
+per-run agent cost, and the operating rules. **Read it before starting any large audit.** Always
+pass `--since 1970-01-01`: the generator's default window is only 12.7% of the library and has
+already produced one false "the audit found nothing" conclusion.
 
 ### Three known limits of the audit, one of them an open question (2026-09-20)
 
@@ -579,12 +583,30 @@ is **~10 min / 717 MB / 34,247 listings / 38,213 verified pairs**, and `--from` 
 seconds. Always pass `--since` explicitly; the default window is 12.7% of the library and has
 already produced one false "the audit found nothing".
 
-### Audit status after the 2026-09-22 session
+### Audit status after the 2026-09-23 session
 
-Six proposals applied: **links 5,975 → 6,009, ignores 13,540 → 14,434.** The near-miss (1,535),
-want-links (194) and below-bar-`prob<0.30` (26 pairs) surfaces are **fully adjudicated over all of
-history**. Remaining: **3,054 orphans** and **~1,160 below-bar links in the 0.30–0.95 band**, ~2
-agent runs each. Four measured findings that should shape the next run:
+**Links 6,013, ignores 16,000, collisions 22** (from 5,975 / 13,540 on 2026-09-22). Every cheap
+surface is adjudicated over all of history: near-miss and want-links (including the v5 residual),
+orphans (3,061), every existing link below the bar (`< 0.30`: 23% wrong; `0.30–0.95`: 13.8% wrong),
+38 ignore↔link contradictions, and the whole review backlog (0 open, bar 5 waiting on the deferred per-store split). **The 0.95–0.99 pilot of the
+above-bar pass found 10.5% wrong** (65 of 622; bridges, editions, gift packs, sizes), so being above
+the bar is weak evidence that a link is right.
+
+**Remaining: the ≥ 0.99 pass** — 2,743 groups in 16 group-major batches, prompt and slices ready in
+`audit/` (see `docs/audit-full-library-plan.md`). It is the owner's go/no-go.
+
+Rules from 2026-09-23:
+- **Audit existing links group-major** (`tools/audit_link_group_slice.js`). A band slice hides a
+  group's out-of-band edges, so splits decided from it come out incomplete.
+- **Cap row-major orphan batches at ~200 KB**; one 251 KB batch hit 49%.
+- **Merge concurrent proposals before applying** (`tools/merge_audit_proposals.js`).
+- **A wrong `merge-auto` edge is removed with the applier's `unlink-auto` op.** It writes an ignore,
+  and `src/tracker/sku_auto_links.js` skips ignored pairs, so the scraper cannot re-add it. That
+  writer now also throws on an unparseable file instead of rewriting it from empty.
+
+Per-run cost on the current model is in the plan doc's §"Measured agent cost".
+
+Findings from 2026-09-22 that still hold:
 
 1. **`prob` does not rank wrongness inside a band.** Of the 26 pairs below 0.30, 18 were CORRECT
    links and 6 wrong; the two lowest-scoring pairs in the slice (0.0005, 0.002) were both correct,
@@ -598,11 +620,15 @@ agent runs each. Four measured findings that should shape the next run:
    links came from `no-embedding` pairs (batch B: 0 of 1,584 — the asset is healthy) and 0 from
    title-twins. What actually loses recall is **unstated bottle sizes**, resolvable only from the
    store's price ladder.
-4. **An `unlink` writes a hard negative by default and that is usually right — but not when you are
+4. **Three wrong ABOVE-BAR existing links were found by a recall pass reading `vl[]`** (Barrell
+   Gold/Gray Label Dovetail 0.9495, Kraken Black/Gold Spiced 0.9502, Bombarda Culverin/Falconet) and
+   removed. None was reachable via `need-unlinks`, which is below-bar by construction — more
+   evidence that criterion 2 needs `vl[]` read on every row, not just the below-bar funnel.
+5. **An `unlink` writes a hard negative by default and that is usually right — but not when you are
    severing to contain collision damage.** If the two products are genuinely the same and the link
    only does harm because one sku is polluted, pass `"ignore": false`.
 
-### Collided SKUs were corrupting the training set (found + partly fixed 2026-09-22)
+### Collided SKUs were corrupting the training set (found 2026-09-22, extended 2026-09-23)
 
 `tools/linker_ml/build_dataset.mjs` builds positives as the full transitive CLOSURE of each
 canonical group, asserting in a comment that "every pairing is a valid positive". False twice: one
@@ -610,34 +636,43 @@ faulty member of an N-member group yields N−1 bad positives, and a **collided 
 member** — the trainer was being taught "Roseisle 12yr ≡ Laphroaig Càirdeas 2023" as a positive.
 Unlinking cannot fix it; no link created the merge.
 
-- **`data/sku_collisions.json`** (data branch, NEW) — curated, VERIFIED collisions only, 11 entries.
+- **`data/sku_collisions.json`** (data branch) — curated, VERIFIED collisions only, **22 entries**
+  (2026-09-23; 74 candidates adjudicated, ~10% real). Every real one crosses numbering systems (BC vs
+  AB, or the Sierra Springs / Wine and Beyond `id:104xxxx` overlap). Worst: `744086` = Yellow Spot 12
+  (6 stores) + Brinley Gold Shipwreck Spiced Rum (3 stores).
   Recorded only when the two products belong in DIFFERENT canonical groups. **A collision that
   policy would link anyway is benign and must not be listed** (`876891`: a Springbank bundle
   colliding with Springbank 10 — owner ruling 2026-09-22).
 - `build_dataset.mjs` drops any pair touching a listed sku inside `add()` (so positives, ignores and
-  `noTrain` are filtered uniformly) and **prints the count**. Measured: **46 pair insertions blocked**
-  (dataset shrinks by 28; the random/hard samplers backfill). A MISSING file warns and continues
+  `noTrain` are filtered uniformly) and **prints the count** (126 pairs at 22 entries), and strips collided skus from `groups.json` too — the embedder builds its contrastive positives from it and had been training 11 collided groups. A MISSING file warns and continues
   rather than throwing — `run_daily.sh` calls this under `set +e`, so a throw would skip the
   re-encode and silently re-freeze `sku_embeddings.json`, i.e. re-create the 2026-08-20 incident.
   Same shape as the `sku_hidden.json` loader in `featurize.mjs`.
-- **`tools/detect_sku_collisions.mjs`** (NEW) regenerates the candidate census from `index.json`:
-  5,441 multi-store skus → **82 candidates**, of which 11 are verified. Candidates, not verdicts.
+- **`apply_audit_proposal.js` refuses any `link` op touching a listed sku** (2026-09-23; `--force` does not override).
+- **`auto_link_classify.mjs` refuses any pair touching a listed sku** (2026-09-23) — Roseisle 12
+  scored 0.977–0.998 against collided `id:1049495`, so a newly-scraped Roseisle would have merged a
+  Laphroaig into its group. Prints the skip count; missing file warns.
+- **`tools/detect_sku_collisions.mjs`** regenerates the candidate census from `index.json`
+  (5,453 multi-store skus → 82 candidates). Candidates, not verdicts — judge on every store's listing.
 - **This reopens the "0.09%, not worth fixing" ruling.** That rate came from a name-overlap test
   finding 4 in 4,445. The harm is recall + training data, not display.
 
 ### Two pre-apply guards now required
 
-- **`node tools/validate_proposal_skus.js --proposal <file>`** before every apply. `scripts/
-  audit_new_listings.js` strips the `id:` prefix from listing-unit ids and cluster keys while
-  `pairs[].sku`/`vl[][0]` keep it, so an op written from the wrong form applies cleanly as a **dead
-  link**. It caught 15 such refs across two proposals in one session. (Fix the generator at source
-  when convenient; the guard is the stopgap.)
-- **Check link ops against the collision list.** Linking TO a collided sku spreads contamination
-  into a clean group — 2 otherwise-correct Roseisle links were withheld for this reason.
+- **`node tools/validate_proposal_skus.js --proposal <file> [--fix]`** before every apply. The
+  generator's listing ids/cluster keys strip `id:` while `pairs[].sku`/`vl[][0]` keep it. **Correction
+  (2026-09-23): a bare ref is NOT a dead link** — every canonical loader folds `id:N` ≡ `N`. The real
+  damage was ML-side: `bySku` is keyed by the prefixed form, and raw-key checks in `build_dataset`,
+  `linker_eval`, `dump_features` and `featurize.linkAdj` silently dropped **4,828 of 14,442 ignores
+  from training** and leaked the group split — all four fixed; see `tools/linker_ml/CLAUDE.md`
+  §"2026-09-23". Keep the file in catalog form anyway; `--fix` rewrites bare refs.
+- **Link ops against the collision list are refused by the applier** (since 2026-09-23). Linking TO a
+  collided sku spreads contamination into a clean group — 2 otherwise-correct Roseisle links were
+  withheld for this reason.
 
 `tools/apply_audit_proposal.js` now also detects **ineffective unlinks** (the A–B entry removed but
 A–C–B still connects them, so the canonical group does not split), reports `ineffectiveUnlinks[]`,
-and withholds the automatic ignore for those pairs.
+and withholds the automatic ignore for those pairs. Its component checks also union `sku_links_auto.json` (2026-09-23); before that, an unlink bridged only by an auto edge was reported as a successful split.
 
 **The agent's operating manual is `docs/audit-runbook.md`** (pipeline, CLI surface, decision
 protocol, proposal schema, coverage contract). Read it before running an audit. The tool is
@@ -994,7 +1029,10 @@ and simply mislist).
   worktree (CI writes it each run from the Release asset; a stale local worktree lacks it → every
   candidate starves to a null `embedCos`). Fetch via `curl -sL -o .worktrees/data/viz/data/sku_embeddings.json
   https://github.com/brennanwilkes/spirit-tracker/releases/download/embeddings-latest/sku_embeddings.json`
-  (~43 MB, untracked — matches what CI keeps). **Present is not the same as fresh: check the
+  (~43 MB, untracked — matches what CI keeps). **`index.json` and `viz/data/skus/**` are Release
+  assets too, and pulling `data` refreshes none of the three** — the v3 full-history generate ran on
+  a 4-day-old catalog while the branch was current. Refresh all three before every generate (runbook
+  §Setup). **Present is not the same as fresh: check the
   asset's `updatedAt` before trusting a run** (`gh release view embeddings-latest --json assets`).
   `embedCos` null is PER-CANDIDATE and shows as `hints:["no-embedding"]`; on a current file that
   should be ~zero, and any material rate means the file is stale — re-encode rather than judging

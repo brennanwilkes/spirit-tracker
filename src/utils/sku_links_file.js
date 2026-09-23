@@ -13,16 +13,14 @@ function linksFile(root) {
 	return path.join(root, "data", "sku_links.json");
 }
 
+// A missing file is an empty label set; an unparseable one must throw — every caller writes the
+// result back, so swallowing a parse error (e.g. a merge-conflict marker) wiped the whole file.
 function readLinks(root) {
-	try {
-		const obj = JSON.parse(fs.readFileSync(linksFile(root), "utf8"));
-		return {
-			links: obj && Array.isArray(obj.links) ? obj.links : [],
-			ignores: obj && Array.isArray(obj.ignores) ? obj.ignores : [],
-		};
-	} catch {
-		return { links: [], ignores: [] };
-	}
+	const file = linksFile(root);
+	if (!fs.existsSync(file)) return { links: [], ignores: [] };
+	const obj = JSON.parse(fs.readFileSync(file, "utf8"));
+	if (!obj || !Array.isArray(obj.links) || !Array.isArray(obj.ignores)) throw new Error(`${file}: expected {links:[], ignores:[]}`);
+	return { links: obj.links, ignores: obj.ignores };
 }
 
 // Union-find dedup: keep only links that actually merge two distinct components.

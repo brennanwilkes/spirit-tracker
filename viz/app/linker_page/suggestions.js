@@ -695,7 +695,9 @@ export function recommendSimilar(
 
 	fallback.sort((a, b) => b.s - a.s);
 	const fb = dedupeByGroupRep(fallback, (x) => x.it && x.it.sku, groupRepFn).slice(0, limit);
-	return withScores ? fb.map((x) => ({ it: x.it, score: x.s })) : fb.map((x) => x.it);
+	// Popularity filler, not a similarity score (stores×2 + price + name ≈ 4.2 for a one-store item) —
+	// callers that threshold `score` as a probability must skip `fallback` rows.
+	return withScores ? fb.map((x) => ({ it: x.it, score: x.s, fallback: true })) : fb.map((x) => x.it);
 }
 
 export function computeInitialPairsFast(

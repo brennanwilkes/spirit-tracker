@@ -30,15 +30,22 @@ function autoLinksPath(dbDir) {
 	return path.join(dbDir, "..", "sku_links_auto.json");
 }
 
+// Missing file = no edges yet. An unparseable one must throw: the merge writes the result back, so
+// reading it as empty would replace every recorded upgrade with just this run's.
 function readExisting(file) {
-	try {
-		const txt = fs.readFileSync(file, "utf8");
-		const obj = JSON.parse(txt);
-		const links = Array.isArray(obj?.links) ? obj.links : [];
-		return { ok: true, obj, links };
-	} catch {
-		return { ok: false, obj: null, links: [] };
-	}
+	if (!fs.existsSync(file)) return { links: [] };
+	const obj = JSON.parse(fs.readFileSync(file, "utf8"));
+	if (!Array.isArray(obj.links)) throw new Error(`${file}: expected {links:[]}`);
+	return { links: obj.links };
+}
+
+// A pair a human or audit has ignored (data/sku_links.json) must never be re-joined by an upgrade:
+// `tools/apply_audit_proposal.js` unlink-auto removes a wrong edge and writes that ignore.
+function readIgnoredPairs(dbDir) {
+	const file = path.join(dbDir, "..", "sku_links.json");
+	if (!fs.existsSync(file)) return new Set();
+	const obj = JSON.parse(fs.readFileSync(file, "utf8"));
+	return new Set((obj.ignores || []).map((ig) => pairKey(ig.skuA, ig.skuB)));
 }
 
 function writeAtomic(file, obj) {
@@ -63,13 +70,14 @@ function mergeUpgradesIntoAutoLinks({ dbDir, upgrades }) {
 		if (k && !byPair.has(k)) byPair.set(k, l);
 	}
 
+	const ignored = readIgnoredPairs(dbDir);
 	let added = 0;
 	for (const u of upgrades) {
 		const fromSku = normalizeImplicitSkuKey(u.fromSku);
 		const toSku = normalizeImplicitSkuKey(u.toSku);
 		const k = pairKey(fromSku, toSku);
 		if (!k) continue;
-		if (byPair.has(k)) continue;
+		if (byPair.has(k) || ignored.has(k)) continue;
 		byPair.set(k, {
 			fromSku,
 			toSku,

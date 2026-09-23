@@ -16,6 +16,42 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## ⚠ 2026-09-23 — label-key fixes: every metric below was measured on a partly broken dataset
+
+Label files name `id:`-sourced listings in BOTH forms (`id:1049495` and bare `1049495`); every
+canonical loader folds them together via `normalizeImplicitSkuKey`, but `env.bySku` is keyed by the
+prefixed catalog form. Raw-key checks therefore silently dropped labels. Fixed in four places:
+
+- `build_dataset.mjs` — ignores + noTrain resolved through `catalogKey()`. **Dataset ignores 9,447 →
+  14,174** (33% of curated hard negatives had never reached training).
+- `linker_eval.mjs` — same fix; "AUC vs ignores" now uses 14,238 ignores.
+- `dump_features.mjs` — `canonOf` now unions the FULL link graph on normalized keys (the 2026-06-04
+  transitive-chain fix had never been ported here). **Before: 3,817 of 9,444 positives had
+  `canonA ≠ canonB`, so one product could straddle the train/val/TEST group split — the "honest
+  TEST" numbers in this file were partly leaked.** After: 0 of 11,265.
+- `featurize.mjs` `linkAdj` — nodes are catalog keys, so `groupPairFeatures` (training) and
+  `skuToTextEnriched` (encoder input, re-encoded by CI every scrape) now see the same groups as the
+  live `group_features.js`. 1,161 of 13,779 encoder texts changed (group-resolved sizes appearing).
+
+Measured effect of the encoder-text change alone (shipped GBT + features fixed, only embeddings
+varied, in-sample): AUC 0.99412 → 0.99467, rec@99 86.70 → 87.67%, at-bar 9,467 TP/82 FP → 9,584
+TP/83 FP. Ships with the next CI re-encode; no retrain required.
+
+**At the next retrain: re-measure every baseline before any A/B** — the dataset gains +4,727 hard
+negatives and an honest group split, so old numbers are not comparable. Run `find_mislabels.mjs`
+first: the newly-visible ignores include det-high near-identical pairs (e.g. `813003` Tomatin 15
+Year ↔ `id:8289129` Tomatin 15 Year Old) that were never trained on before. Also:
+`data/sku_collisions.json` (22 verified) now excludes 126 pairs.
+
+Found in the 2026-09-23 bug-hunt and fixed the same day:
+- **`groups.json` bypassed the collision filter.** It is written straight from the canonical groups,
+  and `train_embed.py` builds its contrastive (MNRL) positives from it, so 11 collided groups were
+  still being trained as positives. Collided skus are now stripped before the write.
+- **Collision entries were matched raw** (`add()` compares catalog keys), so a bare-form entry would
+  have filtered nothing. They are now resolved with `catalogKey()`.
+- **`find_mislabels.mjs` and `size_unlink_audit.mjs`** still did the raw `bySku.has` presence check.
+  They skipped 1,539 links and 4,827 ignores; both now resolve through the normalized key.
+
 ## Latest retrain (2026-06-04, ~2× labels): honest TEST AUC+ 0.984, **rec@99 80.7%**, rec@95 95.5%
 
 The headline jumped from the prior ~69% almost entirely from ONE bug fix (below), not new features.

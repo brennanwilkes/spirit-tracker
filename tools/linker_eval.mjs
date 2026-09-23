@@ -135,6 +135,19 @@ for (const l of allLinks) {
 }
 
 const canonOf = (s) => find(normKey(s));
+// Labels may name an `id:`-sourced listing bare (`1049495`); bySku keys it `id:1049495`. Mirrors
+// tools/linker_ml/build_dataset.mjs — a raw bySku.has() dropped ~1/3 of ignores from the eval.
+const catalogKeyByNorm = new Map();
+for (const k of bySku.keys()) {
+	const n = normKey(k);
+	if (!catalogKeyByNorm.has(n)) catalogKeyByNorm.set(n, k);
+}
+const catalogKey = (s) => {
+	const raw = String(s || "").trim();
+	if (!raw) return null;
+	if (bySku.has(raw)) return raw;
+	return catalogKeyByNorm.get(normKey(raw)) ?? null;
+};
 const canonToSkus = new Map();
 for (const s of bySku.keys()) {
 	const c = canonOf(s);
@@ -234,9 +247,9 @@ const posCount = pairs.filter((p) => p.label === 1).length;
 // Negatives — explicit ignores (the curated "do not match" pairs)
 let ignoreAdded = 0;
 for (const ig of ignoreEntries) {
-	const a = String(ig.skuA || ig.fromSku || "").trim();
-	const b = String(ig.skuB || ig.toSku || "").trim();
-	if (!a || !b || !bySku.has(a) || !bySku.has(b)) continue;
+	const a = catalogKey(ig.skuA || ig.fromSku);
+	const b = catalogKey(ig.skuB || ig.toSku);
+	if (a === null || b === null || a === b) continue;
 	if (canonOf(a) === canonOf(b)) continue; // contradiction (linked + ignored) → skip
 	if (addPair(a, b, 0, "ignore")) ignoreAdded++;
 }

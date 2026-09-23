@@ -43,15 +43,19 @@ function tag(r) {
 	return t.join("+");
 }
 const nm = (s) => (env.bySku.get(String(s))?.name || "?").slice(0, 46);
-const present = (s) => env.bySku.has(String(s));
+// Labels name id-sourced skus in both forms (`id:N` and bare `N`); bySku is keyed by the catalog
+// form, so resolve through the normalized key or a third of the labels silently drop out.
+const catalogKeyByNorm = new Map();
+for (const k of env.bySku.keys()) if (!catalogKeyByNorm.has(normKey(k))) catalogKeyByNorm.set(normKey(k), k);
+const ck = (s) => catalogKeyByNorm.get(normKey(s));
 
 // SHOULD-UNLINK — direct link edges the model rejects
 const seenL = new Set();
 const unlink = [];
 for (const l of env.manualLinks) {
 	if (l.noTrain) continue;
-	const a = String(l.fromSku || "").trim(), b = String(l.toSku || "").trim();
-	if (!a || !b || a === b || !present(a) || !present(b)) continue;
+	const a = ck(l.fromSku), b = ck(l.toSku);
+	if (!a || !b || a === b) continue;
 	const k = a < b ? `${a}|${b}` : `${b}|${a}`;
 	if (seenL.has(k)) continue; seenL.add(k);
 	const r = score(a, b); if (!r) continue;
@@ -64,8 +68,8 @@ const seenI = new Set();
 const link = [];
 for (const ig of env.ignoreEntries) {
 	if (ig.noTrain) continue;
-	const a = String(ig.skuA || ig.fromSku || "").trim(), b = String(ig.skuB || ig.toSku || "").trim();
-	if (!a || !b || a === b || !present(a) || !present(b)) continue;
+	const a = ck(ig.skuA || ig.fromSku), b = ck(ig.skuB || ig.toSku);
+	if (!a || !b || a === b) continue;
 	const k = a < b ? `${a}|${b}` : `${b}|${a}`;
 	if (seenI.has(k)) continue; seenI.add(k);
 	const r = score(a, b); if (!r) continue;

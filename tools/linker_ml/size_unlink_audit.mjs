@@ -9,10 +9,16 @@
  */
 import { buildEnv, featurizePair } from "./featurize.mjs";
 import { parseSizesMlFromText } from "../../viz/app/linker_page/size.js";
+import { normalizeImplicitSkuKey } from "../../viz/app/sku_canonical.js";
 
 const env = buildEnv();
 const nm = (s) => env.bySku.get(String(s))?.name || "?";
-const present = (s) => env.bySku.has(String(s));
+const normKey = (s) => normalizeImplicitSkuKey(String(s || "").trim());
+// Labels name id-sourced skus in both forms (`id:N` and bare `N`); bySku is keyed by the catalog
+// form, so resolve through the normalized key or a third of the labels silently drop out.
+const catalogKeyByNorm = new Map();
+for (const k of env.bySku.keys()) if (!catalogKeyByNorm.has(normKey(k))) catalogKeyByNorm.set(normKey(k), k);
+const ck = (s) => catalogKeyByNorm.get(normKey(s));
 const SIZE_BUCKET = (ml) => {
 	if (ml === 700 || ml === 750) return 750;
 	if (ml === 350 || ml === 375) return 375;
@@ -24,9 +30,9 @@ const seen = new Set();
 const rows = [];
 for (const l of env.manualLinks) {
 	if (l.noTrain) continue;
-	const a = String(l.fromSku || l.skuA || "").trim();
-	const b = String(l.toSku || l.skuB || "").trim();
-	if (!a || !b || a === b || !present(a) || !present(b)) continue;
+	const a = ck(l.fromSku || l.skuA);
+	const b = ck(l.toSku || l.skuB);
+	if (!a || !b || a === b) continue;
 	const k = a < b ? `${a}|${b}` : `${b}|${a}`;
 	if (seen.has(k)) continue;
 	seen.add(k);
