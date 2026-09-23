@@ -38,6 +38,12 @@ its audit report. An agent that quietly rewrites its own rules drifts.
 | Store / exclusive cask | **separate** | **A store's own name or abbreviation inside the product title almost always marks that store's exclusive single cask** — `Glenfarclas Coop 15yr`, `Old Pulteney Coop 2006`, `Plantation Rum Coop 2011`. Treat it as a different bottling from the standard expression, even when the price sits inside the normal range for the standard one (confirmed by the owner 2026-09-19: Co-op carries `Glenfarclas Coop 15yr` $119.99 AND `Glenfarclas 15 yr` $129.99 — the $10 gap is not the signal, the name is) |
 | Gift / sampler / tasting set | separate | Multi-bottle sampler and tasting sets are their own SKU, never a single expression. **Also separate when it holds only ONE bottle** — a `Gift Pack` / tin / glass set is priced and stocked as its own purchase unit: `Jura 10 Year Old Gift Pack 700ml` ≠ `Jura 10 Year Old` (owner ruling 2026-09-20). Contrast the packaging row above: `Vintage Packaging` / `(Without Tube)` describe the SAME purchase unit and do link |
 | Bundle / multipack | judgement | See "Bundles" below |
+| Bonus / on-pack item | separate | `X 750ml + 50ml mini`, `with Bonus Copper Pot`, a bottle packed with a glass or a second product is its own purchase unit, never the plain bottle — and never the rider's product either (owner ruling 2026-09-23) |
+| Gift box at the plain bottle's price | link | A `Gift Box` / `Tin` listed at the plain bottle's price is packaging, like `Vintage Packaging`. Priced as its own rung ⇒ the Gift row above applies (owner ruling 2026-09-23) |
+| RTD / canned spin-off | separate | A ready-to-drink can or cocktail carrying a spirit brand (`Crown Royal Whisky & Cola`) never links to the spirit (owner ruling 2026-09-23) |
+| Single-barrel ordinal | separate | `Barrel #N`, `Cask No. N`, per-barrel pick numbers are distinct releases, like Batch / cask. Matching numbers on both sides link (owner ruling 2026-09-23) |
+| Artist / collab / special-label bottle | separate | `Bombay Sapphire × Basquiat`, a designer or collaboration label, a commemorative bottle: a different product gets a different sku, even when the liquid is the same. Contrast `Vintage Packaging` (a re-list of the same unit, which links) (owner ruling 2026-09-23) |
+| Title that is only a product code | link | A title that is just a code equal to another store's sku (Co-op `u:b70e5e0a` titled `876891` = Springbank 10) is identity evidence, exactly like a shared raw sku (owner ruling 2026-09-23) |
 
 ## Inferring an unstated size
 
@@ -125,6 +131,22 @@ observed that far above the market on anything — strong evidence of a differen
 A ratio inside the store's normal band is weak evidence either way. Never reject on price
 alone when the names, size and cask codes all agree.
 
+**Evidence the title does not carry** (owner ruling 2026-09-23): the store's **url slug** counts as
+edition / size evidence (`…-cask-strength`, `…-375ml`, `…-2019`), and a size or format the title omits
+(PET with no stated volume included) is resolved from the store's own price ladder, as in
+"Inferring an unstated size".
+
+**Liberty Wine Merchants `8289xxx` — judge per listing** (owner ruling 2026-09-23). These list at
+2–7x market, so **price is not evidence** at Liberty in either direction. If the title reads as a
+current / modern expression, link it to that expression. Liberty (like Legacy) also stocks old
+"dusty" bottlings under legacy branding at collector prices — those are a different product and stay
+separate. Decide from the name (old label names, discontinued age statements, `old bottling`,
+defunct importer/bottler wording) and say which reading you took in `why`.
+
+**Links to nameless delisted listings stay** (owner ruling 2026-09-23). A synthetic `u:` partner
+whose name was never captured cannot be re-judged; keep the link, never propose unlinking it for
+that reason alone.
+
 ## Cross-store SKU collisions — OPEN, and not fixable in this file
 
 Two genuinely different products can share one numeric SKU across stores, because store numbering
@@ -144,7 +166,9 @@ stores sharing `148534` collapse into one item for free. There is no link to rem
 `unlink` op that helps. Do not propose one; report the collision in `dataQuality[]` instead.
 
 Resolving them needs a new mechanism (a `(storeId, sku)` split/"cuts" file that re-keys the odd
-listing out of the shared aggregate, parallel to how `sku_hidden.json` is keyed). Not built yet.
+listing out of the shared aggregate, parallel to how `sku_hidden.json` is keyed). Not built yet — **deferred by the owner (2026-09-23) until the full-library audit is complete** and
+the links/ignores are trusted; verified cases accumulate in `data/sku_collisions.json` (21 as of
+2026-09-23; the table above is the original 2026-09-20 sample).
 
 **Distinct from the same-STORE collision class** (`merge.js` SKU annihilation — BSW `795231`,
 `798880`, `845142`, Sierra Springs `001222`), which is a scraper concern and is already fixed.
