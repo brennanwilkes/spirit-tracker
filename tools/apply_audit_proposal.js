@@ -226,6 +226,7 @@ function main() {
 	// first write prunes them. Surface that separately or the diff looks like phantom unlinks.
 	const redundantLinksInSource = cur.links.length - dedupeLinks(cur.links, []).links.length;
 	let links = cur.links.slice();
+	const ignoresAddedByUnlink = new Set();
 	let ignores = cur.ignores.slice();
 	// Snapshot of the ORIGINAL source links, to tell "this pair was already linked before we
 	// started" apart from "an earlier op in THIS proposal already linked them" — both hit the
@@ -273,6 +274,7 @@ function main() {
 					r.note += "; ignore already present";
 				} else {
 					ignores.push({ skuA: o.a, skuB: o.b });
+					ignoresAddedByUnlink.add(pairKey(o.a, o.b));
 					r.note += "; +ignore";
 				}
 			}
@@ -296,7 +298,37 @@ function main() {
 		results.push(r);
 	}
 
+	const ineffectiveKeys = new Set();
+	for (const r of results) {
+		if (r.op === "unlink" && r.status === "ok" && sameComponent(links, r.a, r.b)) {
+			ineffectiveKeys.add(pairKey(r.a, r.b));
+		}
+	}
+	// An ineffective unlink must NOT leave behind the hard negative it would normally write.
+	// `ignores` is mined as training data and is consulted to suppress candidate pairs, so
+	// recording "these are different" for a pair the link file still groups as ONE product is
+	// both incoherent and unrecoverable (ignored pairs never re-enter the pool). Only drop the
+	// ignore when THIS run created it; a pre-existing one is the human's and is left alone.
+	if (ineffectiveKeys.size) {
+		ignores = ignores.filter(
+			(ig) => !(ineffectiveKeys.has(pairKey(ig.skuA, ig.skuB)) && ignoresAddedByUnlink.has(pairKey(ig.skuA, ig.skuB))),
+		);
+	}
+
 	const final = dedupeLinks(links, ignores);
+
+	// An `unlink` that removes the A-B entry but leaves A and B in the same union-find
+	// component (via A-C-B) changes nothing any consumer can observe: the two listings stay
+	// in one canonical group. A precision audit produces these routinely — the agent judges
+	// one pair at a time and cannot see the whole component — so report it instead of saying
+	// "ok". Checked against the FINAL link set, after every op, not mid-loop.
+	const ineffectiveUnlinks = [];
+	for (const r of results) {
+		if (r.op !== "unlink" || r.status !== "ok") continue;
+		if (!ineffectiveKeys.has(pairKey(r.a, r.b))) continue;
+		r.note = `${r.note ? `${r.note}; ` : ""}STILL LINKED transitively — canonical group NOT split; ignore withheld`;
+		ineffectiveUnlinks.push({ a: r.a, b: r.b });
+	}
 
 	// ---- structured diff (pair-keyed) -------------------------------------
 	const linkKeysBefore = new Set(cur.links.map((l) => pairKey(l.fromSku, l.toSku)));
@@ -323,6 +355,7 @@ function main() {
 			skippedReasons: results.filter((r) => r.status === "skipped").map((r) => `op[${r.index}] ${r.op} ${r.a}↔${r.b}: ${r.note}`),
 		},
 		redundantLinksInSource,
+		ineffectiveUnlinks,
 		review,
 		dataQuality,
 		counts: {
@@ -362,6 +395,12 @@ function main() {
 			console.log(`           note: ${report.redundantLinksInSource} of the removed links were pre-existing duplicates (auto_link_classify appends undeduped); only explicit unlinks are real.`);
 		}
 		console.log(`  ignores: ${c.ignoresBefore} → ${c.ignoresAfter}  (+${report.diff.addedIgnores.length} / -${report.diff.removedIgnores.length})`);
+		if (report.ineffectiveUnlinks.length) {
+			console.log(`  WARN: ${report.ineffectiveUnlinks.length} unlink(s) removed an entry but left the pair in ONE canonical group (linked transitively via another SKU) — no observable change:`);
+			for (const u of report.ineffectiveUnlinks.slice(0, flags.has("--verbose") ? Infinity : 20)) {
+				console.log(`        ${u.a} ↔ ${u.b}`);
+			}
+		}
 		const show = (label, arr, fmt) => {
 			if (!arr.length) return;
 			console.log(`  ${label}:`);

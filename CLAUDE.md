@@ -575,11 +575,69 @@ the decisions*. Three places where that is not strictly true; full detail in the
    partial escapes. State it; do not engineer around it.
 
 A full-history generate is cheap enough to be the default for any large pass: `--since 1970-01-01`
-is **11m54s / 717 MB / 34,247 listings / 38,047 verified pairs**, and `--from` views off it are
-seconds. With the `needUnlink` gate fixed, that file gives criterion 2 its first library-wide
-number: **1,321 existing links (3.5% of verified pairs, across 1,226 listings) re-score below the
-0.95 bar and are not pins** — but 853 of them sit in the 0.80–0.95 band; the **153 under `prob`
-0.30** are where wrong links actually concentrate and are the batch worth running first.
+is **~10 min / 717 MB / 34,247 listings / 38,213 verified pairs**, and `--from` views off it are
+seconds. Always pass `--since` explicitly; the default window is 12.7% of the library and has
+already produced one false "the audit found nothing".
+
+### Audit status after the 2026-09-22 session
+
+Six proposals applied: **links 5,975 → 6,009, ignores 13,540 → 14,434.** The near-miss (1,535),
+want-links (194) and below-bar-`prob<0.30` (26 pairs) surfaces are **fully adjudicated over all of
+history**. Remaining: **3,054 orphans** and **~1,160 below-bar links in the 0.30–0.95 band**, ~2
+agent runs each. Four measured findings that should shape the next run:
+
+1. **`prob` does not rank wrongness inside a band.** Of the 26 pairs below 0.30, 18 were CORRECT
+   links and 6 wrong; the two lowest-scoring pairs in the slice (0.0005, 0.002) were both correct,
+   and the wrongest link (0.0006) is indistinguishable from them. Choose the band, then read every
+   row in it — do not sub-prioritise by score.
+2. **36% of above-bar pairs were rejected** (28 of 77) in the want-links funnel. Upper bound on CI's
+   own false-positive rate, since the audit pool is wider than the CI blocker. Only 1 of the 28
+   carried a `pol` marker, and the decisive evidence was the **url slug** in 6 cases and the store's
+   price ladder in 4 — none of which is on the row. Further evidence against mechanical screens.
+3. **Neither named retrieval blind spot costs recall any more.** Across 1,535 near-miss rows, 0
+   links came from `no-embedding` pairs (batch B: 0 of 1,584 — the asset is healthy) and 0 from
+   title-twins. What actually loses recall is **unstated bottle sizes**, resolvable only from the
+   store's price ladder.
+4. **An `unlink` writes a hard negative by default and that is usually right — but not when you are
+   severing to contain collision damage.** If the two products are genuinely the same and the link
+   only does harm because one sku is polluted, pass `"ignore": false`.
+
+### Collided SKUs were corrupting the training set (found + partly fixed 2026-09-22)
+
+`tools/linker_ml/build_dataset.mjs` builds positives as the full transitive CLOSURE of each
+canonical group, asserting in a comment that "every pairing is a valid positive". False twice: one
+faulty member of an N-member group yields N−1 bad positives, and a **collided sku is itself a group
+member** — the trainer was being taught "Roseisle 12yr ≡ Laphroaig Càirdeas 2023" as a positive.
+Unlinking cannot fix it; no link created the merge.
+
+- **`data/sku_collisions.json`** (data branch, NEW) — curated, VERIFIED collisions only, 11 entries.
+  Recorded only when the two products belong in DIFFERENT canonical groups. **A collision that
+  policy would link anyway is benign and must not be listed** (`876891`: a Springbank bundle
+  colliding with Springbank 10 — owner ruling 2026-09-22).
+- `build_dataset.mjs` drops any pair touching a listed sku inside `add()` (so positives, ignores and
+  `noTrain` are filtered uniformly) and **prints the count**. Measured: **46 pair insertions blocked**
+  (dataset shrinks by 28; the random/hard samplers backfill). A MISSING file warns and continues
+  rather than throwing — `run_daily.sh` calls this under `set +e`, so a throw would skip the
+  re-encode and silently re-freeze `sku_embeddings.json`, i.e. re-create the 2026-08-20 incident.
+  Same shape as the `sku_hidden.json` loader in `featurize.mjs`.
+- **`tools/detect_sku_collisions.mjs`** (NEW) regenerates the candidate census from `index.json`:
+  5,441 multi-store skus → **82 candidates**, of which 11 are verified. Candidates, not verdicts.
+- **This reopens the "0.09%, not worth fixing" ruling.** That rate came from a name-overlap test
+  finding 4 in 4,445. The harm is recall + training data, not display.
+
+### Two pre-apply guards now required
+
+- **`node tools/validate_proposal_skus.js --proposal <file>`** before every apply. `scripts/
+  audit_new_listings.js` strips the `id:` prefix from listing-unit ids and cluster keys while
+  `pairs[].sku`/`vl[][0]` keep it, so an op written from the wrong form applies cleanly as a **dead
+  link**. It caught 15 such refs across two proposals in one session. (Fix the generator at source
+  when convenient; the guard is the stopgap.)
+- **Check link ops against the collision list.** Linking TO a collided sku spreads contamination
+  into a clean group — 2 otherwise-correct Roseisle links were withheld for this reason.
+
+`tools/apply_audit_proposal.js` now also detects **ineffective unlinks** (the A–B entry removed but
+A–C–B still connects them, so the canonical group does not split), reports `ineffectiveUnlinks[]`,
+and withholds the automatic ignore for those pairs.
 
 **The agent's operating manual is `docs/audit-runbook.md`** (pipeline, CLI surface, decision
 protocol, proposal schema, coverage contract). Read it before running an audit. The tool is
@@ -736,6 +794,16 @@ one — report it in the proposal's `dataQuality[]` instead. Fixing them needs a
 split/"cuts" file that re-keys the odd listing, parallel to `sku_hidden.json`; **deliberately not
 built** (owner's call 2026-09-20 — 0.09% does not justify touching both canonical-mapping loaders).
 Distinct from the same-STORE collision class in `merge.js`, which is already fixed.
+
+**Unlink semantics, hardened 2026-09-20.** An `unlink` op writes an ignore by default
+(`normalizeOp`: `ignore: true` unless explicitly false) — removing a link IS the assertion that two
+products differ. But removing the A–B entry is a no-op when A and B stay in one union-find
+component via A–C–B, which a precision audit produces routinely because the agent judges one pair
+at a time. The applier now re-checks every successful unlink against the FINAL link set, reports
+`ineffectiveUnlinks[]` + a `WARN`, and **withholds the automatic ignore for those pairs** (a hard
+negative on a pair still grouped as one product is incoherent, and ignored pairs never re-enter the
+pool, so it would be unrecoverable). Splitting a group requires unlinking every edge holding it
+together.
 
 **`apply_audit_proposal.js` `dataQuality[]` validation had never executed** — it pushed onto
 `errors` before that `const` was initialised, so any proposal carrying a `dataQuality` array died
