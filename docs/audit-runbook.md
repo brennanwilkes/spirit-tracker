@@ -207,6 +207,25 @@ otherwise — it refuses to write the default rich path). Unknown flags hard-err
   one thing this review exists not to delegate. It also costs almost nothing to omit: measured on
   the 1,520-row near-miss funnel, a cap of 6 dropped 8 of 3,196 pairs and saved 0.17% of bytes.
 
+### SKU prefixes: copy them exactly, and validate before applying
+
+Normalized SKUs carry a type prefix — `u:` (synthetic, url-hashed), `upc:`, `id:` — or are bare
+numeric (CSPC). **The prefix is part of the key.** `id:8768911` and `8768911` are not the same
+thing: the first is the catalog key, the second matches nothing.
+
+**The rich file is inconsistent about this and will mislead you.** `pairs[].sku` and `vl[][0]` use
+the correct prefixed form, but the audit's cluster/member structures and the listing-unit `id`
+strip `id:` (because the per-SKU price cache is a FILENAME, `8768911.json`, and colons are not
+filesystem-safe). So a SKU copied out of a `--cluster` deep-dive can be the wrong string.
+
+Rules:
+- Take op SKUs from `pairs[].sku`, `vl[][0]`, or `tools/audit_search.mjs` output — never from a
+  cache filename or a cluster member list.
+- **Always run the guard before applying:**
+  `node tools/validate_proposal_skus.js --proposal <file>` — it resolves every op's `a`/`b` against
+  the real catalog and suggests the prefixed form when it finds one. Exit 1 on any unknown ref.
+  An op with a bad SKU otherwise validates, applies, and silently creates a dead link.
+
 ### Reading the fields (don't guess)
 
 - **`vl` — THIS listing's existing links, re-scored live. The PRECISION surface; added 2026-09-20.**
@@ -730,6 +749,22 @@ and prints a per-op status table + a structured pair diff. `--json` emits a mach
   explicit unlinks — the tool reports it separately as `redundantLinksInSource`.
 - Unresolvable ops (unlink of a pair with no entry, ignore of an already-ignored pair) are reported
   as `skipped`, not errors; only contradictions/invalid ops abort.
+- **An `unlink` writes an ignore by DEFAULT** (`normalizeOp` sets `ignore: true` unless the op says
+  `"ignore": false`). Removing a link asserts "these are different products", which is exactly a
+  curated hard negative — so you do not need to pair every `unlink` with a separate `ignore` op.
+- **Ineffective unlinks are detected and reported (added 2026-09-20).** Removing the A–B entry does
+  nothing observable if A and B remain in one union-find component via A–C–B: they stay a single
+  canonical group. The applier re-checks every successful `unlink` against the FINAL link set and
+  prints `WARN: n unlink(s) … canonical group NOT split`, listing the pairs, plus an
+  `ineffectiveUnlinks[]` array in the JSON report. **It also WITHHOLDS the automatic ignore in that
+  case** — recording "these are different" for a pair the link file still groups as one product is
+  incoherent training data, and because ignored pairs never re-enter the candidate pool it would be
+  unrecoverable. A pre-existing ignore is never removed; only one this run would have created.
+
+  This is a normal outcome of a precision audit, not an agent error: the agent judges one pair at a
+  time and cannot see the whole component. **If you intend to split a group, you must unlink every
+  edge holding it together** — deep-dive with `--cluster <canonicalSku>` to see the members, and say
+  in the `why` that the ops are a set. Re-read the WARN list after applying and follow up.
 - A `link` whose pair is already in one union-find component is `skipped` and the note distinguishes
   **`already linked in source`** (the file already had it) from **`redundant — an earlier op in this
   proposal already links them`** (your own ops formed a transitive chain). The latter is normal when
@@ -815,6 +850,18 @@ The acceptance test for the whole dispatch: **re-run → no-op → gold set gree
   (e.g. Blacksboat **12** vs Blacksboat **Bridge** 12 under one sku), the store has re-used a SKU for
   two products. The pair is link-worthy from one side and wrong from the other — do NOT link it; omit
   it (or ignore) and note it. This is the same class the `merge.js` collision guard fixes at ingest.
+  Report it in `dataQuality[]`, never as an `unlink`: no link entry created the merge, so no unlink
+  can undo it.
+- **But first ask whether the collision is HARMFUL, because most of the reporting value is lost if
+  you flag benign ones** (owner ruling 2026-09-22). A collision is a defect only when the two
+  products belong in DIFFERENT canonical groups. When policy would link them anyway, the free merge
+  is simply the right answer and must NOT be reported.
+  Worked example: sku `876891` is ZYN's "Springbank 10 Year Old - 700 ml" AND Sierra Springs'
+  "Springbank 10 Year & Glen Scotia 12 Year Combo". Different listings, same sku — but §Bundles
+  sends a Springbank-bearing bundle into the Springbank 10 group, and the ZYN side IS Springbank 10,
+  so both belong together. **Benign; do not report.** Contrast `105751` (Alberta Premium 20 Year Old
+  vs Two Brewers Release 43), which policy separates: a real defect.
+  The test is "would policy separate these two products?", NOT "do the two titles differ?".
 - Never run the generator without an explicit `--out` (unless you truly mean to regenerate the
   default rich file). Unknown flags now error, but a bare `node scripts/audit_new_listings.js` still
   regenerates.
