@@ -11,7 +11,7 @@ Every **cheap** surface has been adjudicated over the whole history (34,368 list
 want-links (incl. the v5 residual), orphans, every existing link below the 0.95 bar, all ignore↔link
 contradictions, a screen of name-identical ignores, and the **whole review backlog (102 + 33 → 0 open)**. The **pilot of
 the expensive pass** (existing links 0.95–0.99, 622 pairs) found **10.5% wrong** and is applied.
-**Links 6,013 · ignores 16,000 · verified collisions 22.** What remains is the rest of the expensive
+**Links 6,014 · ignores 16,008 · verified collisions 21.** What remains is the rest of the expensive
 pass — **2,743 groups holding every link ≥ 0.99, sliced group-major into 16 batches** — which is a
 go/no-go decision for the owner.
 
@@ -125,6 +125,7 @@ cumulative: an earlier run reported 564K over 47 calls). Hold it against the **5
 | pilot 0.95–0.99 ×3 | 204–212 pairs / ~247 KB each | pair-major + groups | 244K / 282K / 341K (24–34%) | 5–11 † | 3–4.5 min † |
 | residual wl + nm | 202 rows / 117 KB → 82 pairs | pair-major | 232K (23%) | 6 † | 2 min † |
 | review backlog (Sonnet) | 102 items / 37 KB | item + census | 296K (30%) | 24 † | 8 min † |
+| **group-major calibration** ×2 | 121 KB (86 groups) / 237 KB (171 groups) | group-major | **153K (15%) / 208K (21%)** → fit **96K + 0.47 tok/byte** | 23 / 3 † | 4 / 1.5 min † |
 | review round 2 ×2 (Opus) | 46–47 items / ~13 KB each | item + census | 258K / 279K (26–28%) | 44–54 | 11–16 min |
 | pipeline bug-hunt | code | read + synthetic tests | 187K (19%) | 25 † | 5 min † |
 
@@ -254,3 +255,56 @@ hides out-of-band edges, so use it only to count a band.
 
 Deletable: `rich-full-history.jsonl`, `rich-full-history-v2.jsonl`, `rich-fh-v3.jsonl`,
 `rich-fh-v4.jsonl` (~2.9 GB).
+
+## IN FLIGHT — 2026-09-23 morning (resume here after compaction)
+
+**Calibration done.** In the ≥ 0.99 band, 7 of 594 edges were wrong (1.2%), against 10.5% at
+0.95–0.99. Errors do not cluster by group size.
+
+The cost fit (2 points) is 96K fixed + 0.47 tokens/byte. For the remainder that gives **9 batches of
+~381 KB**, at ~275K end context each (±50K), covering 2,486 groups and 5,635 edges, with ~65 wrong
+edges expected.
+
+Build the batches with:
+`tools/audit_link_group_slice.js --min 0.99 --max 1.0001 --batch-bytes 390000 --exclude audit/v5-groups/g099-b01.json,audit/v5-groups/cal-half.json`
+Re-run it after the pending apply below, because groups shift. Use the prompt
+`agent-prompts-2026-09-23/groups-template.md`: substitute `__NN__` and "batch NN of 9".
+
+**r01–r08 done and applied (2026-09-24)** — `audit/proposal-v5-groups-rest-merged-2026-09-24.json`,
+100 ops (84 unlink, 16 link). **84 of 5,003 edges wrong (1.7%; per batch 1.0–2.8%)**, confirming the
+calibration's 1.2%. Links 6,014 → 5,946, ignores 16,008 → 16,092. 46 `review[]` and 45 `dataQuality[]`
+entries are open in that file. Four agents proposed collision-containment unlinks (`ignore:false`);
+the coordinator dropped all of them per the owner ruling of 2026-09-24 (leave collided skus in their
+groups; collisions will be handled in code). Originals are in the session scratchpad
+(`br0{3,5,6,8}-orig.json`). **The review/dataQuality queues are closed (2026-09-24)**: all 91 entries went through
+`proposal-rest-backlog-2026-09-24.json` (+ its `-unignore` prerequisite, applied first). That meant
+44 ops, links 5,946 → 5,927, ignores → 16,119, and 63 hides into `sku_hidden.json` (27 entries plus a
+sweep of Canadian Liquor Store "(Case of N)" rows). 0 escalations; per-entry log in
+`resolutions-rest-backlog-2026-09-24.jsonl`. **r09 is NOT launched — waiting for the owner's go.** Its slice was cut
+before this apply; canon keys may have shifted, but its groups are disjoint from r01–r08.
+
+End context at 381 KB was 232–330K (mean ~290K). The refit over 5 points is ~80K fixed +
+~0.6 tokens/byte, so rows are ~75% of context at this size. Future passes: batches of ~550–600 KB
+(~400–450K end context).
+
+**Done since:**
+- The data-worktree merge is resolved: CI's 4 new links were kept, and every earlier proposal
+  re-dry-runs to 0.
+- The calibration fixes are applied (`audit/proposal-v5-groups-cal-merged-2026-09-23.json`, 11 ops):
+  - b01 + bcal;
+  - Grant's Triple Wood `unlink-auto`;
+  - `455637` → Islay Barley 2013 group `873553`. Removed from `sku_collisions.json` (now 21), because
+    Tudor's Classic Laddie title on it is a mistitle.
+- **Links 6,014 · ignores 16,008 · auto edges 899.**
+
+**Ready to launch on GO:** `audit/v5-groups/rest/r-b01..b09.json`
+- 2,484 groups and 5,632 edges; each batch is ~381 KB with 276 groups.
+- Prompts: `audit/agent-prompts-2026-09-23/groups-r01..r09.md`, already substituted. Launch each one
+  with "Your full instructions are in <file>".
+- Run in waves of 3–4, because of the session limit, and resume stopped agents in place.
+- Afterwards: merge with `tools/merge_audit_proposals.js`, validate, dry-run, apply, verify.
+
+The Tudor `-l-NNN` product urls cover several sizes. That caused both size merges in the auto file,
+but it is **already fixed at the source**: both edges date from the 2026-05-21 backfill, and
+`tudor.js` has keyed multi-size products by `?variant=<cspc>` (plus a re-SKU guard for singles) since
+2026-05-28 / 06-07. Nothing to do.
