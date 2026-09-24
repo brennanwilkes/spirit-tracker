@@ -164,6 +164,15 @@ namespaces overlap. Measured 2026-09-20 over every live listing: **4,445 numeric
 listings aggregate by canonical SKU, and an unlinked numeric SKU is its own canonical, so four
 stores sharing `148534` collapse into one item for free. There is no link to remove and no
 `unlink` op that helps. Do not propose one; report the collision in `dataQuality[]` instead.
+The same holds when a collided sku IS joined to a group by explicit links: **leave those links in
+place, no containment unlinks** (owner ruling 2026-09-24). Collisions will be handled in code — the
+email pack and the frontend respecting `data/sku_collisions.json` — not by cutting links.
+
+**A listing that is not the product its sku names is hidden, not linked** (2026-09-24): "case of N"
+/ 6x750 multipack rows under a single-bottle sku (Canadian Liquor Store, BSW), and a different
+edition filed under another's sku at the same store, go in `data/sku_hidden.json` keyed
+`(storeId, sku)` with a reason. Only when that store has NO genuine row under the same sku, because a
+hide removes every row it has there; otherwise leave it as a note.
 
 Resolving them needs a new mechanism (a `(storeId, sku)` split/"cuts" file that re-keys the odd
 listing out of the shared aggregate, parallel to how `sku_hidden.json` is keyed). Not built yet — **deferred by the owner (2026-09-23) until the full-library audit is complete** and
