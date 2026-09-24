@@ -585,15 +585,17 @@ already produced one false "the audit found nothing".
 
 ### Audit status after the 2026-09-23 session
 
-**Links 6,013, ignores 16,000, collisions 22** (from 5,975 / 13,540 on 2026-09-22). Every cheap
+**Links 5,927, ignores 16,119, collisions 21, hidden 460** (2026-09-24; from 5,975 / 13,540 on 2026-09-22). Every cheap
 surface is adjudicated over all of history: near-miss and want-links (including the v5 residual),
 orphans (3,061), every existing link below the bar (`< 0.30`: 23% wrong; `0.30–0.95`: 13.8% wrong),
 38 ignore↔link contradictions, and the whole review backlog (0 open, bar 5 waiting on the deferred per-store split). **The 0.95–0.99 pilot of the
 above-bar pass found 10.5% wrong** (65 of 622; bridges, editions, gift packs, sizes), so being above
 the bar is weak evidence that a link is right.
 
-**Remaining: the ≥ 0.99 pass** — 2,743 groups in 16 group-major batches, prompt and slices ready in
-`audit/` (see `docs/audit-full-library-plan.md`). It is the owner's go/no-go.
+**The ≥ 0.99 pass: 8 of 9 batches applied, 1.7% wrong (84 of 5,003 edges).** The last batch (r09) is
+waiting for the owner's go (see `docs/audit-full-library-plan.md`). **Collided skus stay in their
+groups** (owner ruling 2026-09-24): no containment unlinks, because collisions will be handled in
+the email pack and the frontend.
 
 Rules from 2026-09-23:
 - **Audit existing links group-major** (`tools/audit_link_group_slice.js`). A band slice hides a
@@ -626,7 +628,7 @@ Findings from 2026-09-22 that still hold:
    evidence that criterion 2 needs `vl[]` read on every row, not just the below-bar funnel.
 5. **An `unlink` writes a hard negative by default and that is usually right — but not when you are
    severing to contain collision damage.** If the two products are genuinely the same and the link
-   only does harm because one sku is polluted, pass `"ignore": false`.
+   only does harm because one sku is polluted, pass `"ignore": false`. (For skus on the collision list, don't cut at all — owner ruling 2026-09-24.)
 
 ### Collided SKUs were corrupting the training set (found 2026-09-22, extended 2026-09-23)
 

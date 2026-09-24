@@ -26,8 +26,11 @@ const min = Number(arg("--min"));
 const max = Number(arg("--max"));
 const batchBytes = Number(arg("--batch-bytes"));
 const root = arg("--root") || path.join(__dirname, "..", ".worktrees", "data");
+// Comma-separated slice files already audited: a group sharing any member with one is skipped, so
+// the remainder can be re-cut at a new size after a calibration run (canon keys shift on apply).
+const exclude = arg("--exclude") ? arg("--exclude").split(",") : [];
 if (!from || !prefix || !Number.isFinite(min) || !Number.isFinite(max) || !Number.isFinite(batchBytes)) {
-	console.error("usage: audit_link_group_slice.js --from <rich.jsonl> --min <p> --max <p> --batch-bytes <n> --out-prefix <path> [--root <worktree>]");
+	console.error("usage: audit_link_group_slice.js --from <rich.jsonl> --min <p> --max <p> --batch-bytes <n> --out-prefix <path> [--root <worktree>] [--exclude <slice.json,…>]");
 	process.exit(2);
 }
 const nk = (s) => normalizeImplicitSkuKey(String(s || "").trim());
@@ -96,12 +99,19 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 		listings.get(k).push([it.storeLabel, it.name, it.price, it.removed ? 1 : 0, String(it.url || "").replace(/^https?:\/\/(www\.)?/, "")]);
 	}
 
+	const done = new Set();
+	for (const f of exclude) for (const g of JSON.parse(fs.readFileSync(f, "utf8")).groups) for (const m of g.members) done.add(m.sku);
+	let excluded = 0;
 	const inBand = (e) => e.src !== "merge-auto" && !e.pin && e.prob !== null && e.prob >= min && e.prob < max;
 	const out = [];
 	let bandEdges = 0;
 	for (const [canon, G] of byGroup) {
 		const n = G.edges.filter(inBand).length;
 		if (!n) continue;
+		if ([...G.members].some((s) => done.has(s))) {
+			excluded++;
+			continue;
+		}
 		bandEdges += n;
 		out.push({
 			canon,
@@ -125,5 +135,6 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 		fs.writeFileSync(f, JSON.stringify({ _meta: { from, band: [min, max], batch: `${i + 1}/${nBatches}`, groups: b.groups.length, edges: e, legend }, groups: b.groups }) + "\n");
 		console.log(`${f}: ${b.groups.length} groups, ${e} edges, ${fs.statSync(f).size} B`);
 	});
+	if (exclude.length) console.log(`excluded ${excluded} group(s) already audited in ${exclude.join(", ")}`);
 	console.log(`${out.length} groups with ${bandEdges} in-band edges (${out.reduce((s, g) => s + g.edges.length, 0)} edges total) → ${nBatches} batches`);
 })();
