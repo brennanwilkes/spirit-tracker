@@ -280,12 +280,23 @@ groups; collisions will be handled in code). Originals are in the session scratc
 `proposal-rest-backlog-2026-09-24.json` (+ its `-unignore` prerequisite, applied first). That meant
 44 ops, links 5,946 → 5,927, ignores → 16,119, and 63 hides into `sku_hidden.json` (27 entries plus a
 sweep of Canadian Liquor Store "(Case of N)" rows). 0 escalations; per-entry log in
-`resolutions-rest-backlog-2026-09-24.jsonl`. **r09 is NOT launched — waiting for the owner's go.** Its slice was cut
+`resolutions-rest-backlog-2026-09-24.jsonl`. **r09 done and applied (2026-09-24): 8 of 629 wrong (1.3%). The ≥ 0.99 pass is COMPLETE: 92 of 5,632
+edges wrong (1.6%).** Its 5 review entries were closed by the coordinator
+(`proposal-r09-backlog-2026-09-24.json`: 2 unlinks on store price ladders, 3 kept), plus 1 hide. **Precision
+is closed:** links 5,921, ignores 16,129, hidden 461.
+
+**Ignore screen tier A done (2026-09-24):** `tools/audit_ignore_slice.js --min 0.8 --max 2`, 694 ignores
+with near-identical names in 1 batch (594 KB). **3 wrong (0.43%)**, not the ~8% the earlier fair screen
+suggested (that screen already fixed the worst). 436 of 689 keeps are genuine size ladders. Applied as
+`proposal-ign-a-unignore` then `-links`; links 5,924, ignores 16,126. Cost: **450K end context, ~0.62
+tokens/byte** (same as the group slices), so B–D would be ~700 KB slices, ~8 agents, ~4M tokens, for an
+expected ≤ 0.3% yield. **Owner stopped the ignore screen here (2026-09-24).** Re-run B–D later with the
+same tool if a retrain's worst-false-negative list points at bad ignores. Its slice was cut
 before this apply; canon keys may have shifted, but its groups are disjoint from r01–r08.
 
 End context at 381 KB was 232–330K (mean ~290K). The refit over 5 points is ~80K fixed +
-~0.6 tokens/byte, so rows are ~75% of context at this size. Future passes: batches of ~550–600 KB
-(~400–450K end context).
+~0.6 tokens/byte, so rows are ~75% of context at this size. Max seen: 330K (33%). Future passes: **~650 KB slices** (~470K end context, under
+the 50% ceiling with room for the ±50K spread); the owner treats 50% as a SOFT limit (2026-09-24): push slice size up run by run until agents end near it, slightly over is fine.
 
 **Done since:**
 - The data-worktree merge is resolved: CI's 4 new links were kept, and every earlier proposal

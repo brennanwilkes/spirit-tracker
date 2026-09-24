@@ -585,15 +585,18 @@ already produced one false "the audit found nothing".
 
 ### Audit status after the 2026-09-23 session
 
-**Links 5,927, ignores 16,119, collisions 21, hidden 460** (2026-09-24; from 5,975 / 13,540 on 2026-09-22). Every cheap
+**Links 5,924, ignores 16,126, collisions 21, hidden 461** (2026-09-24; from 5,975 / 13,540 on 2026-09-22). Every cheap
 surface is adjudicated over all of history: near-miss and want-links (including the v5 residual),
 orphans (3,061), every existing link below the bar (`< 0.30`: 23% wrong; `0.30–0.95`: 13.8% wrong),
 38 ignore↔link contradictions, and the whole review backlog (0 open, bar 5 waiting on the deferred per-store split). **The 0.95–0.99 pilot of the
 above-bar pass found 10.5% wrong** (65 of 622; bridges, editions, gift packs, sizes), so being above
 the bar is weak evidence that a link is right.
 
-**The ≥ 0.99 pass: 8 of 9 batches applied, 1.7% wrong (84 of 5,003 edges).** The last batch (r09) is
-waiting for the owner's go (see `docs/audit-full-library-plan.md`). **Collided skus stay in their
+**The ≥ 0.99 pass is complete: 92 of 5,632 edges wrong (1.6%)**, and every review queue is closed. Precision
+is done. The ignore screen stopped after tier A (`tools/audit_ignore_slice.js`): the near-identical-name ignores
+were only 0.43% wrong (3 of 694), so B–D (~4M tokens) was not worth it. Still optional: the recall backfill
+(~30 agents). Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
+~700 KB end near 50% context, and 50% is a soft limit. **Collided skus stay in their
 groups** (owner ruling 2026-09-24): no containment unlinks, because collisions will be handled in
 the email pack and the frontend.
 
