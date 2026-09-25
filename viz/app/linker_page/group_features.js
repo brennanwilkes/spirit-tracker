@@ -69,7 +69,7 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 		}
 		const norm = normSearchText(name);
 		for (const ml of parseSizesMlFromText(name)) g.sizes.add(bucketMl(ml));
-		const ab = extractAbv(norm);
+		const ab = extractAbv(name);
 		if (ab != null) {
 			g.abvSum += ab;
 			g.abvN++;

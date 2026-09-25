@@ -237,8 +237,8 @@ function decompose(a, b) {
 	if (ageA && ageB) age = ageA === ageB ? 1.8 : 0.2;
 	else if (ageA && !ageB && bareAgeCandidates(normB).has(ageA)) age = 1.8;
 
-	const abvA = extractAbv(normA);
-	const abv = abvA != null ? abvMultiplier(abvA, extractAbv(normB)) : 1;
+	const abvA = extractAbv(ia.name);
+	const abv = abvA != null ? abvMultiplier(abvA, extractAbv(ib.name)) : 1;
 
 	const codesA = extractEditionCodes(normA);
 	const edition =
@@ -377,7 +377,7 @@ for (const [canon, skus] of canonToSkus) {
 			name: it.name,
 			stores: [...it.stores],
 			sizes: parseSizesMlFromText(it.name) || [],
-			abv: extractAbv(norm),
+			abv: extractAbv(it.name),
 			age: extractAgeFromText(norm),
 			codes: extractEditionCodes(norm),
 		};

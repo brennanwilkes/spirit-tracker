@@ -172,7 +172,7 @@ export function prepScorePairCtx(pinned, opts) {
 		age: extractAgeFromText(norm),
 		core: vocab ? spacelessCore(norm) : "",
 		stores: pinned?.stores instanceof Set ? pinned.stores : new Set(pinned?.stores || []),
-		abv: vocab ? extractAbv(norm) : null,
+		abv: vocab ? extractAbv(name) : null,
 		editionCodes: vocab ? extractEditionCodes(name) : null,
 		topTerm: vocab ? vocab.topTerm(name) : null,
 		distinctiveTerms,
@@ -341,7 +341,7 @@ export function scorePairWithVocab(ctx, candidate) {
 		s *= 1.8;
 	}
 
-	if (ctx.abv != null) s *= abvMultiplier(ctx.abv, extractAbv(itNorm));
+	if (ctx.abv != null) s *= abvMultiplier(ctx.abv, extractAbv(itName));
 
 	// Hard if/else on edition codes: SMWS X.YYY / R4 / G1, Roman numerals
 	// (III/IV/V…), season codes (S22/S24/S2023). When both sides carry codes of

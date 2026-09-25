@@ -76,17 +76,23 @@ export function extractAgeFromText(normName) {
 // Best-effort ABV (% alcohol) from a name. Handles "46.8 ABV", "46%",
 // "43.5 % abv", and "92 proof" (→ 46). Returns a number or null. Deliberately
 // soft: ABV is relevant but vaguely formatted, so callers should nudge, not gate.
-export function extractAbv(normName) {
-	const s = String(normName || "");
-	let m = s.match(/(\d{2,3}(?:\.\d+)?)\s*proof\b/i);
-	if (m) {
+// Takes the RAW title: normSearchText strips "%" and ".", which left ABV unparsed for ~80% of the
+// titles that state one. Scans every match, since "100% Islay 50%" has an out-of-range first hit.
+// A bare one-decimal number in 40.0–72.9 ("1997 Linkwood 53.0 Signatory") is read as ABV.
+export function extractAbv(name) {
+	const s = String(name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+	for (const m of s.matchAll(/(\d{2,3}(?:\.\d+)?)\s*proof\b/g)) {
 		const v = parseFloat(m[1]) / 2;
 		if (v >= 20 && v <= 75) return v;
 	}
-	m = s.match(/(\d{2,3}(?:\.\d+)?)\s*(?:%|abv)/i);
+	for (const m of s.matchAll(/(\d{2,3}(?:[.,]\d+)?)\s*(?:%|abv)/g)) {
+		const v = parseFloat(m[1].replace(",", "."));
+		if (v >= 20 && v <= 75) return v;
+	}
+	const m = s.match(/(?:^|[^\d.])([4-7]\d\.\d)(?![\d.])(?!\s*(?:l|ml|cl|oz|litre|liter)\b)/);
 	if (m) {
 		const v = parseFloat(m[1]);
-		if (v >= 20 && v <= 75) return v;
+		if (v >= 40 && v < 73) return v;
 	}
 	return null;
 }

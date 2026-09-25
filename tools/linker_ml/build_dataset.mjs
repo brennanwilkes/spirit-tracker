@@ -167,10 +167,25 @@ if (fs.existsSync(COLLISION_PATH)) {
 }
 let droppedCollisionPairs = 0;
 
+// A listing whose title is only its sku number ("770000") can be linked by a human but matches on
+// nothing but price and size, which taught the GBT "no shared token + same price + same size ⇒ link"
+// (MALIBU 375ML ↔ Highwood Pure Canadian Rye 375ml scored 0.966). Kept out of every pair.
+const namelessSkus = new Set(env.allAgg.filter((it) => !it.name || /^[\s\d:a-z]{0,3}\d+\s*$/i.test(it.name.trim())).map((it) => it.sku));
+let droppedNamelessPairs = 0;
+// A bundle linked to its rare bottle is a POLICY link (data/sku_link_policy.md), not identity: the two
+// really are different purchase units. Such a pair stays linked but is emitted noTrain.
+const BUNDLE_RE = /\b(duo|trio|combo|bundle|gift\s*(set|pack|box|tin)|tasting\s*(set|kit)|sampler|advent|\d+\s*pk|\d+\s*pack|four pack|six pack|set\s+of|w\/\s*glass(es)?|with\s+(\d+\s+)?glass(es)?|glasses)\b|\s\+\s|\b([2-9]|\d\d)\s*x\s*\d{2,4}\s*ml\b|\(case of \d+\)/i;
+const isBundle = (s) => BUNDLE_RE.test(env.bySku.get(s)?.name || "");
+let policyBundlePairs = 0;
+
 function add(a, b, label, kind, noTrain) {
 	if (a === b) return false;
 	if (collisionSkus.has(a) || collisionSkus.has(b)) {
 		droppedCollisionPairs++;
+		return false;
+	}
+	if (namelessSkus.has(a) || namelessSkus.has(b)) {
+		droppedNamelessPairs++;
 		return false;
 	}
 	const k = key(a, b);
@@ -192,7 +207,8 @@ for (const skus of canonToSkus.values()) {
 		for (let j = i + 1; j < skus.length; j++) {
 			const isNoTrain = noTrainPairKeys.has(key(skus[i], skus[j]));
 			if (!isNoTrain) {
-				add(skus[i], skus[j], 1, "pos");
+				const policyOnly = isBundle(skus[i]) !== isBundle(skus[j]);
+				if (add(skus[i], skus[j], 1, "pos", policyOnly) && policyOnly) policyBundlePairs++;
 				if (++count >= POS_PER_GROUP) break outer;
 			}
 		}
@@ -263,6 +279,7 @@ console.log("dataset_pairs.jsonl:", pairs.length, "pairs —", JSON.stringify(co
 // incident happened; if the collisions file grows wrong, the count is the only way to notice.
 console.log(
 	`  excluded ${droppedCollisionPairs} pair(s) touching ${collisionSkus.size} known cross-store sku collision(s) (data/sku_collisions.json)`,
+	`\n  excluded ${droppedNamelessPairs} pair(s) touching ${namelessSkus.size} nameless sku(s); ${policyBundlePairs} bundle↔bottle positive(s) emitted noTrain (policy links)`,
 );
 
 /* ---------------- write sku_texts.jsonl (embedder inputs) ---------------- */
@@ -283,7 +300,7 @@ console.log("sku_texts.jsonl:", nText, "SKUs");
 
 // train_embed.py builds its contrastive positives from these groups, so the collision filter in
 // add() must apply here too or a collided sku is still trained as its group's positive.
-const groups = [...canonToSkus.values()].map((g) => g.filter((s) => !collisionSkus.has(s))).filter((g) => g.length >= 2);
+const groups = [...canonToSkus.values()].map((g) => g.filter((s) => !collisionSkus.has(s) && !namelessSkus.has(s))).filter((g) => g.length >= 2);
 fs.writeFileSync(path.join(OUT_DIR, "groups.json"), JSON.stringify(groups));
 console.log("groups.json:", groups.length, "groups (≥2 members)");
 
