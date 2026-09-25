@@ -75,6 +75,7 @@ export const FEATURE_KEYS = [
 	"grpCountA",
 	"grpCountB",
 	"crossEntityConflicts",
+	"prefixTok",
 	"embedCos",
 ];
 
@@ -103,6 +104,21 @@ function fuzzyVariant(x, y) {
 	const mn = Math.min(x.length, y.length);
 	const mx = Math.max(x.length, y.length);
 	return mx > 0 && (x.startsWith(y) || y.startsWith(x)) && mn / mx >= 0.8;
+}
+
+// Some stores cut titles at ~30 characters ("HIGH WEST RENDE RYE", "Macaloney Kildara Pe"), so the cut
+// word shares no token with the full title. Counts words of xs that are a strict prefix of a word in
+// ys: at least 3 characters, or 2 for the last word when xs is the shorter title.
+function prefixHits(xs, ys, xsIsShorter) {
+	const yset = new Set(ys);
+	let n = 0;
+	for (let i = 0; i < xs.length; i++) {
+		const t = xs[i];
+		if (yset.has(t) || /^\d+$/.test(t)) continue;
+		if (t.length < (xsIsShorter && i === xs.length - 1 ? 2 : 3)) continue;
+		if (ys.some((y) => y.length > t.length && y.startsWith(t))) n++;
+	}
+	return n;
 }
 
 function isBadSkuLite(sku) {
@@ -213,7 +229,7 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 	const ageOneSided = (ageA && !ageB) || (ageB && !ageA) ? 1 : 0;
 
 	const abvA = ctx.abv;
-	const abvB = extractAbv(normB);
+	const abvB = extractAbv(nameB);
 	const abvMult = abvMultiplier(abvA, abvB);
 	const abvBoth = abvA != null && abvB != null ? 1 : 0;
 
@@ -313,6 +329,7 @@ export function extractBlendFeatures(ctx, candidate, opts) {
 		grpStoreOverlap,
 		grpSizeConflict,
 		crossEntityConflicts: entityConflicts,
+		prefixTok: prefixHits(ctx.rawToks || [], rawB, (ctx.norm || "").length <= normB.length) + prefixHits(rawB, ctx.rawToks || [], normB.length < (ctx.norm || "").length),
 		embedCos,
 	};
 }

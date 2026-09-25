@@ -1161,7 +1161,7 @@ strengths are preserved. **The shipping classifier is a gradient-boosted tree** 
 → `gbt_model.json`, run live via `viz/app/linker_page/gbt.js`); a logistic blend
 (`blend_weights.js`) is the graceful fallback. The GBT fixed the linear blend's tail pathologies
 (over-scored zero-token-overlap pairs; under-scored matches with a missing embedding vector).
-Measured held-out auto-link **recall @99% precision: 14.5% → ~69%**.
+Measured held-out auto-link **recall @99% precision: 14.5% → ~69% → 95.2%** (2026-09-24 retrain on the audited labels + ABV-parser, slug, hygiene and `prefixTok` fixes; see `tools/linker_ml/CLAUDE.md`).
 
 **Start here:** `tools/linker_ml/CLAUDE.md` — the iteration + **re-train** guide (the retrain
 chain to re-run when the labeled set grows, the venv prereqs, the no-leakage group split, the

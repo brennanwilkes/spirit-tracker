@@ -311,7 +311,7 @@ function groupAbvMean(members, env) {
 	let s = 0;
 	let n = 0;
 	for (const m of members) {
-		const a = extractAbv(normSearchText(env.bySku.get(String(m))?.name || ""));
+		const a = extractAbv(env.bySku.get(String(m))?.name || "");
 		if (a != null) {
 			s += a;
 			n++;
@@ -473,7 +473,7 @@ export function skuToTextEnriched(sku, env) {
 			if (ym) year = ym[1];
 		}
 		if (abv == null) {
-			const a = extractAbv(norm);
+			const a = extractAbv(nm);
 			if (a != null) abv = a;
 		}
 	}
@@ -487,7 +487,37 @@ export function skuToTextEnriched(sku, env) {
 	if (year) parts.push("year", String(year));
 	const cat = categoryWord(it.name);
 	if (cat) parts.push(cat);
+	const slugExtra = slugOnlyTokens(it);
+	if (slugExtra.length) parts.push(...slugExtra);
 	return parts.join(" ");
+}
+
+// Words a store put in the product-url slug but not in the title ("…-16-year-old-cask-strength" under a
+// title of "anCnoc 16 Year Old"). Numbers are dropped: size/abv/age are parsed from titles, and slug
+// numbers are often store ids or stale.
+const SLUG_STOP = new Set("the and with for aglc cls products product shop spirits whisky whiskey scotch single malt ml abv size year".split(" "));
+function slugOnlyTokens(it) {
+	const titleToks = new Set(tokenizeQuery(normSearchText(it.name || "")));
+	const out = [];
+	for (const url of it.urlsByStore.values()) {
+		let seg;
+		try {
+			seg = new URL(url).pathname.split("/").filter(Boolean).pop() || "";
+		} catch {
+			continue;
+		}
+		const toks = tokenizeQuery(normSearchText(seg));
+		for (let i = 0; i < toks.length; i++) {
+			const t = toks[i];
+			if (/^\d{1,2}$/.test(t) && /^(year|years|yr|yrs|yo)$/.test(toks[i + 1] || "")) {
+				if (!titleToks.has(t) && !out.includes(t)) out.push(t);
+				continue;
+			}
+			if (t.length < 3 || (/\d/.test(t) && !/^\d+(st|nd|rd|th)$/.test(t)) || SLUG_STOP.has(t) || titleToks.has(t) || out.includes(t)) continue;
+			out.push(t);
+		}
+	}
+	return out.slice(0, 6);
 }
 
 // Structured single-SKU representation — the "right shape" for any downstream model.
@@ -506,7 +536,7 @@ export function featurizeSku(sku, env) {
 		toks,
 		distinctiveToks: [...(distinctive || [])],
 		sizesMl: parseSizesMlFromText(name),
-		abv: extractAbv(norm),
+		abv: extractAbv(name),
 		age: extractAgeFromText(norm) || null,
 		editionCodes: [...(extractEditionCodes(name) || [])],
 		smws: smwsKeyFromName(name) || null,

@@ -16,6 +16,53 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## ★ Retrain 2026-09-24 (SHIPPED, `MODEL_VERSION` 2026-09-24): TEST rec@99 **95.2%**, AUC+ 0.9991
+
+First retrain on the fully audited label set (see `docs/audit-full-library-plan.md`), then four fixes,
+each measured as an A/B. The re-baseline on the corrected labels came first, as required below.
+
+| TEST | rec@99 | AUC+ | OOF misses / false links at the 0.95 bar |
+|---|---|---|---|
+| shipped 06-06 encoder, GBT refit on audited labels | 86.8% | 0.9960 | — |
+| + retrained encoder | 92.9% | 0.9982 | — |
+| + ABV parser fix | 94.9% | 0.9985 | 938 / 31 |
+| + url-slug words in the encoder text | 94.8% | 0.9989 | 890 / 33 |
+| + training hygiene | 94.8% | 0.9991 | 863 / 34 |
+| **+ `prefixTok` (shipped)** | **95.2%** | **0.9991** | **845 / 32** |
+
+What each fix is:
+- **ABV parser.** `extractAbv` was fed `normSearchText(name)`, which strips `%` and `.`, so ABV parsed for
+  740 of 34,213 listings when 3,429 titles state one. It now takes the RAW title (every call site passes
+  it), scans every match ("100% Islay 50%"), and reads a bare one-decimal 40.0–72.9 ("Linkwood 53.0").
+  Coverage is 3,799 listings.
+- **URL-slug words** (`featurize.mjs::slugOnlyTokens`, encoder text only): up to 6 slug words not in the
+  title, ordinals kept (`4th`), a number kept only before `year`/`yr`/`yo` (Kirk & Sweeney
+  `…-18-year-old`), other numbers dropped because slugs carry store ids and stale years.
+- **Training hygiene** (`build_dataset.mjs`): nameless skus (title is only the sku number) are dropped
+  from every pair and from `groups.json`. They taught "no shared token + same price + same size ⇒ link"
+  (MALIBU 375ML ↔ Highwood Pure Canadian Rye 375ml at 0.966). A bundle↔bottle positive (one side
+  matches `BUNDLE_RE`) is a POLICY link, so it is emitted `noTrain`.
+- **`prefixTok`** (`blend.js::extractBlendFeatures`, shared by training and the live ranker): words of
+  either title that are a strict prefix of a word in the other (≥3 chars, ≥2 for the shorter title's last
+  word). Tudor, Gull, Strath and Liquor Warehouse cut titles near 30 characters ("HIGH WEST RENDE RYE").
+
+**The encoder fine-tune is NOT deterministic.** Two runs on identical inputs gave vectors with mean
+cosine 0.969 (min 0.93), and ±130 pairs of OOF churn, even though `train_embed.py` seeds its RNGs
+(CPU thread nondeterminism). So a full-chain A/B mixes the change with encoder noise. **Test a GBT or
+feature change with the embeddings held fixed** (copy the baseline `embeddings.json` back, re-run
+`dump_features`, `export_gbt`, `oof_misses`). Only encoder-text changes need a new fine-tune, and
+their deltas are noisy. The shipped checkpoint is the one whose numbers were measured, not a fresh run.
+
+**Miss analysis over the whole labeled set:** `oof_misses.py` (5 group-folds, out-of-fold GBT scores
+for every pair) then `report_oof_misses.mjs [bar]` → `out/oof_misses.json` with both sides' titles,
+stores, prices and slugs. Remaining misses at the bar, by class: about half score 0.80–0.95 (right, but
+under-confident), truncated or abbreviated titles, brand aliases and rebrands (Plantation ↔ Planteray,
+"A Dundee" = Glencadam, TBWC, Càrn Mòr "Str Cask Carn"), and a few label errors. The remaining false
+links are differences the listing data does not carry (store picks, editions, batch strength). Hard
+caps on the conflict features were measured and rejected: the concept conflict fires on 133 true
+links above the bar for every 3 false ones, and the store category is misfiled too often. **The owner
+prefers improving the model over lowering the 0.95 bar**; a lower bar needs proof on real CI output.
+
 ## ⚠ 2026-09-23 — label-key fixes: every metric below was measured on a partly broken dataset
 
 Label files name `id:`-sourced listings in BOTH forms (`id:1049495` and bare `1049495`); every

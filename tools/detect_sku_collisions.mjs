@@ -13,6 +13,7 @@
 // That judgement is the agent's — see docs/audit-runbook.md, "One sku, two products".
 import fs from "node:fs";
 import path from "node:path";
+import { normalizeImplicitSkuKey } from "../viz/app/sku_canonical.js";
 
 const root = process.argv.includes("--root") ? process.argv[process.argv.indexOf("--root") + 1] : ".worktrees/data";
 const outFile = process.argv.includes("--out") ? process.argv[process.argv.indexOf("--out") + 1] : "audit/sku-collisions.json";
@@ -30,13 +31,13 @@ const STOP = new Set(("ml l litre liter cl oz bottle bottles whisky whiskey scot
 // same reason ("Bells" / "Bell's" / "Bell").
 const fold = (t) => (t.length > 3 && t.endsWith("s") ? t.slice(0, -1) : t);
 const norm = (s) => String(s || "").toLowerCase().replace(/['’`]/g, "").replace(/[^a-z0-9\s]/g, " ")
-	.split(/\s+/).filter((t) => t && !STOP.has(t) && !/^\d+$/.test(t)).map(fold)
+	.split(/\s+/).filter((t) => t && !STOP.has(t) && !/^\d+(ml|l|cl|oz|abv|yo|yr|y)?$/.test(t)).map(fold)
 	.filter((t) => !STOP.has(t));
 
 const bySku = new Map();
 for (const it of idx.items) {
 	if (!it || !it.sku) continue;
-	const k = it.sku;
+	const k = normalizeImplicitSkuKey(it.sku);
 	if (!bySku.has(k)) bySku.set(k, []);
 	bySku.get(k).push({ store: it.storeLabel || it.store, name: it.name, price: it.price, removed: !!it.removed, url: it.url });
 }
