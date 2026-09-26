@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-26T10:36:26.761Z",
+  "generatedAt": "2026-09-26T20:38:09.578Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6613,
-    "removedRows": 1250,
-    "canonSkus": 2578,
+    "liveRows": 6602,
+    "removedRows": 1261,
+    "canonSkus": 2576,
     "outputCount": 250
   },
   "rows": [
@@ -1545,59 +1545,6 @@
       }
     },
     {
-      "canonSku": "249680",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "arc": 111.69,
-        "bcl": 120.99,
-        "everythingwine": 120.99,
-        "gull": 125.99,
-        "highpointbws": 121.79,
-        "legacyliquor": 132.99,
-        "liquorwarehouse": 122.99,
-        "strath": 120.53,
-        "tudor": 120.99,
-        "vessel": 114.99,
-        "vintage": 133.83
-      },
-      "representative": {
-        "name": "TALISKER 10YO",
-        "price": "$111.69",
-        "priceNum": 111.69,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$111.69",
-        "priceNum": 111.69,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo"
-      }
-    },
-    {
       "canonSku": "424245",
       "storeCount": 11,
       "stores": [
@@ -2070,58 +2017,6 @@
       }
     },
     {
-      "canonSku": "063379",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liberty",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liquorwarehouse",
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 72.79,
-        "bcl": 79.99,
-        "everythingwine": 86.98,
-        "gull": 75.9,
-        "legacyliquor": 90.31,
-        "liberty": 53.99,
-        "newdistrict": 85.29,
-        "strath": 82.53,
-        "tudor": 84.99,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "Shelter Point Classic Single Malt Whisky",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "liberty",
-        "storeLabel": "Liberty Wine Merchants",
-        "skuRaw": "063379",
-        "skuKey": "063379",
-        "url": "https://www.libertywinemerchants.com/product/63379/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/liberty__whisky__4216f1a8.json"
-      },
-      "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "liberty",
-        "url": "https://www.libertywinemerchants.com/product/63379/"
-      }
-    },
-    {
       "canonSku": "074548",
       "storeCount": 10,
       "stores": [
@@ -2587,6 +2482,58 @@
         "priceNum": 144.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch-05000281002989"
+      }
+    },
+    {
+      "canonSku": "249680",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 111.69,
+        "bcl": 120.99,
+        "everythingwine": 120.99,
+        "gull": 125.99,
+        "highpointbws": 121.79,
+        "legacyliquor": 132.99,
+        "liquorwarehouse": 122.99,
+        "tudor": 120.99,
+        "vessel": 114.99,
+        "vintage": 133.83
+      },
+      "representative": {
+        "name": "TALISKER 10YO",
+        "price": "$111.69",
+        "priceNum": 111.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$111.69",
+        "priceNum": 111.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587702-talisker-10yo"
       }
     },
     {
@@ -4080,6 +4027,57 @@
       }
     },
     {
+      "canonSku": "063379",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liberty",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 72.79,
+        "bcl": 79.99,
+        "everythingwine": 86.98,
+        "gull": 75.9,
+        "legacyliquor": 90.31,
+        "liberty": 53.99,
+        "newdistrict": 85.29,
+        "tudor": 84.99,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "Shelter Point Classic Single Malt Whisky",
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "liberty",
+        "storeLabel": "Liberty Wine Merchants",
+        "skuRaw": "063379",
+        "skuKey": "063379",
+        "url": "https://www.libertywinemerchants.com/product/63379/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/liberty__whisky__4216f1a8.json"
+      },
+      "cheapest": {
+        "price": "$53.99",
+        "priceNum": 53.99,
+        "storeKey": "liberty",
+        "url": "https://www.libertywinemerchants.com/product/63379/"
+      }
+    },
+    {
       "canonSku": "070456",
       "storeCount": 9,
       "stores": [
@@ -5403,57 +5401,6 @@
         "priceNum": 29.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5255941-tanqueray-rangpur"
-      }
-    },
-    {
-      "canonSku": "956953",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "vessel"
-      ],
-      "missingStores": [
-        "bcl",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 73.29,
-        "everythingwine": 73.98,
-        "gull": 78.25,
-        "highpointbws": 82.79,
-        "legacyliquor": 85.99,
-        "liberty": 99.99,
-        "marquis": 87.99,
-        "newdistrict": 78.29,
-        "vessel": 79.99
-      },
-      "representative": {
-        "name": "OKANAGAN SPIRITS BRBN",
-        "price": "$73.29",
-        "priceNum": 73.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "956953",
-        "skuKey": "956953",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-okanagan-spirits-brbn",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$73.29",
-        "priceNum": 73.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-okanagan-spirits-brbn"
       }
     },
     {
@@ -8254,6 +8201,56 @@
         "priceNum": 55.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
+      }
+    },
+    {
+      "canonSku": "956953",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "vessel"
+      ],
+      "missingStores": [
+        "bcl",
+        "legacyliquor",
+        "liquorwarehouse",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 73.29,
+        "everythingwine": 73.98,
+        "gull": 78.25,
+        "highpointbws": 82.79,
+        "liberty": 99.99,
+        "marquis": 87.99,
+        "newdistrict": 78.29,
+        "vessel": 79.99
+      },
+      "representative": {
+        "name": "OKANAGAN SPIRITS BRBN",
+        "price": "$73.29",
+        "priceNum": 73.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "956953",
+        "skuKey": "956953",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-okanagan-spirits-brbn",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$73.29",
+        "priceNum": 73.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4592099-okanagan-spirits-brbn"
       }
     },
     {
