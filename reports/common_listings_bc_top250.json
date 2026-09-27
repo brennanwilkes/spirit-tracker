@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-27T11:14:08.894Z",
+  "generatedAt": "2026-09-27T20:44:33.597Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,67 +32,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6602,
-    "removedRows": 1273,
-    "canonSkus": 2574,
+    "liveRows": 6600,
+    "removedRows": 1276,
+    "canonSkus": 2573,
     "outputCount": 250
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 27.99,
-        "everythingwine": 29.99,
-        "gull": 27.99,
-        "highpointbws": 32.79,
-        "legacyliquor": 31.81,
-        "liberty": 36.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 29.99,
-        "vessel": 29.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "BOMBAY SAPPHIRE - LONDON DRY",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://www.bcliquorstores.com/product/316844",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/316844"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 14,
@@ -146,6 +91,61 @@
         "priceNum": 27.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/crown-royal-750m/"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 27.99,
+        "everythingwine": 29.99,
+        "gull": 27.99,
+        "highpointbws": 32.79,
+        "legacyliquor": 31.81,
+        "liberty": 36.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 29.99,
+        "vessel": 29.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "BOMBAY SAPPHIRE - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://www.bcliquorstores.com/product/316844",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/316844"
       }
     },
     {
@@ -4740,57 +4740,6 @@
       }
     },
     {
-      "canonSku": "387316",
-      "storeCount": 9,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 124.99,
-        "everythingwine": 124.99,
-        "gull": 129.99,
-        "highpointbws": 134.49,
-        "legacyliquor": 128.85,
-        "liquorwarehouse": 114.99,
-        "marquis": 127.99,
-        "tudor": 124.99,
-        "vessel": 119.99
-      },
-      "representative": {
-        "name": "BALVENIE 12 YEAR DOUBLE WOOD 700ML",
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "liquorwarehouse",
-        "storeLabel": "Liquor Warehouse",
-        "skuRaw": "387316",
-        "skuKey": "387316",
-        "url": "https://liquorwarehouse.ca/products/balvenie-12-year-double-wood",
-        "categoryLabel": "Whiskey/Scotch",
-        "dbFile": "data/db/liquorwarehouse__whiskey-scotch__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$114.99",
-        "priceNum": 114.99,
-        "storeKey": "liquorwarehouse",
-        "url": "https://liquorwarehouse.ca/products/balvenie-12-year-double-wood"
-      }
-    },
-    {
       "canonSku": "404723",
       "storeCount": 9,
       "stores": [
@@ -7498,6 +7447,56 @@
         "priceNum": 32.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588720-goslings-black-seal-rum"
+      }
+    },
+    {
+      "canonSku": "387316",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 124.99,
+        "everythingwine": 124.99,
+        "gull": 129.99,
+        "highpointbws": 134.49,
+        "legacyliquor": 128.85,
+        "marquis": 127.99,
+        "tudor": 124.99,
+        "vessel": 119.99
+      },
+      "representative": {
+        "name": "Balvenie - Double Wood 12 Year Old Single Malt Scotch",
+        "price": "$119.99",
+        "priceNum": 119.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "387316",
+        "skuKey": "387316",
+        "url": "https://vesselliquor.com/products/balvenie-double-wood-12-year-old-single-malt-scotch-05010327505138",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$119.99",
+        "priceNum": 119.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/balvenie-double-wood-12-year-old-single-malt-scotch-05010327505138"
       }
     },
     {
