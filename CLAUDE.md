@@ -233,6 +233,7 @@ consumers** — that would defeat the design.
 - Enforcement: pre-aggregation filter in `viz/app/catalog.js` and at each page that loads from the index (`search_page.js`, `store_page.js`, `shortlist_page.js`, `item_page.js`); pre-emit filter in `tools/build_viz_recent.js` and `tools/build_common_listings.js`; ingest-time filter in `tools/build_email_event_pack.js::ingestDbObject` (so nothing about the hidden listing enters events/offers/cheapest).
 - `tools/build_viz_sku_cache.js` and the scraper itself are intentionally NOT filtered — data preservation. Hide is a presentation/notification concern only.
 - `.github/workflows/pages.yaml` stages `data/sku_hidden.json → viz/data/` parallel to `sku_links*.json` so the deployed SPA can fetch it.
+- **Multi-dram sets are hidden (owner ruling 2026-09-28):** advent calendars and tasting/taster/discovery/sampler sets, hidden on every store carrying the sku. Brand gift packs of minis (Jameson 3×50ml) and packs of real bottles (Old Forester 3×375, Appleton 3×200) stay tracked. Still manual; no name-pattern rule.
 
 ## Rarity Scoring
 
@@ -605,6 +606,7 @@ Rules from 2026-09-23:
   group's out-of-band edges, so splits decided from it come out incomplete.
 - **Cap row-major orphan batches at ~200 KB**; one 251 KB batch hit 49%.
 - **Merge concurrent proposals before applying** (`tools/merge_audit_proposals.js`).
+- **Commit an applied proposal before the next cron run.** CI cannot see an uncommitted ignore: the 2026-09-24 sweeps sat unpushed for 4 days, and CI auto-linked a pair one of them had rejected. A `git pull` over the dirty file would have dropped 48 ignores. To recover, back up the file, pull clean, and re-apply the proposals; they are idempotent.
 - **A wrong `merge-auto` edge is removed with the applier's `unlink-auto` op.** It writes an ignore,
   and `src/tracker/sku_auto_links.js` skips ignored pairs, so the scraper cannot re-add it. That
   writer now also throws on an unparseable file instead of rewriting it from empty.
@@ -634,6 +636,8 @@ Findings from 2026-09-22 that still hold:
    only does harm because one sku is polluted, pass `"ignore": false`. (For skus on the collision list, don't cut at all — owner ruling 2026-09-24.)
 
 ### Collided SKUs were corrupting the training set (found 2026-09-22, extended 2026-09-23)
+
+**Planned fix (2026-09-25): `docs/sku-collision-split-plan.md`.** Each collision entry gets a `split[]` that re-keys chosen `(storeId, sku[, url])` listings to a synthetic `c:<sku>:<tag>` wherever a `data/db` row is read, so the guards below can be retired. Until it ships, everything in this section still holds.
 
 `tools/linker_ml/build_dataset.mjs` builds positives as the full transitive CLOSURE of each
 canonical group, asserting in a comment that "every pairing is a valid positive". False twice: one
@@ -790,6 +794,8 @@ Bruichladdich vs Bruichladdich Rare Cask, plus the two already-known FPs (Aberfe
 `id:8289118`, Traveller `153264` ↔ `102811`).
 
 ### `status:"pending"` and the review watermark are now vestigial (2026-09-20)
+
+**Removal planned (2026-09-25): `docs/link-pages-removal-plan.md`.** It deletes `#/link`, `#/link-rapid`, `#/link-review`, the GitHub-issue edit flow, the localStorage pending overlay and `status:"pending"`.
 
 Both exist only to serve `#/link-review`, and the link pages are being deleted. The owner's call:
 **no use needs to be preserved.** Either repurpose the field or drop it — "I don't really care."
