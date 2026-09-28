@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-28T12:21:34.085Z",
+  "generatedAt": "2026-09-28T23:02:25.439Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,12 +32,67 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6594,
+    "liveRows": 6589,
     "removedRows": 1284,
-    "canonSkus": 2574,
+    "canonSkus": 2570,
     "outputCount": 50
   },
   "rows": [
+    {
+      "canonSku": "001487",
+      "storeCount": 14,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 28.49,
+        "everythingwine": 30.49,
+        "gull": 27.99,
+        "highpointbws": 32.79,
+        "legacyliquor": 32.3,
+        "liberty": 38.99,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 31.31,
+        "tudor": 27.99,
+        "vessel": 31.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "Crown Royal 750ml",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
+      }
+    },
     {
       "canonSku": "001232",
       "storeCount": 13,
@@ -91,61 +146,6 @@
         "priceNum": 27.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/316844"
-      }
-    },
-    {
-      "canonSku": "001487",
-      "storeCount": 13,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 28.49,
-        "everythingwine": 30.49,
-        "gull": 27.99,
-        "highpointbws": 32.79,
-        "liberty": 38.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 31.31,
-        "tudor": 27.99,
-        "vessel": 31.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "Crown Royal 750ml",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
       }
     },
     {
@@ -395,7 +395,7 @@
         "everythingwine": 55.99,
         "gull": 59.5,
         "highpointbws": 61.99,
-        "legacyliquor": 58.7,
+        "legacyliquor": 59.51,
         "liberty": 71.99,
         "liquorwarehouse": 57.49,
         "marquis": 57.99,
