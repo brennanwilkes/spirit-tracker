@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-27T20:44:33.597Z",
+  "generatedAt": "2026-09-28T12:21:34.409Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,67 +32,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6600,
-    "removedRows": 1276,
-    "canonSkus": 2573,
+    "liveRows": 6594,
+    "removedRows": 1284,
+    "canonSkus": 2574,
     "outputCount": 250
   },
   "rows": [
-    {
-      "canonSku": "001487",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 28.49,
-        "everythingwine": 30.49,
-        "gull": 27.99,
-        "highpointbws": 32.79,
-        "legacyliquor": 32.3,
-        "liberty": 38.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 31.31,
-        "tudor": 27.99,
-        "vessel": 31.99,
-        "vintage": 33.39
-      },
-      "representative": {
-        "name": "Crown Royal 750ml",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
-      }
-    },
     {
       "canonSku": "001232",
       "storeCount": 13,
@@ -146,6 +91,61 @@
         "priceNum": 27.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/316844"
+      }
+    },
+    {
+      "canonSku": "001487",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 28.49,
+        "everythingwine": 30.49,
+        "gull": 27.99,
+        "highpointbws": 32.79,
+        "liberty": 38.99,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 31.31,
+        "tudor": 27.99,
+        "vessel": 31.99,
+        "vintage": 33.39
+      },
+      "representative": {
+        "name": "Crown Royal 750ml",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://gullliquorstore.com/product/crown-royal-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/crown-royal-750m/"
       }
     },
     {
@@ -618,7 +618,7 @@
         "marquis": 81.99,
         "strath": 80.87,
         "tudor": 74.99,
-        "vessel": 74.99,
+        "vessel": 79.99,
         "vintage": 75.57
       },
       "representative": {
@@ -672,7 +672,7 @@
         "marquis": 52.99,
         "strath": 54.7,
         "tudor": 50.99,
-        "vessel": 49.99,
+        "vessel": 52.99,
         "vintage": 56.43
       },
       "representative": {
@@ -1205,7 +1205,7 @@
         "newdistrict": 58.49,
         "strath": 58.17,
         "tudor": 55.99,
-        "vessel": 52.99
+        "vessel": 56.99
       },
       "representative": {
         "name": "Victoria Distillers Empress 1908 Cucumber Lemon Gin 750 mL",
@@ -1311,7 +1311,7 @@
         "marquis": 82.99,
         "strath": 79.22,
         "tudor": 73.99,
-        "vessel": 74.99
+        "vessel": 79.99
       },
       "representative": {
         "name": "Laphroaig Distillery 10Yr Old Islay Scotch Malt Whisky 750 mL",
@@ -1363,7 +1363,7 @@
         "liberty": 54.99,
         "strath": 47.74,
         "tudor": 45.99,
-        "vessel": 42.99,
+        "vessel": 46.99,
         "vintage": 40.78
       },
       "representative": {
@@ -1576,7 +1576,7 @@
         "liquorwarehouse": 41.99,
         "newdistrict": 44.49,
         "tudor": 35.99,
-        "vessel": 36.99
+        "vessel": 39.99
       },
       "representative": {
         "name": "CITADELLE JARDIN DETE",
@@ -1735,7 +1735,7 @@
         "marquis": 91.99,
         "strath": 105.66,
         "tudor": 89.99,
-        "vessel": 84.99
+        "vessel": 89.99
       },
       "representative": {
         "name": "Laphroaig – Quarter Cask 750ml",
@@ -1995,7 +1995,7 @@
         "newdistrict": 138.79,
         "strath": 130.44,
         "tudor": 129.99,
-        "vessel": 124.99
+        "vessel": 129.99
       },
       "representative": {
         "name": "Macallan – Double Cask 12 Year Old 750ml",
@@ -2151,7 +2151,7 @@
         "liquorwarehouse": 68.49,
         "strath": 70.78,
         "tudor": 66.99,
-        "vessel": 64.99
+        "vessel": 69.99
       },
       "representative": {
         "name": "Bumbu XO Rum 750 mL",
@@ -2411,7 +2411,7 @@
         "liquorwarehouse": 160,
         "newdistrict": 164.99,
         "tudor": 154.99,
-        "vessel": 144.99
+        "vessel": 149.99
       },
       "representative": {
         "name": "OBAN - 14 YEAR OLD",
@@ -2462,7 +2462,7 @@
         "legacyliquor": 132.99,
         "liquorwarehouse": 122.99,
         "tudor": 120.99,
-        "vessel": 114.99,
+        "vessel": 119.99,
         "vintage": 133.83
       },
       "representative": {
@@ -2515,7 +2515,7 @@
         "newdistrict": 46.79,
         "strath": 46.18,
         "tudor": 43.99,
-        "vessel": 39.99
+        "vessel": 44.99
       },
       "representative": {
         "name": "REIFEL RYE CANADIAN WHISKY",
@@ -2567,7 +2567,7 @@
         "liquorwarehouse": 32.99,
         "strath": 32.96,
         "tudor": 32.99,
-        "vessel": 29.99
+        "vessel": 32.99
       },
       "representative": {
         "name": "JP Wiser's 10 Year Old Canadian Whisky 750 mL",
@@ -2671,7 +2671,7 @@
         "marquis": 56.99,
         "newdistrict": 58.99,
         "tudor": 54.99,
-        "vessel": 51.99
+        "vessel": 55.99
       },
       "representative": {
         "name": "Bruichladdich The Botanist Islay Dry Gin 750 mL",
@@ -2879,25 +2879,25 @@
         "liquorwarehouse": 129.99,
         "newdistrict": 131.29,
         "tudor": 124.99,
-        "vessel": 109.99
+        "vessel": 119.99
       },
       "representative": {
-        "name": "Bowmore - 15 Year Old Single Malt Scotch",
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "BOWMORE 15 YEAR OLD",
+        "price": "$111.69",
+        "priceNum": 111.69,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "503649",
         "skuKey": "503649",
-        "url": "https://vesselliquor.com/products/bowmore-15-yo-05010496000953",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4590391-bowmore-15-year-old",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
       },
       "cheapest": {
-        "price": "$109.99",
-        "priceNum": 109.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bowmore-15-yo-05010496000953"
+        "price": "$111.69",
+        "priceNum": 111.69,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4590391-bowmore-15-year-old"
       }
     },
     {
@@ -3414,57 +3414,6 @@
       }
     },
     {
-      "canonSku": "003517",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.99,
-        "bcl": 11.99,
-        "everythingwine": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.9,
-        "liquorwarehouse": 12.49,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISERS SPECIAL BLEND 375ML",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
-      }
-    },
-    {
       "canonSku": "004465",
       "storeCount": 9,
       "stores": [
@@ -3800,7 +3749,7 @@
         "legacyliquor": 39.82,
         "liquorwarehouse": 37.99,
         "tudor": 34.99,
-        "vessel": 36.99
+        "vessel": 39.99
       },
       "representative": {
         "name": "BUSHMILLS IRISH WHISKEY",
@@ -3902,25 +3851,25 @@
         "liquorwarehouse": 56.99,
         "newdistrict": 57.99,
         "tudor": 54.99,
-        "vessel": 53.99
+        "vessel": 55.99
       },
       "representative": {
-        "name": "Bacardi - White Rum",
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "BACARDI - SUPERIOR WHITE",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "045898",
         "skuKey": "045898",
-        "url": "https://vesselliquor.com/products/bacardi-white-rum-1750-ml",
-        "categoryLabel": "Rum / Cane Spirit",
-        "dbFile": "data/db/vessel__rum-cane-spirit__f0a980b4.json"
+        "url": "https://www.bcliquorstores.com/product/45898",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$53.99",
-        "priceNum": 53.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bacardi-white-rum-1750-ml"
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/45898"
       }
     },
     {
@@ -4361,7 +4310,7 @@
         "marquis": 112.99,
         "strath": 111.44,
         "tudor": 114.99,
-        "vessel": 104.99
+        "vessel": 109.99
       },
       "representative": {
         "name": "EDRADOUR 10YO",
@@ -4973,7 +4922,7 @@
         "legacyliquor": 185.08,
         "liquorwarehouse": 167.99,
         "tudor": 169.99,
-        "vessel": 164.99
+        "vessel": 169.99
       },
       "representative": {
         "name": "ABERLOUR ABUNADH",
@@ -5497,6 +5446,56 @@
         "priceNum": 35.79,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795735-bacardi-gold-1-14l"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.99,
+        "bcl": 11.99,
+        "everythingwine": 11.99,
+        "gull": 13.05,
+        "liquorwarehouse": 12.49,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISERS SPECIAL BLEND 375ML",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
       }
     },
     {
@@ -6127,7 +6126,7 @@
         "liquorwarehouse": 89.99,
         "marquis": 89.99,
         "tudor": 87.99,
-        "vessel": 82.49,
+        "vessel": 89.99,
         "vintage": 99.04
       },
       "representative": {
@@ -6328,25 +6327,25 @@
         "liquorwarehouse": 62.99,
         "strath": 63.39,
         "tudor": 59.99,
-        "vessel": 56.99
+        "vessel": 59.99
       },
       "representative": {
-        "name": "Hendrick's - Oasium Gin",
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "HENDRICKS OASIUM – 750M",
+        "price": "$59.80",
+        "priceNum": 59.8,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
         "skuRaw": "281036",
         "skuKey": "281036",
-        "url": "https://vesselliquor.com/products/hendricks-oasium-gin-05010327704210",
+        "url": "https://gullliquorstore.com/product/hendricks-oasium-750m/",
         "categoryLabel": "Gin",
-        "dbFile": "data/db/vessel__gin__679fac36.json"
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
       },
       "cheapest": {
-        "price": "$56.99",
-        "priceNum": 56.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/hendricks-oasium-gin-05010327704210"
+        "price": "$59.80",
+        "priceNum": 59.8,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/hendricks-oasium-750m/"
       }
     },
     {
@@ -6478,7 +6477,7 @@
         "legacyliquor": 49.35,
         "liquorwarehouse": 48.99,
         "tudor": 47.99,
-        "vessel": 45.99
+        "vessel": 49.99
       },
       "representative": {
         "name": "Flor De Cana 12 Yr Centenario Rum 750 mL",
@@ -6578,7 +6577,7 @@
         "legacyliquor": 58.87,
         "liquorwarehouse": 57.99,
         "tudor": 55.99,
-        "vessel": 52.99
+        "vessel": 56.99
       },
       "representative": {
         "name": "Hendrick's Another Gin 750 mL",
@@ -7428,7 +7427,7 @@
         "highpointbws": 36.49,
         "legacyliquor": 35.65,
         "tudor": 34.99,
-        "vessel": 33.99
+        "vessel": 35.99
       },
       "representative": {
         "name": "GOSLINGS BLACK SEAL RUM",
@@ -7578,7 +7577,7 @@
         "liberty": 145.99,
         "strath": 118.05,
         "tudor": 109.99,
-        "vessel": 109.99
+        "vessel": 114.99
       },
       "representative": {
         "name": "Glendronach 12 Year Old Single Malt Scotch Whisky 750 mL",
@@ -7678,7 +7677,7 @@
         "newdistrict": 38.99,
         "strath": 37.09,
         "tudor": 31.99,
-        "vessel": 32.99
+        "vessel": 35.99
       },
       "representative": {
         "name": "Crown Royal Northern Harvest Whisky 750 mL",
@@ -7878,7 +7877,7 @@
         "legacyliquor": 30.92,
         "liquorwarehouse": 31.49,
         "tudor": 30.49,
-        "vessel": 27.99
+        "vessel": 29.99
       },
       "representative": {
         "name": "Hendricks Dry Gin 375 mL",
@@ -8817,7 +8816,7 @@
         "gull": 41,
         "highpointbws": 45.79,
         "tudor": 42.99,
-        "vessel": 39.99
+        "vessel": 44.99
       },
       "representative": {
         "name": "The Famous Grouse Matthew Gloag Scotch Whisky 1.14L",
@@ -9623,55 +9622,6 @@
       }
     },
     {
-      "canonSku": "199816",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "legacyliquor",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 106.29,
-        "bcl": 109.99,
-        "everythingwine": 108.99,
-        "legacyliquor": 118.99,
-        "marquis": 112.99,
-        "tudor": 112.99,
-        "vessel": 109.99
-      },
-      "representative": {
-        "name": "REDBREAST LUSTAU IRISH WHISKEY",
-        "price": "$106.29",
-        "priceNum": 106.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "199816",
-        "skuKey": "199816",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4651423-redbreast-lustau-irish-whiskey",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$106.29",
-        "priceNum": 106.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4651423-redbreast-lustau-irish-whiskey"
-      }
-    },
-    {
       "canonSku": "209544",
       "storeCount": 7,
       "stores": [
@@ -9748,74 +9698,25 @@
         "highpointbws": 44.79,
         "strath": 44.53,
         "tudor": 42.99,
-        "vessel": 39.99
+        "vessel": 42.99
       },
       "representative": {
-        "name": "Glenfiddich - 12 Year Old Single Malt Scotch (375ml)",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "GLENFIDDICH 12YO",
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "252312",
         "skuKey": "252312",
-        "url": "https://vesselliquor.com/products/glenfiddich-12-year-old-single-malt-scotch-375-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587735-glenfiddich-12yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glenfiddich-12-year-old-single-malt-scotch-375-ml"
-      }
-    },
-    {
-      "canonSku": "254029",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 58.09,
-        "bcl": 61.99,
-        "gull": 52.5,
-        "highpointbws": 70.99,
-        "legacyliquor": 74.95,
-        "tudor": 61.99,
-        "vessel": 57.99
-      },
-      "representative": {
-        "name": "Laphroaig Select 750ml",
-        "price": "$52.50",
-        "priceNum": 52.5,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "254029",
-        "skuKey": "254029",
-        "url": "https://gullliquorstore.com/product/laphroaig-select-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$52.50",
-        "priceNum": 52.5,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-select-750m/"
+        "price": "$42.99",
+        "priceNum": 42.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4587735-glenfiddich-12yo"
       }
     },
     {
@@ -10238,7 +10139,7 @@
         "legacyliquor": 66.19,
         "strath": 63.53,
         "tudor": 59.99,
-        "vessel": 59.99
+        "vessel": 62.99
       },
       "representative": {
         "name": "Nikka Whisky Days Japanese Whisky 700 mL",
@@ -10336,7 +10237,7 @@
         "liquorwarehouse": 64.99,
         "newdistrict": 68.79,
         "tudor": 61.99,
-        "vessel": 62.99
+        "vessel": 65.99
       },
       "representative": {
         "name": "Captain Morgan Original Spiced Rum",
@@ -10776,7 +10677,7 @@
         "everythingwine": 41.99,
         "gull": 42.7,
         "tudor": 45.99,
-        "vessel": 42.49
+        "vessel": 44.99
       },
       "representative": {
         "name": "JOHNNIE WALKER RED 1.14L",
@@ -10824,7 +10725,7 @@
         "liquorwarehouse": 112.99,
         "strath": 109.79,
         "tudor": 99.99,
-        "vessel": 99.99
+        "vessel": 109.99
       },
       "representative": {
         "name": "BENRIACH 12 YEAR OLD",
@@ -11016,25 +10917,25 @@
         "gull": 73.8,
         "legacyliquor": 73.28,
         "tudor": 70.99,
-        "vessel": 67.49
+        "vessel": 69.99
       },
       "representative": {
-        "name": "Glenlivet - Caribbean Reserve Single Malt Scotch",
-        "price": "$67.49",
-        "priceNum": 67.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "GLENLIVET - CARIBBEAN RESERVE",
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "059077",
         "skuKey": "059077",
-        "url": "https://vesselliquor.com/products/glenlivet-caribbean-reserve-single-malt-scotch-00080432115763",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://www.bcliquorstores.com/product/59077",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$67.49",
-        "priceNum": 67.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glenlivet-caribbean-reserve-single-malt-scotch-00080432115763"
+        "price": "$67.99",
+        "priceNum": 67.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/59077"
       }
     },
     {
@@ -11352,25 +11253,25 @@
         "highpointbws": 51.99,
         "legacyliquor": 50.34,
         "strath": 47.83,
-        "vessel": 39.99
+        "vessel": 45.99
       },
       "representative": {
-        "name": "Alberta Premium - Batch 10 Legacy Reserve Rye Whisky",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "ALBERTA PREMIUM BATCH 10 LEGACY RESERV",
+        "price": "$44.39",
+        "priceNum": 44.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
         "skuRaw": "304715",
         "skuKey": "304715",
-        "url": "https://vesselliquor.com/products/alberta-premium-batch-10-legacy-reserve-rye-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
       },
       "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/alberta-premium-batch-10-legacy-reserve-rye-whisky"
+        "price": "$44.39",
+        "priceNum": 44.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4721030-alberta-premium-batch-10-legacy-reserv"
       }
     },
     {
@@ -11640,7 +11541,7 @@
         "gull": 42.85,
         "liquorwarehouse": 40.99,
         "tudor": 40.99,
-        "vessel": 39.99
+        "vessel": 42.99
       },
       "representative": {
         "name": "Proper Twelve Triple Distilled Irish Whiskey 750 mL",
@@ -11707,6 +11608,54 @@
         "priceNum": 99.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/196188"
+      }
+    },
+    {
+      "canonSku": "199816",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "marquis",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 106.29,
+        "bcl": 109.99,
+        "everythingwine": 108.99,
+        "marquis": 112.99,
+        "tudor": 112.99,
+        "vessel": 109.99
+      },
+      "representative": {
+        "name": "REDBREAST LUSTAU IRISH WHISKEY",
+        "price": "$106.29",
+        "priceNum": 106.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "199816",
+        "skuKey": "199816",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4651423-redbreast-lustau-irish-whiskey",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$106.29",
+        "priceNum": 106.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4651423-redbreast-lustau-irish-whiskey"
       }
     },
     {
@@ -11899,6 +11848,54 @@
         "priceNum": 96.05,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/worthy-park-single-e-750m/"
+      }
+    },
+    {
+      "canonSku": "254029",
+      "storeCount": 6,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 58.09,
+        "bcl": 61.99,
+        "gull": 52.5,
+        "legacyliquor": 74.95,
+        "tudor": 61.99,
+        "vessel": 57.99
+      },
+      "representative": {
+        "name": "Laphroaig Select 750ml",
+        "price": "$52.50",
+        "priceNum": 52.5,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "254029",
+        "skuKey": "254029",
+        "url": "https://gullliquorstore.com/product/laphroaig-select-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$52.50",
+        "priceNum": 52.5,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-select-750m/"
       }
     },
     {
