@@ -86,14 +86,26 @@ function loadHiddenSet() {
 // NOTE: this does NOT match viz/app/catalog.js::selectBestDisplayInfo (store tier → has
 // photo → longest name). That divergence predates this change and is a real train/serve
 // skew; it is tracked separately.
+//
+// Purchase-limit / preorder boilerplate is stripped so it never reads as product words:
+// Color de Vino's "KILKERRAN 8 YO CS *ONE PER CUSTOMER*" named its whole aggregate and sank the
+// encoder cosine to a real match. Deliberately narrow: "*WHISKY EXPLORER'S PICK*" is a store
+// pick (identity-bearing) and must survive.
+const LISTING_BOILERPLATE_RE = /\b(?:limited to \d+ bottles? per customer|one per customer|pre-?order)\b/gi;
 export function accumulateAggregateName(agg, row) {
 	if (!row.name) return;
+	const name = row.name
+		.replace(LISTING_BOILERPLATE_RE, "")
+		.replace(/\(\s*\)|\*\s*\*/g, "")
+		.replace(/[\s\-–]+$/, "")
+		.trim();
+	if (!name) return;
 	if (!row.removed && !agg.nameIsLive) {
-		agg.name = row.name;
+		agg.name = name;
 		agg.nameIsLive = true;
 		return;
 	}
-	if (!agg.name) agg.name = row.name;
+	if (!agg.name) agg.name = name;
 }
 
 export function readJson(p) {
@@ -484,7 +496,10 @@ export function skuToTextEnriched(sku, env) {
 		parts.push("size", String(top));
 	}
 	if (abv != null) parts.push("abv", String(Math.round(abv)));
-	if (year) parts.push("year", String(year));
+	// Only a year-less title inherits the group's year. A dated title already carries its own, and
+	// appending it again doubled the year's weight: a dated vs undated listing of one annual release
+	// (Kilkerran 8 CS "2025 Release" vs a year-less group) scored cos 0.42 with the repeat, 0.53 without.
+	if (year && !/\b(19\d\d|20\d\d)\b/.test(base)) parts.push("year", String(year));
 	const cat = categoryWord(it.name);
 	if (cat) parts.push(cat);
 	const slugExtra = slugOnlyTokens(it);
@@ -506,7 +521,7 @@ function slugOnlyTokens(it) {
 		} catch {
 			continue;
 		}
-		const toks = tokenizeQuery(normSearchText(seg));
+		const toks = tokenizeQuery(normSearchText(seg.replace(/-/g, " ").replace(LISTING_BOILERPLATE_RE, "")));
 		for (let i = 0; i < toks.length; i++) {
 			const t = toks[i];
 			if (/^\d{1,2}$/.test(t) && /^(year|years|yr|yrs|yo)$/.test(toks[i + 1] || "")) {
