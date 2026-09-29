@@ -16,6 +16,33 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## 2026-09-29 — encoder-text fixes (IN CODE, NOT SHIPPED; ship with the next retrain)
+
+`featurize.mjs`: (1) `skuToTextEnriched` appends the group's `year N` only to a YEAR-LESS title (1,702
+texts had it twice: `kilchoman loch gorm 10 year 2025 year 2025`); (2) `accumulateAggregateName` +
+`slugOnlyTokens` strip purchase-limit/preorder boilerplate (`LISTING_BOILERPLATE_RE`, 17 listings).
+Motivated by Kilkerran 8 CS `123236` "2025 Release" ↔ year-less `143092`: GBT 0.0004 because embedCos
+was 0.417. Pinned A/B, 2 runs per arm, TEST: rec@99 94.5/94.1 → **95.2/95.3**, rec@98 97.6/96.9 →
+97.6/96.7, AUC+ and OOF precision/recall at the bar flat, det AUC+ unchanged. **The targeted class did
+not improve:** OOF recall of one-sided-year positives (n=331) 85.2/86.1 → 84.9/84.6, ~7 pts below the
+rest in both arms.
+
+**DEAD-END — `yearOneSided` blend feature (same day).** 1 when exactly one title has a 19xx/20xx year.
+GBT-only A/B, embeddings + pairs pinned (deterministic — byte-identical reruns): TEST rec@99 94.4 →
+94.3, OOF prec at the bar 99.542 → 99.520%, one-sided recall 84.3 → 84.0. Reverted. Why: of the 52
+one-sided-year positives missed at the bar, almost none are dated-vs-undated annual releases. They are
+independent-bottler **vintage vs age statement** (`Signatory Glenallachie 2012 11 Year Old` ↔ `SV
+Glenallachie 11 YO` — the year is distillation year, i.e. equivalent to the age) plus bottler
+abbreviations (`Str Cask Carn`, `SV`, `OMC`, `SIGNAT`). A binary flag cannot express "2012 + 11
+agrees with 11 YO". Any retry needs a vintage+age consistency feature, not a presence flag.
+
+**A/B gotcha — pin the pair set.** `build_dataset.mjs` samples hard negatives by indexing into the
+bigram-key list, so changing a few names reshuffles ~half the hard negatives and nearly all random
+ones (the PRNG stream diverges). Two arms then score different TEST negatives; `linker_eval.mjs`
+has the same issue (its trivial floor moves). For any change that touches names, copy the
+baseline's `out/dataset_pairs.jsonl` over the candidate's after `build_dataset` and compute det AUC
+from each run's `features.jsonl`, not from `linker_eval`.
+
 ## ★ Retrain 2026-09-24 (SHIPPED, `MODEL_VERSION` 2026-09-24): TEST rec@99 **95.2%**, AUC+ 0.9991
 
 First retrain on the fully audited label set (see `docs/audit-full-library-plan.md`), then four fixes,
