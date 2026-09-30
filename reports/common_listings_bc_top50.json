@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T12:17:00.148Z",
+  "generatedAt": "2026-09-30T22:02:35.032Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6581,
-    "removedRows": 1293,
-    "canonSkus": 2568,
+    "liveRows": 6590,
+    "removedRows": 1285,
+    "canonSkus": 2567,
     "outputCount": 50
   },
   "rows": [
@@ -992,7 +992,7 @@
         "liquorwarehouse": 31.49,
         "newdistrict": 32.99,
         "strath": 31.31,
-        "tudor": 30.99,
+        "tudor": 31.49,
         "vessel": 32.99
       },
       "representative": {
@@ -2511,7 +2511,7 @@
         "everythingwine": 49.99,
         "gull": 52.05,
         "highpointbws": 59.99,
-        "legacyliquor": 58.99,
+        "legacyliquor": 59.71,
         "marquis": 56.99,
         "newdistrict": 58.99,
         "tudor": 54.99,
@@ -2534,6 +2534,58 @@
         "priceNum": 49.99,
         "storeKey": "everythingwine",
         "url": "https://www.everythingwine.ca/bruichladdich-the-botanist-islay-dry-gin-750ml"
+      }
+    },
+    {
+      "canonSku": "780196",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "tudor"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 59.99,
+        "bcl": 59.99,
+        "everythingwine": 64.99,
+        "gull": 67.5,
+        "highpointbws": 70.99,
+        "legacyliquor": 67.99,
+        "liberty": 81.99,
+        "marquis": 66.99,
+        "newdistrict": 67.99,
+        "tudor": 64.99
+      },
+      "representative": {
+        "name": "TOKI SUNTORY WHISKY",
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "855445",
+        "skuKey": "855445",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$59.99",
+        "priceNum": 59.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
       }
     },
     {
@@ -2636,57 +2688,6 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch-05018066105701"
-      }
-    },
-    {
-      "canonSku": "780196",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "tudor"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 59.99,
-        "bcl": 59.99,
-        "everythingwine": 64.99,
-        "gull": 67.5,
-        "highpointbws": 70.99,
-        "liberty": 81.99,
-        "marquis": 66.99,
-        "newdistrict": 67.99,
-        "tudor": 64.99
-      },
-      "representative": {
-        "name": "TOKI SUNTORY WHISKY",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "855445",
-        "skuKey": "855445",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
       }
     }
   ]
