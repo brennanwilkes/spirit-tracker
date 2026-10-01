@@ -33,7 +33,7 @@ those labels (TEST rec@99 95.2%).
 | criterion | status |
 |---|---|
 | 1. **Recall** — every link that should exist, does | **Cheap surfaces done.** After the retrain: a full-catalog `auto_link_classify` dry-run found 15 links / 6 ignores, and the 0.5–0.95 unlinked band found 7 links / 42 ignores. A 40-day CI dry-run found 0. **Open:** the ~29,000 listing rows no funnel surfaces (§4.4). |
-| 2. **Precision** — every link is correct and required | **Done, except 221 groups no slice ever showed (§4.1).** The error rate fell as the band rose (`< 0.30` 23%, `0.30–0.95` 13.8%, `0.95–0.99` 10.5%, `≥ 0.99` 1.6% = 92 of 5,632 edges). |
+| 2. **Precision** — every link is correct and required | **Done** (the 222 unscored groups closed 2026-09-29, §4.1). The error rate fell as the band rose (`< 0.30` 23%, `0.30–0.95` 13.8%, `0.95–0.99` 10.5%, `≥ 0.99` 1.6% = 92 of 5,632 edges). |
 | 3. **Hard negatives** | **16,176.** Ignore screen tier A (near-identical names) was 0.43% wrong (3 of 694). The owner stopped tiers B–D (§4.5). |
 | 4. **Training data is not corrupted** | **Done for now.** Collided skus are excluded from training (126 pairs). The real fix is the per-listing split (§4.2), after which they rejoin training. |
 
@@ -51,7 +51,7 @@ Closed by ruling, **not** left:
 
 | # | item | size | cost (est.) | expected yield | gate |
 |---|---|---|---|---|---|
-| 4.1 | Unscored-group sweep | 221 groups, 1 batch | 1 agent, ~250–300K | low (see below) | none, just run it |
+| 4.1 | ~~Unscored-group sweep~~ DONE 2026-09-29 | 222 groups | 1 agent, 174K | 4 wrong edges (1.6%) | closed |
 | 4.2 | Collision split ships, then link the `c:` keys | 22 entries → ~31 split rows | code + 1 small proposal | ~20–30 links restored | implementation of `docs/sku-collision-split-plan.md` |
 | 4.3 | Two parked per-store cases | 2 skus | owner call | 2 splits | 4.2 shipped |
 | 4.4 | `--only all` recall backfill | ~29,000 rows | pilot 1 agent; full ~30–40 agents, ~12–15M tokens | probably low | pilot result |
@@ -59,6 +59,14 @@ Closed by ruling, **not** left:
 | 4.6 | Retrain | — | ~1 h CPU | un-excludes collided skus | after 4.2 (+4.1/4.4 if run) |
 
 ### 4.1 Unscored-group sweep — the one real coverage gap
+
+**DONE 2026-09-29** (`audit/proposal-v6-unscored-2026-09-29.json`, applied): 222 groups, 244 edges, 212 clean,
+3 split, 7 to review. 4 edges wrong (1.6%), all CI or agent links, none `merge-auto`: a DBTD sampler bundle
+(2 edges), SMWS Aug vs Sep outturn tickets, Cù Bòcan Creation #1 vs #4. Links 5,944 → 5,940, ignores 16,176 → 16,180.
+Owner rulings on its 7 review items (`proposal-v6-unscored-rulings-2026-09-29.json`): Two Stacks Dram in a Can,
+every Drinks by the Dram set and SMWS outturn tickets are hidden; Adelphi Brisbane split; Benromach Whisky Rant =
+cask #306 (link kept, ignore vs #305 Caledonian); Odd Society Wallflower 750/375, MMcD Ledaig and BSW Ardnamurchan
+10 E&S left linked. Now links 5,939, ignores 16,182, hidden 592. The history below is kept for the method.
 
 `tools/audit_link_group_slice.js` selects a group only when it has a **scored, non-auto, non-pin** edge
 in the band (`inBand`). Every slice so far went through it, so a group is invisible when its only edges
@@ -77,12 +85,13 @@ Yield should be low: auto edges follow one listing's own url, and the only known
 link set no agent has read, and it costs one batch.
 
 How:
-1. Add `--unscored` to `audit_link_group_slice.js`: select groups where no edge satisfies
-   `e.src !== "merge-auto" && !e.pin && e.prob !== null`, ignoring `--min`/`--max`. Leave the rest of the
-   tool unchanged.
+1. DONE 2026-09-29: `--unscored` on `audit_link_group_slice.js` selects groups where no edge satisfies
+   `e.src !== "merge-auto" && !e.pin && e.prob !== null` and at least one edge is not a pin, ignoring
+   `--min`/`--max`. It cut 222 groups / 244 edges / 130 KB (one more than the census, which skipped any
+   group with a pin).
 2. Refresh `index.json`, `skus`, embeddings (runbook §Setup). The v5 rich file is fine for probs,
    since these groups have none by definition.
-3. `node tools/audit_link_group_slice.js --from audit/rich-fh-v5.jsonl --unscored --min 0 --max 2 --batch-bytes 650000 --out-prefix audit/v6-unscored`
+3. `node tools/audit_link_group_slice.js --from audit/rich-fh-v5.jsonl --unscored --batch-bytes 650000 --out-prefix audit/v6-unscored`
 4. One agent with `audit/agent-prompts-2026-09-23/groups-template.md`, with `__NN__` substituted. Tell it
    that `prob: null` is expected on every edge and is not evidence.
 5. Validate `--fix` → dry-run → apply → verify with `loadSkuMap().canonicalSku()`.
@@ -246,7 +255,6 @@ decided from it comes out incomplete.
 
 ## 10. Open tooling items
 
-- `audit_link_group_slice.js --unscored` (4.1) is not built.
 - The generator's listing ids and cluster keys strip `id:` while `pairs[].sku` keeps it; the
   validator's `--fix` is the stopgap.
 - A train/serve name skew remains: `featurize` takes the first live name, while `catalog.js` ranks
