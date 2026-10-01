@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-01T12:07:43.929Z",
+  "generatedAt": "2026-10-01T22:19:57.445Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -40,9 +40,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18395,
-    "removedRows": 7852,
-    "canonSkus": 5813,
+    "liveRows": 18389,
+    "removedRows": 7862,
+    "canonSkus": 5807,
     "outputCount": 50
   },
   "rows": [
@@ -1404,7 +1404,7 @@
         "canadianliquor": 69.99,
         "clbspirits": 55.12,
         "coop": 68.99,
-        "craftcellars": 72.99,
+        "craftcellars": 54.99,
         "highlander": 67.99,
         "kwm": 64.99,
         "lime": 66.99,
@@ -1417,22 +1417,22 @@
         "zyn": 69
       },
       "representative": {
-        "name": "Bowmore 12 Year Old 750ml",
-        "price": "$55.12",
-        "priceNum": 55.12,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
+        "name": "Bowmore 12 Year Old",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "craftcellars",
+        "storeLabel": "Craft Cellars",
         "skuRaw": "726251",
         "skuKey": "726251",
-        "url": "https://clbspirits.com/products/bowmore-12-year-old-1",
+        "url": "https://craftcellars.ca/products/bowmore-12-year-old-40-abv",
         "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+        "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$55.12",
-        "priceNum": 55.12,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/bowmore-12-year-old-1"
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "craftcellars",
+        "url": "https://craftcellars.ca/products/bowmore-12-year-old-40-abv"
       }
     },
     {
@@ -1888,6 +1888,70 @@
         "priceNum": 88.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glenmorangie-the-lasanta-43-abv/"
+      }
+    },
+    {
+      "canonSku": "001487",
+      "storeCount": 14,
+      "stores": [
+        "bsw",
+        "canadianliquor",
+        "coop",
+        "craftcellars",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "silversprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "clbspirits",
+        "colordevino",
+        "elbowliquor",
+        "highlander",
+        "kegncork",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 27.99,
+        "canadianliquor": 37.99,
+        "coop": 32.99,
+        "craftcellars": 37.99,
+        "kwm": 35.99,
+        "lime": 32.99,
+        "liquorama": 36.99,
+        "maltsandgrains": 40.58,
+        "rmwsb": 33.99,
+        "sherbrooke": 38.99,
+        "sierrasprings": 31.99,
+        "silversprings": 35.1,
+        "wineandbeyond": 29.95,
+        "zyn": 32.99
+      },
+      "representative": {
+        "name": "Crown Royal Canadian Whisky",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bsw",
+        "storeLabel": "BSW",
+        "skuRaw": "001487",
+        "skuKey": "001487",
+        "url": "https://www.bswliquor.com/products/crown-royal-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/bsw__whisky__917b42d2.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bsw",
+        "url": "https://www.bswliquor.com/products/crown-royal-whisky"
       }
     },
     {
@@ -2979,69 +3043,6 @@
       }
     },
     {
-      "canonSku": "001487",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "sherbrooke",
-        "sierrasprings",
-        "silversprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "clbspirits",
-        "colordevino",
-        "elbowliquor",
-        "highlander",
-        "kegncork",
-        "rmwsb",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 27.99,
-        "canadianliquor": 37.99,
-        "coop": 32.99,
-        "craftcellars": 37.99,
-        "kwm": 35.99,
-        "lime": 32.99,
-        "liquorama": 36.99,
-        "maltsandgrains": 40.58,
-        "sherbrooke": 38.99,
-        "sierrasprings": 31.99,
-        "silversprings": 35.1,
-        "wineandbeyond": 29.95,
-        "zyn": 32.99
-      },
-      "representative": {
-        "name": "Crown Royal Canadian Whisky",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bsw",
-        "storeLabel": "BSW",
-        "skuRaw": "001487",
-        "skuKey": "001487",
-        "url": "https://www.bswliquor.com/products/crown-royal-whisky",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/bsw__whisky__917b42d2.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bsw",
-        "url": "https://www.bswliquor.com/products/crown-royal-whisky"
-      }
-    },
-    {
       "canonSku": "011136",
       "storeCount": 13,
       "stores": [
@@ -3137,7 +3138,7 @@
         "bsw": 79.99,
         "canadianliquor": 87.99,
         "clbspirits": 76.01,
-        "craftcellars": 68.99,
+        "craftcellars": 64.99,
         "kegncork": 86.96,
         "kwm": 86.99,
         "lime": 79.99,
@@ -3150,8 +3151,8 @@
       },
       "representative": {
         "name": "Woodford Reserve Double Oaked Bourbon",
-        "price": "$68.99",
-        "priceNum": 68.99,
+        "price": "$64.99",
+        "priceNum": 64.99,
         "storeKey": "craftcellars",
         "storeLabel": "Craft Cellars",
         "skuRaw": "072355",
@@ -3161,8 +3162,8 @@
         "dbFile": "data/db/craftcellars__whisky__649b2052.json"
       },
       "cheapest": {
-        "price": "$68.99",
-        "priceNum": 68.99,
+        "price": "$64.99",
+        "priceNum": 64.99,
         "storeKey": "craftcellars",
         "url": "https://craftcellars.ca/products/woodford-reserve-double-oaked-bourbon"
       }
