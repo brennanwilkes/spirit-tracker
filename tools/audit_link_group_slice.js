@@ -25,12 +25,15 @@ const prefix = arg("--out-prefix");
 const min = Number(arg("--min"));
 const max = Number(arg("--max"));
 const batchBytes = Number(arg("--batch-bytes"));
+// Selects the groups no band slice can reach: no scored, non-auto, non-pin edge (auto-only or
+// prob-null groups). --min/--max are ignored. Pin-only groups are correct by construction.
+const unscored = process.argv.includes("--unscored");
 const root = arg("--root") || path.join(__dirname, "..", ".worktrees", "data");
 // Comma-separated slice files already audited: a group sharing any member with one is skipped, so
 // the remainder can be re-cut at a new size after a calibration run (canon keys shift on apply).
 const exclude = arg("--exclude") ? arg("--exclude").split(",") : [];
-if (!from || !prefix || !Number.isFinite(min) || !Number.isFinite(max) || !Number.isFinite(batchBytes)) {
-	console.error("usage: audit_link_group_slice.js --from <rich.jsonl> --min <p> --max <p> --batch-bytes <n> --out-prefix <path> [--root <worktree>] [--exclude <slice.json,…>]");
+if (!from || !prefix || (!unscored && (!Number.isFinite(min) || !Number.isFinite(max))) || !Number.isFinite(batchBytes)) {
+	console.error("usage: audit_link_group_slice.js --from <rich.jsonl> --min <p> --max <p> --batch-bytes <n> --out-prefix <path> [--root <worktree>] [--exclude <slice.json,…>] [--unscored]");
 	process.exit(2);
 }
 const nk = (s) => normalizeImplicitSkuKey(String(s || "").trim());
@@ -102,11 +105,12 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 	const done = new Set();
 	for (const f of exclude) for (const g of JSON.parse(fs.readFileSync(f, "utf8")).groups) for (const m of g.members) done.add(m.sku);
 	let excluded = 0;
-	const inBand = (e) => e.src !== "merge-auto" && !e.pin && e.prob !== null && e.prob >= min && e.prob < max;
+	const scored = (e) => e.src !== "merge-auto" && !e.pin && e.prob !== null;
+	const inBand = (e) => scored(e) && e.prob >= min && e.prob < max;
 	const out = [];
 	let bandEdges = 0;
 	for (const [canon, G] of byGroup) {
-		const n = G.edges.filter(inBand).length;
+		const n = unscored ? (G.edges.some(scored) ? 0 : G.edges.filter((e) => !e.pin).length) : G.edges.filter(inBand).length;
 		if (!n) continue;
 		if ([...G.members].some((s) => done.has(s))) {
 			excluded++;
@@ -132,7 +136,7 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 	batches.forEach((b, i) => {
 		const f = `${prefix}-b${String(i + 1).padStart(2, "0")}.json`;
 		const e = b.groups.reduce((s, g) => s + g.edges.length, 0);
-		fs.writeFileSync(f, JSON.stringify({ _meta: { from, band: [min, max], batch: `${i + 1}/${nBatches}`, groups: b.groups.length, edges: e, legend }, groups: b.groups }) + "\n");
+		fs.writeFileSync(f, JSON.stringify({ _meta: { from, band: unscored ? "unscored" : [min, max], batch: `${i + 1}/${nBatches}`, groups: b.groups.length, edges: e, legend }, groups: b.groups }) + "\n");
 		console.log(`${f}: ${b.groups.length} groups, ${e} edges, ${fs.statSync(f).size} B`);
 	});
 	if (exclude.length) console.log(`excluded ${excluded} group(s) already audited in ${exclude.join(", ")}`);
