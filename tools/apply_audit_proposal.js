@@ -68,8 +68,7 @@ const USAGE = `apply_audit_proposal — apply an audit proposal to data/sku_link
   --proposal <file>  proposal JSON (required)
   --root <path>      data worktree (default .worktrees/data)
   --apply            write the file (default: dry-run, prints the diff)
-  --force            allow a link op on an ignored pair (drops the ignore); never overrides
-                     the refusal of a link touching a sku in data/sku_collisions.json
+  --force            allow a link op on an ignored pair (drops the ignore)
   --json             machine-readable report
   --verbose          print every diff line instead of the first 40
 
@@ -237,15 +236,6 @@ function main() {
 			errors.push(`conflicting ops on pair ${group.map((o) => `${o.op}(${o.a}↔${o.b})`).join(", ")}`);
 		} else if (addsIgnore && dropsIgnore) {
 			errors.push(`conflicting ignore/remove-ignore on pair ${group.map((o) => o.op).join(", ")} (${group[0].a}↔${group[0].b})`);
-		}
-	}
-
-	// A collided sku carries two different products, so linking it spreads the other product into a
-	// clean group. Same guard as auto_link_classify.mjs; the file is curated, so a missing one throws.
-	const collided = new Set(JSON.parse(fs.readFileSync(path.join(root, "data", "sku_collisions.json"), "utf8")).collisions.map((c) => nk(c.sku)));
-	for (const o of ops) {
-		if (o.op === "link" && (collided.has(nk(o.a)) || collided.has(nk(o.b)))) {
-			errors.push(`op[${o.index}]: link ${o.a}↔${o.b} touches a verified collision sku (data/sku_collisions.json)`);
 		}
 	}
 

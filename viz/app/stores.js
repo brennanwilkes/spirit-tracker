@@ -133,7 +133,7 @@ export const STORES = [
 		color: "#A3E048",
 		logo: "./img/stores/silversprings.png",
 		url: "https://silverspringsls.com/",
-		aliases: ["silversprings", "silverspringsls", "silver springs liquor store"],
+		aliases: ["silversprings", "silverspringsls", "silver springs liquor store", "silver springs liquor"],
 	},
 	{
 		id: "marquis",

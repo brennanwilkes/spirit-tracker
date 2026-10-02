@@ -1,7 +1,9 @@
 "use strict";
 
 function normalizeCspc(v) {
-	const m = String(v ?? "").match(/\b(\d{6})\b/);
+	const s = String(v ?? "");
+	if (s.startsWith("c:")) return "";
+	const m = s.match(/\b(\d{6})\b/);
 	return m ? m[1] : "";
 }
 
@@ -16,6 +18,7 @@ function fnv1a32(str) {
 
 function normalizeImplicitSkuKey(k) {
 	const s = String(k ?? "").trim();
+	if (s.startsWith("c:")) return s;
 	const idm = s.match(/^id:(\d{1,6})$/i);
 	if (idm) return String(idm[1]).padStart(6, "0");
 	const m = s.match(/\b(\d{6,10})\b/);

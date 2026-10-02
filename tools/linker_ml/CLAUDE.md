@@ -114,15 +114,10 @@ TP/83 FP. Ships with the next CI re-encode; no retrain required.
 **At the next retrain: re-measure every baseline before any A/B** — the dataset gains +4,727 hard
 negatives and an honest group split, so old numbers are not comparable. Run `find_mislabels.mjs`
 first: the newly-visible ignores include det-high near-identical pairs (e.g. `813003` Tomatin 15
-Year ↔ `id:8289129` Tomatin 15 Year Old) that were never trained on before. Also:
-`data/sku_collisions.json` (22 verified) now excludes 126 pairs.
+Year ↔ `id:8289129` Tomatin 15 Year Old) that were never trained on before. (Collided skus are no
+longer excluded: since 2026-10-01 they are split into `c:` keys before the dataset sees them.)
 
 Found in the 2026-09-23 bug-hunt and fixed the same day:
-- **`groups.json` bypassed the collision filter.** It is written straight from the canonical groups,
-  and `train_embed.py` builds its contrastive (MNRL) positives from it, so 11 collided groups were
-  still being trained as positives. Collided skus are now stripped before the write.
-- **Collision entries were matched raw** (`add()` compares catalog keys), so a bare-form entry would
-  have filtered nothing. They are now resolved with `catalogKey()`.
 - **`find_mislabels.mjs` and `size_unlink_audit.mjs`** still did the raw `bySku.has` presence check.
   They skipped 1,539 links and 4,827 ignores; both now resolve through the normalized key.
 

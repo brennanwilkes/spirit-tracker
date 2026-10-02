@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const { normalizeSkuKey } = require("../utils/sku");
 const { priceToNumber } = require("../utils/price");
 const { normalizeBaseUrl } = require("../utils/url");
+const { storeIdFromDbPath } = require("../utils/sku_collisions");
 
 function ensureDir(dir) {
 	fs.mkdirSync(dir, { recursive: true });
@@ -124,32 +125,35 @@ function listDbFiles(dbDir) {
  * cheapest map is keyed by CANONICAL sku (for report comparisons),
  * but DB rows remain raw/mined skuKey.
  */
-function buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap } = {}) {
+function buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap, splits }) {
 	const cheapest = new Map(); // canonSku -> { storeLabel, priceNum }
 
 	for (const file of listDbFiles(dbDir)) {
+		let obj;
 		try {
-			const obj = JSON.parse(fs.readFileSync(file, "utf8"));
-			const storeLabel = String(obj?.storeLabel || obj?.store || "");
-			const items = Array.isArray(obj?.items) ? obj.items : [];
-
-			for (const it of items) {
-				if (it?.removed) continue;
-
-				const skuKey = normalizeSkuKey(it?.sku || "", { storeLabel, url: it?.url || "" });
-				if (!skuKey) continue;
-
-				const canon =
-					skuMap && typeof skuMap.canonicalSku === "function" ? skuMap.canonicalSku(skuKey) : skuKey;
-
-				const p = priceToNumber(it?.price || "");
-				if (!Number.isFinite(p) || p <= 0) continue;
-
-				const prev = cheapest.get(canon);
-				if (!prev || p < prev.priceNum) cheapest.set(canon, { storeLabel, priceNum: p });
-			}
+			obj = JSON.parse(fs.readFileSync(file, "utf8"));
 		} catch {
-			// ignore parse errors
+			continue; // ignore parse errors
+		}
+		const storeLabel = String(obj?.storeLabel || obj?.store || "");
+		const storeId = storeIdFromDbPath(file);
+		const items = Array.isArray(obj?.items) ? obj.items : [];
+
+		for (const it of items) {
+			if (it?.removed) continue;
+
+			const skuKey = normalizeSkuKey(it?.sku || "", { storeLabel, url: it?.url || "" });
+			if (!skuKey) continue;
+			const key = splits.resolve(storeId, skuKey, it?.url || "");
+
+			const canon =
+				skuMap && typeof skuMap.canonicalSku === "function" ? skuMap.canonicalSku(key) : key;
+
+			const p = priceToNumber(it?.price || "");
+			if (!Number.isFinite(p) || p <= 0) continue;
+
+			const prev = cheapest.get(canon);
+			if (!prev || p < prev.priceNum) cheapest.set(canon, { storeLabel, priceNum: p });
 		}
 	}
 

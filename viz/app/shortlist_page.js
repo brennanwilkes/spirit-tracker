@@ -606,7 +606,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 	for (const sku of favSet) {
 		const base = aggBySku.get(sku) || {
 			sku,
-			name: `(SKU ${sku})`,
+			name: `(SKU ${displaySku(sku)})`,
 			img: "",
 			searchText: String(sku || "").toLowerCase(),
 			sampleUrl: "",

@@ -593,7 +593,7 @@ export async function renderItem($app, skuInput) {
 	// pick best name and image using shared priority logic (store hierarchy + photo + name length)
 	const basis = liveRows.length ? liveRows : allRows;
 	const { bestName, bestImg } = selectBestDisplayInfo(basis);
-	$title.textContent = bestName || `(SKU ${sku})`;
+	$title.textContent = bestName || `(SKU ${displaySku(sku)})`;
 	$thumbBox.innerHTML = bestImg
 		? renderThumbHtml(bestImg, "detailThumb")
 		: `<div class="thumbPlaceholder"></div>`;

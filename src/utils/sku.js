@@ -17,7 +17,9 @@ function idToCspc6(idDigits) {
 }
 
 function normalizeCspc(v) {
-	const m = String(v ?? "").match(/\b(\d{6})\b/);
+	const s = String(v ?? "");
+	if (s.startsWith("c:")) return "";
+	const m = s.match(/\b(\d{6})\b/);
 	return m ? m[1] : "";
 }
 

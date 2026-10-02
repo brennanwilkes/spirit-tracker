@@ -32,7 +32,7 @@ those labels (TEST rec@99 95.2%).
 
 | criterion | status |
 |---|---|
-| 1. **Recall** — every link that should exist, does | **Cheap surfaces done.** After the retrain: a full-catalog `auto_link_classify` dry-run found 15 links / 6 ignores, and the 0.5–0.95 unlinked band found 7 links / 42 ignores. A 40-day CI dry-run found 0. **Open:** the ~29,000 listing rows no funnel surfaces (§4.4). |
+| 1. **Recall** — every link that should exist, does | **Cheap surfaces done.** After the retrain: a full-catalog `auto_link_classify` dry-run found 15 links / 6 ignores, and the 0.5–0.95 unlinked band found 7 links / 42 ignores. A 40-day CI dry-run found 0. **Done:** the ~30,600 rows no funnel surfaces were sampled by a pilot that projected ~63 links, under the gate (§4.4). |
 | 2. **Precision** — every link is correct and required | **Done** (the 222 unscored groups closed 2026-09-29, §4.1). The error rate fell as the band rose (`< 0.30` 23%, `0.30–0.95` 13.8%, `0.95–0.99` 10.5%, `≥ 0.99` 1.6% = 92 of 5,632 edges). |
 | 3. **Hard negatives** | **16,176.** Ignore screen tier A (near-identical names) was 0.43% wrong (3 of 694). The owner stopped tiers B–D (§4.5). |
 | 4. **Training data is not corrupted** | **Done for now.** Collided skus are excluded from training (126 pairs). The real fix is the per-listing split (§4.2), after which they rejoin training. |
@@ -53,8 +53,8 @@ Closed by ruling, **not** left:
 |---|---|---|---|---|---|
 | 4.1 | ~~Unscored-group sweep~~ DONE 2026-09-29 | 222 groups | 1 agent, 174K | 4 wrong edges (1.6%) | closed |
 | 4.2 | Collision split ships, then link the `c:` keys | 22 entries → ~31 split rows | code + 1 small proposal | ~20–30 links restored | implementation of `docs/sku-collision-split-plan.md` |
-| 4.3 | Two parked per-store cases | 2 skus | owner call | 2 splits | 4.2 shipped |
-| 4.4 | `--only all` recall backfill | ~29,000 rows | pilot 1 agent; full ~30–40 agents, ~12–15M tokens | probably low | pilot result |
+| 4.3 | Two parked per-store cases | 2 skus | in the split plan (§0) | 2 splits | 4.2 shipped |
+| 4.4 | ~~`--only all` recall backfill~~ NO-GO 2026-10-01 | ~30,600 rows | pilot 318K; full not run | pilot projected ~63 links | — |
 | 4.5 | Ignore screen tiers B–D | ~8 agents, ~4M tokens | — | ≤ 0.3% | only if a retrain's worst-FN list points at ignores |
 | 4.6 | Retrain | — | ~1 h CPU | un-excludes collided skus | after 4.2 (+4.1/4.4 if run) |
 
@@ -110,6 +110,9 @@ collided skus' labels flow back into training (4.6).
 
 ### 4.3 Two per-store cases parked on the split (owner call)
 
+**Folded into the split plan 2026-10-01** (`docs/sku-collision-split-plan.md` §0): `c:879160:clb` and the
+url split `c:809905:576`. The table below is the original reasoning.
+
 Both were deferred by the 2026-09-23 ruling and are **not** in `sku_collisions.json` or the split plan:
 
 | sku | case | proposed handling |
@@ -118,6 +121,17 @@ Both were deferred by the 2026-09-23 ruling and are **not** in `sku_collisions.j
 | `809905` | M&G has carried two Singleton Glen Ord 14 releases on one sku over time (57.6% removed, 54.7% live) | same store, different times. A `{storeId, url}` split works only if the two urls differ; if they do not, the history is mixed at the source and stays as-is |
 
 ### 4.4 `--only all` recall backfill — optional, gated on a pilot
+
+**PILOT RAN 2026-10-01: NO-GO, so the backfill is not run.** `audit/v6-pilot-all.jsonl`: 485 rows drawn at random
+(seed 20261001) from the 30,583 rows of `rich-fh-v6` that no funnel surfaces. It found **1 correct new link**
+(Writers Tears Copper Pot BC ↔ AB group, prob 0.19), which projects to ~63 links over the universe against the
+≳150 gate (Poisson 95% ~2–350; both open review pairs confirmed would make 3, ~189). It found 0 wrong existing
+links in `vl[]`. 184 ignores (127 below prob 0.01), 0 from the agent's own catalog search, and widening to all 5
+candidates per row (1,854 extra pairs) found nothing more. Cost: 1 agent, 318K tokens. The same agent also
+cleared the 24 open want-links: 2 links (Highland Park 30, Kentucky Owl Wiseman Rye), Tamdhu Batch Strength
+W&B ignored (above the bar; CI would have linked it). Applied as `audit/proposal-v6-pilot-2026-10-01.json`:
+links 5,945 → 5,948, ignores 16,182 → 16,367. Re-run a pilot only if a later model or catalog change gives a
+reason to expect more.
 
 The rows no funnel surfaces: listings with no above-bar candidate, no near-miss evidence, and not
 orphans. Evidence says yield is low:

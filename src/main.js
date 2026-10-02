@@ -17,6 +17,7 @@ const { renderFinalReport } = require("./tracker/report");
 const { ensureDir } = require("./tracker/db");
 const { detectAndFlipOrphanDbs } = require("./tracker/orphan_dbs");
 const { mergeUpgradesIntoAutoLinks } = require("./tracker/sku_auto_links");
+const { loadCollisionSplits } = require("./utils/sku_collisions");
 
 const DEFAULT_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36";
 
@@ -123,6 +124,8 @@ async function main() {
 
 	ensureDir(config.dbDir);
 	ensureDir(config.reportDir);
+	// Loaded before scraping so a missing/malformed file fails in a second, not after an hour's scrape.
+	const splits = loadCollisionSplits(path.join(config.dbDir, ".."));
 
 	const http = createHttpClient({
 		maxRetries: config.maxRetries,
@@ -152,11 +155,15 @@ async function main() {
 	const autoLinkResult = mergeUpgradesIntoAutoLinks({
 		dbDir: config.dbDir,
 		upgrades: report.skuUpgrades || [],
+		splits,
 	});
 	if (autoLinkResult.added > 0) {
 		logger.ok(
 			`Auto SKU links: +${autoLinkResult.added} new (total ${autoLinkResult.total}) → ${logger.dim(autoLinkResult.file)}`,
 		);
+	}
+	if (autoLinkResult.repointed > 0) {
+		logger.ok(`Auto SKU links: re-pointed ${autoLinkResult.repointed} onto collision splits`);
 	}
 
 	const meaningful =
@@ -169,6 +176,7 @@ async function main() {
 
 	const reportTextColor = renderFinalReport(report, {
 		dbDir: config.dbDir,
+		splits,
 		colorize: logger.colorize,
 	});
 	process.stdout.write(reportTextColor);
@@ -200,6 +208,7 @@ async function main() {
 
 	const reportTextPlain = renderFinalReport(report, {
 		dbDir: config.dbDir,
+		splits,
 		colorize: false,
 	});
 	const file = path.join(config.reportDir, `${isoTimestampFileSafe(new Date())}.txt`);

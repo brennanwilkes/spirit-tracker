@@ -20,16 +20,19 @@ if (!proposalFile) {
 }
 
 const { normalizeSkuKey } = require(path.join(REPO, "src/utils/sku.js"));
+const { loadCollisionSplits } = require(path.join(REPO, "src/utils/sku_collisions.js"));
 
 const known = new Set();
 const dbDir = path.join(root, "data/db");
+const splits = loadCollisionSplits(path.join(root, "data"));
 for (const f of fs.readdirSync(dbDir).filter((x) => x.endsWith(".json"))) {
+	const storeId = f.split("__")[0];
 	const raw = JSON.parse(fs.readFileSync(path.join(dbDir, f), "utf8"));
 	const rows = Array.isArray(raw) ? raw : Object.values(raw).flatMap((v) => (Array.isArray(v) ? v : [v]));
 	for (const r of rows) {
 		if (!r || typeof r !== "object" || !r.sku) continue;
 		const k = normalizeSkuKey(r.sku, { storeLabel: r.store, url: r.url });
-		if (k) known.add(k);
+		if (k) known.add(splits.resolve(storeId, k, r.url));
 	}
 }
 const links = JSON.parse(fs.readFileSync(path.join(root, "data/sku_links.json"), "utf8"));

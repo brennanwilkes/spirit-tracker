@@ -34,6 +34,7 @@ const { getStoreRegions } = require("../src/stores/index");
 const { ensureDir, readJson, listDbFiles: _listDbFiles, storeKeyFromDbPath } = require("./lib/db");
 const { priceToNumber } = require("./lib/sku");
 const { loadHiddenSet, isHiddenListing } = require("../src/utils/sku_hidden");
+const { loadCollisionSplits } = require("../src/utils/sku_collisions");
 
 /* ---------------- helpers ---------------- */
 
@@ -243,6 +244,7 @@ function main() {
 	const canonAgg = new Map(); // canonSku -> { stores:Set, listings:[], cheapest, storeMin:Map }
 
 	const hiddenSet = loadHiddenSet(path.join(repoRoot, "data"));
+	const splits = loadCollisionSplits(path.join(repoRoot, "data"));
 
 	let liveRows = 0;
 	let removedRows = 0;
@@ -270,15 +272,17 @@ function main() {
 				removedRows++;
 				continue;
 			}
-			if (hiddenSet.size > 0 && isHiddenListing(hiddenSet, storeKey, it.sku)) continue;
-			liveRows++;
-
-			const skuKey = normalizeSkuKeyOrEmpty({
+			const skuKey0 = normalizeSkuKeyOrEmpty({
 				skuRaw: it.sku,
 				storeLabel,
 				url: it.url,
 			});
-			if (!skuKey) continue;
+			if (!skuKey0) continue;
+			const skuKey = splits.resolve(storeKey, skuKey0, it.url);
+			// A split listing's hide names its c: key (D8); an unsplit one may name the raw or normalized form.
+			const hideKeys = skuKey !== skuKey0 ? [skuKey] : [it.sku, skuKey0];
+			if (hiddenSet.size > 0 && hideKeys.some((k) => isHiddenListing(hiddenSet, storeKey, k))) continue;
+			liveRows++;
 
 			const canonSku = canonicalize(skuKey, skuMap);
 			if (!canonSku) continue;

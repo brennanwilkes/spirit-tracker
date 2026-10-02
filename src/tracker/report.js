@@ -73,14 +73,14 @@ function addCategoryResultToReport(report, storeName, catLabel, newItems, update
 		});
 }
 
-function renderFinalReport(report, { dbDir, colorize = Boolean(process.stdout && process.stdout.isTTY) } = {}) {
+function renderFinalReport(report, { dbDir, splits, colorize = Boolean(process.stdout && process.stdout.isTTY) } = {}) {
 	const paint = (s, code) => color(s, code, colorize);
 
 	// Load mapping for comparisons only
 	const skuMap = loadSkuMap({ dbDir });
 
 	// Cheapest index is keyed by canonical sku (mapped)
-	const cheapestSku = buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap });
+	const cheapestSku = buildCheapestSkuIndexFromAllDbs(dbDir, { skuMap, splits });
 
 	const endedAt = new Date();
 	const durMs = endedAt - report.startedAt;

@@ -43,7 +43,6 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 (async () => {
 	const manual = readJson("data/sku_links.json").links;
 	const auto = readJson("data/sku_links_auto.json").links;
-	const collided = new Set(readJson("data/sku_collisions.json").collisions.map((c) => nk(c.sku)));
 
 	const parent = new Map();
 	const find = (x) => {
@@ -119,7 +118,7 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 		bandEdges += n;
 		out.push({
 			canon,
-			members: [...G.members].sort().map((s) => ({ sku: s, ...(collided.has(s) ? { collided: 1 } : {}), listings: listings.get(s) || [] })),
+			members: [...G.members].sort().map((s) => ({ sku: s, listings: listings.get(s) || [] })),
 			edges: G.edges,
 		});
 	}
@@ -132,7 +131,7 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 		b.groups.push(g);
 		b.bytes += JSON.stringify(g).length;
 	}
-	const legend = "groups[] are WHOLE canonical groups. members[].listings = [store,name,price,removed,url]. edges[] = EVERY link holding the group together; a/b are the exact stored fromSku/toSku (use them in unlink ops). src merge-auto = sku_links_auto.json (an in-place sku upgrade; remove a wrong one with op 'unlink-auto', not 'unlink'). pin = shared SMWS cask code (prob not calibrated). prob null = not re-scored (new link or absent partner). collided = verified cross-store collision sku (never link to it). A member with NO listings is a superseded key (the sku was upgraded in place; its merge-auto edge names the successor) or a vanished listing — judge its edges by the partner, never unlink it for lacking a name.";
+	const legend = "groups[] are WHOLE canonical groups. members[].listings = [store,name,price,removed,url]. edges[] = EVERY link holding the group together; a/b are the exact stored fromSku/toSku (use them in unlink ops). src merge-auto = sku_links_auto.json (an in-place sku upgrade; remove a wrong one with op 'unlink-auto', not 'unlink'). pin = shared SMWS cask code (prob not calibrated). prob null = not re-scored (new link or absent partner). A member with NO listings is a superseded key (the sku was upgraded in place; its merge-auto edge names the successor) or a vanished listing — judge its edges by the partner, never unlink it for lacking a name.";
 	batches.forEach((b, i) => {
 		const f = `${prefix}-b${String(i + 1).padStart(2, "0")}.json`;
 		const e = b.groups.reduce((s, g) => s + g.edges.length, 0);

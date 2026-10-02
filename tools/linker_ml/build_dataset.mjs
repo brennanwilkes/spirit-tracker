@@ -19,7 +19,7 @@
 
 import fs from "fs";
 import path from "path";
-import { buildEnv, skuToTextEnriched, OUT_DIR, WORKTREE, readJson } from "./featurize.mjs";
+import { buildEnv, skuToTextEnriched, OUT_DIR } from "./featurize.mjs";
 import { normSearchText, tokenizeQuery } from "../../viz/app/sku.js";
 import { normalizeImplicitSkuKey } from "../../viz/app/sku_canonical.js";
 const normKey = (s) => normalizeImplicitSkuKey(String(s || "").trim());
@@ -138,34 +138,7 @@ const pairs = [];
 const seen = new Set();
 const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 
-// Cross-store SKU collisions: one normalized sku carrying two DIFFERENT products. Such an
-// aggregate is not a product, so no pair involving it is a well-defined label — and its name
-// (hence every name feature) belongs to whichever listing won the aggregate. Excluding them is
-// the same principle as the sku_hidden.json exclusion in featurize.mjs.
-//
-// This matters more than the raw count suggests because positives are the full transitive
-// CLOSURE of each canonical group: one bad member in an N-member group yields N-1 bad positives,
-// not one. Measured 2026-09-22 over the live catalog: 117 of 11,210 positive pairs (1.04%) across
-// 45 of 3,039 multi-member groups touched a collision candidate. A concrete example that was
-// being trained as a POSITIVE: "Roseisle 12yr Special Release" ≡ "Laphroaig Cairdeas 2023".
-// The pollution is NOT removable by unlinking — no link created the merge.
-const COLLISION_PATH = path.join(WORKTREE, "data/sku_collisions.json");
-const collisionSkus = new Set();
-// Tolerate absence, but LOUDLY. run_daily.sh calls this under `set +e`, so a throw here would not
-// fail the run — it would skip the re-encode and silently freeze sku_embeddings.json, which is
-// precisely the 2026-08-20 stale-embeddings incident. Missing exclusions restore the previous
-// behaviour (46 corrupted pairs in training); a dead nightly encode is far worse. Same shape as
-// featurize.mjs's hidden-set loader.
-if (fs.existsSync(COLLISION_PATH)) {
-	for (const c of readJson(COLLISION_PATH).collisions || []) {
-		// add() compares catalog keys, so a bare-form entry would otherwise filter nothing.
-		const k = catalogKey(c.sku);
-		if (k !== null) collisionSkus.add(k);
-	}
-} else {
-	console.warn(`WARN: ${COLLISION_PATH} not found — training on ALL pairs, including any that touch a cross-store sku collision. Commit data/sku_collisions.json to the data branch.`);
-}
-let droppedCollisionPairs = 0;
+// Collisions (one sku, two products) are split upstream in build_viz_index (src/utils/sku_collisions.js).
 
 // A listing whose title is only its sku number ("770000") can be linked by a human but matches on
 // nothing but price and size, which taught the GBT "no shared token + same price + same size ⇒ link"
@@ -180,10 +153,6 @@ let policyBundlePairs = 0;
 
 function add(a, b, label, kind, noTrain) {
 	if (a === b) return false;
-	if (collisionSkus.has(a) || collisionSkus.has(b)) {
-		droppedCollisionPairs++;
-		return false;
-	}
 	if (namelessSkus.has(a) || namelessSkus.has(b)) {
 		droppedNamelessPairs++;
 		return false;
@@ -276,10 +245,9 @@ fs.writeFileSync(pairsPath, pairs.map((p) => JSON.stringify(p)).join("\n") + "\n
 const counts = pairs.reduce((m, p) => ((m[p.kind] = (m[p.kind] || 0) + 1), m), {});
 console.log("dataset_pairs.jsonl:", pairs.length, "pairs —", JSON.stringify(counts));
 // Say this out loud. A filter that removes training data silently is how the stale-embeddings
-// incident happened; if the collisions file grows wrong, the count is the only way to notice.
+// incident happened; the count is the only way to notice a filter growing wrong.
 console.log(
-	`  excluded ${droppedCollisionPairs} pair(s) touching ${collisionSkus.size} known cross-store sku collision(s) (data/sku_collisions.json)`,
-	`\n  excluded ${droppedNamelessPairs} pair(s) touching ${namelessSkus.size} nameless sku(s); ${policyBundlePairs} bundle↔bottle positive(s) emitted noTrain (policy links)`,
+	`  excluded ${droppedNamelessPairs} pair(s) touching ${namelessSkus.size} nameless sku(s); ${policyBundlePairs} bundle↔bottle positive(s) emitted noTrain (policy links)`,
 );
 
 /* ---------------- write sku_texts.jsonl (embedder inputs) ---------------- */
@@ -298,9 +266,9 @@ console.log("sku_texts.jsonl:", nText, "SKUs");
 
 /* ---------------- write groups.json ---------------- */
 
-// train_embed.py builds its contrastive positives from these groups, so the collision filter in
-// add() must apply here too or a collided sku is still trained as its group's positive.
-const groups = [...canonToSkus.values()].map((g) => g.filter((s) => !collisionSkus.has(s) && !namelessSkus.has(s))).filter((g) => g.length >= 2);
+// train_embed.py builds its contrastive positives from these groups, so the nameless filter in
+// add() must apply here too.
+const groups = [...canonToSkus.values()].map((g) => g.filter((s) => !namelessSkus.has(s))).filter((g) => g.length >= 2);
 fs.writeFileSync(path.join(OUT_DIR, "groups.json"), JSON.stringify(groups));
 console.log("groups.json:", groups.length, "groups (≥2 members)");
 

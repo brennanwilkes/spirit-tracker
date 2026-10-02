@@ -27,6 +27,7 @@ const {
 	mergeUpgradesIntoAutoLinks,
 	pairKey,
 } = require("../src/tracker/sku_auto_links");
+const { loadCollisionSplits } = require("../src/utils/sku_collisions");
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const limitArg = process.argv.find((a) => a.startsWith("--limit-files="));
@@ -179,7 +180,7 @@ function main() {
 		return;
 	}
 
-	const result = mergeUpgradesIntoAutoLinks({ dbDir, upgrades });
+	const result = mergeUpgradesIntoAutoLinks({ dbDir, upgrades, splits: loadCollisionSplits(path.join(dbDir, "..")) });
 	process.stdout.write(
 		`Wrote ${result.file}: +${result.added} new links (total ${result.total})\n`,
 	);

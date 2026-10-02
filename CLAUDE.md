@@ -457,7 +457,8 @@ node bin/tracker.js --stores kwm,bcl          # multiple stores
 node bin/tracker.js --debug --maxPages 3      # debug with page cap
 ```
 
-Exit code `3` = no meaningful changes (normal, not an error).
+Exit code `3` = no meaningful changes (normal, not an error). It needs `data/sku_collisions.json`
+next to `data/db/` and throws without it, so run it from `.worktrees/data`.
 
 ## CI / Automation
 
@@ -586,7 +587,7 @@ already produced one false "the audit found nothing".
 
 ### Audit status after the 2026-09-23 session
 
-**Links 5,939, ignores 16,182, collisions 22, hidden 592** (2026-09-29; from 5,975 / 13,540 on 2026-09-22). Every cheap
+**Links 5,950, ignores 16,368, collisions 24 (split), hidden 588** (2026-10-01; from 5,975 / 13,540 on 2026-09-22). Every cheap
 surface is adjudicated over all of history: near-miss and want-links (including the v5 residual),
 orphans (3,061), every existing link below the bar (`< 0.30`: 23% wrong; `0.30–0.95`: 13.8% wrong),
 38 ignore↔link contradictions, and the whole review backlog (0 open, bar 5 waiting on the deferred per-store split). **The 0.95–0.99 pilot of the
@@ -595,12 +596,11 @@ the bar is weak evidence that a link is right.
 
 **The ≥ 0.99 pass is complete: 92 of 5,632 edges wrong (1.6%)**, and every review queue is closed. Precision
 is done. The ignore screen stopped after tier A (`tools/audit_ignore_slice.js`): the near-identical-name ignores
-were only 0.43% wrong (3 of 694), so B–D (~4M tokens) was not worth it. What is left (2026-09-29; the unscored-group sweep is done, `docs/audit-full-library-plan.md`
-§3): linking the `c:` keys
-once the collision split ships, and an optional recall backfill gated on a pilot. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
-~700 KB end near 50% context, and 50% is a soft limit. **Collided skus stay in their
-groups** (owner ruling 2026-09-24): no containment unlinks, because collisions will be handled in
-the email pack and the frontend.
+were only 0.43% wrong (3 of 694), so B–D (~4M tokens) was not worth it. The unscored-group sweep is done (2026-09-29), and the recall-backfill pilot came back NO-GO (2026-10-01: 1 link in
+485 random rows ≈ 63 projected against a 150 gate), so the ~30k-row backfill is not run. What is left
+(`docs/audit-full-library-plan.md` §3): linking the `c:` keys now that the collision split is built. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
+~700 KB end near 50% context, and 50% is a soft limit. Collisions are fixed by the split (§"SKU collision splits"), never by
+containment unlinks.
 
 Rules from 2026-09-23:
 - **Audit existing links group-major** (`tools/audit_link_group_slice.js`). A band slice hides a
@@ -634,40 +634,39 @@ Findings from 2026-09-22 that still hold:
    evidence that criterion 2 needs `vl[]` read on every row, not just the below-bar funnel.
 5. **An `unlink` writes a hard negative by default and that is usually right — but not when you are
    severing to contain collision damage.** If the two products are genuinely the same and the link
-   only does harm because one sku is polluted, pass `"ignore": false`. (For skus on the collision list, don't cut at all — owner ruling 2026-09-24.)
+   only does harm because one sku is polluted, pass `"ignore": false`. (For a collided sku, split it in `sku_collisions.json` instead of cutting links.)
 
-### Collided SKUs were corrupting the training set (found 2026-09-22, extended 2026-09-23)
+### SKU collision splits (shipped 2026-10-01; plan + evidence: `docs/sku-collision-split-plan.md`)
 
-**Planned fix (2026-09-25): `docs/sku-collision-split-plan.md`.** Each collision entry gets a `split[]` that re-keys chosen `(storeId, sku[, url])` listings to a synthetic `c:<sku>:<tag>` wherever a `data/db` row is read, so the guards below can be retired. Until it ships, everything in this section still holds.
+Two different products can share one SKU when store numbering systems overlap (BC vs AB, the Sierra
+Springs / Wine and Beyond `id:104xxxx` overlap, or one store re-using a sku). Listings aggregate by
+sku, so they merge with no link to remove. The fix re-keys one side to a synthetic sku.
 
-`tools/linker_ml/build_dataset.mjs` builds positives as the full transitive CLOSURE of each
-canonical group, asserting in a comment that "every pairing is a valid positive". False twice: one
-faulty member of an N-member group yields N−1 bad positives, and a **collided sku is itself a group
-member** — the trainer was being taught "Roseisle 12yr ≡ Laphroaig Càirdeas 2023" as a positive.
-Unlinking cannot fix it; no link created the merge.
+- **`data/sku_collisions.json`** (data branch, curated, 24 entries): each entry has `sku`, `products`,
+  `keep`, and `split[]` = `{key: "c:<normSku>:<tag>", listings: [{storeId[, url]}]}`. `storeId` is the
+  db-file prefix. A `url` matcher is only for one store carrying both products. List only collisions
+  whose products belong in DIFFERENT groups (`876891`, a Springbank bundle vs Springbank 10, is benign
+  and must not be listed).
+- **Resolved where a `data/db` row is read, never written into `data/db`.** `src/utils/sku_collisions.js`
+  `loadCollisionSplits().resolve(storeId, sku, url)` returns its input unchanged when not split. Every
+  build tool (index, sku cache, recent, common listings, email pack), the tracker's auto-link writer and
+  cheapest index, and the audit tools call it. The SPA never loads the file: it sees resolved keys in
+  the artifacts; only `displaySku` strips `c:…` to the bare number.
+- **A missing or malformed file throws**, including at tracker startup (`src/main.js`). So run
+  `bin/tracker.js` from `.worktrees/data` (or with a `DATA_DIR` that has the file).
+- **Hidden entries match the RESOLVED key**: hide a split listing as `c:…`.
+- **Adding/changing an entry = JSON edit + `node tools/validate_sku_collisions.js`** (run in the data
+  worktree; must show 0 ERROR). The per-SKU cache rebuilds affected history by itself: it compares
+  `viz/data/skus/_collisions.stamp` with the file and rebuilds those skus from git history. The
+  scraper re-points `sku_links_auto.json` onto new splits but never back: removing a split or renaming
+  a tag needs a hand edit of the auto links (the validator errors on an undefined `c:` key).
+- `c:` keys are ordinary skus: linkable, trainable, embeddable. The old guards (applier and
+  auto-classify refusals, `build_dataset` exclusion) are gone. Ignores that were aimed at a split-off
+  product no longer apply to it; re-add them on the `c:` key (list in the plan's follow-ups).
+- **`tools/detect_sku_collisions.mjs`** regenerates the candidate census from `index.json`. Candidates,
+  not verdicts: judge on every store's listing. ~10% of candidates were real.
 
-- **`data/sku_collisions.json`** (data branch) — curated, VERIFIED collisions only, **22 entries**
-  (2026-09-23; 74 candidates adjudicated, ~10% real). Every real one crosses numbering systems (BC vs
-  AB, or the Sierra Springs / Wine and Beyond `id:104xxxx` overlap). Worst: `744086` = Yellow Spot 12
-  (6 stores) + Brinley Gold Shipwreck Spiced Rum (3 stores).
-  Recorded only when the two products belong in DIFFERENT canonical groups. **A collision that
-  policy would link anyway is benign and must not be listed** (`876891`: a Springbank bundle
-  colliding with Springbank 10 — owner ruling 2026-09-22).
-- `build_dataset.mjs` drops any pair touching a listed sku inside `add()` (so positives, ignores and
-  `noTrain` are filtered uniformly) and **prints the count** (126 pairs at 22 entries), and strips collided skus from `groups.json` too — the embedder builds its contrastive positives from it and had been training 11 collided groups. A MISSING file warns and continues
-  rather than throwing — `run_daily.sh` calls this under `set +e`, so a throw would skip the
-  re-encode and silently re-freeze `sku_embeddings.json`, i.e. re-create the 2026-08-20 incident.
-  Same shape as the `sku_hidden.json` loader in `featurize.mjs`.
-- **`apply_audit_proposal.js` refuses any `link` op touching a listed sku** (2026-09-23; `--force` does not override).
-- **`auto_link_classify.mjs` refuses any pair touching a listed sku** (2026-09-23) — Roseisle 12
-  scored 0.977–0.998 against collided `id:1049495`, so a newly-scraped Roseisle would have merged a
-  Laphroaig into its group. Prints the skip count; missing file warns.
-- **`tools/detect_sku_collisions.mjs`** regenerates the candidate census from `index.json`
-  (5,453 multi-store skus → 82 candidates). Candidates, not verdicts — judge on every store's listing.
-- **This reopens the "0.09%, not worth fixing" ruling.** That rate came from a name-overlap test
-  finding 4 in 4,445. The harm is recall + training data, not display.
-
-### Two pre-apply guards now required
+### Pre-apply guard: `validate_proposal_skus`
 
 - **`node tools/validate_proposal_skus.js --proposal <file> [--fix]`** before every apply. The
   generator's listing ids/cluster keys strip `id:` while `pairs[].sku`/`vl[][0]` keep it. **Correction
@@ -676,9 +675,6 @@ Unlinking cannot fix it; no link created the merge.
   `linker_eval`, `dump_features` and `featurize.linkAdj` silently dropped **4,828 of 14,442 ignores
   from training** and leaked the group split — all four fixed; see `tools/linker_ml/CLAUDE.md`
   §"2026-09-23". Keep the file in catalog form anyway; `--fix` rewrites bare refs.
-- **Link ops against the collision list are refused by the applier** (since 2026-09-23). Linking TO a
-  collided sku spreads contamination into a clean group — 2 otherwise-correct Roseisle links were
-  withheld for this reason.
 
 `tools/apply_audit_proposal.js` now also detects **ineffective unlinks** (the A–B entry removed but
 A–C–B still connects them, so the canonical group does not split), reports `ineffectiveUnlinks[]`,

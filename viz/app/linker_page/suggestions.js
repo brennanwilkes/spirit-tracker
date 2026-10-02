@@ -88,6 +88,7 @@ function isBadSku(sku) {
 	const s = String(sku || "").toLowerCase();
 	if (!s) return true;
 	if (s.startsWith("u:")) return true;
+	if (s.startsWith("c:")) return true;
 	if (s.startsWith("id:")) return true;
 	if (s.startsWith("upc:")) return true;
 	if (s === "unknown") return true;
