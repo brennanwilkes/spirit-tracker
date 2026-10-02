@@ -125,9 +125,24 @@ function anyFavInGroup(set, groupSet) {
 	return false;
 }
 
+/* The last toggle of each canonical sku this session: canon -> { on, group }. A page main.js
+ * keeps alive for back/forward was detached while the item page changed a star, so it
+ * replays these when restored. */
+const toggled = new Map();
+
 export function installFavStars(root, favSet) {
 	const set = favSet instanceof Set ? favSet : new Set();
 	const inflight = new Set();
+
+	root.dataset.onRestore = "";
+	root.addEventListener("st:restored", () => {
+		for (const [canon, { on, group }] of toggled) {
+			for (const s of group) set.delete(s);
+			if (on) set.add(canon);
+			else set.delete(canon);
+			setFavStarsForGroup(root, group, on);
+		}
+	});
 
 	async function onClick(e) {
 		const btn = e.target?.closest?.(".favStarBtn");
@@ -181,6 +196,7 @@ export function installFavStars(root, favSet) {
 			}
 
 			setFavStarsForGroup(root, group, desired);
+			toggled.set(canon, { on: desired, group });
 		} catch (err) {
 			if (err && (err.name === "AuthError" || err instanceof AuthError)) {
 				openLoginNewTab("#/login");

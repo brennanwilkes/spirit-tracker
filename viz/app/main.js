@@ -31,6 +31,7 @@ import { renderPublicShortlists } from "./public_shortlists_page.js";
 import { renderStores } from "./stores_page.js";
 import { applyStoredColorScheme, applyColorScheme } from "./theme.js";
 import { renderBottomNav } from "./components/bottom_nav.js";
+import { installPullToRefresh } from "./components/pull_to_refresh.js";
 import * as pwa from "./pwa.js";
 
 // Apply stored theme immediately to prevent FOUC
@@ -38,6 +39,7 @@ applyStoredColorScheme();
 // Before the first route, so data responses are seen with the PWA active.
 pwa.register();
 pwa.offerInstall(getAuthStatus().ok);
+if (navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches) installPullToRefresh();
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");
@@ -64,6 +66,35 @@ function parseHashRoute(fullHash) {
 
 let routeSeq = 0;
 
+/* List pages are KEPT ALIVE per history entry, like a native navigation stack: leaving one
+ * detaches its DOM (listeners, observers and loaded rows intact), and back/forward to that
+ * entry re-attaches it and its scroll position in the same task, with no re-render. A fresh
+ * render could only rebuild the first page of rows, so a deep scroll came back blank or at
+ * the top. Each kept page holds its whole DOM, hence the cap.
+ *
+ * Elements marked data-on-restore receive "st:restored" after re-attaching, to catch up on
+ * account edits made meanwhile (a star or score changed on the item page). */
+const KEEP_MAX = 6;
+const kept = new Map(); // entry key -> { nodes, y }, oldest first
+let shown = null; // { key, keep, y } of the page in #app
+let entrySeq = 0;
+history.scrollRestoration = "manual";
+
+function keepable(parsed) {
+	if (parsed.special) return false;
+	const [first, id] = parsed.parts;
+	return first === undefined || first === "stores" || first === "shortlists" || ((first === "store" || first === "shortlist") && id !== undefined);
+}
+
+function stashShown($app) {
+	if (shown === null || !shown.keep) return;
+	const nodes = document.createDocumentFragment();
+	nodes.append(...$app.childNodes);
+	kept.set(shown.key, { nodes, y: shown.y });
+	if (kept.size > KEEP_MAX) kept.delete(kept.keys().next().value);
+	shown = null;
+}
+
 function route() {
 	const $app = document.getElementById("app");
 	if (!$app) return;
@@ -74,13 +105,42 @@ function route() {
 
 	renderBottomNav();
 
+	// Hash routing puts every page in one document, so a history entry is told apart by its state.
+	// Date.now() keeps keys unique across reloads, which keep the entries but not this map.
+	if (typeof history.state?.stKey !== "string") {
+		history.replaceState({ ...history.state, stKey: `${Date.now()}-${++entrySeq}` }, "");
+	}
+	const key = history.state.stKey;
+	if (shown !== null && shown.key === key) {
+		// Straight back to the page still on screen, before the next one rendered.
+		++routeSeq;
+		return;
+	}
+	if (shown !== null) shown.y = window.scrollY;
+
+	const hit = kept.get(key);
+	if (hit !== undefined) {
+		++routeSeq; // drops a render still pending from an earlier navigation
+		stashShown($app);
+		kept.delete(key);
+		$app.replaceChildren(hit.nodes);
+		window.scrollTo(0, hit.y);
+		shown = { key, keep: true, y: hit.y };
+		for (const el of $app.querySelectorAll("[data-on-restore]")) el.dispatchEvent(new Event("st:restored"));
+		return;
+	}
+
 	// Let the new tab highlight PAINT before the page renders. A page render can hold the main
 	// thread for hundreds of ms on a phone, and the tap used to show nothing until it finished.
 	// The sequence number drops a render overtaken by a newer navigation.
 	const seq = ++routeSeq;
 	requestAnimationFrame(() =>
 		setTimeout(() => {
-			if (seq === routeSeq) renderRoute($app);
+			if (seq !== routeSeq) return;
+			stashShown($app);
+			window.scrollTo(0, 0);
+			shown = { key, keep: keepable(parseHashRoute(window.location.hash || "#/")), y: 0 };
+			renderRoute($app);
 		}, 0),
 	);
 }

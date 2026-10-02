@@ -30,6 +30,35 @@ export function renderBottomNav() {
 		// iOS Safari only applies :active (the tab's pressed state) when a touchstart
 		// listener exists on the element or an ancestor.
 		$nav.addEventListener("touchstart", () => {}, { passive: true });
+
+		/* A touched tab navigates on touch-up, like a native tab bar, not on the click iOS
+		 * synthesizes afterwards. iOS withholds that click while the page is still adding
+		 * content (the shortlist's chunked render) or still momentum-scrolling, so the first
+		 * tap did nothing. A drag past 10px or a pan (pointercancel) is not a tap. */
+		let down = null;
+		let tapped = false;
+		$nav.addEventListener("pointerdown", (e) => {
+			tapped = false;
+			down = e.pointerType === "touch" ? { x: e.clientX, y: e.clientY, $a: e.target.closest(".bottomNavItem") } : null;
+		});
+		$nav.addEventListener("pointercancel", () => { down = null; });
+		$nav.addEventListener("pointerup", (e) => {
+			const d = down;
+			down = null;
+			if (d === null || d.$a === null || !d.$a.isConnected) return;
+			if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10) return;
+			tapped = true;
+			const href = d.$a.getAttribute("href");
+			if (location.hash === href) window.scrollTo({ top: 0, behavior: "smooth" }); // native: re-tap the tab = top
+			else location.hash = href;
+		});
+		// The late click would re-navigate to the same hash, which REPLACES the history entry and
+		// drops its state (main.js keys kept pages by it).
+		$nav.addEventListener("click", (e) => {
+			if (!tapped) return;
+			tapped = false;
+			e.preventDefault();
+		});
 		document.body.appendChild($nav);
 	}
 
