@@ -25,6 +25,12 @@ import { storeSetSelectorHtml, installStoreSetSelector } from "./components/stor
 import { parseStoreSet, serializeStoreSet, resolveStoreSet } from "./store_set.js";
 
 
+/* The catalog-wide maps below depend only on index.json, the link rules and the hidden set,
+ * which are cached for the session, but cost ~350 ms of main thread to build (aggregateBySku
+ * alone ~260 ms). Rebuilding them on every visit made the Search tab lag on each tap. They
+ * are read-only after being built; renderAggregates sorts a copy. */
+let DERIVED = null;
+
 export function renderSearch($app) {
 	const auth = getAuthStatus();
 	const authed = auth.ok;
@@ -35,7 +41,7 @@ export function renderSearch($app) {
       <div class="header">
         <!-- Row 1 -->
         <div class="headerRow1">
-          <div class="headerLeft">
+          <div class="headerLeft searchTitle">
             <h1 class="h1">Brennan's Spirit Tracker</h1>
             <div class="small">Search name / url / sku / store</div>
           </div>
@@ -1118,98 +1124,103 @@ export function renderSearch($app) {
 				favSet.add(String(rules.canonicalSku(raw) || raw));
 			}
 
-			const rawListings = Array.isArray(idx.items) ? idx.items : [];
-			const listings = hiddenSet && hiddenSet.size > 0
-				? rawListings.filter((r) => !isHiddenListing(hiddenSet, normalizeStoreId(r?.storeLabel || r?.store || ""), keySkuForRow(r)))
-				: rawListings;
+			const memo = DERIVED;
+			if (memo !== null && memo.idx === idx && memo.rules === rules && memo.hiddenSet === hiddenSet) {
+				({ liveStoresBySku, everStoresBySku, storeNormToStoreId, storeDisplayByNorm, liveMinPriceBySkuStore, lastKnownMinPriceBySku, firstSeenMsBySku, allAgg, aggBySku, URL_BY_SKU_STORE } = memo);
+			} else {
+				const rawListings = Array.isArray(idx.items) ? idx.items : [];
+				const listings = hiddenSet && hiddenSet.size > 0
+					? rawListings.filter((r) => !isHiddenListing(hiddenSet, normalizeStoreId(r?.storeLabel || r?.store || ""), keySkuForRow(r)))
+					: rawListings;
 
-			liveStoresBySku = new Map();
-			everStoresBySku = new Map();
-			storeNormToStoreId = new Map();
-			storeDisplayByNorm = new Map();
-			liveMinPriceBySkuStore = new Map();
-			lastKnownMinPriceBySku = new Map();
-			firstSeenMsBySku = new Map();
+				liveStoresBySku = new Map();
+				everStoresBySku = new Map();
+				storeNormToStoreId = new Map();
+				storeDisplayByNorm = new Map();
+				liveMinPriceBySkuStore = new Map();
+				lastKnownMinPriceBySku = new Map();
+				firstSeenMsBySku = new Map();
 
-			for (const r of listings) {
-				if (!r) continue;
+				for (const r of listings) {
+					if (!r) continue;
 
-				// --- KEY FIX FOR "NEWEST" ---
-				// Compute sku + firstSeenAt even if storeLabel is missing (common on removed/out-of-stock rows)
-				const skuKeyRaw = String(r?.sku || keySkuForRow(r) || "").trim();
-				if (!skuKeyRaw) continue;
+					// --- KEY FIX FOR "NEWEST" ---
+					// Compute sku + firstSeenAt even if storeLabel is missing (common on removed/out-of-stock rows)
+					const skuKeyRaw = String(r?.sku || keySkuForRow(r) || "").trim();
+					if (!skuKeyRaw) continue;
 
-				const sku = String(rules.canonicalSku(skuKeyRaw) || skuKeyRaw);
-				if (!sku) continue;
+					const sku = String(rules.canonicalSku(skuKeyRaw) || skuKeyRaw);
+					if (!sku) continue;
 
-				{
-					const t = String(r?.firstSeenAt || "").trim();
-					const ms = t ? Date.parse(t) : NaN;
-					if (Number.isFinite(ms)) {
-						const prev = firstSeenMsBySku.get(sku);
-						if (prev === undefined || ms < prev) firstSeenMsBySku.set(sku, ms);
+					{
+						const t = String(r?.firstSeenAt || "").trim();
+						const ms = t ? Date.parse(t) : NaN;
+						if (Number.isFinite(ms)) {
+							const prev = firstSeenMsBySku.get(sku);
+							if (prev === undefined || ms < prev) firstSeenMsBySku.set(sku, ms);
+						}
+					}
+
+					// Everything below needs a store label
+					const storeLabel = String(r.storeLabel || r.store || "").trim();
+					const stNorm = normStoreKey(storeLabel);
+					if (!stNorm) continue;
+
+					// ever stores includes removed
+					{
+						let ss = everStoresBySku.get(sku);
+						if (!ss) everStoresBySku.set(sku, (ss = new Set()));
+						ss.add(stNorm);
+					}
+
+					if (r.removed) {
+						// Capture the last-known price so out-of-stock items remain sortable
+						// (and showable) by price.
+						const rp = parsePriceToNumber(r.price);
+						if (rp !== null) {
+							const prev = lastKnownMinPriceBySku.get(sku);
+							if (prev === undefined || rp < prev) lastKnownMinPriceBySku.set(sku, rp);
+						}
+						continue;
+					}
+
+					// display label for store
+					if (!storeDisplayByNorm.has(stNorm)) storeDisplayByNorm.set(stNorm, storeLabel);
+
+					// live stores
+					{
+						let ss = liveStoresBySku.get(sku);
+						if (!ss) liveStoresBySku.set(sku, (ss = new Set()));
+						ss.add(stNorm);
+					}
+
+					// norm -> canonical storeId, for resolving the selected store set to norms
+					{
+						const storeId = normalizeStoreId(storeLabel);
+						if (storeId && !storeNormToStoreId.has(stNorm)) storeNormToStoreId.set(stNorm, storeId);
+					}
+
+					// per-store live min price
+					const p = parsePriceToNumber(r.price);
+					if (p !== null) {
+						let m = liveMinPriceBySkuStore.get(sku);
+						if (!m) liveMinPriceBySkuStore.set(sku, (m = new Map()));
+						const prev = m.get(stNorm);
+						if (prev === undefined || p < prev) m.set(stNorm, p);
 					}
 				}
 
-				// Everything below needs a store label
-				const storeLabel = String(r.storeLabel || r.store || "").trim();
-				const stNorm = normStoreKey(storeLabel);
-				if (!stNorm) continue;
+				allAgg = aggregateBySku(listings, rules.canonicalSku);
+				const missing = allAgg
+					.map((it) => String(it?.sku || ""))
+					.filter((sku) => sku && !firstSeenMsBySku.has(sku));
 
-				// ever stores includes removed
-				{
-					let ss = everStoresBySku.get(sku);
-					if (!ss) everStoresBySku.set(sku, (ss = new Set()));
-					ss.add(stNorm);
-				}
-
-				if (r.removed) {
-					// Capture the last-known price so out-of-stock items remain sortable
-					// (and showable) by price.
-					const rp = parsePriceToNumber(r.price);
-					if (rp !== null) {
-						const prev = lastKnownMinPriceBySku.get(sku);
-						if (prev === undefined || rp < prev) lastKnownMinPriceBySku.set(sku, rp);
-					}
-					continue;
-				}
-
-				// display label for store
-				if (!storeDisplayByNorm.has(stNorm)) storeDisplayByNorm.set(stNorm, storeLabel);
-
-				// live stores
-				{
-					let ss = liveStoresBySku.get(sku);
-					if (!ss) liveStoresBySku.set(sku, (ss = new Set()));
-					ss.add(stNorm);
-				}
-
-				// norm -> canonical storeId, for resolving the selected store set to norms
-				{
-					const storeId = normalizeStoreId(storeLabel);
-					if (storeId && !storeNormToStoreId.has(stNorm)) storeNormToStoreId.set(stNorm, storeId);
-				}
-
-				// per-store live min price
-				const p = parsePriceToNumber(r.price);
-				if (p !== null) {
-					let m = liveMinPriceBySkuStore.get(sku);
-					if (!m) liveMinPriceBySkuStore.set(sku, (m = new Map()));
-					const prev = m.get(stNorm);
-					if (prev === undefined || p < prev) m.set(stNorm, p);
-				}
+				if (missing.length) console.warn("Missing firstSeenAt for SKUs:", missing.slice(0, 50));
+				aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
+				URL_BY_SKU_STORE = buildUrlMap(listings, rules.canonicalSku);
+				DERIVED = { idx, rules, hiddenSet, liveStoresBySku, everStoresBySku, storeNormToStoreId, storeDisplayByNorm, liveMinPriceBySkuStore, lastKnownMinPriceBySku, firstSeenMsBySku, allAgg, aggBySku, URL_BY_SKU_STORE };
 			}
-
 			resolvedStoreNorms = computeResolvedStoreNorms();
-
-			allAgg = aggregateBySku(listings, rules.canonicalSku);
-			const missing = allAgg
-				.map((it) => String(it?.sku || ""))
-				.filter((sku) => sku && !firstSeenMsBySku.has(sku));
-
-			if (missing.length) console.warn("Missing firstSeenAt for SKUs:", missing.slice(0, 50));
-			aggBySku = new Map(allAgg.map((x) => [String(x.sku || ""), x]));
-			URL_BY_SKU_STORE = buildUrlMap(listings, rules.canonicalSku);
 
 			indexReady = true;
 			$q.focus();

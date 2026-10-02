@@ -27,6 +27,9 @@ export function renderBottomNav() {
 		$nav.id = "bottomNav";
 		$nav.className = "bottomNav";
 		$nav.setAttribute("aria-label", "Primary");
+		// iOS Safari only applies :active (the tab's pressed state) when a touchstart
+		// listener exists on the element or an ancestor.
+		$nav.addEventListener("touchstart", () => {}, { passive: true });
 		document.body.appendChild($nav);
 	}
 

@@ -21,8 +21,13 @@
 const INDEX_URL = "./data/index.json";
 const FOREGROUND_CHECK_MS = 5 * 60 * 1000;
 const BAR_RANK = { account: 1, offline: 2, fresh: 3, update: 4 };
+// An automatic swap reloads only if it lands this soon after being asked for. Activation
+// waits for the old worker's in-flight events, which can take tens of seconds; a reload that
+// late would yank a page the user is already using.
+const AUTO_APPLY_RELOAD_MS = 5000;
 
 let active = false;
+let autoApplyAt = null;
 let shownIndexEtag = null;
 let dataOfflineAsOf = null;
 let accountOfflineAsOf = null;
@@ -44,14 +49,20 @@ export function register() {
 	registered
 		.then((reg) => {
 			// Launch: nothing is on screen yet that a reload could lose.
-			if (reg.waiting !== null) reg.waiting.postMessage("SKIP_WAITING");
+			if (reg.waiting !== null) {
+				autoApplyAt = Date.now();
+				reg.waiting.postMessage("SKIP_WAITING");
+			}
 			reg.addEventListener("updatefound", () => {
 				const sw = reg.installing;
 				if (sw === null) return;
 				sw.addEventListener("statechange", () => {
 					// A controller already exists => this is an update, not a first install.
 					if (sw.state === "installed" && navigator.serviceWorker.controller !== null) {
-						showBar("update", "A new version is ready — tap to reload", () => sw.postMessage("SKIP_WAITING"));
+						showBar("update", "A new version is ready — tap to reload", () => {
+							autoApplyAt = null;
+							sw.postMessage("SKIP_WAITING");
+						});
 					}
 				});
 			});
@@ -75,6 +86,10 @@ export function register() {
 			uncachedData.clear();
 			return;
 		}
+		if (autoApplyAt !== null && Date.now() - autoApplyAt > AUTO_APPLY_RELOAD_MS) {
+			showBar("update", "A new version is ready — tap to reload", () => location.reload());
+			return;
+		}
 		if (reloading) return;
 		reloading = true;
 		location.reload();
@@ -84,6 +99,7 @@ export function register() {
 		if (document.visibilityState !== "visible") return;
 		const reg = await registered;
 		if (reg.waiting !== null) {
+			autoApplyAt = Date.now();
 			reg.waiting.postMessage("SKIP_WAITING");
 			return;
 		}

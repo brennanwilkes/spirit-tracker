@@ -181,7 +181,9 @@ self.addEventListener('fetch', (e) => {
         return res;
       });
       if (hit === undefined) return refresh;
-      e.waitUntil(refresh.catch((err) => console.warn('[sw] cdn refresh failed:', req.url, err)));
+      // NOT waitUntil: a pending extended event makes a waiting worker's activation wait for
+      // it, so a slow CDN would delay every code update. The refresh is best-effort.
+      refresh.catch((err) => console.warn('[sw] cdn refresh failed:', req.url, err));
       return hit;
     })());
   }

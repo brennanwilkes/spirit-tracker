@@ -28,12 +28,15 @@ const batchBytes = Number(arg("--batch-bytes"));
 // Selects the groups no band slice can reach: no scored, non-auto, non-pin edge (auto-only or
 // prob-null groups). --min/--max are ignored. Pin-only groups are correct by construction.
 const unscored = process.argv.includes("--unscored");
+// Selects the groups touched by a CI auto-link written at or after this ISO time (any prob);
+// --min/--max are ignored. The audit campaign's precision source for links no agent has read.
+const autoSince = arg("--auto-since");
 const root = arg("--root") || path.join(__dirname, "..", ".worktrees", "data");
 // Comma-separated slice files already audited: a group sharing any member with one is skipped, so
 // the remainder can be re-cut at a new size after a calibration run (canon keys shift on apply).
 const exclude = arg("--exclude") ? arg("--exclude").split(",") : [];
-if (!from || !prefix || (!unscored && (!Number.isFinite(min) || !Number.isFinite(max))) || !Number.isFinite(batchBytes)) {
-	console.error("usage: audit_link_group_slice.js --from <rich.jsonl> --min <p> --max <p> --batch-bytes <n> --out-prefix <path> [--root <worktree>] [--exclude <slice.json,…>] [--unscored]");
+if (!from || !prefix || (!unscored && !autoSince && (!Number.isFinite(min) || !Number.isFinite(max))) || !Number.isFinite(batchBytes) || (autoSince && !Number.isFinite(Date.parse(autoSince)))) {
+	console.error("usage: audit_link_group_slice.js --from <rich.jsonl> --min <p> --max <p> --batch-bytes <n> --out-prefix <path> [--root <worktree>] [--exclude <slice.json,…>] [--unscored | --auto-since <iso>]");
 	process.exit(2);
 }
 const nk = (s) => normalizeImplicitSkuKey(String(s || "").trim());
@@ -90,6 +93,7 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 			prob: prob.has(k) ? +prob.get(k).toFixed(4) : null,
 			...(pinned.has(k) ? { pin: 1 } : {}),
 			...(l.noTrain ? { noTrain: 1 } : {}),
+			...(autoSince && src === "auto-classify" ? { ts: l.ts } : {}),
 		});
 	}
 
@@ -109,7 +113,13 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 	const out = [];
 	let bandEdges = 0;
 	for (const [canon, G] of byGroup) {
-		const n = unscored ? (G.edges.some(scored) ? 0 : G.edges.filter((e) => !e.pin).length) : G.edges.filter(inBand).length;
+		const n = autoSince
+			? G.edges.filter((e) => e.ts && Date.parse(e.ts) >= Date.parse(autoSince)).length
+			: unscored
+				? G.edges.some(scored)
+					? 0
+					: G.edges.filter((e) => !e.pin).length
+				: G.edges.filter(inBand).length;
 		if (!n) continue;
 		if ([...G.members].some((s) => done.has(s))) {
 			excluded++;
@@ -131,11 +141,11 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 		b.groups.push(g);
 		b.bytes += JSON.stringify(g).length;
 	}
-	const legend = "groups[] are WHOLE canonical groups. members[].listings = [store,name,price,removed,url]. edges[] = EVERY link holding the group together; a/b are the exact stored fromSku/toSku (use them in unlink ops). src merge-auto = sku_links_auto.json (an in-place sku upgrade; remove a wrong one with op 'unlink-auto', not 'unlink'). pin = shared SMWS cask code (prob not calibrated). prob null = not re-scored (new link or absent partner). A member with NO listings is a superseded key (the sku was upgraded in place; its merge-auto edge names the successor) or a vanished listing — judge its edges by the partner, never unlink it for lacking a name.";
+	const legend = "groups[] are WHOLE canonical groups. members[].listings = [store,name,price,removed,url]. edges[] = EVERY link holding the group together; a/b are the exact stored fromSku/toSku (use them in unlink ops). src merge-auto = sku_links_auto.json (an in-place sku upgrade; remove a wrong one with op 'unlink-auto', not 'unlink'). pin = shared SMWS cask code (prob not calibrated). prob null = not re-scored (new link or absent partner). ts = when CI wrote an auto-classify edge (--auto-since slices only). A member with NO listings is a superseded key (the sku was upgraded in place; its merge-auto edge names the successor) or a vanished listing — judge its edges by the partner, never unlink it for lacking a name.";
 	batches.forEach((b, i) => {
 		const f = `${prefix}-b${String(i + 1).padStart(2, "0")}.json`;
 		const e = b.groups.reduce((s, g) => s + g.edges.length, 0);
-		fs.writeFileSync(f, JSON.stringify({ _meta: { from, band: unscored ? "unscored" : [min, max], batch: `${i + 1}/${nBatches}`, groups: b.groups.length, edges: e, legend }, groups: b.groups }) + "\n");
+		fs.writeFileSync(f, JSON.stringify({ _meta: { from, band: autoSince ? `auto-since ${autoSince}` : unscored ? "unscored" : [min, max], batch: `${i + 1}/${nBatches}`, groups: b.groups.length, edges: e, legend }, groups: b.groups }) + "\n");
 		console.log(`${f}: ${b.groups.length} groups, ${e} edges, ${fs.statSync(f).size} B`);
 	});
 	if (exclude.length) console.log(`excluded ${excluded} group(s) already audited in ${exclude.join(", ")}`);

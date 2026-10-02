@@ -7,9 +7,10 @@
          auto-dark-theme doesn't re-invert our UI (white dropdown panels). -->
     <meta name="color-scheme" content="dark light" />
     <title>Brennan's Spirit Tracker</title>
-    <!-- Right for the OS theme before any JS runs; theme.js then syncs both to the live --bg. -->
-    <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#dde3ea" media="(prefers-color-scheme: light)" />
+    <!-- Deliberately NO <meta name="theme-color">. Without one, iOS Safari tints the status
+         bar from the page's own background, which always matches the in-app theme. A
+         media-keyed pair showed the light colour over the dark theme when the OS was light
+         and the app was set to dark, and JS updates to it were not picked up. -->
 
     <!-- PWA. iOS does not reliably take the home-screen icon from the manifest, so the
          legacy apple-* tags stay alongside it. black-translucent puts the page under the
@@ -18,7 +19,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Spirits" />
+    <meta name="apple-mobile-web-app-title" content="Spirit Tracker" />
     <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180.png" />
     <link rel="icon" href="./favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />

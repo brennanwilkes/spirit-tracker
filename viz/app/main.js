@@ -61,6 +61,8 @@ function parseHashRoute(fullHash) {
 	return { parts, params };
 }
 
+let routeSeq = 0;
+
 function route() {
 	const $app = document.getElementById("app");
 	if (!$app) return;
@@ -71,6 +73,18 @@ function route() {
 
 	renderBottomNav();
 
+	// Let the new tab highlight PAINT before the page renders. A page render can hold the main
+	// thread for hundreds of ms on a phone, and the tap used to show nothing until it finished.
+	// The sequence number drops a render overtaken by a newer navigation.
+	const seq = ++routeSeq;
+	requestAnimationFrame(() =>
+		setTimeout(() => {
+			if (seq === routeSeq) renderRoute($app);
+		}, 0),
+	);
+}
+
+function renderRoute($app) {
 	const parsed = parseHashRoute(window.location.hash || "#/");
 
 	// Special double-hash handling (OAuth)

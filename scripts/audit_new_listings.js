@@ -210,6 +210,7 @@ const DEFAULT_SINCE = "2026-06-12T18:47:49Z";
 const VALUE_FLAGS = new Set([
 	"--since", "--until", "--root", "--format", "--only", "--offset", "--limit", "--top",
 	"--out", "--from", "--id", "--sku", "--cluster", "--pair", "--limit-pairs", "--min-prob", "--min-det",
+	"--score-pairs", "--emb-neighbours",
 ]);
 const BOOLEAN_FLAGS = new Set(["--with-scores", "--no-scores", "--compact", "--ultra-compact", "--help", "-h"]);
 
@@ -243,6 +244,13 @@ Stage 1.5 (derive views/deep-dives from a rich file — NO re-scoring):
   --from <rich> --sku <normalizedSku>     all listings with that sku
   --from <rich> --cluster <canonicalSku>  cluster members + missingFromWindow
   --from <rich> --pair "<a>|<b>"          the pair's live score + 41-col features (either order)
+
+Live pair scoring (batch, both directions, prob = max; used by tools/audit_campaign.js):
+  --score-pairs <pairs.jsonl> --out <f>   score each {"a","b"} line; writes a _meta line + one
+                                          {a,b,prob,probAB,probBA,det,embedCos,pol,features} per pair
+  --emb-neighbours <K> --out <f>          every catalog sku's K nearest embedding neighbours that are
+                                          not linked or ignored, scored the same way
+  LINKER_GBT_MODEL=<gbt.json> LINKER_EMBEDDINGS=<emb.json> score with a candidate model (any mode)
 
 See docs/audit-runbook.md for the decision protocol and proposal schema.
 
@@ -1599,9 +1607,73 @@ async function buildScorer(root, opts = {}) {
 		return { scored: true, engine, bar, candidates, verified, twins, poolSize: lastPoolSize, poolUnion: !!unionBlock, poolEmb: !!unionEmb };
 	}
 
+	// --score-pairs: one arbitrary pair, scored in BOTH directions (the ranker is not symmetric; CI
+	// links when either anchor's direction clears the bar, so `prob` is the max).
+	function scorePair(aSku, bSku) {
+		const a = bySkuAgg.get(aSku);
+		const b = bySkuAgg.get(bSku);
+		if (!a || !b) return null;
+		const opts = { vocab, sizePenaltyFn: sizeFn, pricePenaltyFn: priceFn };
+		const ab = scoreAgainst(suggestions.prepScorePairCtx(a, opts), a, b);
+		const ba = scoreAgainst(suggestions.prepScorePairCtx(b, opts), b, a);
+		if (ab.prob === null || ba.prob === null) throw new Error(`no blended score for ${aSku}|${bSku}`);
+		const best = ba.prob > ab.prob ? ba : ab;
+		const storesOf = (x) => (x.stores instanceof Set ? [...x.stores] : x.stores || []);
+		return {
+			a: String(a.sku),
+			b: String(b.sku),
+			prob: best.prob,
+			probAB: ab.prob,
+			probBA: ba.prob,
+			det: best.det,
+			embedCos: best.feats.embedCos,
+			aiDelta: best.aiDelta,
+			pol: policyConflicts(
+				[a.name, ...(a.altNames || [])],
+				[b.name, ...(b.altNames || [])],
+				null,
+				[...storesOf(a), ...storesOf(b)],
+				sizeMod.parseSizesMlFromText,
+				sizeMod.canonSizeMl,
+			),
+			features: best.feats,
+		};
+	}
+
+	// --emb-neighbours: whole-catalog embedding nearest neighbours that are neither in one canonical
+	// group nor ignored — the confusable siblings token blocking can miss. Unscored [a, b, cos].
+	async function embNeighbours(K) {
+		const core = await import(pathToFileURL(path.join(SCRIPT_DIR, "..", "tools", "audit_search_core.mjs")).href);
+		const ei = core.buildEmbeddingIndex(root, allAgg);
+		if (!ei) throw new Error(`no embeddings loaded from ${EMB_PATH}`);
+		const seen = new Set();
+		const out = [];
+		const startMs = Date.now();
+		for (const [i, it] of allAgg.entries()) {
+			if (i && i % 1000 === 0) console.error(`  neighbours ${i}/${allAgg.length} (${Math.round((Date.now() - startMs) / 1000)}s)`);
+			const a = String(it.sku);
+			let kept = 0;
+			for (const r of ei.nearest(it, K * 4)) {
+				const b = String(r.item.sku);
+				if (sameGroup(a, b) || isIgnoredPair(a, b)) continue;
+				const k = a < b ? `${a}|${b}` : `${b}|${a}`;
+				if (!seen.has(k)) {
+					seen.add(k);
+					out.push([a, b, +r.cos.toFixed(4)]);
+				}
+				if (++kept >= K) break;
+			}
+		}
+		return out;
+	}
+
 	return {
 		engine,
 		bar,
+		gbtPath: GBT_PATH,
+		embPath: EMB_PATH,
+		scorePair,
+		embNeighbours,
 		gbtLoaded: !!gbt,
 		embLoaded: !!embRaw,
 		twinsEnabled: !!opts.enableTwins,
@@ -1702,6 +1774,61 @@ async function main() {
 	if (idArg || skuArg || clusterArg || pairArg) {
 		console.error("audit_new_listings: --id/--sku/--cluster/--pair are deep-dive lookups over an existing rich file — pass --from <file>.");
 		process.exit(2);
+	}
+
+	const scorePairsArg = args.get("--score-pairs");
+	const embNnArg = args.get("--emb-neighbours");
+	if (scorePairsArg || embNnArg) {
+		if (!args.get("--out") || (scorePairsArg && embNnArg)) {
+			console.error("audit_new_listings: --score-pairs / --emb-neighbours need --out, and are exclusive.");
+			process.exit(2);
+		}
+		const scorer = await buildScorer(root, {});
+		let pairs;
+		if (scorePairsArg) {
+			pairs = fs.readFileSync(scorePairsArg, "utf8").split("\n").filter(Boolean).map((line) => {
+				const p = JSON.parse(line);
+				return [p.a, p.b];
+			});
+		} else {
+			const K = parseNum(embNnArg, 0, "--emb-neighbours");
+			if (!K) {
+				console.error("audit_new_listings: --emb-neighbours expects K >= 1");
+				process.exit(2);
+			}
+			pairs = await scorer.embNeighbours(K);
+		}
+		const rows = [];
+		// A sku the ranker env excludes (every listing of it hidden) cannot be scored; such pairs are
+		// listed in _meta.missing, never silently dropped.
+		const missing = [];
+		const startMs = Date.now();
+		for (const [i, [a, b, cos]] of pairs.entries()) {
+			if (i && i % 5000 === 0) console.error(`  scored ${i}/${pairs.length} (${Math.round((Date.now() - startMs) / 1000)}s)`);
+			const r = scorer.scorePair(String(a), String(b));
+			if (!r) {
+				missing.push([a, b]);
+				continue;
+			}
+			if (cos !== undefined) r.nnCos = cos;
+			rows.push(r);
+		}
+		const meta = {
+			mode: scorePairsArg ? "score-pairs" : "emb-neighbours",
+			input: scorePairsArg || Number(embNnArg),
+			generatedAt: new Date().toISOString(),
+			engine: scorer.engine,
+			bar: scorer.bar,
+			gbt: scorer.gbtPath,
+			embeddings: scorer.embPath,
+			embLoaded: scorer.embLoaded,
+			pairs: rows.length,
+			missing,
+			storePriceRatio: scorer.storePriceRatio,
+		};
+		writeJsonlBatched(args.get("--out"), JSON.stringify({ _meta: meta }), rows);
+		console.log(`audit_new_listings: ${meta.mode} → ${rows.length} scored pairs, ${missing.length} unscorable (engine=${meta.engine}, gbt=${meta.gbt}) → ${args.get("--out")}`);
+		return;
 	}
 
 	// ---- load link sources (explicit) ----
@@ -2345,7 +2472,11 @@ async function main() {
 	console.log(`  ${format} → ${outFile}`);
 }
 
-main().catch((err) => {
-	console.error(err);
-	process.exit(1);
-});
+if (require.main === module) {
+	main().catch((err) => {
+		console.error(err);
+		process.exit(1);
+	});
+}
+
+module.exports = { priceRatioLabel, priceToNum };
