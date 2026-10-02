@@ -147,7 +147,7 @@ defunct importer/bottler wording) and say which reading you took in `why`.
 whose name was never captured cannot be re-judged; keep the link, never propose unlinking it for
 that reason alone.
 
-## Cross-store SKU collisions — OPEN, and not fixable in this file
+## Cross-store SKU collisions — split in code (`data/sku_collisions.json`)
 
 Two genuinely different products can share one numeric SKU across stores, because store numbering
 namespaces overlap. Measured 2026-09-20 over every live listing: **4,445 numeric SKUs appear at
@@ -160,13 +160,13 @@ namespaces overlap. Measured 2026-09-20 over every live listing: **4,445 numeric
 | `134037` | EverythingWine/Gull `Seventh Heaven Dry Gin` vs WhiskyDrop `Watt Whisky Sherried Speyside 14` |
 | `136399` | BSW/Sherbrooke `Twin Fin Coconut Lychee Rum` vs Strath `Bruichladdich Tallant #1125 Tempranillo 14yr` |
 
-**An agent cannot fix these and must not try.** Nothing in `sku_links.json` created the merge —
-listings aggregate by canonical SKU, and an unlinked numeric SKU is its own canonical, so four
-stores sharing `148534` collapse into one item for free. There is no link to remove and no
-`unlink` op that helps. Do not propose one; report the collision in `dataQuality[]` instead.
-The same holds when a collided sku IS joined to a group by explicit links: **leave those links in
-place, no containment unlinks** (owner ruling 2026-09-24). Collisions will be handled in code — the
-email pack and the frontend respecting `data/sku_collisions.json` — not by cutting links.
+**No link created these merges, so no `unlink` op can fix one.** Listings aggregate by SKU, so
+four stores sharing `148534` collapse into one item for free. Report a NEW collision in
+`dataQuality[]`; never propose an unlink for it. A verified entry in `data/sku_collisions.json`
+**splits** the sku: the listed `(storeId[, url])` listings are re-keyed to `c:<sku>:<tag>` wherever a
+`data/db` row is read, so the bare sku is one clean product and **a split collision's `c:` key is an
+ordinary sku; link it like any other.** Leave existing links on the bare sku in place (owner ruling
+2026-09-24): they point at the kept side.
 
 **A listing that is not the product its sku names is hidden, not linked** (2026-09-24): "case of N"
 / 6x750 multipack rows under a single-bottle sku (Canadian Liquor Store, BSW), and a different
@@ -174,10 +174,9 @@ edition filed under another's sku at the same store, go in `data/sku_hidden.json
 `(storeId, sku)` with a reason. Only when that store has NO genuine row under the same sku, because a
 hide removes every row it has there; otherwise leave it as a note.
 
-Resolving them needs a new mechanism (a `(storeId, sku)` split/"cuts" file that re-keys the odd
-listing out of the shared aggregate, parallel to how `sku_hidden.json` is keyed). Not built yet — **deferred by the owner (2026-09-23) until the full-library audit is complete** and
-the links/ignores are trusted; verified cases accumulate in `data/sku_collisions.json` (21 as of
-2026-09-23; the table above is the original 2026-09-20 sample).
+The split mechanism shipped 2026-10 (`src/utils/sku_collisions.js`, plan
+`docs/sku-collision-split-plan.md`; 24 entries; the table above is the original 2026-09-20 sample).
+Adding one is a JSON edit plus `node tools/validate_sku_collisions.js`.
 
 **Distinct from the same-STORE collision class** (`merge.js` SKU annihilation — BSW `795231`,
 `798880`, `845142`, Sierra Springs `001222`), which is a scraper concern and is already fixed.
