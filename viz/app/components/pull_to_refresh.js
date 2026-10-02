@@ -3,13 +3,17 @@
  * its own; the installed app has none, and style.css turns its overscroll bounce off because
  * the bounce dragged the tab bar along. Without this the top of every page felt nailed down.
  *
- * Pulling down from the top slides #app after the finger (with resistance) and reveals a
+ * Pulling down from the top slides #app after the finger (rubber-banded) and reveals a
  * spinner; letting go past the threshold reloads, which fetches data network-first.
  * Listeners stay passive, so scrolling never waits on them.
  */
 
-const THRESHOLD = 64; // px of content travel; the finger travels twice that
-const MAX_PULL = 110;
+/* Rubber band, like iOS: content travel = MAX_PULL * (1 - 1 / (1 + finger / STRETCH)), stiffening
+ * smoothly toward MAX_PULL instead of hitting a hard cap. THRESHOLD is reached at ~240px of finger
+ * travel (a linear half-speed pull capped at 110px felt "crunchy" and fired at 128px). */
+const THRESHOLD = 100; // px of content travel
+const MAX_PULL = 160;
+const STRETCH = 144;
 
 export function installPullToRefresh() {
 	const $app = document.getElementById("app");
@@ -25,7 +29,7 @@ export function installPullToRefresh() {
 	let refreshing = false;
 
 	function show(px, animate) {
-		const transition = animate ? "transform 0.25s ease, opacity 0.25s ease" : "none";
+		const transition = animate ? "transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.35s ease" : "none";
 		$app.style.transition = transition;
 		$ptr.style.transition = transition;
 		$app.style.transform = px === 0 ? "" : `translateY(${px}px)`;
@@ -72,7 +76,7 @@ export function installPullToRefresh() {
 				pull = 0;
 				return;
 			}
-			pull = Math.min(MAX_PULL, Math.max(0, dy / 2));
+			pull = dy <= 0 ? 0 : MAX_PULL * (1 - 1 / (1 + dy / STRETCH));
 			show(pull, false);
 		},
 		{ passive: true },

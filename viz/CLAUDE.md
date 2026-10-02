@@ -379,8 +379,10 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   Settings) is not refreshed until a fresh visit. Pages must not reach for their elements with
   `document.getElementById` after an `await` — a kept page may be detached by then.
 - **Pull-to-refresh in the installed app** (`components/pull_to_refresh.js`, installed by `main.js`
-  only in standalone): from `scrollY` 0, `#app` follows the finger at half speed and a spinner drops in;
-  past 64px it reloads. Passive listeners; skipped when the touch starts in something with its own
+  only in standalone): from `scrollY` 0, `#app` follows the finger on an iOS-style rubber band
+  (asymptote 160px, no hard cap) and a spinner drops in; 100px of content travel (~240px of finger)
+  reloads. The first version (linear half speed, hard 110px cap, fired at 128px of finger) felt
+  "crunchy" to the owner. Passive listeners; skipped when the touch starts in something with its own
   gesture (an inner scroller, canvas, range input, dialog, the fixed bars).
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
