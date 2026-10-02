@@ -157,6 +157,16 @@ orphans. Evidence says yield is low:
 roughly 1 per 190 rows; ignores do not count toward the gate, since the ignore set is already large.
 Below that, record the pilot's rate here and stop.
 
+### 4.7 Rolling campaign — READY 2026-10-02, round 1 mined, nothing launched
+
+Runbook `docs/audit-campaign.md`. Round 1: 21 batches (~9.0M est. tokens), one item per canonical group
+pair (7,184 items, 18,114 member pairs), tiers A (prob 0.2–0.95+) → B (0.05–0.2) → C (confusable
+< 0.05) → D (0.01–0.05), with a precision batch (CI auto-links since 09-24) and an OOF-disagreement
+labels batch interleaved. Start: `node tools/audit_campaign.js status`, then `next --n 4`. Calibrate
+`TIERS[].perItem` from the first batch of each tier. Round-0 frozen baseline: AUC+ 0.9991, rec@99
+93.8%, precision at the bar 99.1%. Retrains are GBT-only on fixed embeddings and never shipped.
+The ignore screen (4.5) stays off unless a round's OOF misses point at ignores.
+
 ### 4.5 Ignore screen tiers B–D — stopped by the owner
 
 Re-run with `tools/audit_ignore_slice.js` only if a retrain's OOF worst-false-negative list

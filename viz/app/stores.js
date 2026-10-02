@@ -419,8 +419,14 @@ export function storeById(id) {
 	return _byId.get(id) ?? null;
 }
 
+// Display order everywhere a region's stores are listed (#/stores, the store-set dropdown,
+// email-alert rules): favourites first, then alphabetical.
 export function storesByRegion(region) {
-	return STORES.filter((s) => s.region === region);
+	return STORES.filter((s) => s.region === region).sort((a, b) => {
+		const favA = FAVOURITE_STORE_IDS.has(a.id) ? 0 : 1;
+		const favB = FAVOURITE_STORE_IDS.has(b.id) ? 0 : 1;
+		return favA - favB || a.label.localeCompare(b.label);
+	});
 }
 
 export function storesByCity(city) {

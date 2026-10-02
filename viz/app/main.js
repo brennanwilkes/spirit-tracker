@@ -37,6 +37,7 @@ import * as pwa from "./pwa.js";
 applyStoredColorScheme();
 // Before the first route, so data responses are seen with the PWA active.
 pwa.register();
+pwa.offerInstall(getAuthStatus().ok);
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");

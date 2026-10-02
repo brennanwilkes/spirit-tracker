@@ -119,7 +119,7 @@ viz/
 | File | Purpose |
 |------|---------|
 | `app/stores.js` | All store entries (id, label, region, color, logo, aliases, **`cities[]`**). Use `storeById()`, `storesByRegion()`, `storesByCity()`, `allCities()`, `cityLabel()`, `normalizeStoreId()`. `cities` is an array (a store can serve >1 metro, e.g. Everything Wine/BCL = Vancouver+Victoria); set via the `CITY_BY_STORE` map. Stores with no city never appear in a city preset. |
-| `app/stores.js` → `FAVOURITE_STORE_IDS` | The shops actually worth checking (strath, vessel, kwm, gull, legacyliquor, kegncork, maltsandgrains). **Presentation only** — nothing in scraping, scoring or alerts reads it. `#/stores` sorts them to the top of their region column and gives the row an amber rim + soft glow (`.row.favStore`, `stores_page.css`, deliberately no star glyph). Non-favourites follow alphabetically; the raw `STORES` array order is insertion order and was never meant to be displayed. The stores page loads **no** data, so ordering by catalog size / # exclusives was rejected — it would mean fetching the ~12 MB `index.json` on an otherwise instant page. |
+| `app/stores.js` → `FAVOURITE_STORE_IDS` | The shops actually worth checking (strath, vessel, kwm, gull, legacyliquor, kegncork, maltsandgrains). **Presentation only** — nothing in scraping, scoring or alerts reads it. `storesByRegion()` itself returns favourites first, then alphabetical, so every list of a region's stores shares one order (`#/stores`, the store-set dropdown, email-alert rules). `#/stores` gives the row an amber rim + soft glow (`.row.favStore`, `stores_page.css`, deliberately no star glyph); the dropdown gives `.storeSetOption.favStore` a faint gold FILL instead (an outline reads as focus there), re-stated in each theme block because their plain `:hover` rules outrank it. The raw `STORES` array order is insertion order and was never meant to be displayed. The stores page loads **no** data, so ordering by catalog size / # exclusives was rejected — it would mean fetching the ~12 MB `index.json` on an otherwise instant page. |
 | `app/store_set.js` | **Store-set model** — a selection of stores any list surface can filter by. Spec kinds: `all` / `region` / `city` / `stores` (ad-hoc) / `mine` (user profile). `resolveStoreSet()`→`Set<id>`\|null (null=all), `parse/serializeStoreSet()` (URL-encodable: `?stores=region:bc`), `storeSetLabel()`, `builtInPresets()`, `sameStoreSet()`. |
 | `app/components/store_set_selector.js` | Reusable store-set dropdown (preset chips + ad-hoc checkbox multi-select). **Multi-instance safe**: class-based internals (no ids) + ONE shared outside-click listener (`ensureDocListener`), so many can coexist (search filter, settings "My Stores", one per email-alert rule). Locate the root via `.storeSet`. `storeSetSelectorHtml()` + `installStoreSetSelector({$container, spec, myStores, authed, onChange})`. Styles in `style.css` (`.storeSet*`); panel spans full row on mobile, fixed-width dropdown ≥641px. |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
@@ -364,7 +364,10 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   Search). `bottom_nav.js` adds a no-op `touchstart` listener because iOS applies `:active` only then.
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
-- **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition.
+- **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition;
+  signed in, the whole search `.header` hides too (every button in it is a `.tabDup`), via `:has()`.
+- **`body` is `min-height: 100dvh`** (border-box, so padding counts): a document shorter than the screen
+  let the installed iOS app shift the fixed tab bar while Shortlist/Stats were still loading.
 - **Viewport units**: prefer `svh` (stable) for min-heights, `dvh` for locked app-shell heights;
   always leave a plain `vh` fallback line above.
 - **`--nav-bg` token**: like all tokens it must be declared in ALL FOUR places — base `:root`,
@@ -431,6 +434,10 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
   Safari's status strip light over the dark theme when the OS was light; without one Safari samples the
   page background. `overscroll-behavior-y: none` in `display-mode: standalone` stops iOS bouncing the
   tab bar. `.pwaBar` (§12b) is one slot: update > new prices > offline > account.
+- **Install hint** (`pwa.offerInstall`, called from `main.js`): signed in + coarse pointer + browser tab
+  (not standalone) + stamped build. iOS gets Share → Add to Home Screen; elsewhere a real Install button
+  when `beforeinstallprompt` fired, else menu instructions. The ✕ sets `st:pwa:installHintDismissed` in
+  localStorage and it never shows again in that browser.
 - **Unverified on a real device:** OAuth inside the installed iOS app (out-of-scope redirect to
   workers.dev and back). An installed iOS app has its own storage, so users sign in again once.
 - **Known, accepted:** a changed `index.json` is rewritten to Cache Storage (16 MB) on each launch

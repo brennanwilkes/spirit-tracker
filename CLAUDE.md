@@ -1082,6 +1082,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `build_common_listings.js` | Top-N product lists by region (all/bc/ab) and size (50/250/1000) |
 | `build_email_event_pack.js` | Package email event bundles |
 | `apply_audit_proposal.js` | **Hand-run, write-only** — apply an audit agent's proposal (link/unlink/ignore ops) to `data/sku_links.json`. Dry-run by default, `--apply` writes, NEVER commits. Shares `src/utils/sku_links_file.js` (dedupe + single-line serialization) with `viz/serve.js`. See §"New-listings audit" |
+| `audit_campaign.js` | **Hand-run** rolling audit campaign (hard negatives, recall, precision): `mine` ranked agent batches, `next`/`mark`/`coverage`/`collect` them, `round-close` retrains locally (never shipped) and measures on a frozen split. Manifest `audit/campaign/manifest.json`, prompt `tools/audit_campaign_prompt.md`. Runbook: `docs/audit-campaign.md` |
 | `auto_link_classify.mjs` | Auto-link SKUs with the live GBT blend; append `status:"pending"` links to `data/sku_links.json` (≥99%-precision bar). `--since N` bounds anchors by recency, `--top K`, `--dry-run`. See §"Auto-Link Classification + Review" |
 | `diff_report.js` | Compare two report files |
 | `discover_bad_skus.js` | Find synthetic (`u:`) SKUs that need repair |

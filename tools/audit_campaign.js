@@ -6,6 +6,7 @@
 //   node tools/audit_campaign.js init
 //   node tools/audit_campaign.js generate --round N --profile default|wide [--model shipped|round-M]
 //   node tools/audit_campaign.js mine --round N [--sources pool,wide,emb,sibling,precision,labels] [--dry-run]
+//   node tools/audit_campaign.js discard --round N          (drop a round's batches while ALL are still pending)
 //   node tools/audit_campaign.js status
 //   node tools/audit_campaign.js next [--n K]
 //   node tools/audit_campaign.js mark <batch|all-applied> <status> [--tokens N] [--note "…"]
@@ -27,13 +28,14 @@ const CAMPAIGN = path.join(REPO, "audit", "campaign");
 const MANIFEST = path.join(CAMPAIGN, "manifest.json");
 const LOCK = path.join(CAMPAIGN, "manifest.lock");
 const FROZEN = path.join(CAMPAIGN, "frozen_split.json");
-const TEMPLATE = path.join(CAMPAIGN, "prompt-template.md");
+const TEMPLATE = path.join(REPO, "tools", "audit_campaign_prompt.md");
 const ML = path.join(REPO, "tools", "linker_ml");
 const ML_OUT = path.join(ML, "out", "campaign");
 const PYTHON = path.join(ML, ".venv", "bin", "python");
 const GENERATOR = path.join(REPO, "scripts", "audit_new_listings.js");
 
-const STATUSES = ["pending", "running", "done", "applied", "committed", "failed"];
+// stale = still pending when its round closed; never served, and its pairs are re-offered by the next mine.
+const STATUSES = ["pending", "running", "done", "applied", "committed", "failed", "stale"];
 // Value order of the recall/hard-negative buckets. `conf` = below 0.05 but confusable: a sibling
 // family pair, or embedCos/det high while the model says no.
 const BUCKETS = [
@@ -62,6 +64,8 @@ const BATCH_BYTES = 650000;
 const GROUP_BATCH_BYTES = 650000;
 const LABEL_LIMIT = 200;
 const LABEL_PER_ITEM = 2000;
+// Each also[] pair costs one more op line in the agent's output (and occasionally a closer look).
+const ALSO_TOKENS = 150;
 // Every PRECISION_EVERY recall batches, the next pending precision batch takes a slot.
 const PRECISION_EVERY = 3;
 
@@ -120,6 +124,13 @@ function run(cmd, args, env = {}) {
 function capture(cmd, args, env = {}) {
 	const r = spawnSync(cmd, args, { cwd: REPO, encoding: "utf8", maxBuffer: 1 << 30, env: { ...process.env, ...env } });
 	return { status: r.status, stdout: r.stdout, stderr: r.stderr };
+}
+
+// A failed git call must not read as "clean" or "0 behind" through its empty stdout.
+function gitOut(wt, args) {
+	const r = capture("git", ["-C", wt, ...args]);
+	if (r.status !== 0) die(`git ${args.join(" ")} failed in ${wt}:\n${r.stderr}`);
+	return r.stdout;
 }
 
 async function eachJsonl(file, fn) {
@@ -265,8 +276,11 @@ const itemsOf = (b, data) => (b.kind === "groups" ? data.groups : data.items);
 function priorPairKeys(m) {
 	const keys = new Set();
 	for (const b of m.batches) {
-		if (b.status === "failed" || b.kind === "groups") continue;
-		for (const p of readJson(abs(b.file)).items) keys.add(pairKey(p.a, p.b));
+		if (b.status === "failed" || b.status === "stale" || b.kind === "groups") continue;
+		for (const p of readJson(abs(b.file)).items) {
+			keys.add(pairKey(p.a, p.b));
+			for (const [a, x] of p.also || []) keys.add(pairKey(a, x));
+		}
 	}
 	return keys;
 }
@@ -567,28 +581,45 @@ async function mineLocked(m, save, opts) {
 		if (!attrCache.has(k)) attrCache.set(k, attrsOf(parsers, catalog.get(k).name));
 		return attrCache.get(k);
 	};
+	// One item per (canonical group, canonical group) pair: a link or an ignore is a decision about
+	// two groups, so every member pair between them is the same decision. The representative is the
+	// highest-value member pair (bucket order, then prob); the rest ride along in also[].
+	const bkRank = Object.fromEntries(BUCKETS.map((b, i) => [b.id, i]));
+	const byCp = new Map();
+	for (const p of pairs.values()) {
+		p.bk = bucketOf(p);
+		const x = labels.canon(p.a);
+		const y = labels.canon(p.b);
+		p.cp = x < y ? `${x}|${y}` : `${y}|${x}`;
+		(byCp.get(p.cp) || byCp.set(p.cp, []).get(p.cp)).push(p);
+	}
 	const byBucket = new Map(BUCKETS.map((b) => [b.id, []]));
 	let dropped = 0;
-	for (const p of pairs.values()) {
-		const bk = bucketOf(p);
-		if (bk === null) {
-			dropped++;
+	let alsoTotal = 0;
+	for (const ps of byCp.values()) {
+		const valued = ps.filter((p) => p.bk !== null).sort((x, y) => bkRank[x.bk] - bkRank[y.bk] || y.prob - x.prob);
+		if (!valued.length) {
+			dropped += ps.length;
 			continue;
 		}
-		p.bk = bk;
+		const p = valued[0];
+		p.also = ps.filter((q) => q !== p).sort((x, y) => y.prob - x.prob);
+		alsoTotal += p.also.length;
 		const d = classOf(attr(p.a), attr(p.b));
 		p.cls = d.length ? d.join("+") : attr(p.a).base === attr(p.b).base ? "same-attrs" : "other";
-		byBucket.get(bk).push(p);
+		byBucket.get(p.bk).push(p);
 	}
 
 	console.log(`\n## Round ${n} mine — sources`);
 	console.log("| source | pair slots seen | unjudged slots |");
 	console.log("|---|---|---|");
 	for (const [s, c] of Object.entries(srcCounts)) console.log(`| ${s} | ${c.seen} | ${c.unjudged} |`);
-	console.log(`\nunique unjudged pairs: ${pairs.size}; below the value floor (prob < 0.01, not confusable): ${dropped}`);
+	const items = [...byBucket.values()].reduce((s, a) => s + a.length, 0);
+	console.log(`\nunique unjudged sku pairs: ${pairs.size} in ${byCp.size} canonical group pairs; ${dropped} sku pairs in group pairs wholly below the value floor (prob < 0.01, not confusable)`);
+	console.log(`items (one per canonical group pair): ${items}, carrying ${alsoTotal} further member pairs in also[]`);
 	const srcCombos = {};
-	console.log("\n| bucket | pairs | by source (a pair can carry several) |");
-	console.log("|---|---|---|");
+	console.log("\n| bucket | group-pair items | member pairs incl. also[] | by source of the representative |");
+	console.log("|---|---|---|---|");
 	for (const b of BUCKETS) {
 		const arr = byBucket.get(b.id);
 		const bySrc = {};
@@ -597,7 +628,7 @@ async function mineLocked(m, save, opts) {
 			const key = [...p.src].sort().join("+");
 			srcCombos[key] = (srcCombos[key] || 0) + 1;
 		}
-		console.log(`| ${b.id} ${b.label} | ${arr.length} | ${Object.entries(bySrc).map(([s, c]) => `${s} ${c}`).join(", ")} |`);
+		console.log(`| ${b.id} ${b.label} | ${arr.length} | ${arr.reduce((s, p) => s + 1 + p.also.length, 0)} | ${Object.entries(bySrc).map(([s, c]) => `${s} ${c}`).join(", ")} |`);
 	}
 	const clsCounts = {};
 	for (const arr of byBucket.values()) for (const p of arr) clsCounts[p.cls] = (clsCounts[p.cls] || 0) + 1;
@@ -607,7 +638,7 @@ async function mineLocked(m, save, opts) {
 	// pair-major batches, one tier at a time, canonical neighbourhoods kept together
 	const newBatches = [];
 	const legend =
-		"items[] = one PAIR each, decide it once. a/b = catalog-form skus (use them verbatim in ops). prob = live GBT probability (max over both scoring directions; >= 0.95 means CI would auto-link it today). det = deterministic score. embedCos = embedding cosine (null = a side has no vector). pol = mechanical policy conflict (size:/store-exclusive:). pr = dearer/cheaper of the two skus' cheapest live prices (omitted < 1.05); prPct = where pr falls in the dearer store's own markup distribution (>max = never seen that far above market). src = how the pair was found: pool (default audit pool), wide (widened pool), emb (whole-catalog embedding neighbour), sibling (same family name, one attribute apart), labels. cls = the identity attributes the parsed names differ on (age, vintage, size, abv, batch, bottler, gift, edition; same-attrs = none parsed differently; other = different base name). bk = value bucket. skus{} (normalized keys) = each sku once: c = its catalog form, g = canonical group key, l = listings [store, name, price, removed(1), url slug]. groups{} = each canonical group of 2+ members once: m = members [sku, name, cheapest price], more = members not shown.";
+		"items[] = one CANONICAL GROUP PAIR each: decide it once. a/b = the representative member pair, catalog-form skus (use them verbatim in ops). prob = live GBT probability (max over both scoring directions; >= 0.95 means CI would auto-link it today). det = deterministic score. embedCos = embedding cosine (null = a side has no vector). pol = mechanical policy conflict (size:/store-exclusive:). pr = dearer/cheaper of the two skus' cheapest live prices (omitted < 1.05); prPct = where pr falls in the dearer store's own markup distribution (>max = never seen that far above market). src = how the pair was found: pool (default audit pool), wide (widened pool), emb (whole-catalog embedding neighbour), sibling (same family name, one attribute apart), labels. cls = the identity attributes the parsed names differ on (age, vintage, size, abv, batch, bottler, gift, edition; same-attrs = none parsed differently; other = different base name). bk = value bucket. also = the other unjudged member pairs between the same two groups, [a, b, prob] (same decision: on reject, ignore every one of them too). skus{} (normalized keys) = each sku once: c = its catalog form, g = canonical group key, l = listings [store, name, price, removed(1), url slug]. groups{} = each canonical group of 2+ members once: m = members [sku, name, cheapest price], more = members not shown.";
 	let seq = m.batches.filter((b) => b.round === n).length;
 	for (const tier of TIERS) {
 		const arr = tier.buckets.flatMap((id) => byBucket.get(id));
@@ -617,39 +648,41 @@ async function mineLocked(m, save, opts) {
 		const seen = new Set();
 		const comps = [];
 		for (const p of arr) {
-			if (seen.has(p.k)) continue;
+			if (seen.has(p.cp)) continue;
 			const comp = [];
 			const stack = [p];
-			seen.add(p.k);
+			seen.add(p.cp);
 			while (stack.length) {
 				const c = stack.pop();
 				comp.push(c);
-				for (const s of [labels.canon(c.a), labels.canon(c.b)]) for (const d of adj.get(s)) if (!seen.has(d.k)) (seen.add(d.k), stack.push(d));
+				for (const s of [labels.canon(c.a), labels.canon(c.b)]) for (const d of adj.get(s)) if (!seen.has(d.cp)) (seen.add(d.cp), stack.push(d));
 			}
 			comp.sort((x, y) => y.prob - x.prob);
 			comps.push(comp);
 		}
 		comps.sort((x, y) => y[0].prob - x[0].prob || y.length - x.length);
 		// Balanced: as few batches as the item and byte caps allow, filled evenly.
-		const maxItems = Math.floor((TARGET_TOKENS - FIXED_TOKENS) / tier.perItem);
-		const nBatches = Math.ceil(arr.length / maxItems);
-		const perBatch = Math.ceil(arr.length / nBatches);
+		const cost = (p) => tier.perItem + ALSO_TOKENS * p.also.length;
+		const totalCost = arr.reduce((s, p) => s + cost(p), 0);
+		const nBatches = Math.ceil(totalCost / (TARGET_TOKENS - FIXED_TOKENS));
+		const perBatch = totalCost / nBatches;
 		let cur = null;
 		const flush = () => {
 			if (!cur) return;
 			seq++;
 			const id = `r${n}-b${String(seq).padStart(3, "0")}`;
-			newBatches.push(writePairBatch(id, n, tier, cur.items, cur.skus, cur.groups, legend));
+			newBatches.push(writePairBatch(id, n, tier, cur.items, cur.skus, cur.groups, legend, cur.cost));
 			cur = null;
 		};
 		for (const comp of comps) {
 			for (const p of comp) {
-				if (cur && (cur.bytes >= BATCH_BYTES || cur.items.length >= perBatch)) flush();
-				if (!cur) cur = { items: [], skus: {}, groups: {}, bytes: 0 };
+				if (cur && (cur.bytes >= BATCH_BYTES || cur.cost + cost(p) > perBatch * 1.02)) flush();
+				if (!cur) cur = { items: [], skus: {}, groups: {}, bytes: 0, cost: 0 };
 				const item = pairItem(p, catalog, storePriceRatio, cur.items.length + 1);
 				cur.items.push(item);
+				cur.cost += cost(p);
 				cur.bytes += JSON.stringify(item).length;
-				for (const s of [p.a, p.b]) {
+				for (const s of [p.a, p.b, ...p.also.flatMap((q) => [q.a, q.b])]) {
 					const k = nk(s);
 					if (!cur.skus[k]) {
 						cur.skus[k] = skuEntry(s, catalog, labels);
@@ -664,6 +697,18 @@ async function mineLocked(m, save, opts) {
 			}
 		}
 		flush();
+	}
+
+	{
+		const owner = new Map();
+		for (const b of newBatches)
+			for (const it of readJson(abs(b.file)).items) {
+				const x = labels.canon(it.a);
+				const y = labels.canon(it.b);
+				const cp = x < y ? `${x}|${y}` : `${y}|${x}`;
+				if (owner.has(cp)) throw new Error(`group pair ${cp} is in both ${owner.get(cp)} and ${b.id}`);
+				owner.set(cp, b.id);
+			}
 	}
 
 	// precision: whole groups touched by CI auto-links no agent has read
@@ -732,9 +777,9 @@ async function mineLocked(m, save, opts) {
 	}
 
 	console.log(`\n## Round ${n} batches${dry ? " (dry run — nothing written)" : ""}`);
-	console.log("| batch | kind | tier | items | bytes | est. end tokens |");
-	console.log("|---|---|---|---|---|---|");
-	for (const b of [...newBatches, ...precision]) console.log(`| ${b.id} | ${b.kind} | ${b.tier} | ${b.items} | ${b.bytes} | ${b.estTokens} |`);
+	console.log("| batch | kind | tier | items | member pairs | bytes | est. end tokens |");
+	console.log("|---|---|---|---|---|---|---|");
+	for (const b of [...newBatches, ...precision]) console.log(`| ${b.id} | ${b.kind} | ${b.tier} | ${b.items} | ${b.memberPairs === undefined ? "—" : b.memberPairs} | ${b.bytes} | ${b.estTokens} |`);
 	const total = [...newBatches, ...precision].reduce((s, b) => s + b.estTokens, 0);
 	console.log(`total: ${newBatches.length + precision.length} batches, ~${Math.round(total / 1000)}K end-context tokens`);
 	if (dry) {
@@ -764,7 +809,7 @@ async function mineLocked(m, save, opts) {
 			yield: null,
 		});
 	}
-	r.mines.push({ at: nowIso(), sources, srcCounts, buckets: Object.fromEntries([...byBucket].map(([k, v]) => [k, v.length])), classes: clsCounts, batches: newBatches.length + precision.length });
+	r.mines.push({ at: nowIso(), sources, srcCounts, precisionSinceBefore: r.precisionSince, buckets: Object.fromEntries([...byBucket].map(([k, v]) => [k, v.length])), classes: clsCounts, batches: newBatches.length + precision.length });
 	if (sources.includes("precision")) r.precisionSince = nowIso();
 	save();
 	console.log(`appended to ${rel(MANIFEST)}`);
@@ -778,11 +823,18 @@ function skuEntry(s, catalog, labels) {
 	const e = catalog.get(s);
 	if (!e) throw new Error(`sku ${s} is not in index.json`);
 	const g = labels.canon(s);
-	return {
-		c: e.sku,
-		...(labels.members(s).length > 1 ? { g } : {}),
-		l: e.listings.map((l) => [l.store, l.name, l.price === undefined ? null : l.price, ...(l.removed ? [1] : [0]), l.slug]),
-	};
+	// Delisted duplicates (same store, name and price, every copy removed) collapse to one row.
+	const seenRemoved = new Set();
+	const rows = [];
+	for (const l of e.listings) {
+		const k = JSON.stringify([l.store, l.name, l.price]);
+		if (l.removed) {
+			if (seenRemoved.has(k) || e.listings.some((o) => !o.removed && JSON.stringify([o.store, o.name, o.price]) === k)) continue;
+			seenRemoved.add(k);
+		}
+		rows.push([l.store, l.name, l.price === undefined ? null : l.price, l.removed ? 1 : 0, l.slug]);
+	}
+	return { c: e.sku, ...(labels.members(s).length > 1 ? { g } : {}), l: rows };
 }
 
 function groupEntry(g, catalog, labels) {
@@ -808,17 +860,19 @@ function pairItem(p, catalog, storePriceRatio, i) {
 	item.src = [...p.src].sort();
 	item.cls = p.cls;
 	item.bk = p.bk;
+	if (p.also.length) item.also = p.also.map((q) => [q.a, q.b, +q.prob.toFixed(4)]);
 	return item;
 }
 
-function writePairBatch(id, n, tier, items, skus, groups, legend) {
+function writePairBatch(id, n, tier, items, skus, groups, legend, cost) {
 	const file = path.join(roundDir(n), "batches", `${id}.json`);
 	fs.mkdirSync(path.dirname(file), { recursive: true });
 	const buckets = {};
 	for (const it of items) buckets[it.bk] = (buckets[it.bk] || 0) + 1;
-	fs.writeFileSync(file, JSON.stringify({ _meta: { id, round: n, kind: "pairs", tier: tier.id, items: items.length, buckets, legend }, items, skus, groups }) + "\n");
+	const pairsTotal = items.reduce((s, it) => s + 1 + (it.also || []).length, 0);
+	fs.writeFileSync(file, JSON.stringify({ _meta: { id, round: n, kind: "pairs", tier: tier.id, items: items.length, memberPairs: pairsTotal, buckets, legend }, items, skus, groups }) + "\n");
 	const bytes = fs.statSync(file).size;
-	return { id, round: n, kind: "pairs", tier: tier.id, buckets, file: rel(file), items: items.length, bytes, estTokens: Math.round(FIXED_TOKENS + Math.max(TOKENS_PER_BYTE * bytes, tier.perItem * items.length)) };
+	return { id, round: n, kind: "pairs", tier: tier.id, buckets, file: rel(file), items: items.length, memberPairs: pairsTotal, bytes, estTokens: Math.round(FIXED_TOKENS + Math.max(TOKENS_PER_BYTE * bytes, cost)) };
 }
 
 function cmdStatus() {
@@ -871,7 +925,7 @@ function renderPrompt(m, b) {
 	};
 	const kindBlock = tpl.match(new RegExp(`<!-- kind:${b.kind} -->([\\s\\S]*?)<!-- /kind -->`));
 	if (!kindBlock) die(`template has no <!-- kind:${b.kind} --> block`);
-	let out = tpl.replace(/<!-- kind:\w+ -->[\s\S]*?<!-- \/kind -->\n?/g, "").replace("{{KIND_BLOCK}}", kindBlock[1].trim());
+	let out = tpl.replace(/<!-- kind:\w+ -->[\s\S]*?<!-- \/kind -->\n?/g, "").replace("{{KIND_BLOCK}}", () => kindBlock[1].trim());
 	out = out.replace(/^<!--[\s\S]*?-->\n/, "");
 	out = out.replace(/\{\{(\w+)\}\}/g, (_, k) => {
 		if (vars[k] === undefined) die(`template placeholder {{${k}}} has no value`);
@@ -883,7 +937,8 @@ function renderPrompt(m, b) {
 function cmdNext(opts) {
 	const m = loadManifest();
 	const k = Number(opts["--n"] || 1);
-	const pending = m.batches.filter((b) => b.status === "pending").sort((x, y) => x.order - y.order).slice(0, k);
+	const open = new Set(m.rounds.filter((r) => r.status === "open").map((r) => r.round));
+	const pending = m.batches.filter((b) => b.status === "pending" && open.has(b.round)).sort((x, y) => x.order - y.order).slice(0, k);
 	const running = m.batches.filter((b) => b.status === "running");
 	if (running.length) console.log(`already running: ${running.map((b) => b.id).join(", ")} — resume a stopped agent with SendMessage, never relaunch\n`);
 	if (!pending.length) return console.log("no pending batches — mine the next round or close this one");
@@ -907,7 +962,7 @@ async function cmdMark(pos, opts) {
 		const targets = id === "all-applied" ? m.batches.filter((b) => b.status === "applied") : [batchOf(m, id)];
 		if (!targets.length) die("no applied batches");
 		if (status === "committed") {
-			const dirty = capture("git", ["-C", m.worktree, "status", "--porcelain", "--", "data/sku_links.json", "data/sku_links_auto.json"]).stdout.trim();
+			const dirty = gitOut(m.worktree, ["status", "--porcelain", "--", "data/sku_links.json", "data/sku_links_auto.json"]).trim();
 			if (dirty) die(`the link files are still uncommitted in ${m.worktree}:\n${dirty}\nThe owner commits them; mark committed only after that.`);
 			for (const b of targets) if (b.status !== "applied") die(`${b.id} is ${b.status}, not applied`);
 			m.linksState = null;
@@ -918,7 +973,7 @@ async function cmdMark(pos, opts) {
 				const { errors } = checkCoverage(b);
 				if (errors.length) die(`${b.id} coverage FAILED (${errors.length}): ${errors.slice(0, 10).join("; ")}`);
 			}
-		const head = status === "committed" ? capture("git", ["-C", m.worktree, "rev-parse", "HEAD"]).stdout.trim() : undefined;
+		const head = status === "committed" ? gitOut(m.worktree, ["rev-parse", "HEAD"]).trim() : undefined;
 		for (const b of targets) {
 			setStatus(b, status, opts["--note"]);
 			if (head !== undefined) b.commit = head;
@@ -946,7 +1001,7 @@ function readDecisions(b) {
 }
 
 const VERDICTS = {
-	pairs: ["link", "ignore", "noop", "review"],
+	pairs: ["link", "ignore", "split", "noop", "review"],
 	groups: ["clean", "split", "review"],
 	labels: ["keep", "flip", "remove", "review"],
 };
@@ -964,6 +1019,23 @@ function checkCoverage(b) {
 		else seen.set(d.id, d);
 	}
 	for (const idk of want.keys()) if (!seen.has(idk)) errors.push(`missing ${idk}`);
+	// A group-pair verdict must reach every member pair: ignore = an ignore op on the representative
+	// AND each also[] pair; link = one link op on any of them; split = a per-member call with a note.
+	if (b.kind === "pairs" && fs.existsSync(abs(b.proposal))) {
+		const ops = readJson(abs(b.proposal)).ops;
+		const has = (op) => new Set(ops.filter((o) => o.op === op).map((o) => pairKey(o.a, o.b)));
+		const ign = has("ignore");
+		const lnk = has("link");
+		for (const [idk, d] of seen) {
+			const it = want.get(idk);
+			const all = [[it.a, it.b], ...(it.also || [])].map(([a, x]) => pairKey(a, x));
+			if (d.verdict === "ignore") {
+				const missing = all.filter((k) => !ign.has(k));
+				if (missing.length) errors.push(`${idk}: verdict ignore but ${missing.length} member pair(s) have no ignore op (${missing.slice(0, 3).join(", ")}) — ignore them, or use verdict split with a note`);
+			} else if (d.verdict === "link" && !all.some((k) => lnk.has(k))) errors.push(`${idk}: verdict link but no link op on any of its member pairs`);
+			else if (d.verdict === "split" && !(typeof d.note === "string" && d.note.trim())) errors.push(`${idk}: verdict split needs a note saying which member differs and why`);
+		}
+	}
 	return { data, decisions: seen, errors };
 }
 
@@ -1018,13 +1090,10 @@ function collectLocked(m, save, pos, opts) {
 	const { data, decisions, errors } = checkCoverage(b);
 	if (errors.length) die(`${b.id} coverage FAILED — fix the decisions file first:\n  ${errors.slice(0, 40).join("\n  ")}`);
 	const wt = m.worktree;
-	if (!opts["--no-fetch"]) {
-		const f = capture("git", ["-C", wt, "fetch", "origin", "data"]);
-		if (f.status !== 0) die(`git fetch failed:\n${f.stderr}`);
-	}
-	const behind = Number(capture("git", ["-C", wt, "rev-list", "--count", "HEAD..origin/data"]).stdout.trim());
+	if (!opts["--no-fetch"]) gitOut(wt, ["fetch", "origin", "data"]);
+	const behind = Number(gitOut(wt, ["rev-list", "--count", "HEAD..origin/data"]).trim());
 	if (behind !== 0) die(`the worktree is ${behind} commit(s) behind origin/data. The owner must commit the applied link files and update the worktree first (an apply over a stale file would be lost on the next pull).`);
-	const dirty = capture("git", ["-C", wt, "status", "--porcelain"]).stdout.split("\n").filter(Boolean);
+	const dirty = gitOut(wt, ["status", "--porcelain"]).split("\n").filter(Boolean);
 	const allowed = new Set(["data/sku_links.json", "data/sku_links_auto.json"]);
 	const unexpected = dirty.filter((l) => !allowed.has(l.slice(3)));
 	if (unexpected.length) die(`unexpected dirty files in ${wt}:\n  ${unexpected.join("\n  ")}`);
@@ -1035,9 +1104,18 @@ function collectLocked(m, save, pos, opts) {
 	}
 	const proposals = [abs(b.proposal), abs(b.followup)].filter((f, i) => i === 0 || fs.existsSync(f));
 	if (!fs.existsSync(proposals[0])) die(`no proposal ${b.proposal}`);
-	const reports = [];
+	// Each proposal is applied once and its counts recorded right away, so a re-run after a partial
+	// failure neither re-applies nor loses the first file's yield (its ops would now come back skipped).
+	b.applied = b.applied || {};
 	for (const p of proposals) {
 		run("node", [path.join(REPO, "tools", "validate_proposal_skus.js"), "--proposal", p, "--root", wt, "--fix"]);
+		const pSha = sha256(p);
+		const done = b.applied[rel(p)];
+		if (done !== undefined) {
+			if (done.sha !== pSha) die(`${rel(p)} changed after it was applied (${done.at}) — resolve by hand`);
+			console.log(`${rel(p)} already applied at ${done.at}; reusing its counts`);
+			continue;
+		}
 		const dry = capture("node", [path.join(REPO, "tools", "apply_audit_proposal.js"), "--proposal", p, "--root", wt, "--json"]);
 		if (dry.status !== 0) die(`dry-run failed for ${rel(p)}:\n${dry.stderr}${dry.stdout.slice(0, 4000)}`);
 		const rep = JSON.parse(dry.stdout);
@@ -1045,23 +1123,37 @@ function collectLocked(m, save, pos, opts) {
 		const app = capture("node", [path.join(REPO, "tools", "apply_audit_proposal.js"), "--proposal", p, "--root", wt, "--json", "--apply"]);
 		if (app.status !== 0) die(`apply failed for ${rel(p)}:\n${app.stderr}`);
 		const ar = JSON.parse(app.stdout);
+		const okOps = ar.ops.filter((o) => o.status === "ok");
+		const count = (op) => okOps.filter((o) => o.op === op).length;
+		b.applied[rel(p)] = {
+			sha: pSha,
+			at: nowIso(),
+			link: count("link"),
+			ignore: ar.diff.addedIgnores.length,
+			unlink: count("unlink") + count("unlink-auto"),
+			removeIgnore: count("remove-ignore"),
+			review: ar.review.length,
+			dataQuality: ar.dataQuality.length,
+			skipped: ar.summary.skipped,
+			ineffectiveUnlinks: ar.ineffectiveUnlinks.length,
+			links: `${ar.counts.linksBefore}→${ar.counts.linksAfter}`,
+			ignores: `${ar.counts.ignoresBefore}→${ar.counts.ignoresAfter}`,
+		};
 		m.linksState = { sha: state(), at: nowIso(), by: `collect ${b.id} (${rel(p)})` };
 		save();
 		if (ar.ineffectiveUnlinks.length) console.log(`WARN ${rel(p)}: ${ar.ineffectiveUnlinks.length} ineffective unlink(s) — the group was NOT split; follow up: ${JSON.stringify(ar.ineffectiveUnlinks.slice(0, 5))}`);
-		reports.push(ar);
 	}
 	const ops = proposals.flatMap((p) => readJson(p).ops);
-	const okOps = reports.flatMap((r) => r.ops.filter((o) => o.status === "ok"));
-	const count = (op) => okOps.filter((o) => o.op === op).length;
+	const sum = (k) => Object.values(b.applied).reduce((s, x) => s + x[k], 0);
 	const y = {
-		link: count("link"),
-		ignore: reports.reduce((s, r) => s + r.diff.addedIgnores.length, 0),
-		unlink: count("unlink") + count("unlink-auto"),
-		removeIgnore: count("remove-ignore"),
-		review: reports.reduce((s, r) => s + r.review.length, 0),
-		dataQuality: reports.reduce((s, r) => s + r.dataQuality.length, 0),
-		skipped: reports.reduce((s, r) => s + r.summary.skipped, 0),
-		ineffectiveUnlinks: reports.reduce((s, r) => s + r.ineffectiveUnlinks.length, 0),
+		link: sum("link"),
+		ignore: sum("ignore"),
+		unlink: sum("unlink"),
+		removeIgnore: sum("removeIgnore"),
+		review: sum("review"),
+		dataQuality: sum("dataQuality"),
+		skipped: sum("skipped"),
+		ineffectiveUnlinks: sum("ineffectiveUnlinks"),
 		modelWrong: modelWrong(b, data, decisions, ops),
 		verdicts: {},
 	};
@@ -1072,7 +1164,6 @@ function collectLocked(m, save, pos, opts) {
 		for (const [v, c] of Object.entries(y.verdicts)) if (res.verdicts && res.verdicts[v] !== c) console.log(`WARN: the agent's result.json says ${v}=${res.verdicts[v]}, the decisions file has ${c}`);
 	}
 	b.yield = y;
-	b.applyReports = reports.map((r) => ({ proposal: r.proposal, links: `${r.counts.linksBefore}→${r.counts.linksAfter}`, ignores: `${r.counts.ignoresBefore}→${r.counts.ignoresAfter}` }));
 	setStatus(b, "applied", `+${y.link} links, +${y.ignore} ignores, ${y.unlink} unlinks`);
 	m.linksState = { sha: state(), at: nowIso(), by: `collect ${b.id}` };
 	save();
@@ -1105,10 +1196,30 @@ async function cmdRoundClose(pos, opts) {
 			metrics: metrics.models,
 			frozenRows: metrics.rows,
 		});
+		const stale = mm.batches.filter((b) => b.round === n && b.status === "pending");
+		for (const b of stale) setStatus(b, "stale", `round ${n} closed`);
+		if (stale.length) console.log(`${stale.length} pending round-${n} batch(es) marked stale; their pairs return in the next mine`);
 		mm.rounds.push({ round: n + 1, status: "open", openedAt: nowIso(), labelsAtOpen: labels.counts, rich: {}, mines: [], precisionSince: rr.precisionSince });
 		save();
 	});
 	console.log(`round ${n} closed; round ${n + 1} open. Metrics on the frozen split (${metrics.rows} rows) are in ${rel(path.join(dir, "frozen_metrics.json"))}.`);
+}
+
+async function cmdDiscard(opts) {
+	const n = Number(opts["--round"]);
+	await withManifest(async (m, save) => {
+		const r = roundOf(m, n);
+		if (r.status !== "open") die(`round ${n} is ${r.status}`);
+		const mine = m.batches.filter((b) => b.round === n);
+		const notPending = mine.filter((b) => b.status !== "pending");
+		if (notPending.length) die(`round ${n} has batches past pending (${notPending.map((b) => `${b.id}:${b.status}`).join(", ")}) — discard only drops a round nobody has started`);
+		for (const b of mine) fs.unlinkSync(abs(b.file));
+		m.batches = m.batches.filter((b) => b.round !== n);
+		if (r.mines.length) r.precisionSince = r.mines[0].precisionSinceBefore;
+		r.mines = [];
+		save();
+		console.log(`discarded ${mine.length} pending round-${n} batches; precisionSince back to ${r.precisionSince}`);
+	});
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1121,13 +1232,14 @@ async function main() {
 	if (cmd === "init") return cmdInit(opts);
 	if (cmd === "generate") return cmdGenerate(opts);
 	if (cmd === "mine") return cmdMine(opts);
+	if (cmd === "discard") return cmdDiscard(opts);
 	if (cmd === "status") return cmdStatus();
 	if (cmd === "next") return cmdNext(opts);
 	if (cmd === "mark") return cmdMark(pos, opts);
 	if (cmd === "coverage") return cmdCoverage(pos);
 	if (cmd === "collect") return cmdCollect(pos, opts);
 	if (cmd === "round-close") return cmdRoundClose(pos, opts);
-	console.error(fs.readFileSync(__filename, "utf8").split("\n").slice(1, 15).join("\n").replace(/^\/\/ ?/gm, ""));
+	console.error(fs.readFileSync(__filename, "utf8").split("\n").slice(1, 16).join("\n").replace(/^\/\/ ?/gm, ""));
 	process.exit(2);
 }
 
