@@ -41,28 +41,29 @@ def draw():
     d = ImageDraw.Draw(layer)
 
     cx = W / 2
-    top, bowl_bot, foot_bot = W * .15, W * .73, W * .85
-    half = W * .25          # widest half-width of the bowl
+    top, bowl_bot, foot_bot = W * .13, W * .69, W * .87
+    half = W * .215         # widest half-width of the bowl
 
-    # Right-hand profile of the bowl as (half-width fraction, y). A Glencairn's mouth is
-    # NARROWER than its belly; that tuck-in is what makes it read as one rather than a tumbler.
-    profile = [(.58, 0), (.56, .16), (.66, .42), (.92, .70), (1.0, .82), (.86, .94), (.40, 1.0)]
+    # Right-hand profile of the bowl as (half-width fraction, y), Glencairn proportions: a low,
+    # round belly (widest ~3/4 down), a mouth ~70% of the belly, and ONE continuous inward
+    # taper up to it. A narrow mouth on a straight tube over a pointed bowl reads as a flask.
+    profile = [(.72, 0), (.70, .10), (.72, .24), (.81, .43), (.94, .62), (1.0, .76),
+               (.95, .87), (.78, .955), (.48, 1.0)]
     right = catmull_rom([(cx + half * f, top + (bowl_bot - top) * y) for f, y in profile])
     left = [(2 * cx - x, y) for x, y in reversed(right)]
     bowl = right + left
 
-    # The heavy solid base: a short neck flaring into a wide flat foot.
-    neck_w, foot_w = W * .09, W * .21
-    foot = [(cx - neck_w, bowl_bot - W * .01), (cx + neck_w, bowl_bot - W * .01),
-            (cx + neck_w * 1.15, foot_bot - W * .05), (cx + foot_w, foot_bot - W * .025),
-            (cx + foot_w, foot_bot), (cx - foot_w, foot_bot),
-            (cx - foot_w, foot_bot - W * .025), (cx - neck_w * 1.15, foot_bot - W * .05)]
+    # The heavy solid base: a short thick neck that flares, trumpet-like, into a flat foot.
+    base = [(.31, 0), (.27, .18), (.33, .45), (.55, .72), (.80, .90), (.82, 1.0)]
+    base_r = catmull_rom([(cx + half * f, bowl_bot - W * .012 + (foot_bot - bowl_bot + W * .012) * y)
+                          for f, y in base])
+    foot = base_r + [(2 * cx - x, y) for x, y in reversed(base_r)]
 
     d.polygon(foot, fill=GLASS)
     d.polygon(bowl, fill=GLASS)
 
     # The dram: everything in the bowl below the fill line.
-    fill_y = top + (bowl_bot - top) * .58
+    fill_y = top + (bowl_bot - top) * .60
     liquid = [p for p in right if p[1] >= fill_y]
     liquid = [(liquid[0][0], fill_y)] + liquid + [(2 * cx - x, y) for x, y in reversed(liquid)] \
         + [(2 * cx - liquid[0][0], fill_y)]
@@ -71,13 +72,15 @@ def draw():
     d.ellipse([cx - surf_w, fill_y - W * .022, cx + surf_w, fill_y + W * .022], fill=AMBER_TOP)
 
     lw = int(W * .016)
-    d.line(bowl + [bowl[0]], fill=RIM, width=lw, joint='curve')
-    d.line(foot + [foot[0]], fill=RIM, width=lw, joint='curve')
+    # Open paths: closing the bowl drew a stroke across the mouth (a spur at the rim), and
+    # closing the base drew a bar where it joins the bowl.
+    d.line(bowl, fill=RIM, width=lw, joint='curve')
+    d.line([p for p in foot if p[1] > bowl_bot + W * .006], fill=RIM, width=lw, joint='curve')
     rim_w = right[0][0] - cx
     d.ellipse([cx - rim_w, top - W * .018, cx + rim_w, top + W * .018], outline=RIM, width=lw)
 
     # A single highlight down the left of the bowl, in the app accent.
-    streak = [(2 * cx - x + W * .045, y) for x, y in right if top + W * .1 <= y <= top + W * .42]
+    streak = [(2 * cx - x + W * .04, y) for x, y in right if top + W * .08 <= y <= top + W * .36]
     d.line(streak, fill=ACCENT, width=int(W * .018), joint='curve')
 
     img.alpha_composite(layer)

@@ -28,6 +28,8 @@ const AUTO_APPLY_RELOAD_MS = 5000;
 
 let active = false;
 let autoApplyAt = null;
+let installPrompt = null;
+const LS_INSTALL_HINT_DISMISSED = "st:pwa:installHintDismissed";
 let shownIndexEtag = null;
 let dataOfflineAsOf = null;
 let accountOfflineAsOf = null;
@@ -44,6 +46,11 @@ export function register() {
 		return;
 	}
 	active = true;
+	// Chrome/Android fires this once, early, when the site is installable; keep it for the hint.
+	window.addEventListener("beforeinstallprompt", (e) => {
+		e.preventDefault();
+		installPrompt = e;
+	});
 
 	const registered = navigator.serviceWorker.register(new URL("../sw.js", import.meta.url), { scope: "./" });
 	registered
@@ -122,6 +129,48 @@ export function register() {
 			if (!ok) console.warn("[pwa] storage is NOT persisted; the offline copy may be evicted");
 		});
 	}
+}
+
+/** Mobile browser tab, signed in: suggest installing, until dismissed once, ever (per browser). */
+export function offerInstall(authed) {
+	if (!active || !authed) return;
+	if (navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches) return;
+	if (!window.matchMedia("(pointer: coarse)").matches) return;
+	if (localStorage.getItem(LS_INSTALL_HINT_DISMISSED) !== null) return;
+
+	const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1);
+	const card = document.createElement("div");
+	card.className = "installHint";
+	card.setAttribute("role", "dialog");
+	card.setAttribute("aria-label", "Install Spirit Tracker");
+	card.innerHTML = `
+		<img class="installHintIcon" src="./icons/icon-192.png" alt="">
+		<div class="installHintText">
+			<div class="installHintTitle">Try the Spirit Tracker app</div>
+			<div class="installHintHow"></div>
+		</div>
+		<button class="installHintClose" type="button" aria-label="Don't show again"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`;
+	const $how = card.querySelector(".installHintHow");
+	if (ios) {
+		$how.innerHTML = 'Tap <i class="fa-solid fa-arrow-up-from-bracket" aria-label="Share"></i> Share, then <b>Add to Home Screen</b>.';
+	} else {
+		$how.innerHTML = "Open your browser menu, then <b>Add to Home screen</b>.";
+		// Wait a beat for beforeinstallprompt; where it exists, a real Install button beats instructions.
+		setTimeout(() => {
+			if (installPrompt === null || !card.isConnected) return;
+			$how.innerHTML = '<button class="btn btnSm installHintInstall" type="button">Install</button>';
+			$how.querySelector("button").addEventListener("click", async () => {
+				installPrompt.prompt();
+				const { outcome } = await installPrompt.userChoice;
+				if (outcome === "accepted") card.remove();
+			});
+		}, 1500);
+	}
+	card.querySelector(".installHintClose").addEventListener("click", () => {
+		localStorage.setItem(LS_INSTALL_HINT_DISMISSED, String(Date.now()));
+		card.remove();
+	});
+	document.body.appendChild(card);
 }
 
 /** Called by api.js fetchJson for every OK response, before its body is read. */

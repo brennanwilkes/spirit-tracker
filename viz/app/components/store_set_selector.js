@@ -4,7 +4,7 @@
 // dropdown pattern. Used by the search page and the store page.
 
 import { esc } from "../dom.js";
-import { STORES, storesByRegion } from "../stores.js";
+import { STORES, storesByRegion, FAVOURITE_STORE_IDS } from "../stores.js";
 import {
 	builtInPresets,
 	resolveStoreSet,
@@ -45,7 +45,7 @@ export function storeSetSelectorHtml() {
 		const rows = storesByRegion(region)
 			.map(
 				(s) => `
-				<label class="storeSetOption">
+				<label class="storeSetOption${FAVOURITE_STORE_IDS.has(s.id) ? " favStore" : ""}">
 					<input type="checkbox" value="${esc(s.id)}">
 					<span class="storeSetCheck"></span>
 					<span class="storeSetOptionLabel">${esc(s.label)}</span>

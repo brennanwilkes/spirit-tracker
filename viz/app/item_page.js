@@ -1291,9 +1291,6 @@ export async function renderItem($app, skuInput) {
 	buildChartLegend(CHART);
 
 	clearProgress();
-	setStatusText(
-		isRemovedEverywhere
-			? `History loaded (removed everywhere). Points=${labels.length}.`
-			: `History loaded. Points=${labels.length}.`,
-	);
+	// The chart is the confirmation; only the loading and failure states carry text.
+	setStatusText("");
 }

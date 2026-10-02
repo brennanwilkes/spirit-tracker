@@ -101,6 +101,10 @@ body {
   /* Under `black-translucent` the installed iOS app draws the page beneath the status bar.
      0 everywhere else (browser tabs, Android, desktop). */
   padding-top: env(safe-area-inset-top);
+  /* At least one screen tall (padding included: border-box). A shorter document lets the
+     installed iOS app shift the fixed tab bar while a page is still loading. */
+  min-height: 100vh;
+  min-height: 100dvh;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   background: var(--bg);
   color: var(--text);
@@ -761,6 +765,11 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   user-select: none;
 }
 .storeSetOption:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); }
+/* FAVOURITE_STORE_IDS: the same gold as #/stores' .favStore rows, as a faint fill (an outline
+   reads as a focus ring inside a dropdown). Re-stated in each theme block below, whose plain
+   :hover rules outrank this one. */
+.storeSetOption.favStore { background: rgba(240, 180, 41, 0.08); }
+.storeSetOption.favStore:hover { background: rgba(240, 180, 41, 0.14); }
 .storeSetOption input[type="checkbox"] { display: none; }
 
 .storeSetCheck {
@@ -1370,6 +1379,8 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
   .storeSetGroupLabel { background: var(--lt-control); }
   .storeSetOption:hover { background: var(--lt-hover-bg); }
+  .storeSetOption.favStore { background: rgba(176, 122, 12, 0.09); }
+  .storeSetOption.favStore:hover { background: rgba(176, 122, 12, 0.15); }
   .storeSetTrigger.is-open,
   .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 }
@@ -1485,6 +1496,8 @@ html[data-theme="light"] .spiritFilterTrigger:focus { border-color: #3d7fa8; out
 html[data-theme="light"] .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
 html[data-theme="light"] .storeSetGroupLabel { background: var(--lt-control); }
 html[data-theme="light"] .storeSetOption:hover { background: var(--lt-hover-bg); }
+html[data-theme="light"] .storeSetOption.favStore { background: rgba(176, 122, 12, 0.09); }
+html[data-theme="light"] .storeSetOption.favStore:hover { background: rgba(176, 122, 12, 0.15); }
 html[data-theme="light"] .storeSetTrigger.is-open,
 html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 
@@ -1570,6 +1583,8 @@ html[data-theme="dark"] .stSwalConfirm:focus { box-shadow: 0 0 0 2px #37566b !im
 html[data-theme="dark"] .storeSetPanel { background: #0f1318; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
 html[data-theme="dark"] .storeSetGroupLabel { background: #0f1318; }
 html[data-theme="dark"] .storeSetOption:hover { background: rgba(255, 255, 255, 0.04); }
+html[data-theme="dark"] .storeSetOption.favStore { background: rgba(240, 180, 41, 0.08); }
+html[data-theme="dark"] .storeSetOption.favStore:hover { background: rgba(240, 180, 41, 0.14); }
 html[data-theme="dark"] .storeSetTrigger.is-open,
 html[data-theme="dark"] .storeSetTrigger:focus { border-color: #37566b; outline-color: #37566b; }
 
@@ -1680,6 +1695,42 @@ body::before {
    pull-to-refresh lives on it). */
 @media (display-mode: standalone) {
   html, body { overscroll-behavior-y: none; }
+}
+
+/* app/pwa.js offerInstall(): one-time "add to home screen" card, above the tab bar. */
+.installHint {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(12px + max(var(--nav-space), env(safe-area-inset-bottom)));
+  z-index: 940;
+  width: calc(100% - 28px);
+  max-width: 460px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 6px 10px 12px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+.installHintIcon { width: 44px; height: 44px; border-radius: var(--radius-lg); flex: 0 0 auto; }
+.installHintText { flex: 1 1 auto; min-width: 0; }
+.installHintTitle { font-weight: 700; font-size: var(--text-base); }
+.installHintHow { color: var(--muted); font-size: var(--text-md); margin-top: 2px; }
+.installHintHow b { color: var(--text); }
+.installHintInstall { margin-top: 4px; }
+.installHintClose {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: var(--text-xl);
+  cursor: pointer;
 }
 
 /* app/pwa.js: offline / new prices / new version. One at a time, above the tab bar. */
@@ -1829,8 +1880,11 @@ html[data-theme] .pillInput:has(:focus-visible),
   :root { --nav-space: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
   .bottomNav { display: flex; }
   .tabDup { display: none !important; }
-  /* The search page's title + hint: desktop only (owner call). */
+  /* The search page's title + hint: desktop only (owner call). Signed in, every header
+     button is a .tabDup too, so the whole header goes rather than leaving an empty row's
+     gap + margin as blank space under the status bar. (.hideMobile = the dev-only #/link.) */
   .searchTitle { display: none; }
+  .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup):not(.hideMobile))) { display: none; }
   body { padding-bottom: var(--nav-space); }
 }
 

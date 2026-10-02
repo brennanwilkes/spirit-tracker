@@ -565,6 +565,7 @@ html[data-theme="dark"] .links .storeLinkRow a { background: transparent; }
 
 /* Separate the status/debug line from the All-stores toggle above it. */
 #statusMobile { margin-top: 10px; }
+#statusMobile:empty { display: none; }
 
 .loadingBar {
   height: 3px;
