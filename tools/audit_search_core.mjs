@@ -475,8 +475,9 @@ export function buildBlockIndex(items, { vocab, similarity, aliasTable = null })
 export function buildEmbeddingIndex(worktree, items) {
 	let raw;
 	try {
-		raw = JSON.parse(fs.readFileSync(path.join(worktree, "viz", "data", "sku_embeddings.json"), "utf8"));
-	} catch {
+		raw = JSON.parse(fs.readFileSync(process.env.LINKER_EMBEDDINGS || path.join(worktree, "viz", "data", "sku_embeddings.json"), "utf8"));
+	} catch (e) {
+		if (process.env.LINKER_EMBEDDINGS) throw e;
 		return null;
 	}
 	const vecByKey = new Map();

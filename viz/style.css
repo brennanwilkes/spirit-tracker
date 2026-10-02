@@ -1675,6 +1675,13 @@ body::before {
   pointer-events: none;
 }
 
+/* The installed app has no pull-to-refresh, and iOS bounces the WHOLE web view on overscroll
+   there, dragging the fixed tab bar with it. Browser tabs keep the bounce (Safari's
+   pull-to-refresh lives on it). */
+@media (display-mode: standalone) {
+  html, body { overscroll-behavior-y: none; }
+}
+
 /* app/pwa.js: offline / new prices / new version. One at a time, above the tab bar. */
 .pwaBar {
   position: fixed;
@@ -1822,6 +1829,8 @@ html[data-theme] .pillInput:has(:focus-visible),
   :root { --nav-space: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
   .bottomNav { display: flex; }
   .tabDup { display: none !important; }
+  /* The search page's title + hint: desktop only (owner call). */
+  .searchTitle { display: none; }
   body { padding-bottom: var(--nav-space); }
 }
 

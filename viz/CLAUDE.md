@@ -358,6 +358,13 @@ commit, or read-only Pages where git isn't reachable) → show everything.
 - **Safe areas**: `index.html` viewport has `viewport-fit=cover` (REQUIRED or every
   `env(safe-area-inset-*)` resolves to 0). Used by `.container` (left/right), `.bottomNav` and
   `.saveArea` (bottom).
+- **Tab taps paint before the page renders.** `main.js::route()` renders the tab bar, then defers the
+  page render one frame (`requestAnimationFrame` + `setTimeout`, with a sequence number so a newer
+  navigation wins). Before, the highlight appeared only after the whole render (~1.1 s at 4x CPU on
+  Search). `bottom_nav.js` adds a no-op `touchstart` listener because iOS applies `:active` only then.
+- **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
+  the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
+- **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition.
 - **Viewport units**: prefer `svh` (stable) for min-heights, `dvh` for locked app-shell heights;
   always leave a plain `vh` fallback line above.
 - **`--nav-bg` token**: like all tokens it must be declared in ALL FOUR places — base `:root`,
@@ -400,7 +407,10 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
   only offers a tap bar). The same ETag while showing a cached copy clears the offline bar: the copy is
   current. Pages' ETag is mtime-size, so every deploy rotates it, so resume reloads after any deploy.
 - **Code updates apply on launch and on resume** (owner's call) by posting `SKIP_WAITING` to a waiting
-  worker; one that lands while the app is in use offers the update bar. `controllerchange` reloads
+  worker; one that lands while the app is in use offers the update bar. Activation waits for the OLD
+  worker's in-flight events (measured: up to ~30 s, its idle timeout), so an automatic swap reloads
+  only if it lands within `AUTO_APPLY_RELOAD_MS` (5 s); a later one shows the tap bar instead of
+  yanking a page in use. For the same reason sw.js never `waitUntil`s a best-effort refresh (CDN). `controllerchange` reloads
   only when the page already had a controller: the first install's `clients.claim()` fires it too.
 - **Shell:** navigations get the cached `index.html` (HTML + modules from one build); other
   same-origin files cache-first from `shell-<BUILD>`. Activation deletes only caches matching
@@ -417,8 +427,10 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
 - **Installed-app chrome:** `black-translucent` status bar; `body` pads `env(safe-area-inset-top)` and
   `body::before` paints `--statusbar-bg` (DARK in light themes too: that style always draws white text).
   **Viewport-filling rules subtract `--chrome-space`** (= `--nav-space` + top inset), not `--nav-space`,
-  or the installed app scrolls by the status-bar height. `theme.js` syncs both `theme-color` metas from
-  the live `--bg`. `.pwaBar` (§12b) is one slot: update > new prices > offline > account.
+  or the installed app scrolls by the status-bar height. **No `theme-color` meta** (manifest only): a media-keyed pair painted
+  Safari's status strip light over the dark theme when the OS was light; without one Safari samples the
+  page background. `overscroll-behavior-y: none` in `display-mode: standalone` stops iOS bouncing the
+  tab bar. `.pwaBar` (§12b) is one slot: update > new prices > offline > account.
 - **Unverified on a real device:** OAuth inside the installed iOS app (out-of-scope redirect to
   workers.dev and back). An installed iOS app has its own storage, so users sign in again once.
 - **Known, accepted:** a changed `index.json` is rewritten to Cache Storage (16 MB) on each launch

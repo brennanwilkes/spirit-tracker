@@ -16,6 +16,21 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## Campaign retrains (never shipped) — `docs/audit-campaign.md`
+
+`tools/audit_campaign.js init` / `round-close N` run build_dataset → dump_features → export_gbt →
+oof_misses into `out/campaign/round-N/` and never touch `out/*.json`, the checkpoint, `MODEL_VERSION`
+or a Release. The hooks, all inert when unset (defaults byte-identical):
+- `LINKER_OUT_DIR` (featurize.mjs `OUT_DIR`, so every .mjs tool; oof_misses.py) redirects artifacts.
+- `LINKER_FROZEN_SPLIT=<audit/campaign/frozen_split.json>` makes dump_features mark a pair `frozen`
+  when either sku is in the pinned set; export_gbt.py then trains ONE model on everything not frozen
+  and not noTrain (no FNV report), oof_misses.py never trains on frozen rows, and
+  `eval_frozen.mjs` (live `gbt.js` inference, per-distinct-threshold metrics) is the only scorer.
+- `LINKER_GBT_MODEL` / `LINKER_EMBEDDINGS` make `scripts/audit_new_listings.js` (and the embedding
+  pool channel in `audit_search_core.mjs`) score with a candidate model; an unreadable override throws.
+- The GBT is retrained on FIXED embeddings (the CI-encoded `embeddings-latest`, shipped checkpoint);
+  the encoder is not fine-tuned per round (nondeterministic, see below).
+
 ## 2026-09-29 — encoder-text fixes (IN CODE, NOT SHIPPED; ship with the next retrain)
 
 `featurize.mjs`: (1) `skuToTextEnriched` appends the group's `year N` only to a YEAR-LESS title (1,702
