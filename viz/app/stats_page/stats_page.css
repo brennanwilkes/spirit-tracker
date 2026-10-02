@@ -66,7 +66,7 @@
      tab bar is hidden and its real footprint where it isn't. */
   .containerFull {
     height: 100vh;
-    height: calc(100dvh - var(--nav-space));
+    height: calc(100dvh - var(--chrome-space));
     overflow: hidden;
   }
 }
@@ -90,7 +90,7 @@
 /* Stats page: make chart fill remaining viewport height */
 .containerFull {
   min-height: 100vh;
-  min-height: calc(100svh - var(--nav-space));
+  min-height: calc(100svh - var(--chrome-space));
   display: flex;
   flex-direction: column;
 }

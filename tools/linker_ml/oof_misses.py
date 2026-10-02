@@ -13,13 +13,15 @@ Run (in venv):  tools/linker_ml/.venv/bin/python tools/linker_ml/oof_misses.py
 import json, os, numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
 
-HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "out")
-SKIP = {"a", "b", "label", "kind", "canonA", "canonB", "detScore"}
+HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.environ.get("LINKER_OUT_DIR", os.path.join(HERE, "out"))
+SKIP = {"a", "b", "label", "kind", "canonA", "canonB", "detScore", "frozen"}
 rows = [json.loads(l) for l in open(os.path.join(OUT, "features.jsonl")) if l.strip()]
 KEYS = [k for k in rows[0] if k not in SKIP]
 X = np.array([[float(r.get(k, 0) or 0) for k in KEYS] for r in rows])
 y = np.array([int(r["label"]) for r in rows])
 no_train = np.array([bool(r.get("noTrain")) for r in rows])
+# Audit-campaign frozen split (dump_features.mjs LINKER_FROZEN_SPLIT): scored, never trained on.
+frozen = np.array([bool(r.get("frozen")) for r in rows])
 
 def fnv(s):
     h = 0x811C9DC5
@@ -29,7 +31,7 @@ fold = np.array([int((fnv(r["canonA"]) % 1000) / 200) for r in rows])
 
 p = np.zeros(len(rows))
 for k in range(5):
-    tr = (fold != k) & ~no_train
+    tr = (fold != k) & ~no_train & ~frozen
     m = HistGradientBoostingClassifier(max_iter=800, max_depth=4, learning_rate=0.04, l2_regularization=1.0,
         early_stopping=True, validation_fraction=0.15, random_state=0).fit(X[tr], y[tr])
     p[fold == k] = m.predict_proba(X[fold == k])[:, 1]
@@ -38,5 +40,6 @@ for k in range(5):
 with open(os.path.join(OUT, "oof_scores.jsonl"), "w") as f:
     for r, pk, fk in zip(rows, p, fold):
         f.write(json.dumps({"a": r["a"], "b": r["b"], "label": int(r["label"]), "kind": r["kind"],
-            "noTrain": bool(r.get("noTrain")), "fold": int(fk), "p": round(float(pk), 5)}) + "\n")
-print(f"wrote {len(rows)} → out/oof_scores.jsonl")
+            "noTrain": bool(r.get("noTrain")), "fold": int(fk), "p": round(float(pk), 5),
+            **({"frozen": True} if r.get("frozen") else {})}) + "\n")
+print(f"wrote {len(rows)} → {os.path.join(OUT, 'oof_scores.jsonl')}")

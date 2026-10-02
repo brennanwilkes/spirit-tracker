@@ -587,7 +587,7 @@ already produced one false "the audit found nothing".
 
 ### Audit status after the 2026-09-23 session
 
-**Links 5,950, ignores 16,368, collisions 24 (split), hidden 588** (2026-10-01; from 5,975 / 13,540 on 2026-09-22). Every cheap
+**Links 5,969, ignores 16,415, collisions 24 (split), hidden 588** (2026-10-02; from 5,975 / 13,540 on 2026-09-22). Every cheap
 surface is adjudicated over all of history: near-miss and want-links (including the v5 residual),
 orphans (3,061), every existing link below the bar (`< 0.30`: 23% wrong; `0.30–0.95`: 13.8% wrong),
 38 ignore↔link contradictions, and the whole review backlog (0 open, bar 5 waiting on the deferred per-store split). **The 0.95–0.99 pilot of the
@@ -597,8 +597,10 @@ the bar is weak evidence that a link is right.
 **The ≥ 0.99 pass is complete: 92 of 5,632 edges wrong (1.6%)**, and every review queue is closed. Precision
 is done. The ignore screen stopped after tier A (`tools/audit_ignore_slice.js`): the near-identical-name ignores
 were only 0.43% wrong (3 of 694), so B–D (~4M tokens) was not worth it. The unscored-group sweep is done (2026-09-29), and the recall-backfill pilot came back NO-GO (2026-10-01: 1 link in
-485 random rows ≈ 63 projected against a 150 gate), so the ~30k-row backfill is not run. What is left
-(`docs/audit-full-library-plan.md` §3): linking the `c:` keys now that the collision split is built. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
+485 random rows ≈ 63 projected against a 150 gate), so the ~30k-row backfill is not run. The `c:` keys were linked
+2026-10-02. What is next is the rolling campaign for hard negatives, recall and precision
+(`docs/audit-campaign.md`, manifest `audit/campaign/manifest.json`): resumable batches, local retrains
+that are never shipped. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
 ~700 KB end near 50% context, and 50% is a soft limit. Collisions are fixed by the split (§"SKU collision splits"), never by
 containment unlinks.
 
@@ -1087,6 +1089,7 @@ Post-processing scripts run by `run_daily.sh` after the tracker. They operate on
 | `dedupe_skulinks.js` | Deduplicate SKU link entries |
 | `stviz_apply_issue_edits.js` | Apply issue-based SKU edits (used by GH Actions) |
 | `backfill_db_created_at.js` | One-time: stamp `createdAt` on every `data/db/*.json` from its first git commit. Run from `.worktrees/data/`. Idempotent. |
+| `stamp_pwa.js` | **Deploy-time only** (`pages.yaml`): stamps the PWA build hash + precache list into `viz/sw.js` and `viz/index.html` of the site artifact. Never commit a stamped file. See `viz/CLAUDE.md` §"PWA" |
 | `build_viz_stats_series.js` | Change-point bundles for `#/stats` → `viz/data/stats/*.json`. Needs the commits manifest, so run AFTER `build_viz_commits.js`, from `.worktrees/data/`. Incremental; `--force` rebuilds. NOT committed — uploaded as a Release asset. See §"#/stats series bundles" |
 
 ## Linker Evaluation & Training Harness (`tools/linker_eval/`)

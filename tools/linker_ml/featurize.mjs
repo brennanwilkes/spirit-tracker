@@ -47,7 +47,9 @@ import { extractBlendFeatures, FEATURE_KEYS } from "../../viz/app/linker_page/bl
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, "../..");
 export const WORKTREE = process.env.DATA_WORKTREE || path.join(ROOT, ".worktrees/data");
-export const OUT_DIR = path.join(__dirname, "out");
+// LINKER_OUT_DIR redirects every artifact (dataset, features, embeddings, models) so a campaign
+// retrain never touches the shipping out/ files.
+export const OUT_DIR = process.env.LINKER_OUT_DIR || path.join(__dirname, "out");
 
 const INDEX_PATH = path.join(WORKTREE, "viz/data/index.json");
 const LINKS_PATH = path.join(WORKTREE, "data/sku_links.json");

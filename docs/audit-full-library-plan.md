@@ -10,23 +10,23 @@ backlog.
 
 ## 1. State in one paragraph
 
-The library-wide pass is **done except for one small coverage gap and one optional recall sweep.**
+The library-wide pass is **done** (unscored sweep 2026-09-29, recall pilot NO-GO 2026-10-01, collision split + `c:`-key links 2026-10-02). What follows is the rolling campaign (4.7).
 Precision is closed: every existing link was re-judged, group by group, in bands `< 0.30`,
 `0.30–0.95`, `0.95–0.99` and `≥ 0.99`. Every cheap recall surface (near-miss, want-links, 3,061
 orphans) is adjudicated. So are two full-catalog sweeps with the retrained 2026-09-24 model, the
 collision census, and every `review[]` / `dataQuality[]` queue. The 2026-09-24 retrain shipped on
 those labels (TEST rec@99 95.2%).
 
-**Labels (2026-09-28):**
+**Labels (2026-10-02):**
 
 | label | count |
 |---|---|
-| links | 5,942 |
-| ignores | 16,176 |
-| auto edges | 899 |
-| verified collisions | 22 |
-| hidden | 571 |
-| canonical link groups | 3,257 |
+| links | 5,969 |
+| ignores | 16,415 |
+| auto edges | 900 |
+| verified collisions | 24 (all split into `c:` keys) |
+| hidden | 588 |
+| canonical link groups | 3,267 |
 
 ## 2. Status against the definition of done (owner, 2026-09-20)
 
@@ -52,11 +52,12 @@ Closed by ruling, **not** left:
 | # | item | size | cost (est.) | expected yield | gate |
 |---|---|---|---|---|---|
 | 4.1 | ~~Unscored-group sweep~~ DONE 2026-09-29 | 222 groups | 1 agent, 174K | 4 wrong edges (1.6%) | closed |
-| 4.2 | Collision split ships, then link the `c:` keys | 22 entries → ~31 split rows | code + 1 small proposal | ~20–30 links restored | implementation of `docs/sku-collision-split-plan.md` |
-| 4.3 | Two parked per-store cases | 2 skus | in the split plan (§0) | 2 splits | 4.2 shipped |
+| 4.2 | ~~Collision split ships, then link the `c:` keys~~ DONE 2026-10-02 | 24 entries → 33 split rows | code + 2 proposals | 12 links, 49 ignores | closed |
+| 4.3 | ~~Two parked per-store cases~~ DONE (in 4.2) | 2 skus | — | 2 splits | closed |
 | 4.4 | ~~`--only all` recall backfill~~ NO-GO 2026-10-01 | ~30,600 rows | pilot 318K; full not run | pilot projected ~63 links | — |
 | 4.5 | Ignore screen tiers B–D | ~8 agents, ~4M tokens | — | ≤ 0.3% | only if a retrain's worst-FN list points at ignores |
-| 4.6 | Retrain | — | ~1 h CPU | un-excludes collided skus | after 4.2 (+4.1/4.4 if run) |
+| 4.6 | Retrain | — | ~1 h CPU | un-excludes collided skus | folded into the campaign (4.7): local, not shipped |
+| 4.7 | **Rolling hard-negative / recall / precision campaign** | resumable batches | unbounded, chunked | hard negatives first | runbook `docs/audit-campaign.md`; manifest `audit/campaign/manifest.json` |
 
 ### 4.1 Unscored-group sweep — the one real coverage gap
 
@@ -96,7 +97,13 @@ How:
    that `prob: null` is expected on every edge and is not evidence.
 5. Validate `--fix` → dry-run → apply → verify with `loadSkuMap().canonicalSku()`.
 
-### 4.2 Collision split, then link the new keys
+### 4.2 Collision split, then link the new keys — DONE 2026-10-02
+
+Shipped 2026-10-01 and verified in CI and prod. Then `audit/proposal-collision-keys-2026-10-02.json`
+(10 links, 49 ignores, including the hard negatives that had been aimed at the split-off products)
+and `…-rulings-2026-10-02.json` (Ropers Hold 20 relist `152153–121101`; bare `809905` is the 2024
+Special Release, so its two ignores vs `267255`/`1054900` were removed and it was linked to `111949`).
+13 of 24 keys have no partner. `c:108763:cc` stays split (09-25 photo ruling). The original plan:
 
 Implementation plan: `docs/sku-collision-split-plan.md` (every reader audited, including
 `~/spirit-tracker-api`). Once it ships, each split listing gets its own key (`c:<sku>:<tag>`), which

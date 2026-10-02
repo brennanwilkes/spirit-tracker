@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  min-height: calc(100dvh - var(--nav-space));
+  min-height: calc(100dvh - var(--chrome-space));
 }
 
 .detailCard {
@@ -397,7 +397,7 @@
   /* Locked app-shell height. --nav-space is 0 on desktop-with-mouse and the
      real tab-bar footprint on touch/narrow, so this one rule covers both. */
   .detailContainer {
-    height: calc(100dvh - var(--nav-space));
+    height: calc(100dvh - var(--chrome-space));
     min-height: 0;
   }
 }

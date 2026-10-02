@@ -17,7 +17,7 @@ Run (in venv):  tools/linker_ml/.venv/bin/python tools/linker_ml/export_gbt.py
 """
 import json, os, numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "out")
-SKIP = {"a", "b", "label", "kind", "canonA", "canonB", "detScore"}  # detScore excluded; logDet is its transform
+SKIP = {"a", "b", "label", "kind", "canonA", "canonB", "detScore", "frozen"}  # detScore excluded; logDet is its transform
 
 # FEATURES_PATH / GBT_OUT env overrides let A/B experiments (e.g. extra co-occurrence columns)
 # run without clobbering the shipping features.jsonl / gbt_model.json.
@@ -51,29 +51,37 @@ no_train = np.array([bool(r.get("noTrain")) for r in rows])
 is_test = (~no_train) & (bucket < 0.15)
 is_val = (~no_train) & (bucket >= 0.15) & (bucket < 0.30)
 is_train = (~no_train) & (bucket >= 0.30)
+# Audit-campaign mode (rows carry `frozen` from dump_features.mjs LINKER_FROZEN_SPLIT): the pinned
+# held-out set replaces the FNV split. Nothing frozen is ever trained on, the exported model is the
+# one evaluated, and tools/linker_ml/eval_frozen.mjs is the only metric (so no report here).
+frozen = np.array([bool(r.get("frozen")) for r in rows])
 
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_auc_score
 def make(): return HistGradientBoostingClassifier(max_iter=800, max_depth=4, learning_rate=0.04,
     l2_regularization=1.0, early_stopping=True, validation_fraction=0.15, random_state=0)
 
-# Metric model: trained on TRAIN groups ONLY, so VAL (selection) and TEST (untouched) are honest.
-m = make().fit(X[is_train], y[is_train])
-def report(mask, label):
-    s = m.predict_proba(X[mask])[:, 1]
-    pos = (y[mask] == 1); hard = (kind[mask] == "hard"); opneg = (kind[mask] == "hard") | (kind[mask] == "ignore")
-    auc = roc_auc_score(np.r_[np.ones(pos.sum()), np.zeros(hard.sum())], np.r_[s[pos], s[hard]])
-    def rp(t):
-        mm = pos | opneg; sv = s[mm]; lab = pos[mm].astype(int); o = np.argsort(-sv); lab = lab[o]
-        tp = np.cumsum(lab); fp = np.cumsum(1 - lab); prec = tp / np.maximum(tp + fp, 1); rec = tp / pos.sum()
-        ok = prec >= t; return float(rec[ok].max()) if ok.any() else 0.0
-    print(f"  {label:4} (pos {int(pos.sum())}/hard {int(hard.sum())}/ign {int((kind[mask]=='ignore').sum())}) — AUC+ {auc:.4f}  rec@99 {rp(.99)*100:.1f}%  rec@98 {rp(.98)*100:.1f}%  rec@95 {rp(.95)*100:.1f}%")
-print("metric model trained on TRAIN groups only (VAL = selection, TEST = never touched):")
-report(is_val, "VAL")
-report(is_test, "TEST")
+if frozen.any():
+    print(f"frozen split: {int(frozen.sum())} rows held out, training on {int((~no_train & ~frozen).sum())}")
+    final = make().fit(X[~no_train & ~frozen], y[~no_train & ~frozen])
+else:
+    # Metric model: trained on TRAIN groups ONLY, so VAL (selection) and TEST (untouched) are honest.
+    m = make().fit(X[is_train], y[is_train])
+    def report(mask, label):
+        s = m.predict_proba(X[mask])[:, 1]
+        pos = (y[mask] == 1); hard = (kind[mask] == "hard"); opneg = (kind[mask] == "hard") | (kind[mask] == "ignore")
+        auc = roc_auc_score(np.r_[np.ones(pos.sum()), np.zeros(hard.sum())], np.r_[s[pos], s[hard]])
+        def rp(t):
+            mm = pos | opneg; sv = s[mm]; lab = pos[mm].astype(int); o = np.argsort(-sv); lab = lab[o]
+            tp = np.cumsum(lab); fp = np.cumsum(1 - lab); prec = tp / np.maximum(tp + fp, 1); rec = tp / pos.sum()
+            ok = prec >= t; return float(rec[ok].max()) if ok.any() else 0.0
+        print(f"  {label:4} (pos {int(pos.sum())}/hard {int(hard.sum())}/ign {int((kind[mask]=='ignore').sum())}) — AUC+ {auc:.4f}  rec@99 {rp(.99)*100:.1f}%  rec@98 {rp(.98)*100:.1f}%  rec@95 {rp(.95)*100:.1f}%")
+    print("metric model trained on TRAIN groups only (VAL = selection, TEST = never touched):")
+    report(is_val, "VAL")
+    report(is_test, "TEST")
 
-# Ship model: refit on all labeled data EXCEPT noTrain pairs (which the model can't learn from).
-final = make().fit(X[~no_train], y[~no_train])
+    # Ship model: refit on all labeled data EXCEPT noTrain pairs (which the model can't learn from).
+    final = make().fit(X[~no_train], y[~no_train])
 
 def export_tree(pred):
     nodes = pred.nodes
