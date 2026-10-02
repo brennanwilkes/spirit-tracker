@@ -7,6 +7,9 @@ const { runGit, gitShowJson, gitFileExistsAtSha, gitListTreeFiles } = require(".
 const { readJson: readJsonFileOrNull } = require("./lib/db");
 const { normalizeCspc, fnv1a32, normalizeImplicitSkuKey, priceToNumber, dateOnly } = require("./lib/sku");
 const { loadHiddenSet, isHiddenListing } = require("../src/utils/sku_hidden");
+const { loadCollisionSplits } = require("../src/utils/sku_collisions");
+
+let splits = null;
 
 function storeIdFromDbFile(dbFile) {
 	const base = path.basename(String(dbFile || ""), ".json");
@@ -33,7 +36,7 @@ function makeSyntheticSku(storeLabel, url) {
   }
   
 
-function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
+function mapBySku(obj, { includeRemoved, storeId }) {
 	const m = new Map();
 	const items = Array.isArray(obj?.items) ? obj.items : [];
 	const storeLabel = String(obj?.storeLabel || obj?.store || "");
@@ -41,8 +44,9 @@ function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
 	for (const it of items) {
 		if (!it) continue;
 
-		const sku = keySkuForItem(it, storeLabel);
-		if (!sku) continue;
+		const sku0 = keySkuForItem(it, storeLabel);
+		if (!sku0) continue;
+		const sku = splits.resolve(storeId, sku0, it.url);
 
 		const removed = Boolean(it.removed);
 		if (!includeRemoved && removed) continue;
@@ -79,12 +83,12 @@ function mapBySku(obj, { includeRemoved } = { includeRemoved: false }) {
 	return m;
 }
 
-function diffDb(prevObj, nextObj) {
-	const prevAll = mapBySku(prevObj, { includeRemoved: true });
-	const nextAll = mapBySku(nextObj, { includeRemoved: true });
+function diffDb(prevObj, nextObj, storeId) {
+	const prevAll = mapBySku(prevObj, { includeRemoved: true, storeId });
+	const nextAll = mapBySku(nextObj, { includeRemoved: true, storeId });
 
-	const prevLive = mapBySku(prevObj, { includeRemoved: false });
-	const nextLive = mapBySku(nextObj, { includeRemoved: false });
+	const prevLive = mapBySku(prevObj, { includeRemoved: false, storeId });
+	const nextLive = mapBySku(nextObj, { includeRemoved: false, storeId });
 
 	const newItems = [];
 	const restoredItems = [];
@@ -232,6 +236,7 @@ function main() {
 	const headSha = getHeadShaOrEmpty();
 	const items = [];
 	const hiddenSet = loadHiddenSet(path.join(repoRoot, "data"));
+	splits = loadCollisionSplits(path.join(repoRoot, "data"));
 
 	const commits = headSha ? logDbCommitsSince(sinceIso) : [];
 	const pairs = [];
@@ -312,7 +317,7 @@ function main() {
 				!gitFileExistsAtSha(fromSha, file) &&
 				(toSha === "WORKTREE" ? fs.existsSync(path.join(repoRoot, file)) : gitFileExistsAtSha(toSha, file));
 
-			let { newItems, restoredItems, removedItems, priceChanges } = diffDb(prevObj, nextObj);
+			let { newItems, restoredItems, removedItems, priceChanges } = diffDb(prevObj, nextObj, storeIdFromDbFile(file));
 
 			if (isNewStoreFile) {
 				newItems = [];

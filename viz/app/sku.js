@@ -29,9 +29,12 @@ export function keySkuForRow(r) {
 	return makeSyntheticSku(r);
 }
 
+// A collision split key c:<sku>:<tag> shows the store's real number.
 export function displaySku(key) {
 	const s = String(key || "");
-	return s.startsWith("u:") ? "unknown" : s;
+	if (s.startsWith("u:")) return "unknown";
+	const m = s.match(/^c:([^:]+):[a-z0-9]+$/);
+	return m ? m[1] : s;
 }
 
 export function isUnknownSkuKey(key) {

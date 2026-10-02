@@ -228,7 +228,8 @@ stock forever. RMWSB rum/gin (8 live each) therefore correctly went to `active=0
 `avoidMassRemoval` no-ops at zero prev-active, a future restock is still picked up automatically.
 
 **Diagnostic tip:** when a store "fails every run", run it locally first
-(`DATA_DIR=/tmp/x node bin/tracker.js --stores <key>`). A residential IP rules out the
+(`DATA_DIR=/tmp/x/db node bin/tracker.js --stores <key>`, with a copy of
+`data/sku_collisions.json` at `/tmp/x/sku_collisions.json`; the tracker throws at startup without it). A residential IP rules out the
 datacenter-IP theory in one step, and the real error text is usually decisive — here it was
 `Short HTML bytes=4`, and `curl`ing the endpoint showed the 4 bytes were `[]`.
 

@@ -242,9 +242,10 @@ Rules:
   the real catalog and suggests the prefixed form when it finds one. Exit 1 on any unknown ref.
   **`--fix`** rewrites every ref that has an unambiguous suggestion in place. A ref matching nothing
   at all (a typo, a `u:` hash from the wrong listing) is a genuine dead link and is never auto-fixed.
-- **Never link to or from a sku in `data/sku_collisions.json`** (21 verified, 2026-09-23). A link to
-  one merges its OTHER product into a clean group. `auto_link_classify.mjs` now enforces this for CI;
-  the applier does not, so it is the agent's job and the reviewer's check.
+- **A split collision's `c:` key is an ordinary sku; link it like any other.** Every entry in
+  `data/sku_collisions.json` splits its sku (`c:<sku>:<tag>`, resolved where a `data/db` row is read),
+  so the bare sku is one clean product and the `c:` key is the other. Neither CI nor the applier
+  refuses them any more.
 
 ### Reading the fields (don't guess)
 
@@ -751,8 +752,6 @@ Also as of 2026-09-23 (bug-hunt fixes):
 - The same-component checks (redundant link, ineffective unlink, grouped ignore) union
   **`sku_links_auto.json`** edges. An unlink bridged only by an auto edge now reports as ineffective,
   instead of "ok" plus a contradictory ignore.
-- A `link` touching a sku in `data/sku_collisions.json` is a **validation error** (`--force` does not
-  override it).
 - An unparseable `sku_links.json` throws. Before, `readLinks` returned an empty set and `--apply`
   wrote back only the proposal.
 - **`unlink-auto`** removes a wrong edge from `sku_links_auto.json`. These edges are in-place sku

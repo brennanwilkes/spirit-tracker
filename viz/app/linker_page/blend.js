@@ -124,7 +124,7 @@ function prefixHits(xs, ys, xsIsShorter) {
 function isBadSkuLite(sku) {
 	const s = String(sku || "").toLowerCase();
 	if (!s) return true;
-	return s.startsWith("u:") || s.startsWith("id:") || s.startsWith("upc:") || s === "unknown";
+	return s.startsWith("u:") || s.startsWith("c:") || s.startsWith("id:") || s.startsWith("upc:") || s === "unknown";
 }
 
 // ctx = prepScorePairCtx(anchor); candidate = the aggregate being scored.

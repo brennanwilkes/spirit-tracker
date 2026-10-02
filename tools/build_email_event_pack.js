@@ -125,6 +125,7 @@ const {
 } = require("../src/utils/sku_canonical");
 
 const { isHiddenListing } = require("../src/utils/sku_hidden");
+const { loadCollisionSplits } = require("../src/utils/sku_collisions");
 const { effectiveRarity } = require("../src/utils/rarity");
 
 // Load the precomputed rarity snapshot built by tools/build_viz_rarity.js. The
@@ -307,7 +308,7 @@ function upsertIndex(idx, it) {
   idx.metaCandidatesByCanon.set(it.canonSku, better);
 }
 
-function ingestDbObject(idx, obj, { dbPath, canonicalSku, hiddenSet }) {
+function ingestDbObject(idx, obj, { dbPath, canonicalSku, hiddenSet, splits }) {
   if (!obj || typeof obj !== "object") return;
 
   const storeId = storeIdFromDbPath(dbPath);
@@ -329,23 +330,25 @@ function ingestDbObject(idx, obj, { dbPath, canonicalSku, hiddenSet }) {
     const skuKey0 = normalizeSkuKey(row.sku || "", { storeLabel, url });
     const skuKey = normalizeImplicitSkuKey(skuKey0); // match sku_map implicit id: behavior
     if (!skuKey) continue;
+    const key = splits.resolve(storeId, skuKey, url);
 
     // Hide raw store listings flagged in data/sku_hidden.json. Filtering here
     // (before the row enters the index) cleanly removes the listing from every
     // downstream surface: event detection, offers, cheapest-price, members.
+    // A split listing's hide names its c: key; an unsplit one may name the raw or normalized form.
     if (hiddenSet && hiddenSet.size > 0) {
       const rawSku = String(row.sku || "").trim();
-      if (rawSku && isHiddenListing(hiddenSet, storeId, rawSku)) continue;
-      if (isHiddenListing(hiddenSet, storeId, skuKey)) continue;
+      const hideKeys = key !== skuKey ? [key] : [rawSku, skuKey];
+      if (hideKeys.some((k) => k && isHiddenListing(hiddenSet, storeId, k))) continue;
     }
 
-    const canonSku = canonicalSku(skuKey);
+    const canonSku = canonicalSku(key);
     if (!canonSku) continue;
 
     upsertIndex(idx, {
       storeId,
       storeLabel,
-      skuKey,
+      skuKey: key,
       canonSku,
       name,
       price,
@@ -490,6 +493,11 @@ function main() {
     }
   }
 
+  // Read from disk, not headSha, and applied to BOTH snapshots: keying base and head differently would
+  // fabricate a GLOBAL_NEW + OUT_OF_STOCK pair for every split listing. Disk is also the only copy
+  // guaranteed to carry split[] when an old sha is replayed.
+  const splits = loadCollisionSplits(path.join(process.cwd(), "data"));
+
   // List DB files from both endpoints
   const filesA = gitListDbFiles(baseSha, dbDirRel);
   const filesB = gitListDbFiles(headSha, dbDirRel);
@@ -503,8 +511,8 @@ function main() {
     const prevObj = filesA.has(f) ? gitShowJson(baseSha, f) : null;
     const nextObj = filesB.has(f) ? gitShowJson(headSha, f) : null;
 
-    if (prevObj) ingestDbObject(baseIdx, prevObj, { dbPath: f, canonicalSku: skuMap.canonicalSku, hiddenSet });
-    if (nextObj) ingestDbObject(headIdx, nextObj, { dbPath: f, canonicalSku: skuMap.canonicalSku, hiddenSet });
+    if (prevObj) ingestDbObject(baseIdx, prevObj, { dbPath: f, canonicalSku: skuMap.canonicalSku, hiddenSet, splits });
+    if (nextObj) ingestDbObject(headIdx, nextObj, { dbPath: f, canonicalSku: skuMap.canonicalSku, hiddenSet, splits });
   }
 
   const cheapestNow = computeCheapest(headIdx);

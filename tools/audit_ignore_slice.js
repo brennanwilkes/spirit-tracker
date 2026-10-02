@@ -35,7 +35,6 @@ const jaccard = (a, b) => {
 
 const linksFile = readJson("data/sku_links.json");
 const auto = readJson("data/sku_links_auto.json").links;
-const collided = new Set(readJson("data/sku_collisions.json").collisions.map((c) => nk(c.sku)));
 
 const parent = new Map();
 const find = (x) => {
@@ -74,7 +73,6 @@ for (const g of linksFile.ignores) {
 const skuEntry = (s) => {
 	const g = (members.get(find(s)) || []).filter((m) => m !== s);
 	return {
-		...(collided.has(s) ? { collided: 1 } : {}),
 		listings: listings.get(s) || [],
 		...(g.length ? { canon: find(s), group: g.slice(0, 12).map((m) => [m, (listings.get(m) || [[null, null]])[0][1]]), ...(g.length > 12 ? { groupMore: g.length - 12 } : {}) } : {}),
 	};
@@ -109,7 +107,7 @@ for (const i of order) {
 	}
 }
 
-const legend = "ignores[] = curated hard negatives (skuA/skuB exactly as stored; use them in remove-ignore ops). j = best listing-name token Jaccard. noTrain = the human was unsure. grouped = both skus are ALREADY in one canonical group via other links (an incoherent ignore). skus{} (normalized keys) = each sku once: listings [store,name,price,removed,url]; canon/group = its current canonical group (other members' sku + one name; groupMore = members not shown); collided = verified cross-store collision sku (never link to it). A sku with no listings has left the catalog.";
+const legend = "ignores[] = curated hard negatives (skuA/skuB exactly as stored; use them in remove-ignore ops). j = best listing-name token Jaccard. noTrain = the human was unsure. grouped = both skus are ALREADY in one canonical group via other links (an incoherent ignore). skus{} (normalized keys) = each sku once: listings [store,name,price,removed,url]; canon/group = its current canonical group (other members' sku + one name; groupMore = members not shown). A sku with no listings has left the catalog.";
 batches.forEach((b, i) => {
 	const f = `${prefix}-b${String(i + 1).padStart(2, "0")}.json`;
 	fs.writeFileSync(f, JSON.stringify({ _meta: { band: [min, max], batch: `${i + 1}/${batches.length}`, ignores: b.ignores.length, skus: Object.keys(b.skus).length, legend }, ignores: b.ignores, skus: b.skus }) + "\n");

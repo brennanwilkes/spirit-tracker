@@ -15,8 +15,12 @@ const { execFileSync } = require("child_process");
 const { listDbFiles } = require("./lib/db");
 const { dateOnly } = require("./lib/sku");
 const { normalizeImplicitSkuKey } = require("../src/utils/sku_canonical");
+const { loadCollisionSplits, storeIdFromDbPath } = require("../src/utils/sku_collisions");
 
 const FULL_REINDEX = process.argv.includes("--full-reindex");
+const splits = loadCollisionSplits(path.join(process.cwd(), "data"));
+// Not *.json: build_viz_rarity.js and the orphan sweep treat every *.json here as a sku.
+const STAMP_FILE = "_collisions.stamp";
 
 // ---- git helpers ----
 
@@ -129,12 +133,15 @@ function addEventIfChanged(events, prevState, curPrice, curRemoved, ts) {
 // canonical form the viz uses to construct fetch URLs (see viz/app/sku_canonical.js).
 // Without this, "id:1049995" would be filed as "id:1049995.json" but the viz looks for
 // "1049995.json" (the canonical form). Bug introduced 2026-05-08, fixed by this normalization.
-function itemsToSkuMap(items) {
+// Collision splits are applied after it; `onlyNorm` restricts the map to rows whose normalized sku is in it.
+function itemsToSkuMap(items, storeId, onlyNorm) {
 	const result = new Map();
 	for (const item of Array.isArray(items) ? items : []) {
 		if (!item?.sku) continue;
-		const sku = normalizeImplicitSkuKey(String(item.sku));
-		if (!sku) continue;
+		const norm = normalizeImplicitSkuKey(String(item.sku));
+		if (!norm) continue;
+		if (onlyNorm !== undefined && !onlyNorm.has(norm)) continue;
+		const sku = splits.resolve(storeId, norm, item.url);
 		const isRemoved = Boolean(item.removed);
 		const existing = result.get(sku);
 		if (!existing) {
@@ -169,7 +176,7 @@ function runIncremental(skuCacheDir, dbFilePaths) {
 
 		const storeLabel = diskData.storeLabel || diskData.store || "";
 		const ts = diskData.updatedAt || new Date().toISOString();
-		const skuMap = itemsToSkuMap(diskData.items);
+		const skuMap = itemsToSkuMap(diskData.items, storeIdFromDbPath(relPath));
 
 		for (const [sku, { price, removed }] of skuMap) {
 			if (!caches.has(sku)) caches.set(sku, loadCache(skuCacheDir, sku));
@@ -193,7 +200,7 @@ function runIncremental(skuCacheDir, dbFilePaths) {
 // ---- Full-reindex mode ----
 // Walks git history per db file, then applies current disk state on top.
 
-function runFullReindex(skuCacheDir, dbFilePaths) {
+function runFullReindex(skuCacheDir, dbFilePaths, onlyNorm) {
 	const caches = new Map(); // sku -> cache object
 
 	const totalFiles = dbFilePaths.length;
@@ -203,6 +210,7 @@ function runFullReindex(skuCacheDir, dbFilePaths) {
 		const relPath = dbFilePaths[fi];
 		const basename = path.basename(relPath);
 		const absPath = path.join(process.cwd(), relPath);
+		const storeId = storeIdFromDbPath(relPath);
 
 		const commits = getCommitsForFile(relPath);
 		process.stdout.write(`[${fi + 1}/${totalFiles}] ${basename} — ${commits.length} commits\n`);
@@ -234,7 +242,7 @@ function runFullReindex(skuCacheDir, dbFilePaths) {
 			const data = gitShowJson(sha, relPath);
 			if (!data) continue;
 
-			const curSkuMap = itemsToSkuMap(data.items);
+			const curSkuMap = itemsToSkuMap(data.items, storeId, onlyNorm);
 			const allSkus = new Set([...prevSkuMap.keys(), ...curSkuMap.keys()]);
 
 			for (const sku of allSkus) {
@@ -262,7 +270,7 @@ function runFullReindex(skuCacheDir, dbFilePaths) {
 		try {
 			const diskData = JSON.parse(fs.readFileSync(absPath, "utf8"));
 			const diskTs = diskData.updatedAt || new Date().toISOString();
-			const diskSkuMap = itemsToSkuMap(diskData.items);
+			const diskSkuMap = itemsToSkuMap(diskData.items, storeId, onlyNorm);
 			const diskStoreLabel = diskData.storeLabel || diskData.store || storeLabel;
 
 			const allDiskSkus = new Set([...prevSkuMap.keys(), ...diskSkuMap.keys()]);
@@ -314,7 +322,7 @@ function runOrphanSweep(skuCacheDir, dbFilePaths) {
 			// event each run — which then alternates with the incremental's restored
 			// event next cron, producing fake IN/OOS flap.
 			const norm = normalizeImplicitSkuKey(String(item.sku));
-			if (norm) skus.add(norm);
+			if (norm) skus.add(splits.resolve(storeIdFromDbPath(relPath), norm, item.url));
 		}
 		liveByDbFile.set(relPath, skus);
 	}
@@ -358,6 +366,66 @@ function runOrphanSweep(skuCacheDir, dbFilePaths) {
 	);
 }
 
+// ---- Collision reconcile ----
+//
+// When a data/sku_collisions.json split is added, changed or removed, the history recorded before the
+// change sits in the wrong cache file (the split store's events live in the bare sku's file). The stamp
+// records the split spec each cache was built with; any sku whose spec differs is rebuilt from git
+// history, touching only the db files that carry it.
+
+function readStamp(skuCacheDir) {
+	const fp = path.join(skuCacheDir, STAMP_FILE);
+	if (!fs.existsSync(fp)) return {};
+	return JSON.parse(fs.readFileSync(fp, "utf8"));
+}
+
+function writeStamp(skuCacheDir) {
+	const fp = path.join(skuCacheDir, STAMP_FILE);
+	fs.writeFileSync(`${fp}.tmp`, JSON.stringify(Object.fromEntries(splits.specByNorm)) + "\n", "utf8");
+	fs.renameSync(`${fp}.tmp`, fp);
+}
+
+function reconcileCollisionSplits(skuCacheDir, dbFilePaths) {
+	const old = readStamp(skuCacheDir);
+	const changed = new Set();
+	for (const k of new Set([...Object.keys(old), ...splits.specByNorm.keys()])) {
+		if (old[k] !== splits.specByNorm.get(k)) changed.add(k);
+	}
+	if (changed.size === 0) return;
+
+	// Old and new split keys alike: this run's incremental pass may already have started a new key's file.
+	const staleKeys = new Set(changed);
+	for (const k of changed) {
+		for (const spec of [old[k], splits.specByNorm.get(k)]) {
+			if (spec !== undefined) for (const s of JSON.parse(spec)) staleKeys.add(s.key);
+		}
+	}
+
+	const onDisk = new Set(dbFilePaths);
+	const files = new Set();
+	for (const key of staleKeys) {
+		const fp = path.join(skuCacheDir, `${key}.json`);
+		if (!fs.existsSync(fp)) continue;
+		for (const dbFile of Object.keys(JSON.parse(fs.readFileSync(fp, "utf8")).stores)) {
+			if (onDisk.has(dbFile)) files.add(dbFile);
+		}
+	}
+	for (const relPath of dbFilePaths) {
+		const diskData = JSON.parse(fs.readFileSync(path.join(process.cwd(), relPath), "utf8"));
+		for (const item of diskData.items || []) {
+			if (item?.sku && changed.has(normalizeImplicitSkuKey(String(item.sku)))) {
+				files.add(relPath);
+				break;
+			}
+		}
+	}
+
+	for (const key of staleKeys) fs.rmSync(path.join(skuCacheDir, `${key}.json`), { force: true });
+	runFullReindex(skuCacheDir, [...files].sort(), changed);
+	writeStamp(skuCacheDir);
+	process.stdout.write(`collision reconcile: ${changed.size} skus rebuilt from ${files.size} db files\n`);
+}
+
 // ---- Main ----
 
 function main() {
@@ -377,8 +445,10 @@ function main() {
 	if (FULL_REINDEX) {
 		process.stdout.write(`Full reindex: ${dbFilePaths.length} store files\n`);
 		runFullReindex(skuCacheDir, dbFilePaths);
+		writeStamp(skuCacheDir);
 	} else {
 		runIncremental(skuCacheDir, dbFilePaths);
+		reconcileCollisionSplits(skuCacheDir, dbFilePaths);
 	}
 
 	runOrphanSweep(skuCacheDir, dbFilePaths);

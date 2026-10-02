@@ -3,6 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync, execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
+
+const { loadCollisionSplits, storeIdFromDbPath } = createRequire(import.meta.url)("../src/utils/sku_collisions.js");
 
 function die(msg) {
 	console.error(msg);
@@ -75,11 +78,13 @@ async function collectSkuInfo(neededSkuKeys) {
 	if (!need.size) return out;
 
 	const normalizeSkuKey = await loadNormalizeSkuKeyOrNull();
+	const splits = loadCollisionSplits(path.join(process.cwd(), "data"));
 	const files = listDbFilesOnDisk();
 
 	for (const file of files) {
 		const obj = readJsonFile(file);
 		if (!obj) continue;
+		const storeId = storeIdFromDbPath(file);
 
 		const storeLabel = String(obj.storeLabel || obj.store || "");
 		const categoryLabel = String(obj.categoryLabel || obj.category || "");
@@ -97,7 +102,9 @@ async function collectSkuInfo(neededSkuKeys) {
 				} catch {}
 			}
 
-			const candidates = new Set([skuRaw, key].filter(Boolean));
+			// A split listing is only ever named by its c: key (data/sku_collisions.json).
+			const split = splits.resolve(storeId, key || skuRaw, url);
+			const candidates = new Set(split.startsWith("c:") ? [split] : [skuRaw, key].filter(Boolean));
 			for (const cand of candidates) {
 				if (!need.has(cand)) continue;
 

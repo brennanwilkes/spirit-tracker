@@ -192,6 +192,7 @@ const readline = require("readline");
 const { pathToFileURL } = require("url");
 
 const { normalizeImplicitSkuKey, buildGroupsAndCanonicalMap } = require("../src/utils/sku_canonical");
+const { loadCollisionSplits } = require("../src/utils/sku_collisions");
 
 const SCRIPT_DIR = __dirname;
 const REPO_ROOT = path.dirname(SCRIPT_DIR);
@@ -1780,6 +1781,7 @@ async function main() {
 	const dbMeta = new Map();
 	const currentByDbFile = new Map();
 	const skuIndex = new Map();
+	const splits = loadCollisionSplits(path.join(root, "data"));
 
 	for (const f of dbFiles) {
 		const data = readJson(path.join(root, "data", "db", f));
@@ -1796,8 +1798,9 @@ async function main() {
 		dbMeta.set(relPath, meta);
 		const bySku = new Map();
 		for (const item of Array.isArray(data.items) ? data.items : []) {
-			const ns = normalizeImplicitSkuKey(item?.sku);
-			if (!ns) continue;
+			const n0 = normalizeImplicitSkuKey(item?.sku);
+			if (!n0) continue;
+			const ns = splits.resolve(storeId, n0, item.url);
 			const existing = bySku.get(ns);
 			if (existing) {
 				if (existing.removed && !item.removed) bySku.set(ns, item); // live wins
@@ -1934,7 +1937,9 @@ async function main() {
 
 			const autoLinks = autoClassifyBySku.get(normSku) || [];
 			const canonicalSku = canonBySku.get(normSku) || normSku;
-			const hidRaw = curItem && meta.storeId ? `${meta.storeId}\u0000${String(curItem.sku)}` : null;
+			// A split listing's hide names its c: key, not the raw sku.
+			const hidSku = curItem && normSku.startsWith("c:") ? normSku : String(curItem?.sku);
+			const hidRaw = curItem && meta.storeId ? `${meta.storeId}\u0000${hidSku}` : null;
 
 			let current = null;
 			if (curItem) {
