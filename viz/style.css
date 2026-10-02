@@ -765,11 +765,6 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   user-select: none;
 }
 .storeSetOption:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); }
-/* FAVOURITE_STORE_IDS: the same gold as #/stores' .favStore rows, as a faint fill (an outline
-   reads as a focus ring inside a dropdown). Re-stated in each theme block below, whose plain
-   :hover rules outrank this one. */
-.storeSetOption.favStore { background: rgba(240, 180, 41, 0.08); }
-.storeSetOption.favStore:hover { background: rgba(240, 180, 41, 0.14); }
 .storeSetOption input[type="checkbox"] { display: none; }
 
 .storeSetCheck {
@@ -798,6 +793,10 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   transform: rotate(45deg);
 }
 .storeSetOption input:checked ~ .storeSetOptionLabel { color: var(--text); }
+/* FAVOURITE_STORE_IDS: #/stores' gold, as label text (a fill or an outline reads badly in a
+   dropdown). `input ~` outranks the :checked rule above; dimmer until checked, like the rest. */
+.storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(240, 180, 41, 0.72); }
+.storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(240, 180, 41); }
 
 .storeSetActions {
   display: flex;
@@ -1379,8 +1378,8 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
   .storeSetGroupLabel { background: var(--lt-control); }
   .storeSetOption:hover { background: var(--lt-hover-bg); }
-  .storeSetOption.favStore { background: rgba(176, 122, 12, 0.09); }
-  .storeSetOption.favStore:hover { background: rgba(176, 122, 12, 0.15); }
+  .storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(150, 100, 6, 0.8); }
+  .storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(150, 100, 6); }
   .storeSetTrigger.is-open,
   .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 }
@@ -1496,8 +1495,8 @@ html[data-theme="light"] .spiritFilterTrigger:focus { border-color: #3d7fa8; out
 html[data-theme="light"] .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
 html[data-theme="light"] .storeSetGroupLabel { background: var(--lt-control); }
 html[data-theme="light"] .storeSetOption:hover { background: var(--lt-hover-bg); }
-html[data-theme="light"] .storeSetOption.favStore { background: rgba(176, 122, 12, 0.09); }
-html[data-theme="light"] .storeSetOption.favStore:hover { background: rgba(176, 122, 12, 0.15); }
+html[data-theme="light"] .storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(150, 100, 6, 0.8); }
+html[data-theme="light"] .storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(150, 100, 6); }
 html[data-theme="light"] .storeSetTrigger.is-open,
 html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 
@@ -1583,8 +1582,8 @@ html[data-theme="dark"] .stSwalConfirm:focus { box-shadow: 0 0 0 2px #37566b !im
 html[data-theme="dark"] .storeSetPanel { background: #0f1318; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
 html[data-theme="dark"] .storeSetGroupLabel { background: #0f1318; }
 html[data-theme="dark"] .storeSetOption:hover { background: rgba(255, 255, 255, 0.04); }
-html[data-theme="dark"] .storeSetOption.favStore { background: rgba(240, 180, 41, 0.08); }
-html[data-theme="dark"] .storeSetOption.favStore:hover { background: rgba(240, 180, 41, 0.14); }
+html[data-theme="dark"] .storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(240, 180, 41, 0.72); }
+html[data-theme="dark"] .storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(240, 180, 41); }
 html[data-theme="dark"] .storeSetTrigger.is-open,
 html[data-theme="dark"] .storeSetTrigger:focus { border-color: #37566b; outline-color: #37566b; }
 
@@ -1690,12 +1689,35 @@ body::before {
   pointer-events: none;
 }
 
-/* The installed app has no pull-to-refresh, and iOS bounces the WHOLE web view on overscroll
-   there, dragging the fixed tab bar with it. Browser tabs keep the bounce (Safari's
-   pull-to-refresh lives on it). */
+/* iOS bounces the WHOLE web view on overscroll in the installed app, dragging the fixed tab
+   bar with it, so the bounce is off there and app/components/pull_to_refresh.js moves #app
+   instead. Browser tabs keep the bounce (Safari's pull-to-refresh lives on it). */
 @media (display-mode: standalone) {
   html, body { overscroll-behavior-y: none; }
 }
+.ptr {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 50%;
+  z-index: 990;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: var(--text-base);
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.ptr.ptrArmed { color: var(--accent); }
+.ptr.ptrBusy i { animation: ptrSpin 0.7s linear infinite; }
+@keyframes ptrSpin { to { transform: rotate(360deg); } }
 
 /* app/pwa.js offerInstall(): one-time "add to home screen" card, above the tab bar. */
 .installHint {

@@ -1265,6 +1265,30 @@ export async function renderShortlist($app, accountUuidRaw) {
 		btn.setAttribute("aria-pressed", on ? "true" : "false");
 	}
 
+	// Restored by back/forward (main.js keeps this page alive), so the item page may have changed
+	// a score or sampled mark meanwhile. Rows update in place; re-sorting would move them under
+	// the user's thumb. The next visit sorts.
+	$results.dataset.onRestore = "";
+	$results.addEventListener("st:restored", async () => {
+		const [nextScore, nextSampled] = await Promise.all([getScore(accountUuid), getSampled(accountUuid)]);
+		for (const k of Object.keys(scoreMap)) delete scoreMap[k];
+		Object.assign(scoreMap, nextScore);
+		sampledSet.clear();
+		for (const k of nextSampled) sampledSet.add(String(rules.canonicalSku(k) || k));
+		for (const it of decoratedBySku.values()) {
+			const raw = Number(scoreMap[it.sku]);
+			it._score = Number.isFinite(raw) ? raw : null;
+			it._sampled = sampledSet.has(it.sku);
+			it._weighted = computeScore({ priceNum: it._priceNum, scoreNum: it._score, sampled: it._sampled });
+		}
+		for (const inp of $results.querySelectorAll(".scoreInput")) {
+			if (inp === document.activeElement) continue;
+			const it = decoratedBySku.get(inp.dataset.sku);
+			inp.value = it !== undefined && it._score !== null ? String(Math.round(it._score)) : "";
+		}
+		for (const btn of $results.querySelectorAll(".sampledBtn")) setSampledUi(btn, sampledSet.has(btn.dataset.sku));
+	});
+
 	// Score pill: click focuses input (and MUST NOT trigger row navigation)
 	$results.addEventListener("click", (e) => {
 		const wrap = e.target.closest(".scoreWrap");

@@ -316,7 +316,8 @@ export async function renderItem($app, skuInput) {
 			</div>
 		`;
 
-	installFavStars($app, favSet);
+	// The page root, not #app: #app outlives the page, so its listeners would pile up per visit.
+	installFavStars($app.firstElementChild, favSet);
 
 	document.getElementById("back").addEventListener("click", (e) => {
 		if (e.ctrlKey || e.metaKey || e.shiftKey) return;

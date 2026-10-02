@@ -119,7 +119,7 @@ viz/
 | File | Purpose |
 |------|---------|
 | `app/stores.js` | All store entries (id, label, region, color, logo, aliases, **`cities[]`**). Use `storeById()`, `storesByRegion()`, `storesByCity()`, `allCities()`, `cityLabel()`, `normalizeStoreId()`. `cities` is an array (a store can serve >1 metro, e.g. Everything Wine/BCL = Vancouver+Victoria); set via the `CITY_BY_STORE` map. Stores with no city never appear in a city preset. |
-| `app/stores.js` → `FAVOURITE_STORE_IDS` | The shops actually worth checking (strath, vessel, kwm, gull, legacyliquor, kegncork, maltsandgrains). **Presentation only** — nothing in scraping, scoring or alerts reads it. `storesByRegion()` itself returns favourites first, then alphabetical, so every list of a region's stores shares one order (`#/stores`, the store-set dropdown, email-alert rules). `#/stores` gives the row an amber rim + soft glow (`.row.favStore`, `stores_page.css`, deliberately no star glyph); the dropdown gives `.storeSetOption.favStore` a faint gold FILL instead (an outline reads as focus there), re-stated in each theme block because their plain `:hover` rules outrank it. The raw `STORES` array order is insertion order and was never meant to be displayed. The stores page loads **no** data, so ordering by catalog size / # exclusives was rejected — it would mean fetching the ~12 MB `index.json` on an otherwise instant page. |
+| `app/stores.js` → `FAVOURITE_STORE_IDS` | The shops actually worth checking (strath, vessel, kwm, gull, legacyliquor, kegncork, maltsandgrains). **Presentation only** — nothing in scraping, scoring or alerts reads it. `storesByRegion()` itself returns favourites first, then alphabetical, so every list of a region's stores shares one order (`#/stores`, the store-set dropdown, email-alert rules). `#/stores` gives the row an amber rim + soft glow (`.row.favStore`, `stores_page.css`, deliberately no star glyph); the dropdown colours `.storeSetOption.favStore`'s LABEL gold instead, dimmer until checked (a fill and an outline were both rejected by the owner), re-stated in each theme block. The raw `STORES` array order is insertion order and was never meant to be displayed. The stores page loads **no** data, so ordering by catalog size / # exclusives was rejected — it would mean fetching the ~12 MB `index.json` on an otherwise instant page. |
 | `app/store_set.js` | **Store-set model** — a selection of stores any list surface can filter by. Spec kinds: `all` / `region` / `city` / `stores` (ad-hoc) / `mine` (user profile). `resolveStoreSet()`→`Set<id>`\|null (null=all), `parse/serializeStoreSet()` (URL-encodable: `?stores=region:bc`), `storeSetLabel()`, `builtInPresets()`, `sameStoreSet()`. |
 | `app/components/store_set_selector.js` | Reusable store-set dropdown (preset chips + ad-hoc checkbox multi-select). **Multi-instance safe**: class-based internals (no ids) + ONE shared outside-click listener (`ensureDocListener`), so many can coexist (search filter, settings "My Stores", one per email-alert rule). Locate the root via `.storeSet`. `storeSetSelectorHtml()` + `installStoreSetSelector({$container, spec, myStores, authed, onChange})`. Styles in `style.css` (`.storeSet*`); panel spans full row on mobile, fixed-width dropdown ≥641px. |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
@@ -362,6 +362,26 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   page render one frame (`requestAnimationFrame` + `setTimeout`, with a sequence number so a newer
   navigation wins). Before, the highlight appeared only after the whole render (~1.1 s at 4x CPU on
   Search). `bottom_nav.js` adds a no-op `touchstart` listener because iOS applies `:active` only then.
+- **A touched tab navigates on `pointerup`, not on click** (`bottom_nav.js`). iOS withholds the
+  synthesized click while the page is still adding content (Shortlist's rAF chunk render) or
+  momentum-scrolling, which made leaving Shortlist take two taps. >10px of travel or `pointercancel`
+  is not a tap; the late click is `preventDefault`ed, because a same-hash click REPLACES the history
+  entry and wipes its `stKey` (below). Re-tapping the active tab scrolls to the top (native behaviour).
+- **List pages are kept alive per history entry** (`main.js` `kept`, cap 6): Search, Shortlist, a
+  store, `#/stores`, `#/shortlists`. Leaving one detaches its DOM (listeners, observers, loaded rows
+  intact); back/forward re-attaches it and its scroll in the same task, no re-render. Before, back
+  rebuilt only the first 60 rows at the top, which on a deep scroll looked blank. Entries are told
+  apart by `history.state.stKey` (hash routing = one document), `history.scrollRestoration` is
+  `manual`, and a fresh render scrolls to the top. Kept pages miss edits made elsewhere, so elements
+  marked `data-on-restore` get `st:restored` after re-attach: `installFavStars` roots replay this
+  session's star toggles, and Shortlist re-fetches score/sampled and updates rows IN PLACE (no
+  re-sort under the thumb). Anything else a page shows from account data (e.g. My Stores changed in
+  Settings) is not refreshed until a fresh visit. Pages must not reach for their elements with
+  `document.getElementById` after an `await` — a kept page may be detached by then.
+- **Pull-to-refresh in the installed app** (`components/pull_to_refresh.js`, installed by `main.js`
+  only in standalone): from `scrollY` 0, `#app` follows the finger at half speed and a spinner drops in;
+  past 64px it reloads. Passive listeners; skipped when the touch starts in something with its own
+  gesture (an inner scroller, canvas, range input, dialog, the fixed bars).
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
 - **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition;
@@ -433,13 +453,13 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
   or the installed app scrolls by the status-bar height. **No `theme-color` meta** (manifest only): a media-keyed pair painted
   Safari's status strip light over the dark theme when the OS was light; without one Safari samples the
   page background. `overscroll-behavior-y: none` in `display-mode: standalone` stops iOS bouncing the
-  tab bar. `.pwaBar` (§12b) is one slot: update > new prices > offline > account.
+  tab bar; `pull_to_refresh.js` gives the top its give back (see the Mobile section). `.pwaBar` (§12b) is one slot: update > new prices > offline > account.
 - **Install hint** (`pwa.offerInstall`, called from `main.js`): signed in + coarse pointer + browser tab
   (not standalone) + stamped build. iOS gets Share → Add to Home Screen; elsewhere a real Install button
   when `beforeinstallprompt` fired, else menu instructions. The ✕ sets `st:pwa:installHintDismissed` in
   localStorage and it never shows again in that browser.
 - **Unverified on a real device:** OAuth inside the installed iOS app (out-of-scope redirect to
-  workers.dev and back). An installed iOS app has its own storage, so users sign in again once.
+  workers.dev and back); the pointerup tab fix (headless Chromium never had the double tap). An installed iOS app has its own storage, so users sign in again once.
 - **Known, accepted:** a changed `index.json` is rewritten to Cache Storage (16 MB) on each launch
   that sees a new ETag, and it also sits in the HTTP cache; account cache keys for other users' public
   shortlists are unbounded in localStorage.
