@@ -6,6 +6,8 @@
 // - Adds a small cross-tab localStorage cache for GETs (default 5 minutes)
 // - Shows a friendly modal on 429 (KV free-tier write rate limiting) for POST/PUT
 
+import { markAccountOffline } from "./pwa.js";
+
 /* ---------------- Config ---------------- */
 
 let CLOUD_BASE_URL = "https://spirit-tracker-api.brennan-a53.workers.dev";
@@ -83,7 +85,7 @@ function delCacheKey(key) {
 	} catch {}
 }
 
-function cacheGet(scope, method, path) {
+function cacheRec(scope, method, path) {
 	const key = cacheKey(scope, method, path);
 	const raw = readCacheRaw(key);
 	if (!raw) return null;
@@ -91,25 +93,30 @@ function cacheGet(scope, method, path) {
 	try {
 		const rec = JSON.parse(raw);
 		if (!rec || typeof rec !== "object") return null;
-		const savedAt = Number(rec.savedAt || 0);
-		const ttlMs = Number(rec.ttlMs || 0);
-		if (!Number.isFinite(savedAt) || !Number.isFinite(ttlMs) || ttlMs <= 0) return null;
-
-		const age = Date.now() - savedAt;
-		if (age < 0 || age > ttlMs) {
-			delCacheKey(key);
-			return null;
-		}
-		return rec.value;
+		return rec;
 	} catch {
 		delCacheKey(key);
 		return null;
 	}
 }
 
+// An expired entry is NOT deleted: it stays as the offline copy that requestJson falls
+// back to when the network is down, and is overwritten by the next successful GET.
+function cacheGet(scope, method, path) {
+	const rec = cacheRec(scope, method, path);
+	if (rec === null) return null;
+	const savedAt = Number(rec.savedAt || 0);
+	const ttlMs = Number(rec.ttlMs || 0);
+	if (!Number.isFinite(savedAt) || !Number.isFinite(ttlMs) || ttlMs <= 0) return null;
+
+	const age = Date.now() - savedAt;
+	if (age < 0 || age > ttlMs) return null;
+	return rec.value;
+}
+
+// ttlMs 0 still stores the value, as an offline copy only (cacheGet never serves it).
 function cacheSet(scope, method, path, value, ttlMs) {
 	const ms = Number.isFinite(Number(ttlMs)) ? Math.max(0, Number(ttlMs)) : DEFAULT_CACHE_TTL_MS;
-	if (!ms) return;
 	const key = cacheKey(scope, method, path);
 	const rec = { savedAt: Date.now(), ttlMs: ms, value };
 	writeCacheRaw(key, JSON.stringify(rec));
@@ -704,7 +711,21 @@ async function requestJson(
 			body: body === undefined ? undefined : JSON.stringify(body),
 		});
 
-	let res = await doFetch();
+	let res;
+	try {
+		res = await doFetch();
+	} catch (err) {
+		// Network down: a GET answers from its last good copy, however old, and says so via
+		// the offline bar. Only a thrown fetch counts; an HTTP error is a real answer.
+		if (isGet) {
+			const rec = cacheRec(scope, method, path);
+			if (rec !== null) {
+				markAccountOffline(Number(rec.savedAt));
+				return rec.value;
+			}
+		}
+		throw err;
+	}
 
 	// Optional: auto-retry once for writes on 429 using Retry-After (capped)
 	if (res.status === 429 && isWrite) {
@@ -752,9 +773,7 @@ async function requestJson(
 
 	const out = payload;
 
-	if (wantCache && isGet && ttlMs > 0) {
-		cacheSet(scope, method, path, out, ttlMs);
-	}
+	if (isGet) cacheSet(scope, method, path, out, wantCache ? ttlMs : 0);
 
 	return out;
 }
@@ -946,23 +965,25 @@ function acctGetCacheUpdate(userId, resource, nextValue) {
 function acctGetCachePatch(userId, resource, patchObj) {
 	const scope = currentScope();
 	const path = acctPath(userId, resource);
-	const cur = cacheGet(scope, "GET", path);
+	// Patched from the stored copy whatever its age, keeping its savedAt/ttlMs: an expired
+	// copy (the offline one) stays expired, and is not deleted by a write.
+	const rec = cacheRec(scope, "GET", path);
 
 	// No baseline cached => don't create a partial cache entry from a patch.
-	if (cur === null) {
+	if (rec === null) {
 		cacheDel(scope, "GET", path);
 		return;
 	}
 
 	if (resource === "favourites" || resource === "sampled") {
-		const merged = mergeBoolMapIntoStringArray(cur ?? [], patchObj);
-		cacheSet(scope, "GET", path, merged, DEFAULT_CACHE_TTL_MS);
+		const merged = mergeBoolMapIntoStringArray(rec.value ?? [], patchObj);
+		writeCacheRaw(cacheKey(scope, "GET", path), JSON.stringify({ ...rec, value: merged }));
 		return;
 	}
 
 	if (resource === "score") {
-		const merged = mergeScore(cur ?? {}, patchObj);
-		cacheSet(scope, "GET", path, merged, DEFAULT_CACHE_TTL_MS);
+		const merged = mergeScore(rec.value ?? {}, patchObj);
+		writeCacheRaw(cacheKey(scope, "GET", path), JSON.stringify({ ...rec, value: merged }));
 		return;
 	}
 

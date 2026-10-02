@@ -7,6 +7,23 @@
          auto-dark-theme doesn't re-invert our UI (white dropdown panels). -->
     <meta name="color-scheme" content="dark light" />
     <title>Brennan's Spirit Tracker</title>
+    <!-- Right for the OS theme before any JS runs; theme.js then syncs both to the live --bg. -->
+    <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#dde3ea" media="(prefers-color-scheme: light)" />
+
+    <!-- PWA. iOS does not reliably take the home-screen icon from the manifest, so the
+         legacy apple-* tags stay alongside it. black-translucent puts the page under the
+         status bar; style.css paints a scrim there (body::before). -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Spirits" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180.png" />
+    <link rel="icon" href="./favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+    <!-- Filled by tools/stamp_pwa.js at deploy; app/pwa.js registers the worker only when stamped. -->
+    <meta name="st-build" content="__BUILD__" />
 
     <!-- Shared base styles (mobile-first) -->
     <link rel="stylesheet" href="./style.css" />
@@ -28,11 +45,12 @@
   <body>
     <div id="app"></div>
 
-    <!-- Chart.js (no build step) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <!-- Chart.js (no build step). `crossorigin` makes these CORS requests so sw.js can cache
+         them for offline use; without it they are opaque and never cached. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" crossorigin="anonymous" />
 
     <!-- App (ES modules; no bundler required) -->
     <script type="module" src="./app/main.js"></script>

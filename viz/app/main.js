@@ -31,9 +31,12 @@ import { renderPublicShortlists } from "./public_shortlists_page.js";
 import { renderStores } from "./stores_page.js";
 import { applyStoredColorScheme, applyColorScheme } from "./theme.js";
 import { renderBottomNav } from "./components/bottom_nav.js";
+import * as pwa from "./pwa.js";
 
 // Apply stored theme immediately to prevent FOUC
 applyStoredColorScheme();
+// Before the first route, so data responses are seen with the PWA active.
+pwa.register();
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");

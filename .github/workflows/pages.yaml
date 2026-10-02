@@ -152,6 +152,12 @@ jobs:
             echo "WARN: no stats bundles on the release tag; #/stats falls back to the slow per-commit path" >&2
           fi
 
+      # Fills sw.js's BUILD + precache list and index.html's st-build meta. BUILD hashes the
+      # shell files, not the commit, so the ~8 data-only deploys a day leave installed apps'
+      # cached shell alone. An unstamped site still works; it just never registers the worker.
+      - name: Stamp PWA build
+        run: node tools/stamp_pwa.js viz
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:

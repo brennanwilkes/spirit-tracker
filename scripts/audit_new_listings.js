@@ -1250,18 +1250,22 @@ async function buildScorer(root, opts = {}) {
 	const rules = { canonicalSku };
 	const sameStoreFn = storeCache.makeSameStoreCanonFn(rules, storeCache.buildCanonStoreCache(allAgg, rules));
 
-	const EMB_PATH = path.join(root, "viz", "data", "sku_embeddings.json");
-	const GBT_PATH = path.join(root, "viz", "data", "gbt_model.json");
+	// LINKER_EMBEDDINGS / LINKER_GBT_MODEL score with a candidate (unshipped) model. An override
+	// that cannot be read throws: silently scoring with the shipped model would mislabel the run.
+	const EMB_PATH = process.env.LINKER_EMBEDDINGS || path.join(root, "viz", "data", "sku_embeddings.json");
+	const GBT_PATH = process.env.LINKER_GBT_MODEL || path.join(root, "viz", "data", "gbt_model.json");
 	let embRaw = null;
 	try {
 		embRaw = featurize.readJson(EMB_PATH);
-	} catch {
+	} catch (e) {
+		if (process.env.LINKER_EMBEDDINGS) throw e;
 		/* no embeddings → GBT routes embedCos via its 0/NaN branch (same as production here) */
 	}
 	let gbt = null;
 	try {
 		gbt = featurize.readJson(GBT_PATH);
-	} catch {
+	} catch (e) {
+		if (process.env.LINKER_GBT_MODEL) throw e;
 		/* no GBT → linear blend fallback */
 	}
 	const blend = {
@@ -1393,6 +1397,28 @@ async function buildScorer(root, opts = {}) {
 		}
 	}
 
+	// The direct pair score (no retrieval): the existing-link re-score, the title-twin scan and
+	// --score-pairs all use it, so every surface reports the same prob for a pair.
+	function scoreAgainst(ctx, anchor, agg) {
+		const det = suggestions.scorePairWithVocab(ctx, agg);
+		const sr = suggestions.scorePairBlended(ctx, agg, det, blend, {
+			vocab,
+			sizePenaltyFn: sizeFn,
+			pricePenaltyFn: priceFn,
+		});
+		const feats = blends.extractBlendFeatures(ctx, agg, {
+			vocab,
+			sizePenaltyFn: sizeFn,
+			pricePenaltyFn: priceFn,
+			embedCosFn: blend.embedCosFn,
+			detScore: det,
+		});
+		if (blend.groupIndex) {
+			Object.assign(feats, blend.groupIndex.features(String(anchor.sku), String(agg.sku)));
+		}
+		return { det, prob: sr.score == null ? null : sr.score, aiDelta: sr.aiDelta, feats };
+	}
+
 	// Score one audit listing against its aggregates. Returns null when the sku is
 	// absent from the live catalog (then scored:false is still emitted by the caller).
 	//
@@ -1501,26 +1527,11 @@ async function buildScorer(root, opts = {}) {
 				verified.push(v);
 				continue;
 			}
-			const det = suggestions.scorePairWithVocab(ctx, agg);
-			const sr = suggestions.scorePairBlended(ctx, agg, det, blend, {
-				vocab,
-				sizePenaltyFn: sizeFn,
-				pricePenaltyFn: priceFn,
-			});
-			const feats = blends.extractBlendFeatures(ctx, agg, {
-				vocab,
-				sizePenaltyFn: sizeFn,
-				pricePenaltyFn: priceFn,
-				embedCosFn: blend.embedCosFn,
-				detScore: det,
-			});
-			if (blend.groupIndex) {
-				Object.assign(feats, blend.groupIndex.features(String(anchor.sku), String(agg.sku)));
-			}
+			const { det, prob, aiDelta, feats } = scoreAgainst(ctx, anchor, agg);
 			v.detScore = det;
 			v.score01 = blends.toConfidence01(det);
-			v.prob = sr.score == null ? null : sr.score;
-			v.aiDelta = sr.aiDelta;
+			v.prob = prob;
+			v.aiDelta = aiDelta;
 			v.aboveBar = v.prob != null && v.prob >= bar;
 			v.partnerName = agg.name || "";
 			v.partnerStores = agg.stores instanceof Set ? [...agg.stores] : agg.stores || [];
@@ -1562,23 +1573,7 @@ async function buildScorer(root, opts = {}) {
 				const sku = String(agg.sku || "");
 				if (!sku || sku === me || dup.has(sku)) continue;
 				if (sameGroup(me, sku) || isIgnoredPair(me, sku)) continue;
-				const det = suggestions.scorePairWithVocab(ctx, agg);
-				const sr = suggestions.scorePairBlended(ctx, agg, det, blend, {
-					vocab,
-					sizePenaltyFn: sizeFn,
-					pricePenaltyFn: priceFn,
-				});
-				const feats = blends.extractBlendFeatures(ctx, agg, {
-					vocab,
-					sizePenaltyFn: sizeFn,
-					pricePenaltyFn: priceFn,
-					embedCosFn: blend.embedCosFn,
-					detScore: det,
-				});
-				if (blend.groupIndex) {
-					Object.assign(feats, blend.groupIndex.features(String(anchor.sku), String(agg.sku)));
-				}
-				const prob = sr.score == null ? null : sr.score;
+				const { det, prob, aiDelta, feats } = scoreAgainst(ctx, anchor, agg);
 				const ma = prob != null ? missAnalysis(det, feats, { pinned: false, prob, bar }) : null;
 				twins.push({
 					sku,
@@ -1591,7 +1586,7 @@ async function buildScorer(root, opts = {}) {
 					score01: blends.toConfidence01(det),
 					prob,
 					aboveBar: prob != null && prob >= bar,
-					aiDelta: sr.aiDelta,
+					aiDelta,
 					features: feats,
 					suspicious: ma ? ma.suspicious : false,
 					missHints: ma ? ma.missHints : [],
@@ -2017,7 +2012,9 @@ async function main() {
 	if (willScore) {
 		scorer = await buildScorer(root, { enableTwins: true });
 		const scoreTarget = scoreDrivenOnly ? filtered : windowSlice(filtered);
-		for (const l of scoreTarget) {
+		const startMs = Date.now();
+		for (const [i, l] of scoreTarget.entries()) {
+			if (i && i % 2000 === 0) console.error(`  scoring ${i}/${scoreTarget.length} (${Math.round((Date.now() - startMs) / 1000)}s)`);
 			const res = scorer.scoreListing(l, top);
 			if (res) {
 				l.scores = res;

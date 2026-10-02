@@ -69,6 +69,14 @@ function cos(a, b) {
 	return na && nb ? d / Math.sqrt(na * nb) : 0;
 }
 
+// LINKER_FROZEN_SPLIT (audit campaign): a pinned held-out sku set. A pair touching it is marked
+// `frozen`; export_gbt.py / oof_misses.py then never train on it, and eval_frozen.mjs scores it.
+let frozenSkus = null;
+if (process.env.LINKER_FROZEN_SPLIT) {
+	frozenSkus = new Set(readJson(process.env.LINKER_FROZEN_SPLIT).skus);
+	console.log(`frozen split: ${frozenSkus.size} skus from ${process.env.LINKER_FROZEN_SPLIT}`);
+}
+
 const pairsPath = path.join(OUT_DIR, "dataset_pairs.jsonl");
 const lines = fs.readFileSync(pairsPath, "utf8").split("\n").filter(Boolean);
 
@@ -88,6 +96,7 @@ for (const line of lines) {
 			canonA: canonOf(p.a),
 			canonB: canonOf(p.b),
 			...(p.noTrain ? { noTrain: true } : {}),
+			...(frozenSkus && (frozenSkus.has(normKey(p.a)) || frozenSkus.has(normKey(p.b))) ? { frozen: true } : {}),
 			...f,
 		}),
 	);

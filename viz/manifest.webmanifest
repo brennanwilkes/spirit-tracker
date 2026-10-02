@@ -1,0 +1,22 @@
+{
+  "name": "Brennan's Spirit Tracker",
+  "short_name": "Spirits",
+  "description": "Canadian whisky, rum and gin prices across 36 liquor stores.",
+  "id": "./",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone"],
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Stores", "url": "./#/stores" },
+    { "name": "Stats", "url": "./#/stats" },
+    { "name": "Settings", "url": "./#/settings" }
+  ]
+}

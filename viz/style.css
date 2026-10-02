@@ -16,14 +16,22 @@
   /* Bottom tab bar surface (translucent; pairs with backdrop blur) */
   --nav-bg: rgba(11, 13, 16, 0.86);
 
+  /* Scrim behind the iOS status bar in the installed app (body::before). It stays DARK in
+     the light themes too: `black-translucent` always draws white status-bar text, and that
+     style is fixed at launch, so it cannot follow a theme switch. */
+  --statusbar-bg: rgba(11, 13, 16, 0.86);
+
   /* Vertical footprint the bottom tab bar steals from the viewport.
    * 0 by default (desktop-with-mouse, where the nav is hidden); §14 raises it
    * to the real height wherever the nav is shown. ANY rule that fills the
-   * viewport must subtract it — `min-height: calc(100dvh - var(--nav-space))`
+   * viewport must subtract it (via --chrome-space below, which adds the top inset)
    * — or the page scrolls by exactly the nav height. Keep it in px units so
    * it stays calc()-safe. */
   --nav-h: 64px;
   --nav-space: 0px;
+  /* What a viewport-filling rule must subtract: the tab bar plus the top inset body pads
+   * for the installed iOS app's status bar. Use this, not --nav-space, in 100dvh/svh calcs. */
+  --chrome-space: calc(var(--nav-space) + env(safe-area-inset-top));
 
   /* Radius scale. Unlike the color tokens below, these are theme-independent —
    * they are declared HERE ONLY, not repeated in the light/dark blocks.
@@ -90,6 +98,9 @@ html {
 
 body {
   margin: 0;
+  /* Under `black-translucent` the installed iOS app draws the page beneath the status bar.
+     0 everywhere else (browser tabs, Android, desktop). */
+  padding-top: env(safe-area-inset-top);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   background: var(--bg);
   color: var(--text);
@@ -1237,6 +1248,7 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
     --lt-sticky-bg:   rgba(221,227,234,0.95); /* mobile sticky bars */
 
     --nav-bg: rgba(238, 242, 246, 0.88);
+    --statusbar-bg: #0f172a;
   }
 
   /* Rarity tokens must be re-themed for the OS-light "auto" path too, not only
@@ -1402,6 +1414,7 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   --lt-sticky-bg:   rgba(221,227,234,0.95);
 
   --nav-bg: rgba(238, 242, 246, 0.88);
+  --statusbar-bg: #0f172a;
 }
 html[data-theme="light"] .card { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 html[data-theme="light"] .item { background: var(--lt-surface); }
@@ -1487,6 +1500,7 @@ html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline
   --accent: #7dd3fc;
 
   --nav-bg: rgba(11, 13, 16, 0.86);
+  --statusbar-bg: rgba(11, 13, 16, 0.86);
 }
 html[data-theme="dark"] .card { box-shadow: none; }
 html[data-theme="dark"] .item { background: #0f1318; }
@@ -1642,6 +1656,54 @@ html[data-theme="dark"] .spiritFilterTrigger:focus { border-color: #37566b; outl
 .bottomNavItem.isActive,
 .bottomNavItem.isActive:hover { color: var(--accent); }
 .bottomNavItem:active { transform: scale(0.92); }
+
+/* ── 12b. Installed-app chrome (status-bar scrim, PWA bar) ──────────────── */
+
+/* Content scrolls up under the iOS status bar in the installed app; the scrim keeps the
+   clock and battery readable over it. Zero-height wherever there is no top inset. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  z-index: 1000;
+  background: var(--statusbar-bg);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+/* app/pwa.js: offline / new prices / new version. One at a time, above the tab bar. */
+.pwaBar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(12px + max(var(--nav-space), env(safe-area-inset-bottom)));
+  z-index: 950;
+  width: max-content;
+  max-width: calc(100% - 28px);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-base);
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+button.pwaBar { cursor: pointer; }
+button.pwaBar:active { transform: translateX(-50%) scale(0.97); }
+.pwaBar-update,
+.pwaBar-fresh {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.pwaBar-offline { color: var(--muted); }
 
 /* ── 13. Touch & interaction (must stay after the theme blocks) ─────────── */
 
