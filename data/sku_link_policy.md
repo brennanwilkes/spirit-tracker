@@ -183,6 +183,16 @@ Adding one is a JSON edit plus `node tools/validate_sku_collisions.js`.
 Its symptom here: one store showing two rows under the same SKU with a material price gap. Treat
 those as different products and never link either side on SKU identity alone.
 
+## Owner-known separations (noTrain)
+
+Some listings differ in a way no listing data can show: only someone holding the bottle knows. The
+owner records those as `noTrain` ignores, so the pair stays separate but never trains the model.
+Agents must not re-link them and must not cite them as examples.
+
+- **Vintage Spirits `177777` "BENROMACH TRIPLE DISTILLED 750"** is an older (vintage) bottling, not
+  the current Benromach Contrasts Triple Distilled (`879940`, `425940`, Keg N Cork `u:20ece78e`). The
+  owner bought it in store (owner ruling 2026-10-03).
+
 ## Amendment protocol
 
 - New class or changed call → propose it in the audit report with concrete `(SKU, name)` pairs.
