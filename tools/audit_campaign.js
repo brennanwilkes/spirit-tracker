@@ -51,10 +51,10 @@ const CONF_DET = 4;
 // Batches never mix tiers, so value order holds batch by batch; within a tier, pairs sharing a
 // canonical neighbourhood sit together. perItem = expected end-context tokens per decision.
 const TIERS = [
-	{ id: "A", buckets: ["B0", "B1", "B2"], perItem: 1600 },
-	{ id: "B", buckets: ["B3"], perItem: 1200 },
-	{ id: "C", buckets: ["B4"], perItem: 800 },
-	{ id: "D", buckets: ["B5"], perItem: 600 },
+	{ id: "A", buckets: ["B0", "B1", "B2"], perItem: 900 },
+	{ id: "B", buckets: ["B3"], perItem: 600 },
+	{ id: "C", buckets: ["B4"], perItem: 400 },
+	{ id: "D", buckets: ["B5"], perItem: 550 },
 ];
 // §6 of docs/audit-full-library-plan.md: ~80K fixed + ~0.6 tokens/byte, 50% of a 1M window soft.
 const FIXED_TOKENS = 80000;
@@ -65,7 +65,7 @@ const GROUP_BATCH_BYTES = 650000;
 const LABEL_LIMIT = 200;
 const LABEL_PER_ITEM = 2000;
 // Each also[] pair costs one more op line in the agent's output (and occasionally a closer look).
-const ALSO_TOKENS = 150;
+const ALSO_TOKENS = 80;
 // Every PRECISION_EVERY recall batches, the next pending precision batch takes a slot.
 const PRECISION_EVERY = 3;
 
@@ -419,6 +419,23 @@ const GIFT_RE = /\b(gift|pack|set|bundle|sampler|tasting|calendar|glass(?:es)?|t
 const EDITION_WORDS = ["cask strength", "barrel proof", "single cask", "single barrel", "batch", "limited", "edition", "release", "reserve", "special", "private", "exclusive", "pick", "sherry", "port", "finish", "peated", "unpeated", "double", "triple", "rye", "wheated", "bottled in bond", "full proof", "overproof", "navy strength", "small batch", "anniversary", "vintage", "old bottling"];
 const STRIP_RE = /\b(\d+\w*|ml|cl|l|ltr|litre|liter|year|years|yr|yrs|yo|old|aged|abv|proof|the|of|and|whisky|whiskey|scotch|single|malt|cask|strength|batch|no|number|edition|release|limited|vintage)\b/g;
 
+// Brand screen: a group pair whose member names share no brand word (only a format, a category word
+// or an age) is a pair of different brands, a worthless label. Round 1: this dropped 84% of the items
+// agents marked `unrelated` and 17 of 2,048 ignores, and no link, review or split.
+const BRAND_GENERIC = new Set("ml cl ltr litre liter year years yr yrs old aged abv proof the of and whisky whiskey whiskie scotch single malt cask strength batch number edition release limited vintage gin rum vodka bourbon rye wheat wheated straight kentucky tennessee canadian irish american japanese indian islay speyside highland lowland island campbeltown blended blend grain pot still london dry pink spiced dark gold golden white black silver premium reserve special select selection private exclusive finish finished sherry oloroso pedro ximenez port madeira wine red rose barrel oak peated peat unpeated smoky smoked double triple distilled distillery distiller company bottle bottled bottling gift pack set box tin mini miniature small big original classic signature extra fine finest rare very cream liqueur flavoured flavored honey apple cherry vanilla coconut orange lemon lime spirit craft hand handmade estate family new world best dram serie collection collector cut first second third naval navy overproof agricole rhum blanc anejo reposado tequila mezcal brandy cognac vsop hogshead butt barrique alc vol bundle save".split(" "));
+const BRAND_BIGRAM_STOP = new Set(["single malt", "malt scotch", "scotch whisky", "year old", "cask strength", "london dry", "dry gin", "straight bourbon", "bourbon whiskey", "bourbon whisky", "rye whisky", "rye whiskey", "canadian whisky", "irish whiskey", "small batch", "single barrel", "barrel proof", "single cask", "malt whisky", "spiced rum", "dark rum", "white rum", "gold rum", "sherry cask", "port cask", "wine cask", "red wine", "limited edition", "special edition", "gift pack", "gift set", "full proof", "bottled in", "in bond", "of the", "the gin", "blended scotch", "blended malt", "pot still", "grain whisky", "old fashioned"]);
+
+// Distinctive words plus all-generic bigrams ("canadian club", "old malt"), possessives and plurals folded.
+function brandTokens(name) {
+	const w = String(name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['\u2019]s\b/g, "s").replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean).map((t) => (t.length > 4 && t.endsWith("s") ? t.slice(0, -1) : t));
+	const out = new Set(w.filter((t) => t.length >= 3 && !/^\d/.test(t) && !BRAND_GENERIC.has(t)));
+	for (let i = 0; i + 1 < w.length; i++) {
+		const bg = `${w[i]} ${w[i + 1]}`;
+		if (!/\d/.test(bg) && !BRAND_BIGRAM_STOP.has(bg) && BRAND_GENERIC.has(w[i]) && BRAND_GENERIC.has(w[i + 1])) out.add(bg);
+	}
+	return out;
+}
+
 function attrsOf(parsers, name) {
 	const { sim, size, sku } = parsers;
 	const norm = sku.normSearchText(name);
@@ -584,6 +601,22 @@ async function mineLocked(m, save, opts) {
 	// One item per (canonical group, canonical group) pair: a link or an ignore is a decision about
 	// two groups, so every member pair between them is the same decision. The representative is the
 	// highest-value member pair (bucket order, then prob); the rest ride along in also[].
+	const brandCache = new Map();
+	const brands = (s) => {
+		const k = nk(s);
+		if (!brandCache.has(k)) {
+			const t = new Set();
+			for (const l of catalog.get(k).listings) for (const x of brandTokens(l.name)) t.add(x);
+			brandCache.set(k, t);
+		}
+		return brandCache.get(k);
+	};
+	const sharesBrand = (p) => {
+		if (p.src.has("sibling")) return true;
+		const ta = brands(p.a);
+		for (const t of brands(p.b)) if (ta.has(t)) return true;
+		return false;
+	};
 	const bkRank = Object.fromEntries(BUCKETS.map((b, i) => [b.id, i]));
 	const byCp = new Map();
 	for (const p of pairs.values()) {
@@ -595,8 +628,13 @@ async function mineLocked(m, save, opts) {
 	}
 	const byBucket = new Map(BUCKETS.map((b) => [b.id, []]));
 	let dropped = 0;
+	let unbranded = 0;
 	let alsoTotal = 0;
 	for (const ps of byCp.values()) {
+		if (!ps.some(sharesBrand)) {
+			unbranded++;
+			continue;
+		}
 		const valued = ps.filter((p) => p.bk !== null).sort((x, y) => bkRank[x.bk] - bkRank[y.bk] || y.prob - x.prob);
 		if (!valued.length) {
 			dropped += ps.length;
@@ -616,6 +654,7 @@ async function mineLocked(m, save, opts) {
 	for (const [s, c] of Object.entries(srcCounts)) console.log(`| ${s} | ${c.seen} | ${c.unjudged} |`);
 	const items = [...byBucket.values()].reduce((s, a) => s + a.length, 0);
 	console.log(`\nunique unjudged sku pairs: ${pairs.size} in ${byCp.size} canonical group pairs; ${dropped} sku pairs in group pairs wholly below the value floor (prob < 0.01, not confusable)`);
+	console.log(`brand screen: ${unbranded} canonical group pairs dropped (no member pair shares a brand word)`);
 	console.log(`items (one per canonical group pair): ${items}, carrying ${alsoTotal} further member pairs in also[]`);
 	const srcCombos = {};
 	console.log("\n| bucket | group-pair items | member pairs incl. also[] | by source of the representative |");
