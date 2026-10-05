@@ -14,6 +14,7 @@
 const THRESHOLD = 100; // px of content travel
 const MAX_PULL = 160;
 const STRETCH = 144;
+const SETTLE_MS = 400; // outlasts show()'s 0.35s snap to THRESHOLD
 
 export function installPullToRefresh() {
 	const $app = document.getElementById("app");
@@ -89,7 +90,10 @@ export function installPullToRefresh() {
 			refreshing = true;
 			show(THRESHOLD, true);
 			$ptr.classList.add("ptrBusy");
-			location.reload();
+			// Not synchronously in touchend: iOS is still ending the pan on its scroll view, and a
+			// page loaded mid-gesture inherits that offset, leaving the fixed tab bar floating above
+			// a strip of background until something re-lays out (never, on a short item page).
+			setTimeout(() => location.reload(), SETTLE_MS);
 		} else if (pull > 0) {
 			show(0, true);
 		}
