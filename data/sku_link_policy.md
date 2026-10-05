@@ -32,7 +32,7 @@ its audit report. An agent that quietly rewrites its own rules drifts.
 | Size | separate | `375ml` / `700ml` / `1.14L` / `1.75L` are distinct SKUs. **Tolerance: treat near-identical volumes as the SAME size** — 700 ≡ 750, 375 ≡ 350, 1.0L ≡ 1.14L is NOT within tolerance. See "Inferring an unstated size" below |
 | ABV / proof | separate | A stated ABV or proof difference beyond rounding means a different bottling: `Macallan Sherry Oak 12` vs `… 12 110 Proof`; a standard bottling vs its Cask Strength sibling. `40%` vs `40.0%`, or an ABV stated on one side only, is NOT evidence of difference |
 | Vintage year | separate | Distinct vintage releases are different SKUs: `Glenfarclas 2001` vs `Family Cask 2002`; `Glenfarclas FC 1979` is its own release, not the 12yo |
-| Batch / cask | separate | Batch/cask codes are distinct SKUs: `Tamdhu Batch Strength 007` vs `008`; `SMWS 8.47` ≠ `8.46`. **But a code that MATCHES on both sides is positive evidence they ARE the same bottling** — `GlenDronach 1993 28YO Cask 4193` ↔ `GLENDRONACH 28YO 1993 CASK 4193` links |
+| Batch / cask | separate | Batch/cask codes are distinct SKUs: `Tamdhu Batch Strength 007` vs `008`; `SMWS 8.47` ≠ `8.46`. **But a code that MATCHES on both sides is positive evidence they ARE the same bottling** — `GlenDronach 1993 28YO Cask 4193` ↔ `GLENDRONACH 28YO 1993 CASK 4193` links. **A batch/edition number on ONE side only:** judge it like the one-sided year rule — if the batch-less listing's price, ABV, url slug or store carriage places it on that batch, link; if the evidence places it elsewhere, separate. If you truly cannot tell, leave the pair unlinked and record it as a `noTrain` ignore, not a trainable hard negative (owner ruling 2026-10-05) |
 | Independent bottler | **separate** | **The bottler is part of the product identity.** An IB release (Adelphi, Gordon & MacPhail / G&M CC, Signatory, Càrn Mòr, Single Cask Nation, Old Malt Cask, Douglas Laing…) is its own SKU and never links to the distillery's OFFICIAL bottling of the same age — `Aultmore 18 Year Old` ≠ `Adelphi Aultmore Selection 18 yr`; `G&M CC Bruichladdich 1988` ≠ `Bruichladdich Rare Cask 1988 / 30 YO`. Two listings of the SAME IB release of course still link (`GLENLIVET 2006 18 YEAR OLD SIGNATORY` ↔ `GLENLIVET 18YO 2006 SIGNATORY`). Mechanically screenable: an IB marker on exactly one side ⇒ separate (owner ruling 2026-09-20) |
 | Limited / annual edition | separate | A named annual or limited release is its own SKU even with no year in the title: `Drumshanbo Gunpowder Year of the Dragon` ≠ plain `Gunpowder`; `Laphroaig Cairdeas 2026` ≠ `Cairdeas 2025`. **Year-less on both sides:** judge it, do not default. Evidence that they differ (different price rung, different ABV, one side names an edition) ⇒ separate; nothing suggesting a difference ⇒ link; genuinely no data either way ⇒ make the best call you can and say so in `why` (owner ruling 2026-09-20). **Year on ONE side only:** a dated listing of an annual release vs a year-less one ⇒ **link** — the undated title cannot be dated, so it is presumed the same release: `Kilkerran 8 Year Old Cask Strength 2025 Release` ↔ `Kilkerran 8 Year Cask Strength` (owner ruling 2026-09-29). Two DIFFERENT years still separate |
 | Store / exclusive cask | **separate** | **A store's own name or abbreviation inside the product title almost always marks that store's exclusive single cask** — `Glenfarclas Coop 15yr`, `Old Pulteney Coop 2006`, `Plantation Rum Coop 2011`. Treat it as a different bottling from the standard expression, even when the price sits inside the normal range for the standard one (confirmed by the owner 2026-09-19: Co-op carries `Glenfarclas Coop 15yr` $119.99 AND `Glenfarclas 15 yr` $129.99 — the $10 gap is not the signal, the name is) |
@@ -183,15 +183,17 @@ Adding one is a JSON edit plus `node tools/validate_sku_collisions.js`.
 Its symptom here: one store showing two rows under the same SKU with a material price gap. Treat
 those as different products and never link either side on SKU identity alone.
 
-## Owner-known separations (noTrain)
+## Owner-known separations
 
-Some listings differ in a way no listing data can show: only someone holding the bottle knows. The
-owner records those as `noTrain` ignores, so the pair stays separate but never trains the model.
-Agents must not re-link them and must not cite them as examples.
+Pairs the owner has ruled separate. Agents must not re-link them. Where no listing data can show the
+difference (only someone holding the bottle knows), the ignore is `noTrain` and must not be cited as an example.
 
 - **Vintage Spirits `177777` "BENROMACH TRIPLE DISTILLED 750"** is an older (vintage) bottling, not
   the current Benromach Contrasts Triple Distilled (`879940`, `425940`, Keg N Cork `u:20ece78e`). The
   owner bought it in store (owner ruling 2026-10-03).
+- **Shelter Point 10 Year Old (Single Malt)** and **Shelter Point 10 Year Old Estate** are different products.
+  "Estate" is part of the product name, not a descriptor (owner ruling 2026-10-05). Unlike the Benromach entry,
+  the title shows the difference, so these ignores are trainable.
 
 ## Amendment protocol
 
