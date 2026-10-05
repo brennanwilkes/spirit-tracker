@@ -27,6 +27,10 @@ if (root === undefined || baseArg === undefined) {
 	throw new Error("usage: node tools/build_share_pages.mjs <site-dir> <site-base-url>");
 }
 const base = baseArg.replace(/\/+$/, "");
+// iMessage builds its preview on the sender's phone in a WebView that RUNS this page's JS, so an
+// unconditional redirect made it read index.html's site-wide tags. It (and the other JS-running
+// previewers) identify with a crawler UA such as "facebookexternalhit/1.1 Facebot Twitterbot/1.0".
+const PREVIEWER_UA = /facebookexternalhit|Facebot|Twitterbot|bot\b|crawler|spider|preview/i;
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 
 const index = readJson("data/index.json");
@@ -75,7 +79,9 @@ for (const [sku, rows] of rowsBySku) {
 
 	const key = sku.replaceAll(":", "-");
 	const shareUrl = `${base}/i/${key}/`;
-	const appUrl = `${base}/#/item/${encodeURIComponent(sku)}`;
+	// Relative, so the redirect keeps the scheme the link was opened on: Pages reports an
+	// http:// base while HTTPS is not enforced, and http is a different origin from the app.
+	const appRel = `../../#/item/${encodeURIComponent(sku)}`;
 	const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -92,9 +98,9 @@ for (const [sku, rows] of rowsBySku) {
 ${bestImg ? `<meta property="og:image" content="${esc(bestImg)}">\n` : ""}<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
-${bestImg ? `<meta name="twitter:image" content="${esc(bestImg)}">\n` : ""}<script>location.replace(${JSON.stringify(appUrl).replaceAll("<", "\\u003c")});</script>
+${bestImg ? `<meta name="twitter:image" content="${esc(bestImg)}">\n` : ""}<script>if (!${PREVIEWER_UA}.test(navigator.userAgent)) location.replace(${JSON.stringify(appRel).replaceAll("<", "\\u003c")});</script>
 </head>
-<body><a href="${esc(appUrl)}">${esc(title)}</a></body>
+<body><a href="${esc(appRel)}">${esc(title)}</a></body>
 </html>
 `;
 	fs.mkdirSync(path.join(outRoot, key), { recursive: true });

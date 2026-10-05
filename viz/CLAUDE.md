@@ -383,7 +383,11 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   (asymptote 160px, no hard cap) and a spinner drops in; 100px of content travel (~240px of finger)
   reloads. The first version (linear half speed, hard 110px cap, fired at 128px of finger) felt
   "crunchy" to the owner. Passive listeners; skipped when the touch starts in something with its own
-  gesture (an inner scroller, canvas, range input, dialog, the fixed bars).
+  gesture (an inner scroller, canvas, range input, dialog, the fixed bars). **The reload waits
+  `SETTLE_MS` (400 ms) after `touchend`, never inside it**: a reload fired mid-gesture left the tab
+  bar floating above a strip of background in the reloaded page (stuck on the short item page,
+  self-correcting on Search once the catalog grew the document). Cold launches and resume reloads
+  never showed it. The fix is an unverified hypothesis until it is checked on a device (2026-10-05).
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
 - **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition;
@@ -471,7 +475,11 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
   sign-in stays reachable via the Settings tab. Desktop is unaffected.
 - **Share pages** (`tools/build_share_pages.mjs`, run by `pages.yaml` after the data staging, before
   the stamp): one `i/<sku>/index.html` per canonical non-`u:` sku with that listing's OG title/image,
-  JS-redirecting to `#/item/<sku>` (JS only: Facebook follows a meta refresh). Key = sku with `:` → `-`;
+  JS-redirecting to `#/item/<sku>` (JS only: Facebook follows a meta refresh). **The redirect skips
+  previewer UAs** (`PREVIEWER_UA`): iMessage builds previews in a WebView that RUNS the JS, so an
+  unconditional redirect showed the generic site card; it identifies as `facebookexternalhit … Twitterbot`.
+  The redirect is **relative** (`../../#/item/…`): Pages reports an `http://` base while "Enforce HTTPS"
+  is off, and http is a different origin from the https app. Key = sku with `:` → `-`;
   `item_page.js`'s share button builds the same URL on deployed builds (hash URL when unstamped).
   `stamp_pwa.js` skips `i/` and `sw.js` lets `i/` navigations hit the network — serving the shell
   there would load index.html at `/i/<sku>/` and break every relative URL. ~7.7k pages, ~10 MB.
