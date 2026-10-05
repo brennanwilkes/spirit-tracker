@@ -595,3 +595,6 @@ html[data-theme="dark"] .links .storeLinkRow a { background: transparent; }
   border-radius: var(--radius-xs);
   transition: width 0.35s ease-out;
 }
+
+/* Share sits at the far right of the Back / sku row. */
+.shareBtn { margin-left: auto; flex: 0 0 auto; }

@@ -30,6 +30,7 @@ jobs:
           lfs: false   # viz/data/* is plain git now; embeddings is a Release asset. No smudge.
 
       - name: Configure Pages
+        id: pages
         uses: actions/configure-pages@v4
 
       # viz/data/index.json is a GitHub Release asset (tag index-latest), NOT committed — it was
@@ -151,6 +152,12 @@ jobs:
           else
             echo "WARN: no stats bundles on the release tag; #/stats falls back to the slow per-commit path" >&2
           fi
+
+      # One static page per item (viz/i/<sku>/) carrying that listing's Open Graph title +
+      # image, so shared item links preview as the bottle, not the site. Needs index.json and
+      # the sku_*.json files staged above. Fails the deploy on bad data, like the index step.
+      - name: Build item share pages
+        run: node tools/build_share_pages.mjs viz "${{ steps.pages.outputs.base_url }}"
 
       # Fills sw.js's BUILD + precache list and index.html's st-build meta. BUILD hashes the
       # shell files, not the commit, so the ~8 data-only deploys a day leave installed apps'

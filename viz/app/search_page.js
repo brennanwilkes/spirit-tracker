@@ -76,8 +76,8 @@ export function renderSearch($app) {
 	  <a id="logoutBtn" class="tabDup btn btnIcon" type="button" aria-label="Log out"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></a>
 	`
 					: `
-	  <a class="btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
-	  <a class="btn btnWide" href="#/signup" style="text-decoration:none;">Signup</a>
+	  <a class="appOnly btn btnWide" href="#/login" style="text-decoration:none;">Login</a>
+	  <a class="appOnly btn btnWide" href="#/signup" style="text-decoration:none;">Signup</a>
 	`
 			}
 		</div>

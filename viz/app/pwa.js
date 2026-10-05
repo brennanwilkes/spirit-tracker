@@ -36,6 +36,11 @@ let accountOfflineAsOf = null;
 // Data this page fetched before any worker controlled it (first visit), so not cached.
 const uncachedData = new Set();
 
+/** Running as the installed app. iOS reports it only through navigator.standalone. */
+export function isStandalone() {
+	return navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+}
+
 export function register() {
 	if (navigator.serviceWorker === undefined) return;
 
@@ -123,8 +128,7 @@ export function register() {
 
 	// Without persistence the browser may evict the offline copy under storage pressure.
 	// Asked only when installed: desktop Firefox turns persist() into a permission prompt.
-	const installed = navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
-	if (installed && navigator.storage?.persist !== undefined) {
+	if (isStandalone() && navigator.storage?.persist !== undefined) {
 		navigator.storage.persist().then((ok) => {
 			if (!ok) console.warn("[pwa] storage is NOT persisted; the offline copy may be evicted");
 		});
@@ -134,7 +138,7 @@ export function register() {
 /** Mobile browser tab, signed in: suggest installing, until dismissed once, ever (per browser). */
 export function offerInstall(authed) {
 	if (!active || !authed) return;
-	if (navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches) return;
+	if (isStandalone()) return;
 	if (!window.matchMedia("(pointer: coarse)").matches) return;
 	if (localStorage.getItem(LS_INSTALL_HINT_DISMISSED) !== null) return;
 

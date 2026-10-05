@@ -465,6 +465,21 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
 - **Known, accepted:** a changed `index.json` is rewritten to Cache Storage (16 MB) on each launch
   that sees a new ETag, and it also sits in the HTTP cache; account cache keys for other users' public
   shortlists are unbounded in localStorage.
+- **`html.standalone`** (set by `main.js` from `pwa.isStandalone()`, the one standalone check) gates
+  `.appOnly` header buttons: on the tab-bar layout they show only in the installed app. Signed-out
+  Login/Signup are `.appOnly` (owner call 2026-10-05), so a phone browser tab shows no search header;
+  sign-in stays reachable via the Settings tab. Desktop is unaffected.
+- **Share pages** (`tools/build_share_pages.mjs`, run by `pages.yaml` after the data staging, before
+  the stamp): one `i/<sku>/index.html` per canonical non-`u:` sku with that listing's OG title/image,
+  JS-redirecting to `#/item/<sku>` (JS only: Facebook follows a meta refresh). Key = sku with `:` → `-`;
+  `item_page.js`'s share button builds the same URL on deployed builds (hash URL when unstamped).
+  `stamp_pwa.js` skips `i/` and `sw.js` lets `i/` navigations hit the network — serving the shell
+  there would load index.html at `/i/<sku>/` and break every relative URL. ~7.7k pages, ~10 MB.
+  A plain `#/…` link can never preview per item (the fragment never reaches the server); it gets
+  `index.html`'s site-wide OG tags + `icons/og.png` (1200×630, rendered from scratch HTML in headless
+  Brave; the absolute `og:image` URL hardcodes `spirit.codexwilkes.com`).
+- **Opening links in the app**: manifest `handle_links: "preferred"` + `launch_handler` only help
+  Chromium (Android/desktop). iOS never hands a link to a home-screen app; nothing can fix that.
 - **Testing:** stamp a scratch copy (`node tools/stamp_pwa.js <copy>/viz`, after copying in `viz/data`
   + the `data/sku_*.json` files Pages stages) and serve it with ETag/Last-Modified headers. Drive
   headless Brave over raw CDP with `--remote-debugging-port=0` (see global CLAUDE.md).

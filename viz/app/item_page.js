@@ -247,6 +247,9 @@ export async function renderItem($app, skuInput) {
 			<div class="topbar">
 				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<span class="badge mono">${esc(displaySku(sku))}</span>
+				<button id="shareBtn" class="btn btnIcon shareBtn" type="button" aria-label="Share">
+					<i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+				</button>
 			</div>
 
 			<div class="card detailCard">
@@ -326,6 +329,36 @@ export async function renderItem($app, skuInput) {
 	});
 
 	const $title = document.getElementById("title");
+
+	/* A deployed build shares the item's static page (tools/build_share_pages.mjs, same key), which
+	 * previews with this bottle's name and photo; crawlers never see a #/ route. Unstamped (local
+	 * dev) builds have no share pages, and synthetic u: skus never get one. */
+	const deployed = document.querySelector('meta[name="st-build"]').content !== "__BUILD__";
+	const siteRoot = location.href.split("#")[0];
+	const shareUrl =
+		deployed && !sku.startsWith("u:")
+			? new URL(`i/${sku.replaceAll(":", "-")}/`, siteRoot).href
+			: new URL(`#/item/${encodeURIComponent(sku)}`, siteRoot).href;
+	const $shareBtn = document.getElementById("shareBtn");
+	$shareBtn.addEventListener("click", async () => {
+		if (navigator.share !== undefined) {
+			try {
+				await navigator.share({ title: $title.textContent, url: shareUrl });
+			} catch (err) {
+				if (err.name !== "AbortError") throw err;
+			}
+			return;
+		}
+		await navigator.clipboard.writeText(shareUrl);
+		const $i = $shareBtn.querySelector("i");
+		$i.className = "fa-solid fa-check";
+		$shareBtn.setAttribute("aria-label", "Link copied");
+		setTimeout(() => {
+			$i.className = "fa-solid fa-arrow-up-from-bracket";
+			$shareBtn.setAttribute("aria-label", "Share");
+		}, 1500);
+	});
+
 	const $links = document.getElementById("links");
 	const $status = document.getElementById("status");
 	const $canvas = document.getElementById("chart");
