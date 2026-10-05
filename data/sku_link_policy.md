@@ -192,8 +192,8 @@ difference (only someone holding the bottle knows), the ignore is `noTrain` and 
   the current Benromach Contrasts Triple Distilled (`879940`, `425940`, Keg N Cork `u:20ece78e`). The
   owner bought it in store (owner ruling 2026-10-03).
 - **Shelter Point 10 Year Old (Single Malt)** and **Shelter Point 10 Year Old Estate** are different products.
-  "Estate" is part of the product name, not a descriptor (owner ruling 2026-10-05). Unlike the Benromach entry,
-  the title shows the difference, so these ignores are trainable.
+  "Estate" is part of the product name, not a descriptor, and a title without it is not proof of the plain 10
+  (owner ruling 2026-10-05). `noTrain`, since the plain listing's title cannot show which one it is.
 
 ## Amendment protocol
 
