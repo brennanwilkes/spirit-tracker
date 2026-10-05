@@ -91,6 +91,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 				cheapestPriceStr: pStr || "",
 				cheapestPriceNum: pNum,
 				cheapestStoreLabel: storeLabel || "",
+				listingPrices: [], // LIVE rows only, for the linker's group median
 				stores: new Set(), // LIVE stores only
 				storesEver: new Set(), // live + removed presence (history)
 				sampleUrl: url || "",
@@ -115,6 +116,7 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 		agg._rows.push({ name, img, storeLabel });
 
 		// cheapest across LIVE rows only (so removed history doesn't "win")
+		if (!removed && pNum !== null && pNum > 0) agg.listingPrices.push(pNum);
 		if (!removed && pNum !== null) {
 			if (agg.cheapestPriceNum === null || pNum < agg.cheapestPriceNum) {
 				agg.cheapestPriceNum = pNum;

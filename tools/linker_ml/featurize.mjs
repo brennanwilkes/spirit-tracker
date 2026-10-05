@@ -43,6 +43,7 @@ import { buildSizePenaltyForPair, parseSizesMlFromText } from "../../viz/app/lin
 import { buildPricePenaltyForPair } from "../../viz/app/linker_page/price.js";
 import { prepScorePairCtx, scorePairWithVocab } from "../../viz/app/linker_page/suggestions.js";
 import { extractBlendFeatures, FEATURE_KEYS } from "../../viz/app/linker_page/blend.js";
+import { medianOf } from "../../viz/app/linker_page/group_features.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, "../..");
@@ -144,6 +145,7 @@ export function buildEnv() {
 				stores: new Set(),
 				urlsByStore: new Map(), // storeLabel → product URL (precise per-listing link)
 				cheapestPriceNum: null,
+				listingPrices: [],
 				category: r.category || "",
 				categoryLabel: r.categoryLabel || "",
 			};
@@ -152,8 +154,10 @@ export function buildEnv() {
 		if (r.storeLabel) a.stores.add(r.storeLabel);
 		if (r.storeLabel && r.url && !a.urlsByStore.has(r.storeLabel)) a.urlsByStore.set(r.storeLabel, r.url);
 		const p = parsePriceToNumber(r.price);
-		if (Number.isFinite(p) && p > 0)
+		if (Number.isFinite(p) && p > 0) {
 			a.cheapestPriceNum = a.cheapestPriceNum == null ? p : Math.min(a.cheapestPriceNum, p);
+			a.listingPrices.push(p);
+		}
 		accumulateAggregateName(a, r);
 		if (!a.category && r.category) a.category = r.category;
 	}
@@ -340,13 +344,15 @@ function groupYear(members, env) {
 	}
 	return null;
 }
-function groupMinPrice(members, env) {
-	let p = null;
+// Median over every store listing in the group: one discount store must not make a correctly
+// priced newcomer look 20% off (Liquorama Bunnahabhain 18 $239.99 vs a $200 BSW minimum).
+function groupMedianPrice(members, env) {
+	const ps = [];
 	for (const m of members) {
-		const v = env.bySku.get(String(m))?.cheapestPriceNum;
-		if (v != null && v > 0) p = p == null ? v : Math.min(p, v);
+		const it = env.bySku.get(String(m));
+		if (it) ps.push(...it.listingPrices);
 	}
-	return p;
+	return medianOf(ps);
 }
 function jaccard(A, B) {
 	if (!A.size && !B.size) return 1;
@@ -415,8 +421,8 @@ export function groupPairFeatures(aSku, bSku, env) {
 	const grpYearBoth = yA != null && yB != null ? 1 : 0;
 	const grpYearDiff = grpYearBoth ? Math.abs(yA - yB) : 0;
 
-	const pA = groupMinPrice(GA, env);
-	const pB = groupMinPrice(GB, env);
+	const pA = groupMedianPrice(GA, env);
+	const pB = groupMedianPrice(GB, env);
 	const grpPriceRatio = pA && pB ? Math.max(pA, pB) / Math.min(pA, pB) : 1;
 
 	return {
@@ -460,6 +466,9 @@ function categoryWord(name) {
 	return "";
 }
 
+// "18 yr", "18yo", "18 y o", "18 years", "18-year-old" → "18 year old" (normalized text, so no punctuation).
+const AGE_FORM_RE = /\b(\d{1,2}) ?(?:years?|yrs?|yo|y o|y)(?: old)?\b/g;
+
 // Embedder text ENRICHED with GROUP-resolved, processed attribute tokens (Increment 2):
 // the normalized name PLUS size bucket / ABV / vintage year / category, unioned across the
 // SKU's whole canonical group (so a sizeless listing inherits its siblings' size). These
@@ -468,7 +477,7 @@ function categoryWord(name) {
 export function skuToTextEnriched(sku, env) {
 	const it = env.bySku.get(String(sku));
 	if (!it) return "";
-	const base = normSearchText(it.name || "");
+	const base = normSearchText(it.name || "").replace(AGE_FORM_RE, "$1 year old");
 	const members = env.linkAdj ? bfsComponent(env.linkAdj, String(sku), null, null) : new Set([String(sku)]);
 	if (!members.has(String(sku))) members.add(String(sku));
 
@@ -512,9 +521,9 @@ export function skuToTextEnriched(sku, env) {
 // Words a store put in the product-url slug but not in the title ("…-16-year-old-cask-strength" under a
 // title of "anCnoc 16 Year Old"). Numbers are dropped: size/abv/age are parsed from titles, and slug
 // numbers are often store ids or stale.
-const SLUG_STOP = new Set("the and with for aglc cls products product shop spirits whisky whiskey scotch single malt ml abv size year".split(" "));
+const SLUG_STOP = new Set("the and with for aglc cls products product shop spirits whisky whiskey scotch single malt ml abv size year years yr yrs yo old".split(" "));
 function slugOnlyTokens(it) {
-	const titleToks = new Set(tokenizeQuery(normSearchText(it.name || "")));
+	const titleToks = new Set(tokenizeQuery(normSearchText(it.name || "").replace(AGE_FORM_RE, "$1 year old")));
 	const out = [];
 	for (const url of it.urlsByStore.values()) {
 		let seg;

@@ -1,20 +1,17 @@
 name: Tracker cron (updates data branch)
 
+# Dispatch-only. The clock is a Cloudflare Worker cron in spirit-tracker-api
+# (src/tracker_schedule.ts): bigs at 23:25/11:25 PT, smalls at :48 before 03/06/09/15/18/21 PT,
+# so emails land ~on the hour. GitHub's `schedule:` fired 2-5 h late and dropped ~31% of triggers.
 on:
-  schedule:
-    # Times are chosen so the COMMIT (run end) lands ~on the 3-hour marks in
-    # Pacific time (00/03/06/09/12/15/18/21 PT). Big runs take ~1h, so they fire
-    # an hour earlier than the smalls; smalls finish in ~12 min.
-    - cron: "45 5,17 * * *"           # big  → commits ~00:00 / 12:00 PT
-    - cron: "45 0,3,9,12,15,21 * * *" # small → commits ~03/06/09/15/18/21 PT
   workflow_dispatch:
     inputs:
       mode:
-        description: "auto|big|small"
+        description: "big (all stores) | small (STORES_SMALL_DEFAULT)"
         type: choice
-        required: false
-        default: auto
-        options: [auto, big, small]
+        required: true
+        default: big
+        options: [big, small]
       stores:
         description: "Override STORES (comma-separated). Used for small runs if set."
         type: string
@@ -147,41 +144,27 @@ jobs:
           git fetch --no-tags origin "+refs/heads/data:refs/remotes/origin/data"
           git branch -f data origin/data
 
-      - name: Decide big vs small (matches your local cron)
+      # The Worker dispatches smalls with vpn=true (they carry the Cloudflare-blocked highlander +
+      # colordevino) and bigs with vpn=false; the retry flips whichever was used.
+      - name: Decide big vs small
         id: plan
         shell: bash
         env:
-          CRON_BIG: "45 5,17 * * *"
-          CRON_SMALL: "45 0,3,9,12,15,21 * * *"
           STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars,colordevino,liquorama,zyn,highlander"
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_STORES: ${{ inputs.stores }}
           INPUT_VPN: ${{ inputs.vpn }}
-          FIRED_SCHEDULE: ${{ github.event.schedule }}
-          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
-          mode="${INPUT_MODE:-auto}"
-          stores="${INPUT_STORES:-}"
-          vpn="${INPUT_VPN:-false}"
-
-          if [[ "$mode" == "auto" || -z "$mode" ]]; then
-            if [[ "$EVENT_NAME" == "schedule" && "$FIRED_SCHEDULE" == "$CRON_SMALL" ]]; then
-              mode="small"
-            else
-              mode="big"
-            fi
-          fi
+          mode="$INPUT_MODE"
+          stores="$INPUT_STORES"
+          vpn="$INPUT_VPN"
+          [[ "$mode" == "big" || "$mode" == "small" ]] || { echo "::error::bad mode '$mode'"; exit 1; }
+          [[ "$vpn" == "true" || "$vpn" == "false" ]] || { echo "::error::bad vpn '$vpn'"; exit 1; }
 
           if [[ -z "$stores" && "$mode" == "small" ]]; then
             stores="$STORES_SMALL_DEFAULT"
-          fi
-
-          # Scheduled smalls carry the Cloudflare-blocked stores (highlander, colordevino), so
-          # they start on the VPN; scheduled bigs start direct. The retry flips whichever was used.
-          if [[ "$EVENT_NAME" == "schedule" ]]; then
-            [[ "$mode" == "small" ]] && vpn=true || vpn=false
           fi
 
           echo "mode=$mode" >> "$GITHUB_OUTPUT"

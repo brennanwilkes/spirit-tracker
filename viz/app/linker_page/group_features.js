@@ -41,9 +41,16 @@ export const GRP_NEUTRAL = {
 // Build a group index from the live catalog once per (re)load. canonicalSkuFn maps a raw
 // SKU → its canonical group id (rules.canonicalSku). Precomputes per-group aggregates so
 // per-pair feature extraction is cheap.
+export function medianOf(xs) {
+	if (!xs.length) return null;
+	const s = [...xs].sort((a, b) => a - b);
+	const h = s.length >> 1;
+	return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2;
+}
+
 export function buildGroupIndex(allAgg, canonicalSkuFn) {
 	const groupOf = new Map(); // sku -> canon
-	const groups = new Map(); // canon -> { storeMap, sizes, abvSum, abvN, year, minPrice, count }
+	const groups = new Map(); // canon -> { storeMap, sizes, abvSum, abvN, year, prices, count }
 	const nameBySku = new Map();
 	const tokBySku = new Map();
 
@@ -57,7 +64,7 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 
 		let g = groups.get(canon);
 		if (!g) {
-			g = { storeMap: new Map(), sizes: new Set(), abvSum: 0, abvN: 0, year: null, minPrice: null, count: 0 };
+			g = { storeMap: new Map(), sizes: new Set(), abvSum: 0, abvN: 0, year: null, prices: [], count: 0 };
 			groups.set(canon, g);
 		}
 		g.count++;
@@ -78,8 +85,8 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 			const ym = norm.match(/\b(19\d\d|20\d\d)\b/);
 			if (ym) g.year = parseInt(ym[1], 10);
 		}
-		const p = it.cheapestPriceNum;
-		if (p != null && p > 0) g.minPrice = g.minPrice == null ? p : Math.min(g.minPrice, p);
+		if (!Array.isArray(it.listingPrices)) throw new Error(`buildGroupIndex: aggregate ${sku} has no listingPrices`);
+		g.prices.push(...it.listingPrices);
 	}
 
 	function tokOf(sku) {
@@ -144,9 +151,9 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 		const grpYearBoth = ga.year != null && gb.year != null ? 1 : 0;
 		const grpYearDiff = grpYearBoth ? Math.abs(ga.year - gb.year) : 0;
 
-		const grpPriceRatio = ga.minPrice && gb.minPrice
-			? Math.max(ga.minPrice, gb.minPrice) / Math.min(ga.minPrice, gb.minPrice)
-			: 1;
+		const pA = medianOf(ga.prices);
+		const pB = medianOf(gb.prices);
+		const grpPriceRatio = pA && pB ? Math.max(pA, pB) / Math.min(pA, pB) : 1;
 
 		return {
 			grpStoreOverlap,

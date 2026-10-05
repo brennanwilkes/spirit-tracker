@@ -409,7 +409,7 @@ per-commit walk survives as `loadRawSeriesFromCommits` and is the fallback when 
   rename stays searchable across all history. 11 commits from March 2026 are unreadable LFS
   pointers — exactly the days the old browser path also failed on.
 
-## Datacenter-IP Blocking — ProtonVPN egress re-enabled (2026-10-05, pending first live run)
+## Datacenter-IP Blocking — ProtonVPN egress re-enabled (2026-10-05, verified live)
 
 Cloudflare challenges the runner's Azure IP (`HTTP 403 … <title>Just a moment...</title>`) at
 several stores. Per-store fail rate over 2026-07-06→10-05 (645 reports): elbowliquor 99.5%,
@@ -422,8 +422,8 @@ scrapes cleanly from a residential IP.
 **Everything Wine is different:** it is challenged even from a residential IP (2026-10-05), so no
 egress change fixes it.
 
-**Routing (`cron_tracker.yaml` plan step):** scheduled smalls run through the VPN (the small list
-carries highlander + colordevino); scheduled bigs run direct; the one-shot retry re-dispatches the
+**Routing (the `vpn` dispatch input):** the Worker clock dispatches smalls with `vpn=true` (the small list
+carries highlander + colordevino); bigs with `vpn=false`; the one-shot retry re-dispatches the
 failed stores with the OPPOSITE egress (`-f vpn=`). Tunnel bring-up is `scripts/vpn_up.sh`
 (manual `wg setconf` + `ip rule`, secret `PROTONVPN_WG_CONF`, exit 212.104.215.146 / AS212238);
 best-effort, falls back to direct with a `::warning::` and a `vpn:` line in the commit body.
@@ -462,10 +462,18 @@ next to `data/db/` and throws without it, so run it from `.worktrees/data`.
 
 ## CI / Automation
 
-GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules (times
-chosen so the **commit** — run end — lands ~on the 3-hour marks in Pacific time):
-- **Big** (all 33 stores): 5:45 and 17:45 UTC daily (~1 h runtime → commits ~00:00 / 12:00 PT)
-- **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn, highlander; via VPN): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
+`.github/workflows/cron_tracker.yaml` is **dispatch-only**. Its clock is a Cloudflare Worker cron
+in `~/spirit-tracker-api` (`src/tracker_schedule.ts`, `wrangler.toml` `crons = ["25,48 * * * *"]`),
+which matches on Pacific wall time (DST-proof) and POSTs one `workflow_dispatch` per slot using
+the Worker secret `GH_DISPATCH_TOKEN` (fine-grained PAT, Actions r/w on this repo). No KV, no retries.
+- **Big** (all stores, direct): dispatched 23:25 / 11:25 PT (run ~30 min → email ~00:00 / 12:00 PT)
+- **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn, highlander; VPN): dispatched
+  :48 before 03/06/09/15/18/21 PT (run ~10 min → email ~on the hour). 02:48 does not exist on the
+  spring-forward day, so that one run is skipped once a year.
+
+**Why not GitHub `schedule:`** (measured 2026-09-14..10-05): scheduled triggers started 2-5 h late
+(median 4.8 h for the 05:45Z big, 2.9 h for 17:45Z), varied by up to 3 h day to day, and 54 of 176
+(31%) never fired at all. Dispatched runs start with 0 s delay.
 
 **One-shot failed-store retry.** Store failures are usually a bad random Azure egress
 IP (see §"Datacenter-IP Blocking"), and recover on the next run's different IP. So after
