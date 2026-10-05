@@ -409,32 +409,29 @@ per-commit walk survives as `loadRawSeriesFromCommits` and is the fallback when 
   rename stays searchable across all history. 11 commits from March 2026 are unreadable LFS
   pointers — exactly the days the old browser path also failed on.
 
-## Datacenter-IP Blocking — OPEN (2026-07-06, WireGuard disabled 2026-07-16)
+## Datacenter-IP Blocking — ProtonVPN egress re-enabled (2026-10-05, pending first live run)
 
-The GitHub-runner's Azure datacenter IP gets challenged by Cloudflare at several
-stores (liberty, highlander, coop, colordevino, maltsandgrains, **elbowliquor/vinox**).
+Cloudflare challenges the runner's Azure IP (`HTTP 403 … <title>Just a moment...</title>`) at
+several stores. Per-store fail rate over 2026-07-06→10-05 (645 reports): elbowliquor 99.5%,
+colordevino 82%, sherbrooke/gull/highlander ~30% overall but **100% since late Sept** (highlander
+since 2026-09-26), rmwsb/maltsandgrains/liberty/wineandbeyond/kwm intermittent. A store whose
+categories ALL fail never enters `ranStoreKeys`, so the orphan detector leaves its DB alone — the
+data goes stale, it is not corrupted. Check this before "fixing" an adapter: every one of these
+scrapes cleanly from a residential IP.
 
-**elbowliquor (vinox.ca) is currently CI-blocked outright** (added 2026-09-04): all three
-categories return `HTTP 403` with a Cloudflare interstitial (body starts
-`<!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie"` — that markup is the tell).
-The adapter itself is fine: from a residential IP it scrapes cleanly (31 single-bottle listings,
-31/31 real CSPCs). So its 3 failures/run are the datacenter-IP issue, NOT a broken scraper — check
-that before "fixing" the adapter. Because every one of its categories fails, the store never enters
-`ranStoreKeys`, so the orphan detector leaves its DB files alone and nothing is corrupted; the run
-just records the failures honestly. Run it locally to refresh that store's data.
-Note the block is an IP lottery, not deterministic — colordevino, on the same list, succeeded in
-the same run.
+**Everything Wine is different:** it is challenged even from a residential IP (2026-10-05), so no
+egress change fixes it.
 
-**WireGuard attempt (DISABLED):** ProtonVPN WireGuard tunnel in `cron_tracker.yaml`.
-UDP endpoint reachable but handshake never completes on cron runner — likely Azure
-platform-level filtering of WireGuard protocol packets (Hyper-V virtual switch).
-Diagnostic workflow (`vpn_diag.yaml`) worked on a different runner. Full config
-commented out in `cron_tracker.yaml`. See `docs/vpn-setup.md` for research and
-alternatives (Tailscale, residential proxy, Cloudflare whitelisting).
+**Routing (`cron_tracker.yaml` plan step):** scheduled smalls run through the VPN (the small list
+carries highlander + colordevino); scheduled bigs run direct; the one-shot retry re-dispatches the
+failed stores with the OPPOSITE egress (`-f vpn=`). Tunnel bring-up is `scripts/vpn_up.sh`
+(manual `wg setconf` + `ip rule`, secret `PROTONVPN_WG_CONF`, exit 212.104.215.146 / AS212238);
+best-effort, falls back to direct with a `::warning::` and a `vpn:` line in the commit body.
 
-**Current status:** Stores are scraped without VPN. CF-blocked stores fail with 403s
-on every run. The one-shot retry logic still fires but without a VPN it just retries
-the same blocked IP. Workaround: run locally (different IP) or use a residential proxy.
+**The 2026-07 "handshake never completes / Azure filters WireGuard" conclusion was WRONG.** All 5
+July-15 cron runs that got `wg` installed handshook in 1-2 s and scraped through the tunnel (they
+were cancelled by hand mid-scrape); the earlier failures were `apt-get` hangs / `wg` missing. The
+diag on 2026-10-05 again handshook in 2 s and Highlander's API returned real content via Proton.
 
 ## Tech Stack
 
@@ -468,14 +465,14 @@ next to `data/db/` and throws without it, so run it from `.worktrees/data`.
 GitHub Actions (`.github/workflows/cron_tracker.yaml`) runs on two schedules (times
 chosen so the **commit** — run end — lands ~on the 3-hour marks in Pacific time):
 - **Big** (all 33 stores): 5:45 and 17:45 UTC daily (~1 h runtime → commits ~00:00 / 12:00 PT)
-- **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
+- **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn, highlander; via VPN): 0:45, 3:45, 9:45, 12:45, 15:45, 21:45 UTC (~12 min → commits ~03/06/09/15/18/21 PT)
 
 **One-shot failed-store retry.** Store failures are usually a bad random Azure egress
 IP (see §"Datacenter-IP Blocking"), and recover on the next run's different IP. So after
 a run, if the tracker's `[[FAILED-STORES]]` sentinel is non-empty, `run_daily.sh` surfaces
 those store keys as the `failed_stores` step output, and the workflow **re-dispatches
-itself** for exactly those stores (`-f stores=… -f mode=big -f is_retry=true`) on a fresh
-runner/IP. `is_retry=true` makes the retry skip its own retry step (no recursion — exactly
+itself** for exactly those stores (`-f stores=… -f mode=big -f is_retry=true -f vpn=<opposite>`) on a fresh
+runner with the other egress (direct ↔ VPN). `is_retry=true` makes the retry skip its own retry step (no recursion — exactly
 one retry), and `concurrency: tracker-cron` queues it until the first run fully completes.
 
 Each run executes `scripts/run_daily.sh`, which:

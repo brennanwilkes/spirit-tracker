@@ -24,6 +24,11 @@ on:
         type: boolean
         required: false
         default: false
+      vpn:
+        description: "Route this run through the ProtonVPN tunnel. The auto-retry passes the opposite of the failed run's egress."
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write   # needed to push to data
@@ -148,9 +153,10 @@ jobs:
         env:
           CRON_BIG: "45 5,17 * * *"
           CRON_SMALL: "45 0,3,9,12,15,21 * * *"
-          STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars,colordevino,liquorama,zyn"
+          STORES_SMALL_DEFAULT: "sierra_springs,craft_cellars,colordevino,liquorama,zyn,highlander"
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_STORES: ${{ inputs.stores }}
+          INPUT_VPN: ${{ inputs.vpn }}
           FIRED_SCHEDULE: ${{ github.event.schedule }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
@@ -158,6 +164,7 @@ jobs:
 
           mode="${INPUT_MODE:-auto}"
           stores="${INPUT_STORES:-}"
+          vpn="${INPUT_VPN:-false}"
 
           if [[ "$mode" == "auto" || -z "$mode" ]]; then
             if [[ "$EVENT_NAME" == "schedule" && "$FIRED_SCHEDULE" == "$CRON_SMALL" ]]; then
@@ -171,8 +178,15 @@ jobs:
             stores="$STORES_SMALL_DEFAULT"
           fi
 
+          # Scheduled smalls carry the Cloudflare-blocked stores (highlander, colordevino), so
+          # they start on the VPN; scheduled bigs start direct. The retry flips whichever was used.
+          if [[ "$EVENT_NAME" == "schedule" ]]; then
+            [[ "$mode" == "small" ]] && vpn=true || vpn=false
+          fi
+
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
           echo "stores=$stores" >> "$GITHUB_OUTPUT"
+          echo "vpn=$vpn" >> "$GITHUB_OUTPUT"
 
       - name: Capture data SHA before
         id: before
@@ -182,154 +196,20 @@ jobs:
           git fetch --no-tags origin data
           echo "sha=$(git rev-parse origin/data)" >> "$GITHUB_OUTPUT"
 
-      # ProtonVPN WireGuard tunnel — routes ALL runner traffic through a clean
-      # residential-class egress IP so Cloudflare-fronted stores (liberty, highlander,
-      # coop, colordevino, maltsandgrains) stop getting blocked by the runner's Azure
-      # datacenter IP. Best-effort: if WireGuard isn't available, the config is missing,
-      # or the tunnel fails the diagnostic check (egress IP unchanged / store still
-      # challenged), the tunnel is torn down and the run proceeds without it. Detailed
-      # VPN diagnostics are written to a temp file and included in the commit message.
-      #
-      # Uses a MANUAL bring-up (wg setconf + ip/route/nft) instead of wg-quick to avoid
-      # the two things that intermittently hang on GH runners: apt-get (wg-quick install)
-      # and resolvconf (wg-quick DNS setup). The manual path was proven reliable in the
-      # VPN diagnostic workflow (vpn_diag.yaml step 6).
-      #
-      # CURRENT STATUS: DISABLED (2026-07-16)
-      # WireGuard handshake never completes on the cron runner — UDP endpoint is reachable
-      # (nc -u succeeds) but wg show latest-handshakes stays 0. Likely Azure platform-level
-      # filtering of WireGuard protocol packets above the VM iptables level (Hyper-V virtual
-      # switch inspects packet structure). See docs/vpn-setup.md for full research and
-      # alternative approaches (Tailscale, residential proxy, Cloudflare IP whitelisting).
-      # To re-enable: remove the comment-out markers below and ensure PROTONVPN_WG_CONF
-      # secret is set.
-      # - name: Connect ProtonVPN WireGuard tunnel
-      #   id: wg
-      #   continue-on-error: true
-      #   shell: bash
-      #   env:
-      #     WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
-      #     TEST_URL: "https://www.libertywinemerchants.com/wp-json/wc/store/v1/products?per_page=3&category=1075&stock_status=instock"
-      #   run: |
-      #     set +e
-      #
-      #     VPN_DIAG="$(mktemp)"
-      #     echo "vpn_diag_file=$VPN_DIAG" >> "$GITHUB_OUTPUT"
-      #
-      #     append_diag() { echo "$1" | tee -a "$VPN_DIAG"; }
-      #
-      #     if [[ -z "$WG_CONF" ]]; then
-      #       echo "::warning::PROTONVPN_WG_CONF secret not set; skipping VPN"
-      #       append_diag "vpn: off (secret not set)"
-      #       exit 0
-      #     fi
-      #
-      #     if ! command -v wg >/dev/null 2>&1; then
-      #       echo "::group::Install wireguard"
-      #       export DEBIAN_FRONTEND=noninteractive
-      #       sudo timeout 120 apt-get update -qq 2>&1 | tail -1
-      #       sudo timeout 120 apt-get install -y -qq wireguard wireguard-tools 2>&1 | tail -3
-      #       install_rc=$?
-      #       echo "::endgroup::"
-      #       if [[ $install_rc -ne 0 ]] || ! command -v wg >/dev/null 2>&1; then
-      #         append_diag "vpn: off (wireguard install failed, rc=$install_rc)"
-      #         exit 0
-      #       fi
-      #       append_diag "vpn: wireguard installed (rc=0)"
-      #     fi
-      #
-      #     set -uo pipefail
-      #     append_diag "vpn: starting (manual bring-up)"
-      #
-      #     echo "$WG_CONF" > /tmp/wg0.conf
-      #
-      #     awk '
-      #       /^\[/ {sect=$0}
-      #       /^(Address|DNS|MTU|Table|PreUp|PostUp|PreDown|PostDown|SaveConfig)\s*=/ {next}
-      #       {print}
-      #     ' /tmp/wg0.conf > /tmp/wg0.setconf.conf
-      #
-      #     ADDR="$(grep -i '^Address' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d, -f1)"
-      #
-      #     EP_HOST="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f1)"
-      #     EP_PORT="$(grep -i '^Endpoint' /tmp/wg0.conf | head -1 | sed 's/^[^=]*=[[:space:]]*//' | cut -d: -f2)"
-      #     echo "Endpoint: $EP_HOST:$EP_PORT"
-      #
-      #     echo "::group::Endpoint reachability"
-      #     if timeout 8 nc -u -z -v "$EP_HOST" "$EP_PORT" 2>&1; then
-      #       echo "UDP $EP_HOST:$EP_PORT reachable"
-      #     else
-      #       echo "UDP $EP_HOST:$EP_PORT UNREACHABLE"
-      #       append_diag "vpn: off (UDP $EP_HOST:$EP_PORT unreachable)"
-      #       exit 0
-      #     fi
-      #     echo "::endgroup::"
-      #
-      #     sudo timeout 15 ip link add dev wg0 type wireguard 2>&1
-      #     sudo timeout 15 wg setconf wg0 /tmp/wg0.setconf.conf 2>&1
-      #     rc=$?
-      #     if [[ $rc -ne 0 ]]; then
-      #       append_diag "vpn: off (wg setconf failed, rc=$rc)"
-      #       sudo ip link del wg0 2>/dev/null || true
-      #       exit 0
-      #     fi
-      #     [[ -n "$ADDR" ]] && sudo timeout 15 ip address add "$ADDR" dev wg0 2>&1
-      #     sudo timeout 15 ip link set up dev wg0 2>&1
-      #
-      #     echo "Checking handshake..."
-      #     hs="$(timeout 5 sudo wg show wg0 latest-handshakes 2>/dev/null | awk '{print $2}')"
-      #     echo "Handshake result: '${hs:-empty}'"
-      #
-      #     if [[ -z "$hs" || "$hs" == "0" ]]; then
-      #       sudo wg show wg0 2>&1 || true
-      #       append_diag "vpn: off (no handshake, endpoint $EP_HOST:$EP_PORT)"
-      #       sudo ip link del wg0 2>/dev/null || true
-      #       exit 0
-      #     fi
-      #     echo "HANDSHAKE OK"
-      #
-      #     sudo wg set wg0 fwmark 51820
-      #     sudo ip -4 rule add not fwmark 51820 table 51820
-      #     sudo ip -4 rule add table main suppress_prefixlength 0
-      #     sudo ip -4 route add 0.0.0.0/0 dev wg0 table 51820
-      #
-      #     echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
-      #     echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
-      #
-      #     echo "::group::VPN diagnostic"
-      #     EGRESS_IP="$(timeout 12 curl -fsS --max-time 8 https://api.ipify.org 2>/dev/null || echo "")"
-      #     echo "Egress IP: ${EGRESS_IP:-UNREACHABLE}"
-      #
-      #     if [[ -z "$EGRESS_IP" ]]; then
-      #       append_diag "vpn: off (egress IP unreachable through tunnel)"
-      #       sudo ip link del wg0 2>/dev/null || true
-      #       exit 0
-      #     fi
-      #
-      #     UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
-      #     API_OUT="$(timeout 20 curl -sS --max-time 15 -w '\n__CODE__%{http_code}' -H "user-agent: $UA" "$TEST_URL" 2>/dev/null || echo $'\n__CODE__ERR')"
-      #     API_CODE="${API_OUT##*$'\n'__CODE__}"
-      #     API_BODY="${API_OUT%$'\n'__CODE__*}"
-      #     API_BYTES="$(printf '%s' "$API_BODY" | wc -c | tr -d ' ')"
-      #
-      #     if printf '%s' "$API_BODY" | head -c 2 | grep -q '\['; then
-      #       append_diag "vpn: ok (egress $EGRESS_IP, store API HTTP $API_CODE ${API_BYTES}B JSON)"
-      #       echo "vpn_ok=true" >> "$GITHUB_OUTPUT"
-      #       echo "vpn_egress_ip=$EGRESS_IP" >> "$GITHUB_OUTPUT"
-      #     elif printf '%s' "$API_BODY" | grep -qiE 'just a moment|challenge-platform|cf-mitigated|attention required'; then
-      #       append_diag "vpn: off (egress $EGRESS_IP, store CF-challenged, HTTP $API_CODE ${API_BYTES}B)"
-      #       sudo ip link del wg0 2>/dev/null || true
-      #     else
-      #       append_diag "vpn: off (egress $EGRESS_IP, store API not JSON, HTTP $API_CODE ${API_BYTES}B)"
-      #       sudo ip link del wg0 2>/dev/null || true
-      #     fi
-      #     echo "::endgroup::"
-      #
-      #     VPN_RESULT="$(tail -1 "$VPN_DIAG")"
-      #     echo
-      #     echo "========================================"
-      #     echo "  VPN: ${VPN_RESULT#vpn: }"
-      #     echo "========================================"
+      # ProtonVPN WireGuard tunnel for runs whose plan says vpn=true. Routes ALL egress through
+      # Proton so Cloudflare-fronted stores (highlander, colordevino, gull, sherbrooke, …) stop
+      # being challenged on the runner's Azure IP. Best-effort: on any failure the run proceeds
+      # direct and the retry flips egress. Re-enabled 2026-10-05: the 2026-07 "handshake never
+      # completes" note was wrong (every July run that got wg installed handshook in 1-2 s and
+      # scraped fine through the tunnel).
+      - name: Connect ProtonVPN WireGuard tunnel
+        id: wg
+        if: steps.plan.outputs.vpn == 'true'
+        shell: bash
+        env:
+          WG_CONF: ${{ secrets.PROTONVPN_WG_CONF }}
+          PROBE_URL: "https://highlanderwine.com/wp-json/wc/store/v1/products?category=200&per_page=3"
+        run: bash scripts/vpn_up.sh
 
       - name: Run your existing cron script (writes + pushes to data)
         id: daily
@@ -380,20 +260,21 @@ jobs:
           gh workflow run "Deploy visualizer to GitHub Pages" --ref main
           gh workflow run "Send email pack" --ref main -f data_sha="$after"
 
-      # One-shot retry: if any stores failed (usually a bad random Azure egress IP
-      # — see CLAUDE.md §"Datacenter-IP Blocking"), re-dispatch THIS workflow for
-      # just those stores on a fresh runner (new IP). Guarded by is_retry so the
-      # retry can never spawn another retry, and gated on a non-empty failed list.
-      # Concurrency (group: tracker-cron, cancel-in-progress: false) makes the new
-      # run queue until this one fully completes.
-      - name: Retry failed stores once on a fresh runner
+      # One-shot retry: if any stores failed (usually Cloudflare challenging this run's egress IP
+      # — see CLAUDE.md §"Datacenter-IP Blocking"), re-dispatch THIS workflow for just those
+      # stores on a fresh runner with the OPPOSITE egress (direct <-> VPN). Guarded by is_retry
+      # so the retry can never spawn another retry, and gated on a non-empty failed list.
+      # Concurrency (group: tracker-cron, cancel-in-progress: false) makes the new run queue
+      # until this one fully completes.
+      - name: Retry failed stores once with the other egress
         if: ${{ github.event.inputs.is_retry != 'true' && steps.daily.outputs.failed_stores != '' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           FAILED_STORES: ${{ steps.daily.outputs.failed_stores }}
+          RETRY_VPN: ${{ steps.plan.outputs.vpn == 'true' && 'false' || 'true' }}
         run: |
           set -euo pipefail
-          echo "Retrying failed stores on a fresh runner: ${FAILED_STORES}"
+          echo "Retrying failed stores (vpn=${RETRY_VPN}): ${FAILED_STORES}"
           gh workflow run "Tracker cron (updates data branch)" --ref main \
-            -f mode=big -f is_retry=true -f stores="${FAILED_STORES}"
+            -f mode=big -f is_retry=true -f vpn="${RETRY_VPN}" -f stores="${FAILED_STORES}"
