@@ -8,12 +8,12 @@ and block datacenter IPs with JavaScript challenges or 403s.
 
 ## What We Tried
 
-### WireGuard (ProtonVPN) — DISABLED
+### WireGuard (ProtonVPN) — RE-ENABLED 2026-10-05
 
 Set up a ProtonVPN WireGuard tunnel in `cron_tracker.yaml`. Manual bring-up
 (`wg setconf` + `ip/route`) to avoid `wg-quick` hang issues on GH runners.
 
-**Status: Handshake never completes on cron runner.**
+**Status (corrected 2026-10-05): this diagnosis was wrong — see CLAUDE.md §"Datacenter-IP Blocking". The tunnel works; it is re-enabled via `scripts/vpn_up.sh`.**
 
 - UDP endpoint is reachable (`nc -u` succeeds)
 - `wg setconf` succeeds
