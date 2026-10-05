@@ -7,6 +7,18 @@
          auto-dark-theme doesn't re-invert our UI (white dropdown panels). -->
     <meta name="color-scheme" content="dark light" />
     <title>Brennan's Spirit Tracker</title>
+    <!-- Site-wide link preview. Crawlers never see the #/ route, so EVERY link to the app previews
+         as this; per-item previews come from the share pages (tools/build_share_pages.mjs).
+         og:image must be absolute. -->
+    <meta name="description" content="Whisky, rum and gin prices across 36 Canadian liquor stores, tracked daily." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Spirit Tracker" />
+    <meta property="og:title" content="Brennan's Spirit Tracker" />
+    <meta property="og:description" content="Whisky, rum and gin prices across 36 Canadian liquor stores, tracked daily." />
+    <meta property="og:image" content="https://spirit.codexwilkes.com/icons/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- Deliberately NO <meta name="theme-color">. Without one, iOS Safari tints the status
          bar from the page's own background, which always matches the in-app theme. A
          media-keyed pair showed the light colour over the dark theme when the OS was light

@@ -39,6 +39,7 @@ const CDN_HOSTS = new Set(['cdn.jsdelivr.net', 'cdnjs.cloudflare.com']);
 const scopePath = new URL(self.registration.scope).pathname;
 const DATA_PREFIX = `${scopePath}data/`;
 const SKUS_PREFIX = `${scopePath}data/skus/`;
+const SHARE_PREFIX = `${scopePath}i/`;
 
 self.addEventListener('install', (e) => {
   if (UNSTAMPED) {
@@ -131,6 +132,10 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+
+  // A share page (tools/build_share_pages.mjs) is its own document that redirects into the app;
+  // answering it with the shell would load index.html at /i/<sku>/ and break every relative URL.
+  if (url.pathname.startsWith(SHARE_PREFIX)) return;
 
   if (req.mode === 'navigate') {
     e.respondWith((async () => {

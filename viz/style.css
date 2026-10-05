@@ -1907,6 +1907,11 @@ html[data-theme] .pillInput:has(:focus-visible),
      gap + margin as blank space under the status bar. (.hideMobile = the dev-only #/link.) */
   .searchTitle { display: none; }
   .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup):not(.hideMobile))) { display: none; }
+  /* .appOnly: header buttons shown on this layout only inside the installed app (html.standalone,
+     set by main.js) — signed-out Login/Signup, owner call. In a browser tab they go, and with them
+     the header when nothing else is left. */
+  html:not(.standalone) .appOnly { display: none !important; }
+  html:not(.standalone) .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup):not(.hideMobile):not(.appOnly))) { display: none; }
   body { padding-bottom: var(--nav-space); }
 }
 

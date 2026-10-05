@@ -20,8 +20,10 @@ const crypto = require("crypto");
 const root = process.argv[2];
 if (root === undefined) throw new Error("usage: node tools/stamp_pwa.js <site-dir>");
 
-const SKIP_DIRS = new Set(["data", "email-assets"]);
-const SKIP_FILES = new Set(["serve.js", "sw.js", "app/package.json"]);
+// i/ = per-item share pages (tools/build_share_pages.mjs): data, not shell.
+const SKIP_DIRS = new Set(["data", "email-assets", "i"]);
+// icons/og.png is for link-preview crawlers only; no reason to precache 190 KB.
+const SKIP_FILES = new Set(["serve.js", "sw.js", "app/package.json", "icons/og.png"]);
 const SHELL_EXT = new Set([".html", ".js", ".css", ".png", ".jpeg", ".jpg", ".svg", ".ico", ".webmanifest"]);
 
 function walk(rel) {

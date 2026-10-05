@@ -39,7 +39,11 @@ applyStoredColorScheme();
 // Before the first route, so data responses are seen with the PWA active.
 pwa.register();
 pwa.offerInstall(getAuthStatus().ok);
-if (navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches) installPullToRefresh();
+// style.css keys installed-app-only UI (.appOnly) off this class.
+if (pwa.isStandalone()) {
+	document.documentElement.classList.add("standalone");
+	installPullToRefresh();
+}
 
 function parseHashRoute(fullHash) {
 	const full = String(fullHash || "#/");

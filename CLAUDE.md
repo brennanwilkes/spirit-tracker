@@ -246,7 +246,10 @@ consumers** — that would defeat the design.
 - `rare` (top ~10%): hard to obtain (OOS or fast sellouts)
 - `common` (middle ~80%): no special styling
 
-**Color tokens** — defined in `viz/style.css` as CSS custom properties (`--rarity-staple-*`, `--rarity-rare-*`, plus light-theme overrides). Staple is warm amber (subtle border + glow), rare is deep purple with a diagonal corner sheen, purple ring, and outer glow. The same visual language must be mirrored in the email repo (`~/spirit-tracker-api`) as parallel CSS — neither thresholds nor colors are shipped in event packs. Each pack carries only the raw `rarity` number (0..1) per event; the renderer is responsible for thresholding and styling.
+**Color tokens** — defined in `viz/style.css` as CSS custom properties (`--rarity-staple-*`, `--rarity-rare-*`, plus light-theme overrides). Staple is warm amber (subtle border + glow), rare is deep purple with a diagonal corner sheen, purple ring, and outer glow. The same visual language must be mirrored in the email repo (`~/spirit-tracker-api`) as parallel CSS — neither thresholds nor colors are shipped in event packs. Each pack carries only the raw `rarity` number (0..1) per event; the renderer is responsible for thresholding and styling. **Email gotcha:** Gmail's dark mode inverts
+solid colours but never gradients, so no opaque colour may sit in a card gradient (a fade-to-`#ffffff`
+left rare cards white under light text). The rare star fade is baked into
+`viz/email-assets/rare-stars-fade.svg` instead, so the Pages deploy must ship it before the email worker.
 
 ## Flip-Flop (Transient Change) Handling
 
@@ -587,7 +590,7 @@ already produced one false "the audit found nothing".
 
 ### Audit status after the 2026-09-23 session
 
-**Links 5,969, ignores 16,415, collisions 24 (split), hidden 588** (2026-10-02; from 5,975 / 13,540 on 2026-09-22). Every cheap
+**Links 6,034, ignores 26,100, collisions 28 (split), hidden 591** (2026-10-05, after campaign rounds 1–3; 5,969 / 16,415 on 2026-10-02). Every cheap
 surface is adjudicated over all of history: near-miss and want-links (including the v5 residual),
 orphans (3,061), every existing link below the bar (`< 0.30`: 23% wrong; `0.30–0.95`: 13.8% wrong),
 38 ignore↔link contradictions, and the whole review backlog (0 open, bar 5 waiting on the deferred per-store split). **The 0.95–0.99 pilot of the
@@ -598,9 +601,10 @@ the bar is weak evidence that a link is right.
 is done. The ignore screen stopped after tier A (`tools/audit_ignore_slice.js`): the near-identical-name ignores
 were only 0.43% wrong (3 of 694), so B–D (~4M tokens) was not worth it. The unscored-group sweep is done (2026-09-29), and the recall-backfill pilot came back NO-GO (2026-10-01: 1 link in
 485 random rows ≈ 63 projected against a 150 gate), so the ~30k-row backfill is not run. The `c:` keys were linked
-2026-10-02. What is next is the rolling campaign for hard negatives, recall and precision
-(`docs/audit-campaign.md`, manifest `audit/campaign/manifest.json`): resumable batches, local retrains
-that are never shipped. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
+2026-10-02. The rolling campaign (`docs/audit-campaign.md`, manifest `audit/campaign/manifest.json`; resumable batches, local
+retrains never shipped) ran rounds 1–3 on 2026-10-03/05: +60 links, ~9,700 ignores, ~5.4M agent tokens. On the frozen
+split, with its wrong held-out ignores fixed, the round-3 GBT reaches rec@99 94.81% vs 92.65% baseline. Its frontier is
+nearly exhausted. `mine` drops pairs whose names share no brand word. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
 ~700 KB end near 50% context, and 50% is a soft limit. Collisions are fixed by the split (§"SKU collision splits"), never by
 containment unlinks.
 
