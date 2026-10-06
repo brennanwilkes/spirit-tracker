@@ -33,8 +33,9 @@ OUT = os.path.join(HERE, "out")
 # Checkpoint location: CI sets LINKER_MODEL_DIR to where the Release-asset checkpoint was
 # extracted; a local hand-retrain leaves it in out/model_ft (where train_embed.py saved it).
 MODEL_DIR = os.environ.get("LINKER_MODEL_DIR") or os.path.join(OUT, "model_ft")
-TEXTS_PATH = os.path.join(OUT, "sku_texts.jsonl")
-EMB_PATH = os.path.join(OUT, "embeddings.json")
+IO_DIR = os.environ.get("LINKER_OUT_DIR") or OUT
+TEXTS_PATH = os.path.join(IO_DIR, "sku_texts.jsonl")
+EMB_PATH = os.path.join(IO_DIR, "embeddings.json")
 
 
 def main():
