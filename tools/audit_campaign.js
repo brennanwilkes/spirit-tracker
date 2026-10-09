@@ -296,6 +296,13 @@ function retrain(n, wt, { pinFrozen }) {
 	if (pinFrozen) pinFrozenSplit(dir);
 	fs.copyFileSync(path.join(wt, "viz", "data", "sku_embeddings.json"), path.join(dir, "embeddings.json"));
 	run("node", [path.join(ML, "dump_features.mjs")], { ...env, LINKER_FROZEN_SPLIT: FROZEN });
+	// Train and measure on serving-shaped rows (tools/linker_ml/honest_views.mjs); the leaky rows are kept for reference.
+	fs.renameSync(path.join(dir, "features.jsonl"), path.join(dir, "features_leaky.jsonl"));
+	const views = path.join(dir, "views");
+	run("node", [path.join(ML, "honest_views.mjs"), "texts", path.join(dir, "features_leaky.jsonl"), views], env);
+	run(PYTHON, [path.join(ML, "encode.py")], { LINKER_OUT_DIR: views, LINKER_EMB_JSONL: "1" });
+	for (const v of [[], ["cut"], ["new"]]) run("node", [path.join(ML, "honest_views.mjs"), "feats", views, ...v], env);
+	fs.copyFileSync(path.join(views, "features.jsonl"), path.join(dir, "features.jsonl"));
 	run(PYTHON, [path.join(ML, "export_gbt.py")], { FEATURES_PATH: path.join(dir, "features.jsonl"), GBT_OUT: path.join(dir, "gbt_model.json") });
 	run(PYTHON, [path.join(ML, "oof_misses.py")], { LINKER_OUT_DIR: dir });
 	return dir;
@@ -332,11 +339,20 @@ function pinFrozenSplit(dir) {
 	console.log(`pinned frozen split: ${skus.length} of ${rows.length} skus, ${groups.size} groups → ${rel(FROZEN)}`);
 }
 
+// Scored per honest view: `cut` (an existing listing meeting another group) and `new` (the listing was
+// just scraped — what auto-link CI sees). Metrics before 2026-10-09 were on leaky rows and are not comparable.
 function evalFrozen(dir, models) {
-	const out = path.join(dir, "frozen_metrics.json");
-	run("node", [path.join(ML, "eval_frozen.mjs"), "--features", path.join(dir, "features.jsonl"), ...models.flatMap(([n, p]) => ["--model", `${n}=${p}`]), "--out", out]);
-	const res = readJson(out);
-	for (const v of Object.values(res.models)) v.path = rel(v.path);
+	const res = { models: {}, rows: null };
+	for (const view of ["cut", "new"]) {
+		const out = path.join(dir, `frozen_metrics_${view}.json`);
+		run("node", [path.join(ML, "eval_frozen.mjs"), "--features", path.join(dir, "views", `features_${view}.jsonl`), ...models.flatMap(([n, p]) => ["--model", `${n}=${p}`]), "--out", out]);
+		const r = readJson(out);
+		if (res.rows === null) res.rows = r.rows;
+		for (const [name, v] of Object.entries(r.models)) {
+			v.path = rel(v.path);
+			(res.models[name] ??= {})[view] = v;
+		}
+	}
 	return res;
 }
 
@@ -790,7 +806,9 @@ async function mineLocked(m, save, opts) {
 			.filter((x) => !x.noTrain && !x.frozen && (x.kind === "pos" || x.kind === "ignore") && !prior.has(pairKey(x.a, x.b)))
 			.map((x) => ({ ...x, dis: x.label === 1 ? 1 - x.p : x.p }))
 			.filter((x) => x.dis >= 0.5)
-			.sort((x, y) => y.dis - x.dis);
+			.sort((x, y) => y.dis - x.dis)
+			// two honest-view rows per pair (cut/new): keep the stronger disagreement
+			.filter((x, i, arr) => arr.findIndex((y) => pairKey(y.a, y.b) === pairKey(x.a, x.b)) === i);
 		const cand = disagree.slice(0, LABEL_LIMIT);
 		console.log(`\nlabels: the round-${prevRound.round} OOF model disagrees (>= 0.5) with ${disagree.length} labels (${disagree.filter((x) => x.label === 1).length} links, ${disagree.filter((x) => x.label === 0).length} ignores); batching the top ${cand.length}`);
 		if (cand.length && !dry) {
@@ -1241,7 +1259,7 @@ async function cmdRoundClose(pos, opts) {
 		mm.rounds.push({ round: n + 1, status: "open", openedAt: nowIso(), labelsAtOpen: labels.counts, rich: {}, mines: [], precisionSince: rr.precisionSince });
 		save();
 	});
-	console.log(`round ${n} closed; round ${n + 1} open. Metrics on the frozen split (${metrics.rows} rows) are in ${rel(path.join(dir, "frozen_metrics.json"))}.`);
+	console.log(`round ${n} closed; round ${n + 1} open. Metrics on the frozen split (${metrics.rows} rows) are in ${rel(path.join(dir, "frozen_metrics_{cut,new}.json"))}.`);
 }
 
 async function cmdDiscard(opts) {

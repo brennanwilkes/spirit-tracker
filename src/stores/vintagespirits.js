@@ -32,16 +32,7 @@ async function fetchVintagePage(ctx, page) {
 async function scanCategoryVintageApi(ctx, prevDb, report) {
 	const t0 = Date.now();
 
-	let first;
-	try {
-		first = await fetchVintagePage(ctx, 1);
-	} catch (e) {
-		ctx.logger.warn(`${ctx.catPrefixOut} | Vintage API fetch failed: ${e?.message || e}`);
-
-		const discovered = new Map();
-		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 1 });
-		return;
-	}
+	const first = await fetchVintagePage(ctx, 1);
 
 	const totalPages = Math.max(1, Number(first?.json?.paginator?.pages) || 1);
 	const scanPages = ctx.config.maxPages === null ? totalPages : Math.min(ctx.config.maxPages, totalPages);

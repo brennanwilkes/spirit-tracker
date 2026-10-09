@@ -1,6 +1,6 @@
 "use strict";
 
-const { mergeDiscoveredIntoDb } = require("./merge");
+const { mergeDiscoveredIntoDb, guardLargeCategoryOnly } = require("./merge");
 const { buildDbObject, writeJsonAtomic } = require("./db");
 const { addCategoryResultToReport } = require("./report");
 const { secStr } = require("../utils/format");
@@ -10,6 +10,7 @@ const { secStr } = require("../utils/format");
  * Returns merge result for stores that need newItems/etc after the call.
  */
 function finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages }) {
+	guardLargeCategoryOnly(prevDb, discovered, ctx, "central finalize guard", report);
 	const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems, skuUpgrades } =
 		mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 	const dbObj = buildDbObject(ctx, merged);

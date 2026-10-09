@@ -25,13 +25,14 @@ import { renderStore } from "./store_page.js";
 import { renderStats, destroyStatsChart } from "./stats_page.js";
 import { renderLogin, renderSignup, renderOauth, renderForgot, renderReset } from "./auth_page.js";
 import { renderShortlist } from "./shortlist_page.js";
-import { getAuthStatus, getMyDetails } from "./cloud.js";
+import { getAuthStatus, getMyDetails, refreshTokenIfStale } from "./cloud.js";
 import { renderSettings } from "./settings_page.js";
 import { renderPublicShortlists } from "./public_shortlists_page.js";
 import { renderStores } from "./stores_page.js";
 import { applyStoredColorScheme, applyColorScheme } from "./theme.js";
 import { renderBottomNav } from "./components/bottom_nav.js";
 import { installPullToRefresh } from "./components/pull_to_refresh.js";
+import { installViewportHeal } from "./components/viewport_heal.js";
 import * as pwa from "./pwa.js";
 
 // Apply stored theme immediately to prevent FOUC
@@ -39,10 +40,16 @@ applyStoredColorScheme();
 // Before the first route, so data responses are seen with the PWA active.
 pwa.register();
 pwa.offerInstall(getAuthStatus().ok);
+refreshTokenIfStale();
+document.addEventListener("visibilitychange", () => {
+	if (document.visibilityState === "visible") refreshTokenIfStale();
+});
 // style.css keys installed-app-only UI (.appOnly) off this class.
 if (pwa.isStandalone()) {
 	document.documentElement.classList.add("standalone");
 	installPullToRefresh();
+	// iOS-only WebKit bug; navigator.standalone exists only on iOS.
+	if (navigator.standalone === true) installViewportHeal();
 }
 
 function parseHashRoute(fullHash) {

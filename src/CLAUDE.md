@@ -239,9 +239,22 @@ If a scan returns fewer than 60% of the previous item count, removed items are r
 
 `merge.js::avoidMassRemoval` compares against ACTIVE (non-`removed`) previous items — `byUrl` also
 holds every long-removed record ever seen, so using its raw size trips the guard on healthy
-categories. It is opt-in per store (8 stores call it) and only fires below the 0.6 ratio, so it does
+categories.
+
+**Central since 2026-10-09** (`docs/incident-2026-10-06-bcl-wnb-wipe.md`): `merge.js::guardLargeCategoryOnly`
+runs inside BOTH merge paths (`finalize.js::finalizeCategoryScan` and the generic HTML path in
+`category_scan.js`), so no adapter can skip it. For categories with ≥ `MASS_REMOVAL_GUARD_MIN_PREV`
+(25) live listings: **0 discovered THROWS** (DB untouched → `FAILED(n)` → opposite-egress retry;
+BCL answered a runner HTTP 200 `Total=0` and wiped 746 listings twice), and <60% preserves +
+records a `GUARDED` entry. At ≤25 live a shrink goes through, so discontinued small categories
+retire. Per-adapter `avoidMassRemoval` calls remain; a second application is a no-op. It still does
 NOT catch losing one page of many (see §"Windowed pagination navs") or losing a single boundary row
-(see the ARC amendment above).
+(see the ARC amendment above). Never `catch → warn → finalize(empty)` in an adapter: let it throw.
+
+**URL migrations of removed records.** The skuKey rematch also falls back to a REMOVED record with
+the same sku (only when no active one holds it) and reports it as restored at the new URL, deleting
+the old row. Without it, a store that renames every URL while its category is wiped (W&B, 2026-10-06)
+re-lists everything as `new_item` and strands each old URL as a permanent OOS duplicate.
 
 **It also does not protect against the orphan-DB detector**, which bypasses the scan entirely and
 rewrites a DB file directly — that was a separate store-wide data bug, fixed 2026-09-04 by routing
@@ -353,5 +366,5 @@ they often share raw SKUs across stores (the implicit "free" SKU links).
 | `vintage` | Vintage Spirits | BC | Barnet network API | Whisky & Whiskey, Single Malt Whisky, Rum, Gin |
 | `whiskydrop` | Whisky Drop | AB | Shopify HTML | Whisky, Rum, Gin |
 | `willowpark` | Willow Park | AB | Shopify HTML + GQL SKU repair pass | Scotch, Rum, Gin |
-| `wineandbeyond` | Wine and Beyond | AB | Shopify `/products.json` | Whiskey, Rum, Gin |
+| `wineandbeyond` | Wine and Beyond | AB | Shopify `/collections/*/products.json` only (`available` + `price`; since the 2026-10-06 rebuild the product pages carry no stock table) | Whiskey, Rum, Gin |
 | `zyn` | ZYN The Wine Market | AB | Shopify HTML | Whisky, Rum, Gin |

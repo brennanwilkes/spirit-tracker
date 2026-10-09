@@ -18,6 +18,13 @@ HF_HOME="$PWD/$ML/.hf_cache" $PY $ML/train_embed.py --epochs 6 --scale 30 --skip
 grep -E "noTrain pairs held|train:|wrote .*embeddings.json" $OUT/s_embed.log | tee -a "$R"
 node $ML/dump_features.mjs > $OUT/s_dump.log 2>&1; tail -1 $OUT/s_dump.log | tee -a "$R"
 
+sec "Honest views (per-pair encoder texts; see honest_views.mjs)"
+mv $OUT/features.jsonl $OUT/features_leaky.jsonl
+node $ML/honest_views.mjs texts $OUT/features_leaky.jsonl $OUT/views > $OUT/s_views.log 2>&1
+LINKER_OUT_DIR=$OUT/views LINKER_EMB_JSONL=1 HF_HOME="$PWD/$ML/.hf_cache" $PY $ML/encode.py >> $OUT/s_views.log 2>&1
+node $ML/honest_views.mjs feats $OUT/views >> $OUT/s_views.log 2>&1
+cp $OUT/views/features.jsonl $OUT/features.jsonl; grep -E "honest views|rows →" $OUT/s_views.log | tee -a "$R"
+
 sec "SHIPPING GBT (char-tri, noTrain excluded from all splits)"
 $PY $ML/export_gbt.py > $OUT/s_gbt.log 2>&1; grep -E "VAL|TEST|exported" $OUT/s_gbt.log | tee -a "$R"
 

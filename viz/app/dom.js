@@ -5,10 +5,15 @@ export function esc(s) {
 	);
 }
 
+// Stores' "no photo" stand-ins (Sherbrooke, Malts & Grains, Lime, Keg N Cork, KWM category art).
+// Treated as no image, so another store's real photo wins and a share preview never shows one.
+const PLACEHOLDER_IMG_RE = /placeholder|\/ProductDefault\.gif|\/missing-item-|\/labels_default\//i;
+
 export function normImg(s) {
 	const v = String(s || "").trim();
 	if (!v) return "";
 	if (/^data:/i.test(v)) return "";
+	if (PLACEHOLDER_IMG_RE.test(v)) return "";
 	return v;
 }
 

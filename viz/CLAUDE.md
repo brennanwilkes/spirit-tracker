@@ -492,6 +492,16 @@ Modelled on `~/meowmap`'s PWA, then hardened by an adversarial review. Files: `m
   + the `data/sku_*.json` files Pages stages) and serve it with ETag/Last-Modified headers. Drive
   headless Brave over raw CDP with `--remote-debugging-port=0` (see global CLAUDE.md).
 
+## Account session tokens (sliding, 2026-10-09)
+
+`cloud.js` stores the accounts API's HS256 token (`st:cloud:v1:token`). The API (`~/spirit-tracker-api`)
+issues 30-day tokens and `POST /auth/refresh` swaps a still-valid one for a fresh one;
+`refreshTokenIfStale()` calls it on launch and on every resume once a token has used a day of its
+life, on the web app and the PWA alike. A 401/403 from refresh clears auth; offline keeps the token.
+The API rejects any token carrying a `typ` (email-verify / password-reset links share the secret)
+as a session token. **Deploy the API before the Pages build**, or refresh 404s. Tokens cannot be
+revoked server-side (a per-user token version in KV would add that).
+
 ## `--nav-space` — the bottom tab bar's viewport footprint
 
 `style.css` §1 declares `--nav-h: 64px` and `--nav-space: 0px`; §14 raises `--nav-space` to
