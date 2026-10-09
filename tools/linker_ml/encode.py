@@ -73,6 +73,15 @@ def main():
         normalize_embeddings=True,
         show_progress_bar=True,
     )
+    # LINKER_EMB_JSONL=1: one {"sku","v"} per line — honest_views.mjs encodes ~200k per-pair texts, and a
+    # single JSON object that size exceeds Node's 512 MB string limit.
+    if os.environ.get("LINKER_EMB_JSONL") == "1":
+        path = os.path.splitext(EMB_PATH)[0] + ".jsonl"
+        with open(path, "w") as f:
+            for s, v in zip(skus, vecs):
+                f.write(json.dumps({"sku": s, "v": [round(float(x), 4) for x in v]}) + "\n")
+        print(f"wrote {path} ({len(skus)} vectors, dim {len(vecs[0])})", flush=True)
+        return
     out = {s: [round(float(x), 4) for x in v] for s, v in zip(skus, vecs)}
     json.dump(out, open(EMB_PATH, "w"))
     print(f"wrote {EMB_PATH} ({len(out)} vectors, dim {len(vecs[0])})", flush=True)

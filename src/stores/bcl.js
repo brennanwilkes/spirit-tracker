@@ -158,16 +158,7 @@ async function scanCategoryBCLAjax(ctx, prevDb, report) {
 	const t0 = Date.now();
 	const size = 24;
 
-	let first;
-	try {
-		first = await bclFetchBrowsePage(ctx, 1, size);
-	} catch (e) {
-		ctx.logger.warn(`${ctx.catPrefixOut} | BCL browse fetch failed: ${e?.message || e}`);
-
-		const discovered = new Map();
-		finalizeCategoryScan(ctx, prevDb, discovered, report, { t0, scannedPages: 1 });
-		return;
-	}
+	const first = await bclFetchBrowsePage(ctx, 1, size);
 
 	const total = bclTotalHits(first?.json);
 	const totalPages = Math.max(1, Math.ceil(total / size));

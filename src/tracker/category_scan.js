@@ -8,7 +8,7 @@ const { normalizeBaseUrl, makePageUrlForCtx } = require("../utils/url");
 const { parallelMapStaggered } = require("../utils/async");
 
 const { ensureDir, dbFileForCategory, readDb, writeJsonAtomic, buildDbObject } = require("./db");
-const { mergeDiscoveredIntoDb } = require("./merge");
+const { mergeDiscoveredIntoDb, guardLargeCategoryOnly } = require("./merge");
 const { addCategoryResultToReport } = require("./report");
 
 const ACTION_W = 24;
@@ -353,7 +353,9 @@ async function discoverAndScanCategory(ctx, prevDb, report) {
 
 	logger.ok(`${ctx.catPrefixOut} | Unique products (this run): ${discovered.size}${dups ? ` (${dups} dups)` : ""}`);
 
-	const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems, skuUpgrades } =
+	guardLargeCategoryOnly(prevDb, discovered, ctx, "central scan guard", report);
+
+const { merged, newItems, updatedItems, removedItems, restoredItems, metaChangedItems, skuUpgrades } =
 		mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel: ctx.store.name });
 
 	const dbObj = buildDbObject(ctx, merged);

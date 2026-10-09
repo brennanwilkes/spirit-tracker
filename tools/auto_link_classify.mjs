@@ -61,8 +61,8 @@ const SINCE_DAYS = argNum("--since", 0); // 0 = no recency filter (full scan)
 const MAX_ANCHORS = argNum("--max-anchors", 0); // 0 = no cap
 
 const LINKS_FILE = path.join(WORKTREE, "data/sku_links.json");
-const EMB_PATH = path.join(WORKTREE, "viz/data/sku_embeddings.json");
-const GBT_PATH = path.join(WORKTREE, "viz/data/gbt_model.json");
+const EMB_PATH = process.env.LINKER_EMBEDDINGS || path.join(WORKTREE, "viz/data/sku_embeddings.json");
+const GBT_PATH = process.env.LINKER_GBT_MODEL || path.join(WORKTREE, "viz/data/gbt_model.json");
 
 /* ---------------- env + canonical map ---------------- */
 
@@ -299,7 +299,7 @@ if (!newLinks.length) {
 }
 
 console.log("[auto-link] sample:");
-for (const l of newLinks.slice(0, 20)) {
+for (const l of DRY_RUN ? newLinks : newLinks.slice(0, 20)) {
 	const an = bySkuAgg.get(l.fromSku)?.name || l.fromSku;
 	const bn = bySkuAgg.get(l.toSku)?.name || l.toSku;
 	console.log(`  ${l.confidence.toFixed(4)}  ${l.fromSku} "${an}"  <->  ${l.toSku} "${bn}"`);

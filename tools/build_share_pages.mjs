@@ -55,15 +55,31 @@ for (const r of index.items) {
 	rows.push(r);
 }
 
+// A shared link must outlive its key: a u: sku is upgraded to a real one (sku_links_auto) and a new
+// link can move a group's canonical rep, either of which would 404 a link shared earlier. So every
+// non-canonical sku named in a link file gets its group's page under its own key too.
+const aliasesByCanon = new Map();
+for (const l of [...manual.links, ...auto.links]) {
+	for (const raw of [l.fromSku, l.toSku]) {
+		const s = normalizeImplicitSkuKey(raw);
+		const canon = canonical(s);
+		if (s === canon) continue;
+		let set = aliasesByCanon.get(canon);
+		if (set === undefined) aliasesByCanon.set(canon, (set = new Set()));
+		set.add(s);
+	}
+}
+
 const outRoot = path.join(root, "i");
 fs.rmSync(outRoot, { recursive: true, force: true });
 
 let written = 0;
+let aliases = 0;
 for (const [sku, rows] of rowsBySku) {
-	if (sku.startsWith("u:")) continue; // synthetic url-hash keys are not stable enough to share
 	const live = rows.filter((r) => !r.removed);
 	// item_page.js picks its title/photo from live rows when any exist.
-	const { bestName, bestImg } = selectBestDisplayInfo(live.length > 0 ? live : rows);
+	const { bestName, bestImg: photo } = selectBestDisplayInfo(live.length > 0 ? live : rows);
+	const bestImg = photo || `${base}/icons/og.png`;
 	const title = bestName || `SKU ${displaySku(sku)}`;
 
 	let cheapest = null;
@@ -95,10 +111,12 @@ for (const [sku, rows] of rowsBySku) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(shareUrl)}">
-${bestImg ? `<meta property="og:image" content="${esc(bestImg)}">\n` : ""}<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${esc(bestImg)}">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
-${bestImg ? `<meta name="twitter:image" content="${esc(bestImg)}">\n` : ""}<script>if (!${PREVIEWER_UA}.test(navigator.userAgent)) location.replace(${JSON.stringify(appRel).replaceAll("<", "\\u003c")});</script>
+<meta name="twitter:image" content="${esc(bestImg)}">
+<script>if (!${PREVIEWER_UA}.test(navigator.userAgent)) location.replace(${JSON.stringify(appRel).replaceAll("<", "\\u003c")});</script>
 </head>
 <body><a href="${esc(appRel)}">${esc(title)}</a></body>
 </html>
@@ -106,5 +124,12 @@ ${bestImg ? `<meta name="twitter:image" content="${esc(bestImg)}">\n` : ""}<scri
 	fs.mkdirSync(path.join(outRoot, key), { recursive: true });
 	fs.writeFileSync(path.join(outRoot, key, "index.html"), html);
 	written++;
+	for (const alias of aliasesByCanon.get(sku) ?? []) {
+		const aliasKey = alias.replaceAll(":", "-");
+		if (fs.existsSync(path.join(outRoot, aliasKey))) continue;
+		fs.mkdirSync(path.join(outRoot, aliasKey), { recursive: true });
+		fs.writeFileSync(path.join(outRoot, aliasKey, "index.html"), html);
+		aliases++;
+	}
 }
-console.log(`wrote ${written} share pages to ${outRoot}`);
+console.log(`wrote ${written} share pages + ${aliases} alias pages to ${outRoot}`);

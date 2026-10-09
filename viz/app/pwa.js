@@ -14,6 +14,8 @@
  * - Account data (cloud.js) has its own bar and never drives a reload: the accounts API being
  *   unreachable says nothing about the catalog, and reloading cannot fix it.
  * - Code updates apply on launch and resume; one that lands mid-use offers the update bar.
+ * - The tap-to-reload bars (update, fresh) are installed-app only. A browser tab has its own
+ *   reload button, and the automatic launch/resume paths above still apply there.
  *
  * Only a deploy-stamped build registers the worker (tools/stamp_pwa.js fills st-build).
  */
@@ -242,6 +244,7 @@ function renderOfflineBar() {
 }
 
 function showBar(kind, text, onTap) {
+	if (onTap !== null && !isStandalone()) return;
 	const cur = document.getElementById("pwaBar");
 	if (cur !== null) {
 		if (BAR_RANK[cur.dataset.kind] > BAR_RANK[kind]) return;

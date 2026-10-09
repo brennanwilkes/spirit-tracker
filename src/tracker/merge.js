@@ -4,6 +4,8 @@
 const { normalizeSkuKey, normalizeCspc, pickBetterSku } = require("../utils/sku");
 const { normPrice } = require("../utils/price");
 
+const MASS_REMOVAL_GUARD_MIN_PREV = 25;
+
 function normImg(v) {
 	const s = String(v || "").trim();
 	if (!s) return "";
@@ -60,12 +62,28 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 	// Also track *all* urls per skuKey to cleanup dupes.
 	const prevBySkuKey = new Map(); // skuKey -> { url, item } (best)
 	const prevUrlsBySkuKey = new Map(); // skuKey -> Set(urls)
+	// Removed records, consulted only when no ACTIVE record holds the skuKey. A store that renames
+	// every product URL while the category is wiped (W&B, 2026-10-06: handles gained a -<sku>
+	// suffix the same day its scan broke) would otherwise re-list every product as new_item and
+	// strand each old URL as a permanent out-of-stock duplicate row of the same sku.
+	const removedBySkuKey = new Map(); // skuKey -> { url, item } (best)
+	const removedUrlsBySkuKey = new Map(); // skuKey -> Set(urls)
 
 	for (const [url, it] of prevDb.byUrl.entries()) {
-		if (!it || it.removed) continue;
+		if (!it) continue;
 
 		const skuKey = normalizeSkuForDb(it.sku, url);
 		if (!skuKey || /^u:/i.test(skuKey)) continue;
+
+		if (it.removed) {
+			let rset = removedUrlsBySkuKey.get(skuKey);
+			if (!rset) removedUrlsBySkuKey.set(skuKey, (rset = new Set()));
+			rset.add(url);
+			const rcur = removedBySkuKey.get(skuKey);
+			const rnext = { url, item: it };
+			removedBySkuKey.set(skuKey, rcur ? pickBetter(rcur, rnext) : rnext);
+			continue;
+		}
 
 		let set = prevUrlsBySkuKey.get(skuKey);
 		if (!set) prevUrlsBySkuKey.set(skuKey, (set = new Set()));
@@ -121,6 +139,17 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 					} else {
 						if (merged.has(hit.url)) merged.delete(hit.url);
 					}
+				} else if (!hit) {
+					const rhit = removedBySkuKey.get(nowSkuKey);
+					if (rhit && !discovered.has(rhit.url)) {
+						prev = rhit.item;
+						prevUrlForThisItem = rhit.url;
+						// Consume it so a second live url on the same skuKey is not "restored" twice.
+						removedBySkuKey.delete(nowSkuKey);
+						for (const u of removedUrlsBySkuKey.get(nowSkuKey)) {
+							if (u !== url && !discovered.has(u)) merged.delete(u);
+						}
+					}
 				}
 			}
 		}
@@ -139,8 +168,8 @@ function mergeDiscoveredIntoDb(prevDb, discovered, { storeLabel } = {}) {
 			continue;
 		}
 
-		// If the previous record was removed and we found it by the SAME URL, keep current behavior (restored).
-		if (prevUrlForThisItem === url && prev.removed) {
+		// Previous record was removed (same URL, or a URL move found by skuKey): it is restored.
+		if (prev.removed) {
 			const prevSku = normalizeSkuForDb(prev.sku, prev.url);
 			const rawNowSku = normalizeSkuForDb(nowRaw.sku, url);
 			const nowSku = pickBetterSku(rawNowSku, prevSku);
@@ -251,6 +280,17 @@ function avoidMassRemoval(prevDb, discovered, ctx, reason, report) {
 
 	if (prevSize <= 0) return false;
 
+	// Zero found against a large live category is a failed scan that happened to return
+	// HTTP 200 (BCL answered `Total=0` to a runner on 2026-10-06 and 2026-10-09; W&B's page
+	// markup changed and every product parsed OOS). Throwing leaves the DB untouched and
+	// routes the category into FAILED(n) + [[FAILED-STORES]], so the one-shot retry re-runs
+	// it on the opposite egress. Preserving would hide it from that retry.
+	if (discSize === 0 && prevSize >= MASS_REMOVAL_GUARD_MIN_PREV) {
+		throw new Error(
+			`Empty scan: 0 discovered vs ${prevSize} live listings (${reason}); refusing to mark the category removed`,
+		);
+	}
+
 	const ratio = discSize / Math.max(1, prevSize);
 	if (ratio >= 0.6) return false;
 
@@ -279,4 +319,17 @@ function avoidMassRemoval(prevDb, discovered, ctx, reason, report) {
 	return true;
 }
 
-module.exports = { mergeDiscoveredIntoDb, avoidMassRemoval };
+// Run centrally on every scan (finalize.js + category_scan.js), so no adapter can bypass it.
+// Only categories big enough for a wipe to be implausible are guarded: at or below the floor
+// a shrink goes through, so a genuinely discontinued category (RMWSB rum/gin, 8 live each,
+// API now answers "[]") retires honestly instead of showing stale stock forever.
+function guardLargeCategoryOnly(prevDb, discovered, ctx, reason, report) {
+	let prevActive = 0;
+	for (const it of prevDb?.byUrl?.values() || []) {
+		if (it && !it.removed) prevActive++;
+	}
+	if (prevActive < MASS_REMOVAL_GUARD_MIN_PREV) return false;
+	return avoidMassRemoval(prevDb, discovered, ctx, reason, report);
+}
+
+module.exports = { mergeDiscoveredIntoDb, avoidMassRemoval, guardLargeCategoryOnly, MASS_REMOVAL_GUARD_MIN_PREV };

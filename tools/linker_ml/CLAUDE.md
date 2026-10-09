@@ -16,6 +16,42 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## ★ 2026-10-09 — label leak in the encoder text; train and measure on HONEST VIEWS (SHIPPED)
+
+**Every metric in this file before this section is inflated.** `skuToTextEnriched` resolves size/abv/year over a
+sku's whole linked group, so both sides of every labelled positive carried identical attribute tokens. The live
+ranker never sees that: it only scores pairs from different groups, and a freshly scraped listing has no group.
+The GBT learned "asymmetric enrichment ⇒ different" — Liquorama `813831` "BUNNAHABHAIN 18 YR" (no ABV) scored 0.40
+against the Bunnahabhain 18 group, whose text carries `abv 46` (cos 0.69; without the token, 0.98).
+
+`honest_views.mjs` re-featurizes each pair twice with per-pair encoder texts (`LINKER_EMB_JSONL=1 encode.py`; ~200k
+texts, ~3 min): **cut** (only the scored edge removed — an existing listing meeting another group) and **new**
+(every edge of `a` removed — the auto-link CI case). `run_ship.sh` and `audit_campaign.js` retrain on them
+(`features.jsonl` = views, `features_leaky.jsonl` kept); campaign eval reports each view. Frozen split, 10-09 labels:
+
+| view | model | AUC+ | rec@99 | prec@0.95 | rec@0.95 | false links |
+|---|---|---|---|---|---|---|
+| cut | prod 09-24 | 0.9901 | 71.8% | 99.44% | 68.4% | 7 |
+| cut | **views** | **0.9968** | **84.9%** | 99.16% | **84.3%** | 13 |
+| new | prod 09-24 | 0.9590 | 24.7% | 96.31% | 33.1% | 23 |
+| new | **views** | **0.9875** | **45.2%** | **97.52%** | **65.0%** | 30 |
+| leaky (old headline) | prod / views | 0.9995 / 0.9983 | 95.0% / 91.4% | | | |
+
+At 0.97 the views model beats prod at 0.95 on both views at once. Live check (`auto_link_classify --dry-run` over the
+whole catalog, `LINKER_GBT_MODEL` override): 31 proposals, **31 correct** (two "3L" pairs looked wrong; Elbow's
+size-less titles are 3000 ml per their urls and prices). Bar kept at 0.95. Shipped as `viz/data/gbt_model.json`;
+the encoder checkpoint is unchanged (no `MODEL_VERSION` bump).
+
+Measured on the way (A/B, pinned pairs, shipped checkpoint, leaky view — read relatively):
+- `grpPriceRatio` = ratio of group MEDIAN listing prices (was MIN: one $200 BSW listing made a $239.99 newcomer look
+  20% off). Clear win; live in `group_features.js` (needs `listingPrices` on aggregates — `catalog.js` and
+  `featurize.buildEnv` both carry it; a missing array throws).
+- Age wording normalised in encoder text (`18 yr`/`18yo`/`18 y o` → `18 year old`, slug tokens too): neutral-positive.
+- Dropping standard ABV (40/43/46) from encoder text: −0.6–1 pt rec@99 with the fixed checkpoint (encoder relies on
+  the token); own-title-only ABV: −3.4 pts. A second, ABV-stripped cosine feature helped the leaky view only. Not
+  shipped. Untested: re-fine-tuning the ENCODER on per-pair texts — the encoder's own training pairs carry the same
+  leak (`train_embed.py` reads `sku_texts.jsonl`), so that is the next lever.
+
 ## Campaign retrains (never shipped) — `docs/audit-campaign.md`
 
 `tools/audit_campaign.js init` / `round-close N` run build_dataset → dump_features → export_gbt →

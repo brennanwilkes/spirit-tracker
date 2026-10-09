@@ -16,26 +16,31 @@ const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
+// Default execFileSync maxBuffer is 1 MiB; data/sku_links.json passed that on 2026-10-04, and the
+// swallowed ENOBUFS made every email pack run with NO links (each store's listing its own product).
+const GIT_MAX_BUFFER = 512 * 1024 * 1024;
+
 function runGit(args) {
-  return execFileSync("git", args, { encoding: "utf8" }).trimEnd();
+  return execFileSync("git", args, { encoding: "utf8", maxBuffer: GIT_MAX_BUFFER }).trimEnd();
 }
 
+// null only when the path is absent at that commit; any other failure throws.
 function gitShowText(sha, filePath) {
   try {
-    return execFileSync("git", ["show", `${sha}:${filePath}`], { encoding: "utf8" });
-  } catch {
-    return null;
+    return execFileSync("git", ["show", `${sha}:${filePath}`], {
+      encoding: "utf8",
+      maxBuffer: GIT_MAX_BUFFER,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (e) {
+    if (/does not exist in|exists on disk, but not in/.test(String(e.stderr || ""))) return null;
+    throw e;
   }
 }
 
 function gitShowJson(sha, filePath) {
   const txt = gitShowText(sha, filePath);
-  if (txt == null) return null;
-  try {
-    return JSON.parse(txt);
-  } catch {
-    return null;
-  }
+  return txt == null ? null : JSON.parse(txt);
 }
 
 function getFirstParentSha(headSha) {
@@ -477,8 +482,9 @@ function main() {
   const baseTimeMs = commitTimeMs(baseSha);
 
   // SKU links from requested head commit
-  const skuLinksObj = gitShowJson(headSha, skuLinksPath) || null;
-  const links = skuLinksObj && Array.isArray(skuLinksObj.links) ? skuLinksObj.links : [];
+  const skuLinksObj = gitShowJson(headSha, skuLinksPath);
+  if (!skuLinksObj || !Array.isArray(skuLinksObj.links)) throw new Error(`${skuLinksPath} missing or has no links[] at ${headSha}`);
+  const links = skuLinksObj.links;
   const skuMap = buildSkuMapFromLinksArray(links);
 
   // Curated hidden listings (data/sku_hidden.json on the head commit).

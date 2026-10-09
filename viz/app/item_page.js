@@ -332,11 +332,11 @@ export async function renderItem($app, skuInput) {
 
 	/* A deployed build shares the item's static page (tools/build_share_pages.mjs, same key), which
 	 * previews with this bottle's name and photo; crawlers never see a #/ route. Unstamped (local
-	 * dev) builds have no share pages, and synthetic u: skus never get one. */
+	 * dev) builds have no share pages. */
 	const deployed = document.querySelector('meta[name="st-build"]').content !== "__BUILD__";
 	const siteRoot = location.href.split("#")[0];
 	const shareUrl =
-		deployed && !sku.startsWith("u:")
+		deployed
 			? new URL(`i/${sku.replaceAll(":", "-")}/`, siteRoot).href
 			: new URL(`#/item/${encodeURIComponent(sku)}`, siteRoot).href;
 	const $shareBtn = document.getElementById("shareBtn");

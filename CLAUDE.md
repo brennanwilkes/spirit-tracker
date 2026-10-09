@@ -224,6 +224,11 @@ consumers** — that would defeat the design.
   `score` (CI, the audit) must skip them. Before the marker, a fully hard-vetoed pool would have been
   auto-linked. It never happened (all 22 links with confidence > 1 are SMWS pins at 1e9).
 
+**Email pack lost every link 2026-10-04 → 10-09.** `build_email_event_pack.js` read `sku_links.json` via
+`execFileSync("git show")` with the default 1 MiB `maxBuffer` and swallowed the ENOBUFS, so once the file passed
+1 MiB every store's listing was its own product ("new to market" for a Benromach 15 sold at 18 stores). Fixed:
+512 MiB buffer, only "path absent at that commit" returns null, a missing links file throws (`diff_report.js` too).
+
 ## Hidden Listings
 
 `data/sku_hidden.json` curates per-`(storeId, rawSku)` listings that should never appear in the UI or fire email events (e.g. a store mis-categorized a wine under whisky). Hides apply to the specific store's record only — linked SKUs in the same canonical cluster from other stores are unaffected.
@@ -419,6 +424,11 @@ categories ALL fail never enters `ranStoreKeys`, so the orphan detector leaves i
 data goes stale, it is not corrupted. Check this before "fixing" an adapter: every one of these
 scrapes cleanly from a residential IP.
 
+**BCL** is not on the always-blocked list but gets bad runner responses (403 challenge 2026-10-06,
+HTTP 200 `Total=0` 2026-10-09). Each one wiped 746 listings until the central zero-scan guard
+(`merge.js::guardLargeCategoryOnly`, 2026-10-09) made it a `FAILED` category that the retry re-runs.
+See `docs/incident-2026-10-06-bcl-wnb-wipe.md`.
+
 **Everything Wine is different:** it is challenged even from a residential IP (2026-10-05), so no
 egress change fixes it.
 
@@ -607,8 +617,8 @@ is done. The ignore screen stopped after tier A (`tools/audit_ignore_slice.js`):
 were only 0.43% wrong (3 of 694), so B–D (~4M tokens) was not worth it. The unscored-group sweep is done (2026-09-29), and the recall-backfill pilot came back NO-GO (2026-10-01: 1 link in
 485 random rows ≈ 63 projected against a 150 gate), so the ~30k-row backfill is not run. The `c:` keys were linked
 2026-10-02. The rolling campaign (`docs/audit-campaign.md`, manifest `audit/campaign/manifest.json`; resumable batches, local
-retrains never shipped) ran rounds 1–3 on 2026-10-03/05: +60 links, ~9,700 ignores, ~5.4M agent tokens. On the frozen
-split, with its wrong held-out ignores fixed, the round-3 GBT reaches rec@99 94.81% vs 92.65% baseline. Its frontier is
+retrains never shipped) ran rounds 1–3 on 2026-10-03/05: +60 links, ~9,700 ignores, ~5.4M agent tokens. Campaign
+metrics before 2026-10-09 were on leaky rows; round-close now reports the honest `cut`/`new` views. Its frontier is
 nearly exhausted. `mine` drops pairs whose names share no brand word. Agent cost is ~80K fixed + ~0.62 tokens/byte for group and ignore slices alike, so slices of
 ~700 KB end near 50% context, and 50% is a soft limit. Collisions are fixed by the split (§"SKU collision splits"), never by
 containment unlinks.
@@ -1177,7 +1187,9 @@ strengths are preserved. **The shipping classifier is a gradient-boosted tree** 
 → `gbt_model.json`, run live via `viz/app/linker_page/gbt.js`); a logistic blend
 (`blend_weights.js`) is the graceful fallback. The GBT fixed the linear blend's tail pathologies
 (over-scored zero-token-overlap pairs; under-scored matches with a missing embedding vector).
-Measured held-out auto-link **recall @99% precision: 14.5% → ~69% → 95.2%** (2026-09-24 retrain on the audited labels + ABV-parser, slug, hygiene and `prefixTok` fixes; see `tools/linker_ml/CLAUDE.md`).
+Held-out auto-link **recall @99% precision, measured honestly (2026-10-09): 45% for a brand-new listing joining a
+group (prod was 25%), 85% for an existing listing meeting another group (prod 72%).** Earlier headlines (95.2% etc.)
+were inflated by a label leak in the encoder text; see `tools/linker_ml/CLAUDE.md` §"2026-10-09".
 
 **Start here:** `tools/linker_ml/CLAUDE.md` — the iteration + **re-train** guide (the retrain
 chain to re-run when the labeled set grows, the venv prereqs, the no-leakage group split, the

@@ -835,6 +835,36 @@ export async function login(email, password) {
 	return { token, userId };
 }
 
+// Sliding session: the API issues 30-day tokens and swaps any still-valid one for a fresh one,
+// so only 30 days without opening the app logs a user out. Renewing once a token has used a day
+// of its life keeps it to about one call per day. Older 7-day tokens always qualify.
+const REFRESH_WHEN_REMAINING_S = 29 * 24 * 60 * 60;
+
+export async function refreshTokenIfStale() {
+	const s = getAuthStatus();
+	if (!s.ok) return;
+	if (Number(s.payload.exp) - Date.now() / 1000 > REFRESH_WHEN_REMAINING_S) return;
+
+	let j;
+	try {
+		j = await requestJson("/auth/refresh", { method: "POST", auth: true, cache: false });
+	} catch (err) {
+		// The server rejected the token itself, so it is dead whatever its exp says.
+		if (err instanceof AuthError) {
+			clearAuth();
+			return;
+		}
+		// Offline: keep the current token and retry on the next launch/resume.
+		if (err instanceof TypeError) return;
+		throw err;
+	}
+
+	const token = String(j?.token || "");
+	const sub = String(decodeJwtPayload(token)?.sub || "");
+	if (sub !== s.userId) throw new ApiError("Refresh returned a token for another user", { userId: s.userId, sub });
+	lsSet(LS_TOKEN, token);
+}
+
 export async function requestPasswordReset(email) {
 	const e = assertEmailOnly(email);
 	return await requestJson("/password-reset/request", {
