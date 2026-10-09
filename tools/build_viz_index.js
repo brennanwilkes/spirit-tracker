@@ -54,6 +54,10 @@ function keyCandidatesForItem(it, storeId) {
 
 	const sku = String(it?.sku || "").trim();
 	if (looksLikeSyntheticSku(sku)) out.push(sku);
+	// id:/upc: skus are as stable as a CSPC. Keying them by url alone made every listing look
+	// first-seen "now" when a store renamed its urls (W&B, 2026-10-06), which turned ~1,600
+	// old products into fresh auto-link anchors and "new" listings.
+	else if (sku) out.push(splits.resolve(storeId, sku, it?.url));
 
 	const urlKey = makeSyntheticSkuFromUrl(it?.url);
 	if (urlKey) out.push(urlKey);
