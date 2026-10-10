@@ -1004,7 +1004,7 @@ export async function renderItem($app, skuInput) {
 
 	// Build datasets: multiple lines per store, same label, same color, same stroke
 	const datasets = [];
-	const suppressDots = window.innerWidth <= 640 && winnerByStoreDate.size > 50;
+	const suppressDots = winnerByStoreDate.size > 50;
 	for (const st of storeSeriesSorted) {
 		const base = storeColor(st.label, colorMap);
 		const stroke = lighten(base, 0.25);
