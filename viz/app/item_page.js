@@ -1058,6 +1058,7 @@ export async function renderItem($app, skuInput) {
 				lastIdx = i;
 			}
 			const isSparse = firstIdx >= 0 && lastIdx - firstIdx <= SPARSE_SERIES_MAX_DAYS;
+			const noDots = suppressDots && !isSparse;
 
 			datasets.push({
 				label: st.label, // IMPORTANT: no SKU in label
@@ -1074,11 +1075,17 @@ export async function renderItem($app, skuInput) {
 				borderWidth: datasetStrokeWidth(base),
 				// Dash any segment touching a flap excursion (descent/ascent + the
 				// excursion itself), matching the dashed "above chart" treatment.
-				segment: {
-					borderDash: (ctx) =>
-						flapSet.has(ctx.p0DataIndex) || flapSet.has(ctx.p1DataIndex) ? [5, 4] : undefined,
-				},
-				pointRadius: (ctx) => {
+				...(flapSet.size
+					? {
+							segment: {
+								borderDash: (ctx) =>
+									flapSet.has(ctx.p0DataIndex) || flapSet.has(ctx.p1DataIndex) ? [5, 4] : undefined,
+							},
+						}
+					: {}),
+				// A constant (not a callback) lets Chart.js share one options object across
+				// every point instead of resolving each point on every animation frame.
+				pointRadius: noDots ? 0 : (ctx) => {
 					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					if (ctx.dataset._flapSet?.has(ctx.dataIndex)) return 0;
 					const v = ctx.parsed?.y;
@@ -1090,7 +1097,7 @@ export async function renderItem($app, skuInput) {
 					const d = labels[ctx.dataIndex];
 					return ctx.dataset.variantKey === winKeyFor(ctx.dataset.label, d) ? 3 : 0;
 				},
-				pointHoverRadius: (ctx) => {
+				pointHoverRadius: noDots ? 0 : (ctx) => {
 					if (outlierStores?.has(String(ctx.dataset.label))) return 0;
 					if (ctx.dataset._flapSet?.has(ctx.dataIndex)) return 0;
 					const v = ctx.parsed?.y;
@@ -1147,6 +1154,7 @@ export async function renderItem($app, skuInput) {
 	// Mobile trades some headroom for plot area, but not all of it — at 0.01 the
 	// extreme series sat flush against the frame and read as clipped.
 	const ySug = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.05 : undefined);
+	const ySugFinal = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
 
 	// Rather than let outlier lines clip away (the data point vanishes), clamp them
 	// into a reserved band at the top so they "sit at the top". The true price is
@@ -1207,9 +1215,6 @@ export async function renderItem($app, skuInput) {
 		options: {
 			responsive: true,
 			maintainAspectRatio: false,
-			// The entrance animation redraws every point of every store each frame and
-			// lurched on busy items; a price history gains nothing from it.
-			animation: false,
 			interaction: { mode: "nearest", intersect: false },
 
 			// v2 fallback (plugin reads this)
@@ -1267,7 +1272,10 @@ export async function renderItem($app, skuInput) {
 				},
 				y: {
 					...ySug,
-					max: yHardMax,
+					// Set up front rather than via a second update() after construction, which
+					// re-resolved every point of every dataset before the first frame.
+					min: Number.isFinite(ySugFinal.suggestedMin) ? Math.max(0, ySugFinal.suggestedMin) : undefined,
+					max: Number.isFinite(yHardMax) ? yHardMax : ySugFinal.suggestedMax,
 					ticks: {
 						stepSize: step,
 						maxTicksLimit: MAX_TICKS,
@@ -1312,18 +1320,6 @@ export async function renderItem($app, skuInput) {
 			},
 		},
 	});
-
-	const yScale = CHART.scales?.y;
-	const tickCount = yScale?.ticks?.length || 0;
-
-	if (tickCount >= 2) {
-		const ySug2 = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.01 : undefined);
-
-		if (Number.isFinite(ySug2.suggestedMin)) CHART.options.scales.y.min = Math.max(0, ySug2.suggestedMin);
-		CHART.options.scales.y.max = Number.isFinite(yHardMax) ? yHardMax : ySug2.suggestedMax;
-
-		CHART.update("none");
-	}
 
 	buildChartLegend(CHART);
 
