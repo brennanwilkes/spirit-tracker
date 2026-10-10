@@ -4,7 +4,6 @@
  *
  * Exports:
  *   - StaticMarkerLinesPlugin    Custom Chart.js plugin that draws reference lines
- *   - BC_STORE_NAMES             Set of normalized BC store name keys
  *   - isBcStoreLabel             Detect BC stores (for BC vs Alberta median markers)
  *   - weightedMeanByDuration     Time-weighted average for a price series
  *   - meanFinite                 Arithmetic mean, ignoring non-finite values
@@ -15,42 +14,14 @@
  *   - lastFiniteFromEnd          Last finite value in an array (working from the end)
  */
 
+import { normalizeStoreId, storeById } from "../stores.js";
+
 // ── Province classification ────────────────────────────────────────────────
 
-export const BC_STORE_NAMES = new Set([
-	"bcl",
-	"tudorhouse",
-	"vesselliquor",
-	"strathliquor",
-	"gullliquor",
-	"vintagespirits",
-	"legacyliquor",
-	"arc",
-	"everythingwine",
-]);
-
-function _normForProvince(s) {
-	return String(s || "")
-		.toLowerCase()
-		.replace(/&/g, "and")
-		.replace(/[^a-z0-9]+/g, " ")
-		.trim()
-		.replace(/\s+/g, "");
-}
-
 export function isBcStoreLabel(label) {
-	const n = _normForProvince(label);
-	if (BC_STORE_NAMES.has(n)) return true;
-	if (n.includes("vessel")) return true;
-	if (n.includes("tudor")) return true;
-	if (n === "bcl") return true;
-	if (n.includes("strath")) return true;
-	if (n.includes("gull")) return true;
-	if (n.includes("vintagespirits")) return true;
-	if (n.includes("legacy")) return true;
-	if (n.includes("arc")) return true;
-	if (n.includes("everything")) return true;
-	return false;
+	const store = storeById(normalizeStoreId(label));
+	if (store === null) throw new Error(`isBcStoreLabel: no store in the registry for label "${label}"`);
+	return store.region === "bc";
 }
 
 // ── Statistical helpers ────────────────────────────────────────────────────

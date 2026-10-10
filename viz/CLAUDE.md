@@ -604,7 +604,8 @@ Any future control that hides its input inside a bigger surface needs the same t
 - **Sparse series** (`SPARSE_SERIES_MAX_DAYS = 2` in `item_page.js`): a store whose listing spans
   ≤2 days draws a near-zero-length line, and since dots are reserved for the winning variant it
   could render as nothing at all. Such datasets are flagged `_sparse` and always get a point —
-  deliberately beating `suppressDots`.
+  deliberately beating `suppressDots` (dots are hidden on every viewport once the chart has >50
+  store-day points; desktop used to draw them all and lagged on long histories).
 - `computeSuggestedY`'s `padRatio` is the chart's vertical breathing room. Mobile passes `0.05`
   (it was `0.01`, which put extreme series flush against the frame and read as clipped).
 
