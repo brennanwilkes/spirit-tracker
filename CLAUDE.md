@@ -427,7 +427,9 @@ scrapes cleanly from a residential IP.
 **BCL** is not on the always-blocked list but gets bad runner responses (403 challenge 2026-10-06,
 HTTP 200 `Total=0` 2026-10-09). Each one wiped 746 listings until the central zero-scan guard
 (`merge.js::guardLargeCategoryOnly`, 2026-10-09) made it a `FAILED` category that the retry re-runs.
-See `docs/incident-2026-10-06-bcl-wnb-wipe.md`.
+See `docs/incident-2026-10-06-bcl-wnb-wipe.md`. The same incident showed that a store renaming its urls looks like a
+mass sellout + mass new-listing unless both `merge.js` (rematch removed records by sku) and
+`build_viz_index.js` (first-seen keyed by sku, not url) follow the sku; both do now.
 
 **Everything Wine is different:** it is challenged even from a residential IP (2026-10-05), so no
 egress change fixes it.
