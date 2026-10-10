@@ -1207,6 +1207,9 @@ export async function renderItem($app, skuInput) {
 		options: {
 			responsive: true,
 			maintainAspectRatio: false,
+			// The entrance animation redraws every point of every store each frame and
+			// lurched on busy items; a price history gains nothing from it.
+			animation: false,
 			interaction: { mode: "nearest", intersect: false },
 
 			// v2 fallback (plugin reads this)
@@ -1319,7 +1322,7 @@ export async function renderItem($app, skuInput) {
 		if (Number.isFinite(ySug2.suggestedMin)) CHART.options.scales.y.min = Math.max(0, ySug2.suggestedMin);
 		CHART.options.scales.y.max = Number.isFinite(yHardMax) ? yHardMax : ySug2.suggestedMax;
 
-		CHART.update();
+		CHART.update("none");
 	}
 
 	buildChartLegend(CHART);
