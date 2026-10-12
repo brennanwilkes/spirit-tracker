@@ -621,6 +621,10 @@ Any future control that hides its input inside a bigger surface needs the same t
   `docs/item-chart-summary-mode-feasibility.md` (status block at the top). Summary colours are the `--chart-bc/-ab/-target` and
   `--chart-band-alpha` tokens, read via `getComputedStyle` at render (canvas can't use `var()`), so
   like every colour token they live in all four theme places.
+- **Item topbar = one control spec** (`.itemTopbar`, `item_page.css`): Back, the Stores|Summary
+  segmented toggle (filled active segment, no underline) and Share are all 40 px tall at every width
+  with `--text-base` text, overriding the site-wide coarse-pointer 44 px `.btn`/`.btnIcon` sizing
+  only here. The SKU is plain muted mono text (`.itemTopbarSku`), the first thing to ellipsize.
 - **X axis = `item_chart.js::monthYearXAxis()`**, shared by the item and stats charts: "Mon YYYY"
   only, a tick on the first and last label (`align: "inner"` pins them flush to the plot edges),
   and month-start ticks between at a steady cadence (every month, every 2nd …) as width allows.
