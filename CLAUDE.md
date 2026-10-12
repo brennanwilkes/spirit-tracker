@@ -58,8 +58,8 @@ they succeed again.
 
 The LFS-removal note above estimated ~15–25 MB/mo. Actual, measured by summing deduped
 `objectsize:disk` over the commits in each 30-day window: **~197 MB, ~162 MB, ~195 MB** for the last
-three months. Total `data`-branch pack: **757 MB**. GitHub emails about repos over 1 GB and hard-caps
-at 5 GB, so the soft threshold is ~1.5 months out at this rate.
+three months. Total `data`-branch pack: **757 MB**. GitHub has no hard repo-size cap; see the
+2026-10-10 section for what the limits really are. (That was the pre-migration rate; for the current one see the 2026-10-10 re-measurement below.)
 
 Attribution over the last 30 days (deduped blobs per path):
 
@@ -87,27 +87,42 @@ of growth): only ever fetched at HEAD (`viz/app/state.js` → `./data/index.json
 history stays in the branch until the optional filter-repo rewrite. Locally, `.git/lfs` also holds
 ~2.5 GB of orphaned objects (nothing is LFS-tracked any more) — reclaimable with `git lfs prune`.
 
-### Re-measurement + forecast — 2026-09-17
+### Re-measurement + forecast — 2026-10-10 (supersedes the 2026-09-17 "mid-Jan 2027" forecast)
 
-GitHub-reported repo `size` (API): **653.7 MB**. Local deduped pack: `data`-branch-only 733.8 MiB,
-all-reachable 737.5 MiB — GitHub's counter tracks packed/delta bytes, NOT content (deduped content
-is 28.5 GB). The ~84 MiB local-vs-GitHub gap is local pack redundancy (29 packs), not a trend.
+GitHub-reported repo `size` (API): **682.3 MiB** (653.7 on 2026-09-17). GitHub's counter tracks
+packed/delta bytes, not content, and updates lazily; the local deduped `objectsize:disk` over
+`git rev-list --objects origin/data --not <base>` is the pessimistic bound.
 
-Growth has **accelerated** (deduped `objectsize:disk` over `git rev-list --objects <tip> --not
-<base>`, 15-day windows): Feb–Apr ~6–17 MiB/14d → May 36 → Jun–Aug 61–108 → Aug–Sep 61–101.
-Current steady rate ≈ **150–180 MiB/mo** (why: catalog grew, so index.json/skus write more bytes
-per rewrite.)
+After the Release-asset migrations the rate roughly HALVED versus the 85–110 MiB/mo predicted:
+**~37 MiB/mo GitHub-reported, ~61 MiB/mo local** (46.5 MiB over 23 days). Attribution of those
+23 days: `data/db` 23.1, `reports/common_listings_*` 10.6, `db_commits` + `common_listings_commits`
+5.7, `rarity.json` 2.9, `sku_links.json` 1.9, other 2.3. Before the migration the rate had been
+climbing to 150–180 MiB/mo as the catalog grew.
 
-**Forecast (post index.json-migration, measured 2026-09-17): first limit = the 1 GB repo-size
-mark ≈ mid-January 2027** (range early-Jan to mid-Feb: remaining rate ≈ 85–110 MiB/mo after
-dropping index.json's ~85 MiB/mo, headroom 370 MiB). Previous pre-migration forecast was early
-Dec; this buys ~6 weeks. Re-measure from `gh api .../.size` at each check-in. **The
-recent/skus/common_listings levers (§"Data-branch growth") cut another ~25 MiB/mo once verified
-→ mid-to-late Jan holding. Hard 5 GB push cap ≈ 2028–29, sooner if the ratchet continues.** All other free-tier limits are NOT in play because the repo is public: Actions
-minutes/storage (free) — the ~5,800 min/mo of runs (estimate: ~6.4 runs/day from the
-report file count) would blow the 2,000-min **private**-repo bucket in ~10 days, so keeping the
-repo public is load-bearing for CI; LFS (no longer used, free for public);
-release assets (132 MB, free for public); Pages bandwidth (non-factor).
+**What the limits actually are (GitHub docs, checked 2026-10-10):** "ideally less than 1 GB, and
+less than 5 GB is strongly recommended"; the repository-limits page recommends ≤10 GB on disk. Over
+those, "you might receive an email from GitHub Support asking you to take corrective action". There
+is NO automated email at 1 GB and NO push block at 5 GB; that earlier claim in these docs was wrong.
+The only hard limits are 100 MiB per file and 2 GB per push. The real cost of size is CI clone time,
+because `cron_tracker.yaml` checks out with `fetch-depth: 0`: 63 s at 682 MiB.
+
+**Forecast for the 1 GB recommendation (342 MiB headroom):** status quo ≈ **July 2027**. **Doubling the store
+count** (the store hunt, `STORE_HUNT_HANDOFF.md`: the 85 INCLUDE catalogs list ~27k whisky/rum/gin
+against 35.5k tracked listings today, so listings roughly double. Both are per-size listing counts, the
+tracker's unit, so the 2026-10-10 distinct-product recount (~1.34× lower) doesn't change this comparison) about doubles the store-scaled
+paths. That gives ~70 MiB/mo GitHub-reported (~110 local) → **~Feb–Apr 2027** if the stores land
+around Nov 2026, plus a one-time onboarding bump of a few tens of MiB. 5 GB ("strongly recommended") ≈ 2031+.
+The `git filter-repo` rewrite (~500 MiB back) is the reserve lever; it is not needed yet.
+Re-measure from `gh api repos/brennanwilkes/spirit-tracker --jq '.size/1024'` at each check-in.
+
+Other free-tier limits, checked 2026-10-10, none of them close. All depend on the repo staying
+**public**. Actions minutes are unlimited. The ~5,800 min/mo of runs would exhaust the 2,000-min
+private-repo bucket in ~10 days, so public visibility is load-bearing for CI. Big runs take ≤37 min
+(median of all runs 11), so after doubling expect ~60–75 min: far under the 6 h job cap, but the
+email lands ~30 min later. Actions cache is 0.68 of 10 GB. Release assets: `index.json` 15 MB and
+embeddings 43 MB against a 2 GiB per-file cap. The largest committed file is 2.8 MB
+(`db_commits.json`), against the 50/100 MB push limits. Pages bandwidth is a non-factor. LFS is no
+longer used.
 
 All-time deduped-disk attribution (what pruning would reclaim):
 
@@ -444,6 +459,41 @@ best-effort, falls back to direct with a `::warning::` and a `vpn:` line in the 
 July-15 cron runs that got `wg` installed handshook in 1-2 s and scraped through the tunnel (they
 were cancelled by hand mid-scrape); the earlier failures were `apt-get` hangs / `wg` missing. The
 diag on 2026-10-05 again handshook in 2 s and Highlander's API returned real content via Proton.
+
+## New-store discovery (research closed 2026-10-10)
+
+Four rounds of multi-agent research (2026-10-09/10) measured ~180 untracked BC/AB catalogs. What's left is owner
+decisions, implementation and a few multi-day rechecks. **`STORE_HUNT_HANDOFF.md`** (repo root) is the decision
+document: ranked candidates by adapter cost, pending owner calls, rechecks due, blocked stores. Working data lives in
+`audit/store_hunt/` (gitignored); `round4-strict-counts.md` holds the authoritative counts.
+Durable facts:
+- **Bar = ≥ ~50 in-stock whisky+rum+gin DISTINCT products** (owner ruling 2026-10-10: a product's sizes count once;
+  minis, packs, liqueurs, RTDs and fee/deposit rows don't count). Raw listing counts run ~1.34× high. The hunt's
+  raw fetch matched the tracker's live counts within 0–1% on 11 tracked stores, so the gap is definitional.
+- Every Barnet shop can be listed by number: `barnetnetwork.com/api/shop/<N>/products` (ids 1–2,499, all crawled).
+  `available_for_sale` is a per-store sales switch, separate from `on_hand` (LightHouse Bay: stock on hand, switch off).
+- Each gulp.tech client has its own GraphQL host with the same schema as `legacyliquor.js`. Some gulp feeds are
+  frozen (0 quantity changes overnight), so verify movement before adding one.
+- AB is enumerable via Liquor Connect: AGLC licensees, which stores stock a SKU, and `AgentName` (importer) per
+  product. BC has no equivalent.
+- An all-"available" Shopify/Woo catalog proves nothing; diff it over days. Shopify `updated_at` is often bulk-stamped.
+- BottleCapps tenants sit behind DataDome; scripted hits from the home IP get captcha-walled. Wine-Searcher is
+  PerimeterX-walled.
+
+## Search matching (G&M aliasing planned, 2026-10-10)
+
+Search (`viz/app/sku.js` `normSearchText`/`tokenizeQuery`/`matchesAllTokens`) strips punctuation
+and matches every token as a SUBSTRING of a group's `searchText`. That `searchText` comes from
+`catalog.js`: every listing's sku, name, **url** and store label. So `g&m` becomes `g`+`m` and hits
+82% of the catalog. A shared bottler-alias token is planned, G&M only for now:
+`docs/gm-search-aliasing.md` has the measurements, the owner rulings (no Benromach; bare `gordon`
+stays plain search) and the acceptance check. Its last section sizes other independent bottlers for
+later: Hunter Laing and Douglas Laing gain most, because over 60% of their listings show only a
+range name (OMC, First Editions, Old Particular …). A separate one-way, search-only DISTILLERY
+alias class is sized there too (Springbank→Longrow, Tobermory→Ledaig, Highland Park→Secret Orkney,
+Laphroaig→Williamson). Same distillery is not the same product, so it must never feed linking.
+Owner principle for search aliasing: **prefer a broader match over a tighter one**. Extra results
+are fine, missing ones are not.
 
 ## Tech Stack
 

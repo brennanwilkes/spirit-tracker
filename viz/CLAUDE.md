@@ -351,7 +351,10 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   theme blocks — so they win the cascade.
 - **`@media (pointer: coarse)` sizing**: 44px buttons/icon-buttons, taller selects/options, and
   **16px font on form controls** (anything under 16px makes iOS Safari zoom the page on focus —
-  never set control fonts below 16px in a coarse-pointer context). Per-page CSS files carry their
+  never set control fonts below 16px in a coarse-pointer context). Backstop since 2026-10-12:
+  `main.js` appends `maximum-scale=1` to the viewport meta on iOS only, which stops the focus zoom
+  for controls kept small on purpose (the 12px score pill); iOS still allows pinch-zoom, Android
+  would not, hence the gate. Per-page CSS files carry their
   own small coarse blocks for page-owned classes (settings `.stSelect`, auth `.miniLink`, item
   `.hideListingBtn`, stats `.rangeDual`) because per-page files load after style.css and would
   otherwise override it.
@@ -737,6 +740,11 @@ notable and always passes):
 
 Price shown is `agg.cheapestPriceStr` (global cheapest across all stores) by default; for a
 **scoped** row under a store filter it's the cheapest within the selected stores.
+
+**Store label = the event's store only while it still stocks the SKU** (2026-10-12). Otherwise the
+row shows the cheapest live store (scoped first), and no label when nothing is live. The Last Stock /
+Exclusive badges describe the live store, so the event store used to mislabel them: a sellout at ZYN
+rendered as "ZYN · Last Stock" when Color de Vino held the last bottles.
 
 **Store selection scopes this feed (not a hard drop).** Per SKU it tracks the latest event at ANY
 store and the latest at a SELECTED store; an item with a selected-store event ("scoped") sorts

@@ -44,6 +44,13 @@ refreshTokenIfStale();
 document.addEventListener("visibilitychange", () => {
 	if (document.visibilityState === "visible") refreshTokenIfStale();
 });
+// iOS zooms the page when a sub-16px control is focused (the 12px score pill), and the installed
+// app never zooms back out. maximum-scale stops that auto-zoom; iOS ignores it for pinch-zoom, so
+// users can still zoom. Not set elsewhere: Android does honour it and would lose pinch-zoom.
+if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1)) {
+	const vp = document.querySelector('meta[name="viewport"]');
+	vp.setAttribute("content", `${vp.getAttribute("content")},maximum-scale=1`);
+}
 // style.css keys installed-app-only UI (.appOnly) off this class.
 if (pwa.isStandalone()) {
 	document.documentElement.classList.add("standalone");
