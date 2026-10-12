@@ -394,9 +394,10 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   never showed it. Neither the settle delay (2026-10-05) nor resetting the translate (2026-10-12)
   fixed it. Device facts: the gap varies in size, survives scrolling AND further pull-to-refreshes,
   and a tab switch clears it, so the web view itself is stuck, not the page.
-  `viewport_heal.js`'s `heal()` never fires for it (innerHeight is not short); its `nudge()` (grow
-  the document for two frames once the body's size settles, mimicking a tab switch) is the current
-  guess, unverified. If that fails, the structural fix is an app shell in standalone: `#app`
+  `viewport_heal.js`'s `heal()` never fires for it (innerHeight is not short). A `nudge()` that grew
+  the document for two frames after every body resize (to mimic a tab switch) did not fix it and
+  made the page flicker; removed. Diagnosing with `components/viewport_debug.js` (TEMPORARY
+  readout, installed iOS app only). The structural fallback is an app shell in standalone: `#app`
   scrolls instead of the window and the nav is a flex child, not `position: fixed`.
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
