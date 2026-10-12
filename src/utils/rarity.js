@@ -214,6 +214,51 @@ function unifySameStoreEntries(eventsByStore) {
 	return out;
 }
 
+// ---------- one-shot batch artifacts ----------
+
+// A store sometimes exposes a batch of listings for a single scrape (archived catalog
+// pages, a first-scrape glitch, synthetic u: skus) that are never seen again. Each looks
+// like a bottle that sold out within hours, the strongest rare signature there is. Real
+// allocation drops do this too (ZYN's 2026-09-18 Springbank release: 3 bottles in one
+// run), but measured batches were 7-45 listings against at most 4 for a real drop, so a
+// store entry is dropped when ONE_SHOT_BATCH_MIN+ one-shots share its first-seen run.
+const ONE_SHOT_BATCH_MIN = 7;
+const ONE_SHOT_MAX_MS = 30 * 60 * 60 * 1000;
+
+function oneShotKey(storeFile, events) {
+	const evs = dedupRenameEvents(events);
+	if (evs.length !== 2 || evs[0].p == null || evs[1].p != null) return null;
+	const t0 = Date.parse(evs[0].ts);
+	if (Date.parse(evs[1].ts) - t0 >= ONE_SHOT_MAX_MS) return null;
+	return `${storeIdFromDbFile(storeFile)} ${t0}`;
+}
+
+// aggByCanon: Map<canon, { [storeFile]: { events } }>, mutated in place. Groups left with
+// no stores are deleted, so they get no rarity entry (consumers then show no tier).
+function dropOneShotBatches(aggByCanon) {
+	const runCounts = new Map();
+	for (const agg of aggByCanon.values()) {
+		for (const [storeFile, entry] of Object.entries(agg)) {
+			const k = oneShotKey(storeFile, entry.events);
+			if (k !== null) runCounts.set(k, (runCounts.get(k) || 0) + 1);
+		}
+	}
+	const batches = [...runCounts].filter(([, n]) => n >= ONE_SHOT_BATCH_MIN);
+	const batchKeys = new Set(batches.map(([k]) => k));
+	let droppedEntries = 0;
+	for (const [canon, agg] of aggByCanon) {
+		for (const [storeFile, entry] of Object.entries(agg)) {
+			const k = oneShotKey(storeFile, entry.events);
+			if (k !== null && batchKeys.has(k)) {
+				delete agg[storeFile];
+				droppedEntries++;
+			}
+		}
+		if (Object.keys(agg).length === 0) aggByCanon.delete(canon);
+	}
+	return { droppedEntries, batches };
+}
+
 // ---------- scoring ----------
 
 // eventsByStore: { [storeFile]: { label?, events: [{ ts, p? }] } }
@@ -320,6 +365,11 @@ function scoreSku(eventsByStore, nowMs) {
 		}
 		// A currently-open period also implies "last in stock = now"
 		if (stillOpen) storeLastInStockTs = NOW;
+		// The SKU cache stores change points only, so the last in-stock EVENT is the start of
+		// the final spell. The item was on the shelf until that spell's OOS marker; without
+		// this, a bottle stocked from the store's epoch until it sold out weeks later read as
+		// "0 days past epoch" and got zero confidence.
+		for (const p of periods) if (p.end > storeLastInStockTs) storeLastInStockTs = p.end;
 		// This store's contribution to the epoch signal: how far its most recent
 		// in-stock observation sits past its OWN tracking epoch. Quadratic ramp,
 		// full credit by day 30. A store that never had the item in stock has no
@@ -361,7 +411,11 @@ function scoreSku(eventsByStore, nowMs) {
 	const S_avail = breadth > 0 ? 1 - effectiveStockedStores / breadth : 1;
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
-	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
+	// Per store, so breadth doesn't count against an item: an allocated bourbon that sits
+	// two weeks at each of 10 stores is as scarce per store as a one-store bottle that sat
+	// two weeks, but its summed shelf time read as long-term availability.
+	const perStoreInStockDays = breadth > 0 ? totalInStockDays / breadth : 0;
+	const S_persistence_low = perStoreInStockDays / (perStoreInStockDays + 45);
 	// Multi-store fast-sellout = allocation. A single store cycling through
 	// stock could be many things (small initial order, deliberate slow restock,
 	// etc.), but if it's selling out fast at multiple stores simultaneously,
@@ -511,6 +565,7 @@ module.exports = {
 	dedupRenameEvents,
 	scoreSku,
 	unifySameStoreEntries,
+	dropOneShotBatches,
 	storeIdFromDbFile,
 	effectiveRarity,
 	computeTierThresholds,

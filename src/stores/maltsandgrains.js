@@ -17,6 +17,22 @@ const { createShopifyCollectionAdapter } = require("../platforms/shopify_collect
 
 const UNKNOWN_PRODUCT_TYPES = new Set();
 
+// "France" is the store's type for French wine (177 products, all wine, 2026-10-12).
+const NON_SPIRIT_TYPE_RE =
+	/wine|\bred\b|\bwhite\b|ros[eé]|sparkling|champagne|tequila|mezcal|vodka|liqueur|beer|cider|seltzer|sake|cognac|brandy|armagnac|calvados|^france$/;
+const KNOWN_SPIRIT_TYPE_RE = /whisk|whsk|brbn|bourbon|\brye\b|scotch|\bmalt\b|\brum\b|cane|irish|japan|grain|blend/;
+
+// "On Sale" is a promo product_type that mixes tequila with Springbank and Lagavulin, so
+// for types like it the agave check falls back to the store's tag and the title. Only for
+// those: a product typed as whisky or rum is trusted over its title, because tequila- and
+// mezcal-cask whiskies ("Smokehead Tequila Islay", "Rock Island Mezcal Blended Malt") name
+// the agave without being agave. Missing a tequila is cheap (hide it); dropping a whisky
+// loses its history.
+const AGAVE_TITLE_RE = /\btequila\b|\bmezcal\b|\bnom[- ]?\d{4}\b|\bmaguey\b/i;
+// Whisky words and a truncated "Ca"/"Cas" ending ("Stillhead Tequila Ca") also keep it.
+const AGAVE_FALSE_POSITIVE_RE =
+	/\bcask|finish|barrel|terminado|edition|\bwood\b|\bcas?$|whisk|\bmalt\b|bourbon|\brye\b|scotch|islay/i;
+
 function classifyMaltsProduct(p) {
 	const type = String(p?.product_type || "")
 		.trim()
@@ -27,14 +43,16 @@ function classifyMaltsProduct(p) {
 		return "other";
 	}
 	if (/\bgin\b/.test(type)) return "gin";
-	if (/wine|\bred\b|\bwhite\b|ros[eé]|sparkling|champagne|tequila|mezcal|vodka|liqueur|beer|cider|seltzer|sake/.test(type))
-		return "other";
+	if (NON_SPIRIT_TYPE_RE.test(type)) return "other";
 
 	// Everything else counts as a tracked spirit. This store is a whisky specialist and
 	// names its types loosely ("Irish & Japanese", "American Whsk/Brbn"), so an allowlist
 	// silently drops whole categories — including by default and denying the handful of
 	// known non-spirits is the safer failure mode. Unrecognized types are still logged.
-	if (!/whisk|whsk|brbn|bourbon|\brye\b|scotch|\bmalt\b|\brum\b|cane|irish|japan|grain|blend/.test(type)) {
+	if (!KNOWN_SPIRIT_TYPE_RE.test(type)) {
+		if (p.tags.some((t) => /tequila|mezcal/i.test(t))) return "other";
+		const title = String(p.title || "");
+		if (AGAVE_TITLE_RE.test(title) && !AGAVE_FALSE_POSITIVE_RE.test(title)) return "other";
 		UNKNOWN_PRODUCT_TYPES.add(type);
 	}
 	return "spirits";

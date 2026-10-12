@@ -246,6 +246,11 @@ export function scoreSku(eventsByStore, nowMs) {
 			if (ev.p != null && t > storeLastInStockTs) storeLastInStockTs = t;
 		}
 		if (stillOpen) storeLastInStockTs = NOW;
+		// The SKU cache stores change points only, so the last in-stock EVENT is the start of
+		// the final spell. The item was on the shelf until that spell's OOS marker; without
+		// this, a bottle stocked from the store's epoch until it sold out weeks later read as
+		// "0 days past epoch" and got zero confidence.
+		for (const p of periods) if (p.end > storeLastInStockTs) storeLastInStockTs = p.end;
 		// This store's epoch-signal contribution: how far its most recent in-stock
 		// observation sits past its OWN epoch (quadratic ramp, full by day 30). A
 		// store that never stocked the item offers no epoch evidence. Mirror of
@@ -284,7 +289,11 @@ export function scoreSku(eventsByStore, nowMs) {
 	const S_avail = breadth > 0 ? 1 - effectiveStockedStores / breadth : 1;
 	const S_velocity = 1 / (1 + meanPeriodDays / 7);
 	const S_restock_low = totalRestocks / (totalRestocks + 3);
-	const S_persistence_low = totalInStockDays / (totalInStockDays + 45);
+	// Per store, so breadth doesn't count against an item: an allocated bourbon that sits
+	// two weeks at each of 10 stores is as scarce per store as a one-store bottle that sat
+	// two weeks, but its summed shelf time read as long-term availability.
+	const perStoreInStockDays = breadth > 0 ? totalInStockDays / breadth : 0;
+	const S_persistence_low = perStoreInStockDays / (perStoreInStockDays + 45);
 	// Multi-store fast-sellout = allocation. See src/utils/rarity.js.
 	const S_allocation = rareActingStores / Math.max(5, breadth);
 
@@ -304,9 +313,9 @@ export function scoreSku(eventsByStore, nowMs) {
 		0.15 * S_widely_available;
 
 	// Confidence: only two ways to lose it.
-	//   ageSignal — penalty if we've just started seeing this item; ramps to
-	//   full over the first 7 days of any observation history. Anything past
-	//   a week of any visibility is enough to commit to a tier.
+	//   ageSignal — penalty for not-yet-enough observation; the ramp depends on
+	//   stock state (fully OOS 5d of OOS time, partial 7d, fully in stock 30d).
+	//   See src/utils/rarity.js for the reasoning.
 	//   epochSignal — penalty if the most recent in-stock observation was
 	//   suspiciously close to a store's tracking start. Computed PER STORE against
 	//   that store's own epoch (in the loop above), then combined with MAX: the
@@ -314,10 +323,15 @@ export function scoreSku(eventsByStore, nowMs) {
 	//   confident as soon as ANY store has watched it long enough past its own epoch.
 	//   A fresh flicker at a brand-new store is discounted on its own merits yet can't
 	//   erase a long-observing store's earned confidence. Mirror of src/utils/rarity.js.
-	// NOTE: this file's ageSignal is a single ramp; the CJS src/utils/rarity.js
-	// version branches on stock state (OOS / partial / full). Pre-existing drift —
-	// reconcile later. The epochSignal below is identical to the CJS version.
-	const ageSignal = Math.min(ageDays / 7, 1);
+	let ageSignal;
+	if (currentlyStockedStores === 0) {
+		const oosTime = Math.max(0, ageDays - totalInStockDays);
+		ageSignal = Math.min(oosTime / 5, 1);
+	} else if (currentlyStockedStores >= stores.length) {
+		ageSignal = Math.min(ageDays / 30, 1);
+	} else {
+		ageSignal = Math.min(ageDays / 7, 1);
+	}
 	const epochSignal = storeEpochSignals.length ? Math.max(...storeEpochSignals) : 0;
 	const confidence = ageSignal * epochSignal;
 

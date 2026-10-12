@@ -24,7 +24,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { loadSkuMap } = require("../src/utils/sku_map");
-const { scoreSku, computeTierThresholds, effectiveRarity } = require("../src/utils/rarity");
+const { scoreSku, computeTierThresholds, effectiveRarity, dropOneShotBatches } = require("../src/utils/rarity");
 const { loadDbEpochs } = require("../src/utils/db_epochs");
 
 function main() {
@@ -81,6 +81,11 @@ function main() {
 			for (const ev of info.events || []) agg[storeFile].events.push(ev);
 		}
 	}
+
+	const batchDrop = dropOneShotBatches(aggByCanon);
+	process.stdout.write(
+		`[rarity] dropped ${batchDrop.droppedEntries} one-shot listings from ${batchDrop.batches.length} batch runs\n`,
+	);
 
 	process.stdout.write(`[rarity] scoring ${aggByCanon.size} canonical groups...\n`);
 

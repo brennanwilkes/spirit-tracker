@@ -1020,8 +1020,23 @@ export function renderSearch($app) {
 				? `<span class="badge badgeExclusive">Exclusive</span>`
 				: "";
 
-		const storeHref = String(r.url || "").trim();
-		const storeLabel = (r.storeLabel || r.store || "") + plus;
+		// The event's store is only shown while it still stocks the item: the Last Stock /
+		// Exclusive badges describe the live store, so a sellout at ZYN must not label a
+		// row whose only live store is Color de Vino.
+		const eventStore = String(r.storeLabel || r.store || "").trim();
+		const liveSet = liveStoresBySku.get(sku) || new Set();
+		let liveStore = "";
+		let storeHref = "";
+		if (liveSet.has(normStoreKey(eventStore))) {
+			liveStore = eventStore;
+			storeHref = String(r.url || "").trim();
+		} else if (!stock.outOfStock) {
+			const scopedBest = resolvedStoreNorms ? bestLiveStoreForSku(sku, resolvedStoreNorms) : null;
+			const best = scopedBest?.storeLabel ? scopedBest : bestLiveStoreForSku(sku, null);
+			liveStore = best.storeLabel || storeDisplayByNorm.get([...liveSet][0]);
+			storeHref = urlForAgg({ sku }, liveStore);
+		}
+		const storeLabel = liveStore ? liveStore + plus : "";
 		const storeHtml = storeLabel
 			? storeHref
 				? `<a class="itemStore" href="${esc(storeHref)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(storeLabel)}</a>`
