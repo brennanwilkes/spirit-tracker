@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T06:57:50.661Z",
+  "generatedAt": "2026-10-12T18:38:10.157Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6569,
-    "removedRows": 1369,
-    "canonSkus": 2547,
+    "liveRows": 6577,
+    "removedRows": 1364,
+    "canonSkus": 2548,
     "outputCount": 250
   },
   "rows": [
@@ -2487,6 +2487,58 @@
       }
     },
     {
+      "canonSku": "243824",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 153.89,
+        "bcl": 144.99,
+        "everythingwine": 154.99,
+        "gull": 149.75,
+        "highpointbws": 160.99,
+        "legacyliquor": 161.92,
+        "liquorwarehouse": 160,
+        "newdistrict": 164.99,
+        "tudor": 144.99,
+        "vessel": 139.99
+      },
+      "representative": {
+        "name": "Oban - 14 Year Old Single Malt Scotch",
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "243824",
+        "skuKey": "243824",
+        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch-05000281002989",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$139.99",
+        "priceNum": 139.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch-05000281002989"
+      }
+    },
+    {
       "canonSku": "250013",
       "storeCount": 10,
       "stores": [
@@ -4586,57 +4638,6 @@
       }
     },
     {
-      "canonSku": "243824",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 153.89,
-        "bcl": 144.99,
-        "everythingwine": 154.99,
-        "gull": 149.75,
-        "highpointbws": 160.99,
-        "liquorwarehouse": 160,
-        "newdistrict": 164.99,
-        "tudor": 144.99,
-        "vessel": 139.99
-      },
-      "representative": {
-        "name": "Oban - 14 Year Old Single Malt Scotch",
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "243824",
-        "skuKey": "243824",
-        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch-05000281002989",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$139.99",
-        "priceNum": 139.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/oban-14-year-old-single-malt-scotch-05000281002989"
-      }
-    },
-    {
       "canonSku": "249680",
       "storeCount": 9,
       "stores": [
@@ -4838,6 +4839,57 @@
         "priceNum": 49.99,
         "storeKey": "everythingwine",
         "url": "https://www.everythingwine.ca/bruichladdich-the-botanist-islay-dry-gin-750ml"
+      }
+    },
+    {
+      "canonSku": "385328",
+      "storeCount": 9,
+      "stores": [
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "liquorwarehouse",
+        "newdistrict",
+        "vessel"
+      ],
+      "storePrices": {
+        "everythingwine": 44.98,
+        "gull": 36.95,
+        "highpointbws": 44.99,
+        "legacyliquor": 41.8,
+        "liberty": 51.99,
+        "marquis": 49.99,
+        "strath": 43.39,
+        "tudor": 42.99,
+        "vintage": 38.17
+      },
+      "representative": {
+        "name": "Lemon Hart – Blackpool Spiced Rum 750ml",
+        "price": "$36.95",
+        "priceNum": 36.95,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "385328",
+        "skuKey": "385328",
+        "url": "https://gullliquorstore.com/product/lemon-hart-navy-spiced-demerara-750ml/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$36.95",
+        "priceNum": 36.95,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/lemon-hart-navy-spiced-demerara-750ml/"
       }
     },
     {
@@ -5351,6 +5403,57 @@
       }
     },
     {
+      "canonSku": "752142",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.99,
+        "bcl": 104.99,
+        "everythingwine": 104.99,
+        "gull": 103.99,
+        "legacyliquor": 110.99,
+        "marquis": 107.99,
+        "strath": 107.31,
+        "tudor": 104.99,
+        "vessel": 104.99
+      },
+      "representative": {
+        "name": "BUNNAHABHAIN 12YO",
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "791004",
+        "skuKey": "791004",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591594-bunnahabhain-12yo",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$102.99",
+        "priceNum": 102.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4591594-bunnahabhain-12yo"
+      }
+    },
+    {
       "canonSku": "760609",
       "storeCount": 9,
       "stores": [
@@ -5750,6 +5853,56 @@
         "priceNum": 35.79,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795735-bacardi-gold-1-14l"
+      }
+    },
+    {
+      "canonSku": "003822",
+      "storeCount": 8,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 39.99,
+        "everythingwine": 42.99,
+        "gull": 41,
+        "highpointbws": 49.29,
+        "legacyliquor": 46.99,
+        "liquorwarehouse": 46.99,
+        "tudor": 44.99,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "LOT NO. 40 - RYE WHISKY",
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "003822",
+        "skuKey": "003822",
+        "url": "https://www.bcliquorstores.com/product/3822",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$39.99",
+        "priceNum": 39.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/3822"
       }
     },
     {
@@ -7803,56 +7956,6 @@
       }
     },
     {
-      "canonSku": "385328",
-      "storeCount": 8,
-      "stores": [
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "storePrices": {
-        "everythingwine": 44.98,
-        "gull": 36.95,
-        "highpointbws": 44.99,
-        "legacyliquor": 41.8,
-        "liberty": 51.99,
-        "marquis": 49.99,
-        "strath": 43.39,
-        "vintage": 38.17
-      },
-      "representative": {
-        "name": "Lemon Hart – Blackpool Spiced Rum 750ml",
-        "price": "$36.95",
-        "priceNum": 36.95,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "385328",
-        "skuKey": "385328",
-        "url": "https://gullliquorstore.com/product/lemon-hart-navy-spiced-demerara-750ml/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$36.95",
-        "priceNum": 36.95,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/lemon-hart-navy-spiced-demerara-750ml/"
-      }
-    },
-    {
       "canonSku": "394984",
       "storeCount": 8,
       "stores": [
@@ -8503,56 +8606,6 @@
       }
     },
     {
-      "canonSku": "752142",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 102.99,
-        "bcl": 104.99,
-        "everythingwine": 104.99,
-        "gull": 103.99,
-        "legacyliquor": 110.99,
-        "marquis": 107.99,
-        "strath": 107.31,
-        "vessel": 104.99
-      },
-      "representative": {
-        "name": "BUNNAHABHAIN 12YO",
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "791004",
-        "skuKey": "791004",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591594-bunnahabhain-12yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$102.99",
-        "priceNum": 102.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591594-bunnahabhain-12yo"
-      }
-    },
-    {
       "canonSku": "762738",
       "storeCount": 8,
       "stores": [
@@ -8946,55 +8999,6 @@
         "priceNum": 27.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/3400"
-      }
-    },
-    {
-      "canonSku": "003822",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 39.99,
-        "everythingwine": 42.99,
-        "gull": 41,
-        "highpointbws": 49.29,
-        "legacyliquor": 46.99,
-        "liquorwarehouse": 46.99,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "LOT NO. 40 - RYE WHISKY",
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "003822",
-        "skuKey": "003822",
-        "url": "https://www.bcliquorstores.com/product/3822",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$39.99",
-        "priceNum": 39.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/3822"
       }
     },
     {
