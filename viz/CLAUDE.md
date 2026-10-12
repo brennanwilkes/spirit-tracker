@@ -386,11 +386,13 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   (asymptote 160px, no hard cap) and a spinner drops in; 100px of content travel (~240px of finger)
   reloads. The first version (linear half speed, hard 110px cap, fired at 128px of finger) felt
   "crunchy" to the owner. Passive listeners; skipped when the touch starts in something with its own
-  gesture (an inner scroller, canvas, range input, dialog, the fixed bars). **The reload waits
-  `SETTLE_MS` (400 ms) after `touchend`, never inside it**: a reload fired mid-gesture left the tab
-  bar floating above a strip of background in the reloaded page (stuck on the short item page,
-  self-correcting on Search once the catalog grew the document). Cold launches and resume reloads
-  never showed it. The fix is an unverified hypothesis until it is checked on a device (2026-10-05).
+  gesture (an inner scroller, canvas, range input, dialog, the fixed bars). **On release `#app` slides
+  back to 0 (spinner stays down) and the reload fires `SETTLE_MS` (400 ms) later, never inside
+  `touchend`.** A reload with `#app` still translated left the tab bar floating ~10vh (= `THRESHOLD`,
+  100px) above a strip of background in the reloaded page: stuck on the short item page,
+  self-correcting on Search once the catalog grew the document. Cold launches and resume reloads
+  never showed it. The settle delay alone (2026-10-05) did NOT fix it; the translate-reset
+  (2026-10-12) is the current hypothesis, unverified on a device.
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
 - **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition;
