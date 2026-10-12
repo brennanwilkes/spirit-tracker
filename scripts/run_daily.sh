@@ -169,7 +169,7 @@ if [[ -d viz/data/skus ]] && compgen -G "viz/data/skus/*.json" >/dev/null; then
 else
   "$NODE_BIN" tools/build_viz_sku_cache.js --full-reindex
 fi
-"$NODE_BIN" tools/build_viz_rarity.js
+# build_viz_rarity.js runs AFTER auto_link_classify.mjs below, not here.
 
 # --- #/stats series bundles ---
 # Restore the PREVIOUS bundles from the Release first. They are Release assets, not committed, so
@@ -375,6 +375,11 @@ set +e
 alc_rc=$?
 set -e
 [[ $alc_rc -ne 0 ]] && echo "WARN: auto-link classification failed (rc=$alc_rc); no pending links added this run" >&2
+
+# Rarity is scored per canonical group, so it must see this run's auto-links. Built before them,
+# a new listing linked into a rare group (Longrow 18 back at another store) was scored as its own
+# fresh one-store group, and the email pack's byCanon lookup gave it a neutral or missing tier.
+"$NODE_BIN" tools/build_viz_rarity.js
 
 # Drop sku_embeddings.json from version control — it now lives as a Release asset (uploaded
 # above), not in git. One-time on the first post-migration run; idempotent thereafter

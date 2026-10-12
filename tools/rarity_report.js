@@ -40,7 +40,7 @@ function canonical(sku, map) {
 
 // ---------------- Build per-canonical event aggregate ----------------
 
-const { scoreSku: scoreSkuShared, computeTierThresholds, tierFor, effectiveRarity } = require("../src/utils/rarity");
+const { scoreSku: scoreSkuShared, computeTierThresholds, tierFor, effectiveRarity, dropOneShotBatches } = require("../src/utils/rarity");
 const { loadDbEpochs } = require("../src/utils/db_epochs");
 const DB_EPOCHS = loadDbEpochs(DB_DIR);
 
@@ -121,6 +121,8 @@ for (const f of files) {
 	}
 }
 
+const batchDrop = dropOneShotBatches(aggByCanon);
+console.error(`[rarity] dropped ${batchDrop.droppedEntries} one-shot listings from ${batchDrop.batches.length} batch runs`);
 console.error(`[rarity] ${aggByCanon.size} canonical SKUs`);
 const names = loadNames(INDEX_PATH, canonMap);
 

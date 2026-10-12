@@ -107,6 +107,20 @@ KWM has the same problem — 11 `PE `-prefixed listings (e.g. `PE SMWS August Vi
 Tasting`) — deliberately left unfiltered for now (some `PE ` items, like the advent-calendar
 sets, are real products).
 
+## Malts & Grains non-spirits filter (`src/stores/maltsandgrains.js`, 2026-10-12)
+
+Its "All Spirits" category is the store's whole Shopify catalog, bucketed by `product_type`,
+and those types are merchandising labels: **"France" is 177 wines, "Cognac & Brandy" is brandy,
+"On Sale" mixes tequila with Springbank.** `classifyMaltsProduct` now drops France and
+cognac/brandy/armagnac/calvados types. For types that are not recognisably whisky or rum (On
+Sale, anything new), it also drops products tagged `Tequila & Mezcal` or titled
+tequila/mezcal/maguey/`NOM 1234`, unless the title also says cask/finish/barrel/edition, a whisky
+word, or ends in a truncated "Ca"/"Cas". A whisky-typed product is never title-filtered: tequila-
+and mezcal-cask whiskies (Smokehead Tequila Islay, Rock Island Mezcal) name the agave. Owner rule:
+**better to scrape a non-spirit than to miss a whisky.** Untagged tequilas with no agave word in
+the title (Cultura "- 1414", Suave, Fuenteseca) still get through; hide those by hand. Measured
+on the live catalog: 702 → 613 live, all 89 removals non-spirits, no category guarded.
+
 ## Windowed pagination navs under-count total pages (2026-08-11)
 
 `extractTotalPagesFromPaginationHtml` takes the **highest page number appearing in any href**
