@@ -391,8 +391,13 @@ commit, or read-only Pages where git isn't reachable) → show everything.
   `touchend`.** A reload with `#app` still translated left the tab bar floating ~10vh (= `THRESHOLD`,
   100px) above a strip of background in the reloaded page: stuck on the short item page,
   self-correcting on Search once the catalog grew the document. Cold launches and resume reloads
-  never showed it. The settle delay alone (2026-10-05) did NOT fix it; the translate-reset
-  (2026-10-12) is the current hypothesis, unverified on a device.
+  never showed it. Neither the settle delay (2026-10-05) nor resetting the translate (2026-10-12)
+  fixed it. Device facts: the gap varies in size, survives scrolling AND further pull-to-refreshes,
+  and a tab switch clears it, so the web view itself is stuck, not the page.
+  `viewport_heal.js`'s `heal()` never fires for it (innerHeight is not short); its `nudge()` (grow
+  the document for two frames once the body's size settles, mimicking a tab switch) is the current
+  guess, unverified. If that fails, the structural fix is an app shell in standalone: `#app`
+  scrolls instead of the window and the nav is a flex child, not `position: fixed`.
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
 - **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition;
