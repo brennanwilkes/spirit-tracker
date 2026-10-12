@@ -247,9 +247,9 @@ export async function renderItem($app, skuInput) {
 
 	$app.innerHTML = `
 		<div class="container detailContainer">
-			<div class="topbar">
+			<div class="topbar itemTopbar">
 				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
-				<span class="badge mono">${esc(displaySku(sku))}</span>
+				<span class="itemTopbarSku mono">${esc(displaySku(sku))}</span>
 				<div id="chartMode" class="chartModeToggle" role="group" aria-label="Chart view">
 					<button type="button" class="chartModeBtn" data-mode="stores" aria-pressed="false" disabled>Stores</button>
 					<button type="button" class="chartModeBtn" data-mode="summary" aria-pressed="false" disabled>Summary</button>
@@ -1310,9 +1310,13 @@ export async function renderItem($app, skuInput) {
 		};
 	}
 
+	const defaultsToSummary = summaryBlockedReason === null && (storesEver >= 8 || tier === "staple");
+
 	const storesView = {
 		datasets,
-		markers,
+		// Where Summary is the default, it carries the market context (province medians, Target),
+		// so the Stores view stays just the stores.
+		markers: defaultsToSummary ? [] : markers,
 		legendTitle: "Stores",
 		ySug,
 		yMin: Number.isFinite(ySugFinal.suggestedMin) ? Math.max(0, ySugFinal.suggestedMin) : undefined,
@@ -1421,7 +1425,7 @@ export async function renderItem($app, skuInput) {
 		}
 	}
 
-	let chartMode = summaryBlockedReason === null && (storesEver >= 8 || tier === "staple") ? "summary" : "stores";
+	let chartMode = defaultsToSummary ? "summary" : "stores";
 	if (summaryBlockedReason === null) {
 		for (const btn of $chartMode.querySelectorAll(".chartModeBtn")) btn.disabled = false;
 		$chartMode.addEventListener("click", (ev) => {
