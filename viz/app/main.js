@@ -33,7 +33,6 @@ import { applyStoredColorScheme, applyColorScheme } from "./theme.js";
 import { renderBottomNav } from "./components/bottom_nav.js";
 import { installPullToRefresh } from "./components/pull_to_refresh.js";
 import { installViewportHeal } from "./components/viewport_heal.js";
-import { installViewportDebug } from "./components/viewport_debug.js";
 import * as pwa from "./pwa.js";
 
 // Apply stored theme immediately to prevent FOUC
@@ -57,10 +56,7 @@ if (pwa.isStandalone()) {
 	document.documentElement.classList.add("standalone");
 	installPullToRefresh();
 	// iOS-only WebKit bug; navigator.standalone exists only on iOS.
-	if (navigator.standalone === true) {
-		installViewportHeal();
-		installViewportDebug();
-	}
+	if (navigator.standalone === true) installViewportHeal();
 }
 
 function parseHashRoute(fullHash) {
