@@ -119,7 +119,7 @@ viz/
 | File | Purpose |
 |------|---------|
 | `app/stores.js` | All store entries (id, label, region, color, logo, aliases, **`cities[]`**). Use `storeById()`, `storesByRegion()`, `storesByCity()`, `allCities()`, `cityLabel()`, `normalizeStoreId()`. `cities` is an array (a store can serve >1 metro, e.g. Everything Wine/BCL = Vancouver+Victoria); set via the `CITY_BY_STORE` map. Stores with no city never appear in a city preset. |
-| `app/stores.js` → `FAVOURITE_STORE_IDS` | The shops actually worth checking (strath, vessel, kwm, gull, legacyliquor, kegncork, maltsandgrains). **Presentation only** — nothing in scraping, scoring or alerts reads it. `storesByRegion()` itself returns favourites first, then alphabetical, so every list of a region's stores shares one order (`#/stores`, the store-set dropdown, email-alert rules). `#/stores` gives the row an amber rim + soft glow (`.row.favStore`, `stores_page.css`, deliberately no star glyph); the dropdown colours `.storeSetOption.favStore`'s LABEL gold instead, dimmer until checked (a fill and an outline were both rejected by the owner), re-stated in each theme block. The raw `STORES` array order is insertion order and was never meant to be displayed. The stores page loads **no** data, so ordering by catalog size / # exclusives was rejected — it would mean fetching the ~12 MB `index.json` on an otherwise instant page. |
+| `app/stores.js` → `FAVOURITE_STORE_IDS` | The shops actually worth checking (strath, vessel, kwm, gull, legacyliquor, kegncork, maltsandgrains). **Presentation only** — nothing in scraping, scoring or alerts reads it. `storesByRegion()` itself returns favourites first, then alphabetical, so every list of a region's stores shares one order (`#/stores`, the store-set dropdown, email-alert rules). Marked with the search page's STAPLE look (owner call 2026-10-12; amber/gold made pages too busy): `#/stores` rows and item-page store links get the `--rarity-staple-border/-glow` rim + glow (`.favStore`, deliberately no star glyph); the store-set dropdown makes the LABEL bold, staple-grey until checked (a fill and an outline were both rejected). The tokens are themed, so there are no per-theme copies. The raw `STORES` array order is insertion order and was never meant to be displayed. The stores page loads **no** data, so ordering by catalog size / # exclusives was rejected — it would mean fetching the ~12 MB `index.json` on an otherwise instant page. |
 | `app/store_set.js` | **Store-set model** — a selection of stores any list surface can filter by. Spec kinds: `all` / `region` / `city` / `stores` (ad-hoc) / `mine` (user profile). `resolveStoreSet()`→`Set<id>`\|null (null=all), `parse/serializeStoreSet()` (URL-encodable: `?stores=region:bc`), `storeSetLabel()`, `builtInPresets()`, `sameStoreSet()`. |
 | `app/components/store_set_selector.js` | Reusable store-set dropdown (preset chips + ad-hoc checkbox multi-select). **Multi-instance safe**: class-based internals (no ids) + ONE shared outside-click listener (`ensureDocListener`), so many can coexist (search filter, settings "My Stores", one per email-alert rule). Locate the root via `.storeSet`. `storeSetSelectorHtml()` + `installStoreSetSelector({$container, spec, myStores, authed, onChange})`. Styles in `style.css` (`.storeSet*`); panel spans full row on mobile, fixed-width dropdown ≥641px. |
 | `app/catalog.js` | Aggregate items by canonical SKU; compute cheapest price, store availability |
@@ -614,8 +614,10 @@ Any future control that hides its input inside a bigger surface needs the same t
   store-day points; desktop used to draw them all and lagged on long histories).
 - **Item chart has two modes** (`item_page.js` `renderChart(mode)`, pill `#chartMode` in the topbar):
   Stores (one line per store) and Summary (`item_chart.js::computeSummarySeries`: BC/AB medians with
-  p25–p75 bands and a trailing 90-day "Good price"). Defaults, lock rules and the design are in
-  `docs/item-chart-summary-mode-feasibility.md`. Summary colours are the `--chart-bc/-ab/-target` and
+  p25–p75 bands and a trailing 90-day "Good price", all smoothed into trends). Both modes share the
+  `#chartLegend` panel (`buildChartLegend(chart, title)`; a band carries its median's label so they
+  toggle together). Defaults, lock rules, smoothing and outlier exclusion are in
+  `docs/item-chart-summary-mode-feasibility.md` (status block at the top). Summary colours are the `--chart-bc/-ab/-target` and
   `--chart-band-alpha` tokens, read via `getComputedStyle` at render (canvas can't use `var()`), so
   like every colour token they live in all four theme places.
 - **X axis = `item_chart.js::monthYearXAxis()`**, shared by the item and stats charts: "Mon YYYY"
@@ -627,7 +629,6 @@ Any future control that hides its input inside a bigger surface needs the same t
   that would touch one. That check must run there: tick callbacks are formatted before the final
   layout pass, so pixel tests inside them are off by a few px (the old in-callback test missed
   `$34` vs `Target`). Phones label Alberta `AB`.
-- Item-page store links from `FAVOURITE_STORE_IDS` get `#/stores`' amber rim + glow (`.links a.favStore`).
 - `computeSuggestedY`'s `padRatio` is the chart's vertical breathing room. Mobile passes `0.05`
   (it was `0.01`, which put extreme series flush against the frame and read as clipped).
 

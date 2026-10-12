@@ -799,10 +799,10 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   transform: rotate(45deg);
 }
 .storeSetOption input:checked ~ .storeSetOptionLabel { color: var(--text); }
-/* FAVOURITE_STORE_IDS: #/stores' gold, as label text (a fill or an outline reads badly in a
-   dropdown). `input ~` outranks the :checked rule above; dimmer until checked, like the rest. */
-.storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(240, 180, 41, 0.72); }
-.storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(240, 180, 41); }
+/* FAVOURITE_STORE_IDS: bold label in the staple grey (a fill or an outline reads badly in a
+   dropdown); a checked one keeps the normal checked colour, still bold. */
+.storeSetOption.favStore .storeSetOptionLabel { font-weight: 700; }
+.storeSetOption.favStore input:not(:checked) ~ .storeSetOptionLabel { color: var(--rarity-staple-border); }
 
 .storeSetActions {
   display: flex;
@@ -1389,8 +1389,6 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
   .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
   .storeSetGroupLabel { background: var(--lt-control); }
   .storeSetOption:hover { background: var(--lt-hover-bg); }
-  .storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(150, 100, 6, 0.8); }
-  .storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(150, 100, 6); }
   .storeSetTrigger.is-open,
   .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 }
@@ -1511,8 +1509,6 @@ html[data-theme="light"] .spiritFilterTrigger:focus { border-color: #3d7fa8; out
 html[data-theme="light"] .storeSetPanel { background: var(--lt-control); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
 html[data-theme="light"] .storeSetGroupLabel { background: var(--lt-control); }
 html[data-theme="light"] .storeSetOption:hover { background: var(--lt-hover-bg); }
-html[data-theme="light"] .storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(150, 100, 6, 0.8); }
-html[data-theme="light"] .storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(150, 100, 6); }
 html[data-theme="light"] .storeSetTrigger.is-open,
 html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline-color: #3d7fa8; }
 
@@ -1603,8 +1599,6 @@ html[data-theme="dark"] .stSwalConfirm:focus { box-shadow: 0 0 0 2px #37566b !im
 html[data-theme="dark"] .storeSetPanel { background: #0f1318; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
 html[data-theme="dark"] .storeSetGroupLabel { background: #0f1318; }
 html[data-theme="dark"] .storeSetOption:hover { background: rgba(255, 255, 255, 0.04); }
-html[data-theme="dark"] .storeSetOption.favStore input ~ .storeSetOptionLabel { color: rgba(240, 180, 41, 0.72); }
-html[data-theme="dark"] .storeSetOption.favStore input:checked ~ .storeSetOptionLabel { color: rgb(240, 180, 41); }
 html[data-theme="dark"] .storeSetTrigger.is-open,
 html[data-theme="dark"] .storeSetTrigger:focus { border-color: #37566b; outline-color: #37566b; }
 
