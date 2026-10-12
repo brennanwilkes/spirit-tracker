@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T06:38:11.267Z",
+  "generatedAt": "2026-10-12T06:57:49.222Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -11,7 +11,7 @@
       "includeTies": false,
       "margin": 1,
       "cohortFile": "reports/common_listings_cohort_all_top250.json",
-      "cutoffStoreCount": 15
+      "cutoffStoreCount": 14
     }
   },
   "storeCount": 36,
@@ -54,8 +54,8 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 25158,
-    "removedRows": 9469,
+    "liveRows": 25156,
+    "removedRows": 9471,
     "canonSkus": 6847,
     "outputCount": 250
   },
@@ -11293,87 +11293,6 @@
       }
     },
     {
-      "canonSku": "003558",
-      "storeCount": 17,
-      "stores": [
-        "arc",
-        "bcl",
-        "bsw",
-        "coop",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "lime",
-        "liquorwarehouse",
-        "newdistrict",
-        "sierrasprings",
-        "silversprings",
-        "tudor",
-        "vessel",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "clbspirits",
-        "colordevino",
-        "craftcellars",
-        "elbowliquor",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "liberty",
-        "liquorama",
-        "maltsandgrains",
-        "marquis",
-        "rmwsb",
-        "sherbrooke",
-        "strath",
-        "vinearts",
-        "vintage",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "arc": 33.49,
-        "bcl": 34.99,
-        "bsw": 35.99,
-        "coop": 39.99,
-        "everythingwine": 34.99,
-        "gull": 37.15,
-        "highpointbws": 40.29,
-        "legacyliquor": 37.99,
-        "lime": 38.99,
-        "liquorwarehouse": 37.99,
-        "newdistrict": 38.79,
-        "sierrasprings": 29.99,
-        "silversprings": 37.95,
-        "tudor": 36.49,
-        "vessel": 35.99,
-        "wineandbeyond": 37.49,
-        "zyn": 39.9
-      },
-      "representative": {
-        "name": "Gibson?s Finest Rare 12 Year 750ml 40%",
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "sierrasprings",
-        "storeLabel": "Sierra Springs",
-        "skuRaw": "003558",
-        "skuKey": "003558",
-        "url": "https://sierraspringsliquor.ca/shop/canadian-whiskey/gibsons-finest-rare-12-year-750ml-40/",
-        "categoryLabel": "Canadian Whiskey",
-        "dbFile": "data/db/sierrasprings__canadian-whiskey__7abbcffc.json"
-      },
-      "cheapest": {
-        "price": "$29.99",
-        "priceNum": 29.99,
-        "storeKey": "sierrasprings",
-        "url": "https://sierraspringsliquor.ca/shop/canadian-whiskey/gibsons-finest-rare-12-year-750ml-40/"
-      }
-    },
-    {
       "canonSku": "052050",
       "storeCount": 17,
       "stores": [
@@ -14446,6 +14365,86 @@
         "priceNum": 22.99,
         "storeKey": "zyn",
         "url": "https://zyn.ca/products/lambs-navy-750-ml"
+      }
+    },
+    {
+      "canonSku": "003558",
+      "storeCount": 16,
+      "stores": [
+        "arc",
+        "bcl",
+        "bsw",
+        "coop",
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "lime",
+        "liquorwarehouse",
+        "newdistrict",
+        "sierrasprings",
+        "silversprings",
+        "tudor",
+        "vessel",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "clbspirits",
+        "colordevino",
+        "craftcellars",
+        "elbowliquor",
+        "gull",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "liberty",
+        "liquorama",
+        "maltsandgrains",
+        "marquis",
+        "rmwsb",
+        "sherbrooke",
+        "strath",
+        "vinearts",
+        "vintage",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "arc": 33.49,
+        "bcl": 34.99,
+        "bsw": 35.99,
+        "coop": 39.99,
+        "everythingwine": 34.99,
+        "highpointbws": 40.29,
+        "legacyliquor": 37.99,
+        "lime": 38.99,
+        "liquorwarehouse": 37.99,
+        "newdistrict": 38.79,
+        "sierrasprings": 29.99,
+        "silversprings": 37.95,
+        "tudor": 36.49,
+        "vessel": 35.99,
+        "wineandbeyond": 37.49,
+        "zyn": 39.9
+      },
+      "representative": {
+        "name": "Gibson?s Finest Rare 12 Year 750ml 40%",
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "sierrasprings",
+        "storeLabel": "Sierra Springs",
+        "skuRaw": "003558",
+        "skuKey": "003558",
+        "url": "https://sierraspringsliquor.ca/shop/canadian-whiskey/gibsons-finest-rare-12-year-750ml-40/",
+        "categoryLabel": "Canadian Whiskey",
+        "dbFile": "data/db/sierrasprings__canadian-whiskey__7abbcffc.json"
+      },
+      "cheapest": {
+        "price": "$29.99",
+        "priceNum": 29.99,
+        "storeKey": "sierrasprings",
+        "url": "https://sierraspringsliquor.ca/shop/canadian-whiskey/gibsons-finest-rare-12-year-750ml-40/"
       }
     },
     {
@@ -19059,85 +19058,6 @@
       }
     },
     {
-      "canonSku": "636845",
-      "storeCount": 15,
-      "stores": [
-        "bcl",
-        "bsw",
-        "clbspirits",
-        "craftcellars",
-        "everythingwine",
-        "gull",
-        "highlander",
-        "lime",
-        "marquis",
-        "sherbrooke",
-        "sierrasprings",
-        "vessel",
-        "vinearts",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "arc",
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "elbowliquor",
-        "highpointbws",
-        "kegncork",
-        "kwm",
-        "legacyliquor",
-        "liberty",
-        "liquorama",
-        "liquorwarehouse",
-        "maltsandgrains",
-        "newdistrict",
-        "rmwsb",
-        "silversprings",
-        "strath",
-        "tudor",
-        "vintage",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bcl": 90.99,
-        "bsw": 94.99,
-        "clbspirits": 88.24,
-        "craftcellars": 106.99,
-        "everythingwine": 94.99,
-        "gull": 99.75,
-        "highlander": 79.99,
-        "lime": 102,
-        "marquis": 96.99,
-        "sherbrooke": 108.42,
-        "sierrasprings": 99.99,
-        "vessel": 92.99,
-        "vinearts": 106.99,
-        "wineandbeyond": 106.99,
-        "zyn": 102
-      },
-      "representative": {
-        "name": "Redbreast 12yr Old Irish Whiskey 750ml",
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "highlander",
-        "storeLabel": "Highlander Wine & Spirits",
-        "skuRaw": "636845",
-        "skuKey": "636845",
-        "url": "https://highlanderwine.com/product/redbreast-12yr-old-irish-whiskey-750ml/",
-        "categoryLabel": "Whiskey",
-        "dbFile": "data/db/highlander__whiskey__a84f92bb.json"
-      },
-      "cheapest": {
-        "price": "$79.99",
-        "priceNum": 79.99,
-        "storeKey": "highlander",
-        "url": "https://highlanderwine.com/product/redbreast-12yr-old-irish-whiskey-750ml/"
-      }
-    },
-    {
       "canonSku": "677738",
       "storeCount": 15,
       "stores": [
@@ -20624,6 +20544,84 @@
         "priceNum": 72.16,
         "storeKey": "clbspirits",
         "url": "https://clbspirits.com/products/high-west-campfire"
+      }
+    },
+    {
+      "canonSku": "636845",
+      "storeCount": 14,
+      "stores": [
+        "bcl",
+        "bsw",
+        "clbspirits",
+        "craftcellars",
+        "everythingwine",
+        "highlander",
+        "lime",
+        "marquis",
+        "sherbrooke",
+        "sierrasprings",
+        "vessel",
+        "vinearts",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "arc",
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "elbowliquor",
+        "gull",
+        "highpointbws",
+        "kegncork",
+        "kwm",
+        "legacyliquor",
+        "liberty",
+        "liquorama",
+        "liquorwarehouse",
+        "maltsandgrains",
+        "newdistrict",
+        "rmwsb",
+        "silversprings",
+        "strath",
+        "tudor",
+        "vintage",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bcl": 90.99,
+        "bsw": 94.99,
+        "clbspirits": 88.24,
+        "craftcellars": 106.99,
+        "everythingwine": 94.99,
+        "highlander": 79.99,
+        "lime": 102,
+        "marquis": 96.99,
+        "sherbrooke": 108.42,
+        "sierrasprings": 99.99,
+        "vessel": 92.99,
+        "vinearts": 106.99,
+        "wineandbeyond": 106.99,
+        "zyn": 102
+      },
+      "representative": {
+        "name": "Redbreast 12yr Old Irish Whiskey 750ml",
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "highlander",
+        "storeLabel": "Highlander Wine & Spirits",
+        "skuRaw": "636845",
+        "skuKey": "636845",
+        "url": "https://highlanderwine.com/product/redbreast-12yr-old-irish-whiskey-750ml/",
+        "categoryLabel": "Whiskey",
+        "dbFile": "data/db/highlander__whiskey__a84f92bb.json"
+      },
+      "cheapest": {
+        "price": "$79.99",
+        "priceNum": 79.99,
+        "storeKey": "highlander",
+        "url": "https://highlanderwine.com/product/redbreast-12yr-old-irish-whiskey-750ml/"
       }
     },
     {
