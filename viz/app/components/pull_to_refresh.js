@@ -90,9 +90,7 @@ export function installPullToRefresh() {
 			refreshing = true;
 			show(THRESHOLD, true);
 			$ptr.classList.add("ptrBusy");
-			// Not synchronously in touchend: iOS is still ending the pan on its scroll view, and a
-			// page loaded mid-gesture inherits that offset, leaving the fixed tab bar floating above
-			// a strip of background until something re-lays out (never, on a short item page).
+			// After the snap, so the spinner is seen settling before the page goes.
 			setTimeout(() => location.reload(), SETTLE_MS);
 		} else if (pull > 0) {
 			show(0, true);

@@ -1694,6 +1694,13 @@ body::before {
    instead. Browser tabs keep the bounce (Safari's pull-to-refresh lives on it). */
 @media (display-mode: standalone) {
   html, body { overscroll-behavior-y: none; }
+  /* The installed iOS app loads every page with the SMALL viewport (100svh) and grows it to the
+     screen only once the document overflows. At 100dvh, which tracks that small viewport, a short
+     page (the item page) never overflows, so the tab bar stayed parked ~47px above the bottom, on
+     every reload, until a long page like Search was visited. 100lvh is the full height from the
+     first layout, so the document overflows, iOS grows the viewport, and then nothing scrolls.
+     Not in a browser tab: there lvh is taller than the visible area and short pages would scroll. */
+  body { min-height: 100lvh; }
 }
 .ptr {
   position: fixed;

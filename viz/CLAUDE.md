@@ -384,27 +384,22 @@ commit, or read-only Pages where git isn't reachable) → show everything.
 - **Pull-to-refresh in the installed app** (`components/pull_to_refresh.js`, installed by `main.js`
   only in standalone): from `scrollY` 0, `#app` follows the finger on an iOS-style rubber band
   (asymptote 160px, no hard cap) and a spinner drops in; 100px of content travel (~240px of finger)
-  reloads. The first version (linear half speed, hard 110px cap, fired at 128px of finger) felt
-  "crunchy" to the owner. Passive listeners; skipped when the touch starts in something with its own
-  gesture (an inner scroller, canvas, range input, dialog, the fixed bars). **On release `#app` slides
-  back to 0 (spinner stays down) and the reload fires `SETTLE_MS` (400 ms) later, never inside
-  `touchend`.** A reload with `#app` still translated left the tab bar floating ~10vh (= `THRESHOLD`,
-  100px) above a strip of background in the reloaded page: stuck on the short item page,
-  self-correcting on Search once the catalog grew the document. Cold launches and resume reloads
-  never showed it. Neither the settle delay (2026-10-05) nor resetting the translate (2026-10-12)
-  fixed it. Device facts: the gap varies in size, survives scrolling AND further pull-to-refreshes,
-  and a tab switch clears it, so the web view itself is stuck, not the page.
-  `viewport_heal.js`'s `heal()` never fires for it (innerHeight is not short). A `nudge()` that grew
-  the document for two frames after every body resize (to mimic a tab switch) did not fix it and
-  made the page flicker; removed. Diagnosing with `components/viewport_debug.js` (TEMPORARY
-  readout, installed iOS app only). The structural fallback is an app shell in standalone: `#app`
-  scrolls instead of the window and the nav is a flex child, not `position: fixed`.
+  reloads, `SETTLE_MS` (400 ms) after `touchend`. The first version (linear half speed, hard 110px
+  cap, fired at 128px of finger) felt "crunchy" to the owner. Passive listeners; skipped when the
+  touch starts in something with its own gesture (an inner scroller, canvas, range input, dialog,
+  the fixed bars).
 - **Search's catalog-wide maps are memoized** (`search_page.js` `DERIVED`, keyed by the identity of
   the cached index / rules / hidden set): rebuilding them cost ~350 ms of main thread per visit.
 - **Search title + hint (`.searchTitle`) are desktop only**, hidden under the §14 tab-bar condition;
   signed in, the whole search `.header` hides too (every button in it is a `.tabDup`), via `:has()`.
-- **`body` is `min-height: 100dvh`** (border-box, so padding counts): a document shorter than the screen
-  let the installed iOS app shift the fixed tab bar while Shortlist/Stats were still loading.
+- **Installed iOS app: every page load starts on the SMALL viewport** (measured on device 2026-10-12:
+  `innerHeight` 879 = `100svh` on a 926 screen) and iOS grows it to the screen only once the document
+  overflows. So `body` is `min-height: 100dvh` in general but **`100lvh` under `display-mode:
+  standalone`**: at `dvh` (which tracks the small viewport) a short page such as the item page never
+  overflowed, and the fixed tab bar sat 47px above the bottom after every load/pull-to-refresh until
+  a long page (Search) was visited. Several guesses (reload settle delay, resetting `#app`'s
+  translate, forcing re-layouts) were wrong; an on-device readout of `innerHeight` / `visualViewport`
+  / unit probes found it. Same mechanism as the earlier "tab bar shifts while Shortlist/Stats load".
 - **Viewport units**: prefer `svh` (stable) for min-heights, `dvh` for locked app-shell heights;
   always leave a plain `vh` fallback line above.
 - **`--nav-bg` token**: like all tokens it must be declared in ALL FOUR places — base `:root`,
