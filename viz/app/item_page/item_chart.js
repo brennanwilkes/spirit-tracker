@@ -16,7 +16,7 @@
  *   - computeSummarySeries       Province medians/bands + 90-day moving Target for Summary mode
  */
 
-import { normalizeStoreId, storeById } from "../stores.js";
+import { normalizeStoreId, storeById, storesByRegion } from "../stores.js";
 
 // ── Province classification ────────────────────────────────────────────────
 
@@ -102,7 +102,9 @@ export function lastFiniteFromEnd(arr) {
 // A store that goes out of stock keeps its last price in the medians for this many
 // days. Without it ~2/3 of median moves were stores leaving/re-entering the set.
 export const SUMMARY_HOLD_DAYS = 7;
-export const SUMMARY_MEDIAN_MIN_STORES = 3;
+// A province's line starts the day ONE store carries the item (owner call 2026-10-12: show a
+// market the moment it gets a bottle). How thin that support is shows in the line width.
+export const SUMMARY_MEDIAN_MIN_STORES = 1;
 export const SUMMARY_TARGET_WINDOW_DAYS = 90;
 // Summary lines are trends, not price levels (owner call 2026-10-12: day-to-day steps read as
 // blocky). A centred 7-day rolling median first drops the 1–3 day flips a median makes as the
@@ -173,6 +175,7 @@ export function computeSummarySeries(stores, labels) {
 	// instead of cutting the band in and out.
 	function region(wantBc) {
 		const median = new Array(days).fill(null);
+		const stores = new Array(days).fill(null);
 		const sqDevs = new Array(days).fill(null);
 		for (let i = 0; i < days; i++) {
 			const vals = [];
@@ -181,6 +184,7 @@ export function computeSummarySeries(stores, labels) {
 			}
 			if (vals.length < SUMMARY_MEDIAN_MIN_STORES) continue;
 			vals.sort((a, b) => a - b);
+			stores[i] = vals.length;
 			median[i] = quantileSorted(vals, 0.5);
 			sqDevs[i] = vals.map((v) => (v - median[i]) ** 2);
 		}
@@ -198,7 +202,12 @@ export function computeSummarySeries(stores, labels) {
 		});
 		const mid = smoothTrend(median);
 		const spread = smoothTrend(sigma);
+		// Share of the province's tracked stores carrying it, smoothed like the lines so the
+		// width ramps instead of stepping.
+		const tracked = storesByRegion(wantBc ? "bc" : "ab").length;
 		return {
+			stores,
+			coverage: smoothTrend(stores.map((n) => (n === null ? null : n / tracked))),
 			median: mid,
 			lo: mid.map((m, i) => (m === null ? null : m - spread[i])),
 			hi: mid.map((m, i) => (m === null ? null : m + spread[i])),
