@@ -614,7 +614,8 @@ Any future control that hides its input inside a bigger surface needs the same t
   store-day points; desktop used to draw them all and lagged on long histories).
 - **Item chart has two modes** (`item_page.js` `renderChart(mode)`, pill `#chartMode` in the topbar):
   Stores (one line per store) and Summary (`item_chart.js::computeSummarySeries`: BC/AB medians with
-  p25–p75 bands and a trailing 90-day "Good price", all smoothed into trends). Both modes share the
+  ±1σ bands and a grey trailing 90-day "Target", all smoothed into trends; tooltip = nearest line
+  only, via the `nearestLine` interaction mode registered in `renderChart`). Both modes share the
   `#chartLegend` panel (`buildChartLegend(chart, title)`; a band carries its median's label so they
   toggle together). Defaults, lock rules, smoothing and outlier exclusion are in
   `docs/item-chart-summary-mode-feasibility.md` (status block at the top). Summary colours are the `--chart-bc/-ab/-target` and
@@ -628,7 +629,8 @@ Any future control that hides its input inside a bigger surface needs the same t
   pushes labels closer than one line apart; `StaticMarkerLinesPlugin.afterLayout` blanks y ticks
   that would touch one. That check must run there: tick callbacks are formatted before the final
   layout pass, so pixel tests inside them are off by a few px (the old in-callback test missed
-  `$34` vs `Target`). Phones label Alberta `AB`.
+  `$34` vs `Target`). Phones label Alberta `AB`. The same hook drops Chart.js's axis min/max
+  labels when they crowd a step label (`$63` right above `$60`).
 - `computeSuggestedY`'s `padRatio` is the chart's vertical breathing room. Mobile passes `0.05`
   (it was `0.01`, which put extreme series flush against the frame and read as clipped).
 
