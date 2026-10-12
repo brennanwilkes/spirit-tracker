@@ -45,7 +45,7 @@ export function destroyChart() {
 // SKU variants (multiple datasets share one store label), so entries are grouped
 // by label and clicking toggles the whole group's visibility — mirroring the old
 // on-canvas legend's de-dup + group-toggle behavior.
-function buildChartLegend(chart) {
+function buildChartLegend(chart, title) {
 	const panel = document.getElementById("chartLegend");
 	const list = document.getElementById("chartLegendList");
 	const countEl = document.getElementById("chartLegendCount");
@@ -65,7 +65,7 @@ function buildChartLegend(chart) {
 	}
 
 	panel.hidden = false;
-	countEl.textContent = `Stores (${groups.size})`;
+	countEl.textContent = `${title} (${groups.size})`;
 
 	const frag = document.createDocumentFragment();
 	for (const [label, { color, idxs }] of groups) {
@@ -322,7 +322,6 @@ export async function renderItem($app, skuInput) {
 				<summary><span id="chartLegendCount">Stores</span></summary>
 				<div class="chartLegendList" id="chartLegendList"></div>
 				</details>
-				<div class="chartKey" id="chartKey" hidden></div>
 			</div>
 			</div>
 		`;
@@ -372,7 +371,6 @@ export async function renderItem($app, skuInput) {
 	const $canvas = document.getElementById("chart");
 	const $thumbBox = document.getElementById("thumbBox");
 	const $chartMode = document.getElementById("chartMode");
-	const $chartKey = document.getElementById("chartKey");
 
 	const $linksMobile = document.getElementById("linksMobile");
 	const $linksDropdown = document.getElementById("linksDropdown");
@@ -1123,8 +1121,25 @@ export async function renderItem($app, skuInput) {
 		}
 	}
 
+	// With many stores, one or two pricing way above the rest stretch the y-axis
+	// and squash all the detail. Detect those and cap the axis; the min is never
+	// capped so low prices always render as usual.
+	const outlierInfo = computeHighOutlierCap(
+		storeSeriesSorted.map((st) => ({
+			label: st.label,
+			rep: weightedMeanByDuration(st.merged.points, labels),
+			values: st.merged.values,
+		})),
+	);
+	const outlierCap = outlierInfo ? outlierInfo.cap : null;
+	const outlierStores = outlierInfo ? outlierInfo.outliers : null;
+
+	// A store drawn "above the chart" is left out of every province median (these markers and
+	// Summary mode's lines): one premium shop shouldn't drag a province's normal price up.
+	const inScaleStores = storeSeriesSorted.filter((st) => !outlierStores?.has(st.label));
+
 	// --- Compute marker values (use merged per-store series) ---
-	const storeMeans = storeSeriesSorted
+	const storeMeans = inScaleStores
 		.map((st) => ({ label: st.label, mean: weightedMeanByDuration(st.merged.points, labels) }))
 		.filter((x) => Number.isFinite(x.mean));
 
@@ -1149,19 +1164,6 @@ export async function renderItem($app, skuInput) {
 	for (const ds of datasets) {
 		for (const v of ds.data) if (Number.isFinite(v)) allVals.push(v);
 	}
-
-	// With many stores, one or two pricing way above the rest stretch the y-axis
-	// and squash all the detail. Detect those and cap the axis; the min is never
-	// capped so low prices always render as usual.
-	const outlierInfo = computeHighOutlierCap(
-		storeSeriesSorted.map((st) => ({
-			label: st.label,
-			rep: weightedMeanByDuration(st.merged.points, labels),
-			values: st.merged.values,
-		})),
-	);
-	const outlierCap = outlierInfo ? outlierInfo.cap : null;
-	const outlierStores = outlierInfo ? outlierInfo.outliers : null;
 
 	// Mobile trades some headroom for plot area, but not all of it — at 0.01 the
 	// extreme series sat flush against the frame and read as clipped.
@@ -1222,7 +1224,7 @@ export async function renderItem($app, skuInput) {
 	if (tier === "rare") summaryBlockedReason = "Rare bottle: every store is shown";
 	else if (storesEver < 3) summaryBlockedReason = "Summary needs 3 or more stores";
 
-	const summary = summaryBlockedReason === null ? computeSummarySeries(storeSeriesSorted, labels) : null;
+	const summary = summaryBlockedReason === null ? computeSummarySeries(inScaleStores, labels) : null;
 	if (summary !== null && !summary.bc.median.some(Number.isFinite) && !summary.ab.median.some(Number.isFinite)) {
 		summaryBlockedReason = "Not enough stores in one province to summarise";
 	}
@@ -1241,7 +1243,7 @@ export async function renderItem($app, skuInput) {
 			return `rgba(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}, ${bandAlpha})`;
 		};
 
-		// A price is a level that holds until it changes, so every summary line is stepped.
+		// Monotone keeps the curve from overshooting past a real price between two days.
 		const line = (label, data, color, extra) => ({
 			label,
 			data,
@@ -1251,26 +1253,27 @@ export async function renderItem($app, skuInput) {
 			pointRadius: 0,
 			pointHoverRadius: 4,
 			spanGaps: false,
-			stepped: true,
+			cubicInterpolationMode: "monotone",
 			fill: false,
 			...extra,
 		});
-		const band = (data, color, fill) => ({
-			label: "",
+		// Same label + colour as its median, so the legend groups them into one toggle.
+		const band = (label, data, color, fill) => ({
+			label,
 			data,
 			_band: true,
+			borderColor: color,
 			borderWidth: 0,
 			pointRadius: 0,
 			pointHoverRadius: 0,
 			backgroundColor: withAlpha(color),
 			spanGaps: false,
-			stepped: true,
+			cubicInterpolationMode: "monotone",
 			fill,
 		});
 
 		const bands = [];
 		const lines = [];
-		const key = [];
 		const regions = [
 			{ name: "BC", data: summary.bc, color: token("--chart-bc"), tipOrder: 1 },
 			{ name: "Alberta", data: summary.ab, color: token("--chart-ab"), tipOrder: 2 },
@@ -1278,15 +1281,13 @@ export async function renderItem($app, skuInput) {
 		for (const r of regions) {
 			if (!r.data.median.some(Number.isFinite)) continue;
 			if (r.data.p25.some(Number.isFinite)) {
-				bands.push(band(r.data.p25, r.color, false), band(r.data.p75, r.color, "-1"));
+				bands.push(band(r.name, r.data.p25, r.color, false), band(r.name, r.data.p75, r.color, "-1"));
 			}
 			lines.push(line(r.name, r.data.median, r.color, { _region: r.data, _tipOrder: r.tipOrder }));
-			key.push({ label: r.name, color: r.color });
 		}
 		if (summary.target.some(Number.isFinite)) {
 			const color = token("--chart-target");
-			lines.push(line("Good price", summary.target, color, { _tipOrder: 0, borderWidth: 3 }));
-			key.unshift({ label: "Good price", color });
+			lines.push(line("Good price", summary.target, color, { _tipOrder: 0 }));
 		}
 
 		const vals = [];
@@ -1297,7 +1298,7 @@ export async function renderItem($app, skuInput) {
 			// Bands first so the lines draw over them; "-1" fills p75 down to its p25.
 			datasets: [...bands, ...lines],
 			markers: [],
-			key,
+			legendTitle: "Lines",
 			ySug: sug,
 			yMin: Number.isFinite(fin.suggestedMin) ? Math.max(0, fin.suggestedMin) : undefined,
 			yMax: fin.suggestedMax,
@@ -1311,12 +1312,12 @@ export async function renderItem($app, skuInput) {
 					label: (tctx) => {
 						const ds = tctx.dataset;
 						const v = tctx.parsed.y;
-						if (!ds._region) return `Good price $${v.toFixed(2)}`;
+						if (!ds._region) return `${ds.label}: $${v.toFixed(2)}`;
 						const i = tctx.dataIndex;
-						const head = `${ds.label} $${v.toFixed(2)} · ${ds._region.count[i]} stores`;
+						const head = `${ds.label}: $${v.toFixed(2)} (${ds._region.count[i]} stores)`;
 						const lo = ds._region.p25[i];
 						if (!Number.isFinite(lo)) return head;
-						return [head, `$${lo.toFixed(2)}–$${ds._region.p75[i].toFixed(2)}`];
+						return [head, `  middle half $${lo.toFixed(2)}–$${ds._region.p75[i].toFixed(2)}`];
 					},
 				},
 			},
@@ -1326,7 +1327,7 @@ export async function renderItem($app, skuInput) {
 	const storesView = {
 		datasets,
 		markers,
-		key: null,
+		legendTitle: "Stores",
 		ySug,
 		yMin: Number.isFinite(ySugFinal.suggestedMin) ? Math.max(0, ySugFinal.suggestedMin) : undefined,
 		yMax: Number.isFinite(yHardMax) ? yHardMax : ySugFinal.suggestedMax,
@@ -1387,8 +1388,7 @@ export async function renderItem($app, skuInput) {
 
 					// On-canvas legend is replaced by a collapsible HTML panel below the
 					// chart (#chartLegend) — see buildChartLegend() — so a 20-30 store
-					// legend doesn't eat the plot height on mobile. Summary mode uses the
-					// fixed #chartKey row instead.
+					// legend doesn't eat the plot height on mobile.
 					legend: { display: false },
 
 					tooltip: view.tooltip,
@@ -1416,16 +1416,7 @@ export async function renderItem($app, skuInput) {
 			},
 		});
 
-		if (view.key === null) {
-			$chartKey.hidden = true;
-			buildChartLegend(CHART);
-		} else {
-			document.getElementById("chartLegend").hidden = true;
-			$chartKey.innerHTML = view.key
-				.map((k) => `<span class="chartKeyItem"><span class="chartKeySwatch" style="background:${esc(k.color)}"></span>${esc(k.label)}</span>`)
-				.join("");
-			$chartKey.hidden = false;
-		}
+		buildChartLegend(CHART, view.legendTitle);
 
 		for (const btn of $chartMode.querySelectorAll(".chartModeBtn")) {
 			btn.setAttribute("aria-pressed", btn.dataset.mode === mode ? "true" : "false");

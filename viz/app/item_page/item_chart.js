@@ -106,6 +106,29 @@ export const SUMMARY_MEDIAN_MIN_STORES = 3;
 // A p25–p75 range over 3–4 values is mostly just the min and max.
 export const SUMMARY_BAND_MIN_STORES = 5;
 export const SUMMARY_TARGET_WINDOW_DAYS = 90;
+// Summary lines are trends, not price levels (owner call 2026-10-12: day-to-day steps read as
+// blocky). A centred 7-day rolling median first drops the 1–3 day flips a median makes as the
+// store mix shifts, then a centred 15-day rolling mean turns each remaining step into a ramp.
+// Windows shrink at the edges; days with no value stay gaps.
+export const SUMMARY_DESPIKE_DAYS = 7;
+export const SUMMARY_SMOOTH_DAYS = 15;
+
+function rolling(arr, width, reduce) {
+	const half = Math.floor(width / 2);
+	return arr.map((v, i) => {
+		if (v === null) return null;
+		const win = [];
+		for (let k = Math.max(0, i - half); k <= Math.min(arr.length - 1, i + half); k++) {
+			if (arr[k] !== null) win.push(arr[k]);
+		}
+		return reduce(win);
+	});
+}
+
+function smoothTrend(arr) {
+	const despiked = rolling(arr, SUMMARY_DESPIKE_DAYS, (w) => quantileSorted(w.sort((a, b) => a - b), 0.5));
+	return rolling(despiked, SUMMARY_SMOOTH_DAYS, (w) => w.reduce((a, b) => a + b, 0) / w.length);
+}
 
 function quantileSorted(a, q) {
 	const pos = (a.length - 1) * q;
@@ -163,19 +186,25 @@ export function computeSummarySeries(stores, labels) {
 			p25[i] = quantileSorted(vals, 0.25);
 			p75[i] = quantileSorted(vals, 0.75);
 		}
-		return { median, p25, p75, count };
+		return { median: smoothTrend(median), p25: smoothTrend(p25), p75: smoothTrend(p75), count };
 	}
 
-	// Trailing, not centred: each day uses only what a shopper could have known then,
-	// so a drawn value never changes as new days arrive. No hold: a sold-out store's
-	// low price isn't on offer.
+	// Trailing, not centred, so a drawn value never changes as new days arrive. Always a
+	// full window: until 90 days of data exist, every day uses the FIRST 90 days of the
+	// item's data (a shrinking window started the line on a handful of early prices).
+	// No hold: a sold-out store's low price isn't on offer.
 	const target = new Array(days).fill(null);
-	for (let i = 0; i < days; i++) {
-		const from = Math.max(0, i - SUMMARY_TARGET_WINDOW_DAYS + 1);
+	const firstData = raw.reduce((lo, vals) => {
+		const i = vals.findIndex((v) => v !== null);
+		return i >= 0 && (lo === null || i < lo) ? i : lo;
+	}, null);
+	for (let i = firstData ?? days; i < days; i++) {
+		const to = Math.min(days - 1, Math.max(i, firstData + SUMMARY_TARGET_WINDOW_DAYS - 1));
+		const from = to - SUMMARY_TARGET_WINDOW_DAYS + 1;
 		const mins = [];
 		for (const vals of raw) {
 			let m = null;
-			for (let k = from; k <= i; k++) {
+			for (let k = Math.max(0, from); k <= to; k++) {
 				if (vals[k] !== null && (m === null || vals[k] < m)) m = vals[k];
 			}
 			if (m !== null) mins.push(m);
@@ -185,7 +214,7 @@ export function computeSummarySeries(stores, labels) {
 		target[i] = (mins[0] + mins[1] + mins[2]) / 3;
 	}
 
-	return { bc: region(true), ab: region(false), target };
+	return { bc: region(true), ab: region(false), target: smoothTrend(target) };
 }
 
 // ── Y-axis helpers ─────────────────────────────────────────────────────────
