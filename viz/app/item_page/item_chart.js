@@ -103,8 +103,6 @@ export function lastFiniteFromEnd(arr) {
 // days. Without it ~2/3 of median moves were stores leaving/re-entering the set.
 export const SUMMARY_HOLD_DAYS = 7;
 export const SUMMARY_MEDIAN_MIN_STORES = 3;
-// A p25–p75 range over 3–4 values is mostly just the min and max.
-export const SUMMARY_BAND_MIN_STORES = 5;
 export const SUMMARY_TARGET_WINDOW_DAYS = 90;
 // Summary lines are trends, not price levels (owner call 2026-10-12: day-to-day steps read as
 // blocky). A centred 7-day rolling median first drops the 1–3 day flips a median makes as the
@@ -138,7 +136,7 @@ function quantileSorted(a, q) {
 }
 
 /**
- * Per-day province medians + p25–p75 bands, and the 90-day moving Target.
+ * Per-day province medians ± a smoothed standard-deviation band, and the 90-day moving Target.
  * labels[] is one entry per calendar day, so an index delta is a day delta.
  *
  * @param {Array<{label:string, merged:{points:Map<string, number|null>}}>} stores
@@ -168,25 +166,43 @@ export function computeSummarySeries(stores, labels) {
 
 	const isBc = stores.map((st) => isBcStoreLabel(st.label));
 
+	// The band is the smoothed median ± one standard deviation of store prices around it.
+	// Deviations are taken from each day's own median (so a price move doesn't read as
+	// spread) and pooled over a centred SUMMARY_SMOOTH_DAYS window, so the band exists on
+	// every day the median does, and a day with only 3 stores borrows from its neighbours
+	// instead of cutting the band in and out.
 	function region(wantBc) {
 		const median = new Array(days).fill(null);
-		const p25 = new Array(days).fill(null);
-		const p75 = new Array(days).fill(null);
-		const count = new Array(days).fill(0);
+		const sqDevs = new Array(days).fill(null);
 		for (let i = 0; i < days; i++) {
 			const vals = [];
 			for (let s = 0; s < stores.length; s++) {
 				if (isBc[s] === wantBc && held[s][i] !== null) vals.push(held[s][i]);
 			}
-			count[i] = vals.length;
 			if (vals.length < SUMMARY_MEDIAN_MIN_STORES) continue;
 			vals.sort((a, b) => a - b);
 			median[i] = quantileSorted(vals, 0.5);
-			if (vals.length < SUMMARY_BAND_MIN_STORES) continue;
-			p25[i] = quantileSorted(vals, 0.25);
-			p75[i] = quantileSorted(vals, 0.75);
+			sqDevs[i] = vals.map((v) => (v - median[i]) ** 2);
 		}
-		return { median: smoothTrend(median), p25: smoothTrend(p25), p75: smoothTrend(p75), count };
+		const half = Math.floor(SUMMARY_SMOOTH_DAYS / 2);
+		const sigma = sqDevs.map((dev, i) => {
+			if (dev === null) return null;
+			let sum = 0;
+			let n = 0;
+			for (let k = Math.max(0, i - half); k <= Math.min(days - 1, i + half); k++) {
+				if (sqDevs[k] === null) continue;
+				for (const d of sqDevs[k]) sum += d;
+				n += sqDevs[k].length;
+			}
+			return Math.sqrt(sum / n);
+		});
+		const mid = smoothTrend(median);
+		const spread = smoothTrend(sigma);
+		return {
+			median: mid,
+			lo: mid.map((m, i) => (m === null ? null : m - spread[i])),
+			hi: mid.map((m, i) => (m === null ? null : m + spread[i])),
+		};
 	}
 
 	// Trailing, not centred, so a drawn value never changes as new days arrive. Always a
@@ -428,13 +444,25 @@ export const StaticMarkerLinesPlugin = {
 	id: "staticMarkerLines",
 	// Tick labels are formatted before the final layout pass, so a collision test in the
 	// tick callback works on stale pixels. Here positions are final and nothing is drawn yet.
+	// The item chart always registers this plugin, so the edge-tick cleanup runs in both modes.
 	afterLayout(chart) {
-		const markers = chart.options.plugins.staticMarkerLines?.markers ?? [];
 		const y = chart.scales.y;
-		if (!markers.length || !y) return;
+		const tickPx = Chart.helpers.toFont(y.options.ticks.font).size;
+
+		// Chart.js always labels the axis min and max ($63 just above $60); an edge label
+		// that close to a step label gives way to it.
+		const stepTicks = y.ticks.filter((t) => t.value !== y.min && t.value !== y.max);
+		for (const tick of y.ticks) {
+			if (tick.value !== y.min && tick.value !== y.max) continue;
+			const py = y.getPixelForValue(tick.value);
+			if (stepTicks.some((t) => Math.abs(y.getPixelForValue(t.value) - py) < tickPx + 2)) tick.label = "";
+		}
+
+		const markers = chart.options.plugins.staticMarkerLines?.markers ?? [];
+		if (!markers.length) return;
 		const { top, bottom } = chart.chartArea;
 		const labelYs = layoutMarkerLabels(markers, y, top, bottom).map((l) => l.labelY);
-		const clear = (Chart.helpers.toFont(y.options.ticks.font).size + MARKER_LABEL_PX) / 2 + 2;
+		const clear = (tickPx + MARKER_LABEL_PX) / 2 + 2;
 		for (const tick of y.ticks) {
 			const py = y.getPixelForValue(tick.value);
 			if (labelYs.some((ly) => Math.abs(py - ly) < clear)) tick.label = "";

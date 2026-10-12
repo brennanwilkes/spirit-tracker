@@ -1275,19 +1275,17 @@ export async function renderItem($app, skuInput) {
 		const bands = [];
 		const lines = [];
 		const regions = [
-			{ name: "BC", data: summary.bc, color: token("--chart-bc"), tipOrder: 1 },
-			{ name: "Alberta", data: summary.ab, color: token("--chart-ab"), tipOrder: 2 },
+			{ name: "BC", data: summary.bc, color: token("--chart-bc") },
+			{ name: "Alberta", data: summary.ab, color: token("--chart-ab") },
 		];
 		for (const r of regions) {
 			if (!r.data.median.some(Number.isFinite)) continue;
-			if (r.data.p25.some(Number.isFinite)) {
-				bands.push(band(r.name, r.data.p25, r.color, false), band(r.name, r.data.p75, r.color, "-1"));
-			}
-			lines.push(line(r.name, r.data.median, r.color, { _region: r.data, _tipOrder: r.tipOrder }));
+			bands.push(band(r.name, r.data.lo, r.color, false), band(r.name, r.data.hi, r.color, "-1"));
+			lines.push(line(r.name, r.data.median, r.color));
 		}
 		if (summary.target.some(Number.isFinite)) {
 			const color = token("--chart-target");
-			lines.push(line("Good price", summary.target, color, { _tipOrder: 0 }));
+			lines.push(line("Target", summary.target, color));
 		}
 
 		const vals = [];
@@ -1303,22 +1301,10 @@ export async function renderItem($app, skuInput) {
 			yMin: Number.isFinite(fin.suggestedMin) ? Math.max(0, fin.suggestedMin) : undefined,
 			yMax: fin.suggestedMax,
 			step: niceStepAtLeast(MIN_STEP, (sug.suggestedMax ?? 0) - (sug.suggestedMin ?? 0), MAX_TICKS),
-			// With 3 lines, one tap anywhere shows them all; no need to hit a line exactly.
-			interactionMode: "index",
+			interactionMode: "nearestLine",
 			tooltip: {
-				filter: (tctx) => !tctx.dataset._band,
-				itemSort: (a, b) => a.dataset._tipOrder - b.dataset._tipOrder,
 				callbacks: {
-					label: (tctx) => {
-						const ds = tctx.dataset;
-						const v = tctx.parsed.y;
-						if (!ds._region) return `${ds.label}: $${v.toFixed(2)}`;
-						const i = tctx.dataIndex;
-						const head = `${ds.label}: $${v.toFixed(2)} (${ds._region.count[i]} stores)`;
-						const lo = ds._region.p25[i];
-						if (!Number.isFinite(lo)) return head;
-						return [head, `  middle half $${lo.toFixed(2)}–$${ds._region.p75[i].toFixed(2)}`];
-					},
+					label: (tctx) => `${tctx.dataset.label}: $${tctx.parsed.y.toFixed(2)}`,
 				},
 			},
 		};
@@ -1363,6 +1349,18 @@ export async function renderItem($app, skuInput) {
 			lineWidth: 1.25,
 			labelColor: "#556274",
 			axisInset: 2,
+		};
+
+		// Like "nearest", but never a band edge: plain "nearest" would often land on an
+		// invisible band dataset and show an empty tooltip.
+		Chart.Interaction.modes.nearestLine = (chart, e, options, useFinalPosition) => {
+			const atDay = Chart.Interaction.modes.index(chart, e, { ...options, intersect: false }, useFinalPosition);
+			let best = null;
+			for (const item of atDay) {
+				if (chart.data.datasets[item.datasetIndex]._band) continue;
+				if (best === null || Math.abs(item.element.y - e.y) < Math.abs(best.element.y - e.y)) best = item;
+			}
+			return best === null ? [] : [best];
 		};
 
 		destroyChart();
