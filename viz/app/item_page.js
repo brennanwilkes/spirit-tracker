@@ -1278,10 +1278,20 @@ export async function renderItem($app, skuInput) {
 			{ name: "BC", data: summary.bc, color: token("--chart-bc") },
 			{ name: "Alberta", data: summary.ab, color: token("--chart-ab") },
 		];
+		// Width = how broadly the province stocks it: a hairline at one store, ~4.4px at 80% of
+		// its tracked stores. A gentler curve than the stats page's, since few items pass 60%.
+		const coverageWidth = (c) => 1 + 4 * Math.min(1, c) ** 0.75;
 		for (const r of regions) {
 			if (!r.data.median.some(Number.isFinite)) continue;
+			const cov = r.data.coverage;
 			bands.push(band(r.name, r.data.lo, r.color, false), band(r.name, r.data.hi, r.color, "-1"));
-			lines.push(line(r.name, r.data.median, r.color));
+			lines.push(
+				line(r.name, r.data.median, r.color, {
+					_stores: r.data.stores,
+					borderWidth: coverageWidth(lastFiniteFromEnd(cov)),
+					segment: { borderWidth: (seg) => coverageWidth(cov[seg.p1DataIndex] ?? cov[seg.p0DataIndex]) },
+				}),
+			);
 		}
 		if (summary.target.some(Number.isFinite)) {
 			const color = token("--chart-target");
@@ -1304,13 +1314,18 @@ export async function renderItem($app, skuInput) {
 			interactionMode: "nearestLine",
 			tooltip: {
 				callbacks: {
-					label: (tctx) => `${tctx.dataset.label}: $${tctx.parsed.y.toFixed(2)}`,
+					label: (tctx) => {
+						const base = `${tctx.dataset.label}: $${tctx.parsed.y.toFixed(2)}`;
+						const n = tctx.dataset._stores?.[tctx.dataIndex];
+						return Number.isFinite(n) ? `${base} · ${n} store${n === 1 ? "" : "s"}` : base;
+					},
 				},
 			},
 		};
 	}
 
-	const defaultsToSummary = summaryBlockedReason === null && (storesEver >= 8 || tier === "staple");
+	const defaultsToSummary =
+		summaryBlockedReason === null && (storesEver >= 10 || (tier === "staple" && storesEver >= 8));
 
 	const storesView = {
 		datasets,
