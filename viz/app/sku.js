@@ -1,3 +1,5 @@
+import { applyQueryAliases } from "./search_aliases.js";
+
 export function parsePriceToNumber(v) {
 	const s = String(v ?? "").replace(/[^0-9.]/g, "");
 	const n = Number(s);
@@ -55,13 +57,28 @@ export function normSearchText(s) {
 		.trim();
 }
 
+// A possessive is dropped ("gordon's" -> "gordon"): its lone "s" would otherwise have to be a
+// whole word and miss listings spelled "Gordons".
 export function tokenizeQuery(q) {
-	const n = normSearchText(q);
+	const n = normSearchText(applyQueryAliases(String(q ?? "").replace(/['’`]s\b/gi, "")));
 	return n ? n.split(" ").filter(Boolean) : [];
 }
 
+// Tokens match as substrings, except a one-character token, which must be a whole word:
+// a lone "m" or "7" as a substring matches nearly every item.
 export function matchesAllTokens(hayNorm, tokens) {
 	if (!tokens.length) return true;
-	for (const t of tokens) if (!hayNorm.includes(t)) return false;
+	nextToken: for (const t of tokens) {
+		if (t.length > 1) {
+			if (!hayNorm.includes(t)) return false;
+			continue;
+		}
+		for (let i = hayNorm.indexOf(t); i !== -1; i = hayNorm.indexOf(t, i + 1)) {
+			if ((i === 0 || hayNorm[i - 1] === " ") && (i + 1 === hayNorm.length || hayNorm[i + 1] === " ")) {
+				continue nextToken;
+			}
+		}
+		return false;
+	}
 	return true;
 }
