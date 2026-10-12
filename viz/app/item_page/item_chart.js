@@ -12,6 +12,8 @@
  *   - computeSuggestedY          Compute Chart.js suggestedMin/suggestedMax
  *   - niceStepAtLeast            Compute a "nice" tick step size
  *   - lastFiniteFromEnd          Last finite value in an array (working from the end)
+ *   - monthYearXAxis             Shared x-axis ticks (item + stats charts): Mon YYYY, pinned at both ends
+ *   - computeSummarySeries       Province medians/bands + 90-day moving Target for Summary mode
  */
 
 import { normalizeStoreId, storeById } from "../stores.js";
@@ -92,6 +94,98 @@ export function lastFiniteFromEnd(arr) {
 		if (Number.isFinite(v)) return v;
 	}
 	return null;
+}
+
+// ── Summary mode series ────────────────────────────────────────────────────
+// Design + measurements: docs/item-chart-summary-mode-feasibility.md.
+
+// A store that goes out of stock keeps its last price in the medians for this many
+// days. Without it ~2/3 of median moves were stores leaving/re-entering the set.
+export const SUMMARY_HOLD_DAYS = 7;
+export const SUMMARY_MEDIAN_MIN_STORES = 3;
+// A p25–p75 range over 3–4 values is mostly just the min and max.
+export const SUMMARY_BAND_MIN_STORES = 5;
+export const SUMMARY_TARGET_WINDOW_DAYS = 90;
+
+function quantileSorted(a, q) {
+	const pos = (a.length - 1) * q;
+	const lo = Math.floor(pos);
+	const hi = Math.ceil(pos);
+	return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+}
+
+/**
+ * Per-day province medians + p25–p75 bands, and the 90-day moving Target.
+ * labels[] is one entry per calendar day, so an index delta is a day delta.
+ *
+ * @param {Array<{label:string, merged:{points:Map<string, number|null>}}>} stores
+ * @param {string[]} labels
+ */
+export function computeSummarySeries(stores, labels) {
+	const days = labels.length;
+	const raw = stores.map((st) => labels.map((d) => {
+		const v = st.merged.points.get(d);
+		return Number.isFinite(v) ? v : null;
+	}));
+
+	const held = raw.map((vals) => {
+		const out = vals.slice();
+		let last = null;
+		let lastIdx = -1;
+		for (let i = 0; i < days; i++) {
+			if (vals[i] !== null) {
+				last = vals[i];
+				lastIdx = i;
+			} else if (lastIdx >= 0 && i - lastIdx <= SUMMARY_HOLD_DAYS) {
+				out[i] = last;
+			}
+		}
+		return out;
+	});
+
+	const isBc = stores.map((st) => isBcStoreLabel(st.label));
+
+	function region(wantBc) {
+		const median = new Array(days).fill(null);
+		const p25 = new Array(days).fill(null);
+		const p75 = new Array(days).fill(null);
+		const count = new Array(days).fill(0);
+		for (let i = 0; i < days; i++) {
+			const vals = [];
+			for (let s = 0; s < stores.length; s++) {
+				if (isBc[s] === wantBc && held[s][i] !== null) vals.push(held[s][i]);
+			}
+			count[i] = vals.length;
+			if (vals.length < SUMMARY_MEDIAN_MIN_STORES) continue;
+			vals.sort((a, b) => a - b);
+			median[i] = quantileSorted(vals, 0.5);
+			if (vals.length < SUMMARY_BAND_MIN_STORES) continue;
+			p25[i] = quantileSorted(vals, 0.25);
+			p75[i] = quantileSorted(vals, 0.75);
+		}
+		return { median, p25, p75, count };
+	}
+
+	// Trailing, not centred: each day uses only what a shopper could have known then,
+	// so a drawn value never changes as new days arrive. No hold: a sold-out store's
+	// low price isn't on offer.
+	const target = new Array(days).fill(null);
+	for (let i = 0; i < days; i++) {
+		const from = Math.max(0, i - SUMMARY_TARGET_WINDOW_DAYS + 1);
+		const mins = [];
+		for (const vals of raw) {
+			let m = null;
+			for (let k = from; k <= i; k++) {
+				if (vals[k] !== null && (m === null || vals[k] < m)) m = vals[k];
+			}
+			if (m !== null) mins.push(m);
+		}
+		if (mins.length < 3) continue;
+		mins.sort((a, b) => a - b);
+		target[i] = (mins[0] + mins[1] + mins[2]) / 3;
+	}
+
+	return { bc: region(true), ab: region(false), target };
 }
 
 // ── Y-axis helpers ─────────────────────────────────────────────────────────
@@ -196,7 +290,103 @@ export function niceStepAtLeast(minStep, span, maxTicks) {
 	return Math.max(minStep, niceM * pow);
 }
 
+// ── X axis: Month Year ticks ───────────────────────────────────────────────
+
+const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// Room each "Sep 2026" label needs, gap included: a ~290 px plot (360 px phone) gets 3 ticks.
+const MONTH_TICK_PX = 95;
+
+function monthYearOf(dateStr) {
+	const m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(dateStr));
+	if (!m) throw new Error(`monthYearOf: expected YYYY-MM-DD, got "${dateStr}"`);
+	return `${MONTH_ABBR[Number(m[2]) - 1]} ${m[1]}`;
+}
+
+/**
+ * Category x-axis options (spread into scales.x) for YYYY-MM-DD labels: a tick on the
+ * first and last label, pinned flush to the plot edges, plus month ticks between as the
+ * width allows, all shown as "Mon YYYY". Middle ticks sit on the first label of their
+ * month: an evenly spaced tick could land on Feb 26 and read "Feb" with the next one
+ * already "Apr".
+ */
+export function monthYearXAxis() {
+	return {
+		afterBuildTicks: (scale) => {
+			const labels = scale.chart.data.labels;
+			const n = labels.length;
+			if (n === 0) return;
+			const text = (i) => monthYearOf(labels[i]);
+			const last = n - 1;
+			const count = Math.max(2, Math.min(8, Math.floor(scale.chart.width / MONTH_TICK_PX)));
+			const spacing = last / (count - 1);
+
+			// The end ticks' own months are already labelled; a month start that close to
+			// an end would crowd its label.
+			const monthStarts = [];
+			for (let i = 1; i < last; i++) {
+				if (text(i) === text(i - 1) || text(i) === text(last)) continue;
+				if (i < spacing / 2 || last - i < spacing / 2) continue;
+				monthStarts.push(i);
+			}
+
+			// Every month, or every 2nd, 3rd …, whichever fits: a steady cadence never skips
+			// one month while showing its neighbours.
+			const picked = [0];
+			const slots = count - 2;
+			if (slots > 0 && monthStarts.length > 0) {
+				const step = Math.ceil(monthStarts.length / slots);
+				const offset = Math.floor(((monthStarts.length - 1) % step) / 2);
+				for (let j = offset; j < monthStarts.length; j += step) picked.push(monthStarts[j]);
+			}
+			if (last > 0 && text(last) !== text(0)) picked.push(last);
+			scale.ticks = picked.map((i) => ({ value: i }));
+		},
+		ticks: {
+			autoSkip: false,
+			maxRotation: 0,
+			// First label left-aligned to the plot's start, last right-aligned to its end.
+			align: "inner",
+			callback: function (value) {
+				return monthYearOf(this.getLabelForValue(value));
+			},
+		},
+	};
+}
+
 // ── Custom Chart.js plugin ─────────────────────────────────────────────────
+
+export const MARKER_LABEL_PX = 11;
+
+/**
+ * Where each marker's label is drawn on the y axis. Two markers a few dollars apart
+ * would print their labels on top of each other, so labels closer than one line apart
+ * are pushed apart (kept inside [top, bottom]); the marker line itself stays at its
+ * true value. Shared by the plugin and the y-tick callback, which hides any tick
+ * whose label would land on one of these.
+ *
+ * @returns {Array<{marker:object, py:number, labelY:number}>} markers inside the plot, top to bottom
+ */
+export function layoutMarkerLabels(markers, yScale, top, bottom) {
+	const gap = MARKER_LABEL_PX + 2;
+	const out = [];
+	for (const m of markers) {
+		const py = yScale.getPixelForValue(Number(m.y));
+		if (!Number.isFinite(py) || py < top || py > bottom) continue;
+		out.push({ marker: m, py, labelY: py });
+	}
+	out.sort((a, b) => a.py - b.py);
+	for (let i = 1; i < out.length; i++) {
+		out[i].labelY = Math.max(out[i].labelY, out[i - 1].labelY + gap);
+	}
+	const half = MARKER_LABEL_PX / 2;
+	if (out.length && out[out.length - 1].labelY > bottom - half) {
+		out[out.length - 1].labelY = bottom - half;
+		for (let i = out.length - 2; i >= 0; i--) {
+			out[i].labelY = Math.min(out[i].labelY, out[i + 1].labelY - gap);
+		}
+	}
+	return out;
+}
 
 /**
  * StaticMarkerLinesPlugin — draws horizontal reference lines on the chart
@@ -207,6 +397,20 @@ export function niceStepAtLeast(minStep, span, maxTicks) {
  */
 export const StaticMarkerLinesPlugin = {
 	id: "staticMarkerLines",
+	// Tick labels are formatted before the final layout pass, so a collision test in the
+	// tick callback works on stale pixels. Here positions are final and nothing is drawn yet.
+	afterLayout(chart) {
+		const markers = chart.options.plugins.staticMarkerLines?.markers ?? [];
+		const y = chart.scales.y;
+		if (!markers.length || !y) return;
+		const { top, bottom } = chart.chartArea;
+		const labelYs = layoutMarkerLabels(markers, y, top, bottom).map((l) => l.labelY);
+		const clear = (Chart.helpers.toFont(y.options.ticks.font).size + MARKER_LABEL_PX) / 2 + 2;
+		for (const tick of y.ticks) {
+			const py = y.getPixelForValue(tick.value);
+			if (labelYs.some((ly) => Math.abs(py - ly) < clear)) tick.label = "";
+		}
+	},
 	afterDraw(chart, _args, passedOpts) {
 		const opts =
 			(chart?.options?.plugins && chart.options.plugins.staticMarkerLines) ||
@@ -243,9 +447,7 @@ export const StaticMarkerLinesPlugin = {
 		const lineWidth = Number.isFinite(opts?.lineWidth) ? opts.lineWidth : 1.25;
 		const baseAlpha = Number.isFinite(opts?.alpha) ? opts.alpha : 0.38;
 		const strokeStyle = String(opts?.color || "#7f8da3");
-		const font =
-			opts?.font ||
-			"600 11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif";
+		const font = `600 ${MARKER_LABEL_PX}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif`;
 		const labelColor = String(opts?.labelColor || "#556274");
 
 		ctx.save();
@@ -254,13 +456,7 @@ export const StaticMarkerLinesPlugin = {
 		ctx.font = font;
 		ctx.fillStyle = labelColor;
 
-		for (const m of markers) {
-			const yVal = Number(m?.y);
-			if (!Number.isFinite(yVal)) continue;
-
-			const py = y.getPixelForValue(yVal);
-			if (!Number.isFinite(py) || py < top || py > bottom) continue;
-
+		for (const { marker: m, py, labelY } of layoutMarkerLabels(markers, y, top, bottom)) {
 			ctx.globalAlpha = Number.isFinite(m?.alpha) ? m.alpha : baseAlpha;
 			ctx.strokeStyle = String(m?.color || strokeStyle);
 			ctx.beginPath();
@@ -283,7 +479,7 @@ export const StaticMarkerLinesPlugin = {
 				ctx.fillStyle = String(m?.labelColor || labelColor);
 				ctx.textBaseline = "middle";
 				ctx.textAlign = "center";
-				ctx.fillText(text, axisCenterX, py);
+				ctx.fillText(text, axisCenterX, labelY);
 			}
 		}
 

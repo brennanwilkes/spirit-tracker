@@ -57,6 +57,12 @@
   --text-xl:  18px;
   --text-2xl: 19px;
 
+  /* Item chart Summary mode (item_page.js reads these; band alpha is a number). */
+  --chart-bc: #60a5fa;
+  --chart-ab: #f59e0b;
+  --chart-target: #34d399;
+  --chart-band-alpha: 0.16;
+
   /* Rarity tier tokens.
    * "staple": bottom ~10% — items always in stock, widely available.
    *           Pale slate-blue reads as steady / understated, doesn't compete.
@@ -1257,6 +1263,11 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
 
     --nav-bg: rgba(238, 242, 246, 0.88);
     --statusbar-bg: #0f172a;
+
+    --chart-bc: #2563eb;
+    --chart-ab: #d97706;
+    --chart-target: #059669;
+    --chart-band-alpha: 0.14;
   }
 
   /* Rarity tokens must be re-themed for the OS-light "auto" path too, not only
@@ -1390,6 +1401,11 @@ input[type="search"].input::-webkit-search-cancel-button { -webkit-appearance: n
 :root[data-theme="light"] {
   color-scheme: light;
 
+  --chart-bc: #2563eb;
+  --chart-ab: #d97706;
+  --chart-target: #059669;
+  --chart-band-alpha: 0.14;
+
   --bg:     #dde3ea;
   --panel:  #ffffff;
   --text:   #0f172a;
@@ -1503,6 +1519,11 @@ html[data-theme="light"] .storeSetTrigger:focus { border-color: #3d7fa8; outline
 /* Force dark even when OS is light */
 :root[data-theme="dark"] {
   color-scheme: dark;
+
+  --chart-bc: #60a5fa;
+  --chart-ab: #f59e0b;
+  --chart-target: #34d399;
+  --chart-band-alpha: 0.16;
 
   --bg: #0b0d10;
   --panel: #12161b;

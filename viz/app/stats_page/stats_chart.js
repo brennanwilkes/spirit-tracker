@@ -9,7 +9,7 @@
 
 import { buildStoreColorMap, storeColor, lighten } from "../storeColors.js";
 import { storeById } from "../stores.js";
-import { computeHighOutlierCap, medianFinite } from "../item_page/item_chart.js";
+import { computeHighOutlierCap, medianFinite, monthYearXAxis } from "../item_page/item_chart.js";
 
 let _chart = null;
 
@@ -338,11 +338,7 @@ export async function drawOrUpdateChart(series, yBounds) {
 			scales: {
 				x: {
 					title: { display: true, text: "Date" },
-					ticks: {
-						maxRotation: 0,
-						autoSkip: true,
-						maxTicksLimit: window.innerWidth <= 640 ? 4 : 12,
-					},
+					...monthYearXAxis(),
 				},
 				y: {
 					min: yBounds?.min,

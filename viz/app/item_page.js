@@ -1,14 +1,14 @@
 import { esc, renderThumbHtml, dateOnly } from "./dom.js";
 import { goBack, peekBack } from "./nav.js";
 import { parsePriceToNumber, keySkuForRow, displaySku } from "./sku.js";
-import { loadIndex, loadRecent } from "./state.js";
+import { loadIndex, loadRecent, loadRarity } from "./state.js";
 import { fetchJson, isLocalWriteMode, apiWriteSkuHidden } from "./api.js";
 import { loadSkuRules } from "./mapping.js";
 import { loadHiddenSet, isHiddenListing, clearHiddenSetCache } from "./hidden.js";
-import { normalizeStoreId, storeById, cityLabel } from "./stores.js";
+import { normalizeStoreId, storeById, cityLabel, FAVOURITE_STORE_IDS } from "./stores.js";
 import { buildStoreColorMap, storeColor, datasetStrokeWidth, lighten } from "./storeColors.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
-import { unifySameStoreEntries } from "./rarity.js";
+import { unifySameStoreEntries, tierFor, effectiveRarity } from "./rarity.js";
 import { detectFlapSpans } from "./flip_flop.js";
 import { selectBestDisplayInfo } from "./catalog.js";
 import { getAuthStatus, getMySampled, getMyScore, setMySampled, setMyScore, getMyStores } from "./cloud.js";
@@ -22,6 +22,8 @@ import {
 	computeHighOutlierCap,
 	niceStepAtLeast,
 	StaticMarkerLinesPlugin,
+	computeSummarySeries,
+	monthYearXAxis,
 } from "./item_page/item_chart.js";
 
 /* ---------------- Chart lifecycle ---------------- */
@@ -216,6 +218,7 @@ export async function renderItem($app, skuInput) {
 	// Kick off independent fetches immediately — no dependency on rules/sku
 	const idxPromise = loadIndex();
 	const recentPromise = loadRecent().catch(() => null);
+	const rarityPromise = loadRarity();
 
 	const authed = getAuthStatus().ok;
 	const [rules, fav] = await Promise.all([loadSkuRules(), loadMyFavouritesSet()]);
@@ -247,6 +250,10 @@ export async function renderItem($app, skuInput) {
 			<div class="topbar">
 				<a id="back" class="btn" href="${peekBack()}"><span class="backArrow">← </span>Back</a>
 				<span class="badge mono">${esc(displaySku(sku))}</span>
+				<div id="chartMode" class="chartModeToggle" role="group" aria-label="Chart view">
+					<button type="button" class="chartModeBtn" data-mode="stores" aria-pressed="false" disabled>Stores</button>
+					<button type="button" class="chartModeBtn" data-mode="summary" aria-pressed="false" disabled>Summary</button>
+				</div>
 				<button id="shareBtn" class="btn btnIcon shareBtn" type="button" aria-label="Share">
 					<i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
 				</button>
@@ -315,6 +322,7 @@ export async function renderItem($app, skuInput) {
 				<summary><span id="chartLegendCount">Stores</span></summary>
 				<div class="chartLegendList" id="chartLegendList"></div>
 				</details>
+				<div class="chartKey" id="chartKey" hidden></div>
 			</div>
 			</div>
 		`;
@@ -363,6 +371,8 @@ export async function renderItem($app, skuInput) {
 	const $status = document.getElementById("status");
 	const $canvas = document.getElementById("chart");
 	const $thumbBox = document.getElementById("thumbBox");
+	const $chartMode = document.getElementById("chartMode");
+	const $chartKey = document.getElementById("chartKey");
 
 	const $linksMobile = document.getElementById("linksMobile");
 	const $linksDropdown = document.getElementById("linksDropdown");
@@ -799,7 +809,8 @@ export async function renderItem($app, skuInput) {
 			const pcCls = pc ? (pc.direction === "down" ? "priceDown" : "priceUp") : "";
 			const pcAttr = pcCls ? ` ${pcCls}` : "";
 			const removedAttr = Boolean(r?.removed) ? " storeRemoved" : "";
-			const anchor = `<a class="storeQuickLink${stAttr}${pcAttr}${removedAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
+			const favAttr = st !== null && FAVOURITE_STORE_IDS.has(st.id) ? " favStore" : "";
+			const anchor = `<a class="storeQuickLink${stAttr}${pcAttr}${removedAttr}${favAttr}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(hint || "")}"><span class="sqlInfo"><span class="sqlStore">${esc(store)}</span>${locHtml}${pcBadgeHtml(pc)}</span><span class="sqlPrice">${esc(priceStr)}</span></a>`;
 				if (canHide) {
 					const sid = normalizeStoreId(r?.storeLabel || r?.store || "");
 					const rawSku = String(keySkuForRow(r) || "");
@@ -835,6 +846,7 @@ export async function renderItem($app, skuInput) {
 
 		const cssClasses = [];
 		if (isRemoved) cssClasses.push("storeRemoved");
+		if (st !== null && FAVOURITE_STORE_IDS.has(st.id)) cssClasses.push("favStore");
 		const stCls = storeState.get(store) || "";
 		if (stCls) cssClasses.push("storeState" + stCls.charAt(0).toUpperCase() + stCls.slice(1));
 		const pc = storePriceChange.get(normalizeStoreId(store));
@@ -1120,6 +1132,7 @@ export async function renderItem($app, skuInput) {
 	const abMeans = storeMeans.filter((x) => !isBcStoreLabel(x.label));
 
 	const markers = [];
+	const isMobile = window.innerWidth <= 640;
 
 	if (bcMeans.length >= 3) {
 		const y = medianFinite(bcMeans.map((x) => x.mean));
@@ -1128,7 +1141,7 @@ export async function renderItem($app, skuInput) {
 
 	if (abMeans.length >= 3) {
 		const y = medianFinite(abMeans.map((x) => x.mean));
-		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: "Alberta" });
+		if (Number.isFinite(y)) markers.push({ y: Math.round(y), text: isMobile ? "AB" : "Alberta" });
 	}
 
 	// Collect all finite values across ALL lines for y-scale + uniqueness check
@@ -1150,7 +1163,6 @@ export async function renderItem($app, skuInput) {
 	const outlierCap = outlierInfo ? outlierInfo.cap : null;
 	const outlierStores = outlierInfo ? outlierInfo.outliers : null;
 
-	const isMobile = window.innerWidth <= 640;
 	// Mobile trades some headroom for plot area, but not all of it — at 0.01 the
 	// extreme series sat flush against the frame and read as clipped.
 	const ySug = computeSuggestedY(allVals, undefined, outlierCap, isMobile ? 0.05 : undefined);
@@ -1199,129 +1211,241 @@ export async function renderItem($app, skuInput) {
 		if (Number.isFinite(t)) markers.push({ y: Math.round(t), text: "Target" });
 	}
 
-	const markerYs = markers.map((m) => Number(m.y)).filter(Number.isFinite);
+	// ---- Chart mode: per-store lines vs Summary (province medians + bands + moving Target) ----
+	const storesEver = storeSeriesSorted.length;
+	const rarity = await rarityPromise;
+	const rarityEntry = rarity.byCanon[sku];
+	const tier = rarityEntry ? tierFor(effectiveRarity(rarityEntry.r, rarityEntry.c), rarity.thresholds) : null;
 
-	// helper: approximate font px size from a CSS font string (Chart uses one)
-	function fontPx(font) {
-		const m = String(font || "").match(/(\d+(?:\.\d+)?)px/);
-		return m ? Number(m[1]) : 12;
+	// A rare bottle's story is which store had it when, so it always gets the store view.
+	let summaryBlockedReason = null;
+	if (tier === "rare") summaryBlockedReason = "Rare bottle: every store is shown";
+	else if (storesEver < 3) summaryBlockedReason = "Summary needs 3 or more stores";
+
+	const summary = summaryBlockedReason === null ? computeSummarySeries(storeSeriesSorted, labels) : null;
+	if (summary !== null && !summary.bc.median.some(Number.isFinite) && !summary.ab.median.some(Number.isFinite)) {
+		summaryBlockedReason = "Not enough stores in one province to summarise";
 	}
 
-	const ctx = $canvas.getContext("2d");
-	CHART = new Chart(ctx, {
-		type: "line",
-		data: { labels, datasets },
-		plugins: [StaticMarkerLinesPlugin],
-		options: {
-			responsive: true,
-			maintainAspectRatio: false,
-			interaction: { mode: "nearest", intersect: false },
+	function buildSummaryView() {
+		const css = getComputedStyle(document.documentElement);
+		const token = (name) => {
+			const v = css.getPropertyValue(name).trim();
+			if (!v) throw new Error(`item chart: CSS token ${name} is not defined`);
+			return v;
+		};
+		const bandAlpha = Number(token("--chart-band-alpha"));
+		const withAlpha = (hex) => {
+			const m = hex.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+			if (!m) throw new Error(`item chart: expected #rrggbb, got "${hex}"`);
+			return `rgba(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}, ${bandAlpha})`;
+		};
 
-			// v2 fallback (plugin reads this)
-			staticMarkerLines: {
-				markers,
-				color: "#7f8da3",
-				alpha: 0.38,
-				lineWidth: 1.25,
-				labelColor: "#556274",
-				axisInset: 2,
+		// A price is a level that holds until it changes, so every summary line is stepped.
+		const line = (label, data, color, extra) => ({
+			label,
+			data,
+			borderColor: color,
+			backgroundColor: color,
+			borderWidth: 2.5,
+			pointRadius: 0,
+			pointHoverRadius: 4,
+			spanGaps: false,
+			stepped: true,
+			fill: false,
+			...extra,
+		});
+		const band = (data, color, fill) => ({
+			label: "",
+			data,
+			_band: true,
+			borderWidth: 0,
+			pointRadius: 0,
+			pointHoverRadius: 0,
+			backgroundColor: withAlpha(color),
+			spanGaps: false,
+			stepped: true,
+			fill,
+		});
+
+		const bands = [];
+		const lines = [];
+		const key = [];
+		const regions = [
+			{ name: "BC", data: summary.bc, color: token("--chart-bc"), tipOrder: 1 },
+			{ name: "Alberta", data: summary.ab, color: token("--chart-ab"), tipOrder: 2 },
+		];
+		for (const r of regions) {
+			if (!r.data.median.some(Number.isFinite)) continue;
+			if (r.data.p25.some(Number.isFinite)) {
+				bands.push(band(r.data.p25, r.color, false), band(r.data.p75, r.color, "-1"));
+			}
+			lines.push(line(r.name, r.data.median, r.color, { _region: r.data, _tipOrder: r.tipOrder }));
+			key.push({ label: r.name, color: r.color });
+		}
+		if (summary.target.some(Number.isFinite)) {
+			const color = token("--chart-target");
+			lines.push(line("Good price", summary.target, color, { _tipOrder: 0, borderWidth: 3 }));
+			key.unshift({ label: "Good price", color });
+		}
+
+		const vals = [];
+		for (const ds of [...bands, ...lines]) for (const v of ds.data) if (Number.isFinite(v)) vals.push(v);
+		const sug = computeSuggestedY(vals, undefined, undefined, isMobile ? 0.05 : undefined);
+		const fin = computeSuggestedY(vals, undefined, undefined, isMobile ? 0.01 : undefined);
+		return {
+			// Bands first so the lines draw over them; "-1" fills p75 down to its p25.
+			datasets: [...bands, ...lines],
+			markers: [],
+			key,
+			ySug: sug,
+			yMin: Number.isFinite(fin.suggestedMin) ? Math.max(0, fin.suggestedMin) : undefined,
+			yMax: fin.suggestedMax,
+			step: niceStepAtLeast(MIN_STEP, (sug.suggestedMax ?? 0) - (sug.suggestedMin ?? 0), MAX_TICKS),
+			// With 3 lines, one tap anywhere shows them all; no need to hit a line exactly.
+			interactionMode: "index",
+			tooltip: {
+				filter: (tctx) => !tctx.dataset._band,
+				itemSort: (a, b) => a.dataset._tipOrder - b.dataset._tipOrder,
+				callbacks: {
+					label: (tctx) => {
+						const ds = tctx.dataset;
+						const v = tctx.parsed.y;
+						if (!ds._region) return `Good price $${v.toFixed(2)}`;
+						const i = tctx.dataIndex;
+						const head = `${ds.label} $${v.toFixed(2)} · ${ds._region.count[i]} stores`;
+						const lo = ds._region.p25[i];
+						if (!Number.isFinite(lo)) return head;
+						return [head, `$${lo.toFixed(2)}–$${ds._region.p75[i].toFixed(2)}`];
+					},
+				},
 			},
+		};
+	}
 
-			// v3 fallback (plugin reads this too)
-			plugins: {
-				// v3+ (plugin reads this too)
-				staticMarkerLines: {
-					markers,
-					color: "#7f8da3",
-					alpha: 0.38,
-					lineWidth: 1.25,
-					labelColor: "#556274",
-					axisInset: 2,
-				},
-
-				// On-canvas legend is replaced by a collapsible HTML panel below the
-				// chart (#chartLegend) — see buildChartLegend() — so a 20-30 store
-				// legend doesn't eat the plot height on mobile.
-				legend: { display: false },
-
-				tooltip: {
-					filter: (tctx) => {
-						const store = String(tctx.dataset?.label || "");
-						const date = String(tctx.label || "");
-						return tctx.dataset?.variantKey === winKeyFor(store, date);
-					},
-					callbacks: {
-						label: (ctx) => {
-							const ds = ctx.dataset;
-							const raw = ds._rawData ? ds._rawData[ctx.dataIndex] : ctx.parsed?.y;
-							const v = Number.isFinite(raw) ? raw : ctx.parsed?.y;
-							if (!Number.isFinite(v)) return `${ds.label}: (no data)`;
-							const suffix = ds._rawData ? "  ↑ above chart" : "";
-							return `${ds.label}: $${v.toFixed(2)}${suffix}`;
-						},
-					},
-				},
+	const storesView = {
+		datasets,
+		markers,
+		key: null,
+		ySug,
+		yMin: Number.isFinite(ySugFinal.suggestedMin) ? Math.max(0, ySugFinal.suggestedMin) : undefined,
+		yMax: Number.isFinite(yHardMax) ? yHardMax : ySugFinal.suggestedMax,
+		step,
+		interactionMode: "nearest",
+		tooltip: {
+			filter: (tctx) => {
+				const store = String(tctx.dataset?.label || "");
+				const date = String(tctx.label || "");
+				return tctx.dataset?.variantKey === winKeyFor(store, date);
 			},
-			// layout: {
-			// padding: { right: 18 }
-			// },
-			scales: {
-				x: {
-					ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth <= 640 ? 3 : 12 },
-					grid: { display: false },
-				},
-				y: {
-					...ySug,
-					// Set up front rather than via a second update() after construction, which
-					// re-resolved every point of every dataset before the first frame.
-					min: Number.isFinite(ySugFinal.suggestedMin) ? Math.max(0, ySugFinal.suggestedMin) : undefined,
-					max: Number.isFinite(yHardMax) ? yHardMax : ySugFinal.suggestedMax,
-					ticks: {
-						stepSize: step,
-						maxTicksLimit: MAX_TICKS,
-						padding: 10,
-						callback: function (v) {
-							const val = Number(v);
-							if (!Number.isFinite(val)) return "";
-
-							// if no markers, normal label
-							if (!markerYs.length || typeof this.getPixelForValue !== "function") {
-								return `$${val.toFixed(0)}`;
-							}
-
-							const py = this.getPixelForValue(val);
-							if (!Number.isFinite(py)) return `$${val.toFixed(0)}`;
-
-							// derive a "collision window" from tick label height
-							// Chart.js puts resolved font on ticks.font (v3+), otherwise fall back
-							const tickFont = this?.options?.ticks?.font || this?.ctx?.font || "12px system-ui";
-
-							const h = fontPx(
-								typeof tickFont === "string"
-									? tickFont
-									: `${tickFont?.size || 12}px ${tickFont?.family || "system-ui"}`,
-							);
-
-							// hide if within 55% of label height (tweak 0.45–0.75)
-							const COLLIDE_PX = Math.max(6, h * 0.75);
-
-							for (const my of markerYs) {
-								const pmy = this.getPixelForValue(my);
-								if (!Number.isFinite(pmy)) continue;
-								if (pmy < this.top || pmy > this.bottom) continue;
-
-								if (Math.abs(py - pmy) <= COLLIDE_PX) return "";
-							}
-
-							return `$${val.toFixed(0)}`;
-						},
-					},
+			callbacks: {
+				label: (ctx) => {
+					const ds = ctx.dataset;
+					const raw = ds._rawData ? ds._rawData[ctx.dataIndex] : ctx.parsed?.y;
+					const v = Number.isFinite(raw) ? raw : ctx.parsed?.y;
+					if (!Number.isFinite(v)) return `${ds.label}: (no data)`;
+					const suffix = ds._rawData ? "  ↑ above chart" : "";
+					return `${ds.label}: $${v.toFixed(2)}${suffix}`;
 				},
 			},
 		},
-	});
+	};
+	let summaryView = null;
 
-	buildChartLegend(CHART);
+	function renderChart(mode) {
+		if (mode === "summary" && summaryView === null) summaryView = buildSummaryView();
+		const view = mode === "summary" ? summaryView : storesView;
+		const markerOpts = {
+			markers: view.markers,
+			color: "#7f8da3",
+			alpha: 0.38,
+			lineWidth: 1.25,
+			labelColor: "#556274",
+			axisInset: 2,
+		};
+
+		destroyChart();
+		const ctx = $canvas.getContext("2d");
+		CHART = new Chart(ctx, {
+			type: "line",
+			data: { labels, datasets: view.datasets },
+			plugins: [StaticMarkerLinesPlugin],
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				// The entrance animation re-resolves every point of every dataset per frame,
+				// and would replay on each mode switch.
+				animation: false,
+				interaction: { mode: view.interactionMode, intersect: false },
+
+				// v2 fallback (plugin reads this)
+				staticMarkerLines: markerOpts,
+
+				plugins: {
+					// v3+ (plugin reads this too)
+					staticMarkerLines: markerOpts,
+
+					// On-canvas legend is replaced by a collapsible HTML panel below the
+					// chart (#chartLegend) — see buildChartLegend() — so a 20-30 store
+					// legend doesn't eat the plot height on mobile. Summary mode uses the
+					// fixed #chartKey row instead.
+					legend: { display: false },
+
+					tooltip: view.tooltip,
+				},
+				scales: {
+					x: {
+						...monthYearXAxis(),
+						grid: { display: false },
+					},
+					y: {
+						...view.ySug,
+						// Set up front rather than via a second update() after construction, which
+						// re-resolved every point of every dataset before the first frame.
+						min: view.yMin,
+						max: view.yMax,
+						ticks: {
+							stepSize: view.step,
+							maxTicksLimit: MAX_TICKS,
+							padding: 10,
+							// Ticks that would touch a marker label are blanked by StaticMarkerLinesPlugin.
+							callback: (v) => `$${Number(v).toFixed(0)}`,
+						},
+					},
+				},
+			},
+		});
+
+		if (view.key === null) {
+			$chartKey.hidden = true;
+			buildChartLegend(CHART);
+		} else {
+			document.getElementById("chartLegend").hidden = true;
+			$chartKey.innerHTML = view.key
+				.map((k) => `<span class="chartKeyItem"><span class="chartKeySwatch" style="background:${esc(k.color)}"></span>${esc(k.label)}</span>`)
+				.join("");
+			$chartKey.hidden = false;
+		}
+
+		for (const btn of $chartMode.querySelectorAll(".chartModeBtn")) {
+			btn.setAttribute("aria-pressed", btn.dataset.mode === mode ? "true" : "false");
+		}
+	}
+
+	let chartMode = summaryBlockedReason === null && (storesEver >= 8 || tier === "staple") ? "summary" : "stores";
+	if (summaryBlockedReason === null) {
+		for (const btn of $chartMode.querySelectorAll(".chartModeBtn")) btn.disabled = false;
+		$chartMode.addEventListener("click", (ev) => {
+			const btn = ev.target.closest(".chartModeBtn");
+			if (!btn || btn.dataset.mode === chartMode) return;
+			chartMode = btn.dataset.mode;
+			renderChart(chartMode);
+		});
+	} else {
+		$chartMode.title = summaryBlockedReason;
+		$chartMode.classList.add("chartModeLocked");
+	}
+	renderChart(chartMode);
 
 	clearProgress();
 	// The chart is the confirmation; only the loading and failure states carry text.
