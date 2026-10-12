@@ -612,6 +612,22 @@ Any future control that hides its input inside a bigger surface needs the same t
   could render as nothing at all. Such datasets are flagged `_sparse` and always get a point —
   deliberately beating `suppressDots` (dots are hidden on every viewport once the chart has >50
   store-day points; desktop used to draw them all and lagged on long histories).
+- **Item chart has two modes** (`item_page.js` `renderChart(mode)`, pill `#chartMode` in the topbar):
+  Stores (one line per store) and Summary (`item_chart.js::computeSummarySeries`: BC/AB medians with
+  p25–p75 bands and a trailing 90-day "Good price"). Defaults, lock rules and the design are in
+  `docs/item-chart-summary-mode-feasibility.md`. Summary colours are the `--chart-bc/-ab/-target` and
+  `--chart-band-alpha` tokens, read via `getComputedStyle` at render (canvas can't use `var()`), so
+  like every colour token they live in all four theme places.
+- **X axis = `item_chart.js::monthYearXAxis()`**, shared by the item and stats charts: "Mon YYYY"
+  only, a tick on the first and last label (`align: "inner"` pins them flush to the plot edges),
+  and month-start ticks between at a steady cadence (every month, every 2nd …) as width allows.
+  ~95 px per tick, so phones get 2–3. Labels must be `YYYY-MM-DD`; anything else throws.
+- **Marker labels (BC / AB / Target) never overlap ticks or each other.** `layoutMarkerLabels`
+  pushes labels closer than one line apart; `StaticMarkerLinesPlugin.afterLayout` blanks y ticks
+  that would touch one. That check must run there: tick callbacks are formatted before the final
+  layout pass, so pixel tests inside them are off by a few px (the old in-callback test missed
+  `$34` vs `Target`). Phones label Alberta `AB`.
+- Item-page store links from `FAVOURITE_STORE_IDS` get `#/stores`' amber rim + glow (`.links a.favStore`).
 - `computeSuggestedY`'s `padRatio` is the chart's vertical breathing room. Mobile passes `0.05`
   (it was `0.01`, which put extreme series flush against the frame and read as clipped).
 

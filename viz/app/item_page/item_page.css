@@ -271,6 +271,14 @@
   opacity: 0.7;
 }
 
+/* Favourite stores (stores.js::FAVOURITE_STORE_IDS): the same amber rim + soft glow as
+   #/stores. Declared after :hover (equal specificity) so the rim survives hovering. */
+.links a.favStore {
+  border-color: rgba(240, 180, 41, 0.5);
+  box-shadow: 0 0 0 1px rgba(240, 180, 41, 0.18), 0 0 14px -4px rgba(240, 180, 41, 0.45);
+}
+.links a.favStore:hover { border-color: rgba(240, 180, 41, 0.85); }
+
 /* Subtle state indicator dots — colored circle before the store name */
 .storeStateExclusive .sqlInfo::before,
 .storeStateLastStock .sqlInfo::before {
@@ -510,15 +518,31 @@
   .links a.storeQuickLink,
   .storeLinksMore > summary { background: var(--lt-control); }
   .links .storeLinkRow a { background: var(--lt-control); }
+  /* Pale amber disappears on a white surface: a shade deeper, less glow spread. */
+  .links a.favStore {
+    border-color: rgba(176, 122, 12, 0.55);
+    box-shadow: 0 0 0 1px rgba(176, 122, 12, 0.16), 0 0 12px -5px rgba(176, 122, 12, 0.5);
+  }
+  .links a.favStore:hover { border-color: rgba(176, 122, 12, 0.9); }
 }
 
 html[data-theme="light"] .detailThumbBox { background: var(--lt-thumb); }
+html[data-theme="light"] .links a.favStore {
+  border-color: rgba(176, 122, 12, 0.55);
+  box-shadow: 0 0 0 1px rgba(176, 122, 12, 0.16), 0 0 12px -5px rgba(176, 122, 12, 0.5);
+}
+html[data-theme="light"] .links a.favStore:hover { border-color: rgba(176, 122, 12, 0.9); }
 html[data-theme="light"] .chartBox { background: var(--lt-surface); }
 html[data-theme="light"] .links a.storeQuickLink,
 html[data-theme="light"] .storeLinksMore > summary { background: var(--lt-control); }
 html[data-theme="light"] .links .storeLinkRow a { background: var(--lt-control); }
 
 html[data-theme="dark"] .detailThumbBox { background: #0b0d10; }
+html[data-theme="dark"] .links a.favStore {
+  border-color: rgba(240, 180, 41, 0.5);
+  box-shadow: 0 0 0 1px rgba(240, 180, 41, 0.18), 0 0 14px -4px rgba(240, 180, 41, 0.45);
+}
+html[data-theme="dark"] .links a.favStore:hover { border-color: rgba(240, 180, 41, 0.85); }
 html[data-theme="dark"] .chartBox { background: #0f1318; }
 html[data-theme="dark"] .links a.storeQuickLink,
 html[data-theme="dark"] .storeLinksMore > summary { background: var(--panel); }
@@ -596,5 +620,68 @@ html[data-theme="dark"] .links .storeLinkRow a { background: transparent; }
   transition: width 0.35s ease-out;
 }
 
-/* Share sits at the far right of the Back / sku row. */
+/* Share sits at the far right of the Back / sku row, with the chart-mode pill on its left. */
 .shareBtn { margin-left: auto; flex: 0 0 auto; }
+.chartModeToggle + .shareBtn { margin-left: 0; }
+
+.chartModeToggle {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #0f1318;
+}
+.chartModeBtn {
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0 10px;
+  cursor: pointer;
+}
+.chartModeBtn:last-child { border-right: 0; }
+.chartModeBtn:hover:not(:disabled) { color: var(--text); }
+.chartModeBtn[aria-pressed="true"] {
+  background: rgba(125, 211, 252, 0.12);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.chartModeBtn:disabled { cursor: default; }
+/* Locked to the store view: the pressed segment still says which view this is. */
+.chartModeLocked { opacity: 0.5; }
+.chartModeLocked .chartModeBtn[aria-pressed="true"] { box-shadow: none; }
+
+/* The SKU badge gives way first when the row is tight on a phone. */
+.topbar > .badge { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (pointer: coarse) {
+  .chartModeToggle { height: 44px; }
+}
+
+/* Summary mode's fixed key (replaces the per-store legend panel). */
+.chartKey {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  font-size: var(--text-md);
+  color: var(--muted);
+}
+.chartKey[hidden] { display: none; }
+.chartKeyItem { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.chartKeySwatch { width: 14px; height: 3px; border-radius: var(--radius-xs); }
+
+@media (prefers-color-scheme: light) {
+  .chartModeToggle { background: var(--lt-control); }
+  .chartModeBtn[aria-pressed="true"] { background: rgba(21, 101, 192, 0.10); }
+}
+html[data-theme="light"] .chartModeToggle { background: var(--lt-control); }
+html[data-theme="light"] .chartModeBtn[aria-pressed="true"] { background: rgba(21, 101, 192, 0.10); }
+html[data-theme="dark"] .chartModeToggle { background: #0f1318; }
+html[data-theme="dark"] .chartModeBtn[aria-pressed="true"] { background: rgba(125, 211, 252, 0.12); }
