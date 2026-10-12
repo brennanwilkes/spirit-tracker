@@ -11,18 +11,11 @@
  *
  * The baseline is the screen, not the tallest height seen since load: after a reload the page
  * starts out shrunk, so it has never seen the real height.
- *
- * A second variant leaves innerHeight alone, so heal() never fires: after pull-to-refresh on the
- * item page the tab bar floats a varying gap above the bottom, surviving scrolls and further
- * reloads, until a tab switch. What a tab switch does is change the document height, so
- * nudge() does the same: once the body's size settles, a spacer after it makes the document
- * taller for two frames. It sits outside body so it doesn't retrigger the observer.
  */
 
 const SLACK_PX = 4;
 const AFTER_BLUR_MS = 150; // let the keyboard finish closing before measuring
 const MIN_GAP_MS = 1000; // a heal that changes nothing (e.g. an iPad split window) must not loop
-const NUDGE_SETTLE_MS = 250; // a page renders in bursts (shell, data, chart); nudge after the last
 
 // An open keyboard covers the visual viewport, not the layout one. Not document.activeElement:
 // search focuses its box on load, and on iOS a programmatic focus shows no keyboard.
@@ -48,18 +41,6 @@ export function installViewportHeal() {
 		document.body.style.display = "";
 		window.scrollTo(0, y);
 	}
-
-	let nudgeTimer = null;
-	function nudge() {
-		const $spacer = document.createElement("div");
-		$spacer.style.height = `${window.innerHeight}px`;
-		document.documentElement.appendChild($spacer);
-		requestAnimationFrame(() => requestAnimationFrame(() => $spacer.remove()));
-	}
-	new ResizeObserver(() => {
-		clearTimeout(nudgeTimer);
-		nudgeTimer = setTimeout(nudge, NUDGE_SETTLE_MS);
-	}).observe(document.body);
 
 	document.addEventListener("focusout", () => setTimeout(heal, AFTER_BLUR_MS));
 	window.visualViewport.addEventListener("resize", heal);
