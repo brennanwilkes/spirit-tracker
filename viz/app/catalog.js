@@ -3,6 +3,7 @@ import { parsePriceToNumber, keySkuForRow, normSearchText } from "./sku.js";
 import { resolveItemSpiritTypes } from "./spirit_types.js";
 import { normalizeStoreId } from "./stores.js";
 import { isHiddenListing } from "./hidden.js";
+import { searchAliasTokens } from "./search_aliases.js";
 
 // Display priority for name/photo selection across the site.
 // Photo bumps a store up one tier (floored at 0) — so a BCL record with a photo
@@ -150,7 +151,8 @@ export function aggregateBySku(listings, canonicalizeSkuFn, hiddenSet) {
 		it._searchParts.push(it.name || "");
 		it._searchParts.push(it.sampleUrl || "");
 		it._searchParts.push(it.cheapestStoreLabel || "");
-		it.searchText = normSearchText(it._searchParts.join(" | "));
+		const rawSearch = it._searchParts.join(" | ");
+		it.searchText = normSearchText([rawSearch, ...searchAliasTokens(rawSearch)].join(" "));
 		delete it._searchParts;
 	}
 

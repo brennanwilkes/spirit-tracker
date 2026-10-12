@@ -129,6 +129,7 @@ viz/
 | `app/cloud.js` | All Cloudflare Workers API calls |
 | `app/dom.js` | DOM helpers — **always use `esc()` for user-visible strings in innerHTML** |
 | `app/sku.js` | SKU parsing, hashing, synthetic SKU detection |
+| `app/search_aliases.js` | Brand alias table for search (G&M): synthetic token on index + query side. Check with `tools/check_search_aliases.mjs`; see root `CLAUDE.md` §"Search matching" |
 | `app/flip_flop.js` | `detectFlapSpans()` — locates repeating price/availability oscillations (`A→B→A→B…`, not single round-trips; 3-day per-leg window) so the item-page chart renders them dashed + dot-less. See root `CLAUDE.md` §"Flip-Flop (Transient Change) Handling" |
 | `app/sku_canonical.js` | DSU + `compareSku` + `normalizeImplicitSkuKey` + `buildGroupsAndCanonicalMap`. Parallel sibling of `src/utils/sku_canonical.js` (CJS); keep both in sync manually since there is no build step. |
 | `app/storeColors.js` | Store → CSS color mapping (delegates to `stores.js` for color data) |

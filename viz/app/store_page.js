@@ -17,6 +17,7 @@ import { loadSkuRules } from "./mapping.js";
 import { favStarHtml, loadMyFavouritesSet, installFavStars } from "./fav_star.js";
 import { normalizeStoreId, storeById } from "./stores.js";
 import { loadHiddenSet, isHiddenListing } from "./hidden.js";
+import { searchAliasTokens } from "./search_aliases.js";
 import { createInfiniteScroll } from "./components/infinite_scroll.js";
 import { effectiveRarity } from "./rarity.js";
 
@@ -386,7 +387,8 @@ export async function renderStore($app, storeLabelRaw) {
 		for (const r of liveAll) {
 			const skuKey = keySkuForRow(r);
 			const sku = String(rules.canonicalSku(skuKey) || skuKey);
-			const name = normSearchText(String(r?.name || ""));
+			const rawName = String(r?.name || "");
+			const name = normSearchText([rawName, ...searchAliasTokens(rawName)].join(" "));
 			if (!name || !sku) continue;
 			let names = globalNamesBySku.get(sku);
 			if (!names) globalNamesBySku.set(sku, (names = []));
