@@ -16,7 +16,7 @@
  *   - computeSummarySeries       Province medians/bands + 90-day moving Target for Summary mode
  */
 
-import { normalizeStoreId, storeById, storesByRegion } from "../stores.js";
+import { normalizeStoreId, storeById } from "../stores.js";
 
 // ── Province classification ────────────────────────────────────────────────
 
@@ -202,12 +202,9 @@ export function computeSummarySeries(stores, labels) {
 		});
 		const mid = smoothTrend(median);
 		const spread = smoothTrend(sigma);
-		// Share of the province's tracked stores carrying it, smoothed like the lines so the
-		// width ramps instead of stepping.
-		const tracked = storesByRegion(wantBc ? "bc" : "ab").length;
 		return {
-			stores,
-			coverage: smoothTrend(stores.map((n) => (n === null ? null : n / tracked))),
+			// Smoothed like the lines, so a width driven by it ramps instead of stepping.
+			stores: smoothTrend(stores),
 			median: mid,
 			lo: mid.map((m, i) => (m === null ? null : m - spread[i])),
 			hi: mid.map((m, i) => (m === null ? null : m + spread[i])),

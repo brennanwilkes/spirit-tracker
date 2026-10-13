@@ -1278,18 +1278,18 @@ export async function renderItem($app, skuInput) {
 			{ name: "BC", data: summary.bc, color: token("--chart-bc") },
 			{ name: "Alberta", data: summary.ab, color: token("--chart-ab") },
 		];
-		// Width = how broadly the province stocks it: a hairline at one store, ~4.4px at 80% of
-		// its tracked stores. A gentler curve than the stats page's, since few items pass 60%.
-		const coverageWidth = (c) => 1 + 4 * Math.min(1, c) ** 0.75;
+		// Width = how many stores in the province carry it: 1px at one store rising linearly to
+		// 4px at 10. An absolute count, not a share of tracked stores, so adding stores to the
+		// tracker never thins existing lines.
+		const widthForStores = (n) => 1 + (3 * (Math.min(n, 10) - 1)) / 9;
 		for (const r of regions) {
 			if (!r.data.median.some(Number.isFinite)) continue;
-			const cov = r.data.coverage;
+			const storeCounts = r.data.stores;
 			bands.push(band(r.name, r.data.lo, r.color, false), band(r.name, r.data.hi, r.color, "-1"));
 			lines.push(
 				line(r.name, r.data.median, r.color, {
-					_stores: r.data.stores,
-					borderWidth: coverageWidth(lastFiniteFromEnd(cov)),
-					segment: { borderWidth: (seg) => coverageWidth(cov[seg.p1DataIndex] ?? cov[seg.p0DataIndex]) },
+					borderWidth: widthForStores(lastFiniteFromEnd(storeCounts)),
+					segment: { borderWidth: (seg) => widthForStores(storeCounts[seg.p1DataIndex] ?? storeCounts[seg.p0DataIndex]) },
 				}),
 			);
 		}
@@ -1314,11 +1314,7 @@ export async function renderItem($app, skuInput) {
 			interactionMode: "nearestLine",
 			tooltip: {
 				callbacks: {
-					label: (tctx) => {
-						const base = `${tctx.dataset.label}: $${tctx.parsed.y.toFixed(2)}`;
-						const n = tctx.dataset._stores?.[tctx.dataIndex];
-						return Number.isFinite(n) ? `${base} · ${n} store${n === 1 ? "" : "s"}` : base;
-					},
+					label: (tctx) => `${tctx.dataset.label}: $${tctx.parsed.y.toFixed(2)}`,
 				},
 			},
 		};
