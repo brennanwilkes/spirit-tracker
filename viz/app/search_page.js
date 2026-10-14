@@ -323,16 +323,23 @@ export function renderSearch($app) {
 		return String($avail?.value || "all");
 	}
 
-	// Availability is the ONLY membership gate. The store selection is a scoping lens,
-	// not a filter: under "all" it never removes an item. Under "in"/"out" it scopes the
-	// stock test to the selected stores (in = live at a selected store; out = ever carried
-	// at a selected store but not currently live there — "carried-but-OOS").
+	// The single membership gate. With a store selection, every mode is scoped to it (OR
+	// across selected stores): all = ever carried at a selected store; in = live at one;
+	// out = ever carried at one but live at none of them.
 	function passesAvailability(sku) {
 		const m = availMode();
-		if (m === "all") return true;
 		const s = String(sku || "");
 
 		if (resolvedStoreNorms) {
+			const ever = everStoresBySku.get(s);
+			let everSelected = false;
+			if (ever) {
+				for (const st of resolvedStoreNorms) {
+					if (ever.has(st)) { everSelected = true; break; }
+				}
+			}
+			if (!everSelected) return false;
+			if (m === "all") return true;
 			const live = liveStoresBySku.get(s);
 			let inSelected = false;
 			if (live) {
@@ -341,18 +348,11 @@ export function renderSearch($app) {
 				}
 			}
 			if (m === "in") return inSelected;
-			if (m === "out") {
-				if (inSelected) return false;
-				const ever = everStoresBySku.get(s);
-				if (!ever) return false;
-				for (const st of resolvedStoreNorms) {
-					if (ever.has(st)) return true;
-				}
-				return false;
-			}
-			return true;
+			if (m === "out") return !inSelected;
+			throw new Error(`Unknown availability mode: ${m}`);
 		}
 
+		if (m === "all") return true;
 		const st = stockMetaForSku(s);
 		if (m === "in") return !st.outOfStock;
 		if (m === "out") return !!st.outOfStock;
@@ -855,20 +855,13 @@ export function renderSearch($app) {
 		// (new / restored / removed / price up / price down) — not just market-wide
 		// arrivals. Keeping the single most-recent event per sku keeps the feed one
 		// row per product rather than a flood of per-store churn.
-		// Activity is store-scoped: an event only counts for the filtered set if it
-		// HAPPENED at a store in the set. (A canonical item can be carried at a
-		// filtered store while the recent change occurred at a different store — e.g.
-		// an AMRUT price flap at ARC must not surface under a Tudor-only filter.)
-		// So the per-SKU "latest event" is the latest one at a filtered store, and an
-		// item with no events at any filtered store drops out entirely.
 		const eventStoreId = (r) => normalizeStoreId(String(r?.storeLabel || r?.store || "").trim());
 
-		// Store selection is a SCOPE here, not a hard drop: an event at a selected store
-		// ("scoped") sorts first, but non-selected activity is still reachable by scrolling
-		// (under "all"). We track the latest event per SKU twice — latest at ANY store and
-		// latest at a SELECTED store — and display/order by the scoped one when present. The
-		// in/out availability test below is what actually narrows the set store-scoped; under
-		// "all" it narrows nothing, so every item remains and only the ORDER reflects the set.
+		// passesAvailability below restricts the feed to items carried at a selected store.
+		// Within that set, an item whose latest event happened at a selected store
+		// ("scoped") sorts first; one whose recent activity was only elsewhere still shows,
+		// after them. We track the latest event per SKU at ANY store and at a SELECTED
+		// store, and display/order by the scoped one when present.
 		const bySku = new Map(); // sku -> { rAny, msAny, rScoped, msScoped }
 		for (const r of inWindow) {
 			const rawSku = String(r?.sku || "").trim();
@@ -929,7 +922,7 @@ export function renderSearch($app) {
 			const as = String(a.sku || "");
 			const bs = String(b.sku || "");
 
-			// Selected-store activity always surfaces first (scope, not filter).
+			// Selected-store activity always surfaces first.
 			if (a.scoped !== b.scoped) return a.scoped ? -1 : 1;
 
 			if (mode === "salePct") {
