@@ -127,7 +127,7 @@
 // manual/merge link), re-scored via the live ranker WITHOUT candidate-rank truncation —
 // the data for unlinking a bad link (prob fell below bar) or confirming a good one:
 //   {
-//     "fromSku","toSku","kind": "auto-link"|"link", "source", "status", "storedConfidence",
+//     "fromSku","toSku","kind": "auto-link"|"link", "source", "storedConfidence",
 //     "pinned": true|false,   // storedConfidence >= 1e8 ⇒ deterministic floor-pin (e.g. shared
 //                             // SMWS cask code); NOT a calibrated prob — keep, ignore below-bar live prob
 //     "detScore","score01","prob","aiDelta","aboveBar",
@@ -159,7 +159,7 @@
 // Each cluster (canonical group, keyed by canonicalSku, members resolved):
 //   {
 //     "id","size","auditedMembers","memberStoreCount","newMemberCount","isOrphan",
-//     "hasPendingAutoLink","hasConfirmedAutoLink","hasMergeAutoLink","hasManualLink",
+//     "hasAutoLink","hasMergeAutoLink","hasManualLink",
 //     "members": [
 //       { "sku","inAudit","firstSeen","storeCount","implicitStoreCount",
 //         "stores": [ { storeId, store, dbFile, category, name, price, url, removed } ] }
@@ -167,7 +167,7 @@
 //   }
 //
 // Interpretation cheatsheet:
-//   - wasAutoLinked=true, autoLinks[].status=pending → classifier matched it; review outstanding
+//   - wasAutoLinked=true                         → the CI classifier linked it
 //   - scores.verified[].aboveBar=false on an auto-link pair → its live prob fell below the bar
 //     (accept the classifier's ORIGINAL storedConfidence, but today's data votes to unlink)
 //   - scores.candidates[].aboveBar=true on a never-auto-linked sku → the ranker would fire today
@@ -180,7 +180,7 @@
 //     grpStoreOverlap/grpSizeConflict (canonical-group-level evidence)
 //
 // SUMMARY aggregates (top-level "summary"): total (post --only), per-store
-// breakdown, autoLinked / hasLinks / orphan / pending / confirmed / inIgnores
+// breakdown, autoLinked / hasLinks / orphan / inIgnores
 // counts, coverage rates, liveNow, prunedFromDb, and when scored: scoredCount.
 //
 // Re-runnable + read-only over the worktree. Output goes to audit/ (git-ignored).
@@ -324,7 +324,7 @@ function readJson(file) {
 const ALLOWED_ONLY = new Set([
 	"all",
 	"orphans", // no link of any kind
-	"auto-linked", // classifier has emitted a pending/confirmed link
+	"auto-linked", // classifier has emitted a link
 	"has-links", // any explicit or implicit link
 	"no-auto-link", // classifier has never touched it
 	"want-links", // never auto-linked, yet a live candidate prob >= bar today (link the missed ones)
@@ -904,7 +904,7 @@ async function runFromView({ fromFile, only, offset, limit, format, compact, ult
 					removed: !!(l.current && l.current.removed) || undefined,
 				});
 				outPayload = {
-					cluster: { id: c.id, size: c.size, memberStoreCount: c.memberStoreCount, hasPendingAutoLink: c.hasPendingAutoLink, hasConfirmedAutoLink: c.hasConfirmedAutoLink, isOrphan: c.isOrphan },
+					cluster: { id: c.id, size: c.size, memberStoreCount: c.memberStoreCount, hasAutoLink: c.hasAutoLink, isOrphan: c.isOrphan },
 					members: compact ? members.map(projectMember) : members,
 					missingFromWindow: (c.members || []).filter((m) => m.sku && !listings.some((l) => l.sku === m.sku)).map((m) => m.sku),
 				};
@@ -1435,7 +1435,7 @@ async function buildScorer(root, opts = {}) {
 	//     as auto_link_classify / #/link-rapid). aboveBar=true ⇒ auto-linking would fire on
 	//     that pair today.
 	//   verified[]  — the EXISTING explicit links touching this listing re-scored directly
-	//     (auto-classify pending/confirmed entries AND manual/merge links), independent of
+	//     (auto-classify entries AND manual/merge links), independent of
 	//     candidate-rank truncation. This is the "is this link still good" surface the agent
 	//     uses to unlink bad ones.
 	function scoreListing(listing, top) {
@@ -1509,7 +1509,7 @@ async function buildScorer(root, opts = {}) {
 			if (!partner || partner === me) continue;
 			const key = [me, partner].sort().join("|");
 			if (!pairMap.has(key))
-				pairMap.set(key, { kind: "auto-link", source: "auto-classify", status: al.status, confidence: al.confidence, partner });
+				pairMap.set(key, { kind: "auto-link", source: "auto-classify", confidence: al.confidence, partner });
 		}
 		for (const lk of listing.links || []) {
 			if (lk.kind !== "explicit") continue;
@@ -1521,14 +1521,13 @@ async function buildScorer(root, opts = {}) {
 				pairMap.set(key, {
 					kind: "link",
 					source: src || "manual",
-					status: "confirmed",
 					confidence: lk.entry && lk.entry.confidence,
 					partner,
 				});
 		}
 		const verified = [];
 		for (const info of pairMap.values()) {
-			const v = { fromSku: me, toSku: info.partner, kind: info.kind, source: info.source, status: info.status, storedConfidence: info.confidence };
+			const v = { fromSku: me, toSku: info.partner, kind: info.kind, source: info.source, storedConfidence: info.confidence };
 			const agg = bySkuAgg.get(info.partner);
 			if (!agg) {
 				v.absentFromCatalog = true;
@@ -1877,7 +1876,6 @@ async function main() {
 			autoClassifyBySku.get(s).push({
 				fromSku: a,
 				toSku: b,
-				status: e.status || "confirmed",
 				confidence: e.confidence,
 				ts: e.ts,
 			});
@@ -1999,7 +1997,6 @@ async function main() {
 						fromSku: rec.a,
 						toSku: rec.b,
 						source: rec.kind,
-						status: rec.entry.status,
 						confidence: rec.entry.confidence,
 						ts: rec.entry.ts,
 					},
@@ -2227,15 +2224,13 @@ async function main() {
 			};
 		});
 		const memberStoreCount = new Set(memberObjs.flatMap((m) => m.stores.map((s) => s.storeId))).size;
-		let hasPending = false;
-		let hasConfirmed = false;
+		let hasAuto = false;
 		let hasMerge = false;
 		let hasManual = false;
 		for (const m of members) {
 			for (const rec of adjacency.get(m) || []) {
 				if (rec.entry?.source === "auto-classify") {
-					if (rec.entry.status === "pending") hasPending = true;
-					else hasConfirmed = true;
+					hasAuto = true;
 				} else if (rec.kind === "merge-auto") {
 					hasMerge = true;
 				} else {
@@ -2252,8 +2247,7 @@ async function main() {
 				(m) => m.firstSeen && Date.parse(m.firstSeen) >= since.ms && Date.parse(m.firstSeen) < until.ms,
 			).length,
 			isOrphan: members.length === 1 && memberStoreCount <= 1,
-			hasPendingAutoLink: hasPending,
-			hasConfirmedAutoLink: hasConfirmed,
+			hasAutoLink: hasAuto,
 			hasMergeAutoLink: hasMerge,
 			hasManualLink: hasManual,
 			members: memberObjs,
@@ -2316,8 +2310,6 @@ async function main() {
 	const autoLinked = filtered.filter((l) => l.wasAutoLinked);
 	const anyLinks = filtered.filter((l) => l.hasLinks);
 	const orphans = filtered.filter((l) => !l.hasLinks);
-	const pending = autoLinked.filter((l) => l.autoLinks.some((a) => a.status === "pending"));
-	const confirmed = autoLinked.filter((l) => l.autoLinks.some((a) => a.status === "confirmed"));
 	const inIgnores = filtered.filter((l) => l.inIgnores);
 
 	const byStore = new Map();
@@ -2336,8 +2328,6 @@ async function main() {
 		orphans: orphans.length,
 		coverageRate: n ? +(anyLinks.length / n).toFixed(4) : 0,
 		autoLinkCoverageRate: n ? +(autoLinked.length / n).toFixed(4) : 0,
-		pendingReview: pending.length,
-		confirmed: confirmed.length,
 		inIgnores: inIgnores.length,
 		liveNow: filtered.filter((l) => l.current && !l.current.removed).length,
 		prunedFromDb: filtered.filter((l) => !l.current).length,
@@ -2366,7 +2356,7 @@ async function main() {
 		`Listings: unit=(dbFile, normalizedSku), first-seen in [${since.iso}, ${until.iso}). ` +
 		"Every sku is a normalized key == `viz/data/skus/<sku>.json`; every listing has stable `id` = `<dbFile>|<sku>` for agent references. " +
 		"Per listing: `current` = record in the db today (name/url/price/removed; null = pruned out of the db), " +
-		"`autoLinks[]` = source:auto-classify entries touching it (status pending=awaiting review), " +
+		"`autoLinks[]` = source:auto-classify entries touching it, " +
 		"`links[]` = explicit/implicit links with per-store `resolved[]`, `cluster` = its canonical-group summary, " +
 		"`scores.verified[]` = each EXISTING explicit link re-scored today (`prob` < bar ⇒ candidate to unlink; keep `storedConfidence` as the classifier's original call), " +
 		"`scores.candidates[]` = the LIVE ranker's top pairs (`prob` = GBT blend probability thresholds at bar; " +
@@ -2456,7 +2446,7 @@ async function main() {
 	console.log(`  auto-linked by classifier: ${autoLinked.length} (${((autoLinked.length / Math.max(n, 1)) * 100).toFixed(1)}%)`);
 	console.log(`  have links today:          ${anyLinks.length} (${((anyLinks.length / Math.max(n, 1)) * 100).toFixed(1)}%)`);
 	console.log(`  orphans (no links):        ${orphans.length}`);
-	console.log(`  pending review:            ${pending.length}   confirmed: ${confirmed.length}   in ignores: ${inIgnores.length}`);
+	console.log(`  in ignores:                ${inIgnores.length}`);
 	if (willScore) {
 		console.log(`  scored ${scoredCount}/${scoreDrivenOnly ? filtered.length : windowed.length} ${scoreDrivenOnly ? "universe" : "windowed"} · ${candidateCount} candidates · ${verifiedCount} verified pairs · engine=${scorer.engine} bar=${scorer.bar}`);
 		const ps = poolStats(poolSizes);

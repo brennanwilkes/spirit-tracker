@@ -37,10 +37,7 @@ function dedupeLinks(links, ignores) {
 		const ra = find(link.fromSku), rb = find(link.toSku);
 		if (ra !== rb) {
 			parent.set(ra, rb);
-			// Preserve the WHOLE link object (not just fromSku/toSku) so auto-classify metadata
-			// — status:"pending", confidence, source, ts — survives any local write. The review
-			// page (#/link-review) keys off `status`, so stripping it here would silently mark
-			// every pending link confirmed on the next unrelated edit.
+			// Preserve the WHOLE link object so link metadata (confidence, source, ts) survives a rewrite.
 			kept.push(link);
 		}
 	}

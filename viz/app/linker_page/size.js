@@ -69,7 +69,7 @@ export function sizePenalty(aSet, bSet) {
 
 /**
  * Builds caches and returns a function (aSku,bSku)=>penalty.
- * This keeps linker_page.js clean and makes cache rebuild explicit when rules change.
+ * This makes cache rebuild explicit when rules change.
  */
 export function buildSizePenaltyForPair({ allRows, allAgg, rules }) {
 	const SKU_SIZE_CACHE = new Map(); // skuKey -> Set<int ml>

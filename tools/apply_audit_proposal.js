@@ -293,7 +293,7 @@ function main() {
 				results.push(r);
 				continue;
 			}
-			const entry = { fromSku: o.a, toSku: o.b, status: "pending", source: "agent-audit", ts };
+			const entry = { fromSku: o.a, toSku: o.b, source: "agent-audit", ts, ...(o.noTrain ? { noTrain: true } : {}) };
 			if (o.confidence !== undefined) entry.confidence = o.confidence;
 			links.push(entry);
 		} else if (o.op === "unlink" || o.op === "unlink-auto") {
@@ -414,7 +414,7 @@ function main() {
 			ignoresAfter: final.ignores.length,
 		},
 		diff: {
-			addedLinks: addedLinks.map((l) => ({ fromSku: l.fromSku, toSku: l.toSku, status: l.status || null })),
+			addedLinks: addedLinks.map((l) => ({ fromSku: l.fromSku, toSku: l.toSku })),
 			removedLinks: removedLinks.map((l) => ({ fromSku: l.fromSku, toSku: l.toSku })),
 			addedIgnores: addedIgnores.map((ig) => ({ skuA: ig.skuA, skuB: ig.skuB })),
 			removedIgnores: removedIgnores.map((ig) => ({ skuA: ig.skuA, skuB: ig.skuB })),
@@ -466,7 +466,7 @@ function main() {
 			for (const x of arr.slice(0, cap)) console.log(`    ${fmt(x)}`);
 			if (arr.length > cap) console.log(`    … ${arr.length - cap} more (--verbose to list all)`);
 		};
-		show("+links", report.diff.addedLinks, (x) => `${x.fromSku} ↔ ${x.toSku}${x.status ? ` [${x.status}]` : ""}`);
+		show("+links", report.diff.addedLinks, (x) => `${x.fromSku} ↔ ${x.toSku}`);
 		show("-links", report.diff.removedLinks, (x) => `${x.fromSku} ↔ ${x.toSku}`);
 		show("+ignores", report.diff.addedIgnores, (x) => `${x.skuA} ↔ ${x.skuB}`);
 		show("-ignores", report.diff.removedIgnores, (x) => `${x.skuA} ↔ ${x.skuB}`);

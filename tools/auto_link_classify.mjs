@@ -7,14 +7,12 @@
  * the GBT blend) for cross-store matches and, for any candidate scoring at/above the monitored
  * 99%-precision operating point (autoLinkConfidenceBar), appends a link to data/sku_links.json:
  *
- *     { fromSku, toSku, status: "pending", confidence, source: "auto-classify", ts }
+ *     { fromSku, toSku, confidence, source: "auto-classify", ts }
  *
- * Because every consumer (src/utils/sku_map.js, viz/app/mapping.js, build_email_event_pack.js)
- * reads only fromSku/toSku and ignores extra fields, a pending link is treated as a REAL link
- * everywhere immediately (catalog grouping, email alerts). The `status` field is purely the
- * marker the review surface (#/link-review) uses; a human Approves (drop status) or Rejects
- * (delete + ignore) it later. This converges: a pending link becomes a real canonical group on
- * the next run, so recommendSimilar's same-group filter never re-scores it.
+ * Every consumer (src/utils/sku_map.js, viz/app/mapping.js, build_email_event_pack.js) reads only
+ * fromSku/toSku, so the link is real everywhere immediately (catalog grouping, email alerts);
+ * agent audits unlink/ignore wrong links later. This converges: the new link is a canonical group
+ * on the next run, so recommendSimilar's same-group filter never re-scores it.
  *
  * Reuses the live scorer end-to-end via tools/linker_ml/featurize.mjs::buildEnv — never forks
  * scoring — exactly like tools/linker_eval.mjs and the trainer.
@@ -49,12 +47,25 @@ import { buildGroupsAndCanonicalMap, normalizeImplicitSkuKey } from "../viz/app/
 /* ---------------- args ---------------- */
 
 const argv = process.argv.slice(2);
+// Without --dry-run this tool WRITES links, and a full scan is its default, so a typo'd or unknown
+// flag (even --help) must not fall through to a full writing sweep.
+const NUM_FLAGS = ["--top", "--since", "--max-anchors"];
+for (let i = 0; i < argv.length; i++) {
+	if (argv[i] === "--dry-run") continue;
+	if (NUM_FLAGS.includes(argv[i])) {
+		i++;
+		continue;
+	}
+	console.error(`auto_link_classify: unknown argument ${argv[i]} (flags: --dry-run ${NUM_FLAGS.map((f) => `${f} N`).join(" ")})`);
+	process.exit(2);
+}
 const DRY_RUN = argv.includes("--dry-run");
 function argNum(flag, dflt) {
 	const i = argv.indexOf(flag);
 	if (i < 0) return dflt;
 	const v = Number(argv[i + 1]);
-	return Number.isFinite(v) ? v : dflt;
+	if (!Number.isFinite(v)) throw new Error(`auto_link_classify: ${flag} needs a number, got ${argv[i + 1]}`);
+	return v;
 }
 const TOP = argNum("--top", 10);
 const SINCE_DAYS = argNum("--since", 0); // 0 = no recency filter (full scan)
@@ -212,13 +223,13 @@ const pairKey = (a, b) => {
 	return x < y ? `${x} ${y}` : `${y} ${x}`;
 };
 
-// Dedupe against links already on disk (any status) and against pairs emitted this run.
+// Dedupe against links already on disk and against pairs emitted this run.
 const existingPairs = new Set();
 for (const l of allLinks) {
 	if (l?.fromSku && l?.toSku) existingPairs.add(pairKey(l.fromSku, l.toSku));
 }
 
-// Read the current file once; flush() rewrites baseline + all pending found so far. Flushing every
+// Read the current file once; flush() rewrites baseline + all links found so far. Flushing every
 // FLUSH_EVERY anchors makes a long run (a big new-store batch) RESUMABLE: a cancel/timeout keeps the
 // links found so far on disk, and a re-run skips them via existingPairs (fast no-op).
 const baseline = readJson(LINKS_FILE);
@@ -272,7 +283,6 @@ for (const anchor of anchors) {
 			newLinks.push({
 				fromSku: f,
 				toSku: t,
-				status: "pending",
 				confidence: Number(r.score.toFixed(4)),
 				source: "auto-classify",
 				ts,
@@ -281,14 +291,14 @@ for (const anchor of anchors) {
 	}
 	if (++processed % 200 === 0) {
 		console.log(
-			`[auto-link] ${processed}/${anchors.length} (${((100 * processed) / anchors.length).toFixed(0)}%) · ${newLinks.length} pending`,
+			`[auto-link] ${processed}/${anchors.length} (${((100 * processed) / anchors.length).toFixed(0)}%) · ${newLinks.length} found`,
 		);
 	}
 	if (processed % FLUSH_EVERY === 0) flush();
 }
 
 console.log(
-	`[auto-link] scanned ${anchors.length} anchors (${scoredCandidates} candidate comparisons) · found ${newLinks.length} new pending links (>= ${BAR.toFixed(3)})`,
+	`[auto-link] scanned ${anchors.length} anchors (${scoredCandidates} candidate comparisons) · found ${newLinks.length} new links (>= ${BAR.toFixed(3)})`,
 );
 
 /* ---------------- output ---------------- */
@@ -311,4 +321,4 @@ if (DRY_RUN) {
 }
 
 flush(); // final write — minified single-line + trailing newline (matches viz/serve.js's writeMeta)
-console.log(`[auto-link] wrote ${newLinks.length} pending links -> ${LINKS_FILE}`);
+console.log(`[auto-link] wrote ${newLinks.length} links -> ${LINKS_FILE}`);
