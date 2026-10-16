@@ -848,7 +848,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 					: `<span class="itemStore">${esc(storeLabel)}${esc(plus)}</span>`
 				: "";
 
-		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
 		const skuDisp = displaySku(it.sku);
 
 		const stockBadge = it._outOfStock ? `<span class="badge badgeBad">OUT OF STOCK</span>` : "";
@@ -903,14 +902,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 					${scorePill}
 					${favStarHtml(it.sku, favSet.has(it.sku))}
 					${wDock}
-					<a class="badge mono skuLink"
+					<span class="badge mono skuLink"
 						style="flex:0 0 9ch; width:9ch; min-width:9ch; max-width:9ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
 						title="${esc(skuDisp)}"
-						href="${esc(skuLink)}"
-						target="_blank"
-						rel="noopener noreferrer"
-						onclick="event.stopPropagation()"
-					>${esc(skuDisp)}</a>
+					>${esc(skuDisp)}</span>
 				</div>
 				<div class="itemRow">
 					<div class="thumbBox">${renderThumbHtml(it.img)}</div>

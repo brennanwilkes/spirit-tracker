@@ -8,7 +8,7 @@ proposal/apply contract. Design + measured results live in
 
 ## Why this exists
 
-The human link pages (`#/link-rapid`, `#/link-review`) are being retired. Link quality control
+The human link pages (`#/link`, `#/link-rapid`, `#/link-review`) were removed on 2026-10-12. Link quality control
 becomes two pillars:
 
 1. **Auto-classify** (`tools/auto_link_classify.mjs`) — high-confidence cross-store links appended
@@ -21,6 +21,74 @@ file**, and the agent reads **smart-filtered projections** of it, pulling full d
 specific decision needs it. The **search primitive** (`tools/audit_search.mjs`) is the
 non-token-consuming way to query the whole catalog (current + delisted) without pulling the rich
 file into context.
+
+## Whole-catalog undecided-pair pass (the replacement for the link pages) — RUN THIS FIRST
+
+Added 2026-10-12, after the owner found obvious misses and obvious non-links on `#/link-rapid` that
+every earlier audit had missed. The page did one thing no audit did: it ranked EVERY undecided pair in
+the catalog by classical (token) similarity, with no confidence bar and no first-seen window. This pass
+does the same, so no pair the page could have shown goes unjudged. Every audit that claims to cover
+"the last N weeks" must include it; a first-seen window alone misses old-vs-old pairs, and CI only
+re-scores SKUs first seen in the last 25 days.
+
+1. **Refresh all three Release assets** (§Setup): `index.json`, `sku_embeddings.json` AND
+   `viz/data/skus/` (the tarball). On 2026-10-12 a stale per-SKU cache (9 days old) silently dropped
+   299 listings, mostly new W&B/Elbow ones, from the anchor set.
+2. **Run EVERY generator** (no tokens; run in parallel, ~30–60 min on 24 cores, ~270 MB per page shard).
+   Every scoring model is its own generator: models that disagree surface pairs the others bury.
+   - Page replay, `tools/audit_page_oracle.mjs`: `DATA_WORKTREE=.worktrees/data node tools/audit_page_oracle.mjs
+     --modes classical,linear,prod,ai --out <d>/page.$i.jsonl --shard $i/10` (i = 0..9), and the same with
+     `--modes classical,linear,prod --all-anchors --out <d>/all.$i.jsonl`; `cat` the shards. Modes:
+     `classical` = AI off; `prod` = what prod's AI toggle actually showed; `linear` = embeddings + linear
+     blend; `ai` = page-path GBT (broken, below). Wait on `pgrep -f "^node tools/audit_page_oracle"`: an
+     unanchored pattern matches the waiting shell itself and never exits.
+   - Classical over store-name variants: `DATA_WORKTREE=.worktrees/data node tools/audit_classical_pairs.mjs
+     --min 0.5 --out <d>/g3-classical.jsonl` (~100 s). The rich file scores one aggregate name per sku:
+     "OMC 25th Annv Fettercairn 15 Year" vs "OMC 25th Annv Inchgower 15 Year" (an obvious ignore, 0.99 on
+     the page) scored 0.06 there, because CLB names the second sku "Omc Inchgower 700ml".
+   - GBT top-20: `node scripts/audit_new_listings.js --root .worktrees/data --since 1970-01-01 --top 20
+     --format jsonl --out <d>/g4-rich.jsonl` (~30 min, ~1.3 GB). Catches true matches with noisy names
+     (Appleton Hearts 1998: classical 0.08, prob 0.45).
+   - Embedding neighbours: the same plus `--emb-neighbours 20 --out <d>/g5-emb.jsonl`.
+3. **Check + union** (the acceptance check; never claim completeness without its output):
+   `node tools/audit_coverage_check.js --page <d>/page.jsonl --page <d>/page-all.jsonl --classical
+   <d>/g3-classical.jsonl --rich <d>/g4-rich.jsonl --emb <d>/g5-emb.jsonl --bar emb-nn=0.3 --bar
+   page-{card,worklist}-{classical,prod}=0.2 (one --bar per generator) --last page-card-ai --last page-worklist-ai
+   --queued <LEFT_UNDECIDED.jsonl> --union-out <d>/union.jsonl`. It prints MISSING per generator at its bar
+   (default 0.5) and writes every undecided pair with each generator's score and a tier (1 = credible
+   probability generators, 2 = classical-only lookalikes, 3 = only `--last` generators). Done = MISSING 0.
+4. **Batch**: `node tools/audit_undecided_pairs.js --union <d>/union.jsonl --out-dir <d>/batches --batch 150
+   --compact`. `--compact` summarises each group (names, stores, price range, two slugs): ~700 B/pair,
+   ≈ 100 KB per batch. Keep batches ≤ ~120 KB; at ~200 KB Haiku gave up instead of paging.
+   (The older `--classical <file> --from <rich> --min-classical 0.5 --min-prob 0.3` form still works.)
+5. **Judge**: one Haiku agent per batch with `tools/audit_undecided_prompt.md` (`sed -e '1d' -e
+   "s#<DIR>#<abs dir>#g" -e "s#<BATCH>#b1#g"`). Measured 2026-10-16: 175–190K Haiku tokens per 150-pair
+   compact batch (the full format cost ~2.9K tokens/pair).
+   **Every classical ≥ 0.5 pair judged different becomes an `ignore`** (owner rule): that is the
+   training signal. `review` is only for a possible rename/rebrand or genuinely conflicting evidence.
+6. **Collect**: `node tools/audit_undecided_pairs.js --collect <dir holding ONLY judged batches>` builds
+   `proposal-merged.json` from the per-row decisions, never from the agents' own proposal files, and
+   drops any row whose a/b strings do not match its input (one batch mis-copied 8 of 150).
+7. **Spot-check before applying** (an Opus/Sonnet pass, cheap): read EVERY proposed link and every
+   medium/low-confidence ignore, plus a random sample of ~40 high-confidence ignores. 2026-10-12 rates:
+   about 3–4 of 100 Haiku verdicts were over-confident (price outliers, single-cask families, a possible
+   rename); 40 of 40 sampled high-confidence ignores were right. Move doubtful rows to `review[]`.
+8. `validate_proposal_skus.js --fix`, then `apply_audit_proposal.js` (dry run), then `--apply`, then
+   COMMIT before the next cron run.
+
+**Why the page and the audits disagreed (root causes, verified 2026-10-14).** Each is why one generator above exists:
+- Prod's AI toggle never ran the GBT: `gbt.js` loads `viz/data/gbt_model.json`, which 404'd on the deployed
+  site. It never had embeddings either: the browser fetch of the Release URL fails CORS. So prod's "AI" score
+  was the linear NO-embedding blend (4 owner-pasted card scores reproduced to the digit) → mode `prod`. Its
+  top scores are same-age, different-distillery lookalikes: the 0.7–0.9 band (283 pairs) held 0 links.
+- The page worklist anchored only UNLINKED aggregates, so linked-group ↔ linked-group lookalikes (Scapa 16 ↔
+  Tamdhu 16) were never scored → `--all-anchors`.
+- The page-path GBT (`ai`) gets degraded group features (catalog aggregates lack `listingPrices` and count
+  only live stores) and scores lookalikes 0.98 → tier 3, judged last. CI uses featurize, unaffected.
+- Review queues were never resolved (4 of the owner's first 5 missed links sat in one). A run sees only the
+  listings in its assets: refresh before every round.
+Yield: these passes produce mostly ignores (2026-10-16 recent-exclusive pass: 6 links, 1,171 ignores from
+1,213 pairs); the ignores are the training signal, the links are the rare prize.
 
 ## Pipeline (stages + apply + convergence)
 
@@ -813,8 +881,8 @@ and prints a per-op status table + a structured pair diff. `--json` emits a mach
 - **Write-only.** Dry-run is the default; `--apply` rewrites the file in the SAME format and with the
   SAME union-find dedupe as `viz/serve.js` (both now share `src/utils/sku_links_file.js`). It never
   commits or pushes — commit `data/sku_links.json` by hand.
-- New links are `{fromSku, toSku, status:"pending", confidence?, source:"agent-audit", ts}` — the
-  same shape auto-classify uses, so `#/link-review` and every loader treat them as real links.
+- New links are `{fromSku, toSku, confidence?, source:"agent-audit", ts}` — the same shape
+  auto-classify uses, so every loader treats them as real links.
 - `unlink` removes the matching entry AND (unless `ignore:false`) records an ignore (the `reject`
   semantics). `ignore` records a hard negative; `remove-ignore` un-does one.
 - **Pre-existing duplicates note:** the committed file is appended by `auto_link_classify` WITHOUT

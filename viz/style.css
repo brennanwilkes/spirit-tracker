@@ -130,8 +130,6 @@ a:hover { text-decoration: underline; }
 a.badge { color: var(--muted); }
 a.badge:hover { text-decoration: underline; cursor: pointer; }
 
-a.skuLink { color: var(--muted); }
-a.skuLink:hover { text-decoration: underline; cursor: pointer; }
 
 /* SKU badges are slightly larger than generic badges for readability */
 .skuLink { font-size: var(--text-sm); }
@@ -1618,7 +1616,6 @@ html[data-theme="dark"] .spiritFilterTrigger:focus { border-color: #37566b; outl
   .headerRight.headerButtons .btnIcon { flex: 0 0 40px; }
   .headerRight.headerButtons .btnWide { flex: 1 1 auto; min-width: 0; }
 
-  .hideMobile { display: none !important; }
 
   /* Long product names get two lines on phones instead of a brutal
      single-line ellipsis ("Macaloneys Single Cask An Loy 14 Year..."). */
@@ -1926,14 +1923,14 @@ html[data-theme] .pillInput:has(:focus-visible),
   .tabDup { display: none !important; }
   /* The search page's title + hint: desktop only (owner call). Signed in, every header
      button is a .tabDup too, so the whole header goes rather than leaving an empty row's
-     gap + margin as blank space under the status bar. (.hideMobile = the dev-only #/link.) */
+     gap + margin as blank space under the status bar. */
   .searchTitle { display: none; }
-  .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup):not(.hideMobile))) { display: none; }
+  .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup))) { display: none; }
   /* .appOnly: header buttons shown on this layout only inside the installed app (html.standalone,
      set by main.js) — signed-out Login/Signup, owner call. In a browser tab they go, and with them
      the header when nothing else is left. */
   html:not(.standalone) .appOnly { display: none !important; }
-  html:not(.standalone) .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup):not(.hideMobile):not(.appOnly))) { display: none; }
+  html:not(.standalone) .header:has(.searchTitle):not(:has(.headerButtons > :not(.tabDup):not(.appOnly))) { display: none; }
   body { padding-bottom: var(--nav-space); }
 }
 

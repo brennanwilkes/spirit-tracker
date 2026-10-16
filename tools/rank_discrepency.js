@@ -28,7 +28,7 @@ function parseArgs(argv) {
 		// only consider suggestions from the opposite list (AB->BC or BC->AB)
 		requireCrossGroup: true,
 
-		base: "http://127.0.0.1:8080/#/link/?left=",
+		base: "http://127.0.0.1:8080/#/item/",
 
 		debug: false,
 		debugN: 25,

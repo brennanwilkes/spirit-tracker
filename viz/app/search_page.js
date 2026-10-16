@@ -51,10 +51,6 @@ export function renderSearch($app) {
 				<i class="fa-solid fa-chart-line" aria-hidden="true"></i>
 				<span class="srOnly">Statistics</span>
 			</a>
-			<a class="hideMobile btn btnIcon" href="#/link" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
-				<i class="fa-solid fa-link" aria-hidden="true"></i>
-				<span class="srOnly">Link SKUs</span>
-			</a>
 			<a id="storesBtn" class="tabDup btn btnIcon" href="#/stores" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;" aria-label="Stores">
 				<i class="fa-solid fa-store" aria-hidden="true"></i>
 				<span class="srOnly">Stores</span>
@@ -723,13 +719,11 @@ export function renderSearch($app) {
 					: `<span class="itemStore">${esc(store)}${esc(plus)}</span>`
 				: "";
 
-		const skuLink = `#/link/?left=${encodeURIComponent(String(it.sku || ""))}`;
-
 		return `
 			<div class="item itemHasStar" data-sku="${esc(it.sku)}">
 				<div class="itemTitle">
           <div class="itemName">${esc(it.name || "(no name)")}</div>
-          <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(it.sku))}</a>
+          <span class="badge mono skuLink">${esc(displaySku(it.sku))}</span>
           ${favStarHtml(it.sku, favSet.has(it.sku))}
         </div>
 				<div class="itemRow">
@@ -1038,13 +1032,11 @@ export function renderSearch($app) {
 
 		const saleBadge = saleBadgeHtmlForSku(sku, mode);
 
-		const skuLink = `#/link/?left=${encodeURIComponent(String(sku || ""))}`;
-
 		return `
 			<div class="item itemHasStar" data-sku="${esc(sku)}">
 			<div class="itemTitle">
         <div class="itemName">${esc(r.name || "(no name)")}</div>
-        <a class="badge mono skuLink" href="${esc(skuLink)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(displaySku(sku))}</a>
+        <span class="badge mono skuLink">${esc(displaySku(sku))}</span>
         ${favStarHtml(sku, favSet.has(sku))}
       </div>
 			<div class="itemRow">

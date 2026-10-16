@@ -45,50 +45,6 @@ export async function apiReadSkuMetaFromLocalServer() {
 	};
 }
 
-export async function apiWriteSkuLink(fromSku, toSku, noTrain) {
-	const res = await fetch("/__stviz/sku-links", {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ fromSku, toSku, ...(noTrain ? { noTrain: true } : {}) }),
-	});
-	if (!res.ok) throw new Error(`HTTP ${res.status}`);
-	return await res.json();
-}
-
-export async function apiWriteSkuIgnore(skuA, skuB, noTrain) {
-	const res = await fetch("/__stviz/sku-ignores", {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ skuA, skuB, ...(noTrain ? { noTrain: true } : {}) }),
-	});
-	if (!res.ok) throw new Error(`HTTP ${res.status}`);
-	return await res.json();
-}
-
-// Approve an auto-classified pending link: drops the status annotation in place (the entry
-// stays a real, now-confirmed, link). Used by the #/link-review page (local-write only).
-export async function apiConfirmSkuLink(fromSku, toSku) {
-	const res = await fetch("/__stviz/sku-links/confirm", {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ fromSku, toSku }),
-	});
-	if (!res.ok) throw new Error(`HTTP ${res.status}`);
-	return await res.json();
-}
-
-// Reject an auto-classified pending link: removes the link entry and records an ignore pair
-// (a curated hard negative). Used by the #/link-review page (local-write only).
-export async function apiRejectSkuLink(fromSku, toSku) {
-	const res = await fetch("/__stviz/sku-links/reject", {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ fromSku, toSku }),
-	});
-	if (!res.ok) throw new Error(`HTTP ${res.status}`);
-	return await res.json();
-}
-
 export async function apiWriteSkuHidden(storeId, sku, reason) {
 	const res = await fetch("/__stviz/sku-hidden", {
 		method: "POST",
@@ -107,16 +63,6 @@ export async function apiDeleteSkuHidden(storeId, sku) {
 	});
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	return await res.json();
-}
-
-// Review watermark (#/link-review): the last time sku_links.json was hand-committed (a human
-// review session). The page shows only recommendations newer than this. Local-write only (git
-// access is on the dev server); returns 0 elsewhere so everything shows.
-export async function apiGetReviewWatermark() {
-	const r = await fetch("/__stviz/review-watermark", { cache: "no-store" });
-	if (!r.ok) throw new Error(`HTTP ${r.status}`);
-	const j = await r.json();
-	return { watermark: Number(j?.watermark) || 0, subject: String(j?.subject || ""), dirty: !!j?.dirty };
 }
 
 async function tryFetchLinks(path) {

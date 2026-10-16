@@ -5,7 +5,7 @@
  *
  * It reuses the SAME data loading, union-find canonicalization, IDF vocab, and
  * single-source pair scorer (scorePairWithVocab) as tools/linker_eval.mjs, so
- * scores here always match the live #/link ranker.
+ * scores here always match the live ranker.
  *
  * Three reports:
  *

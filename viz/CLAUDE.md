@@ -8,6 +8,8 @@ Vanilla JavaScript single-page application. No framework, no build step, no npm.
 node viz/serve.js   # serves on http://localhost:8080
 ```
 
+`scripts/serve_viz.sh` serves the `.worktrees/data` worktree (the `data` branch with `main` merged in), so viz code changes must reach the `data` branch (via the run_daily merge) before they appear there.
+
 Or open `viz/index.html` directly in a browser (some features need a server for fetch).
 
 ## Tech Stack
@@ -30,8 +32,6 @@ Hash-based SPA routing in `app/main.js`:
 | `#/store/<store>` | `store_page.js` | Single-store inventory |
 | `#/stores` | `stores_page.js` | All-stores directory |
 | `#/stats` | `stats_page.js` | Aggregate analytics dashboard |
-| `#/link` | `linker_page.js` | SKU canonical mapping curation tool |
-| `#/link-review` | `link_review_page.js` | Audit auto-classified pending links (Approve/Reject) + link orphan SKUs |
 | `#/shortlist/<uuid>` | `shortlist_page.js` | User shortlist |
 | `#/shortlists` | `public_shortlists_page.js` | Public shortlists directory |
 | `#/login` `#/signup` `#/forgot` `#/reset` `#/oauth` | `auth_page.js` | Authentication flows |
@@ -54,7 +54,8 @@ rate-limited GitHub API) to support historical price lookups at specific commits
 per-day report shape the page already consumed — 214 requests and ~103 MB of parsed JSON became 1
 request. The bundles are NOT committed (they'd add ~106 MB/mo of git growth); they ship as GitHub
 Release assets on tag `stats-series-latest`, so the page tries `./data/stats/<name>` first and then
-the Release CDN. The old per-commit walk remains as `loadRawSeriesFromCommits` and is the automatic
+the Release CDN, but that fetch fails CORS in any browser (github.com sends no Access-Control-Allow-Origin;
+seen 2026-10-16), so without the staged bundle the page really lands on the per-commit walk. That walk remains as `loadRawSeriesFromCommits` and is the automatic
 fallback when no bundle exists. Details + the encoding invariants: root `CLAUDE.md` §"#/stats series
 bundles". Note `RAW_SERIES_CACHE` must be consulted BEFORE the fetch (`fetchJson` sends
 `cache: "no-store"`, so a post-fetch check still re-downloads up to 1.7 MB on every group/size
@@ -69,11 +70,9 @@ User-specific mutable data. Base URL: `https://spirit-tracker-api.brennan-a53.wo
 - Rate limit: KV write-rate limited; auto-retries on 429 via `Retry-After`
 
 ### 3. Local dev server (`viz/serve.js`)
-For SKU link editing during local development:
-- `GET/POST /__stviz/sku-links` — read/write `data/sku_links.json`
-- `GET/POST /__stviz/sku-ignores` — read/write ignore pairs
-- `GET /__stviz/review-watermark` — last hand-commit time of `sku_links.json` (+ dirty flag) from
-  git, used by `#/link-review` to show only recommendations newer than your last review (see below)
+Local-only endpoints (the manual link/ignore/review endpoints were removed 2026-10-12; links now come only from CI and agent audits):
+- `GET /__stviz/sku-links`, `GET /__stviz/sku-links-auto` — read link files from disk (fallback when `./data/` has none)
+- `GET/POST/DELETE /__stviz/sku-hidden` — read/edit `data/sku_hidden.json` (item page ✕ button)
 
 ## Directory Structure
 
@@ -84,7 +83,7 @@ viz/
 └── app/
     ├── main.js             (hash-based router)
     ├── stores.js           (single source of truth for all store metadata)
-    ├── state.js, api.js, cloud.js, catalog.js, mapping.js, sku.js, smws.js, pending.js
+    ├── state.js, api.js, cloud.js, catalog.js, mapping.js, sku.js, smws.js
     │
     ├── components/         (shared UI builders)
     │   ├── item_card.js    (itemCardHtml)
@@ -105,8 +104,7 @@ viz/
     ├── shortlist_page/
     │   ├── shortlist_scoring.js  (computeScore, sortShortlist)
     │   └── shortlist_page.css
-    ├── linker_page/        (linker submodules: similarity, suggestions, price, size, …)
-    │   └── linker_page.css
+    ├── linker_page/        (scorer modules: similarity, suggestions, gbt, size, … — imported by tools/, not by any page)
     ├── search_page/search_page.css
     ├── store_page/store_page.css
     ├── stores_page/stores_page.css
@@ -138,7 +136,7 @@ viz/
 
 ## SKU Canonical Mapping (`app/linker_page/`)
 
-Items from different stores representing the same product are grouped under one canonical SKU using union-find (disjoint-set). The `#/link` page is the curation UI.
+Items from different stores representing the same product are grouped under one canonical SKU using union-find (disjoint-set). There is no curation UI; links come from `tools/auto_link_classify.mjs` and hand-run agent audits.
 
 **Formal spec & eval (read before changing scoring):** the authoritative description
 of the matching algorithm — pipeline, formulas, every tuned constant, and the named
@@ -230,104 +228,7 @@ vocab-boosted (only `recommendSimilar`). Constants live in `vocab.js`
 (`DISTINCTIVE_IDF`, `WO_POW=3.0`, `TOP_TERM_BONUS=0.6`, `BASE_FLOOR=0.05`).
 
 `allowSameStore: true` lets a store's **duplicate SKUs for the same item** be suggested
-(the two `sameStoreFn` hard-blocks in `suggestions.js` are gated by it). Both `#/link` and
-`#/link-rapid` pass `{ vocab, allowSameStore: true }`.
-
-### Rapid linker (`#/link-rapid`, `linker_rapid_page.js`)
-
-Keyboard-driven anchor-a-store tool for clearing the unlinked backlog. Pick a store; walk
-its unlinked items **strongest-matchable first** (worklist ordered by the idf of each
-item's most-distinctive term).
-
-**Sort modes** (`#rapidSort` dropdown, persisted to `stviz:linker_rapid_sort_v1`):
-- `default` — informativeness-weighted order (the original): boundary hard-negatives and
-  uncertain mid-score pairs first, trivial near-identical matches damped.
-- `absolute` ("Best bets (slow)") — fully refines EVERY live item, then ranks by RAW match
-  probability (most-likely matches / easiest bets first). `refinedScore` returns the raw
-  `score01` instead of `informativeness()` in this mode. The refine is done progressively by
-  `startAbsoluteRefine()` (chunked, yields to paint, shows a % progress bar in the candidate
-  column, `absGen` invalidates an in-flight pass on store/sort/AI change) so the page never
-  freezes; the worklist stays in fast order until every item is scored, then snaps to the
-  true order.
-- `recent` ("Recently added") — orders by the **most recent `firstSeenAt`** across each
-  aggregate's raw listings (`recencyBySku`/`recencyOf`), newest first. INCLUDES already
-  linked/ignored items on purpose (so recent decisions can be sanity-checked) — `isLinked`
-  filtering, dead-end drop, `skipLinkedForward`, and `rescoreAfterDecision` are all bypassed
-  in this mode.
-
-All three are routed through `applyWorklistRebuild()`. For each anchor, candidates from `recommendSimilar`
-(`withScores: true`) are split by a **pure absolute ≤1%-FP certainty gate** at the monitored
-99%-precision operating point (`autoLinkConfidenceBar` in `strong_threshold.js`) — only a
-candidate we're genuinely *certain* of becomes a "Suggestion"; everything else is "Other options".
-The bar is scorer-specific on the displayed 0–1 score: **GBT/blend probability ≥ 0.95** (AI on;
-conservative — the measured held-out 99%-precision line is ~0.91) and **classical raw
-`scorePairWithVocab` ≥ 16.13** (AI off; `tools/linker_eval.mjs` auto-link @99% precision, ≈ 0.9416
-after `s/(s+1)` squashing). There is NO relative-to-best term — a near-best-of-a-weak-bunch pair is
-not surfaced as a suggestion. Re-derive these via `tools/linker_eval.mjs` (classical) and
-`tools/linker_ml/export_gbt.py` (GBT) after any scorer/label change. **One anchor can link to multiple items**:
-toggle-accept candidates then commit. Keys: `Y`/`Space` toggle-accept highlighted (moves
-down), `1–9`/click toggle a candidate, `↑/↓` move, `Enter`/`→` link all accepted &
-advance (none accepted = skip), `X` ignore highlighted pair, `/` search, `U` undo, `F`
-flush. Reuses the same catalog/penalty/canonical helpers and `recommendSimilar`. Visible
-Undo/Flush/Clear buttons, a staged/saved/skipped counter bar, and a collapsible
-instructions panel. (`computeInitialPairsFast` and `recommendSimilar` output are now
-ordered strongest-first too, so `#/link` works strong → weak.)
-- **No per-link reload** (the `#/link` page calls `location.reload()` after each link). A
-  session union-find overlay (`findRep`/`unionLocal`, seeded from `rules.canonicalSku`)
-  keeps just-linked pairs out of suggestions without re-fetching the 12 MB index.
-- **Batch + flush, crash-safe.** Decisions stage to an in-memory queue mirrored to
-  `localStorage` (`stviz:linker_rapid_queue_v1`) on every action; flushed (manual `F`,
-  every 10 actions, or on back) via `apiWriteSkuLink`/`apiWriteSkuIgnore` (local-write) or
-  `addPendingLink`/`addPendingIgnore` (Pages). On load, a recovered non-empty queue shows a
-  Flush/Discard banner. `undo` only works within the current unflushed batch.
-- **Local dev only:** `scripts/serve_viz.sh` serves the `.worktrees/data` worktree (the
-  `data` branch with `main` merged in), so viz code changes must reach the `data` branch
-  (via the run_daily merge) before they appear locally.
-
-### Auto-link review (`#/link-review`, `link_review_page.js`)
-
-Audit surface for the `tools/auto_link_classify.mjs` classifier (off-menu; linked from `#/link`
-and `#/link-rapid`). Newest-first feed (by `firstSeenAt` recency) of two row types:
-- **Pending auto-links** — `rules.links` entries with `status === "pending"`, rendered as the TWO
-  SKUs SEPARATELY side-by-side (deliberately NOT collapsed into one listing like every other page),
-  so the human sees exactly what the classifier joined. **Approve** → `apiConfirmSkuLink` (drops the
-  `status` field in place; it was already a real link). **Reject** → `apiRejectSkuLink` (removes the
-  entry + records an `ignore`).
-- **Orphan SKUs** — no link of any kind (canonical group size 1 AND single-store, so no implicit
-  same-raw-SKU cross-store link). Live `recommendSimilar` candidates (scored lazily per chunk) to
-  **Link** / **Ignore**.
-
-Local-write only (mutations via `viz/serve.js`); read-only display on Pages. A pending link is
-treated as a REAL link everywhere else (catalog grouping + email) — review is an audit, not a gate.
-See root `CLAUDE.md` §"Auto-Link Classification + Review".
-
-**Review watermark (git-derived, no state file).** The queue shows only recommendations that
-APPEARED since your **last hand-commit of `data/sku_links.json`**. There is no new file, no per-item
-log, and no "finish" button — the watermark is computed live from git history:
-`GET /__stviz/review-watermark` (`serve.js::reviewWatermarkMs` via `apiGetReviewWatermark`) walks
-`git log -- data/sku_links.json`, skips automated **scrape** commits (first line starts with `run:`
-— the cron appends pending links and commits constantly, see root `CLAUDE.md` §"Run Observability"),
-and returns the timestamp of the most recent **hand** commit. A row's appearance time is the pending
-link's creation `ts` (a new auto-link between two OLD SKUs is still new to review) or the orphan
-SKU's first-seen date. Normal view: `appearance > watermark`. Committing `sku_links.json` by hand is
-the "I'm done reviewing this batch" signal — the next load draws the line forward, so anything you
-acted on OR merely scrolled past + left is omitted automatically. `watermark = 0` (no prior hand
-commit, or read-only Pages where git isn't reachable) → show everything.
-
-- **Audit view** — `🔍 Audit (N)` topbar toggle (`auditMode`) flips the filter to `appearance <=
-  watermark`, revisiting the older (pre-last-review) recommendations on demand.
-- **Dirty nudge** — the endpoint also returns `dirty` (`skuLinksDirty()` via
-  `git status --porcelain -- data/sku_links.json`); while you have uncommitted review edits the page
-  shows a `.reviewDirty` banner reminding you to commit to advance the line. The watermark only moves
-  on commit, so mid-session reloads keep the same queue (minus pairs whose data already changed).
-- **Actions** unchanged: Approve (`apiConfirmSkuLink`) / Reject (`apiRejectSkuLink`) on pending rows;
-  Link / Ignore on orphan candidates; a session-only **Skip** dismisses an orphan from the current
-  view (returns on reload until you commit). The "Load more" button is gone — the (now small,
-  watermark-bounded) queue auto-loads via an IntersectionObserver sentinel (`#reviewSentinel`),
-  orphan candidates still scored lazily per chunk.
-- **Caveat:** relies on the `run:` commit-message convention to tell scrape commits from hand
-  commits. If a scrape commits your uncommitted review edits before you hand-commit, the watermark
-  won't reflect that session (commit by hand to set the line).
+(the two `sameStoreFn` hard-blocks in `suggestions.js` are gated by it). The audit tools pass `{ vocab, allowSameStore: true }`.
 
 ## Mobile / Touch Design System (2026-07 overhaul)
 
@@ -735,15 +636,14 @@ Sort decoupling (important):
   feed (`renderRecent`). It now surfaces the latest notable event of **any** kind per SKU
   (new/restored/removed/price up/down), newest-first — not just market-wide arrivals.
 
-**Store filter (a SCOPE, not a membership filter):** a store-set selector (`#storeSet`) is the
-first control. The store selection does **not** remove items on its own — it is a scoping lens:
-- **Availability = All:** the store selection removes nothing; every item shows. It only affects
-  sort/price scoping (and, in the activity feed, which rows surface first).
-- **Availability = In stock only + store filter:** restricts to items live at a selected store.
-- **Availability = Out of stock only + store filter:** restricts to items *ever carried* at a
-  selected store but currently OOS there ("carried-but-OOS"; an item the store never carried is
-  excluded). So when In/Out is set, the store selection **is** effectively a membership filter —
-  via the store-scoped availability test, not a separate gate.
+**Store filter (a membership filter, OR across the selected stores):** a store-set selector
+(`#storeSet`) is the first control. Every availability mode is scoped to the selection:
+- **All:** items *ever carried* at a selected store (live or removed).
+- **In stock only:** items live at a selected store.
+- **Out of stock only:** items ever carried at a selected store but live at none of them.
+
+Until 2026-10-14 "All" ignored the store selection entirely (it was documented as a "scope, not a
+filter"); the owner ruled it must filter.
 
 `passesAvailability()` is the single membership gate (store-scoped via `resolvedStoreNorms` /
 `liveStoresBySku` / `everStoresBySku`). There is no separate `passesStoreSet`. Sort/price scoping
@@ -773,11 +673,10 @@ row shows the cheapest live store (scoped first), and no label when nothing is l
 Exclusive badges describe the live store, so the event store used to mislabel them: a sellout at ZYN
 rendered as "ZYN · Last Stock" when Color de Vino held the last bottles.
 
-**Store selection scopes this feed (not a hard drop).** Per SKU it tracks the latest event at ANY
-store and the latest at a SELECTED store; an item with a selected-store event ("scoped") sorts
-**first** (primary sort key), but non-selected activity is still reachable by scrolling under
-Availability = All. Under In/Out, the store-scoped `passesAvailability` restricts the set, so you
-only ever see selected-store listings (you never scroll to a non-selected bottle).
+**Store selection filters this feed** via `passesAvailability` (only items carried at a selected
+store). Per SKU it tracks the latest event at ANY store and the latest at a SELECTED store; an item
+with a selected-store event ("scoped") sorts **first** and displays that event; an eligible item
+whose recent activity was only at other stores still shows, after them.
 
 ## "My Stores" + store filtering everywhere
 

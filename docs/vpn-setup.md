@@ -125,3 +125,39 @@ conntrack is interfering with handshake timing.
 Try **Tailscale** first — it's what GitHub officially recommends, handles NAT
 traversal automatically, and has a first-party GitHub Action. If that fails,
 try a **residential HTTP proxy** since the tracker only needs HTTP(S) egress.
+
+
+---
+
+# Archive: datacenter-IP blocking and ProtonVPN egress (from CLAUDE.md)
+
+> Moved verbatim from the root `CLAUDE.md` on 2026-10-14 to keep that file small. CLAUDE.md keeps a condensed summary and a pointer here. Section cross-references (§"…") refer to the old CLAUDE.md layout; most of those sections now live in docs/ files named in CLAUDE.md.
+
+Cloudflare challenges the runner's Azure IP (`HTTP 403 … <title>Just a moment...</title>`) at
+several stores. Per-store fail rate over 2026-07-06→10-05 (645 reports): elbowliquor 99.5%,
+colordevino 82%, sherbrooke/gull/highlander ~30% overall but **100% since late Sept** (highlander
+since 2026-09-26), rmwsb/maltsandgrains/liberty/wineandbeyond/kwm intermittent. A store whose
+categories ALL fail never enters `ranStoreKeys`, so the orphan detector leaves its DB alone — the
+data goes stale, it is not corrupted. Check this before "fixing" an adapter: every one of these
+scrapes cleanly from a residential IP.
+
+**BCL** is not on the always-blocked list but gets bad runner responses (403 challenge 2026-10-06,
+HTTP 200 `Total=0` 2026-10-09). Each one wiped 746 listings until the central zero-scan guard
+(`merge.js::guardLargeCategoryOnly`, 2026-10-09) made it a `FAILED` category that the retry re-runs.
+See `docs/incident-2026-10-06-bcl-wnb-wipe.md`. The same incident showed that a store renaming its urls looks like a
+mass sellout + mass new-listing unless both `merge.js` (rematch removed records by sku) and
+`build_viz_index.js` (first-seen keyed by sku, not url) follow the sku; both do now.
+
+**Everything Wine is different:** it is challenged even from a residential IP (2026-10-05), so no
+egress change fixes it.
+
+**Routing (the `vpn` dispatch input):** the Worker clock dispatches smalls with `vpn=true` (the small list
+carries highlander + colordevino); bigs with `vpn=false`; the one-shot retry re-dispatches the
+failed stores with the OPPOSITE egress (`-f vpn=`). Tunnel bring-up is `scripts/vpn_up.sh`
+(manual `wg setconf` + `ip rule`, secret `PROTONVPN_WG_CONF`, exit 212.104.215.146 / AS212238);
+best-effort, falls back to direct with a `::warning::` and a `vpn:` line in the commit body.
+
+**The 2026-07 "handshake never completes / Azure filters WireGuard" conclusion was WRONG.** All 5
+July-15 cron runs that got `wg` installed handshook in 1-2 s and scraped through the tunnel (they
+were cancelled by hand mid-scrape); the earlier failures were `apt-get` hangs / `wg` missing. The
+diag on 2026-10-05 again handshook in 2 s and Highlander's API returned real content via Proton.
