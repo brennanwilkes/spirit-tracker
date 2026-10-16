@@ -186,8 +186,7 @@ retrain. Each pass covers the listings first seen since the previous one:
 - want-links, near-miss and orphans over that window;
 - group-major precision over every group touched by a new edge.
 
-Use the operating rules below unchanged. Related, not audit: `docs/link-pages-removal-plan.md`
-removes the human link pages and `status:"pending"`. Whether CI should get mechanical vetoes is still
+Use the operating rules below unchanged. The human link pages were removed 2026-10-12; `status:"pending"` is still written (vestigial). Whether CI should get mechanical vetoes is still
 open; evidence so far says they would catch few real false positives.
 
 ## 6. Measured agent cost (current model)

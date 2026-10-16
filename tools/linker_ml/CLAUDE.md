@@ -352,7 +352,7 @@ gets size/abv/year/category as text tokens (their meaning ALIGNS with cosine —
 PAIRWISE relations like store-overlap can't go in the text (a shared token raises cosine, but
 shared-store means *less* likely same product) — those stay blend features. No raw store names.
 
-## ⭐ Live integration (wired into `#/link` and `#/link-rapid`)
+## ⭐ Live integration (CI auto-linker; the `#/link*` pages were removed 2026-10-12)
 
 The prototype is wired into the live ranker — **augmenting, not replacing** the
 deterministic scorer:
@@ -369,8 +369,8 @@ deterministic scorer:
   score, then re-ranks the top candidates. `blend` now carries `{ gbt, groupIndex, embedCosFn,
   weights, weightsNoEmbed }`. Per candidate it: `extractBlendFeatures` → `Object.assign` the live
   group features (`blend.groupIndex.features(a,b)`) → score with **`gbtScore` (gbt.js)** when a
-  GBT model is loaded, else the linear `blendScore`. SMWS pins stay on top. The pages
-  (`linker_page.js` / `linker_rapid_page.js`) build the blend, `loadGbtModel()`, and
+  GBT model is loaded, else the linear `blendScore`. SMWS pins stay on top. The callers
+  (`auto_link_classify.mjs`, the audit tools; formerly the removed pages) build the blend, `loadGbtModel()`, and
   `buildGroupIndex(allAgg, rules.canonicalSku)` (rebuilt on every rules reload). "Strong" cutoffs
   use the probability scale (`isStrongProb`, `STRONG_*_PROB`).
 - **`viz/app/linker_page/gbt.js`** — vanilla-JS tree inference for `out/gbt_model.json` (deployed
@@ -387,10 +387,10 @@ deterministic scorer:
 
 A SECOND CI consumer of the live ranker (besides the linker pages): `tools/auto_link_classify.mjs`
 runs every scrape in `run_daily.sh` (after the re-encode), reuses `buildEnv` + `recommendSimilar`
-+ the GBT blend (so it can never drift from eval/serve), and writes `status:"pending"` links to
++ the GBT blend (so it can never drift from eval/serve), and writes links to
 `data/sku_links.json` for any candidate ≥ `autoLinkConfidenceBar` (0.95). Root `CLAUDE.md`
-§"Auto-Link Classification + Review" is the spec. **Why it matters here:** the `#/link-review`
-Approve/Reject decisions are the cheapest way to grow the labeled set precisely where the model is
+§"Auto-Link Classification + Review" is the spec. **Why it matters here:** the hand-run agent audit
+link/ignore decisions are the cheapest way to grow the labeled set precisely where the model is
 uncertain — Approve → a positive link, Reject → a curated `ignore` (hard negative). This is exactly
 the "mine an IB review queue → grow curated ignores → higher rec@99" path noted in §"Next planned
 improvement". So after a wave of reviews, RE-TRAIN (the chain above) to bank the new supervision.
