@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-18T06:37:12.208Z",
+  "generatedAt": "2026-10-18T06:55:01.197Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6546,
-    "removedRows": 1395,
+    "liveRows": 6544,
+    "removedRows": 1397,
     "canonSkus": 2536,
     "outputCount": 1000
   },
@@ -10324,55 +10324,6 @@
       }
     },
     {
-      "canonSku": "340745",
-      "storeCount": 7,
-      "stores": [
-        "bcl",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "arc",
-        "everythingwine",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "bcl": 35.99,
-        "gull": 35.7,
-        "highpointbws": 39.79,
-        "legacyliquor": 38.99,
-        "liquorwarehouse": 37.49,
-        "tudor": 37.99,
-        "vessel": 35.99
-      },
-      "representative": {
-        "name": "Flor De Cana – Gran Reserva 7 750ml",
-        "price": "$35.70",
-        "priceNum": 35.7,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "340745",
-        "skuKey": "340745",
-        "url": "https://gullliquorstore.com/product/flor-de-cana-res-7yr-750m/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$35.70",
-        "priceNum": 35.7,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/flor-de-cana-res-7yr-750m/"
-      }
-    },
-    {
       "canonSku": "343445",
       "storeCount": 7,
       "stores": [
@@ -14090,6 +14041,54 @@
         "priceNum": 53.59,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588228-signal-hill-founders-overproof"
+      }
+    },
+    {
+      "canonSku": "340745",
+      "storeCount": 6,
+      "stores": [
+        "bcl",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "everythingwine",
+        "gull",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 35.99,
+        "highpointbws": 39.79,
+        "legacyliquor": 38.99,
+        "liquorwarehouse": 37.49,
+        "tudor": 37.99,
+        "vessel": 35.99
+      },
+      "representative": {
+        "name": "FLOR DE CANA - GRAN RESERVA 7",
+        "price": "$35.99",
+        "priceNum": 35.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "340745",
+        "skuKey": "340745",
+        "url": "https://www.bcliquorstores.com/product/340745",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$35.99",
+        "priceNum": 35.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/340745"
       }
     },
     {
@@ -30836,51 +30835,6 @@
       }
     },
     {
-      "canonSku": "137453",
-      "storeCount": 3,
-      "stores": [
-        "gull",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "gull": 54.8,
-        "legacyliquor": 59.69,
-        "tudor": 56.99
-      },
-      "representative": {
-        "name": "BLACK TEARS SPICED – 700M",
-        "price": "$54.80",
-        "priceNum": 54.8,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "663685",
-        "skuKey": "663685",
-        "url": "https://gullliquorstore.com/product/black-tears-spiced-700m/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$54.80",
-        "priceNum": 54.8,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/black-tears-spiced-700m/"
-      }
-    },
-    {
       "canonSku": "137456",
       "storeCount": 3,
       "stores": [
@@ -43144,6 +43098,50 @@
         "priceNum": 104.83,
         "storeKey": "strath",
         "url": "https://www.strathliquor.com/product/living-souls-blended-scotch-15-year-batch-2/"
+      }
+    },
+    {
+      "canonSku": "137453",
+      "storeCount": 2,
+      "stores": [
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 59.69,
+        "tudor": 56.99
+      },
+      "representative": {
+        "name": "Black Tears Spiced",
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "663685",
+        "skuKey": "663685",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/black-tears-spiced-ml-360",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+      },
+      "cheapest": {
+        "price": "$56.99",
+        "priceNum": 56.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/black-tears-spiced-ml-360"
       }
     },
     {
