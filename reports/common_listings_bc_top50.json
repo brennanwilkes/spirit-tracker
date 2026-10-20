@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T18:57:56.971Z",
+  "generatedAt": "2026-10-20T06:37:55.913Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6553,
-    "removedRows": 1388,
-    "canonSkus": 2536,
+    "liveRows": 6660,
+    "removedRows": 1372,
+    "canonSkus": 2618,
     "outputCount": 50
   },
   "rows": [
@@ -1492,6 +1492,59 @@
       }
     },
     {
+      "canonSku": "177808",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 29.49,
+        "bcl": 29.99,
+        "everythingwine": 28.49,
+        "gull": 30.25,
+        "legacyliquor": 31.86,
+        "liquorwarehouse": 29.49,
+        "marquis": 30.99,
+        "newdistrict": 32.49,
+        "strath": 32.96,
+        "tudor": 29.99,
+        "vessel": 29.99
+      },
+      "representative": {
+        "name": "Appleton Estate Signature Blend Amber Rum 750 mL",
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "everythingwine",
+        "storeLabel": "Everything Wine",
+        "skuRaw": "177808",
+        "skuKey": "177808",
+        "url": "https://www.everythingwine.ca/appleton-estate-signature-blend-amber-rum-750-ml",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/everythingwine__rum__e1373938.json"
+      },
+      "cheapest": {
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "everythingwine",
+        "url": "https://www.everythingwine.ca/appleton-estate-signature-blend-amber-rum-750-ml"
+      }
+    },
+    {
       "canonSku": "521992",
       "storeCount": 11,
       "stores": [
@@ -2016,58 +2069,6 @@
       }
     },
     {
-      "canonSku": "177808",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 29.49,
-        "bcl": 29.99,
-        "everythingwine": 28.49,
-        "gull": 30.25,
-        "liquorwarehouse": 29.49,
-        "marquis": 30.99,
-        "newdistrict": 32.49,
-        "strath": 32.96,
-        "tudor": 29.99,
-        "vessel": 29.99
-      },
-      "representative": {
-        "name": "Appleton Estate Signature Blend Amber Rum 750 mL",
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "everythingwine",
-        "storeLabel": "Everything Wine",
-        "skuRaw": "177808",
-        "skuKey": "177808",
-        "url": "https://www.everythingwine.ca/appleton-estate-signature-blend-amber-rum-750-ml",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/everythingwine__rum__e1373938.json"
-      },
-      "cheapest": {
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "everythingwine",
-        "url": "https://www.everythingwine.ca/appleton-estate-signature-blend-amber-rum-750-ml"
-      }
-    },
-    {
       "canonSku": "185921",
       "storeCount": 10,
       "stores": [
@@ -2221,58 +2222,6 @@
         "priceNum": 74.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/highland-park-12-year-old-single-malt-scotch-05010314066703"
-      }
-    },
-    {
-      "canonSku": "207126",
-      "storeCount": 10,
-      "stores": [
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "arc",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "bcl": 169.99,
-        "everythingwine": 169.99,
-        "gull": 169.99,
-        "highpointbws": 175.99,
-        "legacyliquor": 175.85,
-        "marquis": 172.99,
-        "strath": 165.13,
-        "tudor": 169.99,
-        "vessel": 164.99,
-        "vintage": 183.39
-      },
-      "representative": {
-        "name": "Lagavulin - 16 Year Old Single Malt Scotch",
-        "price": "$164.99",
-        "priceNum": 164.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "207126",
-        "skuKey": "207126",
-        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$164.99",
-        "priceNum": 164.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch"
       }
     },
     {
@@ -2687,6 +2636,57 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch-05018066105701"
+      }
+    },
+    {
+      "canonSku": "207126",
+      "storeCount": 9,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "arc",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath"
+      ],
+      "storePrices": {
+        "bcl": 169.99,
+        "everythingwine": 169.99,
+        "gull": 169.99,
+        "highpointbws": 175.99,
+        "legacyliquor": 175.85,
+        "marquis": 172.99,
+        "tudor": 169.99,
+        "vessel": 164.99,
+        "vintage": 183.39
+      },
+      "representative": {
+        "name": "Lagavulin - 16 Year Old Single Malt Scotch",
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "207126",
+        "skuKey": "207126",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$164.99",
+        "priceNum": 164.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-16-year-old-single-malt-scotch"
       }
     }
   ]
