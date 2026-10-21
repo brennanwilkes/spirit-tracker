@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T18:37:52.610Z",
+  "generatedAt": "2026-10-21T18:57:13.409Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6659,
-    "removedRows": 1379,
+    "liveRows": 6667,
+    "removedRows": 1371,
     "canonSkus": 2621,
     "outputCount": 50
   },
@@ -424,6 +424,61 @@
       }
     },
     {
+      "canonSku": "776724",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor"
+      ],
+      "storePrices": {
+        "arc": 44.79,
+        "bcl": 43.99,
+        "everythingwine": 49.99,
+        "gull": 45,
+        "highpointbws": 51.79,
+        "liberty": 62.99,
+        "liquorwarehouse": 49.99,
+        "marquis": 51.99,
+        "newdistrict": 51.99,
+        "strath": 52.09,
+        "tudor": 49.99,
+        "vessel": 45.99,
+        "vintage": 52.96
+      },
+      "representative": {
+        "name": "SHERINGHAM DISTILLERY - SEASIDE GIN",
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "776724",
+        "skuKey": "776724",
+        "url": "https://www.bcliquorstores.com/product/776724",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$43.99",
+        "priceNum": 43.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/776724"
+      }
+    },
+    {
       "canonSku": "000042",
       "storeCount": 12,
       "stores": [
@@ -745,60 +800,6 @@
         "priceNum": 39.19,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4752593-wray-and-nephew-overproof"
-      }
-    },
-    {
-      "canonSku": "776724",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "gull",
-        "legacyliquor"
-      ],
-      "storePrices": {
-        "arc": 44.79,
-        "bcl": 43.99,
-        "everythingwine": 49.99,
-        "highpointbws": 51.79,
-        "liberty": 62.99,
-        "liquorwarehouse": 49.99,
-        "marquis": 51.99,
-        "newdistrict": 51.99,
-        "strath": 52.09,
-        "tudor": 49.99,
-        "vessel": 45.99,
-        "vintage": 52.96
-      },
-      "representative": {
-        "name": "SHERINGHAM DISTILLERY - SEASIDE GIN",
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "776724",
-        "skuKey": "776724",
-        "url": "https://www.bcliquorstores.com/product/776724",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$43.99",
-        "priceNum": 43.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/776724"
       }
     },
     {
@@ -1250,7 +1251,7 @@
         "arc": 77.19,
         "bcl": 79.99,
         "everythingwine": 73.99,
-        "gull": 73.99,
+        "gull": 79.99,
         "highpointbws": 90.49,
         "legacyliquor": 88.13,
         "liquorwarehouse": 89.99,
@@ -1409,7 +1410,7 @@
         "arc": 57.39,
         "bcl": 55.99,
         "everythingwine": 58.99,
-        "gull": 62.65,
+        "gull": 58.55,
         "highpointbws": 64.99,
         "legacyliquor": 63.81,
         "liquorwarehouse": 60.99,
