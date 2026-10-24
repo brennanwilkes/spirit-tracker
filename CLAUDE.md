@@ -51,6 +51,7 @@ Two different products can share one SKU when store numbering overlaps (BC vs AB
 - **Resolved where a `data/db` row is read, never written into `data/db`**: `src/utils/sku_collisions.js` `loadCollisionSplits().resolve(storeId, sku, url)`, called by every build tool, the tracker's auto-link writer and cheapest index, and the audit tools. The SPA never loads the file; only `displaySku` strips `c:…`.
 - **A missing or malformed file throws**, including at tracker startup (`src/main.js`), so run `bin/tracker.js` from `.worktrees/data` (or with a `DATA_DIR` that has it).
 - Hidden entries match the RESOLVED key (hide a split listing as `c:…`).
+- A split names STORES, so a store that later stocks the split-off bottle under the same code lands on the `keep` side and joins the wrong group (KWM's Tartan Army Ben Nevis on Alberta code `837187`, 2026-10-23). It looks like a bad link but no link exists: extend the split's `listings`. Shared Alberta codes (Signatory, OMC, Penderyn single casks) are the usual cause.
 - Edit = JSON edit + `node tools/validate_sku_collisions.js` in the data worktree (0 ERROR). The SKU cache self-rebuilds affected history via `viz/data/skus/_collisions.stamp`. The scraper re-points `sku_links_auto.json` onto new splits but never back: removing a split or renaming a tag needs a hand edit of the auto links.
 - `c:` keys are ordinary skus (linkable, trainable, embeddable). Ignores aimed at a split-off product no longer apply; re-add them on the `c:` key.
 - `tools/detect_sku_collisions.mjs` regenerates the candidate census from `index.json` (candidates, not verdicts; ~10% real).
@@ -61,7 +62,7 @@ Two different products can share one SKU when store numbering overlaps (BC vs AB
 `tools/auto_link_classify.mjs` (Node ESM) runs every scrape in `run_daily.sh` — AFTER the per-build embeddings are written, BEFORE rarity and the email pack. It reuses the LIVE ranker end-to-end (`tools/linker_ml/featurize.mjs::buildEnv` + `recommendSimilar` + the GBT blend — never forks scoring) and appends pairs ≥ `autoLinkConfidenceBar` (0.95, the 99%-precision bar) to `data/sku_links.json` as `{ fromSku, toSku, confidence, source: "auto-classify", ts }`. Full detail + measurements: `docs/linker-audit-findings.md`.
 
 - **An auto-link is a REAL link everywhere, immediately** (all consumers read only `fromSku`/`toSku`; it groups in the catalog and fires email alerts at once). Old entries may carry `status:"pending"`; nothing reads it.
-- **CI is NOT a complete linker.** Recall at the bar is ~45% for a new listing joining a group, and it anchors only SKUs first-seen in the last 25 days (`--since 25`). Older and below-bar pairs are left to the **whole-catalog undecided-pair pass**, whose candidates are the UNION of every generator at its own bar: the retired page replayed by `tools/audit_page_oracle.mjs` (modes classical / prod / linear / ai, plus `--all-anchors`; owner bar 0.2 for classical and prod), classical over store-name variants (`audit_classical_pairs.mjs`), GBT top-20 (the `audit_new_listings.js` rich file) and embedding neighbours (`--emb-neighbours`). Every scoring model is its own generator: models that disagree surface pairs the others bury. Done = `tools/audit_coverage_check.js` MISSING 0 per generator; its `--union-out` feeds `audit_undecided_pairs.js --union --compact`. Runbook: `docs/audit-runbook.md` first section. Running handoff: `audit/oracle-2026-10-14/HANDOFF.md` (local; ~31k pairs undecided at the 0.2 bar on 2026-10-16).
+- **CI is NOT a complete linker.** Recall at the bar is ~45% for a new listing joining a group, and it anchors only SKUs first-seen in the last 25 days (`--since 25`). Older and below-bar pairs are left to the **whole-catalog undecided-pair pass**, whose candidates are the UNION of every generator at its own bar: the retired page replayed by `tools/audit_page_oracle.mjs` (modes classical / prod / linear / ai, plus `--all-anchors`; owner bar 0.2 for classical and prod), classical over store-name variants (`audit_classical_pairs.mjs`), GBT top-20 (the `audit_new_listings.js` rich file) and embedding neighbours (`--emb-neighbours`). Every scoring model is its own generator: models that disagree surface pairs the others bury. Done = `tools/audit_coverage_check.js` MISSING 0 per generator; its `--union-out` feeds `audit_undecided_pairs.js --union --compact`. Runbook: `docs/audit-runbook.md` first section. Running handoff: `audit/oracle-2026-10-14/HANDOFF.md` (local; 2026-10-24: every 0.2-bar band, the close-out regen `r7` and its residue `r8` judged and applied; generators via `scripts/run_gens.sh`, waves via `scripts/wave_collect.sh` / `wave_apply.sh` / `batch_status.js`). Name-conflict pre-label + confirm-mode prompt (`audit/oracle-2026-10-14/scripts/prelabel.js`, `prompt_conf.md`; ~0.8K Haiku tokens/pair vs ~1.1K) is the band recipe in its §5. Below 0.3 the bands are ~99% hard negatives (1 link in ~9,700 pairs).
 - Candidate blocking: only candidates sharing a distinctive token / SMWS cask code are scored (precision-preserving; `vocab`/`groupIndex`/`sameGroup` stay full-catalog so scores equal the live ranker). Only the ANCHOR set is recency-bound; the full catalog is the candidate pool. Dedup against links/ignores makes re-runs a no-op; flushes every 400 anchors. `--max-anchors N`, `--dry-run`, `--top K`. Backlog sweep over all SKUs: by hand with no `--since`.
 - **A backlog sweep is not a cron run and must not be applied blind** — triage it as an `agent-audit` proposal (the 2026-09-20 40-day sweep had 16 of 66 false positives).
 - **`recommendSimilar` can return popularity filler** (≈4.2, clears any bar) when nothing survives its fine stage; those rows carry `fallback: true` and every caller that thresholds `score` must skip them.
@@ -77,7 +78,7 @@ Two different products can share one SKU when store numbering overlaps (BC vs AB
 - Enforced in `viz/app/catalog.js` + each index-loading page (`search_page.js`, `store_page.js`, `shortlist_page.js`, `item_page.js`), `tools/build_viz_recent.js`, `tools/build_common_listings.js`, and `build_email_event_pack.js::ingestDbObject`.
 - `tools/build_viz_sku_cache.js` and the scraper are intentionally NOT filtered (data preservation). Hidden SKUs are excluded from linker ML training/eval.
 - `pages.yaml` stages `data/sku_hidden.json → viz/data/`.
-- Policy: off-category listings (tequila, wine, cognac, liqueur, RTDs, non-alcoholic, non-products) and **multi-dram sets** (advent calendars, tasting/sampler sets, Drinks by the Dram, SMWS outturn kits) are hidden at EVERY store carrying the sku — but check each store's row by name, the same sku can be a different product elsewhere. Brand gift packs of minis and packs of real bottles (incl. mixed-expression packs: Appleton 3×200, JW Family Collection 4×200) stay tracked. Flavoured whiskies (Fireball, Crown Royal Peach, Skrewball…) stay visible (owner 2026-10-16: no strong policy wanted). Manual; no name-pattern rule. Count 871 (2026-10-16).
+- Policy: off-category listings (tequila, wine, cognac, liqueur, RTDs, non-alcoholic, non-products) and **multi-dram sets** (advent calendars, tasting/sampler sets, Drinks by the Dram, SMWS outturn kits) are hidden at EVERY store carrying the sku — but check each store's row by name, the same sku can be a different product elsewhere. Brand gift packs of minis and packs of real bottles (incl. mixed-expression packs: Appleton 3×200, JW Family Collection 4×200) stay tracked. Flavoured whiskies (Fireball, Crown Royal Peach, Skrewball…) stay visible (owner 2026-10-16: no strong policy wanted). Manual; no name-pattern rule. KWM `PE …` listings are paid tasting events (non-products, hidden); nameless placeholder titles that only produce undecidable pairs are hidden on owner say-so (2026-10-23). Count 886 (2026-10-24).
 
 ## Rarity Scoring
 
@@ -112,13 +113,13 @@ Cloudflare challenges the runner's Azure IP at several stores (elbowliquor, colo
 
 ## New-store discovery + onboarding
 
-**Onboarding (in progress): `STORE_ONBOARDING_PLAN.md`** (repo root) is the staged todo list (~62 new store keys in 7 platform waves, pre-onboarding link audit, small-scrape trials); resume from its "Current position" line. Store verdicts: `audit/store_hunt/round5-candidate-eval.md` (2026-10-16; supersedes round 4 for verdicts). Count = in-stock whisky+rum+gin DISTINCT products (sizes count once; minis/packs/liqueurs/RTDs/fees don't). Owner rulings: soft ~50 bar, interest over count (rare / indie / cask strength / Benromach-type staples; mainstream-only stores dropped); drop only truly stale catalogs (a week without movement is fine); a chain = ONE store unless its locations price differently.
+**Onboarding (in progress): `STORE_ONBOARDING_PLAN.md`** (repo root) is the staged todo list (~82 new store keys in platform waves, pre-onboarding link audit, small-scrape trials); resume from its "Current position" line. Owner rulings 2026-10-21: ONE launch for all waves (store code stays uncommitted until every wave is built, pre-linked once, and a UI pass is done); **prices are recorded PRE-TAX when the store's own data gives that accurately (Barnet `net_price`), otherwise the number the store shows; never divide by an assumed rate**; merged multi-location chains show the LOWEST in-stock price. Later-wave agent brief: `audit/onboarding/BRIEF_waves.md`. Store verdicts: `audit/store_hunt/round5-candidate-eval.md` incl. its "Re-assessment v2" section (2026-10-16; supersedes round 4 for verdicts; rerunning v1 drops the v2 section, so rerun `r5/candidate_eval_v2.py` after it). Count = in-stock whisky+rum+gin DISTINCT products (sizes count once; minis/packs/liqueurs/RTDs/fees don't). Owner rulings: soft ~50 bar, interest over count (rare / indie / cask strength / Benromach-type staples, sold-out ones count too; admission deliberately wide, only near-100%-mainstream stores dropped); drop only truly stale catalogs (a week without movement is fine); a chain = ONE store unless its locations price differently.
 
 Research closed 2026-10-10. Decision document: **`STORE_HUNT_HANDOFF.md`** (repo root); working data `audit/store_hunt/` (gitignored, `round4-strict-counts.md` authoritative for counts). Durable discovery facts (Barnet shop enumeration, gulp.tech, Liquor Connect, DataDome/PerimeterX walls): `docs/store-discovery-notes.md`. How to write an adapter: `docs/writing-store-scrapers.md`.
 
 ## Search matching + brand aliases
 
-Search (`viz/app/sku.js` `normSearchText`/`tokenizeQuery`/`matchesAllTokens`) matches every token as a SUBSTRING of a group's `searchText` (sku, name, url, store label). A one-character token must be a whole word. Brand aliases (`viz/app/search_aliases.js`, G&M only so far) detect on RAW text; after any edit run `node tools/check_search_aliases.mjs`. A distillery alias table must never feed linking. Owner principle: prefer a broader match. `stats_page.js` has its own tokenizer. Detail + next bottlers: `docs/gm-search-aliasing.md`.
+Search (`viz/app/sku.js` `normSearchText`/`tokenizeQuery`/`matchesAllTokens`) matches every token as a SUBSTRING of a group's `searchText` (sku, name, url, store label). A one-character token must be a whole word. Brand aliases (`viz/app/search_aliases.js`, G&M only so far) detect on RAW text; after any edit run `node tools/check_search_aliases.mjs`. The LINKER has its own curated alias list (`viz/app/linker_page/brand_aliases.js`, rebrands + bottler abbreviations; owner 2026-10-24: these may feed linking). Owner principle: prefer a broader match. `stats_page.js` has its own tokenizer. Detail + next bottlers: `docs/gm-search-aliasing.md`.
 
 ## Tech Stack
 
@@ -145,18 +146,20 @@ node bin/tracker.js --debug --maxPages 3      # debug with page cap
 ```
 
 Exit code `3` = no meaningful changes (normal, not an error). It needs `data/sku_collisions.json`
-next to `data/db/` and throws without it, so run it from `.worktrees/data`.
+next to `data/db/` and throws without it, so run it from `.worktrees/data`. Test scrapes go to a staged copy,
+never the worktree: `DATA_DIR=<stage>/data/db REPORT_DIR=<stage>/reports` (collisions, links, hidden at
+`<stage>/data/`); without `REPORT_DIR` reports land in the main checkout.
 
 ## CI / Automation
 
 Detail (schedule measurements, retry mechanics, commit-message format): `docs/ci-and-run-observability.md`.
 
 - `.github/workflows/cron_tracker.yaml` is **dispatch-only**. Its clock is a Cloudflare Worker cron in `~/spirit-tracker-api` (`src/tracker_schedule.ts`, `crons = ["25,48 * * * *"]`) matching Pacific wall time, POSTing `workflow_dispatch` with secret `GH_DISPATCH_TOKEN`. Do not move it back to GitHub `schedule:` (2-5 h late, 31% never fired).
-- **Big** (all stores, direct) 23:25 / 11:25 PT; **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn, highlander; VPN) :48 before 03/06/09/15/18/21 PT.
+- **Big** (all stores, direct) 23:25 / 11:25 PT; **Small** (sierra_springs, craft_cellars, colordevino, liquorama, zyn, highlander, whiskydrop; VPN) :48 before 03/06/09/15/18/21 PT.
 - **One-shot failed-store retry:** non-empty `[[FAILED-STORES]]` → workflow re-dispatches itself for those stores with `is_retry=true` and the opposite `vpn`; no recursion; `concurrency: tracker-cron` queues it.
 - `scripts/run_daily.sh` order: set up/repair worktree → pull `data` + merge `main` → tracker → `tools/build_*.js` → re-encode embeddings with the FIXED checkpoint (no retrain; `tools/linker_ml/CLAUDE.md` §"Shipping the checkpoint") → `auto_link_classify.mjs --since 25` → rarity → Release uploads → commit + push `data` → trigger Pages deploy + email pack.
 - **Embedding freshness is asserted, not assumed:** every SKU in the run's `sku_texts.jsonl` must have a vector in the shipped file; skips print `WARN`. The venv cache is salted with `python -VV` and validated. A month-long silent freeze happened once: `docs/history-stale-embeddings-incident.md`.
-- Commit messages encode run health: first line `run: <ts>` plus ` | FAILED(n): Store | Label; …` (from the tracker's `[[FAILED-CATEGORIES]]` sentinel); body has a `runner: ip=… run_id=…` line. A run where everything fails writes no commit.
+- Commit messages encode run health: first line `run: <ts>` plus ` | FAILED(n): Store | Label; …` (from the tracker's `[[FAILED-CATEGORIES]]` sentinel); body has a `runner: ip=… run_id=…` line plus one `failed: Store | Label: reason` line per failure (from `[[FAILED-REASON]]` sentinels; review with `git log origin/data --format=%B | grep '^failed:' | sort | uniq -c`). A run where everything fails writes no commit.
 
 ## Link audits (`scripts/audit_new_listings.js` and friends)
 
@@ -181,7 +184,7 @@ Hard rules:
 - `pairs[].pol` (`size:` / `store-exclusive:` markers) is a marker, never a verdict.
 - Known skew (unfixed, needs a retrain): `featurize.mjs` names an aggregate by its first LIVE listing, while `catalog.js::selectBestDisplayInfo` sorts by tier → photo → longest name. Do not add comments claiming parity.
 
-Status (2026-10-16): links 6,265, ignores 30,477, collision splits 29; precision passes closed; campaign frontier nearly exhausted; whole-catalog undecided-pair pass is the current work.
+Status (2026-10-24): links 6,311, ignores 69,189, collision splits 40, hides 886; whole-catalog undecided-pair pass DONE (r7 + r8 residue applied); final campaign retrain = round 5; new-listing error analysis + feature A/B in `tools/linker_ml/CLAUDE.md` §"2026-10-24".
 
 ## Scripts (`scripts/`)
 
@@ -219,11 +222,13 @@ Post-processing scripts run by `run_daily.sh` after the tracker operate on the d
 | `validate_proposal_skus.js`, `merge_audit_proposals.js`, `audit_link_group_slice.js`, `audit_ignore_slice.js` | Audit helpers (see §"Link audits") |
 | `validate_sku_collisions.js`, `detect_sku_collisions.mjs` | Collision-split validator / candidate census |
 | `check_search_aliases.mjs` | Search-alias regression check |
+| `check_store_registry.mjs` | Every adapter's `name` must resolve to its own `viz/app/stores.js` id (an unknown label kills the item chart), region matches, no alias collisions, local logo present. Gate for adding a store |
 | `diff_report.js` | Compare two report files |
 | `discover_bad_skus.js` | Find synthetic (`u:`) SKUs that need repair |
 | `rank_discrepency.js` | Analyze ranking discrepancies |
 | `dedupe_skulinks.js` | Deduplicate SKU link entries |
 | `backfill_db_created_at.js` | One-time: stamp `createdAt` on every `data/db/*.json` from its first git commit. Run from `.worktrees/data/`. Idempotent |
+| `onboarding_stage.sh` | **Hand-run** (`bash tools/onboarding_stage.sh <staged db files>`): staged data worktree for a new-store wave's pre-onboarding link audit (no `.git`, Release assets, re-encode with the Release checkpoint); prints each audit tool's `--root`/`DATA_WORKTREE` flag. See `STORE_ONBOARDING_PLAN.md` Stage 1.1 |
 | `stamp_pwa.js` | **Deploy-time only** (`pages.yaml`): stamps PWA build hash + precache list into the site artifact. Never commit a stamped file. See `viz/CLAUDE.md` §"PWA" |
 
 ## Linker evaluation + learned classifier

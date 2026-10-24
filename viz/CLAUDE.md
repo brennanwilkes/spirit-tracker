@@ -467,6 +467,15 @@ since `--nav-space` already includes it.
 three grew private copies that drifted: the shortlist was still inline-styled with the pre-accent
 `#9aa3b2` thumb at 18px while the store page had moved to `var(--accent)` at 22px.
 
+**Slider behaviour is one module: `components/price_slider.js::createPriceScale(min, max)`** (store,
+shortlist and stats used to each carry a copy, and all three shared these bugs). Its rules:
+- The scale's `max` is `ceil(real max)`, and the end positions of the slider are exact. Step-rounding the top once capped a
+  $2095.10 bottle at $2000.
+- "At the bound" is stored as an ABSENT localStorage key, so the cap follows the data. The v1 keys wrote
+  the clamped max back on every load, which froze it below later prices; v2 keys replaced them and the old keys are deleted on load.
+- At either end the stats page passes `null` to the filter, so items below its $15 scale floor are not excluded.
+- The thumb is never re-positioned to the snapped price while dragging, or on release (that made it jitter). Only the label snaps.
+
 **Page CSS may set the label width and nothing else.** The stats page is the one legitimate
 variation — it overrides `min-width` on `.priceValue` because it renders a *range* (`$15 – $550`)
 rather than a single value, and its `.rangeDual` two-thumb control keeps its own track styling
