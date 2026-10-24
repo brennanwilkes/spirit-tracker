@@ -43,7 +43,7 @@ import { buildSizePenaltyForPair, parseSizesMlFromText } from "../../viz/app/lin
 import { buildPricePenaltyForPair } from "../../viz/app/linker_page/price.js";
 import { prepScorePairCtx, scorePairWithVocab } from "../../viz/app/linker_page/suggestions.js";
 import { extractBlendFeatures, FEATURE_KEYS } from "../../viz/app/linker_page/blend.js";
-import { medianOf } from "../../viz/app/linker_page/group_features.js";
+import { medianOf, GRP_NEUTRAL, groupTitleProfile, groupTitleFeatures } from "../../viz/app/linker_page/group_features.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, "../..");
@@ -362,12 +362,6 @@ function jaccard(A, B) {
 	return uni ? inter / uni : 1;
 }
 
-const GRP_NEUTRAL = {
-	grpStoreOverlap: 0, grpStoreCollideCount: 0, grpStoreJaccard: 0, grpSameSkuShare: 0,
-	grpSizeConflict: 0, grpSizeJaccard: 1, grpAbvDiff: 0, grpAbvBoth: 0, grpYearDiff: 0,
-	grpYearBoth: 0, grpPriceRatio: 1, grpCountA: 1, grpCountB: 1,
-};
-
 // Rich group-wise feature set for pair (a,b), on PRE-merge groups (cut the direct a–b edge
 // so a confirmed link doesn't get its own merged group as the answer). All signals are
 // canonical-GROUP level (not pairwise) — the dimension neither the bag-of-tokens scorer nor
@@ -425,6 +419,9 @@ export function groupPairFeatures(aSku, bSku, env) {
 	const pB = groupMedianPrice(GB, env);
 	const grpPriceRatio = pA && pB ? Math.max(pA, pB) / Math.min(pA, pB) : 1;
 
+	// Title features read catalog members only (a delisted bridge node has no title), like the live index.
+	const namesOf = (G) => [...G].filter((s) => env.bySku.has(s)).map((s) => env.bySku.get(s).name || "");
+
 	return {
 		grpStoreOverlap,
 		grpStoreCollideCount: colliding,
@@ -439,6 +436,7 @@ export function groupPairFeatures(aSku, bSku, env) {
 		grpPriceRatio,
 		grpCountA: GA.size,
 		grpCountB: GB.size,
+		...groupTitleFeatures(groupTitleProfile(namesOf(GA)), groupTitleProfile(namesOf(GB))),
 	};
 }
 

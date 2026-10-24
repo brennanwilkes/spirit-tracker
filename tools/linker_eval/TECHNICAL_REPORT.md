@@ -22,13 +22,17 @@ ranker `recommendSimilar` and from `tools/linker_eval.mjs`).
   └─────┬─────┘
   ┌─────▼──────────────────┐
   │ brand-alias detection  │  inject __bnd_X synth tokens for known
-  └─────┬──────────────────┘  abbreviations (TBWC, BNS, OMC, G&M, BWE, SCN, …)
+  └─────┬──────────────────┘  abbreviations (TBWC, BNS, OMC, G&M, BWE, SCN, …) and
+                              rebrands / bottler short forms (2026-10-24: Plantation=Planteray,
+                              SV/SIGNAT=Signatory, Càrn Mòr=Strictly Limited, SoFL, JW, BiB=Bonded)
   ┌─────▼────────────────────┐
   │ glued-numeric expansion  │  letter↔digit boundary inserts a space
   └─────┬────────────────────┘  e.g. "blairathol11yo" → "blairathol 11 yo"
   ┌─────▼─────────────────┐
   │ tokenizeQuery + filter │  filterSimTokens drops stop words, equivalence
-  └─────┬─────────────────┘  map, volume/ABV inline patterns
+  └─────┬─────────────────┘  map, volume/ABV inline patterns. Stop words include store listing
+                              boilerplate (pet, plastic, customer, limit, cls, aglc); the inline
+                              volume pattern accepts BCL's bare "M" unit ("700M")
   ┌─────▼──────────────┐
   │ possessive repair   │  "macaloney" + "s" → "macaloneys"
   └─────┬──────────────┘
@@ -539,15 +543,19 @@ and emits `algo_failures.md` (factor-decomposed disagreements) for analysis.
 ## 6. Current benchmark numbers
 
 Run `node tools/linker_eval.mjs` for live figures (they move as the labeled set
-grows). At the time of writing, on ~4.9k positives / 1.2k ignores / 4k hard
-negatives:
+grows). 2026-10-24, 11,171 positives / 68,976 ignores / 4k hard negatives, before → after
+the rebrand/bottler aliases + boilerplate stop words (hard negatives resample when names
+change, so the floor moves):
 
-| metric | value | note |
-|---|---|---|
-| AUC+ (vs hard negatives) | **~0.79** | trivial shared-word floor ~0.51 |
-| AUC vs ignores | ~0.85 | |
-| Auto-link T for **99%** precision | ~23.5 | recall ~4% — only the most certain links auto-link |
-| Auto-link T for **95%** precision | ~16 | recall ~23% |
+| metric | before | after | note |
+|---|---|---|---|
+| AUC+ (vs hard negatives) | 0.9375 | **0.9380** | trivial shared-word floor 0.571 / 0.567 |
+| AUC vs ignores | 0.9525 | 0.9535 | trivial 0.804 |
+| Auto-link T for **99%** precision | 14.64 | 14.42 | recall 27.9% → 28.5% |
+| Auto-link T for **95%** precision | 11.29 | 11.29 | recall 37.7% → 38.1% |
+
+The deterministic score is one feature of the shipping GBT (`tools/linker_ml/`), which is
+what auto-links; these numbers are the scorer's own reference, not CI's precision.
 
 The dominant residual error classes (see `algo_failures.md`): cross-store **size
 variants** the name omits and price can't separate (false positives), and

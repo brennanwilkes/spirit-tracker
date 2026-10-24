@@ -31,6 +31,13 @@ const SIM_STOP_TOKENS = new Set([
 	"abv",
 	"proof",
 	"anniversary",
+	// store listing boilerplate ("PET", "*1 PER CUSTOMER*", "(CLS)", AGLC codes)
+	"pet",
+	"plastic",
+	"customer",
+	"limit",
+	"cls",
+	"aglc",
 ]);
 
 const SMWS_WORD_RE = /\bsmws\b/i;
@@ -280,7 +287,7 @@ export function filterSimTokens(tokens) {
 	]);
 
 	const VOL_UNIT = new Set(["ml", "l", "cl", "oz", "liter", "liters", "litre", "litres"]);
-	const VOL_INLINE_RE = /^\d+(?:\.\d+)?(?:ml|l|cl|oz)$/i; // 700ml, 1.14l
+	const VOL_INLINE_RE = /^\d+(?:\.\d+)?(?:ml|l|cl|oz|m)$/i; // 700ml, 1.14l, BCL's "700M"
 	const PCT_INLINE_RE = /^\d+(?:\.\d+)?%$/; // 46%, 40.0%
 
 	const arr = Array.isArray(tokens) ? tokens : [];
