@@ -16,7 +16,7 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
-## ★ 2026-10-24 — new-listing error analysis + group-token features (PROTOTYPE, not in featurize.mjs yet)
+## ★ 2026-10-24 — new-listing error analysis + group TITLE features (IN CODE; model `out/ship-2026-10-24/`, ship pending)
 
 Final campaign retrain = `out/campaign/round-5` (labels 6,311 links / 69,189 ignores). Tooling (no tokens), all in
 `audit/oracle-2026-10-14/scripts/`: `new_view_misses.mjs` (new-view OOF misses, counterfactual attribution, pattern miss
@@ -41,8 +41,23 @@ round's pinned pairs and view vectors, ~1–2 min per arm), `exp_classical.sh` (
   SV/Signatory, Càrn Mòr/Strictly Limited, SoFL, JW, BiB/Bonded) and filler stop words in `similarity.js` (pet, plastic,
   customer, limit, cls, aglc, BCL "700M"). They fix the targeted misses but are net-neutral overall. They change `logDet`,
   so ship them WITH a GBT retrained on them, not alone.
-- Next: port the four winning `x*` features into `featurize.mjs::groupPairFeatures` + `group_features.js`, retrain,
-  `auto_link_classify --dry-run` live check, ship. After that: re-fine-tune the encoder on honest-view texts.
+- **Ported (7 keys: `xTokCovAB/BA`, `xBestJacc`, `xAgeOmitA/B`, `xAbvOmitA/B`).** The formulas live ONCE in
+  `group_features.js` (`groupTitleProfile` / `groupTitleFeatures`); `featurize.mjs::groupPairFeatures` imports them (catalog
+  members only, like the live index, which caches one profile per group). Uncapped (the prototype's 40-member cap was
+  order-dependent and never bit). Parity: trainer = `exp_feats.mjs` on all 189,730 round-5 rows, live = trainer on all 83,628
+  cross-group rows. Subset arm (round-5 + aliases): OOF new rec@99 63.3 / listing@bar 71.7 / FP 94 vs all-13 64.8 / 72.1 / 89.
+- **Ship retrain** (`audit/oracle-2026-10-14/scripts/ship_retrain.sh <dir>`: round-close chain on the FIXED shipped encoder
+  + `gbt_views_frozen.json` twin + refit-on-all `gbt_model.json` + OOF + LR fallback; ~6 min). `out/ship-2026-10-24/`, 49
+  keys, labels 6,311 / 69,189. Twin vs the round-5 final model on this build's frozen rows: NEW rec@99 42.5 → **52.0**,
+  rec@bar 66.2 → 69.8, false links 32 → 28; CUT rec@99 84.2 → 87.6, false links 14 → 11. OOF new rec@99 64.5, listing@bar
+  71.6, FP 90. Keep the twin for the next comparison (never compare against the refit ship model on frozen rows).
+- **Live check:** whole-catalog `--dry-run` proposes 9 links (shipped model: 1); with CI's `--since 25`, 3 (shipped: 0).
+  Weak class: a plain-titled listing (BCL "EAU CLAIRE - SINGLE MALT WHISKY") pulled toward each numbered batch group; the
+  shipped model has it too. Judgements in `audit/ship-2026-10-24/proposal-draft.json`.
+- **CI gap (unfixed):** `auto_link_classify.mjs` checks ignores on the canonical map loaded at start, so two links emitted
+  in ONE run can merge groups that carry an ignore between them (Eau Claire batch 6 and batch 8 via the plain BCL listing).
+  Across runs it is safe (canonicals rebuilt). Fix = union emitted links into a run-local DSU before the ignore check.
+- Next lever after the ship: re-fine-tune the encoder on honest-view texts (low embedCos misses 67%).
 
 ## ★ 2026-10-09 — label leak in the encoder text; train and measure on HONEST VIEWS (SHIPPED)
 
@@ -370,7 +385,8 @@ gh release create "model-ft-$(cat tools/linker_ml/MODEL_VERSION)" /tmp/model_ft.
 
 **The 13 group↔group features** (canonical-GROUP level, the dimension neither the token scorer
 nor the bi-encoder can see): `grpStoreOverlap/CollideCount/Jaccard/SameSkuShare`,
-`grpSizeConflict/Jaccard`, `grpAbvDiff/Both`, `grpYearDiff/Both`, `grpPriceRatio`, `grpCountA/B`.
+`grpSizeConflict/Jaccard`, `grpAbvDiff/Both`, `grpYearDiff/Both`, `grpPriceRatio`, `grpCountA/B`, plus (2026-10-24) seven
+title features over the groups' member titles (`x*`, see the 2026-10-24 section; formulas shared, not duplicated).
 Computed in `featurize.mjs::groupPairFeatures` (offline, **edge-cuts** the scored pair so positives
 use PRE-merge groups — no leakage) and `viz/app/linker_page/group_features.js` (live, full groups —
 identical to the trainer for cross-group pairs, which is all the live ranker scores since

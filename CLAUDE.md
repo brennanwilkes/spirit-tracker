@@ -184,7 +184,7 @@ Hard rules:
 - `pairs[].pol` (`size:` / `store-exclusive:` markers) is a marker, never a verdict.
 - Known skew (unfixed, needs a retrain): `featurize.mjs` names an aggregate by its first LIVE listing, while `catalog.js::selectBestDisplayInfo` sorts by tier → photo → longest name. Do not add comments claiming parity.
 
-Status (2026-10-24): links 6,311, ignores 69,189, collision splits 40, hides 886; whole-catalog undecided-pair pass DONE (r7 + r8 residue applied); final campaign retrain = round 5; new-listing error analysis + feature A/B in `tools/linker_ml/CLAUDE.md` §"2026-10-24".
+Status (2026-10-24): links 6,311, ignores 69,189, collision splits 40, hides 886; whole-catalog undecided-pair pass DONE (r7 + r8 residue applied); final campaign retrain = round 5; new-listing error analysis, the 7 group title features (`x*`, in code) and the ship-pending retrain `tools/linker_ml/out/ship-2026-10-24/` in `tools/linker_ml/CLAUDE.md` §"2026-10-24". Ship order: label fixes on data → code on main → `gbt_model.json` on data.
 
 ## Scripts (`scripts/`)
 

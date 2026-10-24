@@ -11,7 +11,7 @@
 // cross-group path. Keep the formulas/constants identical to avoid train/serve skew.
 
 import { normSearchText, tokenizeQuery } from "../sku.js";
-import { filterSimTokens, extractAbv } from "./similarity.js";
+import { filterSimTokens, extractAbv, extractAgeFromText } from "./similarity.js";
 import { parseSizesMlFromText } from "./size.js";
 
 // Standard bottle buckets — identical to size.js SIZE_BUCKETS / featurize SIZE_BUCKETS_FT.
@@ -36,7 +36,71 @@ export const GRP_NEUTRAL = {
 	grpStoreOverlap: 0, grpStoreCollideCount: 0, grpStoreJaccard: 0, grpSameSkuShare: 0,
 	grpSizeConflict: 0, grpSizeJaccard: 1, grpAbvDiff: 0, grpAbvBoth: 0, grpYearDiff: 0,
 	grpYearBoth: 0, grpPriceRatio: 1, grpCountA: 1, grpCountB: 1,
+	xTokCovAB: 1, xTokCovBA: 1, xBestJacc: 1, xAgeOmitA: 0, xAgeOmitB: 0, xAbvOmitA: 0, xAbvOmitB: 0,
 };
+
+/* ---- title features over each group's member titles (shared with featurize.mjs, so one formula) ---- */
+
+const _titleTok = new Map();
+export function titleTokens(name) {
+	const key = String(name || "");
+	let t = _titleTok.get(key);
+	if (!t) _titleTok.set(key, (t = new Set(filterSimTokens(tokenizeQuery(normSearchText(key))))));
+	return t;
+}
+
+// One group's catalog-member titles → per-title token sets, core tokens (in at least half the titles),
+// token union, and the share of titles stating no age / no ABV. Order-independent, uncapped.
+export function groupTitleProfile(names) {
+	if (!names.length) throw new Error("groupTitleProfile: empty group");
+	const toks = [];
+	const counts = new Map();
+	let noAge = 0;
+	let noAbv = 0;
+	for (const name of names) {
+		const t = titleTokens(name);
+		toks.push(t);
+		for (const x of t) counts.set(x, (counts.get(x) || 0) + 1);
+		if (!extractAgeFromText(normSearchText(name || ""))) noAge++;
+		if (extractAbv(name || "") == null) noAbv++;
+	}
+	const core = new Set();
+	for (const [x, c] of counts) if (c * 2 >= names.length) core.add(x);
+	return { toks, core, union: new Set(counts.keys()), ageOmit: noAge / names.length, abvOmit: noAbv / names.length };
+}
+
+function coverage(core, union) {
+	if (!core.size) return 0;
+	let i = 0;
+	for (const t of core) if (union.has(t)) i++;
+	return i / core.size;
+}
+
+// xTokCov*: how much of one group's core title tokens the other group's titles carry at all, so a
+// truncated, lower-cased or extra-wordy newcomer still finds its product's words in some member title.
+// xBestJacc: the closest single pair of titles. Omission shares tell a title that simply leaves out
+// the age / ABV apart from one that states a different one.
+export function groupTitleFeatures(pa, pb) {
+	let best = 0;
+	for (const x of pa.toks) {
+		for (const y of pb.toks) {
+			if (!x.size && !y.size) continue;
+			let i = 0;
+			for (const t of x) if (y.has(t)) i++;
+			const j = i / (x.size + y.size - i);
+			if (j > best) best = j;
+		}
+	}
+	return {
+		xTokCovAB: coverage(pa.core, pb.union),
+		xTokCovBA: coverage(pb.core, pa.union),
+		xBestJacc: best,
+		xAgeOmitA: pa.ageOmit,
+		xAgeOmitB: pb.ageOmit,
+		xAbvOmitA: pa.abvOmit,
+		xAbvOmitB: pb.abvOmit,
+	};
+}
 
 // Build a group index from the live catalog once per (re)load. canonicalSkuFn maps a raw
 // SKU → its canonical group id (rules.canonicalSku). Precomputes per-group aggregates so
@@ -64,10 +128,11 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 
 		let g = groups.get(canon);
 		if (!g) {
-			g = { storeMap: new Map(), sizes: new Set(), abvSum: 0, abvN: 0, year: null, prices: [], count: 0 };
+			g = { storeMap: new Map(), sizes: new Set(), abvSum: 0, abvN: 0, year: null, prices: [], count: 0, names: [], profile: null };
 			groups.set(canon, g);
 		}
 		g.count++;
+		g.names.push(name);
 		const stores = it.stores instanceof Set ? it.stores : new Set(it.stores || []);
 		for (const st of stores) {
 			let s = g.storeMap.get(st);
@@ -155,6 +220,9 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 		const pB = medianOf(gb.prices);
 		const grpPriceRatio = pA && pB ? Math.max(pA, pB) / Math.min(pA, pB) : 1;
 
+		ga.profile ??= groupTitleProfile(ga.names);
+		gb.profile ??= groupTitleProfile(gb.names);
+
 		return {
 			grpStoreOverlap,
 			grpStoreCollideCount: colliding,
@@ -169,6 +237,7 @@ export function buildGroupIndex(allAgg, canonicalSkuFn) {
 			grpPriceRatio,
 			grpCountA: ga.count,
 			grpCountB: gb.count,
+			...groupTitleFeatures(ga.profile, gb.profile),
 		};
 	}
 

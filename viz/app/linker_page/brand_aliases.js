@@ -47,6 +47,31 @@ export const BRAND_ALIASES = [
 		synth: "__bnd_scn",
 		patterns: ["scn", "single cask nation"],
 	},
+	// Rebrands and bottler abbreviations (owner 2026-10-24: a curated lookup may feed linking).
+	{
+		synth: "__bnd_plantation",
+		patterns: ["plantation", "planteray"],
+	},
+	{
+		synth: "__bnd_signatory",
+		patterns: ["sv", "signatory", "signat"],
+	},
+	{
+		synth: "__bnd_carnmor",
+		patterns: ["carn mor", "strictly limited"],
+	},
+	{
+		synth: "__bnd_sofl",
+		patterns: ["sofl", "spirits of french lick"],
+	},
+	{
+		synth: "__bnd_jw",
+		patterns: ["jw", "johnnie walker"],
+	},
+	{
+		synth: "__bnd_bib",
+		patterns: ["bib", "bottled in bond", "bonded"],
+	},
 ];
 
 // Build a single combined regex per synth for efficient detection. Patterns are
