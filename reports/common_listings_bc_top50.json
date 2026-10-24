@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T18:58:15.555Z",
+  "generatedAt": "2026-10-24T06:38:24.604Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,67 +32,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6678,
-    "removedRows": 1368,
-    "canonSkus": 2622,
+    "liveRows": 6671,
+    "removedRows": 1376,
+    "canonSkus": 2624,
     "outputCount": 50
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 27.99,
-        "everythingwine": 29.99,
-        "gull": 26.99,
-        "highpointbws": 29.79,
-        "legacyliquor": 31.81,
-        "liberty": 36.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 14,
@@ -201,6 +146,61 @@
         "priceNum": 36.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 27.99,
+        "everythingwine": 29.99,
+        "gull": 26.99,
+        "highpointbws": 29.79,
+        "legacyliquor": 31.81,
+        "liberty": 36.99,
+        "liquorwarehouse": 30.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -2358,28 +2358,28 @@
         "gull": 113.99,
         "highpointbws": 121.79,
         "legacyliquor": 132.99,
-        "liquorwarehouse": 83.89,
+        "liquorwarehouse": 122.99,
         "tudor": 110.99,
         "vessel": 109.99,
         "vintage": 133.83
       },
       "representative": {
-        "name": "TALISKER 10 YEAR OLD 750ML",
-        "price": "$83.89",
-        "priceNum": 83.89,
-        "storeKey": "liquorwarehouse",
-        "storeLabel": "Liquor Warehouse",
+        "name": "Talisker - 10 Year Old Single Malt Scotch",
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
         "skuRaw": "249680",
         "skuKey": "249680",
-        "url": "https://liquorwarehouse.ca/products/talisker-10-year-old",
-        "categoryLabel": "Whiskey/Scotch",
-        "dbFile": "data/db/liquorwarehouse__whiskey-scotch__d5d4cd07.json"
+        "url": "https://vesselliquor.com/products/talisker-10-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$83.89",
-        "priceNum": 83.89,
-        "storeKey": "liquorwarehouse",
-        "url": "https://liquorwarehouse.ca/products/talisker-10-year-old"
+        "price": "$109.99",
+        "priceNum": 109.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/talisker-10-year-old-single-malt-scotch"
       }
     },
     {
