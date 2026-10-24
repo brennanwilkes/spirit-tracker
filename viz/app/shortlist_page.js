@@ -34,6 +34,7 @@ import { storeSetSelectorHtml, installStoreSetSelector } from "./components/stor
 import { parseStoreSet, serializeStoreSet, resolveStoreSet, storeSetLabel } from "./store_set.js";
 import { decorateRarity } from "./rarity_decorate.js";
 import { effectiveRarity } from "./rarity.js";
+import { createPriceScale } from "./components/price_slider.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -206,7 +207,10 @@ export async function renderShortlist($app, accountUuidRaw) {
 	const LS_Q = `viz:shortlistQuery:${accountUuid}`;
 	const LS_SORT = `viz:shortlistSort:${accountUuid}`;
 	const LS_STORESET = `viz:shortlistStoreSet:${accountUuid}`;
-	const LS_MAX = `viz:shortlistMaxPrice:${accountUuid}`;
+	// Absent key means "no cap". v1 wrote the clamped page max back on every
+	// load, freezing the cap below later prices.
+	localStorage.removeItem(`viz:shortlistMaxPrice:${accountUuid}`);
+	const LS_MAX = `viz:shortlistMaxPrice:v2:${accountUuid}`;
 	const LS_TYPE = `viz:shortlistType:${accountUuid}`;
 	const LS_AVAIL = `viz:shortlistAvail:${accountUuid}`;
 
@@ -684,83 +688,24 @@ export async function renderShortlist($app, accountUuidRaw) {
 	}
 
 	const pageMax = maxPriceOnPage();
-	const boundMax = pageMax !== null ? Math.max(MIN_PRICE, pageMax) : MIN_PRICE;
+	const priceScale = createPriceScale(MIN_PRICE, pageMax !== null ? pageMax : MIN_PRICE);
 
-	function stepForPrice(p) {
-		const x = Number.isFinite(p) ? p : boundMax;
-		if (x < 120)  return 5;
-		if (x < 250)  return 10;
-		if (x < 600)  return 25;
-		if (x < 2000) return 100;
-		return 1000;
-	}
-	function roundToStep(p) {
-		const step = stepForPrice(p);
-		return Math.round(p / step) * step;
-	}
+	let selectedMaxPrice = priceScale.snap(savedMaxPrice !== null ? savedMaxPrice : priceScale.max);
 
-	function priceFromT(t) {
-		t = Math.max(0, Math.min(1, t));
-		if (boundMax <= MIN_PRICE) return MIN_PRICE;
-		const ratio = boundMax / MIN_PRICE;
-		return MIN_PRICE * Math.exp(Math.log(ratio) * t);
-	}
-	function tFromPrice(price) {
-		if (!Number.isFinite(price)) return 1;
-		if (boundMax <= MIN_PRICE) return 1;
-		const p = Math.max(MIN_PRICE, Math.min(boundMax, price));
-		const ratio = boundMax / MIN_PRICE;
-		return Math.log(p / MIN_PRICE) / Math.log(ratio);
-	}
-
-	function clampPrice(p) {
-		if (!Number.isFinite(p)) return boundMax;
-		return Math.max(MIN_PRICE, Math.min(boundMax, p));
-	}
-	function clampAndRound(p) {
-		const c = clampPrice(p);
-		const r = roundToStep(c);
-		return clampPrice(r);
-	}
-
-	function formatDollars(p) {
-		if (!Number.isFinite(p)) return "";
-		return `$${Math.round(p)}`;
-	}
-
-	let selectedMaxPrice = clampAndRound(savedMaxPrice !== null ? savedMaxPrice : boundMax);
-
-	function setSliderFromPrice(p) {
-		const t = tFromPrice(p);
-		const v = Math.round(t * 1000);
-		$maxPrice.value = String(v);
-	}
-	function getRawPriceFromSlider() {
-		const v = Number($maxPrice.value);
-		const t = Number.isFinite(v) ? v / 1000 : 1;
-		return clampPrice(priceFromT(t));
-	}
 	function updateMaxPriceLabel() {
 		if (pageMax === null) {
 			$maxPriceLabel.textContent = "No prices";
 			return;
 		}
-		$maxPriceLabel.textContent = `${formatDollars(selectedMaxPrice)}`;
+		$maxPriceLabel.textContent = `$${selectedMaxPrice}`;
 	}
 
 	if (pageMax === null) {
 		$maxPrice.disabled = true;
 		$priceWrap.title = "No priced items in shortlist.";
-		selectedMaxPrice = boundMax;
-		setSliderFromPrice(boundMax);
-		localStorage.setItem(LS_MAX, String(selectedMaxPrice));
-		updateMaxPriceLabel();
-	} else {
-		selectedMaxPrice = clampAndRound(selectedMaxPrice);
-		localStorage.setItem(LS_MAX, String(selectedMaxPrice));
-		setSliderFromPrice(selectedMaxPrice);
-		updateMaxPriceLabel();
 	}
+	$maxPrice.value = String(priceScale.valueFromPrice(selectedMaxPrice));
+	updateMaxPriceLabel();
 
 	function compareModeForShortlist() {
 		// When store-filtered, reuse Sale % / Sale $ as the compare-mode selector.
@@ -932,7 +877,7 @@ export async function renderShortlist($app, accountUuidRaw) {
 		const total = filtered.length;
 		const storeActive = !!selectedNorms;
 		const storeLabel = storeActive ? storeSetLabel(storeSetSpec) : "";
-		const maxLabel = pageMax !== null ? `≤ ${formatDollars(selectedMaxPrice)}` : "";
+		const maxLabel = pageMax !== null ? `≤ $${selectedMaxPrice}` : "";
 
 		$status.textContent = total
 			? `Favourites: ${total} item(s) ${maxLabel}${storeActive ? ` (in stock at ${storeLabel})` : ""}`
@@ -1496,9 +1441,9 @@ export async function renderShortlist($app, accountUuidRaw) {
 		}
 
 		if (pageMax !== null) {
-			selectedMaxPrice = clampAndRound(boundMax);
-			localStorage.setItem(LS_MAX, String(selectedMaxPrice));
-			setSliderFromPrice(selectedMaxPrice);
+			selectedMaxPrice = priceScale.max;
+			localStorage.removeItem(LS_MAX);
+			$maxPrice.value = String(priceScale.valueFromPrice(selectedMaxPrice));
 			updateMaxPriceLabel();
 			changed = true;
 		}
@@ -1508,16 +1453,13 @@ export async function renderShortlist($app, accountUuidRaw) {
 	});
 
 	let tp = null;
+	// The thumb is never moved back to the snapped price: re-positioning it under
+	// the finger is what made the slider jitter.
 	function setSelectedMaxPriceFromSlider() {
-		const raw = getRawPriceFromSlider();
-		const rounded = clampAndRound(raw);
-		if (Math.abs(rounded - selectedMaxPrice) > 0.001) {
-			selectedMaxPrice = rounded;
-			localStorage.setItem(LS_MAX, String(selectedMaxPrice));
-			updateMaxPriceLabel();
-		} else {
-			updateMaxPriceLabel();
-		}
+		selectedMaxPrice = priceScale.priceFromValue(Number($maxPrice.value));
+		if (selectedMaxPrice >= priceScale.max) localStorage.removeItem(LS_MAX);
+		else localStorage.setItem(LS_MAX, String(selectedMaxPrice));
+		updateMaxPriceLabel();
 	}
 
 	$maxPrice.addEventListener("input", () => {
@@ -1530,8 +1472,6 @@ export async function renderShortlist($app, accountUuidRaw) {
 	$maxPrice.addEventListener("change", () => {
 		if (pageMax === null) return;
 		setSelectedMaxPriceFromSlider();
-		setSliderFromPrice(selectedMaxPrice);
-		updateMaxPriceLabel();
 		applyFilter();
 	});
 

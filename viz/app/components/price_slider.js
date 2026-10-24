@@ -1,106 +1,53 @@
 /**
- * Exponential price slider component.
+ * Exponential price scale shared by every price slider (store, shortlist, stats).
  *
- * Maps a linear 0–1000 range input to an exponential price scale so that
- * low prices (< $100) have fine-grained control.
+ * Maps a linear 0–SLIDER_RANGE <input type="range"> onto an exponential price
+ * scale so low prices get fine control, and snaps prices to "clicky" steps.
  *
- * @param {object} opts
- * @param {HTMLInputElement} opts.sliderEl     - the <input type="range"> element
- * @param {HTMLElement}      opts.labelEl      - element that shows the current price
- * @param {number}           opts.boundMax     - maximum price on the page
- * @param {number}           [opts.minPrice=25] - minimum slider price
- * @param {function}         [opts.onChange]   - called with (price) when user moves slider
- * @returns {{ getPrice, setPrice, disable }}
+ * The two ends are exact: the last thumb position is always `max` (ceil of the
+ * real max, so a $2095.10 bottle is never cut off by step rounding) and the
+ * first is always `min`. Pages persist "at max" as an absent key, so a cap the
+ * user never set follows the data instead of freezing at yesterday's max.
  */
-export function createPriceSlider({ sliderEl, labelEl, boundMax, minPrice = 25, onChange } = {}) {
-	const MIN = minPrice;
-	const MAX = boundMax > MIN ? boundMax : MIN;
+export const SLIDER_RANGE = 1000;
 
-	function priceFromT(t) {
-		t = Math.max(0, Math.min(1, t));
-		if (MAX <= MIN) return MIN;
-		const ratio = MAX / MIN;
-		return MIN * Math.exp(Math.log(ratio) * t);
+function stepForPrice(p) {
+	if (p < 120)  return 5;
+	if (p < 250)  return 10;
+	if (p < 600)  return 25;
+	if (p < 2000) return 100;
+	return 1000;
+}
+
+export function createPriceScale(minPrice, maxPrice) {
+	if (!Number.isFinite(minPrice) || !Number.isFinite(maxPrice)) {
+		throw new Error(`createPriceScale: non-finite bounds ${minPrice}, ${maxPrice}`);
 	}
+	const min = minPrice;
+	const max = Math.max(min, Math.ceil(maxPrice));
+	const logRatio = Math.log(max / min);
 
-	function tFromPrice(price) {
-		if (!Number.isFinite(price)) return 1;
-		if (MAX <= MIN) return 1;
-		const p = Math.max(MIN, Math.min(MAX, price));
-		const ratio = MAX / MIN;
-		return Math.log(p / MIN) / Math.log(ratio);
-	}
-
-	function stepForPrice(p) {
-		const x = Number.isFinite(p) ? p : MAX;
-		if (x < 120)  return 5;
-		if (x < 250)  return 10;
-		if (x < 600)  return 25;
-		if (x < 2000) return 100;
-		return 1000;
-	}
-
-	function roundToStep(p) {
+	function snap(p) {
+		if (p >= max) return max;
+		if (p <= min) return min;
 		const step = stepForPrice(p);
-		return Math.round(p / step) * step;
+		const r = Math.round(p / step) * step;
+		if (r >= max) return max;
+		if (r <= min) return min;
+		return r;
 	}
 
-	function clampPrice(p) {
-		if (!Number.isFinite(p)) return MAX;
-		return Math.max(MIN, Math.min(MAX, p));
+	function priceFromValue(v) {
+		if (v >= SLIDER_RANGE || max <= min) return max;
+		if (v <= 0) return min;
+		return snap(min * Math.exp(logRatio * (v / SLIDER_RANGE)));
 	}
 
-	function clampAndRound(p) {
-		return clampPrice(roundToStep(clampPrice(p)));
+	function valueFromPrice(p) {
+		if (p >= max || max <= min) return SLIDER_RANGE;
+		if (p <= min) return 0;
+		return Math.round((Math.log(p / min) / logRatio) * SLIDER_RANGE);
 	}
 
-	function formatDollars(p) {
-		if (!Number.isFinite(p)) return "";
-		return `$${Math.round(p)}`;
-	}
-
-	function setSliderFromPrice(p) {
-		const t = tFromPrice(p);
-		sliderEl.value = String(Math.round(t * 1000));
-	}
-
-	function getPriceFromSlider() {
-		const v = Number(sliderEl.value);
-		const t = Number.isFinite(v) ? v / 1000 : 1;
-		return clampPrice(priceFromT(t));
-	}
-
-	function updateLabel(p) {
-		if (labelEl) labelEl.textContent = formatDollars(p);
-	}
-
-	sliderEl.addEventListener("input", () => {
-		const raw = getPriceFromSlider();
-		const snapped = clampAndRound(raw);
-		updateLabel(snapped);
-		if (onChange) onChange(snapped);
-	});
-
-	sliderEl.addEventListener("change", () => {
-		const raw = getPriceFromSlider();
-		const snapped = clampAndRound(raw);
-		setSliderFromPrice(snapped);
-		updateLabel(snapped);
-		if (onChange) onChange(snapped);
-	});
-
-	return {
-		getPrice() {
-			return clampAndRound(getPriceFromSlider());
-		},
-		setPrice(p) {
-			const snapped = clampAndRound(p);
-			setSliderFromPrice(snapped);
-			updateLabel(snapped);
-		},
-		clampAndRound,
-		disable() {
-			sliderEl.disabled = true;
-		},
-	};
+	return { min, max, snap, priceFromValue, valueFromPrice };
 }

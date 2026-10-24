@@ -19,6 +19,7 @@ import { normalizeStoreId, storeById } from "./stores.js";
 import { loadHiddenSet, isHiddenListing } from "./hidden.js";
 import { searchAliasTokens } from "./search_aliases.js";
 import { createInfiniteScroll } from "./components/infinite_scroll.js";
+import { createPriceScale } from "./components/price_slider.js";
 import { effectiveRarity } from "./rarity.js";
 
 let rulesCache = null;
@@ -134,8 +135,10 @@ export async function renderStore($app, storeLabelRaw) {
 	const savedQ = String(localStorage.getItem(LS_KEY) || "");
 	if (savedQ) $q.value = savedQ;
 
-	// Persist max price per store (clamped later once bounds known)
-	const LS_MAX_PRICE = `viz:storeMaxPrice:${storeNorm}`;
+	// Persist max price per store; an absent key means "no cap". v1 wrote the
+	// clamped page max back on every load, freezing the cap below later prices.
+	localStorage.removeItem(`viz:storeMaxPrice:${storeNorm}`);
+	const LS_MAX_PRICE = `viz:storeMaxPrice:v2:${storeNorm}`;
 	const savedMaxPriceRaw = localStorage.getItem(LS_MAX_PRICE);
 	let savedMaxPrice = savedMaxPriceRaw !== null ? Number(savedMaxPriceRaw) : null;
 	if (!Number.isFinite(savedMaxPrice)) savedMaxPrice = null;
@@ -488,86 +491,24 @@ export async function renderStore($app, storeLabelRaw) {
 	}
 
 	const pageMax = maxStorePriceOnPage();
-	const boundMax = pageMax !== null ? Math.max(MIN_PRICE, pageMax) : MIN_PRICE;
+	const priceScale = createPriceScale(MIN_PRICE, pageMax !== null ? pageMax : MIN_PRICE);
 
-	function stepForPrice(p) {
-		const x = Number.isFinite(p) ? p : boundMax;
-		if (x < 120)  return 5;
-		if (x < 250)  return 10;
-		if (x < 600)  return 25;
-		if (x < 2000) return 100;
-		return 1000;
-	}
-	function roundToStep(p) {
-		const step = stepForPrice(p);
-		return Math.round(p / step) * step;
-	}
-
-	function priceFromT(t) {
-		t = Math.max(0, Math.min(1, t));
-		if (boundMax <= MIN_PRICE) return MIN_PRICE;
-		const ratio = boundMax / MIN_PRICE;
-		return MIN_PRICE * Math.exp(Math.log(ratio) * t);
-	}
-	function tFromPrice(price) {
-		if (!Number.isFinite(price)) return 1;
-		if (boundMax <= MIN_PRICE) return 1;
-		const p = Math.max(MIN_PRICE, Math.min(boundMax, price));
-		const ratio = boundMax / MIN_PRICE;
-		return Math.log(p / MIN_PRICE) / Math.log(ratio);
-	}
-
-	function clampPrice(p) {
-		if (!Number.isFinite(p)) return boundMax;
-		return Math.max(MIN_PRICE, Math.min(boundMax, p));
-	}
-
-	function clampAndRound(p) {
-		const c = clampPrice(p);
-		const r = roundToStep(c);
-		return clampPrice(r);
-	}
-
-	function formatDollars(p) {
-		if (!Number.isFinite(p)) return "";
-		return `$${Math.round(p)}`;
-	}
-
-	let selectedMaxPrice = clampAndRound(savedMaxPrice !== null ? savedMaxPrice : boundMax);
-
-	function setSliderFromPrice(p) {
-		const t = tFromPrice(p);
-		const v = Math.round(t * 1000);
-		$maxPrice.value = String(v);
-	}
-
-	function getRawPriceFromSlider() {
-		const v = Number($maxPrice.value);
-		const t = Number.isFinite(v) ? v / 1000 : 1;
-		return clampPrice(priceFromT(t));
-	}
+	let selectedMaxPrice = priceScale.snap(savedMaxPrice !== null ? savedMaxPrice : priceScale.max);
 
 	function updateMaxPriceLabel() {
 		if (pageMax === null) {
 			$maxPriceLabel.textContent = "No prices";
 			return;
 		}
-		$maxPriceLabel.textContent = `${formatDollars(selectedMaxPrice)}`;
+		$maxPriceLabel.textContent = `$${selectedMaxPrice}`;
 	}
 
 	if (pageMax === null) {
 		$maxPrice.disabled = true;
 		$priceWrap.title = "No priced items in this store.";
-		selectedMaxPrice = boundMax;
-		setSliderFromPrice(boundMax);
-		localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
-		updateMaxPriceLabel();
-	} else {
-		selectedMaxPrice = clampAndRound(selectedMaxPrice);
-		localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
-		setSliderFromPrice(selectedMaxPrice);
-		updateMaxPriceLabel();
 	}
+	$maxPrice.value = String(priceScale.valueFromPrice(selectedMaxPrice));
+	updateMaxPriceLabel();
 
 	// ---- Listing display price: keep cents (no rounding) ----
 	function listingPriceStr(it) {
@@ -712,7 +653,7 @@ export async function renderStore($app, storeLabelRaw) {
 			$status.textContent = "No matching items for this store.";
 			return;
 		}
-		const cap = pageMax !== null ? ` (≤ ${formatDollars(selectedMaxPrice)})` : "";
+		const cap = pageMax !== null ? ` (≤ $${selectedMaxPrice})` : "";
 		$status.textContent = `${total} item(s)${cap}.`;
 	}
 
@@ -928,9 +869,9 @@ export async function renderStore($app, storeLabelRaw) {
 
 		// reset max price too (only if slider is active)
 		if (pageMax !== null) {
-			selectedMaxPrice = clampAndRound(boundMax);
-			localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
-			setSliderFromPrice(selectedMaxPrice);
+			selectedMaxPrice = priceScale.max;
+			localStorage.removeItem(LS_MAX_PRICE);
+			$maxPrice.value = String(priceScale.valueFromPrice(selectedMaxPrice));
 			updateMaxPriceLabel();
 			changed = true;
 		}
@@ -951,16 +892,13 @@ export async function renderStore($app, storeLabelRaw) {
 	});
 
 	let tp = null;
+	// The thumb is never moved back to the snapped price: re-positioning it under
+	// the finger is what made the slider jitter.
 	function setSelectedMaxPriceFromSlider() {
-		const raw = getRawPriceFromSlider();
-		const rounded = clampAndRound(raw);
-		if (Math.abs(rounded - selectedMaxPrice) > 0.001) {
-			selectedMaxPrice = rounded;
-			localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
-			updateMaxPriceLabel();
-		} else {
-			updateMaxPriceLabel();
-		}
+		selectedMaxPrice = priceScale.priceFromValue(Number($maxPrice.value));
+		if (selectedMaxPrice >= priceScale.max) localStorage.removeItem(LS_MAX_PRICE);
+		else localStorage.setItem(LS_MAX_PRICE, String(selectedMaxPrice));
+		updateMaxPriceLabel();
 	}
 
 	$maxPrice.addEventListener("input", () => {
@@ -974,8 +912,6 @@ export async function renderStore($app, storeLabelRaw) {
 	$maxPrice.addEventListener("change", () => {
 		if (pageMax === null) return;
 		setSelectedMaxPriceFromSlider();
-		setSliderFromPrice(selectedMaxPrice);
-		updateMaxPriceLabel();
 		applyFilter();
 	});
 
