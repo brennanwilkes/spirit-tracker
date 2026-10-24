@@ -1,4 +1,5 @@
 import { esc } from "./dom.js";
+import { createPriceScale } from "./components/price_slider.js";
 import { goBack, peekBack } from "./nav.js";
 import { fetchJson, inferGithubOwnerRepo, githubFetchFileAtSha, githubListCommits } from "./api.js";
 import {
@@ -174,30 +175,6 @@ function rowPriceNum(r, stores) {
 	prices.sort((x, y) => x - y);
 	const med = medianOfSorted(prices);
 	return Number.isFinite(med) ? med : null;
-}
-
-/* ---------------- price slider mapping (store-page-ish, but faster low-end) ---------------- */
-
-function stepForPrice(p, boundMax) {
-	const x = Number.isFinite(p) ? p : boundMax;
-	if (x < 120)  return 5;
-	if (x < 250)  return 10;
-	if (x < 600)  return 25;
-	if (x < 2000) return 100;
-	return 1000;
-}
-function roundToStep(p, boundMax) {
-	const step = stepForPrice(p, boundMax);
-	return Math.round(p / step) * step;
-}
-
-function clamp(n, lo, hi) {
-	return Math.max(lo, Math.min(hi, n));
-}
-
-function formatDollars(p) {
-	if (!Number.isFinite(p)) return "";
-	return `$${Math.round(p)}`;
 }
 
 /* ---------------- report filtering + series ---------------- */
@@ -881,11 +858,13 @@ const LS_TREND_ONLY = "stviz:v1:stats:trendOnly";
 const LS_SMOOTH = "stviz:v1:stats:smooth";
 
 const LS_Q = "stviz:v1:stats:q";
+// v2: an absent key means "at the bound". v1 saved the clamped bounds on every
+// load, freezing the range below prices that appeared later.
 function lsMinKey(group, size) {
-	return `stviz:v1:stats:minPrice:${group}:${size}`;
+	return `stviz:v2:stats:minPrice:${group}:${size}`;
 }
 function lsMaxKey(group, size) {
-	return `stviz:v1:stats:maxPrice:${group}:${size}`;
+	return `stviz:v2:stats:maxPrice:${group}:${size}`;
 }
 
 function loadPrefs() {
@@ -993,8 +972,8 @@ export async function renderStats($app) {
                 <div class="rangeDual" aria-label="Price range">
                   <div class="rangeTrack"></div>
                   <div class="rangeFill" id="statsRangeFill"></div>
-                  <input id="statsMinPrice" type="range" min="0" max="1000" step="1" value="0" />
-                  <input id="statsMaxPrice" type="range" min="0" max="1000" step="1" value="1000" />
+                  <input id="statsMinPrice" type="range" min="0" max="1000" step="1" value="0" disabled />
+                  <input id="statsMaxPrice" type="range" min="0" max="1000" step="1" value="1000" disabled />
                 </div>
 
                 <!-- Wider floor than the shared default: this one shows a RANGE
@@ -1053,45 +1032,23 @@ export async function renderStats($app) {
 		goBack();
 	});
 
-	// log scale requires a positive floor; EFF_MIN is the scale base
+	// log scale requires a positive floor; EFF_MIN is the scale base. A thumb at
+	// either end means "no bound", so bottles under EFF_MIN are not filtered out.
 	const EFF_MIN = 15;
-	let boundMin = EFF_MIN;
-	let boundMax = 1000;
+	let priceScale = createPriceScale(EFF_MIN, 1000);
 
-	let selectedMinPrice = boundMin;
-	let selectedMaxPrice = boundMax;
+	let selectedMinPrice = priceScale.min;
+	let selectedMaxPrice = priceScale.max;
 
-	// log/exponential scale: fine precision at low prices, coarse at high
-	function priceFromT(t) {
-		t = clamp(t, 0, 1);
-		if (boundMax <= EFF_MIN) return EFF_MIN;
-		const ratio = boundMax / EFF_MIN;
-		return EFF_MIN * Math.exp(Math.log(ratio) * t);
-	}
-
-	function tFromPrice(price) {
-		if (!Number.isFinite(price)) return 1;
-		if (boundMax <= EFF_MIN) return 1;
-		const p = clamp(price, EFF_MIN, boundMax);
-		const ratio = boundMax / EFF_MIN;
-		return Math.log(p / EFF_MIN) / Math.log(ratio);
-	}
-
-	function clampAndRound(p) {
-		const c = clamp(p, boundMin, boundMax);
-		const r = roundToStep(c, boundMax);
-		return clamp(r, boundMin, boundMax);
+	function priceFilter() {
+		return {
+			minPrice: selectedMinPrice > priceScale.min ? selectedMinPrice : null,
+			maxPrice: selectedMaxPrice < priceScale.max ? selectedMaxPrice : null,
+		};
 	}
 
 	function setSliderFromPrice($el, price) {
-		const t = tFromPrice(price);
-		$el.value = String(Math.round(t * 1000));
-	}
-
-	function priceFromSlider($el) {
-		const v = Number($el.value);
-		const t = Number.isFinite(v) ? v / 1000 : 1;
-		return priceFromT(t);
+		$el.value = String(priceScale.valueFromPrice(price));
 	}
 
 	function updateRangeZ() {
@@ -1118,14 +1075,17 @@ export async function renderStats($app) {
 
 	function updatePriceLabel() {
 		if (!$priceLabel) return;
-		$priceLabel.textContent = `${formatDollars(selectedMinPrice)} – ${formatDollars(selectedMaxPrice)}`;
+		$priceLabel.textContent = `$${selectedMinPrice} – $${selectedMaxPrice}`;
 	}
 
 	function saveFilterPrefs(group, size) {
 		try {
 			localStorage.setItem(LS_Q, String($q?.value || ""));
-			localStorage.setItem(lsMinKey(group, size), String(selectedMinPrice));
-			localStorage.setItem(lsMaxKey(group, size), String(selectedMaxPrice));
+			const { minPrice, maxPrice } = priceFilter();
+			if (minPrice === null) localStorage.removeItem(lsMinKey(group, size));
+			else localStorage.setItem(lsMinKey(group, size), String(minPrice));
+			if (maxPrice === null) localStorage.removeItem(lsMaxKey(group, size));
+			else localStorage.setItem(lsMaxKey(group, size), String(maxPrice));
 		} catch {}
 	}
 
@@ -1164,8 +1124,7 @@ export async function renderStats($app) {
 			const newestReport = raw.reportsByIdx[raw.reportsByIdx.length - 1];
 			const b = computePriceBoundsFromReport(newestReport, raw.stores);
 
-			boundMin = EFF_MIN;
-			boundMax = Number.isFinite(b.max) && b.max > 0 ? Math.ceil(b.max) : 1000;
+			priceScale = createPriceScale(EFF_MIN, Number.isFinite(b.max) && b.max > 0 ? b.max : 1000);
 
 			const saved = loadFilterPrefs(group, size);
 			if ($q) $q.value = saved.q || "";
@@ -1174,18 +1133,15 @@ export async function renderStats($app) {
 				$minR.disabled = true;
 				$maxR.disabled = true;
 				$priceWrap.title = "No priced items in this dataset.";
-				selectedMinPrice = boundMin;
-				selectedMaxPrice = boundMax;
+				selectedMinPrice = priceScale.min;
+				selectedMaxPrice = priceScale.max;
 			} else {
 				$minR.disabled = false;
 				$maxR.disabled = false;
 				$priceWrap.title = "";
 
-				const wantMin = saved.minP !== null ? saved.minP : boundMin;
-				const wantMax = saved.maxP !== null ? saved.maxP : boundMax;
-
-				selectedMinPrice = clampAndRound(wantMin);
-				selectedMaxPrice = clampAndRound(wantMax);
+				selectedMinPrice = priceScale.snap(saved.minP !== null ? saved.minP : priceScale.min);
+				selectedMaxPrice = priceScale.snap(saved.maxP !== null ? saved.maxP : priceScale.max);
 
 				if (selectedMinPrice > selectedMaxPrice) selectedMinPrice = selectedMaxPrice;
 			}
@@ -1197,11 +1153,7 @@ export async function renderStats($app) {
 			updatePriceLabel();
 
 			const tokens = tokenizeQuery($q?.value || "");
-			const series = computeSeriesFromRaw(raw, {
-				tokens,
-				minPrice: selectedMinPrice,
-				maxPrice: selectedMaxPrice,
-			});
+			const series = computeSeriesFromRaw(raw, { tokens, ...priceFilter() });
 
 			const trendOnly = !!$trendOnlyInput?.checked;
 			series.marketOnly = trendOnly;
@@ -1249,11 +1201,7 @@ export async function renderStats($app) {
 
 			const tokens = tokenizeQuery($q?.value || "");
 
-			const series = computeSeriesFromRaw(raw, {
-				tokens,
-				minPrice: selectedMinPrice,
-				maxPrice: selectedMaxPrice,
-			});
+			const series = computeSeriesFromRaw(raw, { tokens, ...priceFilter() });
 
 			const trendOnly = !!$trendOnlyInput?.checked;
 			series.marketOnly = trendOnly;
@@ -1286,25 +1234,19 @@ export async function renderStats($app) {
 		}, ms);
 	}
 
+	// The dragged thumb is never moved back to its snapped price (that fought the
+	// finger and made the slider jitter); only the other thumb is pushed when they cross.
 	function setSelectedRangeFromSliders(which) {
 		if ($minR.disabled || $maxR.disabled) return;
 
-		const rawMin = priceFromSlider($minR);
-		const rawMax = priceFromSlider($maxR);
-
-		let nextMin = clampAndRound(rawMin);
-		let nextMax = clampAndRound(rawMax);
-
-		if (nextMin > nextMax) {
-			if (which === "min") nextMax = nextMin;
-			else nextMin = nextMax;
+		if (Number($minR.value) > Number($maxR.value)) {
+			if (which === "min") $maxR.value = $minR.value;
+			else $minR.value = $maxR.value;
 		}
 
-		selectedMinPrice = nextMin;
-		selectedMaxPrice = nextMax;
+		selectedMinPrice = priceScale.priceFromValue(Number($minR.value));
+		selectedMaxPrice = priceScale.priceFromValue(Number($maxR.value));
 
-		setSliderFromPrice($minR, selectedMinPrice);
-		setSliderFromPrice($maxR, selectedMaxPrice);
 		updateRangeZ();
 		updateRangeFill();
 		updatePriceLabel();
@@ -1367,8 +1309,8 @@ export async function renderStats($app) {
 	$clear?.addEventListener("click", () => {
 		if ($q) $q.value = "";
 
-		selectedMinPrice = boundMin;
-		selectedMaxPrice = boundMax;
+		selectedMinPrice = priceScale.min;
+		selectedMaxPrice = priceScale.max;
 
 		setSliderFromPrice($minR, selectedMinPrice);
 		setSliderFromPrice($maxR, selectedMaxPrice);

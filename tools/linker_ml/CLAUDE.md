@@ -16,6 +16,34 @@ Artist's Blend`, `LINDORES MCDXCIV` ↔ `Lindores 1494`). Those equivalences liv
 our labels, so the fix is a transformer encoder **fine-tuned contrastively on
 `data/sku_links.json`**. See `../linker_eval/CLASSIFIER_PLAN.md` for the original roadmap.
 
+## ★ 2026-10-24 — new-listing error analysis + group-token features (PROTOTYPE, not in featurize.mjs yet)
+
+Final campaign retrain = `out/campaign/round-5` (labels 6,311 links / 69,189 ignores). Tooling (no tokens), all in
+`audit/oracle-2026-10-14/scripts/`: `new_view_misses.mjs` (new-view OOF misses, counterfactual attribution, pattern miss
+RATES vs base, per-new-store rates), `exp_feats.mjs` + `exp_run.sh <round> <arm dir> <keys|all|none>` (feature A/B on the
+round's pinned pairs and view vectors, ~1–2 min per arm), `exp_classical.sh` (re-featurize a round with changed scorer code).
+- **`features.jsonl` of a round interleaves the honest views: even row = cut, odd row = new**; `oof_scores.jsonl` is row-aligned.
+- **Pair-level recall understates CI.** CI links a new listing when ANY group member clears the bar. Round-5 OOF new view:
+  pair@0.95 63.0% vs **listing@0.95 69.9%**. Report both.
+- **Run arms one at a time.** `oof_misses.py` / `export_gbt.py` use every core; six in parallel ran at load 70 for 80 min.
+- Misses cluster where age / ABV / year appears on one side only (61–78% missed vs ~29% base), low embedCos (67%), price gaps,
+  and new listings from Sierra Springs / Liberty / Gull / Tudor (lowercase, typos, truncation). A Sonnet read of 150 misses:
+  15% of the lowest were WRONG LABELS (9 unlinked); real causes: extra descriptive words 54, truncation 13, typos 11, bottler
+  abbreviations 10, rebrands 10, store filler 9, vintage+age 7.
+- **Gap found: no group feature looked at the group's TITLES.** Prototype `x*` features (exp_feats.mjs): token coverage of
+  A's core tokens by B-group's token union and vice versa (`xTokCovAB/BA`), best member-pair Jaccard (`xBestJacc`),
+  share of each group's titles with no age / ABV (`xAgeOmitA/B`, `xAbvOmitA/B`), plus age/year agreement, vintage+age
+  arithmetic, edit-distance-1 typos and removed same-store relists (these last four ≈ noise).
+  Round-5 A/B (OOF new view): rec@99 54.6 → **64.1**, listing@bar 69.9 → **71.8**, FP@bar 109 → **92**; frozen new
+  rec@99 43.4 → 58.2, false links 33 → 27. Gain = token coverage + best-Jaccard; omission shares cut FP.
+  Frozen rec@99 swings 3–7 pts between near-identical arms (a few top negatives set it): judge by OOF + listing@bar + FP.
+- Classical fixes (owner 2026-10-24, IN CODE, uncommitted): `brand_aliases.js` rebrand/bottler synths (Plantation/Planteray,
+  SV/Signatory, Càrn Mòr/Strictly Limited, SoFL, JW, BiB/Bonded) and filler stop words in `similarity.js` (pet, plastic,
+  customer, limit, cls, aglc, BCL "700M"). They fix the targeted misses but are net-neutral overall. They change `logDet`,
+  so ship them WITH a GBT retrained on them, not alone.
+- Next: port the four winning `x*` features into `featurize.mjs::groupPairFeatures` + `group_features.js`, retrain,
+  `auto_link_classify --dry-run` live check, ship. After that: re-fine-tune the encoder on honest-view texts.
+
 ## ★ 2026-10-09 — label leak in the encoder text; train and measure on HONEST VIEWS (SHIPPED)
 
 **Every metric in this file before this section is inflated.** `skuToTextEnriched` resolves size/abv/year over a
@@ -64,6 +92,9 @@ or a Release. The hooks, all inert when unset (defaults byte-identical):
   `eval_frozen.mjs` (live `gbt.js` inference, per-distinct-threshold metrics) is the only scorer.
 - `LINKER_GBT_MODEL` / `LINKER_EMBEDDINGS` make `scripts/audit_new_listings.js` (and the embedding
   pool channel in `audit_search_core.mjs`) score with a candidate model; an unreadable override throws.
+- **Never compare a campaign model against the SHIPPED `viz/data/gbt_model.json` on the frozen split**: `run_ship.sh` refits on
+  ALL rows incl. frozen ones, so its frozen metrics are leaky (2026-10-21: new rec@99 64% vs ~51–54% honest). Compare against
+  the frozen-excluded twin (`out/retrain-2026-10-09/gbt_views_frozen.json`), and keep such a twin for every future ship.
 - The GBT is retrained on FIXED embeddings (the CI-encoded `embeddings-latest`, shipped checkpoint);
   the encoder is not fine-tuned per round (nondeterministic, see below).
 
