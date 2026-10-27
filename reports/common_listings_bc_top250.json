@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T18:38:34.007Z",
+  "generatedAt": "2026-10-27T06:37:42.761Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6684,
-    "removedRows": 1382,
+    "liveRows": 6680,
+    "removedRows": 1387,
     "canonSkus": 2645,
     "outputCount": 250
   },
@@ -586,60 +586,6 @@
       }
     },
     {
-      "canonSku": "002691",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 31.39,
-        "bcl": 27.99,
-        "everythingwine": 29.99,
-        "gull": 32.25,
-        "highpointbws": 32.29,
-        "legacyliquor": 31.81,
-        "liberty": 37.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 32.29,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
-      }
-    },
-    {
       "canonSku": "057706",
       "storeCount": 12,
       "stores": [
@@ -958,6 +904,59 @@
         "priceNum": 21.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "marquis",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 31.39,
+        "bcl": 27.99,
+        "everythingwine": 29.99,
+        "gull": 32.25,
+        "highpointbws": 32.29,
+        "liberty": 37.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 32.29,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -2272,58 +2271,6 @@
         "priceNum": 86.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4795734-fettercairn-12yo"
-      }
-    },
-    {
-      "canonSku": "199455",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 32.39,
-        "bcl": 32.99,
-        "everythingwine": 32.99,
-        "gull": 35.3,
-        "highpointbws": 34.99,
-        "legacyliquor": 38.1,
-        "liquorwarehouse": 34.49,
-        "newdistrict": 35.29,
-        "tudor": 32.99,
-        "vessel": 33.99
-      },
-      "representative": {
-        "name": "THE KRAKEN BLACK SPICED RUM",
-        "price": "$32.39",
-        "priceNum": 32.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "677719",
-        "skuKey": "677719",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5149224-the-kraken-black-spiced-rum",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$32.39",
-        "priceNum": 32.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5149224-the-kraken-black-spiced-rum"
       }
     },
     {
@@ -4587,6 +4534,57 @@
       }
     },
     {
+      "canonSku": "199455",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 32.39,
+        "bcl": 32.99,
+        "everythingwine": 32.99,
+        "gull": 35.3,
+        "highpointbws": 34.99,
+        "legacyliquor": 38.1,
+        "liquorwarehouse": 34.49,
+        "newdistrict": 35.29,
+        "tudor": 32.99
+      },
+      "representative": {
+        "name": "THE KRAKEN BLACK SPICED RUM",
+        "price": "$32.39",
+        "priceNum": 32.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "677719",
+        "skuKey": "677719",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5149224-the-kraken-black-spiced-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$32.39",
+        "priceNum": 32.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5149224-the-kraken-black-spiced-rum"
+      }
+    },
+    {
       "canonSku": "207126",
       "storeCount": 9,
       "stores": [
@@ -5709,56 +5707,6 @@
       }
     },
     {
-      "canonSku": "000463",
-      "storeCount": 8,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "gull",
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 11.89,
-        "bcl": 11.99,
-        "everythingwine": 12.99,
-        "legacyliquor": 13.99,
-        "liquorwarehouse": 12.99,
-        "newdistrict": 12.49,
-        "tudor": 12.99,
-        "vessel": 12.99
-      },
-      "representative": {
-        "name": "CANADIAN CLUB 375ML",
-        "price": "$11.89",
-        "priceNum": 11.89,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "000463",
-        "skuKey": "000463",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589996-canadian-club-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$11.89",
-        "priceNum": 11.89,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4589996-canadian-club-375ml"
-      }
-    },
-    {
       "canonSku": "000596",
       "storeCount": 8,
       "stores": [
@@ -5767,16 +5715,16 @@
         "everythingwine",
         "gull",
         "legacyliquor",
+        "liquorwarehouse",
         "newdistrict",
-        "tudor",
-        "vessel"
+        "tudor"
       ],
       "missingStores": [
         "highpointbws",
         "liberty",
-        "liquorwarehouse",
         "marquis",
         "strath",
+        "vessel",
         "vintage"
       ],
       "storePrices": {
@@ -5785,9 +5733,9 @@
         "everythingwine": 13.99,
         "gull": 15.35,
         "legacyliquor": 14.49,
+        "liquorwarehouse": 13.49,
         "newdistrict": 14.79,
-        "tudor": 13.99,
-        "vessel": 14.99
+        "tudor": 13.99
       },
       "representative": {
         "name": "BACARDI - SUPERIOR WHITE",
@@ -6056,6 +6004,56 @@
         "priceNum": 11.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588567-wisers-special-blend-375ml"
+      }
+    },
+    {
+      "canonSku": "003871",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 12.79,
+        "bcl": 12.79,
+        "gull": 13.85,
+        "legacyliquor": 13.08,
+        "liquorwarehouse": 12.99,
+        "newdistrict": 13.29,
+        "tudor": 12.79,
+        "vessel": 12.99
+      },
+      "representative": {
+        "name": "ALBERTA PREMIUM 375ML",
+        "price": "$12.79",
+        "priceNum": 12.79,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "003871",
+        "skuKey": "003871",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588955-alberta-premium-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$12.79",
+        "priceNum": 12.79,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4588955-alberta-premium-375ml"
       }
     },
     {
@@ -8658,6 +8656,55 @@
       }
     },
     {
+      "canonSku": "000463",
+      "storeCount": 7,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "legacyliquor",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 11.89,
+        "bcl": 11.99,
+        "everythingwine": 12.99,
+        "legacyliquor": 13.99,
+        "newdistrict": 12.49,
+        "tudor": 12.99,
+        "vessel": 12.99
+      },
+      "representative": {
+        "name": "CANADIAN CLUB 375ML",
+        "price": "$11.89",
+        "priceNum": 11.89,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "000463",
+        "skuKey": "000463",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4589996-canadian-club-375ml",
+        "categoryLabel": "Spirits - Whiskey",
+        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
+      },
+      "cheapest": {
+        "price": "$11.89",
+        "priceNum": 11.89,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4589996-canadian-club-375ml"
+      }
+    },
+    {
       "canonSku": "001453",
       "storeCount": 7,
       "stores": [
@@ -8851,55 +8898,6 @@
         "priceNum": 41,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/lot-40-750m/"
-      }
-    },
-    {
-      "canonSku": "003871",
-      "storeCount": 7,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "legacyliquor",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 12.79,
-        "bcl": 12.79,
-        "gull": 13.85,
-        "legacyliquor": 13.08,
-        "newdistrict": 13.29,
-        "tudor": 12.79,
-        "vessel": 12.99
-      },
-      "representative": {
-        "name": "ALBERTA PREMIUM 375ML",
-        "price": "$12.79",
-        "priceNum": 12.79,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "003871",
-        "skuKey": "003871",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588955-alberta-premium-375ml",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$12.79",
-        "priceNum": 12.79,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4588955-alberta-premium-375ml"
       }
     },
     {
