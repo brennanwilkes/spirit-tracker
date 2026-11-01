@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-01T06:37:58.548Z",
+  "generatedAt": "2026-11-01T19:38:16.000Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6691,
-    "removedRows": 1410,
-    "canonSkus": 2660,
+    "liveRows": 6690,
+    "removedRows": 1411,
+    "canonSkus": 2659,
     "outputCount": 50
   },
   "rows": [
@@ -2382,6 +2382,58 @@
       }
     },
     {
+      "canonSku": "249680",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 111.69,
+        "bcl": 120.99,
+        "everythingwine": 120.99,
+        "gull": 113.99,
+        "highpointbws": 121.79,
+        "legacyliquor": 132.99,
+        "liquorwarehouse": 122.99,
+        "tudor": 110.99,
+        "vessel": 114.99,
+        "vintage": 133.83
+      },
+      "representative": {
+        "name": "TALISKER - 10 YEAR OLD",
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "249680",
+        "skuKey": "249680",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$110.99",
+        "priceNum": 110.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420"
+      }
+    },
+    {
       "canonSku": "263304",
       "storeCount": 10,
       "stores": [
@@ -2637,57 +2689,6 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "249680",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "tudor",
-        "vintage"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel"
-      ],
-      "storePrices": {
-        "arc": 111.69,
-        "bcl": 120.99,
-        "everythingwine": 120.99,
-        "gull": 113.99,
-        "highpointbws": 121.79,
-        "legacyliquor": 132.99,
-        "liquorwarehouse": 122.99,
-        "tudor": 110.99,
-        "vintage": 133.83
-      },
-      "representative": {
-        "name": "TALISKER - 10 YEAR OLD",
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "249680",
-        "skuKey": "249680",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420",
-        "categoryLabel": "Scotch Selections",
-        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
-      },
-      "cheapest": {
-        "price": "$110.99",
-        "priceNum": 110.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/talisker-10yr-ml-420"
       }
     }
   ]
