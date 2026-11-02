@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-02T07:40:54.928Z",
+  "generatedAt": "2026-11-02T19:38:28.138Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6681,
-    "removedRows": 1421,
-    "canonSkus": 2659,
+    "liveRows": 6702,
+    "removedRows": 1415,
+    "canonSkus": 2668,
     "outputCount": 50
   },
   "rows": [
@@ -116,7 +116,7 @@
       "storePrices": {
         "arc": 29.29,
         "bcl": 30.49,
-        "everythingwine": 28.49,
+        "everythingwine": 30.49,
         "gull": 27.99,
         "highpointbws": 30.79,
         "legacyliquor": 32.3,
@@ -282,7 +282,7 @@
       "storePrices": {
         "arc": 37.99,
         "bcl": 39.99,
-        "everythingwine": 37.99,
+        "everythingwine": 39.99,
         "gull": 36.99,
         "highpointbws": 41.49,
         "legacyliquor": 41.99,
@@ -2015,6 +2015,58 @@
       }
     },
     {
+      "canonSku": "125930",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "newdistrict",
+        "strath"
+      ],
+      "storePrices": {
+        "arc": 144.99,
+        "bcl": 144.99,
+        "everythingwine": 159.98,
+        "gull": 139.99,
+        "legacyliquor": 147.79,
+        "liquorwarehouse": 155.99,
+        "marquis": 147.99,
+        "tudor": 144.99,
+        "vessel": 129.99,
+        "vintage": 137.3
+      },
+      "representative": {
+        "name": "Glenfarclas - 105 Cask Strength Single Malt Scotch",
+        "price": "$129.99",
+        "priceNum": 129.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "125930",
+        "skuKey": "125930",
+        "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$129.99",
+        "priceNum": 129.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "135210",
       "storeCount": 10,
       "stores": [
@@ -2635,57 +2687,6 @@
         "priceNum": 39.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/53140"
-      }
-    },
-    {
-      "canonSku": "125930",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "bcl",
-        "highpointbws",
-        "liberty",
-        "newdistrict",
-        "strath"
-      ],
-      "storePrices": {
-        "arc": 144.99,
-        "everythingwine": 159.98,
-        "gull": 139.99,
-        "legacyliquor": 147.79,
-        "liquorwarehouse": 155.99,
-        "marquis": 147.99,
-        "tudor": 144.99,
-        "vessel": 129.99,
-        "vintage": 137.3
-      },
-      "representative": {
-        "name": "Glenfarclas - 105 Cask Strength Single Malt Scotch",
-        "price": "$129.99",
-        "priceNum": 129.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "125930",
-        "skuKey": "125930",
-        "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$129.99",
-        "priceNum": 129.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
       }
     }
   ]
