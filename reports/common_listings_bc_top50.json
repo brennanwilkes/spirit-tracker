@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T19:38:36.571Z",
+  "generatedAt": "2026-11-05T07:38:30.302Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6714,
-    "removedRows": 1416,
-    "canonSkus": 2672,
+    "liveRows": 6727,
+    "removedRows": 1405,
+    "canonSkus": 2671,
     "outputCount": 50
   },
   "rows": [
@@ -149,6 +149,61 @@
       }
     },
     {
+      "canonSku": "002691",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 31.39,
+        "bcl": 27.99,
+        "everythingwine": 27.99,
+        "gull": 32.25,
+        "highpointbws": 32.29,
+        "legacyliquor": 31.81,
+        "liberty": 37.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 32.29,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 28.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
+      }
+    },
+    {
       "canonSku": "005207",
       "storeCount": 13,
       "stores": [
@@ -235,7 +290,7 @@
         "marquis": 56.99,
         "newdistrict": 58.79,
         "strath": 57.3,
-        "tudor": 54.99,
+        "tudor": 49.99,
         "vessel": 49.99,
         "vintage": 60.78
       },
@@ -455,7 +510,7 @@
         "marquis": 25.99,
         "newdistrict": 24.99,
         "strath": 23.87,
-        "tudor": 23.99,
+        "tudor": 22.99,
         "vessel": 22.49
       },
       "representative": {
@@ -529,60 +584,6 @@
         "priceNum": 31.31,
         "storeKey": "strath",
         "url": "https://www.strathliquor.com/product/ballantines-finest/"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "marquis"
-      ],
-      "storePrices": {
-        "arc": 31.39,
-        "bcl": 27.99,
-        "everythingwine": 27.99,
-        "gull": 32.25,
-        "highpointbws": 32.29,
-        "liberty": 37.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 32.29,
-        "strath": 32.09,
-        "tudor": 27.99,
-        "vessel": 28.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -992,7 +993,7 @@
         "liquorwarehouse": 34.99,
         "marquis": 34.99,
         "strath": 33.79,
-        "tudor": 33.49,
+        "tudor": 31.49,
         "vessel": 32.49
       },
       "representative": {
@@ -1204,26 +1205,26 @@
         "liberty": 159.99,
         "liquorwarehouse": 123.99,
         "strath": 122.18,
-        "tudor": 113.99,
+        "tudor": 109.99,
         "vessel": 109.99
       },
       "representative": {
-        "name": "Dalmore - 12 Year Old Single Malt Scotch",
+        "name": "DALMORE - 12 YEAR OLD",
         "price": "$109.99",
         "priceNum": 109.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
         "skuRaw": "073999",
         "skuKey": "073999",
-        "url": "https://vesselliquor.com/products/dalmore-12-year-old-single-malt-scotch",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/dalmore-12-year-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
       },
       "cheapest": {
         "price": "$109.99",
         "priceNum": 109.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/dalmore-12-year-old-single-malt-scotch"
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/dalmore-12-year-ml-420"
       }
     },
     {
@@ -1333,6 +1334,112 @@
       }
     },
     {
+      "canonSku": "114799",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 69.99,
+        "bcl": 75.99,
+        "everythingwine": 75.99,
+        "gull": 79.99,
+        "highpointbws": 84.49,
+        "legacyliquor": 80.09,
+        "liberty": 98.99,
+        "marquis": 78.99,
+        "newdistrict": 81.29,
+        "tudor": 69.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "GLENMORANGIE 12 YEAR ORIGINAL",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "309562",
+        "skuKey": "309562",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12-year-original",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12-year-original"
+      }
+    },
+    {
+      "canonSku": "135210",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "newdistrict",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 77.19,
+        "bcl": 79.99,
+        "everythingwine": 79.99,
+        "gull": 79.99,
+        "highpointbws": 90.49,
+        "legacyliquor": 88.13,
+        "liquorwarehouse": 89.99,
+        "marquis": 82.99,
+        "strath": 79.22,
+        "tudor": 79.99,
+        "vessel": 76.99
+      },
+      "representative": {
+        "name": "Laphroaig - 10 Year Old Single Malt Scotch",
+        "price": "$76.99",
+        "priceNum": 76.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "135210",
+        "skuKey": "135210",
+        "url": "https://vesselliquor.com/products/laphroaig-10-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$76.99",
+        "priceNum": 76.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/laphroaig-10-year-old-single-malt-scotch"
+      }
+    },
+    {
       "canonSku": "139388",
       "storeCount": 11,
       "stores": [
@@ -1362,7 +1469,7 @@
         "legacyliquor": 47.27,
         "liberty": 54.99,
         "strath": 47.74,
-        "tudor": 45.99,
+        "tudor": 40.99,
         "vessel": 41.99,
         "vintage": 40.78
       },
@@ -1383,6 +1490,59 @@
         "priceNum": 40.29,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum"
+      }
+    },
+    {
+      "canonSku": "143393",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 29.89,
+        "bcl": 28.49,
+        "everythingwine": 28.49,
+        "gull": 30.65,
+        "highpointbws": 31.99,
+        "legacyliquor": 29.85,
+        "marquis": 29.99,
+        "strath": 31.22,
+        "tudor": 28.49,
+        "vessel": 29.99,
+        "vintage": 32.09
+      },
+      "representative": {
+        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "222554",
+        "skuKey": "222554",
+        "url": "https://www.bcliquorstores.com/product/222554",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -1416,7 +1576,7 @@
         "liquorwarehouse": 60.99,
         "newdistrict": 62.29,
         "strath": 61.65,
-        "tudor": 58.99,
+        "tudor": 59.99,
         "vessel": 55.99
       },
       "representative": {
@@ -1940,7 +2100,7 @@
         "liquorwarehouse": 44.99,
         "marquis": 44.99,
         "newdistrict": 46.79,
-        "tudor": 43.99,
+        "tudor": 41.99,
         "vessel": 41.99
       },
       "representative": {
@@ -1960,58 +2120,6 @@
         "priceNum": 41.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/10108"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 69.99,
-        "bcl": 75.99,
-        "everythingwine": 75.99,
-        "gull": 79.99,
-        "highpointbws": 84.49,
-        "liberty": 98.99,
-        "marquis": 78.99,
-        "newdistrict": 81.29,
-        "tudor": 69.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "GLENMORANGIE 12 YEAR ORIGINAL",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "309562",
-        "skuKey": "309562",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12-year-original",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5069281-glenmorangie-12-year-original"
       }
     },
     {
@@ -2064,110 +2172,6 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "135210",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "liberty",
-        "newdistrict",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 77.19,
-        "bcl": 79.99,
-        "everythingwine": 79.99,
-        "gull": 79.99,
-        "highpointbws": 90.49,
-        "legacyliquor": 88.13,
-        "liquorwarehouse": 89.99,
-        "marquis": 82.99,
-        "strath": 79.22,
-        "tudor": 79.99
-      },
-      "representative": {
-        "name": "LAPHROAIG 10YO",
-        "price": "$77.19",
-        "priceNum": 77.19,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "135210",
-        "skuKey": "135210",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586479-laphroaig-10yo",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$77.19",
-        "priceNum": 77.19,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4586479-laphroaig-10yo"
-      }
-    },
-    {
-      "canonSku": "143393",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "arc": 29.89,
-        "bcl": 28.49,
-        "everythingwine": 28.49,
-        "gull": 30.65,
-        "highpointbws": 31.99,
-        "marquis": 29.99,
-        "strath": 31.22,
-        "tudor": 28.49,
-        "vessel": 29.99,
-        "vintage": 32.09
-      },
-      "representative": {
-        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "222554",
-        "skuKey": "222554",
-        "url": "https://www.bcliquorstores.com/product/222554",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -2587,58 +2591,6 @@
       }
     },
     {
-      "canonSku": "656546",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 89.99,
-        "everythingwine": 89.99,
-        "gull": 69.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 93.68,
-        "liquorwarehouse": 100.99,
-        "strath": 105.66,
-        "tudor": 81.99,
-        "vessel": 84.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
       "canonSku": "002478",
       "storeCount": 9,
       "stores": [
@@ -2687,6 +2639,57 @@
         "priceNum": 39.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/53140"
+      }
+    },
+    {
+      "canonSku": "656546",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 89.99,
+        "everythingwine": 89.99,
+        "gull": 69.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 93.68,
+        "liquorwarehouse": 100.99,
+        "strath": 105.66,
+        "tudor": 81.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     }
   ]
