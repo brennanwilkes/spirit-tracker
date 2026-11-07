@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T19:40:04.182Z",
+  "generatedAt": "2026-11-07T06:26:53.984Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -40,9 +40,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18611,
-    "removedRows": 8788,
-    "canonSkus": 5811,
+    "liveRows": 18609,
+    "removedRows": 8799,
+    "canonSkus": 5815,
     "outputCount": 50
   },
   "rows": [
@@ -1147,7 +1147,7 @@
         "kwm": 139.99,
         "lime": 115,
         "liquorama": 124.99,
-        "maltsandgrains": 110,
+        "maltsandgrains": 145.69,
         "sierrasprings": 118.99,
         "vinearts": 136.99,
         "whiskydrop": 143,
@@ -1168,10 +1168,10 @@
         "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
       },
       "cheapest": {
-        "price": "$110.00",
-        "priceNum": 110,
-        "storeKey": "maltsandgrains",
-        "url": "https://maltsandgrains.store/products/macallan-double-cask-12-year-old-40"
+        "price": "$113.11",
+        "priceNum": 113.11,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/the-macallan-12-year-old-double-cask"
       }
     },
     {
@@ -1237,6 +1237,71 @@
         "priceNum": 72.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/scotch-whisky-single-malt/highlands/glenmorangie-quinta-ruban-46-alc-vol-750ml/"
+      }
+    },
+    {
+      "canonSku": "126420",
+      "storeCount": 15,
+      "stores": [
+        "bsw",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "lime",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "clbspirits",
+        "elbowliquor",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "silversprings"
+      ],
+      "storePrices": {
+        "bsw": 35.99,
+        "colordevino": 37.2,
+        "coop": 37.99,
+        "craftcellars": 40.99,
+        "highlander": 36.99,
+        "kegncork": 38.96,
+        "kwm": 37.79,
+        "lime": 34.99,
+        "sherbrooke": 40.01,
+        "sierrasprings": 39.99,
+        "vinearts": 38.41,
+        "whiskydrop": 39,
+        "willowpark": 39.99,
+        "wineandbeyond": 29.95,
+        "zyn": 21.99
+      },
+      "representative": {
+        "name": "Eau Claire Ruperts Exceptional Whisky",
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "zyn",
+        "storeLabel": "ZYN The Wine Market",
+        "skuRaw": "126420",
+        "skuKey": "126420",
+        "url": "https://zyn.ca/products/rupert",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/zyn__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$21.99",
+        "priceNum": 21.99,
+        "storeKey": "zyn",
+        "url": "https://zyn.ca/products/rupert"
       }
     },
     {
@@ -3102,69 +3167,6 @@
         "priceNum": 73.99,
         "storeKey": "sierrasprings",
         "url": "https://sierraspringsliquor.ca/shop/world-whisky/england/highland-park-12-yr-old-750ml-43-2/"
-      }
-    },
-    {
-      "canonSku": "329797",
-      "storeCount": 13,
-      "stores": [
-        "bsw",
-        "canadianliquor",
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "kegncork",
-        "liquorama",
-        "maltsandgrains",
-        "sierrasprings",
-        "silversprings",
-        "willowpark",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "colordevino",
-        "elbowliquor",
-        "highlander",
-        "kwm",
-        "lime",
-        "rmwsb",
-        "sherbrooke",
-        "vinearts",
-        "whiskydrop"
-      ],
-      "storePrices": {
-        "bsw": 49.99,
-        "canadianliquor": 62.99,
-        "clbspirits": 56.89,
-        "coop": 62.99,
-        "craftcellars": 48.99,
-        "kegncork": 64.96,
-        "liquorama": 59.99,
-        "maltsandgrains": 62.97,
-        "sierrasprings": 60.85,
-        "silversprings": 57,
-        "willowpark": 61.49,
-        "wineandbeyond": 60.99,
-        "zyn": 62
-      },
-      "representative": {
-        "name": "El Dorado 15 Year Old",
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "craftcellars",
-        "storeLabel": "Craft Cellars",
-        "skuRaw": "411124",
-        "skuKey": "411124",
-        "url": "https://craftcellars.ca/products/el-dorado-15-yr",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/craftcellars__rum__31fd0044.json"
-      },
-      "cheapest": {
-        "price": "$48.99",
-        "priceNum": 48.99,
-        "storeKey": "craftcellars",
-        "url": "https://craftcellars.ca/products/el-dorado-15-yr"
       }
     },
     {
