@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T07:39:35.452Z",
+  "generatedAt": "2026-11-07T19:40:08.274Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,67 +32,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6733,
-    "removedRows": 1416,
-    "canonSkus": 2673,
+    "liveRows": 6734,
+    "removedRows": 1422,
+    "canonSkus": 2677,
     "outputCount": 250
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 26.99,
-        "highpointbws": 29.79,
-        "legacyliquor": 31.81,
-        "liberty": 36.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 14,
@@ -201,6 +146,61 @@
         "priceNum": 36.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 26.99,
+        "highpointbws": 29.79,
+        "legacyliquor": 31.81,
+        "liberty": 36.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -1862,58 +1862,6 @@
       }
     },
     {
-      "canonSku": "001206",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 24.89,
-        "bcl": 24.99,
-        "everythingwine": 24.99,
-        "gull": 24.95,
-        "highpointbws": 27.99,
-        "legacyliquor": 26.99,
-        "liquorwarehouse": 25.99,
-        "newdistrict": 27.29,
-        "tudor": 24.99,
-        "vessel": 25.99
-      },
-      "representative": {
-        "name": "BACARDI GOLD 750ML*",
-        "price": "$24.89",
-        "priceNum": 24.89,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "001206",
-        "skuKey": "001206",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$24.89",
-        "priceNum": 24.89,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml"
-      }
-    },
-    {
       "canonSku": "002063",
       "storeCount": 10,
       "stores": [
@@ -3571,6 +3519,57 @@
         "priceNum": 12.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/596"
+      }
+    },
+    {
+      "canonSku": "001206",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 24.89,
+        "bcl": 24.99,
+        "everythingwine": 24.99,
+        "gull": 24.95,
+        "legacyliquor": 26.99,
+        "liquorwarehouse": 25.99,
+        "newdistrict": 27.29,
+        "tudor": 24.99,
+        "vessel": 25.99
+      },
+      "representative": {
+        "name": "BACARDI GOLD 750ML*",
+        "price": "$24.89",
+        "priceNum": 24.89,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "001206",
+        "skuKey": "001206",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$24.89",
+        "priceNum": 24.89,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml"
       }
     },
     {

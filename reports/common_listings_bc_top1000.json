@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T07:39:35.669Z",
+  "generatedAt": "2026-11-07T19:40:08.642Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -32,67 +32,12 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6733,
-    "removedRows": 1416,
-    "canonSkus": 2673,
+    "liveRows": 6734,
+    "removedRows": 1422,
+    "canonSkus": 2677,
     "outputCount": 1000
   },
   "rows": [
-    {
-      "canonSku": "001232",
-      "storeCount": 14,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [],
-      "storePrices": {
-        "arc": 28.79,
-        "bcl": 29.99,
-        "everythingwine": 29.99,
-        "gull": 26.99,
-        "highpointbws": 29.79,
-        "legacyliquor": 31.81,
-        "liberty": 36.99,
-        "liquorwarehouse": 30.99,
-        "marquis": 31.99,
-        "newdistrict": 32.49,
-        "strath": 32.52,
-        "tudor": 27.99,
-        "vessel": 27.99,
-        "vintage": 33.83
-      },
-      "representative": {
-        "name": "Bombay Sapphire – London Dry 750ml",
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "316844",
-        "skuKey": "316844",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/gull__gin__bac0c75e.json"
-      },
-      "cheapest": {
-        "price": "$26.99",
-        "priceNum": 26.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
-      }
-    },
     {
       "canonSku": "001487",
       "storeCount": 14,
@@ -201,6 +146,61 @@
         "priceNum": 36.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/jameson-irish-whisky-750m/"
+      }
+    },
+    {
+      "canonSku": "001232",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse"
+      ],
+      "storePrices": {
+        "arc": 28.79,
+        "bcl": 29.99,
+        "everythingwine": 29.99,
+        "gull": 26.99,
+        "highpointbws": 29.79,
+        "legacyliquor": 31.81,
+        "liberty": 36.99,
+        "marquis": 31.99,
+        "newdistrict": 32.49,
+        "strath": 32.52,
+        "tudor": 27.99,
+        "vessel": 27.99,
+        "vintage": 33.83
+      },
+      "representative": {
+        "name": "Bombay Sapphire – London Dry 750ml",
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "316844",
+        "skuKey": "316844",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/gull__gin__bac0c75e.json"
+      },
+      "cheapest": {
+        "price": "$26.99",
+        "priceNum": 26.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
       }
     },
     {
@@ -1862,58 +1862,6 @@
       }
     },
     {
-      "canonSku": "001206",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 24.89,
-        "bcl": 24.99,
-        "everythingwine": 24.99,
-        "gull": 24.95,
-        "highpointbws": 27.99,
-        "legacyliquor": 26.99,
-        "liquorwarehouse": 25.99,
-        "newdistrict": 27.29,
-        "tudor": 24.99,
-        "vessel": 25.99
-      },
-      "representative": {
-        "name": "BACARDI GOLD 750ML*",
-        "price": "$24.89",
-        "priceNum": 24.89,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "001206",
-        "skuKey": "001206",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$24.89",
-        "priceNum": 24.89,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml"
-      }
-    },
-    {
       "canonSku": "002063",
       "storeCount": 10,
       "stores": [
@@ -3571,6 +3519,57 @@
         "priceNum": 12.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/596"
+      }
+    },
+    {
+      "canonSku": "001206",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 24.89,
+        "bcl": 24.99,
+        "everythingwine": 24.99,
+        "gull": 24.95,
+        "legacyliquor": 26.99,
+        "liquorwarehouse": 25.99,
+        "newdistrict": 27.29,
+        "tudor": 24.99,
+        "vessel": 25.99
+      },
+      "representative": {
+        "name": "BACARDI GOLD 750ML*",
+        "price": "$24.89",
+        "priceNum": 24.89,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "001206",
+        "skuKey": "001206",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$24.89",
+        "priceNum": 24.89,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml"
       }
     },
     {
@@ -27400,51 +27399,6 @@
       }
     },
     {
-      "canonSku": "004622",
-      "storeCount": 3,
-      "stores": [
-        "highpointbws",
-        "legacyliquor",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "highpointbws": 31.99,
-        "legacyliquor": 33.3,
-        "tudor": 28.99
-      },
-      "representative": {
-        "name": "SCREECH NEWFOUNDLAND DARK RUM",
-        "price": "$28.99",
-        "priceNum": 28.99,
-        "storeKey": "tudor",
-        "storeLabel": "Tudor House",
-        "skuRaw": "226530",
-        "skuKey": "226530",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/screech-dark-ml-360",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/tudor__rum__9eb7c606.json"
-      },
-      "cheapest": {
-        "price": "$28.99",
-        "priceNum": 28.99,
-        "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/screech-dark-ml-360"
-      }
-    },
-    {
       "canonSku": "004791",
       "storeCount": 3,
       "stores": [
@@ -34285,51 +34239,6 @@
       }
     },
     {
-      "canonSku": "330660",
-      "storeCount": 3,
-      "stores": [
-        "legacyliquor",
-        "strath",
-        "tudor"
-      ],
-      "missingStores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "liberty",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "legacyliquor": 209.93,
-        "strath": 185.79,
-        "tudor": 199.99
-      },
-      "representative": {
-        "name": "Kilchoman - Fino Sherry Matured",
-        "price": "$185.79",
-        "priceNum": 185.79,
-        "storeKey": "strath",
-        "storeLabel": "Strath Liquor",
-        "skuRaw": "330660",
-        "skuKey": "330660",
-        "url": "https://www.strathliquor.com/product/kilchoman-fino-sherry-matured/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/strath__whisky__76f5cf5a.json"
-      },
-      "cheapest": {
-        "price": "$185.79",
-        "priceNum": 185.79,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/kilchoman-fino-sherry-matured/"
-      }
-    },
-    {
       "canonSku": "330934",
       "storeCount": 3,
       "stores": [
@@ -38868,6 +38777,50 @@
         "priceNum": 299.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/adelphi-kincardine-700m/"
+      }
+    },
+    {
+      "canonSku": "004622",
+      "storeCount": 2,
+      "stores": [
+        "highpointbws",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "highpointbws": 31.99,
+        "tudor": 28.99
+      },
+      "representative": {
+        "name": "SCREECH NEWFOUNDLAND DARK RUM",
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "226530",
+        "skuKey": "226530",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/screech-dark-ml-360",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/tudor__rum__9eb7c606.json"
+      },
+      "cheapest": {
+        "price": "$28.99",
+        "priceNum": 28.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/screech-dark-ml-360"
       }
     },
     {
@@ -44896,6 +44849,50 @@
         "priceNum": 57.99,
         "storeKey": "liquorwarehouse",
         "url": "https://liquorwarehouse.ca/products/taynton-bay-steamwheel-rum"
+      }
+    },
+    {
+      "canonSku": "330660",
+      "storeCount": 2,
+      "stores": [
+        "legacyliquor",
+        "tudor"
+      ],
+      "missingStores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "legacyliquor": 209.93,
+        "tudor": 199.99
+      },
+      "representative": {
+        "name": "Kilchoman Fino Sherr",
+        "price": "$199.99",
+        "priceNum": 199.99,
+        "storeKey": "tudor",
+        "storeLabel": "Tudor House",
+        "skuRaw": "330660",
+        "skuKey": "330660",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/kilchoman-fino-sherr-ml-420",
+        "categoryLabel": "Scotch Selections",
+        "dbFile": "data/db/tudor__scotch-selections__8bb414e6.json"
+      },
+      "cheapest": {
+        "price": "$199.99",
+        "priceNum": 199.99,
+        "storeKey": "tudor",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/scotch-selections/kilchoman-fino-sherr-ml-420"
       }
     },
     {
