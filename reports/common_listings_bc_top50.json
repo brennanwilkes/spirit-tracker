@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T07:38:13.438Z",
+  "generatedAt": "2026-11-10T19:38:42.376Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -34,7 +34,7 @@
   "totals": {
     "liveRows": 6717,
     "removedRows": 1448,
-    "canonSkus": 2673,
+    "canonSkus": 2671,
     "outputCount": 50
   },
   "rows": [
@@ -1492,59 +1492,6 @@
       }
     },
     {
-      "canonSku": "143393",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "arc": 29.89,
-        "bcl": 28.49,
-        "everythingwine": 28.49,
-        "gull": 30.65,
-        "highpointbws": 31.99,
-        "legacyliquor": 29.85,
-        "marquis": 29.99,
-        "strath": 31.22,
-        "tudor": 28.49,
-        "vessel": 29.99,
-        "vintage": 32.09
-      },
-      "representative": {
-        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "222554",
-        "skuKey": "222554",
-        "url": "https://www.bcliquorstores.com/product/222554",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/222554"
-      }
-    },
-    {
       "canonSku": "148788",
       "storeCount": 11,
       "stores": [
@@ -1807,6 +1754,59 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
+      "canonSku": "780196",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 59.99,
+        "bcl": 64.99,
+        "everythingwine": 64.99,
+        "gull": 60.7,
+        "highpointbws": 70.99,
+        "legacyliquor": 67.99,
+        "liberty": 81.99,
+        "marquis": 66.99,
+        "newdistrict": 62.99,
+        "tudor": 64.99,
+        "vessel": 54.99
+      },
+      "representative": {
+        "name": "Suntory - Toki Whisky",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "855445",
+        "skuKey": "855445",
+        "url": "https://vesselliquor.com/products/suntory-toki-whisky",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/suntory-toki-whisky"
       }
     },
     {
@@ -2119,6 +2119,58 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
+      }
+    },
+    {
+      "canonSku": "143393",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 29.89,
+        "bcl": 28.49,
+        "everythingwine": 28.49,
+        "gull": 30.65,
+        "highpointbws": 31.99,
+        "marquis": 29.99,
+        "strath": 31.22,
+        "tudor": 28.49,
+        "vessel": 29.99,
+        "vintage": 32.09
+      },
+      "representative": {
+        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "222554",
+        "skuKey": "222554",
+        "url": "https://www.bcliquorstores.com/product/222554",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -2486,110 +2538,6 @@
       }
     },
     {
-      "canonSku": "656546",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 82.99,
-        "bcl": 89.99,
-        "everythingwine": 89.99,
-        "gull": 69.99,
-        "highpointbws": 111.99,
-        "legacyliquor": 93.68,
-        "liquorwarehouse": 100.99,
-        "strath": 105.66,
-        "tudor": 89.99,
-        "vessel": 84.99
-      },
-      "representative": {
-        "name": "Laphroaig – Quarter Cask 750ml",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "656546",
-        "skuKey": "656546",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
-      }
-    },
-    {
-      "canonSku": "780196",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "tudor"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 59.99,
-        "bcl": 64.99,
-        "everythingwine": 64.99,
-        "gull": 60.7,
-        "highpointbws": 70.99,
-        "legacyliquor": 67.99,
-        "liberty": 81.99,
-        "marquis": 66.99,
-        "newdistrict": 62.99,
-        "tudor": 64.99
-      },
-      "representative": {
-        "name": "TOKI SUNTORY WHISKY",
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "855445",
-        "skuKey": "855445",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky",
-        "categoryLabel": "Spirits - Whiskey",
-        "dbFile": "data/db/arc__spirits-whiskey__9d67b1dc.json"
-      },
-      "cheapest": {
-        "price": "$59.99",
-        "priceNum": 59.99,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4591789-toki-suntory-whisky"
-      }
-    },
-    {
       "canonSku": "001206",
       "storeCount": 9,
       "stores": [
@@ -2689,6 +2637,57 @@
         "priceNum": 39.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/53140"
+      }
+    },
+    {
+      "canonSku": "656546",
+      "storeCount": 9,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "strath",
+        "tudor"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 82.99,
+        "bcl": 89.99,
+        "everythingwine": 89.99,
+        "gull": 69.99,
+        "highpointbws": 111.99,
+        "legacyliquor": 93.68,
+        "liquorwarehouse": 100.99,
+        "strath": 105.66,
+        "tudor": 89.99
+      },
+      "representative": {
+        "name": "Laphroaig – Quarter Cask 750ml",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "656546",
+        "skuKey": "656546",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/gull__whisky__11e2f4b2.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/laphroaig-quarter-ca-750m/"
       }
     }
   ]
