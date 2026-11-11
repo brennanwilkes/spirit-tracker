@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T11:03:12.092Z",
+  "generatedAt": "2026-11-11T19:34:14.561Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6711,
-    "removedRows": 1455,
+    "liveRows": 6725,
+    "removedRows": 1443,
     "canonSkus": 2671,
     "outputCount": 50
   },
@@ -201,6 +201,61 @@
         "priceNum": 26.99,
         "storeKey": "gull",
         "url": "https://gullliquorstore.com/product/bombay-sapphire-750m/"
+      }
+    },
+    {
+      "canonSku": "002691",
+      "storeCount": 13,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "marquis"
+      ],
+      "storePrices": {
+        "arc": 31.39,
+        "bcl": 27.99,
+        "everythingwine": 27.99,
+        "gull": 32.25,
+        "highpointbws": 32.29,
+        "legacyliquor": 31.81,
+        "liberty": 37.99,
+        "liquorwarehouse": 30.99,
+        "newdistrict": 32.29,
+        "strath": 32.09,
+        "tudor": 27.99,
+        "vessel": 28.99,
+        "vintage": 32.96
+      },
+      "representative": {
+        "name": "TANQUERAY - LONDON DRY",
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "002691",
+        "skuKey": "002691",
+        "url": "https://www.bcliquorstores.com/product/2691",
+        "categoryLabel": "Gin",
+        "dbFile": "data/db/bcl__gin__bc2504fb.json"
+      },
+      "cheapest": {
+        "price": "$27.99",
+        "priceNum": 27.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -529,60 +584,6 @@
         "priceNum": 31.31,
         "storeKey": "strath",
         "url": "https://www.strathliquor.com/product/ballantines-finest/"
-      }
-    },
-    {
-      "canonSku": "002691",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "marquis",
-        "tudor"
-      ],
-      "storePrices": {
-        "arc": 31.39,
-        "bcl": 27.99,
-        "everythingwine": 27.99,
-        "gull": 32.25,
-        "highpointbws": 32.29,
-        "legacyliquor": 31.81,
-        "liberty": 37.99,
-        "liquorwarehouse": 30.99,
-        "newdistrict": 32.29,
-        "strath": 32.09,
-        "vessel": 28.99,
-        "vintage": 32.96
-      },
-      "representative": {
-        "name": "TANQUERAY - LONDON DRY",
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "002691",
-        "skuKey": "002691",
-        "url": "https://www.bcliquorstores.com/product/2691",
-        "categoryLabel": "Gin",
-        "dbFile": "data/db/bcl__gin__bc2504fb.json"
-      },
-      "cheapest": {
-        "price": "$27.99",
-        "priceNum": 27.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/2691"
       }
     },
     {
@@ -1492,6 +1493,59 @@
       }
     },
     {
+      "canonSku": "143393",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "marquis",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict"
+      ],
+      "storePrices": {
+        "arc": 29.89,
+        "bcl": 28.49,
+        "everythingwine": 28.49,
+        "gull": 30.65,
+        "highpointbws": 31.99,
+        "legacyliquor": 29.85,
+        "marquis": 29.99,
+        "strath": 31.22,
+        "tudor": 28.49,
+        "vessel": 29.99,
+        "vintage": 32.09
+      },
+      "representative": {
+        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "222554",
+        "skuKey": "222554",
+        "url": "https://www.bcliquorstores.com/product/222554",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$28.49",
+        "priceNum": 28.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/222554"
+      }
+    },
+    {
       "canonSku": "148788",
       "storeCount": 11,
       "stores": [
@@ -1914,6 +1968,58 @@
       }
     },
     {
+      "canonSku": "001206",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 24.89,
+        "bcl": 24.99,
+        "everythingwine": 24.99,
+        "gull": 24.95,
+        "highpointbws": 27.99,
+        "legacyliquor": 26.99,
+        "liquorwarehouse": 25.99,
+        "newdistrict": 27.29,
+        "tudor": 24.99,
+        "vessel": 25.99
+      },
+      "representative": {
+        "name": "BACARDI GOLD 750ML*",
+        "price": "$24.89",
+        "priceNum": 24.89,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "001206",
+        "skuKey": "001206",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$24.89",
+        "priceNum": 24.89,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml"
+      }
+    },
+    {
       "canonSku": "002063",
       "storeCount": 10,
       "stores": [
@@ -2119,58 +2225,6 @@
         "priceNum": 129.99,
         "storeKey": "vessel",
         "url": "https://vesselliquor.com/products/glenfarclas-105-cask-strength-single-malt-scotch"
-      }
-    },
-    {
-      "canonSku": "143393",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "marquis",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "arc": 29.89,
-        "bcl": 28.49,
-        "everythingwine": 28.49,
-        "gull": 30.65,
-        "highpointbws": 31.99,
-        "marquis": 29.99,
-        "strath": 31.22,
-        "tudor": 28.49,
-        "vessel": 29.99,
-        "vintage": 32.09
-      },
-      "representative": {
-        "name": "HAVANA CLUB - 3 YEAR OLD ANEJO",
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "222554",
-        "skuKey": "222554",
-        "url": "https://www.bcliquorstores.com/product/222554",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$28.49",
-        "priceNum": 28.49,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/222554"
       }
     },
     {
@@ -2535,57 +2589,6 @@
         "priceNum": 51.39,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588734-the-botanist-islay-gin"
-      }
-    },
-    {
-      "canonSku": "001206",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 24.89,
-        "bcl": 24.99,
-        "everythingwine": 24.99,
-        "gull": 24.95,
-        "legacyliquor": 26.99,
-        "liquorwarehouse": 25.99,
-        "newdistrict": 27.29,
-        "tudor": 24.99,
-        "vessel": 25.99
-      },
-      "representative": {
-        "name": "BACARDI GOLD 750ML*",
-        "price": "$24.89",
-        "priceNum": 24.89,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "001206",
-        "skuKey": "001206",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$24.89",
-        "priceNum": 24.89,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4806648-bacardi-gold-750ml"
       }
     },
     {
