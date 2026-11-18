@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T19:52:32.070Z",
+  "generatedAt": "2026-11-18T07:37:37.577Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,8 +32,8 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6708,
-    "removedRows": 1484,
+    "liveRows": 6707,
+    "removedRows": 1486,
     "canonSkus": 2659,
     "outputCount": 50
   },
@@ -587,60 +587,6 @@
       }
     },
     {
-      "canonSku": "001610",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "marquis",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 31.69,
-        "bcl": 31.49,
-        "everythingwine": 31.49,
-        "gull": 33.5,
-        "highpointbws": 32.99,
-        "legacyliquor": 33.05,
-        "liberty": 38.99,
-        "liquorwarehouse": 31.49,
-        "newdistrict": 32.99,
-        "strath": 31.31,
-        "tudor": 31.49,
-        "vessel": 32.99
-      },
-      "representative": {
-        "name": "BALLANTINE'S - FINEST",
-        "price": "$31.49",
-        "priceNum": 31.49,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "001610",
-        "skuKey": "001610",
-        "url": "https://www.bcliquorstores.com/product/1610",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$31.31",
-        "priceNum": 31.31,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/ballantines-finest/"
-      }
-    },
-    {
       "canonSku": "034672",
       "storeCount": 12,
       "stores": [
@@ -1013,6 +959,59 @@
         "priceNum": 21.99,
         "storeKey": "tudor",
         "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/whiskey-scotch/wisers-special-plst-ml-380"
+      }
+    },
+    {
+      "canonSku": "001610",
+      "storeCount": 11,
+      "stores": [
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "liquorwarehouse",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "arc",
+        "marquis",
+        "vintage"
+      ],
+      "storePrices": {
+        "bcl": 31.49,
+        "everythingwine": 31.49,
+        "gull": 33.5,
+        "highpointbws": 32.99,
+        "legacyliquor": 33.05,
+        "liberty": 38.99,
+        "liquorwarehouse": 31.49,
+        "newdistrict": 32.99,
+        "strath": 31.31,
+        "tudor": 31.49,
+        "vessel": 32.99
+      },
+      "representative": {
+        "name": "BALLANTINE'S - FINEST",
+        "price": "$31.49",
+        "priceNum": 31.49,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "001610",
+        "skuKey": "001610",
+        "url": "https://www.bcliquorstores.com/product/1610",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$31.31",
+        "priceNum": 31.31,
+        "storeKey": "strath",
+        "url": "https://www.strathliquor.com/product/ballantines-finest/"
       }
     },
     {
