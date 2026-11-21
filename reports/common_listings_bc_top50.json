@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T19:38:55.142Z",
+  "generatedAt": "2026-11-21T07:39:11.633Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6709,
-    "removedRows": 1500,
-    "canonSkus": 2654,
+    "liveRows": 6688,
+    "removedRows": 1522,
+    "canonSkus": 2652,
     "outputCount": 50
   },
   "rows": [
@@ -479,60 +479,6 @@
       }
     },
     {
-      "canonSku": "000042",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 23.29,
-        "bcl": 23.99,
-        "everythingwine": 23.99,
-        "gull": 23.8,
-        "highpointbws": 24.99,
-        "legacyliquor": 24.99,
-        "liquorwarehouse": 24.49,
-        "marquis": 25.99,
-        "newdistrict": 24.99,
-        "strath": 23.87,
-        "tudor": 22.99,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "Canadian Club - Whisky",
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "766766",
-        "skuKey": "766766",
-        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml"
-      }
-    },
-    {
       "canonSku": "001099",
       "storeCount": 12,
       "stores": [
@@ -803,8 +749,8 @@
       }
     },
     {
-      "canonSku": "665257",
-      "storeCount": 12,
+      "canonSku": "000042",
+      "storeCount": 11,
       "stores": [
         "arc",
         "bcl",
@@ -815,45 +761,44 @@
         "liquorwarehouse",
         "marquis",
         "newdistrict",
-        "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
         "liberty",
+        "strath",
         "vintage"
       ],
       "storePrices": {
-        "arc": 102.69,
-        "bcl": 97.99,
-        "everythingwine": 97.99,
-        "gull": 109.99,
-        "highpointbws": 117.29,
-        "legacyliquor": 110.8,
-        "liquorwarehouse": 109.99,
-        "marquis": 107.99,
-        "newdistrict": 106.99,
-        "strath": 119.7,
-        "tudor": 105.99,
-        "vessel": 94.99
+        "arc": 23.29,
+        "bcl": 23.99,
+        "everythingwine": 23.99,
+        "gull": 23.8,
+        "highpointbws": 24.99,
+        "legacyliquor": 24.99,
+        "liquorwarehouse": 24.49,
+        "marquis": 25.99,
+        "newdistrict": 24.99,
+        "tudor": 22.99,
+        "vessel": 22.49
       },
       "representative": {
-        "name": "Lagavulin - 8 Year Old Single Malt Scotch",
-        "price": "$94.99",
-        "priceNum": 94.99,
+        "name": "Canadian Club - Whisky",
+        "price": "$22.49",
+        "priceNum": 22.49,
         "storeKey": "vessel",
         "storeLabel": "Vessel Liquor",
-        "skuRaw": "665257",
-        "skuKey": "665257",
-        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch",
+        "skuRaw": "766766",
+        "skuKey": "766766",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml",
         "categoryLabel": "Whisky",
         "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
+        "price": "$22.49",
+        "priceNum": 22.49,
         "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch"
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml"
       }
     },
     {
@@ -1045,7 +990,7 @@
         "liberty": 38.99,
         "liquorwarehouse": 31.49,
         "newdistrict": 32.99,
-        "strath": 31.31,
+        "strath": 32.13,
         "tudor": 31.49,
         "vessel": 32.99
       },
@@ -1062,10 +1007,10 @@
         "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$31.31",
-        "priceNum": 31.31,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/ballantines-finest/"
+        "price": "$31.49",
+        "priceNum": 31.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1610"
       }
     },
     {
@@ -1702,6 +1647,59 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
+      "canonSku": "665257",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bcl": 97.99,
+        "everythingwine": 97.99,
+        "gull": 109.99,
+        "highpointbws": 117.29,
+        "legacyliquor": 110.8,
+        "liquorwarehouse": 109.99,
+        "marquis": 107.99,
+        "newdistrict": 106.99,
+        "tudor": 105.99,
+        "vessel": 94.99
+      },
+      "representative": {
+        "name": "Lagavulin - 8 Year Old Single Malt Scotch",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "665257",
+        "skuKey": "665257",
+        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch"
       }
     },
     {

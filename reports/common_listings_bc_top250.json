@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T19:38:55.424Z",
+  "generatedAt": "2026-11-21T07:39:11.993Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6709,
-    "removedRows": 1500,
-    "canonSkus": 2654,
+    "liveRows": 6688,
+    "removedRows": 1522,
+    "canonSkus": 2652,
     "outputCount": 250
   },
   "rows": [
@@ -479,60 +479,6 @@
       }
     },
     {
-      "canonSku": "000042",
-      "storeCount": 12,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 23.29,
-        "bcl": 23.99,
-        "everythingwine": 23.99,
-        "gull": 23.8,
-        "highpointbws": 24.99,
-        "legacyliquor": 24.99,
-        "liquorwarehouse": 24.49,
-        "marquis": 25.99,
-        "newdistrict": 24.99,
-        "strath": 23.87,
-        "tudor": 22.99,
-        "vessel": 22.49
-      },
-      "representative": {
-        "name": "Canadian Club - Whisky",
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
-        "skuRaw": "766766",
-        "skuKey": "766766",
-        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
-      },
-      "cheapest": {
-        "price": "$22.49",
-        "priceNum": 22.49,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml"
-      }
-    },
-    {
       "canonSku": "001099",
       "storeCount": 12,
       "stores": [
@@ -803,8 +749,8 @@
       }
     },
     {
-      "canonSku": "665257",
-      "storeCount": 12,
+      "canonSku": "000042",
+      "storeCount": 11,
       "stores": [
         "arc",
         "bcl",
@@ -815,45 +761,44 @@
         "liquorwarehouse",
         "marquis",
         "newdistrict",
-        "strath",
         "tudor",
         "vessel"
       ],
       "missingStores": [
         "liberty",
+        "strath",
         "vintage"
       ],
       "storePrices": {
-        "arc": 102.69,
-        "bcl": 97.99,
-        "everythingwine": 97.99,
-        "gull": 109.99,
-        "highpointbws": 117.29,
-        "legacyliquor": 110.8,
-        "liquorwarehouse": 109.99,
-        "marquis": 107.99,
-        "newdistrict": 106.99,
-        "strath": 119.7,
-        "tudor": 105.99,
-        "vessel": 94.99
+        "arc": 23.29,
+        "bcl": 23.99,
+        "everythingwine": 23.99,
+        "gull": 23.8,
+        "highpointbws": 24.99,
+        "legacyliquor": 24.99,
+        "liquorwarehouse": 24.49,
+        "marquis": 25.99,
+        "newdistrict": 24.99,
+        "tudor": 22.99,
+        "vessel": 22.49
       },
       "representative": {
-        "name": "Lagavulin - 8 Year Old Single Malt Scotch",
-        "price": "$94.99",
-        "priceNum": 94.99,
+        "name": "Canadian Club - Whisky",
+        "price": "$22.49",
+        "priceNum": 22.49,
         "storeKey": "vessel",
         "storeLabel": "Vessel Liquor",
-        "skuRaw": "665257",
-        "skuKey": "665257",
-        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch",
+        "skuRaw": "766766",
+        "skuKey": "766766",
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml",
         "categoryLabel": "Whisky",
         "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
       },
       "cheapest": {
-        "price": "$94.99",
-        "priceNum": 94.99,
+        "price": "$22.49",
+        "priceNum": 22.49,
         "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch"
+        "url": "https://vesselliquor.com/products/canadian-club-whisky-750-ml"
       }
     },
     {
@@ -1045,7 +990,7 @@
         "liberty": 38.99,
         "liquorwarehouse": 31.49,
         "newdistrict": 32.99,
-        "strath": 31.31,
+        "strath": 32.13,
         "tudor": 31.49,
         "vessel": 32.99
       },
@@ -1062,10 +1007,10 @@
         "dbFile": "data/db/bcl__whisky__28758adc.json"
       },
       "cheapest": {
-        "price": "$31.31",
-        "priceNum": 31.31,
-        "storeKey": "strath",
-        "url": "https://www.strathliquor.com/product/ballantines-finest/"
+        "price": "$31.49",
+        "priceNum": 31.49,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/1610"
       }
     },
     {
@@ -1755,6 +1700,59 @@
         "priceNum": 67.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/546366"
+      }
+    },
+    {
+      "canonSku": "665257",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 102.69,
+        "bcl": 97.99,
+        "everythingwine": 97.99,
+        "gull": 109.99,
+        "highpointbws": 117.29,
+        "legacyliquor": 110.8,
+        "liquorwarehouse": 109.99,
+        "marquis": 107.99,
+        "newdistrict": 106.99,
+        "tudor": 105.99,
+        "vessel": 94.99
+      },
+      "representative": {
+        "name": "Lagavulin - 8 Year Old Single Malt Scotch",
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "vessel",
+        "storeLabel": "Vessel Liquor",
+        "skuRaw": "665257",
+        "skuKey": "665257",
+        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/vessel__whisky__7e17ce4d.json"
+      },
+      "cheapest": {
+        "price": "$94.99",
+        "priceNum": 94.99,
+        "storeKey": "vessel",
+        "url": "https://vesselliquor.com/products/lagavulin-8-year-old-single-malt-scotch"
       }
     },
     {
@@ -4639,57 +4637,6 @@
       }
     },
     {
-      "canonSku": "232587",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 34.39,
-        "bcl": 39.49,
-        "everythingwine": 39.49,
-        "gull": 40.95,
-        "highpointbws": 41.49,
-        "legacyliquor": 40.34,
-        "marquis": 40.99,
-        "tudor": 39.49,
-        "vessel": 39.99
-      },
-      "representative": {
-        "name": "CITADELLE GIN",
-        "price": "$34.39",
-        "priceNum": 34.39,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "232587",
-        "skuKey": "232587",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5138725-citadelle-gin",
-        "categoryLabel": "Spirits - Gin",
-        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
-      },
-      "cheapest": {
-        "price": "$34.39",
-        "priceNum": 34.39,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/5138725-citadelle-gin"
-      }
-    },
-    {
       "canonSku": "285254",
       "storeCount": 9,
       "stores": [
@@ -5130,14 +5077,14 @@
         "vessel": 32.99
       },
       "representative": {
-        "name": "Captain Morgan Spice 750ML",
+        "name": "Captain Morgan Spice",
         "price": "$27.99",
         "priceNum": 27.99,
         "storeKey": "tudor",
         "storeLabel": "Tudor House",
-        "skuRaw": "500512",
-        "skuKey": "500512",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-ml-360?variant=500512",
+        "skuRaw": "640136",
+        "skuKey": "640136",
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-ml-360",
         "categoryLabel": "Rum",
         "dbFile": "data/db/tudor__rum__9eb7c606.json"
       },
@@ -5145,7 +5092,7 @@
         "price": "$27.99",
         "priceNum": 27.99,
         "storeKey": "tudor",
-        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-ml-360?variant=500512"
+        "url": "https://www.tudorhouseliquorstore.com/TUDOR_HOUSE_0/product/spirits/rum/captain-morgan-spice-ml-360"
       }
     },
     {
@@ -5605,57 +5552,6 @@
         "priceNum": 30.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/5255941-tanqueray-rangpur"
-      }
-    },
-    {
-      "canonSku": "783842",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 55.59,
-        "bcl": 57.99,
-        "everythingwine": 57.99,
-        "gull": 55.99,
-        "highpointbws": 63.79,
-        "legacyliquor": 61.75,
-        "liberty": 71.99,
-        "tudor": 57.99,
-        "vessel": 59.99
-      },
-      "representative": {
-        "name": "MONKEY SHOULDER",
-        "price": "$55.59",
-        "priceNum": 55.59,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "789768",
-        "skuKey": "789768",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder",
-        "categoryLabel": "Spirits - Scotch",
-        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
-      },
-      "cheapest": {
-        "price": "$55.59",
-        "priceNum": 55.59,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
       }
     },
     {
@@ -7309,6 +7205,56 @@
       }
     },
     {
+      "canonSku": "232587",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 34.39,
+        "bcl": 39.49,
+        "everythingwine": 39.49,
+        "gull": 40.95,
+        "highpointbws": 41.49,
+        "legacyliquor": 40.34,
+        "tudor": 39.49,
+        "vessel": 39.99
+      },
+      "representative": {
+        "name": "CITADELLE GIN",
+        "price": "$34.39",
+        "priceNum": 34.39,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "232587",
+        "skuKey": "232587",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5138725-citadelle-gin",
+        "categoryLabel": "Spirits - Gin",
+        "dbFile": "data/db/arc__spirits-gin__dbf9c7f5.json"
+      },
+      "cheapest": {
+        "price": "$34.39",
+        "priceNum": 34.39,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/5138725-citadelle-gin"
+      }
+    },
+    {
       "canonSku": "233984",
       "storeCount": 8,
       "stores": [
@@ -8806,6 +8752,56 @@
         "priceNum": 69.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4591506-aberfeldy-12yo"
+      }
+    },
+    {
+      "canonSku": "783842",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liberty",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 55.59,
+        "bcl": 57.99,
+        "everythingwine": 57.99,
+        "gull": 55.99,
+        "highpointbws": 63.79,
+        "liberty": 71.99,
+        "tudor": 57.99,
+        "vessel": 59.99
+      },
+      "representative": {
+        "name": "MONKEY SHOULDER",
+        "price": "$55.59",
+        "priceNum": 55.59,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "789768",
+        "skuKey": "789768",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder",
+        "categoryLabel": "Spirits - Scotch",
+        "dbFile": "data/db/arc__spirits-scotch__8ee71bfb.json"
+      },
+      "cheapest": {
+        "price": "$55.59",
+        "priceNum": 55.59,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4967212-monkey-shoulder"
       }
     },
     {
@@ -11497,54 +11493,6 @@
       }
     },
     {
-      "canonSku": "085811",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "highpointbws",
-        "liquorwarehouse",
-        "tudor"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vessel",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 56.39,
-        "bcl": 54.99,
-        "gull": 56.99,
-        "highpointbws": 57.99,
-        "liquorwarehouse": 56.99,
-        "tudor": 54.99
-      },
-      "representative": {
-        "name": "BACARDI - GOLD",
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "085811",
-        "skuKey": "085811",
-        "url": "https://www.bcliquorstores.com/product/85811",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/bcl__rum__a3c59e55.json"
-      },
-      "cheapest": {
-        "price": "$54.99",
-        "priceNum": 54.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/85811"
-      }
-    },
-    {
       "canonSku": "088230",
       "storeCount": 6,
       "stores": [
@@ -11638,54 +11586,6 @@
         "priceNum": 33.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/292204"
-      }
-    },
-    {
-      "canonSku": "105781",
-      "storeCount": 6,
-      "stores": [
-        "arc",
-        "bcl",
-        "gull",
-        "liquorwarehouse",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "everythingwine",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "marquis",
-        "newdistrict",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 28.29,
-        "bcl": 29.99,
-        "gull": 27.25,
-        "liquorwarehouse": 31.99,
-        "tudor": 29.99,
-        "vessel": 27.99
-      },
-      "representative": {
-        "name": "BACARDI SPICED PET – 750M",
-        "price": "$27.25",
-        "priceNum": 27.25,
-        "storeKey": "gull",
-        "storeLabel": "Gull Liquor",
-        "skuRaw": "725315",
-        "skuKey": "725315",
-        "url": "https://gullliquorstore.com/product/bacardi-spiced-pet-750m/",
-        "categoryLabel": "Rum",
-        "dbFile": "data/db/gull__rum__0dc6799a.json"
-      },
-      "cheapest": {
-        "price": "$27.25",
-        "priceNum": 27.25,
-        "storeKey": "gull",
-        "url": "https://gullliquorstore.com/product/bacardi-spiced-pet-750m/"
       }
     },
     {
@@ -12358,6 +12258,100 @@
         "priceNum": 42.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/545376"
+      }
+    },
+    {
+      "canonSku": "085811",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vessel",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 56.39,
+        "bcl": 54.99,
+        "gull": 56.99,
+        "highpointbws": 57.99,
+        "liquorwarehouse": 56.99
+      },
+      "representative": {
+        "name": "BACARDI - GOLD",
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "085811",
+        "skuKey": "085811",
+        "url": "https://www.bcliquorstores.com/product/85811",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
+      },
+      "cheapest": {
+        "price": "$54.99",
+        "priceNum": 54.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/85811"
+      }
+    },
+    {
+      "canonSku": "105781",
+      "storeCount": 5,
+      "stores": [
+        "arc",
+        "bcl",
+        "gull",
+        "liquorwarehouse",
+        "vessel"
+      ],
+      "missingStores": [
+        "everythingwine",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 28.29,
+        "bcl": 29.99,
+        "gull": 27.25,
+        "liquorwarehouse": 31.99,
+        "vessel": 27.99
+      },
+      "representative": {
+        "name": "BACARDI SPICED PET – 750M",
+        "price": "$27.25",
+        "priceNum": 27.25,
+        "storeKey": "gull",
+        "storeLabel": "Gull Liquor",
+        "skuRaw": "725315",
+        "skuKey": "725315",
+        "url": "https://gullliquorstore.com/product/bacardi-spiced-pet-750m/",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/gull__rum__0dc6799a.json"
+      },
+      "cheapest": {
+        "price": "$27.25",
+        "priceNum": 27.25,
+        "storeKey": "gull",
+        "url": "https://gullliquorstore.com/product/bacardi-spiced-pet-750m/"
       }
     },
     {
