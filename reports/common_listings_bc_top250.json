@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-22T19:51:26.801Z",
+  "generatedAt": "2026-11-23T07:38:40.053Z",
   "args": {
     "top": 250,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6669,
-    "removedRows": 1541,
-    "canonSkus": 2643,
+    "liveRows": 6662,
+    "removedRows": 1548,
+    "canonSkus": 2640,
     "outputCount": 250
   },
   "rows": [
@@ -1066,59 +1066,6 @@
       }
     },
     {
-      "canonSku": "007880",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 64.99,
-        "bcl": 62.99,
-        "everythingwine": 65.99,
-        "gull": 69.6,
-        "highpointbws": 69.99,
-        "legacyliquor": 68.65,
-        "liquorwarehouse": 65.99,
-        "marquis": 67.99,
-        "newdistrict": 69.79,
-        "tudor": 65.99,
-        "vessel": 63.99
-      },
-      "representative": {
-        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "007880",
-        "skuKey": "007880",
-        "url": "https://www.bcliquorstores.com/product/7880",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$62.99",
-        "priceNum": 62.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/7880"
-      }
-    },
-    {
       "canonSku": "073999",
       "storeCount": 11,
       "stores": [
@@ -1275,59 +1222,6 @@
         "priceNum": 53.99,
         "storeKey": "arc",
         "url": "https://kelownaharveyave.armstrong.coop/products/4588282-empress-cucumber-lemon"
-      }
-    },
-    {
-      "canonSku": "139388",
-      "storeCount": 11,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "liberty",
-        "strath",
-        "tudor",
-        "vessel",
-        "vintage"
-      ],
-      "missingStores": [
-        "liquorwarehouse",
-        "marquis",
-        "newdistrict"
-      ],
-      "storePrices": {
-        "arc": 40.29,
-        "bcl": 45.99,
-        "everythingwine": 40.99,
-        "gull": 47.9,
-        "highpointbws": 40.99,
-        "legacyliquor": 47.27,
-        "liberty": 54.99,
-        "strath": 47.74,
-        "tudor": 40.99,
-        "vessel": 41.99,
-        "vintage": 40.78
-      },
-      "representative": {
-        "name": "PLANTATION ORIGINAL DARK RUM",
-        "price": "$40.29",
-        "priceNum": 40.29,
-        "storeKey": "arc",
-        "storeLabel": "ARC Liquor",
-        "skuRaw": "699116",
-        "skuKey": "699116",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum",
-        "categoryLabel": "Spirits - Rum",
-        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
-      },
-      "cheapest": {
-        "price": "$40.29",
-        "priceNum": 40.29,
-        "storeKey": "arc",
-        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum"
       }
     },
     {
@@ -2068,6 +1962,58 @@
       }
     },
     {
+      "canonSku": "007880",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "legacyliquor",
+        "liberty",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 64.99,
+        "bcl": 62.99,
+        "everythingwine": 65.99,
+        "gull": 69.6,
+        "highpointbws": 69.99,
+        "liquorwarehouse": 65.99,
+        "marquis": 67.99,
+        "newdistrict": 69.79,
+        "tudor": 65.99,
+        "vessel": 63.99
+      },
+      "representative": {
+        "name": "JOHNNIE WALKER - 12 YEAR OLD BLACK LABEL",
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "007880",
+        "skuKey": "007880",
+        "url": "https://www.bcliquorstores.com/product/7880",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$62.99",
+        "priceNum": 62.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/7880"
+      }
+    },
+    {
       "canonSku": "032425",
       "storeCount": 10,
       "stores": [
@@ -2429,6 +2375,58 @@
         "priceNum": 73.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/135210"
+      }
+    },
+    {
+      "canonSku": "139388",
+      "storeCount": 10,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "strath",
+        "tudor",
+        "vintage"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "marquis",
+        "newdistrict",
+        "vessel"
+      ],
+      "storePrices": {
+        "arc": 40.29,
+        "bcl": 45.99,
+        "everythingwine": 40.99,
+        "gull": 47.9,
+        "highpointbws": 40.99,
+        "legacyliquor": 47.27,
+        "liberty": 54.99,
+        "strath": 47.74,
+        "tudor": 40.99,
+        "vintage": 40.78
+      },
+      "representative": {
+        "name": "PLANTATION ORIGINAL DARK RUM",
+        "price": "$40.29",
+        "priceNum": 40.29,
+        "storeKey": "arc",
+        "storeLabel": "ARC Liquor",
+        "skuRaw": "699116",
+        "skuKey": "699116",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum",
+        "categoryLabel": "Spirits - Rum",
+        "dbFile": "data/db/arc__spirits-rum__2be006d7.json"
+      },
+      "cheapest": {
+        "price": "$40.29",
+        "priceNum": 40.29,
+        "storeKey": "arc",
+        "url": "https://kelownaharveyave.armstrong.coop/products/4765307-plantation-original-dark-rum"
       }
     },
     {
@@ -3203,57 +3201,6 @@
         "priceNum": 12.99,
         "storeKey": "everythingwine",
         "url": "https://www.everythingwine.ca/bacardi-gold-amber-rum-375-ml"
-      }
-    },
-    {
-      "canonSku": "003517",
-      "storeCount": 9,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "legacyliquor",
-        "liquorwarehouse",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "highpointbws",
-        "liberty",
-        "marquis",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 12.09,
-        "bcl": 11.99,
-        "everythingwine": 11.99,
-        "gull": 13.05,
-        "legacyliquor": 12.9,
-        "liquorwarehouse": 12.49,
-        "newdistrict": 12.79,
-        "tudor": 11.99,
-        "vessel": 11.99
-      },
-      "representative": {
-        "name": "WISER'S - SPECIAL BLEND",
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "003517",
-        "skuKey": "003517",
-        "url": "https://www.bcliquorstores.com/product/3517",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$11.99",
-        "priceNum": 11.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/3517"
       }
     },
     {
@@ -5748,6 +5695,56 @@
         "priceNum": 36.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/1800"
+      }
+    },
+    {
+      "canonSku": "003517",
+      "storeCount": 8,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "legacyliquor",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "highpointbws",
+        "liberty",
+        "liquorwarehouse",
+        "marquis",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 12.09,
+        "bcl": 11.99,
+        "everythingwine": 11.99,
+        "gull": 13.05,
+        "legacyliquor": 12.9,
+        "newdistrict": 12.79,
+        "tudor": 11.99,
+        "vessel": 11.99
+      },
+      "representative": {
+        "name": "WISER'S - SPECIAL BLEND",
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "003517",
+        "skuKey": "003517",
+        "url": "https://www.bcliquorstores.com/product/3517",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$11.99",
+        "priceNum": 11.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/3517"
       }
     },
     {
