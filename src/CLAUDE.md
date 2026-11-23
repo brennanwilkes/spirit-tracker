@@ -261,7 +261,8 @@ runs inside BOTH merge paths (`finalize.js::finalizeCategoryScan` and the generi
 (25) live listings: **0 discovered THROWS** (DB untouched → `FAILED(n)` → opposite-egress retry;
 BCL answered a runner HTTP 200 `Total=0` and wiped 746 listings twice), and <60% preserves +
 records a `GUARDED` entry. At ≤25 live a shrink goes through, so discontinued small categories
-retire. Per-adapter `avoidMassRemoval` calls remain; a second application is a no-op. It still does
+retire. Same floor: ≥50% of discovered items with `price === ""` also THROWS (High Point's Barnet
+API went all-null 2026-11-23 and every listing showed as a 100% drop). Per-adapter `avoidMassRemoval` calls remain; a second application is a no-op. It still does
 NOT catch losing one page of many (see §"Windowed pagination navs") or losing a single boundary row
 (see the ARC amendment above). Never `catch → warn → finalize(empty)` in an adapter: let it throw.
 

@@ -329,6 +329,20 @@ function guardLargeCategoryOnly(prevDb, discovered, ctx, reason, report) {
 		if (it && !it.removed) prevActive++;
 	}
 	if (prevActive < MASS_REMOVAL_GUARD_MIN_PREV) return false;
+
+	// A store whose API stops sending prices still lists every product (High Point's Barnet API
+	// answered null sale/net/regular on every item, 2026-11-23); merging that turns each listing
+	// into a "100% off" drop. Throw so the DB stays untouched and the category goes to FAILED.
+	let unpriced = 0;
+	for (const it of discovered.values()) {
+		if (it.price === "") unpriced++;
+	}
+	if (discovered.size > 0 && unpriced / discovered.size >= 0.5) {
+		throw new Error(
+			`Priceless scan: ${unpriced}/${discovered.size} discovered items have no price (${reason}); refusing to merge`,
+		);
+	}
+
 	return avoidMassRemoval(prevDb, discovered, ctx, reason, report);
 }
 
