@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T18:27:02.189Z",
+  "generatedAt": "2026-11-25T19:38:37.290Z",
   "args": {
     "top": 50,
     "minStores": 2,
@@ -32,9 +32,9 @@
     "vintage"
   ],
   "totals": {
-    "liveRows": 6677,
+    "liveRows": 6679,
     "removedRows": 1540,
-    "canonSkus": 2645,
+    "canonSkus": 2646,
     "outputCount": 50
   },
   "rows": [
@@ -1173,6 +1173,59 @@
       }
     },
     {
+      "canonSku": "114799",
+      "storeCount": 11,
+      "stores": [
+        "arc",
+        "bcl",
+        "everythingwine",
+        "gull",
+        "highpointbws",
+        "legacyliquor",
+        "liberty",
+        "marquis",
+        "newdistrict",
+        "tudor",
+        "vessel"
+      ],
+      "missingStores": [
+        "liquorwarehouse",
+        "strath",
+        "vintage"
+      ],
+      "storePrices": {
+        "arc": 71.99,
+        "bcl": 69.99,
+        "everythingwine": 75.99,
+        "gull": 79.99,
+        "highpointbws": 84.49,
+        "legacyliquor": 80.09,
+        "liberty": 98.99,
+        "marquis": 78.99,
+        "newdistrict": 76.29,
+        "tudor": 69.99,
+        "vessel": 74.99
+      },
+      "representative": {
+        "name": "GLENMORANGIE - 12 YEAR OLD THE ORIGINAL",
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
+        "skuRaw": "309562",
+        "skuKey": "309562",
+        "url": "https://www.bcliquorstores.com/product/309562",
+        "categoryLabel": "Whisky / Whiskey",
+        "dbFile": "data/db/bcl__whisky__28758adc.json"
+      },
+      "cheapest": {
+        "price": "$69.99",
+        "priceNum": 69.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/309562"
+      }
+    },
+    {
       "canonSku": "135210",
       "storeCount": 11,
       "stores": [
@@ -1301,7 +1354,7 @@
       ],
       "storePrices": {
         "arc": 58.99,
-        "bcl": 59.99,
+        "bcl": 49.99,
         "everythingwine": 59.99,
         "gull": 58.55,
         "highpointbws": 64.99,
@@ -1313,22 +1366,22 @@
         "vessel": 55.99
       },
       "representative": {
-        "name": "Bumbu - The Original Rum",
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "vessel",
-        "storeLabel": "Vessel Liquor",
+        "name": "BUMBU - CRAFT RUM",
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bcl",
+        "storeLabel": "BCL",
         "skuRaw": "281451",
         "skuKey": "281451",
-        "url": "https://vesselliquor.com/products/bumbu-the-original-rum-750-ml",
-        "categoryLabel": "Rum / Cane Spirit",
-        "dbFile": "data/db/vessel__rum-cane-spirit__f0a980b4.json"
+        "url": "https://www.bcliquorstores.com/product/281451",
+        "categoryLabel": "Rum",
+        "dbFile": "data/db/bcl__rum__a3c59e55.json"
       },
       "cheapest": {
-        "price": "$55.99",
-        "priceNum": 55.99,
-        "storeKey": "vessel",
-        "url": "https://vesselliquor.com/products/bumbu-the-original-rum-750-ml"
+        "price": "$49.99",
+        "priceNum": 49.99,
+        "storeKey": "bcl",
+        "url": "https://www.bcliquorstores.com/product/281451"
       }
     },
     {
@@ -2064,58 +2117,6 @@
         "priceNum": 62.99,
         "storeKey": "bcl",
         "url": "https://www.bcliquorstores.com/product/7880"
-      }
-    },
-    {
-      "canonSku": "114799",
-      "storeCount": 10,
-      "stores": [
-        "arc",
-        "bcl",
-        "everythingwine",
-        "gull",
-        "highpointbws",
-        "legacyliquor",
-        "marquis",
-        "newdistrict",
-        "tudor",
-        "vessel"
-      ],
-      "missingStores": [
-        "liberty",
-        "liquorwarehouse",
-        "strath",
-        "vintage"
-      ],
-      "storePrices": {
-        "arc": 71.99,
-        "bcl": 69.99,
-        "everythingwine": 75.99,
-        "gull": 79.99,
-        "highpointbws": 84.49,
-        "legacyliquor": 80.09,
-        "marquis": 78.99,
-        "newdistrict": 76.29,
-        "tudor": 69.99,
-        "vessel": 74.99
-      },
-      "representative": {
-        "name": "GLENMORANGIE - 12 YEAR OLD THE ORIGINAL",
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bcl",
-        "storeLabel": "BCL",
-        "skuRaw": "309562",
-        "skuKey": "309562",
-        "url": "https://www.bcliquorstores.com/product/309562",
-        "categoryLabel": "Whisky / Whiskey",
-        "dbFile": "data/db/bcl__whisky__28758adc.json"
-      },
-      "cheapest": {
-        "price": "$69.99",
-        "priceNum": 69.99,
-        "storeKey": "bcl",
-        "url": "https://www.bcliquorstores.com/product/309562"
       }
     },
     {
