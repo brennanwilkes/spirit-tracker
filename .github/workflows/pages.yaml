@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
 
     steps:
       - name: Checkout data branch
@@ -171,15 +171,43 @@ jobs:
         with:
           path: viz
 
+      # deploy-pages lists this run's artifacts right after the upload, and that listing is
+      # eventually consistent: on 2026-11-24/25 about half the deploys failed, seeing either 0
+      # artifacts (run 45676446886: the upload finalized at :19.88, the lookup at :20.35 found
+      # nothing, and the lookup in "Diagnose" half a second later found it) or "Artifact count
+      # is 3" for a run that uploaded one, with githubstatus green. So wait until the listing
+      # shows exactly one, and retry the deploy once if it still fails.
+      - name: Wait for artifact to be listed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 30); do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+              --jq '[.artifacts[] | select(.name == "github-pages")] | length') || n="?"
+            echo "poll $i: github-pages artifacts listed = $n"
+            if [ "$n" = "1" ]; then exit 0; fi
+            sleep 2
+          done
+          echo "::warning::artifact listing never settled on exactly one github-pages artifact; deploying anyway"
+
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
 
-      # Diagnostics for the intermittent "Multiple artifacts named github-pages" deploy failure
-      # (2026-11-24/25, during a GitHub Actions incident). Records what the artifact store held
-      # when deploy-pages failed, and whether githubstatus had an open incident.
+      - name: Wait before deploy retry
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "::warning::deploy-pages failed on the first attempt; retrying in 30s"
+          sleep 30
+
+      - name: Deploy to GitHub Pages (retry)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+
       - name: Diagnose failed deploy
-        if: failure() && steps.deployment.outcome == 'failure'
+        if: failure() && steps.deployment_retry.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
