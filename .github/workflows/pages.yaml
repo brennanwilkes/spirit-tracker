@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -173,3 +174,30 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Diagnostics for the intermittent "Multiple artifacts named github-pages" deploy failure
+      # (2026-11-24/25, during a GitHub Actions incident). Records what the artifact store held
+      # when deploy-pages failed, and whether githubstatus had an open incident.
+      - name: Diagnose failed deploy
+        if: failure() && steps.deployment.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "run_id=$GITHUB_RUN_ID attempt=$GITHUB_RUN_ATTEMPT sha=$GITHUB_SHA"
+          arts=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+            --jq '.artifacts[] | "  \(.name) id=\(.id) created=\(.created_at) run=\(.workflow_run.id) expired=\(.expired)"' 2>&1) || true
+          echo "artifacts visible to this run:"
+          echo "$arts"
+          status=$(curl -fsS --max-time 10 https://www.githubstatus.com/api/v2/summary.json \
+            | python3 -c "import sys,json;d=json.load(sys.stdin);print(d['status']['description']+' | '+'; '.join(i['name'] for i in d['incidents']))" 2>&1) || status="githubstatus unreachable"
+          echo "githubstatus: $status"
+          {
+            echo "### Pages deploy failed"
+            echo "- run \`$GITHUB_RUN_ID\` attempt $GITHUB_RUN_ATTEMPT"
+            echo "- githubstatus: $status"
+            echo "- artifacts:"
+            echo '```'
+            echo "$arts"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::deploy-pages failed | githubstatus: $status"
