@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T19:33:49.741Z",
+  "generatedAt": "2026-11-27T19:54:31.051Z",
   "args": {
     "top": 1000,
     "minStores": 2,
@@ -40,9 +40,9 @@
     "zyn"
   ],
   "totals": {
-    "liveRows": 18804,
-    "removedRows": 9403,
-    "canonSkus": 5968,
+    "liveRows": 18797,
+    "removedRows": 9411,
+    "canonSkus": 5969,
     "outputCount": 1000
   },
   "rows": [
@@ -1205,7 +1205,7 @@
         "coop": 149.99,
         "craftcellars": 149.99,
         "kegncork": 149.96,
-        "kwm": 152.99,
+        "kwm": 122.39,
         "lime": 137.99,
         "liquorama": 139.99,
         "maltsandgrains": 159.89,
@@ -2811,7 +2811,7 @@
         "craftcellars": 52.99,
         "highlander": 53.99,
         "kegncork": 52.96,
-        "kwm": 53.99,
+        "kwm": 37.79,
         "lime": 48.99,
         "liquorama": 47.99,
         "maltsandgrains": 56.12,
@@ -2822,22 +2822,22 @@
         "zyn": 42.5
       },
       "representative": {
-        "name": "High West Straight Bourbon Whiskey",
-        "price": "$42.50",
-        "priceNum": 42.5,
-        "storeKey": "zyn",
-        "storeLabel": "ZYN The Wine Market",
+        "name": "High West Bourbon",
+        "price": "$37.79",
+        "priceNum": 37.79,
+        "storeKey": "kwm",
+        "storeLabel": "Kensington Wine Market",
         "skuRaw": "775901",
         "skuKey": "775901",
-        "url": "https://zyn.ca/products/high-west-american-prairie-straight-bourbon-whiskey",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/zyn__whisky__d5d4cd07.json"
+        "url": "https://kensingtonwinemarket.com/product/775901/high-west-bourbon",
+        "categoryLabel": "Scotch",
+        "dbFile": "data/db/kwm__scotch__2b16b533.json"
       },
       "cheapest": {
-        "price": "$42.50",
-        "priceNum": 42.5,
-        "storeKey": "zyn",
-        "url": "https://zyn.ca/products/high-west-american-prairie-straight-bourbon-whiskey"
+        "price": "$37.79",
+        "priceNum": 37.79,
+        "storeKey": "kwm",
+        "url": "https://kensingtonwinemarket.com/product/775901/high-west-bourbon"
       }
     },
     {
@@ -2875,7 +2875,7 @@
         "clbspirits": 86.8,
         "craftcellars": 122.99,
         "kegncork": 109.96,
-        "kwm": 109.99,
+        "kwm": 87.99,
         "lime": 92,
         "maltsandgrains": 116.48,
         "sierrasprings": 89.99,
@@ -6419,7 +6419,7 @@
         "clbspirits": 60.35,
         "craftcellars": 58.99,
         "kegncork": 76.96,
-        "kwm": 56.24,
+        "kwm": 74.99,
         "lime": 74.99,
         "liquorama": 69.99,
         "sierrasprings": 55.99,
@@ -17643,65 +17643,6 @@
       }
     },
     {
-      "canonSku": "015548",
-      "storeCount": 9,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "kegncork",
-        "kwm",
-        "lime",
-        "maltsandgrains",
-        "silversprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "elbowliquor",
-        "highlander",
-        "liquorama",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 115,
-        "clbspirits": 111.59,
-        "kegncork": 129.96,
-        "kwm": 129.99,
-        "lime": 116.99,
-        "maltsandgrains": 139.89,
-        "silversprings": 123.67,
-        "wineandbeyond": 124.99,
-        "zyn": 120
-      },
-      "representative": {
-        "name": "Glen Scotia Victoriana 750ml",
-        "price": "$111.59",
-        "priceNum": 111.59,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "774969",
-        "skuKey": "774969",
-        "url": "https://clbspirits.com/products/glen-scotia-victoriana-cask",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$111.59",
-        "priceNum": 111.59,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/glen-scotia-victoriana-cask"
-      }
-    },
-    {
       "canonSku": "017263",
       "storeCount": 9,
       "stores": [
@@ -23468,6 +23409,64 @@
         "priceNum": 31.8,
         "storeKey": "zyn",
         "url": "https://zyn.ca/products/bushmills-original"
+      }
+    },
+    {
+      "canonSku": "015548",
+      "storeCount": 8,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "kegncork",
+        "lime",
+        "maltsandgrains",
+        "silversprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "elbowliquor",
+        "highlander",
+        "kwm",
+        "liquorama",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 115,
+        "clbspirits": 111.59,
+        "kegncork": 129.96,
+        "lime": 116.99,
+        "maltsandgrains": 139.89,
+        "silversprings": 123.67,
+        "wineandbeyond": 124.99,
+        "zyn": 120
+      },
+      "representative": {
+        "name": "Glen Scotia Victoriana 750ml",
+        "price": "$111.59",
+        "priceNum": 111.59,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "774969",
+        "skuKey": "774969",
+        "url": "https://clbspirits.com/products/glen-scotia-victoriana-cask",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$111.59",
+        "priceNum": 111.59,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/glen-scotia-victoriana-cask"
       }
     },
     {
@@ -32272,6 +32271,63 @@
         "priceNum": 45.47,
         "storeKey": "zyn",
         "url": "https://zyn.ca/products/glendalough-wild-botanical-gin"
+      }
+    },
+    {
+      "canonSku": "004765",
+      "storeCount": 7,
+      "stores": [
+        "bsw",
+        "clbspirits",
+        "kwm",
+        "lime",
+        "sierrasprings",
+        "wineandbeyond",
+        "zyn"
+      ],
+      "missingStores": [
+        "canadianliquor",
+        "colordevino",
+        "coop",
+        "craftcellars",
+        "elbowliquor",
+        "highlander",
+        "kegncork",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "silversprings",
+        "vinearts",
+        "whiskydrop",
+        "willowpark"
+      ],
+      "storePrices": {
+        "bsw": 96.99,
+        "clbspirits": 83.66,
+        "kwm": 97.99,
+        "lime": 89.99,
+        "sierrasprings": 97.03,
+        "wineandbeyond": 92.99,
+        "zyn": 90
+      },
+      "representative": {
+        "name": "Paul John Peated Select Cask Indian Single Malt 55.5 ABV 750ml",
+        "price": "$83.66",
+        "priceNum": 83.66,
+        "storeKey": "clbspirits",
+        "storeLabel": "CLB Spirits",
+        "skuRaw": "794968",
+        "skuKey": "794968",
+        "url": "https://clbspirits.com/products/paul-john-peated-select-cask-indian-sing",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$83.66",
+        "priceNum": 83.66,
+        "storeKey": "clbspirits",
+        "url": "https://clbspirits.com/products/paul-john-peated-select-cask-indian-sing"
       }
     },
     {
@@ -43556,62 +43612,6 @@
       }
     },
     {
-      "canonSku": "004765",
-      "storeCount": 6,
-      "stores": [
-        "bsw",
-        "clbspirits",
-        "lime",
-        "sierrasprings",
-        "wineandbeyond",
-        "zyn"
-      ],
-      "missingStores": [
-        "canadianliquor",
-        "colordevino",
-        "coop",
-        "craftcellars",
-        "elbowliquor",
-        "highlander",
-        "kegncork",
-        "kwm",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "silversprings",
-        "vinearts",
-        "whiskydrop",
-        "willowpark"
-      ],
-      "storePrices": {
-        "bsw": 96.99,
-        "clbspirits": 83.66,
-        "lime": 89.99,
-        "sierrasprings": 97.03,
-        "wineandbeyond": 92.99,
-        "zyn": 90
-      },
-      "representative": {
-        "name": "Paul John Peated Select Cask Indian Single Malt 55.5 ABV 750ml",
-        "price": "$83.66",
-        "priceNum": 83.66,
-        "storeKey": "clbspirits",
-        "storeLabel": "CLB Spirits",
-        "skuRaw": "794968",
-        "skuKey": "794968",
-        "url": "https://clbspirits.com/products/paul-john-peated-select-cask-indian-sing",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/clbspirits__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$83.66",
-        "priceNum": 83.66,
-        "storeKey": "clbspirits",
-        "url": "https://clbspirits.com/products/paul-john-peated-select-cask-indian-sing"
-      }
-    },
-    {
       "canonSku": "004791",
       "storeCount": 6,
       "stores": [
@@ -51396,62 +51396,6 @@
       }
     },
     {
-      "canonSku": "712323",
-      "storeCount": 6,
-      "stores": [
-        "clbspirits",
-        "coop",
-        "craftcellars",
-        "kwm",
-        "willowpark",
-        "zyn"
-      ],
-      "missingStores": [
-        "bsw",
-        "canadianliquor",
-        "colordevino",
-        "elbowliquor",
-        "highlander",
-        "kegncork",
-        "lime",
-        "liquorama",
-        "maltsandgrains",
-        "rmwsb",
-        "sherbrooke",
-        "sierrasprings",
-        "silversprings",
-        "vinearts",
-        "whiskydrop",
-        "wineandbeyond"
-      ],
-      "storePrices": {
-        "clbspirits": 76.01,
-        "coop": 89.99,
-        "craftcellars": 87.99,
-        "kwm": 87.99,
-        "willowpark": 88.99,
-        "zyn": 71.4
-      },
-      "representative": {
-        "name": "The Arran Sauternes Cask Finish",
-        "price": "$71.40",
-        "priceNum": 71.4,
-        "storeKey": "zyn",
-        "storeLabel": "ZYN The Wine Market",
-        "skuRaw": "724819",
-        "skuKey": "724819",
-        "url": "https://zyn.ca/products/the-arran-sauternes-cask-finish",
-        "categoryLabel": "Whisky",
-        "dbFile": "data/db/zyn__whisky__d5d4cd07.json"
-      },
-      "cheapest": {
-        "price": "$71.40",
-        "priceNum": 71.4,
-        "storeKey": "zyn",
-        "url": "https://zyn.ca/products/the-arran-sauternes-cask-finish"
-      }
-    },
-    {
       "canonSku": "730245",
       "storeCount": 6,
       "stores": [
@@ -56478,6 +56422,61 @@
         "priceNum": 31.11,
         "storeKey": "zyn",
         "url": "https://zyn.ca/products/the-busker-triple-cask-blend-irish-whiskey"
+      }
+    },
+    {
+      "canonSku": "712323",
+      "storeCount": 5,
+      "stores": [
+        "clbspirits",
+        "coop",
+        "craftcellars",
+        "willowpark",
+        "zyn"
+      ],
+      "missingStores": [
+        "bsw",
+        "canadianliquor",
+        "colordevino",
+        "elbowliquor",
+        "highlander",
+        "kegncork",
+        "kwm",
+        "lime",
+        "liquorama",
+        "maltsandgrains",
+        "rmwsb",
+        "sherbrooke",
+        "sierrasprings",
+        "silversprings",
+        "vinearts",
+        "whiskydrop",
+        "wineandbeyond"
+      ],
+      "storePrices": {
+        "clbspirits": 76.01,
+        "coop": 89.99,
+        "craftcellars": 87.99,
+        "willowpark": 88.99,
+        "zyn": 71.4
+      },
+      "representative": {
+        "name": "The Arran Sauternes Cask Finish",
+        "price": "$71.40",
+        "priceNum": 71.4,
+        "storeKey": "zyn",
+        "storeLabel": "ZYN The Wine Market",
+        "skuRaw": "724819",
+        "skuKey": "724819",
+        "url": "https://zyn.ca/products/the-arran-sauternes-cask-finish",
+        "categoryLabel": "Whisky",
+        "dbFile": "data/db/zyn__whisky__d5d4cd07.json"
+      },
+      "cheapest": {
+        "price": "$71.40",
+        "priceNum": 71.4,
+        "storeKey": "zyn",
+        "url": "https://zyn.ca/products/the-arran-sauternes-cask-finish"
       }
     },
     {
